@@ -92,9 +92,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.35"
-     inkscape:cx="672.54543"
-     inkscape:cy="247.15007"
+     inkscape:zoom="0.24748737"
+     inkscape:cx="794.90519"
+     inkscape:cy="418.16409"
      inkscape:document-units="px"
      inkscape:current-layer="layer1-1"
      showgrid="false"
@@ -224,7 +224,7 @@
            inkscape:export-ydpi="29.046898"
            inkscape:export-xdpi="29.046898"
            inkscape:export-filename="/user/dbarbeau/home/Devel/openalea/trunk/secondnature/src/openalea/secondnature/builtins/resources/logger.png"
-           transform="translate(865.56651,65.205414)"
+           transform="translate(958.50054,-322.69316)"
            id="g4153">
           <path
              style="fill:none;stroke:#00ff00;stroke-width:40;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
@@ -262,6 +262,65 @@
              id="path4098-8"
              inkscape:connector-curvature="0"
              sodipodi:nodetypes="cc" />
+        </g>
+        <g
+           id="g4189"
+           inkscape:export-filename="/user/dbarbeau/home/Devel/openalea/trunk/secondnature/src/openalea/secondnature/builtins/resources/projectmanager.png"
+           inkscape:export-xdpi="29.046898"
+           inkscape:export-ydpi="29.046898">
+          <path
+             inkscape:transform-center-y="-8.8842006"
+             inkscape:transform-center-x="-1.6666018"
+             transform="matrix(0.96509087,-0.26191526,0.26191526,0.96509087,-220.24616,-45.157734)"
+             d="m 404.73238,749.31641 -65.36582,32.25996 -10.48189,72.13545 -50.8802,-52.1977 -71.84398,12.3222 33.92013,-64.51991 -33.92013,-64.51992 71.84398,12.3222 50.8802,-52.1977 10.48189,72.13546 z"
+             inkscape:randomized="0"
+             inkscape:rounded="0"
+             inkscape:flatsided="false"
+             sodipodi:arg2="0.62831853"
+             sodipodi:arg1="0"
+             sodipodi:r2="54.883923"
+             sodipodi:r1="109.76784"
+             sodipodi:cy="749.31641"
+             sodipodi:cx="294.96454"
+             sodipodi:sides="5"
+             id="path4183"
+             style="fill:#00ff00;fill-opacity:1;stroke:#00ff00;stroke-width:36.3999939;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+             sodipodi:type="star" />
+          <path
+             inkscape:transform-center-x="-12.353033"
+             transform="translate(-34.285709,-148.57143)"
+             d="m 626.3577,898.81897 -77.03436,38.01873 -12.35303,85.0125 -59.96288,-61.51564 -84.66895,14.52186 39.97526,-76.03745 -39.97526,-76.03745 84.66895,14.52186 59.96288,-61.51559 12.35303,85.01245 z"
+             inkscape:randomized="0"
+             inkscape:rounded="0"
+             inkscape:flatsided="false"
+             sodipodi:arg2="0.62831853"
+             sodipodi:arg1="0"
+             sodipodi:r2="64.681322"
+             sodipodi:r1="129.36264"
+             sodipodi:cy="898.819"
+             sodipodi:cx="496.99505"
+             sodipodi:sides="5"
+             id="path4185"
+             style="fill:#00ff00;fill-opacity:1;stroke:#00ff00;stroke-width:36.3999939;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+             sodipodi:type="star" />
+          <path
+             inkscape:transform-center-y="2.8707087"
+             inkscape:transform-center-x="11.439847"
+             transform="matrix(0.97598427,-0.217841,0.217841,0.97598427,-197.53842,-64.934368)"
+             d="m 291.00161,1060.521 -93.5041,-31.7081 -79.12932,59.0506 1.26189,-98.72605 -80.612769,-57.00881 94.283989,-29.3079 29.3079,-94.28399 57.00882,80.61277 98.72604,-1.26189 -59.05061,79.12932 z"
+             inkscape:randomized="0"
+             inkscape:rounded="0"
+             inkscape:flatsided="false"
+             sodipodi:arg2="1.4137167"
+             sodipodi:arg1="0.78539816"
+             sodipodi:r2="74.340637"
+             sodipodi:r1="148.68127"
+             sodipodi:cy="955.38751"
+             sodipodi:cx="185.86807"
+             sodipodi:sides="5"
+             id="path4187"
+             style="fill:#00ff00;fill-opacity:1;stroke:#00ff00;stroke-width:36.3999939;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+             sodipodi:type="star" />
         </g>
       </g>
     </g>
