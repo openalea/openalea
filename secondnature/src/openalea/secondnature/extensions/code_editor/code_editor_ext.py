@@ -29,13 +29,15 @@ import urlparse
 import os.path as path
 import inspect
 
+import code_editor_icons
 
 class DT_Text(DataType):
-    __name__        = "Text"
+    __name__      = "Text"
     __mimetypes__ = ["text/plain",
                      "application/x-qt-windows-mime;value=\"FileName\"",
                      NodeFactory.mimetype,
                      CompositeNodeFactory.mimetype]
+    __icon_rc__   = ":icons/text.png"
 
     def __init__(self):
         DataType.__init__(self)

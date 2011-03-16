@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.1 r9760"
+   sodipodi:docname="icons.svg">
+  <defs
+     id="defs4">
+    <filter
+       id="filter3821"
+       inkscape:label="Drop shadow"
+       width="1.5"
+       height="1.5"
+       x="-.25"
+       y="-.25">
+      <feGaussianBlur
+         id="feGaussianBlur3823"
+         in="SourceAlpha"
+         stdDeviation="6.1"
+         result="blur" />
+      <feColorMatrix
+         id="feColorMatrix3825"
+         result="bluralpha"
+         type="matrix"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0.485 0 " />
+      <feOffset
+         id="feOffset3827"
+         in="bluralpha"
+         dx="0"
+         dy="0"
+         result="offsetBlur" />
+      <feMerge
+         id="feMerge3829">
+        <feMergeNode
+           id="feMergeNode3831"
+           in="offsetBlur" />
+        <feMergeNode
+           id="feMergeNode3833"
+           in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.35"
+     inkscape:cx="50.546546"
+     inkscape:cy="312.45373"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1440"
+     inkscape:window-height="843"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:snap-grids="false"
+     inkscape:snap-to-guides="false"
+     inkscape:object-paths="false"
+     inkscape:snap-midpoints="true"
+     inkscape:object-nodes="false"
+     inkscape:snap-object-midpoints="true"
+     inkscape:snap-global="false" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       inkscape:export-ydpi="29.046898"
+       inkscape:export-xdpi="29.046898"
+       style="fill:none;stroke:#c3a500;stroke-width:40;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;"
+       d="m -511.42858,72.362183 c 162.85715,-42.85714 402.85715,122.857137 185.71429,368.571427 -217.14285,245.71428 -265.71428,-497.142857 -420,-240"
+       id="path2985"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/user/dbarbeau/home/Devel/openalea/trunk/secondnature/src/openalea/secondnature/extensions/plantgl/resources/curve2D.png" />
+    <path
+       style="fill:none;stroke:#c3a500;stroke-width:40;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;"
+       d="M 554.70216,348.85183 C 448.98788,365.99469 408.68463,604.13692 308.98788,577.42326 156.8086,536.64694 214.70217,-31.14817 60.416448,225.99469"
+       id="path2985-5"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="csc"
+       inkscape:export-filename="/user/dbarbeau/home/Devel/openalea/trunk/secondnature/src/openalea/secondnature/extensions/plantgl/resources/function.png"
+       inkscape:export-xdpi="29.046898"
+       inkscape:export-ydpi="29.046898" />
+    <g
+       id="g3906"
+       style="stroke:#c3a500;stroke-opacity:1;stroke-width:8.80000000000000071;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter3821)" />
+    <g
+       id="g3965"
+       transform="translate(-28.571429,182.85714)"
+       inkscape:export-filename="/user/dbarbeau/home/Devel/openalea/trunk/secondnature/src/openalea/secondnature/extensions/plantgl/resources/patch.png"
+       inkscape:export-xdpi="29.865973"
+       inkscape:export-ydpi="29.865973">
+      <g
+         transform="translate(-57.142857,768.57143)"
+         style="filter:url(#filter3821)"
+         id="g3953" />
+    </g>
+    <g
+       id="g4295"
+       style="stroke:#c3a500;stroke-opacity:1"
+       inkscape:export-filename="/user/dbarbeau/home/Devel/openalea/trunk/secondnature/src/openalea/secondnature/extensions/plantgl/resources/nurbspatch.png"
+       inkscape:export-xdpi="29.046898"
+       inkscape:export-ydpi="29.046898">
+      <path
+         inkscape:connector-curvature="0"
+         id="path4289"
+         d="m -882.85714,892.36218 c 8.57143,142.85712 -122.85716,305.71432 -122.85716,305.71432 0,0 74.28573,-5.7143 194.28573,2.8571 120,8.5714 305.71428,142.8572 305.71428,142.8572 0,0 114.28572,-174.2858 125.71429,-251.4286 11.42857,-77.1429 -11.42857,-151.42858 -11.42857,-151.42858 0,0 -125.71429,14.28571 -174.28572,11.42857 -48.57142,-2.85715 -317.14285,-60.00001 -317.14285,-60.00001 z"
+         style="fill:none;stroke:#c3a500;stroke-width:40;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path4291"
+         d="m -660,949.50504 c 20,105.71426 -60,265.71426 -60,265.71426"
+         style="fill:none;stroke:#c3a500;stroke-width:20;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path4293"
+         d="m -902.85714,1040.9336 c 205.71428,-5.7143 497.14285,131.4286 497.14285,131.4286"
+         style="fill:none;stroke:#c3a500;stroke-width:20;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none" />
+    </g>
+    <g
+       id="g4343"
+       inkscape:export-filename="/user/dbarbeau/home/Devel/openalea/trunk/secondnature/src/openalea/secondnature/extensions/plantgl/resources/interpolatedprofile.png"
+       inkscape:export-xdpi="29.046898"
+       inkscape:export-ydpi="29.046898">
+      <path
+         inkscape:export-ydpi="29.046898"
+         inkscape:export-xdpi="29.046898"
+         inkscape:export-filename="/user/dbarbeau/home/Devel/openalea/trunk/secondnature/src/openalea/secondnature/extensions/plantgl/resources/function.png"
+         sodipodi:nodetypes="csc"
+         inkscape:connector-curvature="0"
+         id="path2985-5-8"
+         d="M 690,968.89304 C 584.28572,986.0359 543.98247,1224.1781 444.28572,1197.4645 292.10644,1156.6881 350.00001,588.89304 195.71429,846.0359"
+         style="fill:none;stroke:#c3a500;stroke-width:40;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <path
+         inkscape:export-ydpi="29.046898"
+         inkscape:export-xdpi="29.046898"
+         inkscape:export-filename="/user/dbarbeau/home/Devel/openalea/trunk/secondnature/src/openalea/secondnature/extensions/plantgl/resources/function.png"
+         sodipodi:nodetypes="csc"
+         inkscape:connector-curvature="0"
+         id="path2985-5-5"
+         d="m 618.57143,1263.1788 c -105.71428,17.1428 -211.73182,75.2851 -311.42857,48.5714 -152.17928,-40.7763 -165.71428,-291.4286 -320.000002,-34.2857"
+         style="fill:none;stroke:#57a500;stroke-width:40;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <path
+         inkscape:export-ydpi="29.046898"
+         inkscape:export-xdpi="29.046898"
+         inkscape:export-filename="/user/dbarbeau/home/Devel/openalea/trunk/secondnature/src/openalea/secondnature/extensions/plantgl/resources/function.png"
+         sodipodi:nodetypes="csc"
+         inkscape:connector-curvature="0"
+         id="path2985-5-8-7"
+         d="m 678.57143,1046.0359 c -105.71428,17.1428 -231.73182,220.9993 -331.42857,194.2857 -152.17928,-40.7764 -140,-434.28572 -294.285715,-177.1429"
+         style="fill:none;stroke:#79a500;stroke-width:40;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:0.73311895;stroke-dasharray:none" />
+    </g>
+  </g>
+</svg>

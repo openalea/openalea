@@ -20,11 +20,12 @@ __revision__ = " $Id$ "
 from openalea.secondnature.api import *
 
 import urlparse
-
+import plantgl_icons
 
 class DT_Curve(DataTypeNoOpen):
     __name__      = "Curve2D"
     __mimetypes__ =  ["application/plantgl-curve"]
+    __icon_rc__   = ":icons/curve2D.png"
 
     def new(self):
         from vplants.plantgl.gui import curve2deditor
@@ -40,6 +41,7 @@ class DT_Curve(DataTypeNoOpen):
 class DT_Function(DataTypeNoOpen):
     __name__      = "Function2D"
     __mimetypes__ = ["application/plantgl-function"]
+    __icon_rc__   = ":icons/function.png"
 
     def new(self):
         from vplants.plantgl.gui import curve2deditor
@@ -55,6 +57,7 @@ class DT_Function(DataTypeNoOpen):
 class DT_NurbsPatch(DataTypeNoOpen):
     __name__      = "NurbsPatch"
     __mimetypes__ =  ["application/plantgl-nurbspatch"]
+    __icon_rc__   = ":icons/nurbspatch.png"
 
     def new(self):
         from vplants.plantgl.gui import nurbspatcheditor
@@ -66,6 +69,7 @@ class DT_NurbsPatch(DataTypeNoOpen):
 class DT_InterpolatedProfile(DataTypeNoOpen):
     __name__ = "InterpolatedProfile"
     __mimetypes__ = ["application/plantgl-interpolatedcurve"]
+    __icon_rc__   = ":icons/interpolatedprofile.png"
 
     def new(self):
         from vplants.plantgl.scenegraph.interpolated_profile import CrossSection

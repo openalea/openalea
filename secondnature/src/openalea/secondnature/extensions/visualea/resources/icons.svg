@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.1 r9760"
+   sodipodi:docname="icons.svg">
+  <defs
+     id="defs4">
+    <filter
+       id="filter3821"
+       inkscape:label="Drop shadow"
+       width="1.5"
+       height="1.5"
+       x="-.25"
+       y="-.25">
+      <feGaussianBlur
+         id="feGaussianBlur3823"
+         in="SourceAlpha"
+         stdDeviation="6.1"
+         result="blur" />
+      <feColorMatrix
+         id="feColorMatrix3825"
+         result="bluralpha"
+         type="matrix"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0.485 0 " />
+      <feOffset
+         id="feOffset3827"
+         in="bluralpha"
+         dx="0"
+         dy="0"
+         result="offsetBlur" />
+      <feMerge
+         id="feMerge3829">
+        <feMergeNode
+           id="feMergeNode3831"
+           in="offsetBlur" />
+        <feMergeNode
+           id="feMergeNode3833"
+           in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.35"
+     inkscape:cx="-801.15825"
+     inkscape:cy="562.31839"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1440"
+     inkscape:window-height="843"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:snap-grids="false"
+     inkscape:snap-to-guides="false"
+     inkscape:object-paths="false"
+     inkscape:snap-midpoints="true"
+     inkscape:object-nodes="false"
+     inkscape:snap-object-midpoints="true"
+     inkscape:snap-global="false" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g3906"
+       style="stroke:#c3a500;stroke-opacity:1;stroke-width:8.80000000000000071;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter3821)" />
+    <g
+       id="g3965"
+       transform="translate(-28.571429,182.85714)"
+       inkscape:export-filename="/user/dbarbeau/home/Devel/openalea/trunk/secondnature/src/openalea/secondnature/extensions/plantgl/resources/patch.png"
+       inkscape:export-xdpi="29.865973"
+       inkscape:export-ydpi="29.865973">
+      <g
+         transform="translate(-57.142857,768.57143)"
+         style="filter:url(#filter3821)"
+         id="g3953" />
+    </g>
+    <g
+       id="g3886"
+       inkscape:export-filename="/user/dbarbeau/home/Devel/openalea/trunk/secondnature/src/openalea/secondnature/extensions/visualea/resources/dataflow.png"
+       inkscape:export-xdpi="29.046898"
+       inkscape:export-ydpi="29.046898">
+      <path
+         sodipodi:nodetypes="cc"
+         inkscape:connector-curvature="0"
+         id="path3810-2"
+         d="M -501.42857,588.07646 -295.71428,355.21933"
+         style="fill:none;stroke:#000000;stroke-width:40;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <path
+         sodipodi:nodetypes="cc"
+         inkscape:connector-curvature="0"
+         id="path3810-44"
+         d="m -835.71429,356.64791 188.57144,224.2857"
+         style="fill:none;stroke:#000000;stroke-width:40;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <rect
+         y="184.25414"
+         x="-1012.8572"
+         height="169.57509"
+         width="355.3002"
+         id="rect3006"
+         style="fill:#59f755;fill-opacity:1;stroke:#474646;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+      <rect
+         y="580.93365"
+         x="-749.56488"
+         height="171.64493"
+         width="359.63699"
+         id="rect3006-5"
+         style="fill:#ee9e2e;fill-opacity:1;stroke:#474646;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+      <rect
+         y="184.25414"
+         x="-481.93579"
+         height="169.57509"
+         width="355.3002"
+         id="rect3006-4"
+         style="fill:#2b82c0;fill-opacity:1;stroke:#474646;stroke-width:20;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+    </g>
+  </g>
+</svg>

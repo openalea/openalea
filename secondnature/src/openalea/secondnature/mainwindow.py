@@ -125,9 +125,12 @@ class MainWindow(QtGui.QMainWindow):
         elif mimeData.hasFormat(ProjectManager.mimeformat):
             event.acceptProposedAction()
 
-    def __applet_factory_from_mime_formats(self, formats):
+    def __handler_from_mime_formats(self, formats, applet=True):
         formats = map(str, formats)
-        handlers = AppletFactoryManager().get_handlers_for_mimedata(formats)
+        if applet:
+            handlers = AppletFactoryManager().get_handlers_for_mimedata(formats)
+        else:
+            handlers = DataTypeManager().get_handlers_for_mimedata(formats)
 #        print handlers
         nbHandlers = len(handlers)
         if nbHandlers == 0:
@@ -143,23 +146,6 @@ class MainWindow(QtGui.QMainWindow):
                 fac = filter(lambda x: x.name == facName, handlers)[0]
         return fac
 
-    def __datatype_from_mime_formats(self, formats):
-        formats = map(str, formats)
-        handlers = DataTypeManager().get_handlers_for_mimedata(formats)
-#        print handlers
-        nbHandlers = len(handlers)
-        if nbHandlers == 0:
-            return
-        elif nbHandlers == 1:
-            dt = handlers[0]
-        elif nbHandlers > 1:
-            selector = DataEditorSelector( [h.name for h in handlers], self )
-            if selector.exec_() == QtGui.QDialog.Rejected:
-                return
-            else:
-                dtName = selector.get_selected()
-                dt = filter(lambda x: x.name == dtName, handlers)[0]
-        return dt
 
     def __on_splitter_pane_drop(self, paneId, event):
         mimeData = event.mimeData()
@@ -174,7 +160,7 @@ class MainWindow(QtGui.QMainWindow):
         if mimeData.hasUrls():
             formats = mimeData.formats()
             url = str(mimeData.urls()[0].toString())
-            dt = self.__datatype_from_mime_formats(formats)
+            dt = self.__handler_from_mime_formats(formats, applet=False)
             if not dt:
                 return
             parsedUrl = urlparse.urlparse(url)
@@ -182,7 +168,7 @@ class MainWindow(QtGui.QMainWindow):
             if not data:
                 return
             self.__register_data(data)
-            app = self.__applet_factory_from_mime_formats([data.mimetype])
+            app = self.__handler_from_mime_formats([data.mimetype], applet=True)
             if not app:
                 return
 
@@ -193,7 +179,7 @@ class MainWindow(QtGui.QMainWindow):
                 if ok and proj:
                     data = proj.get_data(dataId)
                     if data:
-                        app = self.__applet_factory_from_mime_formats([data.mimetype])
+                        app = self.__handler_from_mime_formats([data.mimetype], applet=True)
 
         print proj, data
         # first try to retreive the space associated to this data
@@ -266,9 +252,11 @@ class MainWindow(QtGui.QMainWindow):
                 self.__setSpaceAt(paneId, space)
         self.__currentLayout = layoutName
 
+
     ######################
     # Pane Menu handlers #
     ######################
+
     # Each time the user presses the "+" button of a pane a new menu
     # is created and it's actions are bound to new slots created on
     # the fly by the following "__make_*_pane_handler methods.
@@ -287,22 +275,22 @@ class MainWindow(QtGui.QMainWindow):
         action = menu.addAction("Clear")
         action.triggered.connect(self.__make_clear_pane_handler(paneId))
 
-        appletMenu = menu.addMenu("Applets...")
-        appFactories = AppletFactoryManager().gather_items()
-        applets      = sorted(appFactories.itervalues(), lambda x,y: cmp(x.name, y.name))
-        for applet in applets:
-            #appMenu = appletMenu.addMenu(applet.name)
-            datatypes = sorted(applet.get_data_types(), lambda x,y: cmp(x.name, y.name))
-            for dt in datatypes:
-                action = appletMenu.addAction(dt.name)
-                func = self.__make_new_applet_pane_handler(proj, paneId, dt)
-                action.triggered.connect(func)
+        appletMenu   = menu.addMenu("Applets...")
+        datatypes    = list(DataTypeManager().gather_items().itervalues())
+
+        datatypes.sort(cmp = lambda x,y:cmp(x.name, y.name))
+        for dt in datatypes:
+            action = appletMenu.addAction(dt.get_icon(), dt.name)
+            action.setIconVisibleInMenu(True)
+            func = self.__make_new_applet_pane_handler(proj, paneId, dt)
+            action.triggered.connect(func)
 
         if proj:
             dataMenu = menu.addMenu("Project Data...")
             for id, data in proj:
                 srcName = data.name
-                action = dataMenu.addAction(srcName)
+                action = dataMenu.addAction(data.icon, srcName)
+                action.setIconVisibleInMenu(True)
                 func = self.__make_data_pane_handler(proj, paneId, data)
                 action.triggered.connect(func)
         menu.popup(pos)
@@ -315,13 +303,13 @@ class MainWindow(QtGui.QMainWindow):
 
     def __make_new_applet_pane_handler(self, proj, paneId, datatype):
         def on_applet_chosen(checked):
-            data = datatype.new()
+            data = datatype.new_0()
             if data is None:
                 self.logger.debug("on_applet_chosen has None data for "+ \
                                   str(datatype.mimetypes))
                 return
             self.__register_data(data)
-            fac = self.__applet_factory_from_mime_formats([data.mimetype])
+            fac = self.__handler_from_mime_formats([data.mimetype], applet=True)
             if not fac:
                 self.logger.debug("on_applet_chosen has None factory for " + \
                                   data.mimetype)
@@ -348,7 +336,6 @@ class MainWindow(QtGui.QMainWindow):
         return func
 
 
-
     ####################################
     # SPACE CONTENT MANAGEMENT METHODS #
     ####################################
@@ -367,6 +354,7 @@ class MainWindow(QtGui.QMainWindow):
 
         self.__splittable = s
         self.setCentralWidget(s)
+        s.full_sticky_check()
         s.paneMenuRequest.connect(self.__onPaneMenuRequest)
         s.dragEnterEventTest.connect(self.__on_splitter_drag_enter)
         s.dropHandlerRequest.connect(self.__on_splitter_pane_drop)

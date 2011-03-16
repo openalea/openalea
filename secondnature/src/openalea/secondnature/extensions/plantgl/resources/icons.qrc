@@ -1,0 +1,8 @@
+<RCC>
+	<qresource prefix="/icons" >
+		<file>curve2D.png</file>
+		<file>function.png</file>
+		<file>nurbspatch.png</file>
+		<file>interpolatedprofile.png</file>		
+	</qresource>
+</RCC>

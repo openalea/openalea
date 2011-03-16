@@ -18,16 +18,24 @@ __revision__ = " $Id$ "
 
 from openalea.secondnature.base_mixins import HasName
 
+from PyQt4 import QtGui
 
 
 class DataType(HasName):
     __name__ = ""
     __mimetypes__ = []
     __supports_open__ = True
+    __icon_rc__ = None
 
     def __init__(self):
         HasName.__init__(self, self.__name__)
         self.__mimetypes = self.__mimetypes__[:]
+
+        # -- icon--
+        if self.__icon_rc__:
+            self.__icon = QtGui.QIcon(self.__icon_rc__)
+        else:
+            self.__icon = QtGui.QIcon()
 
     def new_0(self):
         data = self.new()
@@ -41,7 +49,7 @@ class DataType(HasName):
         raise NotImplementedError
 
     def get_icon(self):
-        return NotImplementedError
+        return self.__icon
 
     def supports_open(self):
         return self.__supports_open__
@@ -68,9 +76,16 @@ class Data(HasName):
     def get_inner_property(self, key):
         return self.__props.get(key)
 
+    @property
+    def icon(self):
+        if self.__dt:
+            return self.__dt.get_icon()
+        return QtGui.QIcon()
+
     def __set_data_type(self, dt):
         assert isinstance(dt, DataType)
         self.__dt = dt
+
 
 
 class UnregisterableData(Data):

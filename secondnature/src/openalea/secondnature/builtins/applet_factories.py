@@ -22,6 +22,7 @@ from openalea.secondnature.api import *
 # -- specific imports are inside the classes
 # to prevent errors when import this module --
 
+import builtin_icons
 
 ##########
 # LOGGER #
@@ -29,6 +30,7 @@ from openalea.secondnature.api import *
 class DT_Logger(DataTypeNoOpen):
     __name__      = "Logger"
     __mimetypes__ = ["application/openalea-logger"]
+    __icon_rc__   = ":icons/logger.png"
 
     def __init__(self):
         DataTypeNoOpen.__init__(self)
@@ -62,6 +64,7 @@ logger_f   = LoggerFactory()
 class DT_Interpreter(DataTypeNoOpen):
     __name__      = "Interpreter"
     __mimetypes__ = ["application/openalea-interpreter"]
+    __icon_rc__   = ":icons/interpreter.png"
 
     def __init__(self):
         DataTypeNoOpen.__init__(self)
@@ -108,6 +111,7 @@ interpreter_f   = InterpreterFactory()
 class DT_PackageManager(DataTypeNoOpen):
     __name__      = "PackageManager"
     __mimetypes__ = ["application/openalea-packagemanager"]
+    __icon_rc__   = ":icons/packagemanager.png"
 
     def __init__(self):
         DataTypeNoOpen.__init__(self)
@@ -145,6 +149,7 @@ pmanager_f = PackageManagerFactory()
 class DT_ProjectManager(DataTypeNoOpen):
     __name__      = "ProjectManager"
     __mimetypes__ = ["application/openalea-projectmanager"]
+    __icon_rc__   = ":icons/projectmanager.png"
 
     def __init__(self):
         DataTypeNoOpen.__init__(self)
@@ -166,11 +171,15 @@ class ProjectManagerFactory(AppletBase):
         self.add_data_type(DT_ProjectManager())
 
     def get_applet_space(self, data):
-        from PyQt4 import QtGui
+        from PyQt4 import QtGui, QtCore
+
+        itemDelegate = QtGui.QItemDelegate()
 
         view = QtGui.QTreeView(None)
         view.setDragEnabled(True)
         view.setModel(data.obj)
+        view.setIconSize(QtCore.QSize(16,16))
+        view.setItemDelegate(itemDelegate)
         space = LayoutSpace(view)
         return space
 

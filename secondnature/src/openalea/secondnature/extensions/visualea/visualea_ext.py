@@ -24,10 +24,12 @@ from openalea.core.pkgmanager import PackageManager
 from openalea.core.compositenode import CompositeNodeFactory, CompositeNode
 
 import urlparse
+import visualea_icons
 
 class DT_Dataflow(DataType):
-    __name__        = "Dataflow"
+    __name__      = "Dataflow"
     __mimetypes__ = [CompositeNodeFactory.mimetype, CompositeNode.mimetype]
+    __icon_rc__   = ":icons/dataflow.png"
 
     def new(self):
         iname = self.__name__

@@ -55,7 +55,6 @@ class ProjectManagerTreeModel(QtGui.QStandardItemModel):
 
 
     def set_active_project(self, proj):
-        print "ProjectManagerTreeModel.set_active_project"
         # -- clear the view (maybe be less radical) --
         self.__clear(self.__activeProj)
         # -- now set active project and reconnect slots to this one --
@@ -108,7 +107,6 @@ class ProjectManagerTreeModel(QtGui.QStandardItemModel):
     def __on_item_changed(self, item):
         proj = item.data(self.projectRole).toPyObject()
         doc  = item.data(self.dataRole).toPyObject()
-        print "__on_item_changed::proj", proj
         if proj:
             proj.name = str(item.text())
         else:
@@ -144,6 +142,9 @@ class ProjectManagerTreeModel(QtGui.QStandardItemModel):
     def __on_data_added(self, proj, doc):
         newItem  = QtGui.QStandardItem(doc.name)
         newItem.setData(QtCore.QVariant(doc), self.dataRole)
+        icon = doc.icon
+        #newItem.setData(QtCore.QVariant(icon), QtCore.Qt.DecorationRole)
+        newItem.setIcon(icon)
         newItem.setDragEnabled(True)
         parItem = self.__activeProjItem
         parItem.appendRow(newItem)

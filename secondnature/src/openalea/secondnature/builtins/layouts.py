@@ -30,7 +30,6 @@ sk = "{0: [1, 2], 1: [5, 6], 2: [3, 4]},"+\
 
 
 default = Layout("Default",
-                 "Openalea",
                  skeleton = sk,
                  # the widgets we want are those  placed under the
                  # `Visualea` application namespace.
