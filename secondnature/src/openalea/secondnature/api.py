@@ -1,4 +1,3 @@
-# -*- python -*-
 #
 #       OpenAlea.SecondNature
 #
@@ -18,12 +17,19 @@ __license__ = "CeCILL v2"
 __revision__ = " $Id$ "
 
 
-from setuptools import setup
 
+# APPLET API
+from openalea.secondnature.applets import AppletBase
 
-setup( name         = "OAEX PlantGL",
-       version      = "0.1",
-       py_modules   = ['plantgl_ext'],
-       entry_points = {"openalea.app.applet_factory": ["plantgl.plantgl_f = plantgl_ext:plantgl_f"]
-                       }
-       )
+# LAYOUT API
+from openalea.secondnature.layouts import Layout
+from openalea.secondnature.layouts import LayoutSpace
+
+# DATA API
+from openalea.secondnature.data import DataType
+from openalea.secondnature.data import DataTypeNoOpen
+from openalea.secondnature.data import Data
+from openalea.secondnature.data import UnregisterableData
+
+# QT UTILS
+from openalea.secondnature.qtutils import EscEventSwallower

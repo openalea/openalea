@@ -1,4 +1,3 @@
-# -*- python -*-
 #
 #       OpenAlea.SecondNature
 #
@@ -18,12 +17,12 @@ __license__ = "CeCILL v2"
 __revision__ = " $Id$ "
 
 
-from setuptools import setup
+class HasName(object):
+    def __init__(self, name):
+        assert isinstance(name, str)
+        self._name = name
 
-
-setup( name         = "OAEX PlantGL",
-       version      = "0.1",
-       py_modules   = ['plantgl_ext'],
-       entry_points = {"openalea.app.applet_factory": ["plantgl.plantgl_f = plantgl_ext:plantgl_f"]
-                       }
-       )
+    name      = property(lambda x: x._name)
+    @name.setter
+    def name(self, value):
+        self._name = value

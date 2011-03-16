@@ -21,13 +21,19 @@ __revision__ = " $Id$ "
 from PyQt4 import QtGui, QtCore
 
 import urlparse
+import traceback
 from openalea.core.logger import get_logger
+
 from openalea.secondnature.splittable import CustomSplittable
+
 from openalea.secondnature.managers import init_sources
 from openalea.secondnature.managers import LayoutManager
 from openalea.secondnature.managers import AppletFactoryManager
-from openalea.secondnature.project import ProjectManager
+from openalea.secondnature.managers import DataTypeManager
+
 from openalea.secondnature.project import Project
+from openalea.secondnature.project import ProjectManager
+from openalea.secondnature.project import QActiveProjectManager
 
 
 sn_logger = get_logger(__name__)
@@ -43,19 +49,31 @@ class MainWindow(QtGui.QMainWindow):
 
         self.logger = sn_logger
 
-        self._mainMenu = QtGui.QMenuBar(self)
+        # main menu bar
+        self._mainMenuBar = QtGui.QMenuBar(self)
+        self._projectMenu = self._mainMenuBar.addMenu("&Project")
+        self.setMenuBar(self._mainMenuBar)
 
+        # project menu
+        qpm = QActiveProjectManager()
+        self._projectMenu.addAction(qpm.get_action_new())
+        self._projectMenu.addAction(qpm.get_action_open())
+        self._projectMenu.addAction(qpm.get_action_save())
+        self._projectMenu.addAction(qpm.get_action_close())
+
+        # a default central widget
         self.__splittable = None
         self.__new_splittable()
 
-        #status bar
+        # status bar
         self._statusBar  = QtGui.QStatusBar(self)
         self._layoutMode = QtGui.QComboBox(self)
         self._statusBar.addPermanentWidget(self._layoutMode)
         self._layoutMode.setSizeAdjustPolicy(QtGui.QComboBox.AdjustToContents)
         self.__currentLayout = None
 
-        self.setMenuBar(self._mainMenu)
+        # add all those guys to the main window (self)
+        self.setMenuBar(self._mainMenuBar)
         self.setStatusBar(self._statusBar)
         self.setCentralWidget(self.__splittable)
 
@@ -80,8 +98,8 @@ class MainWindow(QtGui.QMainWindow):
     #################################
     def __validate_mimedata(self, mimedata):
         good = False
-        fmts = reduce(lambda x,y:str(x)+' '+str(y), mimedata.formats(),"")
-#        print fmts
+        # fmts = reduce(lambda x,y:str(x)+' '+str(y), mimedata.formats(),"")
+        # print fmts
         #self.logger.info("__validate_mimedata formats" + fmts)
         if mimedata.hasFormat("text/uri-list"):
             urls = mimedata.urls()
@@ -99,13 +117,16 @@ class MainWindow(QtGui.QMainWindow):
         if not self.__validate_mimedata(mimeData):
             return
 
-        handlers = AppletFactoryManager().get_handlers_for_mimedata(mimeData.formats())
+        formats = map(str, mimeData.formats())
+        handlers = DataTypeManager().get_handlers_for_mimedata(formats)
+        print "__on_splitter_drag_enter", handlers
         if len(handlers) > 0:
             event.acceptProposedAction()
         elif mimeData.hasFormat(ProjectManager.mimeformat):
             event.acceptProposedAction()
 
     def __applet_factory_from_mime_formats(self, formats):
+        formats = map(str, formats)
         handlers = AppletFactoryManager().get_handlers_for_mimedata(formats)
 #        print handlers
         nbHandlers = len(handlers)
@@ -114,14 +135,31 @@ class MainWindow(QtGui.QMainWindow):
         elif nbHandlers == 1:
             fac = handlers[0]
         elif nbHandlers > 1:
-            selector = DocumentEditorSelector( [h.fullname for h in handlers], self )
+            selector = DataEditorSelector( [h.name for h in handlers], self )
             if selector.exec_() == QtGui.QDialog.Rejected:
                 return
             else:
                 facName = selector.get_selected()
-                fac = filter(lambda x: x.fullname == facName, handlers)[0]
+                fac = filter(lambda x: x.name == facName, handlers)[0]
         return fac
 
+    def __datatype_from_mime_formats(self, formats):
+        formats = map(str, formats)
+        handlers = DataTypeManager().get_handlers_for_mimedata(formats)
+#        print handlers
+        nbHandlers = len(handlers)
+        if nbHandlers == 0:
+            return
+        elif nbHandlers == 1:
+            dt = handlers[0]
+        elif nbHandlers > 1:
+            selector = DataEditorSelector( [h.name for h in handlers], self )
+            if selector.exec_() == QtGui.QDialog.Rejected:
+                return
+            else:
+                dtName = selector.get_selected()
+                dt = filter(lambda x: x.name == dtName, handlers)[0]
+        return dt
 
     def __on_splitter_pane_drop(self, paneId, event):
         mimeData = event.mimeData()
@@ -129,33 +167,43 @@ class MainWindow(QtGui.QMainWindow):
             return
 
         proj = ProjectManager().get_active_project()
-        fac = None
-        doc = None
+        app = None
+        data = None
         space = None
 
         if mimeData.hasUrls():
             formats = mimeData.formats()
             url = str(mimeData.urls()[0].toString())
+            dt = self.__datatype_from_mime_formats(formats)
+            if not dt:
+                return
             parsedUrl = urlparse.urlparse(url)
-            fac = self.__applet_factory_from_mime_formats(formats)
-            if fac:
-                doc = fac.open_document_and_register_it(parsedUrl)
-        elif mimeData.hasFormat(ProjectManager.mimeformat):
-            docIdBytes = mimeData.data(ProjectManager.mimeformat)
-            if docIdBytes:
-                docId, ok = docIdBytes.toInt()
-                if ok and proj:
-                    doc = proj.get_document(docId)
-                    if doc:
-                        fac = self.__applet_factory_from_mime_formats([doc.mimetype])
+            data = dt.open_url(parsedUrl)
+            if not data:
+                return
+            self.__register_data(data)
+            app = self.__applet_factory_from_mime_formats([data.mimetype])
+            if not app:
+                return
 
-        # first try to retreive the space associated to this document
-        if proj and doc:
-            space = proj.get_document_property(doc, "space")
+        elif mimeData.hasFormat(ProjectManager.mimeformat):
+            dataIdBytes = mimeData.data(ProjectManager.mimeformat)
+            if dataIdBytes:
+                dataId, ok = dataIdBytes.toInt()
+                if ok and proj:
+                    data = proj.get_data(dataId)
+                    if data:
+                        app = self.__applet_factory_from_mime_formats([data.mimetype])
+
+        print proj, data
+        # first try to retreive the space associated to this data
+        if proj and data:
+            space = proj.get_data_property(data, "space")
         # if space is still none, we can always try to create a new space
-        if space is None and doc:
-            if fac:
-                space = fac(doc)
+        if space is None and data:
+            if app:
+                space = app(data)
+                proj.set_data_property(data, "space", space)
 
         if space is not None:
             self.__setSpaceAt(paneId, space)
@@ -191,10 +239,11 @@ class MainWindow(QtGui.QMainWindow):
         if not layout:
             return
 
-        # -- FILL THE LAYOUT WITH WIDGETS DESCRIBED BY THE RESOURCE MAP --
+        # -- FILL THE LAYOUT WITH WIDGETS DESCRIBED BY THE APPLET MAP --
         # create new splittable and retreive objects from previous
         newSplit, taken = self.__new_splittable(layout.skeleton)
 
+        proj = ProjectManager().get_active_project()
         appletmap = layout.appletmap
         afm = AppletFactoryManager()
         for paneId, appletName in appletmap.iteritems():
@@ -203,11 +252,15 @@ class MainWindow(QtGui.QMainWindow):
                 self.logger.debug("__onLayoutChosen has None factory for "+appletName)
                 continue
             try:
-                space  = appFac()
+                dt     = appFac.get_default_data_type()
+                data   = dt.new_0()
+                space  = appFac(data)
+                proj.set_data_property(data, "space", space)
             except Exception, e:
                 self.logger.error("__onLayoutChosen cannot display "+ \
                                   appletName+":"+\
                                   e.message)
+                traceback.print_exc()
                 continue
             if space:
                 self.__setSpaceAt(paneId, space)
@@ -224,6 +277,9 @@ class MainWindow(QtGui.QMainWindow):
     # Todo : objectify this
 
     def __onPaneMenuRequest(self, paneId, pos):
+        pm = ProjectManager()
+        proj = pm.get_active_project()
+
         pos = self.__splittable.mapToGlobal(pos)
         menu = QtGui.QMenu(self.__splittable)
         menu.setAttribute(QtCore.Qt.WA_DeleteOnClose)
@@ -233,22 +289,21 @@ class MainWindow(QtGui.QMainWindow):
 
         appletMenu = menu.addMenu("Applets...")
         appFactories = AppletFactoryManager().gather_items()
-        appletNames = sorted(appFactories.iterkeys())
-        for appName in appletNames:
-            action = appletMenu.addAction(appName)
-            func = self.__make_new_applet_pane_handler(paneId, appName)
-            action.triggered.connect(func)
+        applets      = sorted(appFactories.itervalues(), lambda x,y: cmp(x.name, y.name))
+        for applet in applets:
+            #appMenu = appletMenu.addMenu(applet.name)
+            datatypes = sorted(applet.get_data_types(), lambda x,y: cmp(x.name, y.name))
+            for dt in datatypes:
+                action = appletMenu.addAction(dt.name)
+                func = self.__make_new_applet_pane_handler(proj, paneId, dt)
+                action.triggered.connect(func)
 
-        pm = ProjectManager()
-        proj = pm.get_active_project()
         if proj:
-            docMenu = menu.addMenu("Project Documents...")
-            for id, doc in proj:
-                srcName = doc.name# + " ("+doc.source+")"
-                # must escape the ampersand or Qt stips it as a mnemonic
-                srcName = srcName.replace("&","&&")
-                action = docMenu.addAction(srcName)
-                func = self.__make_document_pane_handler(proj, paneId, doc)
+            dataMenu = menu.addMenu("Project Data...")
+            for id, data in proj:
+                srcName = data.name
+                action = dataMenu.addAction(srcName)
+                func = self.__make_data_pane_handler(proj, paneId, data)
                 action.triggered.connect(func)
         menu.popup(pos)
 
@@ -258,33 +313,38 @@ class MainWindow(QtGui.QMainWindow):
         func = on_clear_chosen
         return func
 
-    def __make_new_applet_pane_handler(self, paneId, appletName):
+    def __make_new_applet_pane_handler(self, proj, paneId, datatype):
         def on_applet_chosen(checked):
-            fac  = AppletFactoryManager().get(appletName)
+            data = datatype.new()
+            if data is None:
+                self.logger.debug("on_applet_chosen has None data for "+ \
+                                  str(datatype.mimetypes))
+                return
+            self.__register_data(data)
+            fac = self.__applet_factory_from_mime_formats([data.mimetype])
             if not fac:
-                self.logger.debug("on_applet_chosen has None factory for " + appletName)
+                self.logger.debug("on_applet_chosen has None factory for " + \
+                                  data.mimetype)
+                return
+            space = fac(data)
+            if space is None:
+                self.logger.debug("on_applet_chosen has None space for " + data.mimetype)
             else:
-                doc = fac.new_document_and_register_it()
-                space = fac(doc)
-                if doc is None:
-                    self.logger.debug("on_applet_chosen has None document for "+ appletName)
-                if space is None:
-                    self.logger.debug("on_applet_chosen has None space for " + appletName)
-                else:
-                    self.__setSpaceAt(paneId, space)
+                proj.set_data_property(data, "space", space)
+                self.__setSpaceAt(paneId, space)
 
         func = on_applet_chosen
         return func
 
-    def __make_document_pane_handler(self, proj, paneId, doc):
-        def on_document_chosen(checked):
-            space = proj.get_document_property(doc, "space")
+    def __make_data_pane_handler(self, proj, paneId, data):
+        def on_data_chosen(checked):
+            space = proj.get_data_property(data, "space")
             if space is None:
-                self.logger.debug("on_document_chosen has None space for "+doc.name)
+                self.logger.debug("on_data_chosen has None space for "+data.name)
             else:
                 self.__setSpaceAt(paneId, space)
 
-        func = on_document_chosen
+        func = on_data_chosen
         return func
 
 
@@ -333,12 +393,20 @@ class MainWindow(QtGui.QMainWindow):
     def __setToolbarAt(self, paneId, tb):
         pass
 
+    ###################
+    # Data Management #
+    ###################
+    def __register_data(self, data):
+        if data and data.registerable:
+            proj = ProjectManager().get_active_project()
+            proj.add_data(data)
+        else:
+            return #raise something
 
 
 
 
-
-class DocumentEditorSelector(QtGui.QDialog):
+class DataEditorSelector(QtGui.QDialog):
     def __init__(self, items, parent=None):
         QtGui.QDialog.__init__(self, parent, QtCore.Qt.WindowOkButtonHint|
                                              QtCore.Qt.WindowCancelButtonHint)

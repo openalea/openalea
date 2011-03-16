@@ -17,50 +17,41 @@
 __license__ = "CeCILL v2"
 __revision__ = " $Id$ "
 
-from openalea.secondnature.extension_objects import AppletFactory
-from openalea.secondnature.extension_objects import Layout
-from openalea.secondnature.extension_objects import LayoutSpace
-from openalea.secondnature.extension_objects import Document
-
-import urlparse
+from openalea.secondnature.api import *
 
 from openalea.visualea import dataflowview
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.compositenode import CompositeNodeFactory, CompositeNode
 
+import urlparse
 
-class DataflowViewFactory(AppletFactory):
-    __name__ = "DataflowView"
-    __namespace__ = "Visualea"
-    __mimeformats__ = [CompositeNodeFactory.mimetype]
+class DT_Dataflow(DataType):
+    __name__        = "Dataflow"
+    __mimetypes__ = [CompositeNodeFactory.mimetype, CompositeNode.mimetype]
 
-    def __init__(self):
-        AppletFactory.__init__(self)
-
-    def new_document(self):
-        iname = "Dataflow"
+    def new(self):
+        iname = self.__name__
         node = CompositeNodeFactory(iname).instantiate()
         node.set_caption(iname)
+        return Data(node.caption, node, mimetype=CompositeNode.mimetype)
 
-        document = Document(node.caption,
-                            "Visualea",
-                            node,
-                            mimetype=CompositeNodeFactory.mimetype)
-        return document
-
-    def open_document(self, parsedUrl):
+    def open_url(self, parsedUrl):
         pm = PackageManager()
         node = pm.get_node_from_url(parsedUrl)
-        document = Document(node.caption,
-                            "Visualea",
-                            node,
-                            mimetype=CompositeNodeFactory.mimetype)
-        return document
+        return Data(node.caption, node, mimetype=CompositeNode.mimetype)
 
-    def get_applet_space(self, document):
-        node = document.obj
+
+class DataflowViewFactory(AppletBase):
+    __name__ = "Visualea.DataflowView"
+
+    def __init__(self):
+        AppletBase.__init__(self)
+        self.add_data_type(DT_Dataflow())
+
+    def get_applet_space(self, data):
+        node = data.obj
         gwidget = dataflowview.GraphicalGraph.create_view(node)
-        return LayoutSpace(self.__name__, self.__namespace__, gwidget)
+        return LayoutSpace(gwidget)
 
 
 
@@ -78,7 +69,6 @@ sk = "{0: [1, 2], 2: [3, 4]},"+\
 
 
 df1 = Layout("Dataflow Editing",
-             "Visualea",
              skeleton = sk,
              # the widgets we want are those  placed under the
              # `Visualea` application namespace.

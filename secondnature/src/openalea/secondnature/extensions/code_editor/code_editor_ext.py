@@ -17,45 +17,36 @@
 __license__ = "CeCILL v2"
 __revision__ = " $Id$ "
 
+from openalea.secondnature.api import *
+
+from openalea.core.node import NodeFactory
+from openalea.core.compositenode import CompositeNodeFactory
+from openalea.core.pkgmanager import PackageManager
+from openalea.secondnature.urltools import file_url_to_path
+
 import urllib2
 import urlparse
 import os.path as path
 import inspect
 
-from openalea.core.node import NodeFactory
-from openalea.core.compositenode import CompositeNodeFactory
-from openalea.core.pkgmanager import PackageManager
 
-from openalea.secondnature.extension_objects import AppletFactory
-from openalea.secondnature.extension_objects import Layout
-from openalea.secondnature.extension_objects import LayoutSpace
-from openalea.secondnature.extension_objects import Document
-from openalea.secondnature.urltools import file_url_to_path
-
-from openalea.visualea.scintilla_editor import ScintillaCodeEditor
-
-class CodeEditorFactory(AppletFactory):
-    __name__        = "CodeEditor"
-    __namespace__   = "CodeEditor"
-    __mimeformats__ = ["text/plain",
-                       "application/x-qt-windows-mime;value=\"FileName\"",
-                       NodeFactory.mimetype,
-                       CompositeNodeFactory.mimetype]
+class DT_Text(DataType):
+    __name__        = "Text"
+    __mimetypes__ = ["text/plain",
+                     "application/x-qt-windows-mime;value=\"FileName\"",
+                     NodeFactory.mimetype,
+                     CompositeNodeFactory.mimetype]
 
     def __init__(self):
-        AppletFactory.__init__(self)
+        DataType.__init__(self)
         self.pm = PackageManager()
 
-    def new_document(self):
+    def new(self):
         text = ""
-        name = "New code"
-        document = Document(name,
-                            "CodeEditor",
-                            "",
-                            mimetype = "text/plain")
-        return document
+        name = self.__name__
+        return Data(name, text, mimetype = "text/plain")
 
-    def open_document(self, parsedUrl):
+    def open_url(self, parsedUrl):
         url = parsedUrl.geturl()
 
         if parsedUrl.scheme == "oa":
@@ -77,16 +68,23 @@ class CodeEditorFactory(AppletFactory):
         text = f.read()
         f.close()
 
-        document = Document(name,
-                            "CodeEditor",
-                            text,
-                            mimetype="text/plain")
-        return document
+        return Data(name, text, mimetype="text/plain")
 
-    def get_applet_space(self, document):
+
+
+
+class CodeEditorFactory(AppletBase):
+    __name__        = "CodeEditor.CodeEditor"
+
+    def __init__(self):
+        AppletBase.__init__(self)
+        self.add_data_type(DT_Text())
+
+    def get_applet_space(self, data):
+        from openalea.visualea.scintilla_editor import ScintillaCodeEditor
         widget = ScintillaCodeEditor()
-        widget.setText(document.obj)
-        return LayoutSpace(self.__name__, self.__namespace__, widget)
+        widget.setText(data.obj)
+        return LayoutSpace(widget)
 
 
 # -- instantiate widget factories --

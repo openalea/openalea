@@ -17,108 +17,57 @@
 __license__ = "CeCILL v2"
 __revision__ = " $Id$ "
 
-from openalea.secondnature.extension_objects import AppletFactory
-from openalea.secondnature.extension_objects import Layout
-from openalea.secondnature.extension_objects import LayoutSpace
-from openalea.secondnature.extension_objects import Document
-from openalea.secondnature.extension_objects import EscEventSwallower
+from openalea.secondnature.api import *
 
 import urlparse
 
 
+class DT_Curve(DataTypeNoOpen):
+    __name__      = "Curve2D"
+    __mimetypes__ =  ["application/plantgl-curve"]
 
-class Curve2DFactory(AppletFactory):
-    __name__ = "Curve2D"
-    __namespace__ = "PlantGL"
-    __mimeformats__ = ["application/plantgl-curve"]
-    # currently we don't know how to create a curve url, so we don't open anything:
-    __supports_open__ = False
-
-
-    def __init__(self):
-        AppletFactory.__init__(self)
-        self.__pglEscSwallower = EscEventSwallower()
-
-    def new_document(self):
-        from PyQt4 import QtGui
+    def new(self):
         from vplants.plantgl.gui import curve2deditor
 
         # -- let the user choose the curve type he wants --
         constraint = curve2deditor.Curve2DConstraint
-        constraintName, ok = QtGui.QInputDialog.getItem(None, "Curve type choose",
-                                                    "Please choose a curve type",
-                                                    ["2D Curve", "Function"],
-                                                    editable=False)
-
-        if constraintName == "Function":
-            constraint = curve2deditor.FuncConstraint
-
-
+        mimetype = self.__mimetypes__[0]
         data = constraint.defaultCurve()
-        iname = "Curve2D"
+        iname = self.__name__
+        return Data(iname, data, mimetype=mimetype, constraintType=constraint)
 
-        document = Document(iname,
-                            "PlantGL",
-                            data,
-                            mimetype=self.__mimeformats__[0],
-                            constraintType=constraint)
-        return document
 
-    def get_applet_space(self, document):
+class DT_Function(DataTypeNoOpen):
+    __name__      = "Function2D"
+    __mimetypes__ = ["application/plantgl-function"]
+
+    def new(self):
         from vplants.plantgl.gui import curve2deditor
-        curve = document.obj
-        constraint = document.get_inner_property("constraintType")
-        editor = curve2deditor.Curve2DEditor(None, constraints=constraint())
-        editor.setCurve(curve)
-        editor.installEventFilter(self.__pglEscSwallower)
-        return LayoutSpace(self.__name__, self.__namespace__, editor)
+
+        # -- let the user choose the curve type he wants --
+        constraint = curve2deditor.FuncConstraint
+        mimetype = self.__mimetypes__[0]
+        data = constraint.defaultCurve()
+        iname = self.__name__
+        return Data(iname, data, mimetype=mimetype, constraintType=constraint)
 
 
+class DT_NurbsPatch(DataTypeNoOpen):
+    __name__      = "NurbsPatch"
+    __mimetypes__ =  ["application/plantgl-nurbspatch"]
 
-class NurbsPatchFactory(AppletFactory):
-    __name__ = "NurbsPatch"
-    __namespace__ = "PlantGL"
-    __mimeformats__ = ["application/plantgl-nurbspatch"]
-    # currently we don't know what is a nurbs url url, so we don't open anything:
-    __supports_open__ = False
-
-    def __init__(self):
-        AppletFactory.__init__(self)
-        self.__pglEscSwallower = EscEventSwallower()
-
-    def new_document(self):
+    def new(self):
         from vplants.plantgl.gui import nurbspatcheditor
 
         data = nurbspatcheditor.NurbsPatchEditor.newDefaultNurbsPatch()
-        iname = "NurbsPatch"
-        document = Document(iname, "PlantGL",
-                            data,
-                            mimetype=self.__mimeformats__[0])
-        return document
+        iname = self.__name__
+        return Data(iname, data,  mimetype=self.__mimetypes__[0])
 
-    def get_applet_space(self, document):
-        from vplants.plantgl.gui import nurbspatcheditor
-
-        patch = document.obj
-        editor = nurbspatcheditor.NurbsPatchEditor(None)
-        editor.setNurbsPatch(patch)
-        editor.installEventFilter(self.__pglEscSwallower)
-        return LayoutSpace(self.__name__, self.__namespace__, editor)
-
-
-
-class InterpolatedProfileFactory(AppletFactory):
+class DT_InterpolatedProfile(DataTypeNoOpen):
     __name__ = "InterpolatedProfile"
-    __namespace__ = "PlantGL"
-    __mimeformats__ = ["application/plantgl-interpolatedcurve"]
-    # currently we don't know what is a nurbs url url, so we don't open anything:
-    __supports_open__ = False
+    __mimetypes__ = ["application/plantgl-interpolatedcurve"]
 
-    def __init__(self):
-        AppletFactory.__init__(self)
-        self.__pglEscSwallower = EscEventSwallower()
-
-    def new_document(self):
+    def new(self):
         from vplants.plantgl.scenegraph.interpolated_profile import CrossSection
         from vplants.plantgl.scenegraph.interpolated_profile import InterpolatedProfile
         from vplants.plantgl.scenegraph.interpolated_profile import CSplineMethod
@@ -133,26 +82,52 @@ class InterpolatedProfileFactory(AppletFactory):
                               0, crsSect2,
                               180, crsSect3)
 
-        iname = "InterpolatedProfile"
+        iname = self.__name__
 
-        document = Document(iname,
-                            "PlantGL",
-                            tc,
-                            mimetype=self.__mimeformats__[0] )
-        return document
+        return Data(iname, tc, mimetype=self.__mimetypes__[0] )
 
-    def get_applet_space(self, document):
-        from vplants.plantgl.gui import interpolated_profile_gui
 
-        profile = document.obj
-        editor = interpolated_profile_gui.ProfileEditor(editingCentral=False)
-        editor.set_profile(profile)
+
+class PlantGLFactory(AppletBase):
+    __name__ = "PlantGL.PlantGL"
+
+    def __init__(self):
+        AppletBase.__init__(self)
+        self.__pglEscSwallower = EscEventSwallower()
+
+        curve_dt = DT_Curve()
+        self.add_data_types([curve_dt, DT_Function(),
+                             DT_NurbsPatch(), DT_InterpolatedProfile()])
+        self.set_default_data_type(curve_dt)
+
+    def get_applet_space(self, data):
+        if data.mimetype in DT_Curve.__mimetypes__:
+            from vplants.plantgl.gui import curve2deditor
+            curve = data.obj
+            constraint = data.get_inner_property("constraintType")
+            editor = curve2deditor.Curve2DEditor(None, constraints=constraint())
+            editor.setCurve(curve)
+        elif data.mimetype in DT_Function.__mimetypes__:
+            from vplants.plantgl.gui import curve2deditor
+            curve = data.obj
+            constraint = data.get_inner_property("constraintType")
+            editor = curve2deditor.Curve2DEditor(None, constraints=constraint())
+            editor.setCurve(curve)
+        elif data.mimetype in DT_NurbsPatch.__mimetypes__:
+            from vplants.plantgl.gui import nurbspatcheditor
+            patch = data.obj
+            editor = nurbspatcheditor.NurbsPatchEditor(None)
+            editor.setNurbsPatch(patch)
+        elif data.mimetype in DT_InterpolatedProfile.__mimetypes__:
+            from vplants.plantgl.gui import interpolated_profile_gui
+            profile = data.obj
+            editor = interpolated_profile_gui.ProfileEditor(editingCentral=False)
+            editor.set_profile(profile)
         editor.installEventFilter(self.__pglEscSwallower)
-        return LayoutSpace(self.__name__, self.__namespace__, editor)
+        return LayoutSpace(editor)
 
 
 # -- instantiate widget factories --
-curve2d_f = Curve2DFactory()
-nurbspatch_f = NurbsPatchFactory()
-interpolatedprofile_f = InterpolatedProfileFactory()
+plantgl_f = PlantGLFactory()
+
 

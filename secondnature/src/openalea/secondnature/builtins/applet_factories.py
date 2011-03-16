@@ -17,39 +17,40 @@
 __license__ = "CeCILL v2"
 __revision__ = " $Id$ "
 
-from openalea.secondnature.extension_objects import AppletFactory
-from openalea.secondnature.extension_objects import Document
-from openalea.secondnature.extension_objects import UnregisterableDocument
-from openalea.secondnature.extension_objects import LayoutSpace
+from openalea.secondnature.api import *
 
 # -- specific imports are inside the classes
 # to prevent errors when import this module --
 
 
-
 ##########
 # LOGGER #
 ##########
-class LoggerFactory(AppletFactory):
-    __name__ = "Logger"
-    __namespace__ = "Openalea"
-    __supports_open__ = False
+class DT_Logger(DataTypeNoOpen):
+    __name__      = "Logger"
+    __mimetypes__ = ["application/openalea-logger"]
 
     def __init__(self):
-        AppletFactory.__init__(self)
+        DataTypeNoOpen.__init__(self)
         from openalea.core.logger import LoggerOffice
         self.loggermodel = LoggerOffice().get_handler("qt")
-        self.loggerDoc = UnregisterableDocument(self.__name__,
-                                                self.__namespace__,
-                                                self.loggermodel)
-
-    def new_document(self):
+        self.loggerDoc = UnregisterableData(self.__name__,  self.loggermodel,
+                                            mimetype=self.__mimetypes__[0])
+    def new(self):
         return self.loggerDoc
 
-    def get_applet_space(self, document):
+class LoggerFactory(AppletBase):
+    __name__ = "Openalea.Logger"
+    __namespace__ = "Openalea"
+
+    def __init__(self):
+        AppletBase.__init__(self)
+        self.add_data_type(DT_Logger())
+
+    def get_applet_space(self, data):
         from openalea.visualea.logger import LoggerView
-        view  = LoggerView(None, model=self.loggermodel)
-        space = LayoutSpace(self.__name__, self.__namespace__, view )
+        view  = LoggerView(None, model=data.obj)
+        space = LayoutSpace(view)
         return space
 
 logger_f   = LoggerFactory()
@@ -58,75 +59,81 @@ logger_f   = LoggerFactory()
 ###############
 # INTERPRETER #
 ###############
-class InterpreterFactory(AppletFactory):
-    __name__ = "Interpreter"
-    __namespace__ = "Openalea"
-    __supports_open__ = False
+class DT_Interpreter(DataTypeNoOpen):
+    __name__      = "Interpreter"
+    __mimetypes__ = ["application/openalea-interpreter"]
 
     def __init__(self):
-        AppletFactory.__init__(self)
-        from openalea.visualea.shell import get_shell_class
+        DataTypeNoOpen.__init__(self)
         from code import InteractiveInterpreter as Interpreter
-
         self.interpretermodel = Interpreter()
-        self.interpreterDoc = UnregisterableDocument(self.__name__,
-                                                     self.__namespace__,
-                                                     self.interpretermodel)
+        self.interpreterDoc = UnregisterableData(self.__name__,  self.interpretermodel,
+                                                 mimetype=self.__mimetypes__[0])
 
-        self.shellCls = get_shell_class()
-
-    def new_document(self):
+    def new(self):
         return self.interpreterDoc
 
-    def get_applet_space(self, document):
+class InterpreterFactory(AppletBase):
+    __name__ = "Openalea.Interpreter"
+
+    def __init__(self):
+        AppletBase.__init__(self)
+        from openalea.visualea.shell import get_shell_class
+        self.shellCls = get_shell_class()
+        self.add_data_type(DT_Interpreter())
+
+    def get_applet_space(self, data):
         from openalea.core import cli
 
         # cheating! needed for cli.init_interpreter
         from PyQt4 import QtGui
         session = QtGui.QApplication.instance().get_session()
 
+        interpreterModel = data.obj
         #managers:
         from openalea.secondnature import managers
         from openalea.secondnature import project
         mgrs = {"layMan":managers.LayoutManager(),
                 "appMan":managers.AppletFactoryManager(),
                 "prjMan":project.ProjectManager()}
-        view  = self.shellCls(self.interpretermodel, cli.get_welcome_msg())
-        cli.init_interpreter(self.interpretermodel, session, mgrs)
-        space = LayoutSpace(self.__name__, self.__namespace__, view )
-        return space
+        view  = self.shellCls(interpreterModel, cli.get_welcome_msg())
+        cli.init_interpreter(interpreterModel, session, mgrs)
+        return LayoutSpace(view)
 
 interpreter_f   = InterpreterFactory()
-
 
 ###################
 # PACKAGE MANAGER #
 ###################
-class PackageManagerFactory(AppletFactory):
-    __name__ = "PackageManager"
-    __namespace__ = "Openalea"
-    __supports_open__ = False
+class DT_PackageManager(DataTypeNoOpen):
+    __name__      = "PackageManager"
+    __mimetypes__ = ["application/openalea-packagemanager"]
 
     def __init__(self):
-        AppletFactory.__init__(self)
+        DataTypeNoOpen.__init__(self)
         #lets create the PackageManager ressource
         from openalea.core.pkgmanager import PackageManager
         from openalea.secondnature.ripped.node_treeview import PkgModel
 
         self.model    = PkgModel(PackageManager())
-        self.pmanagerDoc = UnregisterableDocument(self.__name__,
-                                                  self.__namespace__,
-                                                  self.model)
+        self.pmanagerDoc = UnregisterableData(self.__name__, self.model, self.__mimetypes__[0])
 
-    def new_document(self):
+    def new(self):
         return self.pmanagerDoc
 
-    def get_applet_space(self, document):
+class PackageManagerFactory(AppletBase):
+    __name__ = "Openalea.PackageManager"
+
+    def __init__(self):
+        AppletBase.__init__(self)
+        self.add_data_type(DT_PackageManager())
+
+    def get_applet_space(self, data):
         from openalea.secondnature.ripped.node_treeview import NodeFactoryTreeView
 
         view = NodeFactoryTreeView(None)
-        view.setModel(self.model)
-        space = LayoutSpace(self.__name__, self.__namespace__, view )
+        view.setModel(data.obj)
+        space = LayoutSpace(view)
         return space
 
 pmanager_f = PackageManagerFactory()
@@ -135,31 +142,36 @@ pmanager_f = PackageManagerFactory()
 ###################
 # PROJECT MANAGER #
 ###################
-class ProjectManagerFactory(AppletFactory):
-    __name__ = "ProjectManager"
-    __namespace__ = "Openalea"
-    __supports_open__ = False
+class DT_ProjectManager(DataTypeNoOpen):
+    __name__      = "ProjectManager"
+    __mimetypes__ = ["application/openalea-projectmanager"]
 
     def __init__(self):
-        AppletFactory.__init__(self)
+        DataTypeNoOpen.__init__(self)
         #lets create the PackageManager ressource
         from openalea.secondnature.project_view import ProjectManagerTreeModel
 
         self.model    = ProjectManagerTreeModel()
-        self.pmanagerDoc = UnregisterableDocument(self.__name__,
-                                                  self.__namespace__,
-                                                  self.model)
+        self.pmanagerDoc = UnregisterableData(self.__name__, self.model,
+                                              mimetype=self.__mimetypes__[0])
 
-    def new_document(self):
+    def new(self):
         return self.pmanagerDoc
 
-    def get_applet_space(self, document):
+class ProjectManagerFactory(AppletBase):
+    __name__ = "Openalea.ProjectManager"
+
+    def __init__(self):
+        AppletBase.__init__(self)
+        self.add_data_type(DT_ProjectManager())
+
+    def get_applet_space(self, data):
         from PyQt4 import QtGui
 
         view = QtGui.QTreeView(None)
         view.setDragEnabled(True)
-        view.setModel(self.model)
-        space = LayoutSpace(self.__name__, self.__namespace__, view )
+        view.setModel(data.obj)
+        space = LayoutSpace(view)
         return space
 
 projmanager_f = ProjectManagerFactory()

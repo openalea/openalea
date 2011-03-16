@@ -34,7 +34,7 @@ def muteItemChange(f):
 class ProjectManagerTreeModel(QtGui.QStandardItemModel):
 
     projectRole  = QtCore.Qt.UserRole + 1
-    documentRole = QtCore.Qt.UserRole + 2
+    dataRole = QtCore.Qt.UserRole + 2
 
     def __init__(self, parent=None):
         QtGui.QStandardItemModel.__init__(self, parent)
@@ -47,11 +47,47 @@ class ProjectManagerTreeModel(QtGui.QStandardItemModel):
         self.__projMan.activeProjectChanged.connect(self.set_active_project)
         self.__projMan.activeProjectClosed.connect(self.__clear)
 
-        self.__activePrj = None
+        self.__activeProj = None
 
         activePrj = self.__projMan.get_active_project()
         if activePrj:
             self.set_active_project(activePrj)
+
+
+    def set_active_project(self, proj):
+        print "ProjectManagerTreeModel.set_active_project"
+        # -- clear the view (maybe be less radical) --
+        self.__clear(self.__activeProj)
+        # -- now set active project and reconnect slots to this one --
+        if proj:
+            self.__activeProj = proj
+            self.__activeProjItem = QtGui.QStandardItem(proj.name)
+            self.__activeProjItem.setData(QtCore.QVariant(proj), self.projectRole)
+            self.appendRow(self.__activeProjItem)
+            self.connect_project(self.__activeProj)
+            for k, v in proj:
+                self.__on_data_added(proj, v)
+
+
+    #####################
+    # utility functions #
+    #####################
+    def connect_project(self, proj):
+        if proj:
+            proj.data_added.connect(self.__on_data_added)
+            proj.data_name_changed.connect(self.__on_data_name_changed)
+            proj.project_name_changed.connect(self.__on_active_project_name_changed)
+            proj.modified.connect(self.__on_active_project_modified)
+            proj.saved.connect(self.__on_active_project_saved)
+            proj.closed.connect(self.__on_active_project_saved)
+
+    def disconnect_project(self, proj):
+        if proj:
+            self.__try_to_disconnect(proj.data_added,        self.__on_data_added)
+            self.__try_to_disconnect(proj.data_name_changed, self.__on_data_name_changed)
+            self.__try_to_disconnect(proj.project_name_changed, self.__on_active_project_name_changed)
+            self.__try_to_disconnect(proj.modified, self.__on_active_project_modified)
+            self.__try_to_disconnect(proj.saved, self.__on_active_project_saved)
 
     def __try_to_disconnect(self, signal, slot):
         try:
@@ -59,46 +95,27 @@ class ProjectManagerTreeModel(QtGui.QStandardItemModel):
         except TypeError:
             pass
 
-    def set_active_project(self, proj):
-        # -- first disconnect previously connected slots --
-        if self.__activePrj:
-            self.__try_to_disconnect(self.__activePrj.document_added,        self.__on_document_added)
-            self.__try_to_disconnect(self.__activePrj.document_name_changed, self.__on_document_name_changed)
-            self.__try_to_disconnect(self.__activePrj.project_name_changed, self.__on_active_project_name_changed)
-            self.__try_to_disconnect(self.__activePrj.modified, self.__on_active_project_modified)
-            self.__try_to_disconnect(self.__activePrj.saved, self.__on_active_project_saved)
-        # -- then clear the view (maybe be less radical) --
-        self.clear()
-        # -- now set active project and reconnect slots to this one --
-        if proj:
-            self.__activePrj = proj
-            self.__activeProjItem = QtGui.QStandardItem(proj.name)
-            self.__activeProjItem.setData(QtCore.QVariant(proj), self.projectRole)
-            self.appendRow(self.__activeProjItem)
-            for k, v in proj:
-                self.__on_document_added(proj, v)
-            self.__activePrj.document_added.connect(self.__on_document_added)
-            self.__activePrj.document_name_changed.connect(self.__on_document_name_changed)
-            self.__activePrj.project_name_changed.connect(self.__on_active_project_name_changed)
-            self.__activePrj.modified.connect(self.__on_active_project_modified)
-            self.__activePrj.saved.connect(self.__on_active_project_saved)
 
     ###################
     # Protected slots #
     ###################
     def __clear(self, proj):
         self.clear()
+        # -- disconnect previously connected slots --
+        if proj:
+            self.disconnect_project(proj)
 
     def __on_item_changed(self, item):
         proj = item.data(self.projectRole).toPyObject()
+        doc  = item.data(self.dataRole).toPyObject()
         print "__on_item_changed::proj", proj
         if proj:
             proj.name = str(item.text())
         else:
-            doc = item.data(self.documentRole).toPyObject()
+            doc = item.data(self.dataRole).toPyObject()
             proj = item.parent().data(self.projectRole).toPyObject()
             if proj and doc:
-                proj.set_document_name(doc, str(item.text()))
+                proj.set_data_name(doc, str(item.text()))
 
     @muteItemChange
     def __on_active_project_modified(self, proj):
@@ -119,14 +136,14 @@ class ProjectManagerTreeModel(QtGui.QStandardItemModel):
         self.__activeProjItem.setText(proj.name)
 
     @muteItemChange
-    def __on_document_name_changed(self, proj, doc, fixed):
+    def __on_data_name_changed(self, proj, doc, fixed):
         docItem = self.__docItemMap.get(doc)
         if docItem:
             docItem.setText(fixed)
 
-    def __on_document_added(self, proj, doc):
+    def __on_data_added(self, proj, doc):
         newItem  = QtGui.QStandardItem(doc.name)
-        newItem.setData(QtCore.QVariant(doc), self.documentRole)
+        newItem.setData(QtCore.QVariant(doc), self.dataRole)
         newItem.setDragEnabled(True)
         parItem = self.__activeProjItem
         parItem.appendRow(newItem)
@@ -147,9 +164,9 @@ class ProjectManagerTreeModel(QtGui.QStandardItemModel):
 
         item = self.itemFromIndex(modelIndexes[0])
         if item:
-            doc = item.data(self.documentRole).toPyObject()
-            if doc and self.__activePrj:
-                docId = self.__activePrj.get_document_id(doc)
+            doc = item.data(self.dataRole).toPyObject()
+            if doc and self.__activeProj:
+                docId = self.__activeProj.get_data_id(doc)
                 encoded = QtCore.QByteArray.number(docId)
         data.setData(ProjectManager.mimeformat, encoded)
         return data

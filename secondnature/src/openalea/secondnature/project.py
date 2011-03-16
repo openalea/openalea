@@ -1,4 +1,3 @@
-
 #
 #       OpenAlea.SecondNature
 #
@@ -22,18 +21,18 @@ from PyQt4 import QtCore, QtGui
 from openalea.core.singleton import ProxySingleton
 from openalea.core.metaclass import make_metaclass
 import cPickle
+import zipfile
+import traceback
 
-class RefPOD(object):
-    def __init__(self, val):
-        self.val = val
+
 
 class Project(QtCore.QObject):
 
     closed                = QtCore.pyqtSignal(object)
     saved                 = QtCore.pyqtSignal(object)
     modified              = QtCore.pyqtSignal(object)
-    document_added        = QtCore.pyqtSignal(object, object)
-    document_name_changed = QtCore.pyqtSignal(object, object, str)
+    data_added        = QtCore.pyqtSignal(object, object)
+    data_name_changed = QtCore.pyqtSignal(object, object, str)
     project_name_changed  = QtCore.pyqtSignal(object, str)
 
     def __init__(self, name):
@@ -63,26 +62,27 @@ class Project(QtCore.QObject):
         self.__names.add(name)
         return name
 
-    def add_document(self, doc):
+    def add_data(self, doc):
         name = self.__fix_name(doc.name)
-        doc._set_name( name )
+        doc.name = name
+#        doc._set_name( name )
         self.__docs[self.__docIdCtr] = doc
         self.__docToIds[doc] = self.__docIdCtr
         self.__docIdCtr += 1
 
-        self.document_added.emit(self, doc)
+        self.data_added.emit(self, doc)
         self.mark_as_modified()
 
-    def get_document_id(self, document):
-        return self.__docToIds.get(document, -1)
+    def get_data_id(self, data):
+        return self.__docToIds.get(data, -1)
 
-    def get_document(self, doc_id):
+    def get_data(self, doc_id):
         return self.__docs.get(doc_id)
 
-    def del_document(self, doc_id):
+    def del_data(self, doc_id):
         self.mark_as_modified()
 
-    def has_document(self, doc):
+    def has_data(self, doc):
         return doc in self.__docs.itervalues()
 
     def is_modified(self):
@@ -91,33 +91,34 @@ class Project(QtCore.QObject):
     def __iter__(self):
         return self.__docs.iteritems()
 
-    def set_document_name(self, doc, name):
-        if not self.has_document(doc):
+    def set_data_name(self, doc, name):
+        if not self.has_data(doc):
             return #raise something
         oldName = doc.name
         self.__names.discard(oldName)
         fixedName = self.__fix_name(name)
-        doc._set_name( fixedName )
-        self.document_name_changed.emit(self, doc, fixedName)
+        doc.name = fixedName
+#        doc._set_name( fixedName )
+        self.data_name_changed.emit(self, doc, fixedName)
 
-    def set_document_property(self, doc, key, val):
+    def set_data_property(self, doc, key, val):
         self.__docprops.setdefault(doc, {})[key] = val
 
-    def get_document_property(self, doc, key):
-        if not self.has_document_property(doc, key):
+    def get_data_property(self, doc, key):
+        if not self.has_data_property(doc, key):
             return None
         props = self.__docprops.get(doc)
         if props is not None:
             return props.get(key)
 
-    def pop_document_property(self, doc, key):
-        if not self.has_document_property(doc, key):
+    def pop_data_property(self, doc, key):
+        if not self.has_data_property(doc, key):
             return None
         props = self.__docprops.get(doc)
         if props is not None:
             return props.pop(key)
 
-    def has_document_property(self, doc, key):
+    def has_data_property(self, doc, key):
         props = self.__docprops.get(doc)
         if not props:
             return False #TODO : raise something dude
@@ -144,69 +145,66 @@ class Project(QtCore.QObject):
     #############
     # Pickling  #
     #############
-    def __getstate__(self):
-        return {"name":self.__name, "docs": self.__docs.copy()}
-
-    def __setstate__(self, state):
-        self.__name = state.get("name", "Unnamed")
-        self.__modified = False
-        self.__names = set()
-        self.__docs = state.get("docs", {})
-        self.__docIdCtr = len(self.__docs)
-        self.__docToIds = {}
-        self.__docprops = {}
-
-        for k, v in self.__docs.iteritems():
-            self.__docToIds[v] = k
-            self.__names.add(v.name)
 
     def save_to(self, filepath):
-        toPic = PicklableProject(self)
-        with open(filepath, "w") as f:
-            cPickle.dump(toPic, f, 2)
-            self.saved.emit(self)
+        docnames = [doc.name for doc in self.__docs.itervalues()]
+        manifest = reduce(lambda x,y:x+"\n"+y, docnames, "name="+self.name)
+        print manifest
+        with zipfile.ZipFile(filepath, "w") as z:
+            z.writestr("manifest.txt", manifest)
+            for d in self.__docs.itervalues():
+                try:
+                    s = cPickle.dumps(d)
+                except cPickle.PicklingError, e:
+                    print "couldn't write", f, " : ", e
+                else:
+                    z.writestr(d.name,s)
+
 
     @classmethod
     def load_from(cls, filepath):
-        pic = None
-        prj = None
-        with open(filepath, "r") as f:
-            pic = cPickle.load(f)
-        if pic:
-            prj =  cls.__fromPicklable(pic)
-        return prj
+        docs = dict()
+        name = ""
+        with zipfile.ZipFile(filepath, "r") as z:
+            manifest = z.read("manifest.txt")
+            print manifest
+            lines = manifest.split("\n")
+            name = lines[0].split("=")[1]
+            files = lines[1:]
+            ctr = 0
+            for f in files:
+                s = z.read(f)
+                try:
+                    upk = cPickle.loads(s)
+                except Exception, e:#cPickle.UnpicklingError, e:
+                    print "couldn't read", f, " : ", e
+                    traceback.print_exc()
+                else:
+                    docs[ctr] = upk
+                ctr+=1
+        print docs
+        proj = Project(name)
+        proj.__docs = docs
+        proj.__docIdCtr = len(proj.__docs)
 
-    @classmethod
-    def __fromPicklable(cls, pic):
-        prj = Project(pic.name)
-        prj.__docs = pic.docs
-        prj.__docIdCtr = len(prj.__docs)
-
-        for k, v in prj.__docs.iteritems():
-            prj.__docToIds[v] = k
-            prj.__names.add(v.name)
+        for k, v in proj.__docs.iteritems():
+            proj.__docToIds[v] = k
+            proj.__names.add(v.name)
+        return proj
 
 
-        return prj
 
-class PicklableProject(object):
-    def __init__(self, proj):
-        self.name = proj.name
-        self.docs = proj._Project__docs.copy()
 
 
 class ProjectManager(QtCore.QObject):
-    """An manager that references all projects on a user's system.
-    Maybe an extension of PackageManager"""
 
     __metaclass__ = make_metaclass((ProxySingleton,),
                                    (QtCore.pyqtWrapperType,))
 
     activeProjectChanged       = QtCore.pyqtSignal(object)
     activeProjectClosed        = QtCore.pyqtSignal(object)
-    aboutToCloseActiveProject  = QtCore.pyqtSignal(object, RefPOD)
 
-    mimeformat   = "application/secondnature-project-document-id"
+    mimeformat   = "application/secondnature-project-data-id"
 
     def __init__(self):
         QtCore.QObject.__init__(self)
@@ -220,27 +218,162 @@ class ProjectManager(QtCore.QObject):
         return self.__activeProject is not None
 
     def set_active_project(self, project):
+        print "ProjectManager.set_active_project"
         if self.has_active_project() and self.get_active_project().is_modified():
-            return # raise something
+            return False# raise something
         self.__activeProject = project
-        self.__activeProject.closed.connect(self.activeProjectClosed)
         self.activeProjectChanged.emit(self.__activeProject)
+        return True
 
     def get_active_project(self):
         return self.__activeProject
 
-    def close_active_project(self):
-        save = RefPOD(False)
-        self.aboutToCloseActiveProject.emit(self.__activeProject, save)
-        if save.val == True:
-            self.save_active_project()
-        self.__activeProject.close()
+    def close_active_project(self):#, save=False, savepath="~"):
+        if self.__activeProject:
+            # if save == True:
+            #     self.save_active_project(savepath)
+            self.__activeProject.close()
         self.__activeProject = None
 
+    def save_active_project(self, filepath):
+        self.__activeProject.save_to(filepath)
+
+
+
+
+
+
+
+import os.path
+from os.path import join as pj
+class QActiveProjectManager(QtCore.QObject):
+
+    __metaclass__ = make_metaclass((ProxySingleton,),
+                                   (QtCore.pyqtWrapperType,))
+
+    def __init__(self):
+        QtCore.QObject.__init__(self)
+        self.__pm = ProjectManager()
+
+    #############
+    # Shortcuts #
+    #############
+    def get_active_project(self):
+        return self.__pm.get_active_project()
+
+    def has_active_project(self):
+        return self.__pm.has_active_project()
+
+
+    #########################################
+    # Methods that return prebound QActions #
+    #########################################
+    def get_action_new(self):
+        action = QtGui.QAction("&New project...", self)
+        action.triggered.connect(self.new_active_project)
+        return action
+
+    def get_action_open(self):
+        action = QtGui.QAction("&Open project...", self)
+        action.triggered.connect(self.open_project)
+        return action
+
+    def get_action_save(self):
+        action = QtGui.QAction("&Save project...", self)
+        action.triggered.connect(self.save_active_project)
+        return action
+
+    def get_action_close(self):
+        action = QtGui.QAction("&Close project...", self)
+        action.triggered.connect(self.close_active_project)
+        return action
+
+    ################################################
+    # Gui wrappers around the Project Manager with #
+    # nice questions to the user                   #
+    ################################################
+    def set_active_project(self, project):
+        if self.has_active_project() and self.get_active_project().is_modified():
+            if self.__ask_close_active():
+                self.close_active_project()
+        self.__pm.set_active_project(project)
+
+    def new_active_project(self):
+        print "new_active_project"
+        proj = self.get_active_project()
+        if proj and proj.is_modified():
+            if not self.__ask_close_active():
+                return None
+        else:
+            self.close_active_project()
+            name, ok = QtGui.QInputDialog.getText(None,
+                                                  "New project...",
+                                                  "Please give a new to your project")
+            if ok:
+                self.__pm.new_active_project(name)
+            else:
+                return None
+
+    def __ask_close_active(self):
+        print "__ask_close_active"
+        but = QtGui.QMessageBox.question(None,
+                                         "Close current project?",
+                                         "The current project has not been saved.\n\n"+\
+                                         "Do you really want to close it?""",
+                                         QtGui.QMessageBox.Yes|QtGui.QMessageBox.No,
+                                         QtGui.QMessageBox.No)
+        return but == QtGui.QMessageBox.Yes
+
+    def close_active_project(self):
+        print "close_active_project"
+        proj = self.get_active_project()
+        if proj and proj.is_modified():
+            but = QtGui.QMessageBox.question(None,
+                                             "Unsaved modifications!",
+                                             "The current project has not been saved.\n"+\
+                                             "All changes will be lost.\n\n"+\
+                                             "Do you want to save it before closing it?",
+                                             QtGui.QMessageBox.Yes|QtGui.QMessageBox.No,
+                                             QtGui.QMessageBox.Yes)
+            if but == QtGui.QMessageBox.Yes:
+                self.save_active_project()
+            self.__pm.close_active_project()
+
+
     def save_active_project(self):
-        self.__activeProject.save()
+        print "save_active_project"
+        proj = self.get_active_project()
+        if proj:
+            pth = QtGui.QFileDialog.getSaveFileName(None,
+                                                    "Save project to...",
+                                                    pj(os.path.expanduser("~"),proj.name+".oas"),
+                                                    "OpenAlea project (*.oas)",
+                                                    "OpenAlea project (*.oas)",
+                                                    QtGui.QFileDialog.DontResolveSymlinks)
+            if pth == "":
+                return
+            else:
+                self.__pm.save_active_project(str(pth))
 
-
-
-
+    def open_project(self):
+        print "open_project"
+        proj = self.get_active_project()
+        if proj and proj.is_modified():
+            if not self.__ask_close_active():
+                return None
+        else:
+            proj = None
+            pth = QtGui.QFileDialog.getOpenFileName(None,
+                                                    "Save project to...",
+                                                    os.path.expanduser("~"),
+                                                    "OpenAlea project (*.oas)",
+                                                    "OpenAlea project (*.oas)",
+                                                    QtGui.QFileDialog.DontResolveSymlinks)
+            if pth == "":
+                return
+            else:
+                proj = Project.load_from(str(pth))
+                print "open_project::proj", proj
+                if proj:
+                    self.set_active_project(proj)
 

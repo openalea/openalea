@@ -1,4 +1,3 @@
-# -*- python -*-
 #
 #       OpenAlea.SecondNature
 #
@@ -17,13 +16,11 @@
 __license__ = "CeCILL v2"
 __revision__ = " $Id$ "
 
+from PyQt4 import QtCore
 
-from setuptools import setup
-
-
-setup( name         = "OAEX PlantGL",
-       version      = "0.1",
-       py_modules   = ['plantgl_ext'],
-       entry_points = {"openalea.app.applet_factory": ["plantgl.plantgl_f = plantgl_ext:plantgl_f"]
-                       }
-       )
+class EscEventSwallower(QtCore.QObject):
+    def eventFilter(self, watched, event):
+        if event.type() in [QtCore.QEvent.KeyPress, QtCore.QEvent.KeyRelease]:
+            if event.key() == QtCore.Qt.Key_Escape:
+                return True
+        return False
