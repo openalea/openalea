@@ -21,6 +21,7 @@ __revision__ = " $Id: $ "
 
 
 import weakref
+import traceback
 from collections import deque
 
 
@@ -111,6 +112,7 @@ class Observed(object):
                        obs.call_notify(self, event)
                    except Exception, e:
                        print "Warning :", str(self), "notification of", str(obs), "failed", e
+                       traceback.print_exc()
 
            for dead in toDelete:
                self.listeners.discard(dead)
