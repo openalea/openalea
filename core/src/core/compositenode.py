@@ -399,6 +399,8 @@ class CompositeNode(Node, DataFlow):
     different node instances between them in directed graph.
     """
 
+    mimetype = "openalea/compositenode"
+
     def __init__(self, inputs=(), outputs=()):
         """ Inputs and outputs are list of
         dict(name='', interface='', value='') """

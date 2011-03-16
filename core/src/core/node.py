@@ -135,6 +135,8 @@ class AbstractNode(Observed, HasAdHoc):
         - rename internal_data into attributes.
     """
 
+    mimetype = "openalea/node"
+
     def __init__(self):
         """
         Default Constructor
