@@ -125,6 +125,7 @@ class GraphViewBase(object):
         raise NotImplementedError
 
 
+import traceback
 class GraphListenerBase(observer.AbstractListener):
     """This object strictly watches the given graph.
     It deduces the correct representation out

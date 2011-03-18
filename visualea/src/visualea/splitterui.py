@@ -748,13 +748,11 @@ class SplittableUI(QtGui.QWidget):
             sp = SplittableUI.__spacing__
             absAmount = amount * refVal
             sticky = -1 if absAmount<=sp else (1 if absAmount>=(refVal-sp-1) else 0)
-        print "__sticky_check", paneId, sticky
         self._g.set_property(paneId, "sticky", sticky)
 
     def full_sticky_check(self):
         leaves = self._g.leaves()
         leavesAncestors = set([self._g.parent(leaf) for leaf in leaves])
-        print leaves, leavesAncestors
         for paneId in leavesAncestors:
             if paneId == None:
                 continue
