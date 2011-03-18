@@ -26,14 +26,19 @@ from openalea.core.logger import get_logger
 
 from openalea.secondnature.splittable import CustomSplittable
 
-from openalea.secondnature.managers import init_sources
-from openalea.secondnature.managers import LayoutManager
-from openalea.secondnature.managers import AppletFactoryManager
-from openalea.secondnature.managers import DataTypeManager
+from openalea.secondnature.managers import AbstractSourceManager
+from openalea.secondnature.layouts  import LayoutManager
+from openalea.secondnature.applets  import AppletFactoryManager
+from openalea.secondnature.data     import DataTypeManager
 
 from openalea.secondnature.project import Project
 from openalea.secondnature.project import ProjectManager
 from openalea.secondnature.project import QActiveProjectManager
+
+from openalea.secondnature.mimetools import DataEditorSelector
+
+from openalea.secondnature.qtutils import try_to_disconnect
+
 
 
 sn_logger = get_logger(__name__)
@@ -48,6 +53,7 @@ class MainWindow(QtGui.QMainWindow):
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         self.logger = sn_logger
+        self.__applets = []
 
         # main menu bar
         self._mainMenuBar = QtGui.QMenuBar(self)
@@ -77,21 +83,40 @@ class MainWindow(QtGui.QMainWindow):
         self.setStatusBar(self._statusBar)
         self.setCentralWidget(self.__splittable)
 
-        pm = ProjectManager()
-        if not pm.has_active_project():
-            pm.new_active_project("New Project")
+        self.__projMan = ProjectManager()
+        if not self.__projMan.has_active_project():
+            self.__projMan.new_active_project("New Project")
+
+        DataTypeManager().data_created.connect(self.__projMan.add_data_to_active_project)
+        DataTypeManager().data_property_set_request.connect(self.__projMan.set_property_to_active_project)
+        AppletFactoryManager().applet_created.connect(self.add_applet)
 
         LayoutManager().itemListChanged.connect(self.__onLayoutListChanged)
         self._layoutMode.activated[QtCore.QString].connect(self.__onLayoutChosen)
 
 
     def init_extensions(self):
-        init_sources()
+        AbstractSourceManager.init()
+
         # --choosing default layout--
         index = self._layoutMode.findText("Default Layout")
         if index >= 0:
             self._layoutMode.setCurrentIndex(index)
             self._layoutMode.activated[QtCore.QString].emit("Default Layout")
+
+
+    #########################################
+    # Active project status change handlers #
+    #########################################
+    def __on_active_project_set(self, proj, old):
+        for applet in self.__applets:
+            #try_to_disconnect(old.data_added, applet.update_combo_list)
+            proj.data_added.connect(applet.update_combo_list)
+
+    def add_applet(self, applet):
+        print "MainWindow::add_applet", applet.name, id(applet)
+        self.__projMan.data_added.connect(applet.update_combo_list)
+        self.__applets.append(applet)
 
     #################################
     # DRAG AND DROP RELATED METHODS #
@@ -119,40 +144,17 @@ class MainWindow(QtGui.QMainWindow):
 
         formats = map(str, mimeData.formats())
         handlers = DataTypeManager().get_handlers_for_mimedata(formats)
-        print "__on_splitter_drag_enter", handlers
         if len(handlers) > 0:
             event.acceptProposedAction()
         elif mimeData.hasFormat(ProjectManager.mimeformat):
             event.acceptProposedAction()
-
-    def __handler_from_mime_formats(self, formats, applet=True):
-        formats = map(str, formats)
-        if applet:
-            handlers = AppletFactoryManager().get_handlers_for_mimedata(formats)
-        else:
-            handlers = DataTypeManager().get_handlers_for_mimedata(formats)
-#        print handlers
-        nbHandlers = len(handlers)
-        if nbHandlers == 0:
-            return
-        elif nbHandlers == 1:
-            fac = handlers[0]
-        elif nbHandlers > 1:
-            selector = DataEditorSelector( [h.name for h in handlers], self )
-            if selector.exec_() == QtGui.QDialog.Rejected:
-                return
-            else:
-                facName = selector.get_selected()
-                fac = filter(lambda x: x.name == facName, handlers)[0]
-        return fac
-
 
     def __on_splitter_pane_drop(self, paneId, event):
         mimeData = event.mimeData()
         if not self.__validate_mimedata(mimeData):
             return
 
-        proj = ProjectManager().get_active_project()
+        proj = self.__projMan.get_active_project()
         app = None
         data = None
         space = None
@@ -160,15 +162,15 @@ class MainWindow(QtGui.QMainWindow):
         if mimeData.hasUrls():
             formats = mimeData.formats()
             url = str(mimeData.urls()[0].toString())
-            dt = self.__handler_from_mime_formats(formats, applet=False)
+            dt = DataEditorSelector.mime_type_handler(formats, applet=False)
             if not dt:
                 return
             parsedUrl = urlparse.urlparse(url)
             data = dt.open_url(parsedUrl)
             if not data:
                 return
-            self.__register_data(data)
-            app = self.__handler_from_mime_formats([data.mimetype], applet=True)
+#            self.__register_data(data)
+            app = DataEditorSelector.mime_type_handler([data.mimetype], applet=True)
             if not app:
                 return
 
@@ -179,9 +181,8 @@ class MainWindow(QtGui.QMainWindow):
                 if ok and proj:
                     data = proj.get_data(dataId)
                     if data:
-                        app = self.__handler_from_mime_formats([data.mimetype], applet=True)
+                        app = DataEditorSelector.mime_type_handler([data.mimetype], applet=True)
 
-        print proj, data
         # first try to retreive the space associated to this data
         if proj and data:
             space = proj.get_data_property(data, "space")
@@ -229,7 +230,6 @@ class MainWindow(QtGui.QMainWindow):
         # create new splittable and retreive objects from previous
         newSplit, taken = self.__new_splittable(layout.skeleton)
 
-        proj = ProjectManager().get_active_project()
         appletmap = layout.appletmap
         afm = AppletFactoryManager()
         for paneId, appletName in appletmap.iteritems():
@@ -238,10 +238,7 @@ class MainWindow(QtGui.QMainWindow):
                 self.logger.debug("__onLayoutChosen has None factory for "+appletName)
                 continue
             try:
-                dt     = appFac.get_default_data_type()
-                data   = dt.new_0()
-                space  = appFac(data)
-                proj.set_data_property(data, "space", space)
+                space  = appFac()
             except Exception, e:
                 self.logger.error("__onLayoutChosen cannot display "+ \
                                   appletName+":"+\
@@ -265,8 +262,7 @@ class MainWindow(QtGui.QMainWindow):
     # Todo : objectify this
 
     def __onPaneMenuRequest(self, paneId, pos):
-        pm = ProjectManager()
-        proj = pm.get_active_project()
+        proj = self.__projMan.get_active_project()
 
         pos = self.__splittable.mapToGlobal(pos)
         menu = QtGui.QMenu(self.__splittable)
@@ -275,24 +271,18 @@ class MainWindow(QtGui.QMainWindow):
         action = menu.addAction("Clear")
         action.triggered.connect(self.__make_clear_pane_handler(paneId))
 
-        appletMenu   = menu.addMenu("Applets...")
-        datatypes    = list(DataTypeManager().gather_items().itervalues())
 
-        datatypes.sort(cmp = lambda x,y:cmp(x.name, y.name))
-        for dt in datatypes:
-            action = appletMenu.addAction(dt.get_icon(), dt.name)
+        appletMenu   = menu.addMenu("Applet...")
+        applets    = list(AppletFactoryManager().gather_items().itervalues())
+
+        applets.sort(cmp = lambda x,y:cmp(x.name, y.name))
+        for app in applets:
+            action = appletMenu.addAction(app.get_icon(), app.name)
             action.setIconVisibleInMenu(True)
-            func = self.__make_new_applet_pane_handler(proj, paneId, dt)
+            func = self.__make_new_applet_pane_handler(proj, paneId, app)
             action.triggered.connect(func)
 
-        if proj:
-            dataMenu = menu.addMenu("Project Data...")
-            for id, data in proj:
-                srcName = data.name
-                action = dataMenu.addAction(data.icon, srcName)
-                action.setIconVisibleInMenu(True)
-                func = self.__make_data_pane_handler(proj, paneId, data)
-                action.triggered.connect(func)
+
         menu.popup(pos)
 
     def __make_clear_pane_handler(self, paneId):
@@ -301,20 +291,26 @@ class MainWindow(QtGui.QMainWindow):
         func = on_clear_chosen
         return func
 
-    def __make_new_applet_pane_handler(self, proj, paneId, datatype):
+    def __make_new_applet_pane_handler(self, proj, paneId, applet):
+        def f(checked):
+            space = applet()
+            self.__setSpaceAt(paneId, space)
+        return f
+
+    def __make_new_data_pane_handler(self, proj, paneId, datatype):
         def on_applet_chosen(checked):
-            data = datatype.new_0()
+            data = datatype._new_0()
             if data is None:
                 self.logger.debug("on_applet_chosen has None data for "+ \
-                                  str(datatype.mimetypes))
+                                  str(datatype.created_mimetype))
                 return
-            self.__register_data(data)
-            fac = self.__handler_from_mime_formats([data.mimetype], applet=True)
-            if not fac:
-                self.logger.debug("on_applet_chosen has None factory for " + \
+#            self.__register_data(data)
+            applet = DataEditorSelector.mime_type_handler([data.mimetype], applet=True)
+            if not applet:
+                self.logger.debug("on_applet_chosen has None applet for " + \
                                   data.mimetype)
                 return
-            space = fac(data)
+            space = applet(data)
             if space is None:
                 self.logger.debug("on_applet_chosen has None space for " + data.mimetype)
             else:
@@ -324,16 +320,6 @@ class MainWindow(QtGui.QMainWindow):
         func = on_applet_chosen
         return func
 
-    def __make_data_pane_handler(self, proj, paneId, data):
-        def on_data_chosen(checked):
-            space = proj.get_data_property(data, "space")
-            if space is None:
-                self.logger.debug("on_data_chosen has None space for "+data.name)
-            else:
-                self.__setSpaceAt(paneId, space)
-
-        func = on_data_chosen
-        return func
 
 
     ####################################
@@ -361,13 +347,7 @@ class MainWindow(QtGui.QMainWindow):
         return s, taken
 
     def __setSpaceAt(self, paneId, space):
-        content, menuList, toolbar = space.content, space.menus, space.toolbar
-        if content is not None:
-            self.__setContentAt(paneId, content)
-        if menuList:
-            self.__setMenusAt(paneId, menuList)
-        if toolbar is not None:
-            self.__setToolbarAt(paneId, toolbar)
+        self.__setContentAt(paneId, space)
 
     def __setContentAt(self, paneId, content):
         if self.__splittable:
@@ -375,44 +355,17 @@ class MainWindow(QtGui.QMainWindow):
                                            content,
                                            noTearOffs=True, noToolButton=True)
 
-    def __setMenusAt(self, paneId, menuList):
-        pass
-
-    def __setToolbarAt(self, paneId, tb):
-        pass
 
     ###################
     # Data Management #
     ###################
-    def __register_data(self, data):
-        if data and data.registerable:
-            proj = ProjectManager().get_active_project()
-            proj.add_data(data)
-        else:
-            return #raise something
-
-
-
-
-class DataEditorSelector(QtGui.QDialog):
-    def __init__(self, items, parent=None):
-        QtGui.QDialog.__init__(self, parent, QtCore.Qt.WindowOkButtonHint|
-                                             QtCore.Qt.WindowCancelButtonHint)
-        self.setWindowTitle("Select a tool")
-        self.__l = QtGui.QVBoxLayout()
-        self.__itemList = QtGui.QListWidget()
-        self.__buttons = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Ok|
-                                                QtGui.QDialogButtonBox.Cancel)
-        self.__l.addWidget(self.__itemList)
-        self.__l.addWidget(self.__buttons)
-        self.setLayout(self.__l)
-        self.__itemList.addItems(items)
-        self.__buttons.accepted.connect(self.accept)
-        self.__buttons.rejected.connect(self.reject)
-
-    def get_selected(self):
-        return self.__itemList.currentItem().text()
-
+    # def __register_data(self, data):
+    #     return
+    #     if data and data.registerable:
+    #         proj = ProjectManager().get_active_project()
+    #         proj.add_data(data)
+    #     else:
+    #         return #raise something
 
 
 

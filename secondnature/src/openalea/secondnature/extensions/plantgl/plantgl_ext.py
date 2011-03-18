@@ -23,53 +23,51 @@ import urlparse
 import plantgl_icons
 
 class DT_Curve(DataTypeNoOpen):
-    __name__      = "Curve2D"
-    __mimetypes__ =  ["application/plantgl-curve"]
-    __icon_rc__   = ":icons/curve2D.png"
+    __name__             = "Curve2D"
+    __created_mimetype__ = "application/plantgl-curve"
+    __icon_rc__          = ":icons/curve2D.png"
 
     def new(self):
         from vplants.plantgl.gui import curve2deditor
 
         # -- let the user choose the curve type he wants --
         constraint = curve2deditor.Curve2DConstraint
-        mimetype = self.__mimetypes__[0]
         data = constraint.defaultCurve()
         iname = self.__name__
-        return Data(iname, data, mimetype=mimetype, constraintType=constraint)
+        return self.container_data(iname, data, constraintType=constraint)
 
 
 class DT_Function(DataTypeNoOpen):
-    __name__      = "Function2D"
-    __mimetypes__ = ["application/plantgl-function"]
-    __icon_rc__   = ":icons/function.png"
+    __name__             = "Function2D"
+    __created_mimetype__ = "application/plantgl-function"
+    __icon_rc__          = ":icons/function.png"
 
     def new(self):
         from vplants.plantgl.gui import curve2deditor
 
         # -- let the user choose the curve type he wants --
         constraint = curve2deditor.FuncConstraint
-        mimetype = self.__mimetypes__[0]
         data = constraint.defaultCurve()
         iname = self.__name__
-        return Data(iname, data, mimetype=mimetype, constraintType=constraint)
+        return self.container_data(iname, data, constraintType=constraint)
 
 
 class DT_NurbsPatch(DataTypeNoOpen):
-    __name__      = "NurbsPatch"
-    __mimetypes__ =  ["application/plantgl-nurbspatch"]
-    __icon_rc__   = ":icons/nurbspatch.png"
+    __name__             = "NurbsPatch"
+    __created_mimetype__ =  "application/plantgl-nurbspatch"
+    __icon_rc__          = ":icons/nurbspatch.png"
 
     def new(self):
         from vplants.plantgl.gui import nurbspatcheditor
 
         data = nurbspatcheditor.NurbsPatchEditor.newDefaultNurbsPatch()
         iname = self.__name__
-        return Data(iname, data,  mimetype=self.__mimetypes__[0])
+        return self.container_data(iname, data)
 
 class DT_InterpolatedProfile(DataTypeNoOpen):
-    __name__ = "InterpolatedProfile"
-    __mimetypes__ = ["application/plantgl-interpolatedcurve"]
-    __icon_rc__   = ":icons/interpolatedprofile.png"
+    __name__             = "InterpolatedProfile"
+    __created_mimetype__ = "application/plantgl-interpolatedcurve"
+    __icon_rc__          = ":icons/interpolatedprofile.png"
 
     def new(self):
         from vplants.plantgl.scenegraph.interpolated_profile import CrossSection
@@ -88,7 +86,7 @@ class DT_InterpolatedProfile(DataTypeNoOpen):
 
         iname = self.__name__
 
-        return Data(iname, tc, mimetype=self.__mimetypes__[0] )
+        return self.container_data(iname, tc)
 
 
 
@@ -105,24 +103,24 @@ class PlantGLFactory(AppletBase):
         self.set_default_data_type(curve_dt)
 
     def get_applet_space(self, data):
-        if data.mimetype in DT_Curve.__mimetypes__:
+        if data.mimetype == DT_Curve.__created_mimetype__:
             from vplants.plantgl.gui import curve2deditor
             curve = data.obj
             constraint = data.get_inner_property("constraintType")
             editor = curve2deditor.Curve2DEditor(None, constraints=constraint())
             editor.setCurve(curve)
-        elif data.mimetype in DT_Function.__mimetypes__:
+        elif data.mimetype == DT_Function.__created_mimetype__:
             from vplants.plantgl.gui import curve2deditor
             curve = data.obj
             constraint = data.get_inner_property("constraintType")
             editor = curve2deditor.Curve2DEditor(None, constraints=constraint())
             editor.setCurve(curve)
-        elif data.mimetype in DT_NurbsPatch.__mimetypes__:
+        elif data.mimetype == DT_NurbsPatch.__created_mimetype__:
             from vplants.plantgl.gui import nurbspatcheditor
             patch = data.obj
             editor = nurbspatcheditor.NurbsPatchEditor(None)
             editor.setNurbsPatch(patch)
-        elif data.mimetype in DT_InterpolatedProfile.__mimetypes__:
+        elif data.mimetype == DT_InterpolatedProfile.__created_mimetype__:
             from vplants.plantgl.gui import interpolated_profile_gui
             profile = data.obj
             editor = interpolated_profile_gui.ProfileEditor(editingCentral=False)

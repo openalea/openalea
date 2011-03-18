@@ -29,15 +29,15 @@ import builtin_icons
 ##########
 class DT_Logger(DataTypeNoOpen):
     __name__      = "Logger"
-    __mimetypes__ = ["application/openalea-logger"]
+    __created_mimetype__ = "application/openalea-logger"
     __icon_rc__   = ":icons/logger.png"
 
     def __init__(self):
         DataTypeNoOpen.__init__(self)
         from openalea.core.logger import LoggerOffice
         self.loggermodel = LoggerOffice().get_handler("qt")
-        self.loggerDoc = UnregisterableData(self.__name__,  self.loggermodel,
-                                            mimetype=self.__mimetypes__[0])
+        self.loggerDoc = self.container_global_data(self.__name__,  self.loggermodel)
+
     def new(self):
         return self.loggerDoc
 
@@ -63,15 +63,14 @@ logger_f   = LoggerFactory()
 ###############
 class DT_Interpreter(DataTypeNoOpen):
     __name__      = "Interpreter"
-    __mimetypes__ = ["application/openalea-interpreter"]
+    __created_mimetype__ = "application/openalea-interpreter"
     __icon_rc__   = ":icons/interpreter.png"
 
     def __init__(self):
         DataTypeNoOpen.__init__(self)
         from code import InteractiveInterpreter as Interpreter
         self.interpretermodel = Interpreter()
-        self.interpreterDoc = UnregisterableData(self.__name__,  self.interpretermodel,
-                                                 mimetype=self.__mimetypes__[0])
+        self.interpreterDoc = self.container_global_data(self.__name__,  self.interpretermodel)
 
     def new(self):
         return self.interpreterDoc
@@ -94,10 +93,11 @@ class InterpreterFactory(AppletBase):
 
         interpreterModel = data.obj
         #managers:
-        from openalea.secondnature import managers
+        from openalea.secondnature import layouts
+        from openalea.secondnature import applets
         from openalea.secondnature import project
-        mgrs = {"layMan":managers.LayoutManager(),
-                "appMan":managers.AppletFactoryManager(),
+        mgrs = {"layMan":layouts.LayoutManager(),
+                "appMan":applets.AppletFactoryManager(),
                 "prjMan":project.ProjectManager()}
         view  = self.shellCls(interpreterModel, cli.get_welcome_msg())
         cli.init_interpreter(interpreterModel, session, mgrs)
@@ -109,9 +109,9 @@ interpreter_f   = InterpreterFactory()
 # PACKAGE MANAGER #
 ###################
 class DT_PackageManager(DataTypeNoOpen):
-    __name__      = "PackageManager"
-    __mimetypes__ = ["application/openalea-packagemanager"]
-    __icon_rc__   = ":icons/packagemanager.png"
+    __name__             = "PackageManager"
+    __created_mimetype__ = "application/openalea-packagemanager"
+    __icon_rc__          = ":icons/packagemanager.png"
 
     def __init__(self):
         DataTypeNoOpen.__init__(self)
@@ -120,7 +120,7 @@ class DT_PackageManager(DataTypeNoOpen):
         from openalea.secondnature.ripped.node_treeview import PkgModel
 
         self.model    = PkgModel(PackageManager())
-        self.pmanagerDoc = UnregisterableData(self.__name__, self.model, self.__mimetypes__[0])
+        self.pmanagerDoc = self.container_global_data(self.__name__, self.model)
 
     def new(self):
         return self.pmanagerDoc
@@ -148,7 +148,7 @@ pmanager_f = PackageManagerFactory()
 ###################
 class DT_ProjectManager(DataTypeNoOpen):
     __name__      = "ProjectManager"
-    __mimetypes__ = ["application/openalea-projectmanager"]
+    __created_mimetype__ = "application/openalea-projectmanager"
     __icon_rc__   = ":icons/projectmanager.png"
 
     def __init__(self):
@@ -157,8 +157,7 @@ class DT_ProjectManager(DataTypeNoOpen):
         from openalea.secondnature.project_view import ProjectManagerTreeModel
 
         self.model    = ProjectManagerTreeModel()
-        self.pmanagerDoc = UnregisterableData(self.__name__, self.model,
-                                              mimetype=self.__mimetypes__[0])
+        self.pmanagerDoc = self.container_global_data(self.__name__, self.model)
 
     def new(self):
         return self.pmanagerDoc

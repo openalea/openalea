@@ -28,8 +28,9 @@ from openalea.secondnature.layouts import LayoutSpace
 # DATA API
 from openalea.secondnature.data import DataType
 from openalea.secondnature.data import DataTypeNoOpen
-from openalea.secondnature.data import Data
-from openalea.secondnature.data import UnregisterableData
+# from openalea.secondnature.data import Data
+# from openalea.secondnature.data import UnregisterableData
+# from openalea.secondnature.data import GlobalData
 
 # QT UTILS
 from openalea.secondnature.qtutils import EscEventSwallower

@@ -19,6 +19,7 @@ __revision__ = " $Id$ "
 
 from openalea.secondnature.base_mixins import HasName
 
+
 class Layout(HasName):
     def __init__(self, name, skeleton, appletmap, easy_name=None):
         HasName.__init__(self, name)
@@ -35,10 +36,30 @@ class Layout(HasName):
 class LayoutSpace(object):
     """returned by widget factories"""
     def __init__(self, content, menuList=None, toolbar=None):
-        self.__content = content
-        self.__menuList    = menuList
-        self.__toolbar = toolbar
+        self.__content  = content
+        self.__menuList = menuList
+        self.__toolbar  = toolbar
+
+    def _set_applet(self, applet):
+        self.__applet = applet
 
     content = property(lambda x:x.__content)
     menus   = property(lambda x:x.__menuList)
     toolbar = property(lambda x:x.__toolbar)
+
+
+##########################
+# LAYOUT MANAGER CLASSES #
+##########################
+from openalea.secondnature.managers import make_manager
+
+layout_classes = make_manager("Layout",
+                              entry_point="openalea.app.layout",
+                              builtin="layouts",
+                              key="easyname")
+LayoutManager = layout_classes[0]
+LayoutSourceMixin = layout_classes[1]
+LayoutSourceEntryPoints, LayoutSourceBuiltin = layout_classes[2]
+
+
+LayoutManager()

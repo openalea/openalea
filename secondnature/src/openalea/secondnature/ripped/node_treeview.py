@@ -439,7 +439,7 @@ class NodeFactoryView(object):
             h = self.header().hide()
         except:
             pass
-
+        self.setIconSize(QtCore.QSize(16,16))
 
     def dragEnterEvent(self, event):
         mimedata = event.mimeData()
@@ -914,6 +914,7 @@ class NodeFactoryTreeView(NodeFactoryView, QtGui.QTreeView):
         NodeFactoryView.__init__(self, main_win, parent)
 
         self.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
+        self.setIconSize(QtCore.QSize(16,16))
         #self.setAnimated(True)
 
         self.connect(self, QtCore.SIGNAL("expanded (const QModelIndex &)"), self.expanded)

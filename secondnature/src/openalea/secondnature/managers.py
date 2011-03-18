@@ -27,14 +27,6 @@ import traceback
 logger = get_logger(__name__)
 
 
-def init_sources():
-    init_layout_sources()
-    init_applet_sources()
-    init_datatype_sources()
-    LayoutManager().gather_items(refresh=True)
-    AppletFactoryManager().gather_items(refresh=True)
-    DataTypeManager().gather_items(refresh=True)
-
 ######################################################
 # Base classes and function for manager declarations #
 ######################################################
@@ -46,10 +38,13 @@ class AbstractSourceManager(QtCore.QObject):
 
     itemListChanged = QtCore.pyqtSignal(list)
 
+    __managers__ = []
+
     def __init__(self):
         QtCore.QObject.__init__(self)
         self._sources = {}
         self._items   = {}
+        AbstractSourceManager.__managers__.append(self)
 
     def __iter__(self):
         return self._items.iteritems()
@@ -85,6 +80,16 @@ class AbstractSourceManager(QtCore.QObject):
         self._items.update(items)
         self.itemListChanged.emit(list(self._items.iterkeys()))
 
+    @classmethod
+    def init_sources(cls):
+        raise NotImplementedError
+
+    @classmethod
+    def init(cls):
+        for manager in cls.__managers__:
+            manager.init_sources()
+        for manager in cls.__managers__:
+            manager.gather_items(refresh=True)
 
 
 class AbstractSource(QtCore.QObject):
@@ -194,8 +199,14 @@ class BuiltinSourceBase(AbstractSource):
 
 def make_manager(name, entry_point=None, builtin=None, to_derive=False, key="name"):
 
+    sources = []
+
     class MetaManager(AbstractSourceManager):
-        pass
+        @classmethod
+        def init_sources(cls):
+            for src in sources:
+                src()
+
     MetaManager.__name__ = name+("ManagerBase"if to_derive else "Manager")
 
     class MetaSourceMixin(object):
@@ -203,7 +214,7 @@ def make_manager(name, entry_point=None, builtin=None, to_derive=False, key="nam
         __key__ = key
     MetaSourceMixin.__name__ = name+"SourceMixin"
 
-    sources = []
+
 
     if entry_point is not None:
         class MetaSourceEntryPoints(MetaSourceMixin, EntryPointSourceBase):
@@ -226,11 +237,7 @@ def make_manager(name, entry_point=None, builtin=None, to_derive=False, key="nam
         MetaSourceBuiltin.__name__ = name+"SourceBuiltin"
         sources.append(MetaSourceBuiltin)
 
-    def meta_init_sources():
-        for src in sources:
-            src()
-
-    return MetaManager, MetaSourceMixin, sources, meta_init_sources
+    return MetaManager, MetaSourceMixin, sources
 
 #############################################################
 # End of base classes and function for manager declarations #
@@ -238,123 +245,5 @@ def make_manager(name, entry_point=None, builtin=None, to_derive=False, key="nam
 
 
 
-
-##########################
-# LAYOUT MANAGER CLASSES #
-##########################
-layout_classes = make_manager("Layout",
-                              entry_point="openalea.app.layout",
-                              builtin="layouts",
-                              key="easyname")
-LayoutManager = layout_classes[0]
-LayoutSourceMixin = layout_classes[1]
-LayoutSourceEntryPoints, LayoutSourceBuiltin = layout_classes[2]
-init_layout_sources = layout_classes[3]
-
-
-##################################
-# APPLET FACTORY MANAGER CLASSES #
-##################################
-applet_classes = make_manager("AppletFactory",
-                               entry_point="openalea.app.applet_factory",
-                               builtin="applet_factories", to_derive=True)
-AppletFactoryManagerBase = applet_classes[0]
-AppletFactorySourceMixin = applet_classes[1]
-AppletFactorySourceEntryPoints, AppletFactorySourceBuiltin = applet_classes[2]
-init_applet_sources = applet_classes[3]
-
-class AppletFactoryManager(AppletFactoryManagerBase):
-    def __init__(self):
-        AppletFactoryManagerBase.__init__(self)
-        self.__mimeMap = {}
-
-    def gather_items(self, refresh=True):
-        items = AppletFactoryManagerBase.gather_items(self, refresh)
-        if refresh:
-            self.__mimeMap.clear()
-            for appFac in items.itervalues():
-                if appFac is None:# or not appFac.supports_document_open():
-                    continue
-                fmts = appFac.get_mimetypes()
-                for fmt in fmts:
-                    self.__mimeMap.setdefault(fmt, set()).add(appFac)
-        return items
-
-    def get_handlers_for_mimedata(self, formats):
-        factories = self.gather_items()
-        handlers = set() # for unicity
-        for fm in formats:
-            fmt_factories = self.__mimeMap.get(fm)
-            if fmt_factories is not None:
-                handlers.update(fmt_factories)
-        return list(handlers)
-
-
-AppletFactorySourceMixin.__concrete_manager__ = AppletFactoryManager
-
-
-#############################
-# DATATYPE  MANAGER CLASSES #
-#############################
-datatype_classes = make_manager("DataType", to_derive=True)
-
-DataTypeManagerBase = datatype_classes[0]
-DataTypeSourceMixin = datatype_classes[1]
-DataTypeSources = datatype_classes[2]
-init_datatype_sources = datatype_classes[3]
-
-class DataTypeManager(DataTypeManagerBase):
-    def __init__(self):
-        DataTypeManagerBase.__init__(self)
-        self.__mimeMap = {}
-
-    def gather_items(self, refresh=True):
-        items = DataTypeManagerBase.gather_items(self, refresh)
-        if refresh:
-            self.__mimeMap.clear()
-            for datatype in items.itervalues():
-                if datatype is None or not datatype.supports_open():
-                    continue
-                fmts = datatype.mimetypes
-                for fmt in fmts:
-                    self.__mimeMap.setdefault(fmt, set()).add(datatype)
-        return items
-
-    def get_handlers_for_mimedata(self, formats):
-        datatypes = self.gather_items()
-        handlers = set() # for unicity
-        for fm in formats:
-            fmt_datatypes = self.__mimeMap.get(fm)
-            if fmt_datatypes is not None:
-                handlers.update(fmt_datatypes)
-        return list(handlers)
-
-DataTypeSourceMixin.__concrete_manager__ = DataTypeManager
-
-class DataTypeAppletSource(DataTypeSourceMixin, AbstractSource):
-
-    def __init__(self):
-        DataTypeSourceMixin.__init__(self)
-        AbstractSource.__init__(self)
-        self.items = {}
-    def is_valid(self):
-        return True
-
-    def gather_items(self):
-        APM = AppletFactoryManager()
-        appletFactories = APM.gather_items()
-
-        self.items.clear()
-        for appFac in appletFactories.itervalues():
-            dataTypes = appFac.get_data_types()
-            self.items.update( (dt.name, dt) for dt in dataTypes )
-        self.itemListChanged.emit(self, self.items.copy())
-
-    def get_items(self):
-        return self.items.copy()
-
-
-
-DataTypeSources.append(DataTypeAppletSource)
 
 

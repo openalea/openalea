@@ -89,17 +89,17 @@ class CustomSplittable(SplittableUI):
         if not kwargs.get("noToolButton", False):
             self._install_toolbutton(paneId)
         g = self._g
-        header = Header(self)
-        g.set_property(paneId, "header", header)
+        # header = Header(self)
+        # g.set_property(paneId, "header", header)
         self._raise_overlays(paneId)
         return w
 
     def _uninstall_child(self, paneId):
         w = SplittableUI._uninstall_child(self, paneId)
         self._remove_toolbutton(paneId)
-        if self._g.has_property(paneId, "header"):
-            header = self._g.pop_property(paneId, "header")
-            header.close() #careful! this might kill innocent widgets!
+        # if self._g.has_property(paneId, "header"):
+        #     header = self._g.pop_property(paneId, "header")
+        #     header.close() #careful! this might kill innocent widgets!
         return w
 
     def _install_toolbutton(self, paneId):
@@ -169,16 +169,16 @@ class CustomSplittable(SplittableUI):
         def layout_pane(self, geom, vid):
 
             widgetGeom = geom
-            if self.g.has_property(vid, "header"):
-                header = self.g.get_property(vid, "header")
-                height = header.geometry().height()
-                widgetGeom = geom.adjusted(0,0,0,-height)
-                header.move(widgetGeom.bottomLeft())
-                header.resize(widgetGeom.width(), height)
-                if geom.height() < height:
-                    header.hide()
-                else:
-                    header.show()
+            # if self.g.has_property(vid, "header"):
+            #     header = self.g.get_property(vid, "header")
+            #     height = header.geometry().height()
+            #     widgetGeom = geom.adjusted(0,0,0,-height)
+            #     header.move(widgetGeom.bottomLeft())
+            #     header.resize(widgetGeom.width(), height)
+            #     if geom.height() < height:
+            #         header.hide()
+            #     else:
+            #         header.show()
 
             igF, igS = super(self.__class__, self).layout_pane(geom, vid,
                                                                widgetSpace=widgetGeom)

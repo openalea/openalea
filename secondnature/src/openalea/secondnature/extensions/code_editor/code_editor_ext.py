@@ -32,11 +32,12 @@ import inspect
 import code_editor_icons
 
 class DT_Text(DataType):
-    __name__      = "Text"
-    __mimetypes__ = ["text/plain",
-                     "application/x-qt-windows-mime;value=\"FileName\"",
-                     NodeFactory.mimetype,
-                     CompositeNodeFactory.mimetype]
+    __name__             = "Text"
+    __created_mimetype__ = "text/plain"
+    __opened_mimetypes__ = ["text/plain",
+                            "application/x-qt-windows-mime;value=\"FileName\"",
+                            NodeFactory.mimetype,
+                            CompositeNodeFactory.mimetype]
     __icon_rc__   = ":icons/text.png"
 
     def __init__(self):
@@ -46,7 +47,7 @@ class DT_Text(DataType):
     def new(self):
         text = ""
         name = self.__name__
-        return Data(name, text, mimetype = "text/plain")
+        return self.container_data(name, text)
 
     def open_url(self, parsedUrl):
         url = parsedUrl.geturl()
@@ -70,7 +71,7 @@ class DT_Text(DataType):
         text = f.read()
         f.close()
 
-        return Data(name, text, mimetype="text/plain")
+        return self.container_data(name, text)
 
 
 

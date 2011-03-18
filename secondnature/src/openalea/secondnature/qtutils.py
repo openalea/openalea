@@ -16,7 +16,7 @@
 __license__ = "CeCILL v2"
 __revision__ = " $Id$ "
 
-from PyQt4 import QtCore
+from PyQt4 import QtCore, QtGui
 
 class EscEventSwallower(QtCore.QObject):
     def eventFilter(self, watched, event):
@@ -24,3 +24,28 @@ class EscEventSwallower(QtCore.QObject):
             if event.key() == QtCore.Qt.Key_Escape:
                 return True
         return False
+
+
+class ComboBox(QtGui.QComboBox):
+
+    aboutToShow = QtCore.pyqtSignal(object)
+
+    def __init__(self, *args, **kwargs):
+        QtGui.QComboBox.__init__(self, *args, **kwargs)
+        self.installEventFilter(self)
+
+    def eventFilter(self, watched, event):
+        if watched==self and event.type() == QtCore.QEvent.MouseButtonPress:
+            self.aboutToShow.emit(self)
+        return False
+
+
+def try_to_disconnect(signal, slot=None):
+    print "disconnect", signal, "from", slot
+    try:
+        if slot:
+            signal.disconnect(slot)
+        else:
+            signal.disconnect()
+    except TypeError:
+        pass

@@ -20,6 +20,7 @@ __revision__ = " $Id$ "
 
 from PyQt4 import QtCore, QtGui
 from openalea.secondnature.project import ProjectManager
+from openalea.secondnature.qtutils import try_to_disconnect
 
 
 def muteItemChange(f):
@@ -45,7 +46,6 @@ class ProjectManagerTreeModel(QtGui.QStandardItemModel):
 
         self.itemChanged.connect(self.__on_item_changed)
         self.__projMan.activeProjectChanged.connect(self.set_active_project)
-        self.__projMan.activeProjectClosed.connect(self.__clear)
 
         self.__activeProj = None
 
@@ -54,16 +54,16 @@ class ProjectManagerTreeModel(QtGui.QStandardItemModel):
             self.set_active_project(activePrj)
 
 
-    def set_active_project(self, proj):
+    def set_active_project(self, proj, old=None):
         # -- clear the view (maybe be less radical) --
-        self.__clear(self.__activeProj)
+        self.__clear(old)
         # -- now set active project and reconnect slots to this one --
         if proj:
             self.__activeProj = proj
             self.__activeProjItem = QtGui.QStandardItem(proj.name)
             self.__activeProjItem.setData(QtCore.QVariant(proj), self.projectRole)
             self.appendRow(self.__activeProjItem)
-            self.connect_project(self.__activeProj)
+            self.connect_project(proj)
             for k, v in proj:
                 self.__on_data_added(proj, v)
 
@@ -82,18 +82,11 @@ class ProjectManagerTreeModel(QtGui.QStandardItemModel):
 
     def disconnect_project(self, proj):
         if proj:
-            self.__try_to_disconnect(proj.data_added,        self.__on_data_added)
-            self.__try_to_disconnect(proj.data_name_changed, self.__on_data_name_changed)
-            self.__try_to_disconnect(proj.project_name_changed, self.__on_active_project_name_changed)
-            self.__try_to_disconnect(proj.modified, self.__on_active_project_modified)
-            self.__try_to_disconnect(proj.saved, self.__on_active_project_saved)
-
-    def __try_to_disconnect(self, signal, slot):
-        try:
-            signal.disconnect(slot)
-        except TypeError:
-            pass
-
+            try_to_disconnect(proj.data_added, self.__on_data_added)
+            try_to_disconnect(proj.data_name_changed, self.__on_data_name_changed)
+            try_to_disconnect(proj.project_name_changed, self.__on_active_project_name_changed)
+            try_to_disconnect(proj.modified, self.__on_active_project_modified)
+            try_to_disconnect(proj.saved, self.__on_active_project_saved)
 
     ###################
     # Protected slots #

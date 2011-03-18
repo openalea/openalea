@@ -27,20 +27,21 @@ import urlparse
 import visualea_icons
 
 class DT_Dataflow(DataType):
-    __name__      = "Dataflow"
-    __mimetypes__ = [CompositeNodeFactory.mimetype, CompositeNode.mimetype]
+    __name__             = "Dataflow"
+    __created_mimetype__ = CompositeNode.mimetype
+    __opened_mimetypes__ = [CompositeNodeFactory.mimetype]
     __icon_rc__   = ":icons/dataflow.png"
 
     def new(self):
         iname = self.__name__
         node = CompositeNodeFactory(iname).instantiate()
         node.set_caption(iname)
-        return Data(node.caption, node, mimetype=CompositeNode.mimetype)
+        return self.container_data(node.caption, node)
 
     def open_url(self, parsedUrl):
         pm = PackageManager()
         node = pm.get_node_from_url(parsedUrl)
-        return Data(node.caption, node, mimetype=CompositeNode.mimetype)
+        return self.container_data(node.caption, node)
 
 
 class DataflowViewFactory(AppletBase):

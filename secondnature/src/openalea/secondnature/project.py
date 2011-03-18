@@ -56,28 +56,37 @@ class Project(QtCore.QObject):
 
     def __fix_name(self, name):
         i = 1
-        while name in self.__names:
-            name += " (%i)"%i
+        original = name
+        candidate = name
+        while candidate in self.__names:
+            candidate = name + " (%i)"%i
             i += 1
-        self.__names.add(name)
-        return name
+        self.__names.add(candidate)
+        return candidate
 
     def add_data(self, doc):
+
         name = self.__fix_name(doc.name)
         doc.name = name
-#        doc._set_name( name )
         self.__docs[self.__docIdCtr] = doc
         self.__docToIds[doc] = self.__docIdCtr
         self.__docIdCtr += 1
 
         self.data_added.emit(self, doc)
         self.mark_as_modified()
+        print "Project::add_data", doc.name, id(self)
 
     def get_data_id(self, data):
         return self.__docToIds.get(data, -1)
 
     def get_data(self, doc_id):
         return self.__docs.get(doc_id)
+
+    def get_data_by_name(self, name):
+        for datum in self.__docs.itervalues():
+            if name==datum.name:
+                return datum
+        return None
 
     def del_data(self, doc_id):
         self.mark_as_modified()
@@ -102,6 +111,9 @@ class Project(QtCore.QObject):
         self.data_name_changed.emit(self, doc, fixedName)
 
     def set_data_property(self, doc, key, val):
+        print "Project::set_data_property", doc.name, id(self)
+        if doc not in self.__docToIds:
+            raise Exception()
         self.__docprops.setdefault(doc, {})[key] = val
 
     def get_data_property(self, doc, key):
@@ -201,8 +213,8 @@ class ProjectManager(QtCore.QObject):
     __metaclass__ = make_metaclass((ProxySingleton,),
                                    (QtCore.pyqtWrapperType,))
 
-    activeProjectChanged       = QtCore.pyqtSignal(object)
-    activeProjectClosed        = QtCore.pyqtSignal(object)
+    activeProjectChanged = QtCore.pyqtSignal(Project, Project)
+    data_added           = QtCore.pyqtSignal(object, object)
 
     mimeformat   = "application/secondnature-project-data-id"
 
@@ -221,27 +233,35 @@ class ProjectManager(QtCore.QObject):
         print "ProjectManager.set_active_project"
         if self.has_active_project() and self.get_active_project().is_modified():
             return False# raise something
+        old = self.__activeProject
         self.__activeProject = project
-        self.activeProjectChanged.emit(self.__activeProject)
+        self.__activeProject.data_added.connect(self.data_added)
+        self.activeProjectChanged.emit(self.__activeProject, old)
         return True
 
     def get_active_project(self):
         return self.__activeProject
 
-    def close_active_project(self):#, save=False, savepath="~"):
+    def close_active_project(self):
         if self.__activeProject:
-            # if save == True:
-            #     self.save_active_project(savepath)
             self.__activeProject.close()
         self.__activeProject = None
 
     def save_active_project(self, filepath):
         self.__activeProject.save_to(filepath)
 
+    def add_data_to_active_project(self, data):
+        print "ProjectManager::add_data_to_active_project", data.name, data.registerable,
+        print self.__activeProject
+        if data and data.registerable and self.__activeProject:
+            self.__activeProject.add_data(data)
+        print "ProjectManager::add_data_to_active_project::EXIT"
 
-
-
-
+    def set_property_to_active_project(self, data, key, value):
+        print "ProjectManager::set_property_to_active_project", data.name, key, value
+        if data and self.__activeProject:
+            self.__activeProject.set_data_property(data, key, value)
+        print "ProjectManager::set_property_to_active_project::EXIT"
 
 
 import os.path
@@ -376,4 +396,7 @@ class QActiveProjectManager(QtCore.QObject):
                 print "open_project::proj", proj
                 if proj:
                     self.set_active_project(proj)
+
+
+
 
