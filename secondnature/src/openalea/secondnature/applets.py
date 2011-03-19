@@ -18,11 +18,11 @@ __revision__ = " $Id$ "
 
 
 from openalea.secondnature.base_mixins import HasName
-from openalea.secondnature.data import DataTypeBase
-from openalea.secondnature.layouts import LayoutSpace
+from openalea.secondnature.data import AbstractDataType
+from openalea.secondnature.layouts import SpaceContent
 from PyQt4 import QtCore
 
-class AppletBase(HasName):
+class AbstractApplet(HasName):
 
     __name__ = ""
     __icon_rc__ = None
@@ -56,14 +56,13 @@ class AppletBase(HasName):
     def get_mimetypes(self):
         return list(self.__mimemap.iterkeys())
 
-    def get_applet_space(self, data):
+    def create_space_content(self, data):
         raise NotImplementedError
 
-    def _get_applet_space_0(self, data):
-        space = self.get_applet_space(data)
+    def _create_space_content_0(self, data):
+        space = self.create_space_content(data)
         if data.registerable:
             ProjectManager().set_property_to_active_project(data, "space", space)
-#        DataTypeManager().data_property_set_request.emit(data, "space", space)
         return space
 
     def __call__(self):
@@ -72,14 +71,13 @@ class AppletBase(HasName):
     #####################
     # Graphical Goodies #
     #####################
-    def get_icon(self):
-        return self.__icon
+    icon = property(lambda x:x.__icon)
 
     def get_background_pixmap(self, refresh=False):
         if self.__bgpixmap is None or refresh:
             # -- all icons are 32*32
-            iconPixmaps = [dt.get_icon().pixmap(32,32) for dt in self.__datatypes \
-                           if dt.get_icon()]
+            iconPixmaps = [dt.icon.pixmap(32,32) for dt in self.__datatypes \
+                           if dt.icon]
             bgw, bgh    = len(iconPixmaps)*32, 32
             bgPixmap    = QtGui.QPixmap(bgw, bgh)
             painter     = QtGui.QPainter(bgPixmap)
@@ -96,7 +94,7 @@ class AppletBase(HasName):
     # DataTypes #
     #############
     def add_data_type(self, dt):
-        assert isinstance(dt, DataTypeBase)
+        assert isinstance(dt, AbstractDataType)
         self.__datatypes.append(dt)
         mimetypes = dt.opened_mimetypes
         for mt in mimetypes:
@@ -114,11 +112,10 @@ class AppletBase(HasName):
             d = dict( (dt.mimetype, dt) for dt in dts )
             self.__mimemap.update(d)
 
-
     def get_data_types(self):
         return self.__datatypes[:]
 
-
+    data_types = property(lambda x:x.__datatypes[:])
 
 
 
@@ -147,7 +144,7 @@ class AppletSpace(QtGui.QWidget):
 
         self.setContentsMargins(0,0,0,0)
 
-        assert isinstance(applet, AppletBase)
+        assert isinstance(applet, AbstractApplet)
         self.__applet  = applet
 
         self.__lay     = QtGui.QVBoxLayout(self)
@@ -199,7 +196,7 @@ class AppletSpace(QtGui.QWidget):
         datatypes = self.__applet.get_data_types()
         datatypes.sort(cmp = lambda x,y:cmp(x.name, y.name))
         for dt in datatypes:
-            action = menu.addAction(dt.get_icon(), dt.name)
+            action = menu.addAction(dt.icon, dt.name)
             action.setIconVisibleInMenu(True)
             func = self.__make_datatype_handler(dt)
             action.triggered.connect(func)
@@ -207,7 +204,6 @@ class AppletSpace(QtGui.QWidget):
 
 
     def update_combo_list(self, proj, addedData=None, block=True):
-        print "AppletSpace::update_combo_list", self.name
         self.__browseDataBut.blockSignals(block)
         currentText = self.__browseDataBut.currentText()
         self.__browseDataBut.clear()
@@ -228,18 +224,16 @@ class AppletSpace(QtGui.QWidget):
 
     def __make_datatype_handler(self, datatype):
         def on_datatype_chosen(checked):
-            print "AppletSpace::on_datatype_chosen", self.name
             data = datatype._new_0()
-            space = self.__applet._get_applet_space_0(data)
+            space = self.__applet._create_space_content_0(data)
             self.__stack.addWidget(space.content)
         return on_datatype_chosen
 
     def show_data(self, index):
-        print "AppletSpace::show_data", self.name
         data, proj =  self.__browseDataBut.itemData(index).toPyObject()
         space = proj.get_data_property(data, "space")
         if not space:
-            space = self.__applet._get_applet_space_0(data)
+            space = self.__applet._create_space_content_0(data)
         content = space.content
         content.show()
         if not self.__stack.indexOf(content)>-1:
@@ -247,7 +241,6 @@ class AppletSpace(QtGui.QWidget):
         self.__stack.setCurrentWidget(content)
 
     def _set_combo_index(self, index):
-        print "AppletSpace::_set_combo_index", self.name
         self.__browseDataBut.setCurrentIndex(index)
 
 
@@ -262,7 +255,7 @@ class EmptyAppletBackground(QtGui.QWidget):
 
         self.__lay.addStretch()
         for dt in applet.get_data_types():
-            but  = QtGui.QPushButton(dt.get_icon(), dt.name)
+            but  = QtGui.QPushButton(dt.icon, dt.name)
             policy = QtGui.QSizePolicy.Fixed
             policy = QtGui.QSizePolicy(policy, policy)
             but.setSizePolicy(policy)
@@ -274,9 +267,8 @@ class EmptyAppletBackground(QtGui.QWidget):
 
     def __make_button_click_handler(self, but, applet, datatype, appletspace):
         def on_type_selected(checked):
-            print "EmptyAppletBackground::on_type_selected", appletspace.name, datatype.name
             data = datatype._new_0()
-            space = applet._get_applet_space_0(data)
+            space = applet._create_space_content_0(data)
             appletspace._set_combo_index(0)
         return on_type_selected
 
@@ -304,20 +296,20 @@ from openalea.secondnature.managers import make_manager
 applet_classes = make_manager("AppletFactory",
                                entry_point="openalea.app.applet_factory",
                                builtin="applet_factories", to_derive=True)
-AppletFactoryManagerBase = applet_classes[0]
+AbstractAppletFactoryManager = applet_classes[0]
 AppletFactorySourceMixin = applet_classes[1]
 AppletFactorySourceEntryPoints, AppletFactorySourceBuiltin = applet_classes[2]
 
-class AppletFactoryManager(AppletFactoryManagerBase):
+class AppletFactoryManager(AbstractAppletFactoryManager):
 
     applet_created = QtCore.pyqtSignal(object)
 
     def __init__(self):
-        AppletFactoryManagerBase.__init__(self)
+        AbstractAppletFactoryManager.__init__(self)
         self.__mimeMap = {}
 
     def gather_items(self, refresh=True):
-        items = AppletFactoryManagerBase.gather_items(self, refresh)
+        items = AbstractAppletFactoryManager.gather_items(self, refresh)
         if refresh:
             self.__mimeMap.clear()
             for appFac in items.itervalues():

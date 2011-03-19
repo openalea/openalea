@@ -36,25 +36,25 @@ class DT_Dataflow(DataType):
         iname = self.__name__
         node = CompositeNodeFactory(iname).instantiate()
         node.set_caption(iname)
-        return self.container_data(node.caption, node)
+        return self.wrap_data(node.caption, node)
 
     def open_url(self, parsedUrl):
         pm = PackageManager()
         node = pm.get_node_from_url(parsedUrl)
-        return self.container_data(node.caption, node)
+        return self.wrap_data(node.caption, node)
 
 
-class DataflowViewFactory(AppletBase):
+class DataflowViewFactory(AbstractApplet):
     __name__ = "Visualea.DataflowView"
 
     def __init__(self):
-        AppletBase.__init__(self)
+        AbstractApplet.__init__(self)
         self.add_data_type(DT_Dataflow())
 
-    def get_applet_space(self, data):
+    def create_space_content(self, data):
         node = data.obj
         gwidget = dataflowview.GraphicalGraph.create_view(node)
-        return LayoutSpace(gwidget)
+        return SpaceContent(gwidget)
 
 
 

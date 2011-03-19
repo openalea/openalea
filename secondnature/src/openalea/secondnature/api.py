@@ -19,11 +19,11 @@ __revision__ = " $Id$ "
 
 
 # APPLET API
-from openalea.secondnature.applets import AppletBase
+from openalea.secondnature.applets import AbstractApplet
 
 # LAYOUT API
 from openalea.secondnature.layouts import Layout
-from openalea.secondnature.layouts import LayoutSpace
+from openalea.secondnature.layouts import SpaceContent
 
 # DATA API
 from openalea.secondnature.data import DataType

@@ -24,7 +24,7 @@ from PyQt4 import QtGui, QtCore
 
 
 
-class DataTypeBase(HasName):
+class AbstractDataType(HasName):
     __name__ = ""
     __created_mimetype__ = ""
     __opened_mimetypes__ = []
@@ -42,24 +42,22 @@ class DataTypeBase(HasName):
             else:
                 self.__icon = QtGui.QIcon()
 
-    def container_data(self, name, obj, **kwargs):
-        return self.__patch_data(Data(name, obj, **kwargs))
-
-    def container_unregisterable_data(self, name, obj, **kwargs):
-        return self.__patch_data(UnregisterableData(name, obj, **kwargs))
-
-    def container_global_data(self, name, obj, **kwargs):
-        return self.__patch_data(GlobalData(name, obj, **kwargs))
+    def wrap_data(self, name, obj, cls="b", **kwargs):
+        if cls=="b":
+            cls = Data
+        elif cls=="u":
+            cls = UnregisterableData
+        elif cls=="g":
+            cls = GlobalData
+        return self.__patch_data(cls(name, obj, **kwargs))
 
     def new(self):
         raise NotImplementedError
 
-    def get_icon(self):
-        return self.__icon
-
     def supports_open(self):
         return self.__supports_open__
 
+    icon             = property(lambda x:x.__icon)
     opened_mimetypes = property(lambda x:x.__opened_mimetypes__[:])
     created_mimetype = property(lambda x:x.__created_mimetype__)
 
@@ -78,7 +76,7 @@ class DataTypeBase(HasName):
         return data
 
 
-DataTypeNoOpen = DataTypeBase
+DataTypeNoOpen = AbstractDataType
 
 
 
@@ -108,18 +106,13 @@ class Data(HasName):
     obj          = property(lambda x:x.__obj)
     registerable = property(lambda x:True)
     mimetype     = property(lambda x:x.__mimetype)
+    icon         = property(lambda x:x.__dt.icon if x.__dt else QtGui.QIcon())
 
     def get_inner_property(self, key):
         return self.__props.get(key)
 
-    @property
-    def icon(self):
-        if self.__dt:
-            return self.__dt.get_icon()
-        return QtGui.QIcon()
-
     def __set_data_type(self, dt, mimetype):
-        assert isinstance(dt, DataTypeBase)
+        assert isinstance(dt, AbstractDataType)
         self.__dt = dt
         self.__mimetype = mimetype
 
@@ -151,21 +144,21 @@ from openalea.secondnature.managers import make_manager, AbstractSource
 
 datatype_classes = make_manager("DataType", to_derive=True)
 
-DataTypeManagerBase = datatype_classes[0]
+AbstractDataTypeManager = datatype_classes[0]
 DataTypeSourceMixin = datatype_classes[1]
 DataTypeSources = datatype_classes[2]
 
-class DataTypeManager(DataTypeManagerBase):
+class DataTypeManager(AbstractDataTypeManager):
 
     data_created              = QtCore.pyqtSignal(object)
     data_property_set_request = QtCore.pyqtSignal(object, str, object)
 
     def __init__(self):
-        DataTypeManagerBase.__init__(self)
+        AbstractDataTypeManager.__init__(self)
         self.__mimeMap = {}
 
     def gather_items(self, refresh=True):
-        items = DataTypeManagerBase.gather_items(self, refresh)
+        items = AbstractDataTypeManager.gather_items(self, refresh)
         if refresh:
             self.__mimeMap.clear()
             for datatype in items.itervalues():
@@ -205,7 +198,7 @@ class DataTypeAppletSource(DataTypeSourceMixin, AbstractSource):
         for appFac in appletFactories.itervalues():
             dataTypes = appFac.get_data_types()
             self.items.update( (dt.name, dt) for dt in dataTypes )
-        self.itemListChanged.emit(self, self.items.copy())
+        self.item_list_changed.emit(self, self.items.copy())
 
     def get_items(self):
         return self.items.copy()

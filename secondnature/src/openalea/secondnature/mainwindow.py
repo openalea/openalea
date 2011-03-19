@@ -87,34 +87,30 @@ class MainWindow(QtGui.QMainWindow):
         if not self.__projMan.has_active_project():
             self.__projMan.new_active_project("New Project")
 
-        DataTypeManager().data_created.connect(self.__projMan.add_data_to_active_project)
-        DataTypeManager().data_property_set_request.connect(self.__projMan.set_property_to_active_project)
+        # -- connections --
+        self.__projMan.active_project_changed.connect(self.__on_active_project_set)
         AppletFactoryManager().applet_created.connect(self.add_applet)
-
-        LayoutManager().itemListChanged.connect(self.__onLayoutListChanged)
+        LayoutManager().item_list_changed.connect(self.__onLayoutListChanged)
         self._layoutMode.activated[QtCore.QString].connect(self.__onLayoutChosen)
 
 
     def init_extensions(self):
         AbstractSourceManager.init()
-
         # --choosing default layout--
         index = self._layoutMode.findText("Default Layout")
         if index >= 0:
             self._layoutMode.setCurrentIndex(index)
             self._layoutMode.activated[QtCore.QString].emit("Default Layout")
 
-
     #########################################
     # Active project status change handlers #
     #########################################
     def __on_active_project_set(self, proj, old):
         for applet in self.__applets:
-            #try_to_disconnect(old.data_added, applet.update_combo_list)
+            try_to_disconnect(old.data_added, applet.update_combo_list)
             proj.data_added.connect(applet.update_combo_list)
 
     def add_applet(self, applet):
-        print "MainWindow::add_applet", applet.name, id(applet)
         self.__projMan.data_added.connect(applet.update_combo_list)
         self.__applets.append(applet)
 
@@ -123,9 +119,6 @@ class MainWindow(QtGui.QMainWindow):
     #################################
     def __validate_mimedata(self, mimedata):
         good = False
-        # fmts = reduce(lambda x,y:str(x)+' '+str(y), mimedata.formats(),"")
-        # print fmts
-        #self.logger.info("__validate_mimedata formats" + fmts)
         if mimedata.hasFormat("text/uri-list"):
             urls = mimedata.urls()
             # we only support ONE url
@@ -277,12 +270,10 @@ class MainWindow(QtGui.QMainWindow):
 
         applets.sort(cmp = lambda x,y:cmp(x.name, y.name))
         for app in applets:
-            action = appletMenu.addAction(app.get_icon(), app.name)
+            action = appletMenu.addAction(app.icon, app.name)
             action.setIconVisibleInMenu(True)
             func = self.__make_new_applet_pane_handler(proj, paneId, app)
             action.triggered.connect(func)
-
-
         menu.popup(pos)
 
     def __make_clear_pane_handler(self, paneId):
@@ -296,30 +287,6 @@ class MainWindow(QtGui.QMainWindow):
             space = applet()
             self.__setSpaceAt(paneId, space)
         return f
-
-    def __make_new_data_pane_handler(self, proj, paneId, datatype):
-        def on_applet_chosen(checked):
-            data = datatype._new_0()
-            if data is None:
-                self.logger.debug("on_applet_chosen has None data for "+ \
-                                  str(datatype.created_mimetype))
-                return
-#            self.__register_data(data)
-            applet = DataEditorSelector.mime_type_handler([data.mimetype], applet=True)
-            if not applet:
-                self.logger.debug("on_applet_chosen has None applet for " + \
-                                  data.mimetype)
-                return
-            space = applet(data)
-            if space is None:
-                self.logger.debug("on_applet_chosen has None space for " + data.mimetype)
-            else:
-                proj.set_data_property(data, "space", space)
-                self.__setSpaceAt(paneId, space)
-
-        func = on_applet_chosen
-        return func
-
 
 
     ####################################
@@ -355,17 +322,6 @@ class MainWindow(QtGui.QMainWindow):
                                            content,
                                            noTearOffs=True, noToolButton=True)
 
-
-    ###################
-    # Data Management #
-    ###################
-    # def __register_data(self, data):
-    #     return
-    #     if data and data.registerable:
-    #         proj = ProjectManager().get_active_project()
-    #         proj.add_data(data)
-    #     else:
-    #         return #raise something
 
 
 

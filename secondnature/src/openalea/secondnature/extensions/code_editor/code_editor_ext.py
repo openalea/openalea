@@ -47,7 +47,7 @@ class DT_Text(DataType):
     def new(self):
         text = ""
         name = self.__name__
-        return self.container_data(name, text)
+        return self.wrap_data(name, text)
 
     def open_url(self, parsedUrl):
         url = parsedUrl.geturl()
@@ -71,23 +71,23 @@ class DT_Text(DataType):
         text = f.read()
         f.close()
 
-        return self.container_data(name, text)
+        return self.wrap_data(name, text)
 
 
 
 
-class CodeEditorFactory(AppletBase):
+class CodeEditorFactory(AbstractApplet):
     __name__        = "CodeEditor.CodeEditor"
 
     def __init__(self):
-        AppletBase.__init__(self)
+        AbstractApplet.__init__(self)
         self.add_data_type(DT_Text())
 
-    def get_applet_space(self, data):
+    def create_space_content(self, data):
         from openalea.visualea.scintilla_editor import ScintillaCodeEditor
         widget = ScintillaCodeEditor()
         widget.setText(data.obj)
-        return LayoutSpace(widget)
+        return SpaceContent(widget)
 
 
 # -- instantiate widget factories --

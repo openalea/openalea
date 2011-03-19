@@ -33,7 +33,7 @@ class Layout(HasName):
 
 
 
-class LayoutSpace(object):
+class SpaceContent(object):
     """returned by widget factories"""
     def __init__(self, content, menuList=None, toolbar=None):
         self.__content  = content

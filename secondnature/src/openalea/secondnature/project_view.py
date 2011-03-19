@@ -45,7 +45,7 @@ class ProjectManagerTreeModel(QtGui.QStandardItemModel):
         self.__activeProjItem = None
 
         self.itemChanged.connect(self.__on_item_changed)
-        self.__projMan.activeProjectChanged.connect(self.set_active_project)
+        self.__projMan.active_project_changed.connect(self.set_active_project)
 
         self.__activeProj = None
 

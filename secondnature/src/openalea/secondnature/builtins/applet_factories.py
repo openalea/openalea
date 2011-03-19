@@ -36,23 +36,23 @@ class DT_Logger(DataTypeNoOpen):
         DataTypeNoOpen.__init__(self)
         from openalea.core.logger import LoggerOffice
         self.loggermodel = LoggerOffice().get_handler("qt")
-        self.loggerDoc = self.container_global_data(self.__name__,  self.loggermodel)
+        self.loggerDoc = self.wrap_data(self.__name__,  self.loggermodel, "g")
 
     def new(self):
         return self.loggerDoc
 
-class LoggerFactory(AppletBase):
+class LoggerFactory(AbstractApplet):
     __name__ = "Openalea.Logger"
     __namespace__ = "Openalea"
 
     def __init__(self):
-        AppletBase.__init__(self)
+        AbstractApplet.__init__(self)
         self.add_data_type(DT_Logger())
 
-    def get_applet_space(self, data):
+    def create_space_content(self, data):
         from openalea.visualea.logger import LoggerView
         view  = LoggerView(None, model=data.obj)
-        space = LayoutSpace(view)
+        space = SpaceContent(view)
         return space
 
 logger_f   = LoggerFactory()
@@ -70,21 +70,21 @@ class DT_Interpreter(DataTypeNoOpen):
         DataTypeNoOpen.__init__(self)
         from code import InteractiveInterpreter as Interpreter
         self.interpretermodel = Interpreter()
-        self.interpreterDoc = self.container_global_data(self.__name__,  self.interpretermodel)
+        self.interpreterDoc = self.wrap_data(self.__name__,  self.interpretermodel, "g")
 
     def new(self):
         return self.interpreterDoc
 
-class InterpreterFactory(AppletBase):
+class InterpreterFactory(AbstractApplet):
     __name__ = "Openalea.Interpreter"
 
     def __init__(self):
-        AppletBase.__init__(self)
+        AbstractApplet.__init__(self)
         from openalea.visualea.shell import get_shell_class
         self.shellCls = get_shell_class()
         self.add_data_type(DT_Interpreter())
 
-    def get_applet_space(self, data):
+    def create_space_content(self, data):
         from openalea.core import cli
 
         # cheating! needed for cli.init_interpreter
@@ -101,7 +101,7 @@ class InterpreterFactory(AppletBase):
                 "prjMan":project.ProjectManager()}
         view  = self.shellCls(interpreterModel, cli.get_welcome_msg())
         cli.init_interpreter(interpreterModel, session, mgrs)
-        return LayoutSpace(view)
+        return SpaceContent(view)
 
 interpreter_f   = InterpreterFactory()
 
@@ -120,24 +120,24 @@ class DT_PackageManager(DataTypeNoOpen):
         from openalea.secondnature.ripped.node_treeview import PkgModel
 
         self.model    = PkgModel(PackageManager())
-        self.pmanagerDoc = self.container_global_data(self.__name__, self.model)
+        self.pmanagerDoc = self.wrap_data(self.__name__, self.model, "g")
 
     def new(self):
         return self.pmanagerDoc
 
-class PackageManagerFactory(AppletBase):
+class PackageManagerFactory(AbstractApplet):
     __name__ = "Openalea.PackageManager"
 
     def __init__(self):
-        AppletBase.__init__(self)
+        AbstractApplet.__init__(self)
         self.add_data_type(DT_PackageManager())
 
-    def get_applet_space(self, data):
+    def create_space_content(self, data):
         from openalea.secondnature.ripped.node_treeview import NodeFactoryTreeView
 
         view = NodeFactoryTreeView(None)
         view.setModel(data.obj)
-        space = LayoutSpace(view)
+        space = SpaceContent(view)
         return space
 
 pmanager_f = PackageManagerFactory()
@@ -157,19 +157,19 @@ class DT_ProjectManager(DataTypeNoOpen):
         from openalea.secondnature.project_view import ProjectManagerTreeModel
 
         self.model    = ProjectManagerTreeModel()
-        self.pmanagerDoc = self.container_global_data(self.__name__, self.model)
+        self.pmanagerDoc = self.wrap_data(self.__name__, self.model, "g")
 
     def new(self):
         return self.pmanagerDoc
 
-class ProjectManagerFactory(AppletBase):
+class ProjectManagerFactory(AbstractApplet):
     __name__ = "Openalea.ProjectManager"
 
     def __init__(self):
-        AppletBase.__init__(self)
+        AbstractApplet.__init__(self)
         self.add_data_type(DT_ProjectManager())
 
-    def get_applet_space(self, data):
+    def create_space_content(self, data):
         from PyQt4 import QtGui, QtCore
 
         itemDelegate = QtGui.QItemDelegate()
@@ -179,7 +179,8 @@ class ProjectManagerFactory(AppletBase):
         view.setModel(data.obj)
         view.setIconSize(QtCore.QSize(16,16))
         view.setItemDelegate(itemDelegate)
-        space = LayoutSpace(view)
+        view.expandAll()
+        space = SpaceContent(view)
         return space
 
 projmanager_f = ProjectManagerFactory()

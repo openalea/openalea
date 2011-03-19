@@ -34,7 +34,7 @@ class DT_Curve(DataTypeNoOpen):
         constraint = curve2deditor.Curve2DConstraint
         data = constraint.defaultCurve()
         iname = self.__name__
-        return self.container_data(iname, data, constraintType=constraint)
+        return self.wrap_data(iname, data, constraintType=constraint)
 
 
 class DT_Function(DataTypeNoOpen):
@@ -49,7 +49,7 @@ class DT_Function(DataTypeNoOpen):
         constraint = curve2deditor.FuncConstraint
         data = constraint.defaultCurve()
         iname = self.__name__
-        return self.container_data(iname, data, constraintType=constraint)
+        return self.wrap_data(iname, data, constraintType=constraint)
 
 
 class DT_NurbsPatch(DataTypeNoOpen):
@@ -62,7 +62,7 @@ class DT_NurbsPatch(DataTypeNoOpen):
 
         data = nurbspatcheditor.NurbsPatchEditor.newDefaultNurbsPatch()
         iname = self.__name__
-        return self.container_data(iname, data)
+        return self.wrap_data(iname, data)
 
 class DT_InterpolatedProfile(DataTypeNoOpen):
     __name__             = "InterpolatedProfile"
@@ -86,15 +86,15 @@ class DT_InterpolatedProfile(DataTypeNoOpen):
 
         iname = self.__name__
 
-        return self.container_data(iname, tc)
+        return self.wrap_data(iname, tc)
 
 
 
-class PlantGLFactory(AppletBase):
+class PlantGLFactory(AbstractApplet):
     __name__ = "PlantGL.PlantGL"
 
     def __init__(self):
-        AppletBase.__init__(self)
+        AbstractApplet.__init__(self)
         self.__pglEscSwallower = EscEventSwallower()
 
         curve_dt = DT_Curve()
@@ -102,7 +102,7 @@ class PlantGLFactory(AppletBase):
                              DT_NurbsPatch(), DT_InterpolatedProfile()])
         self.set_default_data_type(curve_dt)
 
-    def get_applet_space(self, data):
+    def create_space_content(self, data):
         if data.mimetype == DT_Curve.__created_mimetype__:
             from vplants.plantgl.gui import curve2deditor
             curve = data.obj
@@ -126,7 +126,7 @@ class PlantGLFactory(AppletBase):
             editor = interpolated_profile_gui.ProfileEditor(editingCentral=False)
             editor.set_profile(profile)
         editor.installEventFilter(self.__pglEscSwallower)
-        return LayoutSpace(editor)
+        return SpaceContent(editor)
 
 
 # -- instantiate widget factories --

@@ -74,7 +74,6 @@ class Project(QtCore.QObject):
 
         self.data_added.emit(self, doc)
         self.mark_as_modified()
-        print "Project::add_data", doc.name, id(self)
 
     def get_data_id(self, data):
         return self.__docToIds.get(data, -1)
@@ -111,7 +110,6 @@ class Project(QtCore.QObject):
         self.data_name_changed.emit(self, doc, fixedName)
 
     def set_data_property(self, doc, key, val):
-        print "Project::set_data_property", doc.name, id(self)
         if doc not in self.__docToIds:
             raise Exception()
         self.__docprops.setdefault(doc, {})[key] = val
@@ -213,8 +211,8 @@ class ProjectManager(QtCore.QObject):
     __metaclass__ = make_metaclass((ProxySingleton,),
                                    (QtCore.pyqtWrapperType,))
 
-    activeProjectChanged = QtCore.pyqtSignal(Project, Project)
-    data_added           = QtCore.pyqtSignal(object, object)
+    active_project_changed = QtCore.pyqtSignal(Project, Project)
+    data_added             = QtCore.pyqtSignal(object, object)
 
     mimeformat   = "application/secondnature-project-data-id"
 
@@ -230,13 +228,12 @@ class ProjectManager(QtCore.QObject):
         return self.__activeProject is not None
 
     def set_active_project(self, project):
-        print "ProjectManager.set_active_project"
         if self.has_active_project() and self.get_active_project().is_modified():
             return False# raise something
         old = self.__activeProject
         self.__activeProject = project
         self.__activeProject.data_added.connect(self.data_added)
-        self.activeProjectChanged.emit(self.__activeProject, old)
+        self.active_project_changed.emit(self.__activeProject, old)
         return True
 
     def get_active_project(self):
@@ -251,17 +248,12 @@ class ProjectManager(QtCore.QObject):
         self.__activeProject.save_to(filepath)
 
     def add_data_to_active_project(self, data):
-        print "ProjectManager::add_data_to_active_project", data.name, data.registerable,
-        print self.__activeProject
         if data and data.registerable and self.__activeProject:
             self.__activeProject.add_data(data)
-        print "ProjectManager::add_data_to_active_project::EXIT"
 
     def set_property_to_active_project(self, data, key, value):
-        print "ProjectManager::set_property_to_active_project", data.name, key, value
         if data and self.__activeProject:
             self.__activeProject.set_data_property(data, key, value)
-        print "ProjectManager::set_property_to_active_project::EXIT"
 
 
 import os.path
@@ -319,7 +311,6 @@ class QActiveProjectManager(QtCore.QObject):
         self.__pm.set_active_project(project)
 
     def new_active_project(self):
-        print "new_active_project"
         proj = self.get_active_project()
         if proj and proj.is_modified():
             if not self.__ask_close_active():
@@ -335,7 +326,6 @@ class QActiveProjectManager(QtCore.QObject):
                 return None
 
     def __ask_close_active(self):
-        print "__ask_close_active"
         but = QtGui.QMessageBox.question(None,
                                          "Close current project?",
                                          "The current project has not been saved.\n\n"+\
@@ -345,7 +335,6 @@ class QActiveProjectManager(QtCore.QObject):
         return but == QtGui.QMessageBox.Yes
 
     def close_active_project(self):
-        print "close_active_project"
         proj = self.get_active_project()
         if proj and proj.is_modified():
             but = QtGui.QMessageBox.question(None,
@@ -361,7 +350,6 @@ class QActiveProjectManager(QtCore.QObject):
 
 
     def save_active_project(self):
-        print "save_active_project"
         proj = self.get_active_project()
         if proj:
             pth = QtGui.QFileDialog.getSaveFileName(None,
@@ -376,7 +364,6 @@ class QActiveProjectManager(QtCore.QObject):
                 self.__pm.save_active_project(str(pth))
 
     def open_project(self):
-        print "open_project"
         proj = self.get_active_project()
         if proj and proj.is_modified():
             if not self.__ask_close_active():
@@ -393,7 +380,6 @@ class QActiveProjectManager(QtCore.QObject):
                 return
             else:
                 proj = Project.load_from(str(pth))
-                print "open_project::proj", proj
                 if proj:
                     self.set_active_project(proj)
 

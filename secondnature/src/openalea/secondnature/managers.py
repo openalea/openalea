@@ -36,7 +36,7 @@ class AbstractSourceManager(QtCore.QObject):
     __metaclass__ = make_metaclass((ProxySingleton,),
                                    (QtCore.pyqtWrapperType,))
 
-    itemListChanged = QtCore.pyqtSignal(list)
+    item_list_changed = QtCore.pyqtSignal(list)
 
     __managers__ = []
 
@@ -52,7 +52,7 @@ class AbstractSourceManager(QtCore.QObject):
     def _add_source(self, src):
         if src.name in self._sources:
             return #TODO : raise something dude
-        src.itemListChanged.connect(self.update_with_source)
+        src.item_list_changed.connect(self.update_with_source)
         self._sources[src.name] = src
 
     def iter_sources(self):
@@ -66,7 +66,7 @@ class AbstractSourceManager(QtCore.QObject):
                     continue
                 src.gather_items()
                 self._items.update(src.get_items())
-            self.itemListChanged.emit(list(self._items.iterkeys()))
+            self.item_list_changed.emit(list(self._items.iterkeys()))
         return self._items.copy()
 
     def get(self, name):
@@ -78,7 +78,7 @@ class AbstractSourceManager(QtCore.QObject):
 
     def update_with_source(self, src, items):
         self._items.update(items)
-        self.itemListChanged.emit(list(self._items.iterkeys()))
+        self.item_list_changed.emit(list(self._items.iterkeys()))
 
     @classmethod
     def init_sources(cls):
@@ -100,7 +100,7 @@ class AbstractSource(QtCore.QObject):
     __concrete_manager__ = None
     __key__ = "name"
 
-    itemListChanged = QtCore.pyqtSignal(object, dict)
+    item_list_changed = QtCore.pyqtSignal(object, dict)
 
     def __init__(self):
         QtCore.QObject.__init__(self)
@@ -124,7 +124,7 @@ class AbstractSource(QtCore.QObject):
 
 
 
-class EntryPointSourceBase(AbstractSource):
+class AbstractEntryPointSource(AbstractSource):
 
     __entry_point__ = None
 
@@ -159,14 +159,14 @@ class EntryPointSourceBase(AbstractSource):
             else:
                 key = getattr(it, self.__key__)
                 self.items[key] = it
-        self.itemListChanged.emit(self, self.items.copy())
+        self.item_list_changed.emit(self, self.items.copy())
 
     def get_items(self):
         return self.items.copy()
 
 
 
-class BuiltinSourceBase(AbstractSource):
+class AbstractBuiltinSource(AbstractSource):
 
     __mod_name__ = None
 
@@ -190,7 +190,7 @@ class BuiltinSourceBase(AbstractSource):
             return None #TODO : raise something dude
         itemlist = self.mod.get_builtins()
         self.__items = dict( (getattr(v, self.__key__), v) for v in itemlist)
-        self.itemListChanged.emit(self, self.__items.copy())
+        self.item_list_changed.emit(self, self.__items.copy())
 
     def get_items(self):
         return self.__items.copy()
@@ -217,23 +217,23 @@ def make_manager(name, entry_point=None, builtin=None, to_derive=False, key="nam
 
 
     if entry_point is not None:
-        class MetaSourceEntryPoints(MetaSourceMixin, EntryPointSourceBase):
+        class MetaSourceEntryPoints(MetaSourceMixin, AbstractEntryPointSource):
             __entry_point__ = entry_point
 
             def __init__(self):
                 MetaSourceMixin.__init__(self)
-                EntryPointSourceBase.__init__(self)
+                AbstractEntryPointSource.__init__(self)
         MetaSourceEntryPoints.__name__ = name+"SourceEntryPoints"
         sources.append(MetaSourceEntryPoints)
 
     if builtin is not None:
-        class MetaSourceBuiltin(MetaSourceMixin, BuiltinSourceBase):
+        class MetaSourceBuiltin(MetaSourceMixin, AbstractBuiltinSource):
 
             __mod_name__ = builtin
 
             def __init__(self):
                 MetaSourceMixin.__init__(self)
-                BuiltinSourceBase.__init__(self)
+                AbstractBuiltinSource.__init__(self)
         MetaSourceBuiltin.__name__ = name+"SourceBuiltin"
         sources.append(MetaSourceBuiltin)
 

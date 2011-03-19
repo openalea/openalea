@@ -41,7 +41,6 @@ class ComboBox(QtGui.QComboBox):
 
 
 def try_to_disconnect(signal, slot=None):
-    print "disconnect", signal, "from", slot
     try:
         if slot:
             signal.disconnect(slot)
