@@ -129,11 +129,15 @@ class GlobalData(UnregisterableData):
 
 __global_data_manager = None
 def GlobalDataManager():
+    global __global_data_manager
     if __global_data_manager is None:
         from openalea.secondnature.project import Project
-        global __global_data_manager
         __global_data_manager = Project("Global")
     return __global_data_manager
+
+
+
+
 
 
 
