@@ -18,7 +18,7 @@ __license__ = "CeCILL v2"
 __revision__ = " $Id$ "
 
 
-from PyQt4 import QtGui
+from PyQt4 import QtGui, QtCore
 
 
 class DataEditorSelector(QtGui.QDialog):

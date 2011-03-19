@@ -635,6 +635,11 @@ class SplittableUI(QtGui.QWidget):
         visitor = self.GeometryComputingVisitor(self._g, self._geomCache)
         self._g.visit_i_breadth_first(visitor, baseNode)
 
+    def getContentAt(self, paneId):
+        if self._g.has_property(paneId, "widget"):
+            wid = self._g.get_property(paneId, "widget")
+            return wid
+
     def takeContentAt(self, paneId, reparent=None):
         if self._g.has_property(paneId, "widget"):
             wid = self._g.get_property(paneId, "widget")

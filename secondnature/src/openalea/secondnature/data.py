@@ -68,7 +68,6 @@ class AbstractDataType(HasName):
         data = self.new()
         if data.registerable:
             ProjectManager().add_data_to_active_project(data)
-#        DataTypeManager().data_created.emit(data)
         return data
 
     def __patch_data(self, data):
@@ -84,8 +83,9 @@ class DataType(DataTypeNoOpen):
     __supports_open__ = True
 
     def _open_url_0(self, parsedUrl):
-        data = self.open_url(self, parsedUrl)
-        data._Data__set_data_type(self, self.__created_mimetype__)
+        data = self.open_url(parsedUrl)
+        if data.registerable:
+            ProjectManager().add_data_to_active_project(data)
         return data
 
     def open_url(self, parsedUrl):

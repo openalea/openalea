@@ -22,21 +22,18 @@ from PyQt4 import QtGui, QtCore
 
 import urlparse
 import traceback
+
 from openalea.core.logger import get_logger
 
 from openalea.secondnature.splittable import CustomSplittable
-
 from openalea.secondnature.managers import AbstractSourceManager
 from openalea.secondnature.layouts  import LayoutManager
 from openalea.secondnature.applets  import AppletFactoryManager
 from openalea.secondnature.data     import DataTypeManager
-
 from openalea.secondnature.project import Project
 from openalea.secondnature.project import ProjectManager
 from openalea.secondnature.project import QActiveProjectManager
-
 from openalea.secondnature.mimetools import DataEditorSelector
-
 from openalea.secondnature.qtutils import try_to_disconnect
 
 
@@ -149,6 +146,7 @@ class MainWindow(QtGui.QMainWindow):
         proj = self.__projMan.get_active_project()
         app = None
         data = None
+        content = None
         space = None
 
         if mimeData.hasUrls():
@@ -158,7 +156,7 @@ class MainWindow(QtGui.QMainWindow):
             if not dt:
                 return
             parsedUrl = urlparse.urlparse(url)
-            data = dt.open_url(parsedUrl)
+            data = dt._open_url_0(parsedUrl)
             if not data:
                 return
             app = DataEditorSelector.mime_type_handler([data.mimetype], applet=True)
@@ -174,16 +172,24 @@ class MainWindow(QtGui.QMainWindow):
                     if data:
                         app = DataEditorSelector.mime_type_handler([data.mimetype], applet=True)
 
-        # first try to retreive the space associated to this data
+        # first try to retreive the content associated to this data
         if proj and data:
-            space = proj.get_data_property(data, "space")
-        # if space is still none, we can always try to create a new space
-        if space is None and data:
+            content = proj.get_data_property(data, "spaceContent")
+        # if content is still none, we can always try to create a new content
+        print "__on_splitter_pane_drop", content
+        if content is None and data:
             if app:
-                space = app(data)
-                proj.set_data_property(data, "space", space)
+                content = app._create_space_content_0(data)
+                proj.set_data_property(data, "spaceContent", content)
+        # -- find the space (applet) of the pane or create one if none:
+        space = splittable.getContentAt(paneId)
+        newSpace = False
+        if not space or not space.supports(data):
+            newSpace = True
+            space = app()
+        space.add_content(data, content)
 
-        if space is not None:
+        if newSpace is not None:
             self.__setSpaceAt(splittable, paneId, space)
 
     ####################################

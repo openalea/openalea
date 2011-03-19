@@ -56,13 +56,15 @@ class AbstractApplet(HasName):
     def get_mimetypes(self):
         return list(self.__mimemap.iterkeys())
 
+    mimetypes = property(lambda x:x.get_mimetypes())
+
     def create_space_content(self, data):
         raise NotImplementedError
 
     def _create_space_content_0(self, data):
         space = self.create_space_content(data)
         if data.registerable:
-            ProjectManager().set_property_to_active_project(data, "space", space)
+            ProjectManager().set_property_to_active_project(data, "spaceContent", space)
         return space
 
     def __call__(self):
@@ -188,8 +190,18 @@ class AppletSpace(QtGui.QWidget):
         AppletFactoryManager().applet_created.emit(self)
 
 
-
     name = property(lambda x:x.__applet.name)
+
+    def supports(self, data):
+        return data.mimetype in self.__applet.mimetypes
+
+    def add_content(self, data, content):
+        print "add_content", content.content
+        content = content.content
+        self.__stack.addWidget(content)
+        index = self.__browseDataBut.findText(data.name)
+        self.__browseDataBut.setCurrentIndex(index)
+        self.__stack.setCurrentWidget(content)
 
     def update_datatype_menu(self):
         menu = QtGui.QMenu(self.__newDataBut)
@@ -233,8 +245,11 @@ class AppletSpace(QtGui.QWidget):
         return on_datatype_chosen
 
     def show_data(self, index):
-        data, proj =  self.__browseDataBut.itemData(index).toPyObject()
-        space = proj.get_data_property(data, "space")
+        itemData = self.__browseDataBut.itemData(index).toPyObject()
+        if not itemData:
+            return
+        data, proj =  itemData
+        space = proj.get_data_property(data, "spaceContent")
         if not space:
             space = self.__applet._create_space_content_0(data)
         content = space.content
