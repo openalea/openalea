@@ -224,9 +224,13 @@ class AppletSpace(QtGui.QWidget):
 
     def __make_datatype_handler(self, datatype):
         def on_datatype_chosen(checked):
-            data = datatype._new_0()
-            space = self.__applet._create_space_content_0(data)
-            self.__stack.addWidget(space.content)
+            data    = datatype._new_0()
+            space   = self.__applet._create_space_content_0(data)
+            content = space.content
+            self.__stack.addWidget(content)
+#            self.__stack.setCurrentWidget(content)
+            index = self.__browseDataBut.findText(data.name)
+            self.__browseDataBut.setCurrentIndex(index)
         return on_datatype_chosen
 
     def show_data(self, index):
