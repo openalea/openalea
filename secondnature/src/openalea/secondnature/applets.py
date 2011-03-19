@@ -228,7 +228,6 @@ class AppletSpace(QtGui.QWidget):
             space   = self.__applet._create_space_content_0(data)
             content = space.content
             self.__stack.addWidget(content)
-#            self.__stack.setCurrentWidget(content)
             index = self.__browseDataBut.findText(data.name)
             self.__browseDataBut.setCurrentIndex(index)
         return on_datatype_chosen

@@ -72,7 +72,7 @@ class Header(QtGui.QWidget):
 
 class CustomSplittable(SplittableUI):
 
-    paneMenuRequest = QtCore.pyqtSignal(int, QtCore.QPoint)
+    paneMenuRequest = QtCore.pyqtSignal(object, int, QtCore.QPoint)
 
     def _raise_overlays(self, paneId):
         SplittableUI._raise_overlays(self, paneId)
@@ -106,7 +106,7 @@ class CustomSplittable(SplittableUI):
         g = self._g
         toolbutton = CustomSplittable.ToolButton(paneId, self)
         toolbutton.show()
-        toolbutton.clicked.connect(self.paneMenuRequest)
+        toolbutton.clicked.connect(self.__onPaneToolClicked)
         g.set_property(paneId, "toolButtonWidget", toolbutton)
 
     def _remove_toolbutton(self, paneId):
@@ -116,7 +116,8 @@ class CustomSplittable(SplittableUI):
         toolbut = g.pop_property(paneId, "toolButtonWidget")
         toolbut.close()
 
-
+    def __onPaneToolClicked(self, paneId, pos):
+        self.paneMenuRequest.emit(self, paneId, pos)
 
     class ToolButton(QtGui.QWidget, DraggableWidget):
 

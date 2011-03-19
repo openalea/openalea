@@ -68,8 +68,7 @@ class MainWindow(QtGui.QMainWindow):
         self._projectMenu.addAction(qpm.get_action_close())
 
         # a default central widget
-        self.__splittable = None
-        self.__new_splittable()
+        self.__centralStack = QtGui.QStackedWidget(self)
 
         # status bar
         self._statusBar  = QtGui.QStatusBar(self)
@@ -81,7 +80,7 @@ class MainWindow(QtGui.QMainWindow):
         # add all those guys to the main window (self)
         self.setMenuBar(self._mainMenuBar)
         self.setStatusBar(self._statusBar)
-        self.setCentralWidget(self.__splittable)
+        self.setCentralWidget(self.__centralStack)
 
         self.__projMan = ProjectManager()
         if not self.__projMan.has_active_project():
@@ -91,7 +90,7 @@ class MainWindow(QtGui.QMainWindow):
         self.__projMan.active_project_changed.connect(self.__on_active_project_set)
         AppletFactoryManager().applet_created.connect(self.add_applet)
         LayoutManager().item_list_changed.connect(self.__onLayoutListChanged)
-        self._layoutMode.activated[QtCore.QString].connect(self.__onLayoutChosen)
+        self._layoutMode.currentIndexChanged[int].connect(self.__onLayoutChosen)
 
 
     def init_extensions(self):
@@ -130,7 +129,7 @@ class MainWindow(QtGui.QMainWindow):
             self.logger.error("invalid mimedata: "+fmts)
         return good
 
-    def __on_splitter_drag_enter(self, event):
+    def __on_splitter_drag_enter(self, splittable, event):
         mimeData = event.mimeData()
         if not self.__validate_mimedata(mimeData):
             return
@@ -142,7 +141,7 @@ class MainWindow(QtGui.QMainWindow):
         elif mimeData.hasFormat(ProjectManager.mimeformat):
             event.acceptProposedAction()
 
-    def __on_splitter_pane_drop(self, paneId, event):
+    def __on_splitter_pane_drop(self, splittable, paneId, event):
         mimeData = event.mimeData()
         if not self.__validate_mimedata(mimeData):
             return
@@ -162,7 +161,6 @@ class MainWindow(QtGui.QMainWindow):
             data = dt.open_url(parsedUrl)
             if not data:
                 return
-#            self.__register_data(data)
             app = DataEditorSelector.mime_type_handler([data.mimetype], applet=True)
             if not app:
                 return
@@ -186,62 +184,79 @@ class MainWindow(QtGui.QMainWindow):
                 proj.set_data_property(data, "space", space)
 
         if space is not None:
-            self.__setSpaceAt(paneId, space)
+            self.__setSpaceAt(splittable, paneId, space)
 
     ####################################
     # Layout selection related methods #
     ####################################
     def __onLayoutListChanged(self, layoutNames):
-        layoutNames.sort()
+        self._layoutMode.blockSignals(True)
+        oldDataMap = {}
+        current = self._layoutMode.currentText()
+        for index in range(self._layoutMode.count()):
+            oldDataMap[str(self._layoutMode.itemText(index))] = self._layoutMode.itemData(index)
         self._layoutMode.clear()
-        self._layoutMode.addItems(layoutNames)
-        if self.__currentLayout:
-            ind = self._layoutMode.findText(self.__currentLayout)
-        else:
-            ind = -1
-        self._layoutMode.setCurrentIndex(ind)
+
+        layoutNames.sort()
+        for ln in layoutNames:
+            self._layoutMode.addItem(ln, oldDataMap.get(ln, QtCore.QVariant()))
         self._layoutMode.adjustSize()
 
-    def __onLayoutChosen(self, layoutName):
+        ind = self._layoutMode.findText(current)
+        self._layoutMode.setCurrentIndex(ind)
+        self._layoutMode.blockSignals(False)
+
+    def __onLayoutChosen(self, index):
         """Called when a user chooses a layout. Fetches the corresponding
         layout from the registered applications and installs a new splitter
         in the central window."""
 
+        layoutName = self._layoutMode.itemText(index)
         if layoutName is None or layoutName == "":
             return
 
-        # convert from QString to python str
-        layoutName = str(layoutName)
-        # layoutNames encodes the application
-        # name and the layout name:
-        # they are seperated by a period.
-        layout = LayoutManager().get(layoutName)
-        if not layout:
-            return
+        data = self._layoutMode.itemData(index).toPyObject()
+        if data and isinstance(data, CustomSplittable):
+            index = self.__centralStack.indexOf(data)
+            if index == -1:
+                self.__centralStack.addWidget(data)
+            self.__centralStack.setCurrentWidget(data)
+        else:
+            # convert from QString to python str
+            layoutName = str(layoutName)
+            # layoutNames encodes the application
+            # name and the layout name:
+            # they are seperated by a period.
+            layout = LayoutManager().get(layoutName)
+            if not layout:
+                return
 
-        # -- FILL THE LAYOUT WITH WIDGETS DESCRIBED BY THE APPLET MAP --
-        # create new splittable and retreive objects from previous
-        newSplit, taken = self.__new_splittable(layout.skeleton)
+            # -- FILL THE LAYOUT WITH WIDGETS DESCRIBED BY THE APPLET MAP --
+            # create new splittable and retreive objects from previous
+            newSplit, taken = self.__new_splittable(layout.skeleton)
 
-        appletmap = layout.appletmap
-        afm = AppletFactoryManager()
-        for paneId, appletName in appletmap.iteritems():
-            appFac = afm.get(appletName)
-            if appFac is None:
-                self.logger.debug("__onLayoutChosen has None factory for "+appletName)
-                continue
-            try:
-                space  = appFac()
-            except Exception, e:
-                self.logger.error("__onLayoutChosen cannot display "+ \
-                                  appletName+":"+\
-                                  e.message)
-                traceback.print_exc()
-                continue
-            if space:
-                self.__setSpaceAt(paneId, space)
-        self.__currentLayout = layoutName
+            appletmap = layout.appletmap
+            afm = AppletFactoryManager()
+            for paneId, appletName in appletmap.iteritems():
+                appFac = afm.get(appletName)
+                if appFac is None:
+                    self.logger.debug("__onLayoutChosen has None factory for "+appletName)
+                    continue
+                try:
+                    space  = appFac()
+                except Exception, e:
+                    self.logger.error("__onLayoutChosen cannot display "+ \
+                                      appletName+":"+\
+                                      e.message)
+                    traceback.print_exc()
+                    continue
+                if space:
+                    self.__setSpaceAt(newSplit, paneId, space)
 
+            self.__centralStack.addWidget(newSplit)
+
+            self.__centralStack.setCurrentWidget(newSplit)
+            self._layoutMode.setItemData(index, QtCore.QVariant(newSplit))
 
     ######################
     # Pane Menu handlers #
@@ -254,15 +269,15 @@ class MainWindow(QtGui.QMainWindow):
     # requests the action. This is rougly equivalent to C++' bind1st.
     # Todo : objectify this
 
-    def __onPaneMenuRequest(self, paneId, pos):
+    def __onPaneMenuRequest(self, splittable, paneId, pos):
         proj = self.__projMan.get_active_project()
 
-        pos = self.__splittable.mapToGlobal(pos)
-        menu = QtGui.QMenu(self.__splittable)
+        pos = splittable.mapToGlobal(pos)
+        menu = QtGui.QMenu(splittable)
         menu.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         action = menu.addAction("Clear")
-        action.triggered.connect(self.__make_clear_pane_handler(paneId))
+        action.triggered.connect(self.__make_clear_pane_handler(splittable, paneId))
 
 
         appletMenu   = menu.addMenu("Applet...")
@@ -272,20 +287,20 @@ class MainWindow(QtGui.QMainWindow):
         for app in applets:
             action = appletMenu.addAction(app.icon, app.name)
             action.setIconVisibleInMenu(True)
-            func = self.__make_new_applet_pane_handler(proj, paneId, app)
+            func = self.__make_new_applet_pane_handler(splittable, proj, paneId, app)
             action.triggered.connect(func)
         menu.popup(pos)
 
-    def __make_clear_pane_handler(self, paneId):
+    def __make_clear_pane_handler(self, splittable, paneId):
         def on_clear_chosen(checked):
-            self.__splittable.takeContentAt(paneId, None)
+            splittable.takeContentAt(paneId, None)
         func = on_clear_chosen
         return func
 
-    def __make_new_applet_pane_handler(self, proj, paneId, applet):
+    def __make_new_applet_pane_handler(self, splittable, proj, paneId, applet):
         def f(checked):
             space = applet()
-            self.__setSpaceAt(paneId, space)
+            self.__setSpaceAt(splittable, paneId, space)
         return f
 
 
@@ -294,33 +309,22 @@ class MainWindow(QtGui.QMainWindow):
     ####################################
     def __new_splittable(self, skeleton=None):
         if skeleton == None:
-            s = CustomSplittable(parent=None)
+            s = CustomSplittable(parent=self.__centralStack)
         else:
-            s = CustomSplittable.fromString(skeleton, parent=None)
+            s = CustomSplittable.fromString(skeleton, parent=self.__centralStack)
         s.setContentsMargins(0,0,0,0)
 
         taken = None
-        if self.__splittable is not None:
-            # -- prevent deletion of C++ side of widgets by QObject mecanism --
-            taken = self.__splittable.takeAllContents(reparent=self)
-            self.__splittable.hide()
-
-        self.__splittable = s
-        self.setCentralWidget(s)
         s.full_sticky_check()
         s.paneMenuRequest.connect(self.__onPaneMenuRequest)
         s.dragEnterEventTest.connect(self.__on_splitter_drag_enter)
         s.dropHandlerRequest.connect(self.__on_splitter_pane_drop)
         return s, taken
 
-    def __setSpaceAt(self, paneId, space):
-        self.__setContentAt(paneId, space)
-
-    def __setContentAt(self, paneId, content):
-        if self.__splittable:
-            self.__splittable.setContentAt(paneId,
-                                           content,
-                                           noTearOffs=True, noToolButton=True)
+    def __setSpaceAt(self, splittable, paneId, space):
+        splittable.setContentAt(paneId,
+                                space,
+                                noTearOffs=True, noToolButton=True)
 
 
 

@@ -501,8 +501,8 @@ class SplittableUI(QtGui.QWidget):
     reprProps = ["amount", "splitDirection"]
 
     widgetMenuRequest = QtCore.pyqtSignal(QtCore.QPoint, int)
-    dragEnterEventTest = QtCore.pyqtSignal(QtGui.QDragEnterEvent)
-    dropHandlerRequest = QtCore.pyqtSignal(int, QtGui.QDropEvent)
+    dragEnterEventTest = QtCore.pyqtSignal(object, QtGui.QDragEnterEvent)
+    dropHandlerRequest = QtCore.pyqtSignal(object, int, QtGui.QDropEvent)
 
 
     def __init__(self, parent=None, content=None):
@@ -850,13 +850,13 @@ class SplittableUI(QtGui.QWidget):
     def dragEnterEvent(self, event):
         """While the user hasn't released the object, this method is called
         to tell qt if the view accepts the object or not."""
-        self.dragEnterEventTest.emit(event)
+        self.dragEnterEventTest.emit(self, event)
 
     def dropEvent(self, event):
         paneId = self.paneAtPos(event.pos())
         if paneId is None:
             return
-        self.dropHandlerRequest.emit(paneId, event)
+        self.dropHandlerRequest.emit(self, paneId, event)
 
     def paintEvent(self, event):
         painter = QtGui.QPainter(self)
