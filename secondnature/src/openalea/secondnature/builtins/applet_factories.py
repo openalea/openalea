@@ -27,13 +27,13 @@ import builtin_icons
 ##########
 # LOGGER #
 ##########
-class DT_Logger(DataTypeNoOpen):
+class DT_Logger(DataFactory):
     __name__      = "Logger"
     __created_mimetype__ = "application/openalea-logger"
     __icon_rc__   = ":icons/logger.png"
 
     def __init__(self):
-        DataTypeNoOpen.__init__(self)
+        DataFactory.__init__(self)
         from openalea.core.logger import LoggerOffice
         self.loggermodel = LoggerOffice().get_handler("qt")
         self.loggerDoc = self.wrap_data(self.__name__,  self.loggermodel, "g")
@@ -42,7 +42,7 @@ class DT_Logger(DataTypeNoOpen):
         return self.loggerDoc
 
 class LoggerFactory(AbstractApplet):
-    __name__ = "Openalea.Logger"
+    __name__ = "Logger"
     __namespace__ = "Openalea"
 
     def __init__(self):
@@ -61,13 +61,13 @@ logger_f   = LoggerFactory()
 ###############
 # INTERPRETER #
 ###############
-class DT_Interpreter(DataTypeNoOpen):
+class DT_Interpreter(DataFactory):
     __name__      = "Interpreter"
     __created_mimetype__ = "application/openalea-interpreter"
     __icon_rc__   = ":icons/interpreter.png"
 
     def __init__(self):
-        DataTypeNoOpen.__init__(self)
+        DataFactory.__init__(self)
         from code import InteractiveInterpreter as Interpreter
         self.interpretermodel = Interpreter()
         self.interpreterDoc = self.wrap_data(self.__name__,  self.interpretermodel, "g")
@@ -76,7 +76,7 @@ class DT_Interpreter(DataTypeNoOpen):
         return self.interpreterDoc
 
 class InterpreterFactory(AbstractApplet):
-    __name__ = "Openalea.Interpreter"
+    __name__ = "Interpreter"
 
     def __init__(self):
         AbstractApplet.__init__(self)
@@ -108,13 +108,13 @@ interpreter_f   = InterpreterFactory()
 ###################
 # PACKAGE MANAGER #
 ###################
-class DT_PackageManager(DataTypeNoOpen):
+class DT_PackageManager(DataFactory):
     __name__             = "PackageManager"
     __created_mimetype__ = "application/openalea-packagemanager"
     __icon_rc__          = ":icons/packagemanager.png"
 
     def __init__(self):
-        DataTypeNoOpen.__init__(self)
+        DataFactory.__init__(self)
         #lets create the PackageManager ressource
         from openalea.core.pkgmanager import PackageManager
         from openalea.secondnature.ripped.node_treeview import PkgModel
@@ -126,7 +126,7 @@ class DT_PackageManager(DataTypeNoOpen):
         return self.pmanagerDoc
 
 class PackageManagerFactory(AbstractApplet):
-    __name__ = "Openalea.PackageManager"
+    __name__ = "PackageManager"
 
     def __init__(self):
         AbstractApplet.__init__(self)
@@ -146,13 +146,13 @@ pmanager_f = PackageManagerFactory()
 ###################
 # PROJECT MANAGER #
 ###################
-class DT_ProjectManager(DataTypeNoOpen):
+class DT_ProjectManager(DataFactory):
     __name__      = "ProjectManager"
     __created_mimetype__ = "application/openalea-projectmanager"
     __icon_rc__   = ":icons/projectmanager.png"
 
     def __init__(self):
-        DataTypeNoOpen.__init__(self)
+        DataFactory.__init__(self)
         #lets create the PackageManager ressource
         from openalea.secondnature.project_view import ProjectManagerTreeModel
 
@@ -163,7 +163,7 @@ class DT_ProjectManager(DataTypeNoOpen):
         return self.pmanagerDoc
 
 class ProjectManagerFactory(AbstractApplet):
-    __name__ = "Openalea.ProjectManager"
+    __name__ = "ProjectManager"
 
     def __init__(self):
         AbstractApplet.__init__(self)

@@ -26,15 +26,15 @@ import traceback
 from openalea.core.logger import get_logger
 
 from openalea.secondnature.splittable import CustomSplittable
-from openalea.secondnature.managers import AbstractSourceManager
-from openalea.secondnature.layouts  import LayoutManager
-from openalea.secondnature.applets  import AppletFactoryManager
-from openalea.secondnature.data     import DataTypeManager
-from openalea.secondnature.project import Project
-from openalea.secondnature.project import ProjectManager
-from openalea.secondnature.project import QActiveProjectManager
-from openalea.secondnature.mimetools import DataEditorSelector
-from openalea.secondnature.qtutils import try_to_disconnect
+from openalea.secondnature.managers   import AbstractSourceManager
+from openalea.secondnature.layouts    import LayoutManager
+from openalea.secondnature.applets    import AppletFactoryManager
+from openalea.secondnature.data       import DataSourceManager
+from openalea.secondnature.project    import Project
+from openalea.secondnature.project    import ProjectManager
+from openalea.secondnature.project    import QActiveProjectManager
+from openalea.secondnature.mimetools  import DataEditorSelector
+from openalea.secondnature.qtutils    import try_to_disconnect
 
 
 
@@ -87,6 +87,7 @@ class MainWindow(QtGui.QMainWindow):
         self.__projMan.active_project_changed.connect(self.__on_active_project_set)
         AppletFactoryManager().applet_created.connect(self.add_applet)
         LayoutManager().item_list_changed.connect(self.__onLayoutListChanged)
+        self._layoutMode.activated[int].connect(self.__onLayoutChosen)
         self._layoutMode.currentIndexChanged[int].connect(self.__onLayoutChosen)
 
 
@@ -96,7 +97,6 @@ class MainWindow(QtGui.QMainWindow):
         index = self._layoutMode.findText("Default Layout")
         if index >= 0:
             self._layoutMode.setCurrentIndex(index)
-            self._layoutMode.activated[QtCore.QString].emit("Default Layout")
 
     #########################################
     # Active project status change handlers #
@@ -132,7 +132,7 @@ class MainWindow(QtGui.QMainWindow):
             return
 
         formats = map(str, mimeData.formats())
-        handlers = DataTypeManager().get_handlers_for_mimedata(formats)
+        handlers = DataSourceManager().get_handlers_for_mimedata(formats)
         if len(handlers) > 0:
             event.acceptProposedAction()
         elif mimeData.hasFormat(ProjectManager.mimeformat):
@@ -282,16 +282,15 @@ class MainWindow(QtGui.QMainWindow):
         menu = QtGui.QMenu(splittable)
         menu.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
-        action = menu.addAction("Clear")
+        action = menu.addAction("Empty")
+        menu.addSeparator()
         action.triggered.connect(self.__make_clear_pane_handler(splittable, paneId))
 
-
-        appletMenu   = menu.addMenu("Applet...")
         applets    = list(AppletFactoryManager().gather_items().itervalues())
 
         applets.sort(cmp = lambda x,y:cmp(x.name, y.name))
         for app in applets:
-            action = appletMenu.addAction(app.icon, app.name)
+            action = menu.addAction(app.icon, app.name)
             action.setIconVisibleInMenu(True)
             func = self.__make_new_applet_pane_handler(splittable, proj, paneId, app)
             action.triggered.connect(func)

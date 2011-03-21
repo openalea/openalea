@@ -35,15 +35,15 @@ class Layout(HasName):
 
 class SpaceContent(object):
     """returned by widget factories"""
-    def __init__(self, content, menuList=None, toolbar=None):
-        self.__content  = content
+    def __init__(self, widget, menuList=None, toolbar=None):
+        self.__widget   = widget
         self.__menuList = menuList
         self.__toolbar  = toolbar
 
     def _set_applet(self, applet):
         self.__applet = applet
 
-    content = property(lambda x:x.__content)
+    widget  = property(lambda x:x.__widget)
     menus   = property(lambda x:x.__menuList)
     toolbar = property(lambda x:x.__toolbar)
 

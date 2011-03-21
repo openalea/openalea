@@ -26,7 +26,7 @@ from openalea.core.compositenode import CompositeNodeFactory, CompositeNode
 import urlparse
 import visualea_icons
 
-class DT_Dataflow(DataType):
+class DT_Dataflow(DataReader):
     __name__             = "Dataflow"
     __created_mimetype__ = CompositeNode.mimetype
     __opened_mimetypes__ = [CompositeNodeFactory.mimetype]
@@ -45,7 +45,7 @@ class DT_Dataflow(DataType):
 
 
 class DataflowViewFactory(AbstractApplet):
-    __name__ = "Visualea.DataflowView"
+    __name__ = "DataflowView"
 
     def __init__(self):
         AbstractApplet.__init__(self)
@@ -76,9 +76,9 @@ df1 = Layout("Dataflow Editing",
              # the widgets we want are those  placed under the
              # `Visualea` application namespace.
              # but you could have "PlantGl.viewer" here too.
-             appletmap={1:"Openalea.PackageManager",
-                        3:"Visualea.DataflowView",
-                        4:"Openalea.Logger"},
+             appletmap={1:"PackageManager",
+                        3:"DataflowView",
+                        4:"Logger"},
              easy_name="Visual Programming")
 
 

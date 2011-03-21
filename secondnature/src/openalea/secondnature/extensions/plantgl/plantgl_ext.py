@@ -22,7 +22,7 @@ from openalea.secondnature.api import *
 import urlparse
 import plantgl_icons
 
-class DT_Curve(DataTypeNoOpen):
+class DT_Curve(DataFactory):
     __name__             = "Curve2D"
     __created_mimetype__ = "application/plantgl-curve"
     __icon_rc__          = ":icons/curve2D.png"
@@ -37,7 +37,7 @@ class DT_Curve(DataTypeNoOpen):
         return self.wrap_data(iname, data, constraintType=constraint)
 
 
-class DT_Function(DataTypeNoOpen):
+class DT_Function(DataFactory):
     __name__             = "Function2D"
     __created_mimetype__ = "application/plantgl-function"
     __icon_rc__          = ":icons/function.png"
@@ -52,7 +52,7 @@ class DT_Function(DataTypeNoOpen):
         return self.wrap_data(iname, data, constraintType=constraint)
 
 
-class DT_NurbsPatch(DataTypeNoOpen):
+class DT_NurbsPatch(DataFactory):
     __name__             = "NurbsPatch"
     __created_mimetype__ =  "application/plantgl-nurbspatch"
     __icon_rc__          = ":icons/nurbspatch.png"
@@ -64,7 +64,7 @@ class DT_NurbsPatch(DataTypeNoOpen):
         iname = self.__name__
         return self.wrap_data(iname, data)
 
-class DT_InterpolatedProfile(DataTypeNoOpen):
+class DT_InterpolatedProfile(DataFactory):
     __name__             = "InterpolatedProfile"
     __created_mimetype__ = "application/plantgl-interpolatedcurve"
     __icon_rc__          = ":icons/interpolatedprofile.png"
@@ -91,7 +91,7 @@ class DT_InterpolatedProfile(DataTypeNoOpen):
 
 
 class PlantGLFactory(AbstractApplet):
-    __name__ = "PlantGL.PlantGL"
+    __name__ = "PlantGL"
 
     def __init__(self):
         AbstractApplet.__init__(self)

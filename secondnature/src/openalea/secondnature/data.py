@@ -24,7 +24,7 @@ from PyQt4 import QtGui, QtCore
 
 
 
-class AbstractDataType(HasName):
+class DataFactory(HasName):
     __name__ = ""
     __created_mimetype__ = ""
     __opened_mimetypes__ = []
@@ -75,11 +75,11 @@ class AbstractDataType(HasName):
         return data
 
 
-DataTypeNoOpen = AbstractDataType
 
 
 
-class DataType(DataTypeNoOpen):
+
+class DataReader(DataFactory):
     __supports_open__ = True
 
     def _open_url_0(self, parsedUrl):
@@ -112,7 +112,7 @@ class Data(HasName):
         return self.__props.get(key)
 
     def __set_data_type(self, dt, mimetype):
-        assert isinstance(dt, AbstractDataType)
+        assert isinstance(dt, DataFactory)
         self.__dt = dt
         self.__mimetype = mimetype
 
@@ -146,23 +146,23 @@ def GlobalDataManager():
 #############################
 from openalea.secondnature.managers import make_manager, AbstractSource
 
-datatype_classes = make_manager("DataType", to_derive=True)
+datatype_classes = make_manager("DataSource", to_derive=True)
 
-AbstractDataTypeManager = datatype_classes[0]
-DataTypeSourceMixin = datatype_classes[1]
-DataTypeSources = datatype_classes[2]
+AbstractDataSourceManager = datatype_classes[0]
+DataSourceSourceMixin = datatype_classes[1]
+DataSourceSources = datatype_classes[2]
 
-class DataTypeManager(AbstractDataTypeManager):
+class DataSourceManager(AbstractDataSourceManager):
 
     data_created              = QtCore.pyqtSignal(object)
     data_property_set_request = QtCore.pyqtSignal(object, str, object)
 
     def __init__(self):
-        AbstractDataTypeManager.__init__(self)
+        AbstractDataSourceManager.__init__(self)
         self.__mimeMap = {}
 
     def gather_items(self, refresh=True):
-        items = AbstractDataTypeManager.gather_items(self, refresh)
+        items = AbstractDataSourceManager.gather_items(self, refresh)
         if refresh:
             self.__mimeMap.clear()
             for datatype in items.itervalues():
@@ -182,12 +182,13 @@ class DataTypeManager(AbstractDataTypeManager):
                 handlers.update(fmt_datatypes)
         return list(handlers)
 
-DataTypeSourceMixin.__concrete_manager__ = DataTypeManager
 
-class DataTypeAppletSource(DataTypeSourceMixin, AbstractSource):
 
+class DataSourceAppletSource(DataSourceSourceMixin, AbstractSource):
+    """A DataSource source that gathers DataSources from applets.
+    It must therefor be loaded after the AppletManager."""
     def __init__(self):
-        DataTypeSourceMixin.__init__(self)
+        DataSourceSourceMixin.__init__(self)
         AbstractSource.__init__(self)
         self.items = {}
     def is_valid(self):
@@ -208,8 +209,6 @@ class DataTypeAppletSource(DataTypeSourceMixin, AbstractSource):
         return self.items.copy()
 
 
-
-DataTypeSources.append(DataTypeAppletSource)
-
-
-DataTypeManager()
+DataSourceSourceMixin.__concrete_manager__ = DataSourceManager
+DataSourceSources.append(DataSourceAppletSource)
+DataSourceManager()

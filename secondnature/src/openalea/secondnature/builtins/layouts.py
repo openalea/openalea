@@ -34,9 +34,9 @@ default = Layout("Default",
                  # the widgets we want are those  placed under the
                  # `Visualea` application namespace.
                  # but you could have "PlantGl.viewer" here too.
-                 appletmap={3:"Openalea.Interpreter",
-                            4:"Openalea.Logger",
-                            5:"Openalea.ProjectManager"},
+                 appletmap={3:"Interpreter",
+                            4:"Logger",
+                            5:"ProjectManager"},
                  easy_name="Default Layout")
 
 

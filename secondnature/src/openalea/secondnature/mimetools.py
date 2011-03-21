@@ -44,13 +44,13 @@ class DataEditorSelector(QtGui.QDialog):
     @staticmethod
     def mime_type_handler(formats, applet=True):
         from openalea.secondnature.applets import AppletFactoryManager
-        from openalea.secondnature.data    import DataTypeManager
+        from openalea.secondnature.data    import DataSourceManager
 
         formats = map(str, formats)
         if applet:
             handlers = AppletFactoryManager().get_handlers_for_mimedata(formats)
         else:
-            handlers = DataTypeManager().get_handlers_for_mimedata(formats)
+            handlers = DataSourceManager().get_handlers_for_mimedata(formats)
 
         nbHandlers = len(handlers)
         if nbHandlers == 0:

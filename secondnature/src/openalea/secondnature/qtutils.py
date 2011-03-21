@@ -32,6 +32,8 @@ class ComboBox(QtGui.QComboBox):
 
     def __init__(self, *args, **kwargs):
         QtGui.QComboBox.__init__(self, *args, **kwargs)
+        self.currentIndexChanged[int].connect(self.activated[int])
+        self.currentIndexChanged[QtCore.QString].connect(self.activated[QtCore.QString])
         self.installEventFilter(self)
 
     def eventFilter(self, watched, event):

@@ -18,9 +18,10 @@ __revision__ = " $Id$ "
 
 
 from openalea.secondnature.base_mixins import HasName
-from openalea.secondnature.data import AbstractDataType
+from openalea.secondnature.data import DataFactory
 from openalea.secondnature.layouts import SpaceContent
 from PyQt4 import QtCore
+
 
 class AbstractApplet(HasName):
 
@@ -29,9 +30,9 @@ class AbstractApplet(HasName):
 
     def __init__(self):
         HasName.__init__(self, self.__name__)
-        self.__datatypes       = []
+        self.__dataFacs       = []
         self.__mimemap         = {}
-        self.__defaultDataType = None
+        self.__defaultDataFac = None
         self.__bgpixmap        = None
 
         # -- icon--
@@ -43,14 +44,14 @@ class AbstractApplet(HasName):
                 self.__icon = QtGui.QIcon()
 
     def set_default_data_type(self, dt):
-        assert dt in self.__datatypes
-        self.__defaultDataType = dt
+        assert dt in self.__dataFacs
+        self.__defaultDataFac = dt
 
     def get_default_data_type(self):
-        if self.__defaultDataType:
-            return self.__defaultDataType
-        elif len(self.__datatypes):
-            return self.__datatypes[0]
+        if self.__defaultDataFac:
+            return self.__defaultDataFac
+        elif len(self.__dataFacs):
+            return self.__dataFacs[0]
         return None
 
     def get_mimetypes(self):
@@ -78,7 +79,7 @@ class AbstractApplet(HasName):
     def get_background_pixmap(self, refresh=False):
         if self.__bgpixmap is None or refresh:
             # -- all icons are 32*32
-            iconPixmaps = [dt.icon.pixmap(32,32) for dt in self.__datatypes \
+            iconPixmaps = [dt.icon.pixmap(32,32) for dt in self.__dataFacs \
                            if dt.icon]
             bgw, bgh    = len(iconPixmaps)*32, 32
             bgPixmap    = QtGui.QPixmap(bgw, bgh)
@@ -93,11 +94,11 @@ class AbstractApplet(HasName):
         return self.__bgpixmap
 
     #############
-    # DataTypes #
+    # DataFacs #
     #############
     def add_data_type(self, dt):
-        assert isinstance(dt, AbstractDataType)
-        self.__datatypes.append(dt)
+        assert isinstance(dt, DataFactory)
+        self.__dataFacs.append(dt)
         mimetypes = dt.opened_mimetypes
         for mt in mimetypes:
             self.__mimemap[mt] = dt
@@ -110,14 +111,14 @@ class AbstractApplet(HasName):
                 self.add_data_type(dt)
     else:
         def add_data_types(self, dts):
-            self.__datatypes.extend(dts)
+            self.__dataFacs.extend(dts)
             d = dict( (dt.mimetype, dt) for dt in dts )
             self.__mimemap.update(d)
 
     def get_data_types(self):
-        return self.__datatypes[:]
+        return self.__dataFacs[:]
 
-    data_types = property(lambda x:x.__datatypes[:])
+    data_types = property(lambda x:x.__dataFacs[:])
 
 
 
@@ -131,8 +132,9 @@ class AbstractApplet(HasName):
 
 from PyQt4 import QtGui, QtCore
 import traceback
-from openalea.secondnature.data      import DataTypeManager
+from openalea.secondnature.data      import DataSourceManager
 from openalea.secondnature.data      import GlobalDataManager
+from openalea.secondnature.data      import GlobalData
 from openalea.secondnature.project   import ProjectManager
 from openalea.secondnature.qtutils   import ComboBox
 
@@ -159,7 +161,6 @@ class AppletSpace(QtGui.QWidget):
         self.__browseDataBut = ComboBox()
         self.__browseDataBut.setIconSize(QtCore.QSize(16,16))
 
-
         # -- configure the layout --
         self.__lay.addWidget(self.__stack)
         self.__lay.addWidget(self.__toolbar)
@@ -178,14 +179,22 @@ class AppletSpace(QtGui.QWidget):
         self.__toolbar.addWidget(self.__browseDataBut)
 
         # -- connect relevant stuff --
-        self.__newDataBut.pressed.connect(self.update_datatype_menu)
-        self.__browseDataBut.currentIndexChanged[int].connect(self.show_data)
+        self.__newDataBut.pressed.connect(self.update_dataFac_menu)
+        self.__browseDataBut.activated[int].connect(self.show_data_at_index)
 
-        self.update_datatype_menu()
+        self.update_dataFac_menu()
+
         proj = ProjectManager().get_active_project()
-        self.update_combo_list(proj)
+        data = self.update_combo_list(proj)
+
         if self.__browseDataBut.count() == 1:
             self.__browseDataBut.setCurrentIndex(0)
+
+        # -- if there is only one data that is global data
+        # and no space toolbar or menu hide the header --
+        if len(data)==1 and isinstance(data[0][0], GlobalData) and \
+           len(self.__toolbar.actions()) == 2:
+            self.__toolbar.hide()
 
         AppletFactoryManager().applet_created.emit(self)
 
@@ -196,24 +205,23 @@ class AppletSpace(QtGui.QWidget):
         return data.mimetype in self.__applet.mimetypes
 
     def add_content(self, data, content):
-        print "add_content", content.content
-        content = content.content
+        print "add_content", content.widget
+        content = content.widget
         self.__stack.addWidget(content)
         index = self.__browseDataBut.findText(data.name)
         self.__browseDataBut.setCurrentIndex(index)
         self.__stack.setCurrentWidget(content)
 
-    def update_datatype_menu(self):
+    def update_dataFac_menu(self):
         menu = QtGui.QMenu(self.__newDataBut)
-        datatypes = self.__applet.get_data_types()
-        datatypes.sort(cmp = lambda x,y:cmp(x.name, y.name))
-        for dt in datatypes:
+        dataFacs = self.__applet.get_data_types()
+        dataFacs.sort(cmp = lambda x,y:cmp(x.name, y.name))
+        for dt in dataFacs:
             action = menu.addAction(dt.icon, dt.name)
             action.setIconVisibleInMenu(True)
-            func = self.__make_datatype_handler(dt)
+            func = self.__make_dataFac_handler(dt)
             action.triggered.connect(func)
         self.__newDataBut.setMenu(menu)
-
 
     def update_combo_list(self, proj, addedData=None, block=True):
         self.__browseDataBut.blockSignals(block)
@@ -233,33 +241,38 @@ class AppletSpace(QtGui.QWidget):
         index = self.__browseDataBut.findText(currentText)
         self.__browseDataBut.setCurrentIndex(index)
         self.__browseDataBut.blockSignals(False)
+        return data
 
-    def __make_datatype_handler(self, datatype):
-        def on_datatype_chosen(checked):
-            data    = datatype._new_0()
-            space   = self.__applet._create_space_content_0(data)
-            content = space.content
-            self.__stack.addWidget(content)
+    def __make_dataFac_handler(self, dataFac):
+        def on_dataFac_chosen(checked):
+            data    = dataFac._new_0()
+            content = self.__applet._create_space_content_0(data)
+            widget  = content.widget
+            self.__stack.addWidget(widget)
             index = self.__browseDataBut.findText(data.name)
             self.__browseDataBut.setCurrentIndex(index)
-        return on_datatype_chosen
+        return on_dataFac_chosen
 
-    def show_data(self, index):
+    def show_data(self, data):
+        index = self.__browseDataBut.findText(data.name)
+        self.__browseDataBut.setCurrentIndex(index)
+
+    def show_data_at_index(self, index):
         itemData = self.__browseDataBut.itemData(index).toPyObject()
         if not itemData:
             return
         data, proj =  itemData
-        space = proj.get_data_property(data, "spaceContent")
-        if not space:
-            space = self.__applet._create_space_content_0(data)
-        content = space.content
-        content.show()
-        if not self.__stack.indexOf(content)>-1:
-            self.__stack.addWidget(content)
-        self.__stack.setCurrentWidget(content)
+        content = proj.get_data_property(data, "spaceContent")
+        if not content:
+            content = self.__applet._create_space_content_0(data)
+        widget = content.widget
+        if not self.__stack.indexOf(widget)>-1:
+            self.__stack.addWidget(widget)
+        self.__stack.setCurrentWidget(widget)
 
     def _set_combo_index(self, index):
         self.__browseDataBut.setCurrentIndex(index)
+
 
 
 
@@ -283,11 +296,11 @@ class EmptyAppletBackground(QtGui.QWidget):
             but.clicked.connect(func)
         self.__lay.addStretch()
 
-    def __make_button_click_handler(self, but, applet, datatype, appletspace):
+    def __make_button_click_handler(self, but, applet, dataFac, appletspace):
         def on_type_selected(checked):
-            data = datatype._new_0()
-            space = applet._create_space_content_0(data)
-            appletspace._set_combo_index(0)
+            data = dataFac._new_0()
+            content = applet._create_space_content_0(data)
+            appletspace.show_data(data)
         return on_type_selected
 
     def paintEvent(self, event):

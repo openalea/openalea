@@ -31,7 +31,7 @@ import inspect
 
 import code_editor_icons
 
-class DT_Text(DataType):
+class DT_Text(DataReader):
     __name__             = "Text"
     __created_mimetype__ = "text/plain"
     __opened_mimetypes__ = ["text/plain",
@@ -41,7 +41,7 @@ class DT_Text(DataType):
     __icon_rc__   = ":icons/text.png"
 
     def __init__(self):
-        DataType.__init__(self)
+        DataReader.__init__(self)
         self.pm = PackageManager()
 
     def new(self):
@@ -77,7 +77,7 @@ class DT_Text(DataType):
 
 
 class CodeEditorFactory(AbstractApplet):
-    __name__        = "CodeEditor.CodeEditor"
+    __name__        = "CodeEditor"
 
     def __init__(self):
         AbstractApplet.__init__(self)
