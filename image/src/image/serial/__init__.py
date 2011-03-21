@@ -19,7 +19,5 @@ This module import filters to read write images in custom formats
 __license__= "Cecill-C"
 __revision__=" $Id: $ "
 
-from scipy.misc.pilutil import imread,imsave
-from basics import save,load,read_sequence
+from basics import save,load,read_sequence,imread
 from inrimage import *
-from lsm import *

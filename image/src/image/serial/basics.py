@@ -20,14 +20,16 @@ This module redefine load and save to account for spatial images
 __license__= "Cecill-C"
 __revision__=" $Id: $ "
 
+from os.path import exists
 import Image,ImageOps
 import os, fnmatch
-
+from pylab import imread as _imread
 from struct import pack,unpack,calcsize
 from pickle import dumps,loads
 import numpy as np
-
-from ..spatial_image import SpatialImage
+from inrimage import *
+from lsm import *
+from ..spatial_image import SpatialImage  
 
 def save (file, img) :
 	"""Save an array to a binary file in numpy format
@@ -157,3 +159,32 @@ def read_sequence ( directory, grayscale=True, number_images=None, start=0, incr
         return SpatialImage(result)
     else :
         return SpatialImage(result, voxels_size)
+
+
+def imread (filename) :
+    """Read an image file
+	
+    .. warning:: supported format are either the classical format for images
+	         like png and jpg or lsm and inrimage format for spatial nd images
+	
+    :Parameters:
+    - `filename` (str)
+	
+    :Returns Type: array
+    """
+    if not exists(filename) :
+	raise IOError("The requested file do not exist: %s" % filename)
+        
+    if filename.endswith(".lsm"):
+        try :
+            return read_lsm(filename)
+	except :
+            pass
+
+    if filename.endswith("inr.gz") | filename.endswith("inr"):
+        try:
+            return read_inrimage(filename)
+        except :
+            pass
+
+    return _imread(filename)
