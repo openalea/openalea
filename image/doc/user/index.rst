@@ -1,7 +1,7 @@
-.. _celltissue_user:
+.. _image_user:
 
-CellTissue User Guide
-#####################
+Image User Guide
+################
 
 :Version: |version|
 :Release: |release|
@@ -14,11 +14,11 @@ reference guide, see :ref:`openalea.celltissue_reference`.
 .. warning::
 
    This "User Guide" is still very much in progress. 
-   Many aspects of openalea.mechanics are not covered.
+   Many aspects of openalea.image are not covered.
 
    More documentation can be found on the
    `openalea <http://openalea.gforge.inria.fr>`__ wiki.
 
 .. toctree::
 
-    manual.rst
+    Serial Package <serial.rst>

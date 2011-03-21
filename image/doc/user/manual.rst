@@ -1,4 +1,7 @@
-User guide
-##########
+Image user guide
+################
 
-Put whatever you want here
+.. toctree::
+    :maxdepth: 1
+
+    Serial Package<serial.rst>
