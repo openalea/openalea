@@ -52,29 +52,29 @@ class MainWindow(QtGui.QMainWindow):
         self.logger = sn_logger
         self.__applets = []
 
-        # main menu bar
+        # -- main menu bar --
         self._mainMenuBar = QtGui.QMenuBar(self)
         self._projectMenu = self._mainMenuBar.addMenu("&Project")
         self.setMenuBar(self._mainMenuBar)
 
-        # project menu
+        # -- project menu --
         qpm = QActiveProjectManager()
         self._projectMenu.addAction(qpm.get_action_new())
         self._projectMenu.addAction(qpm.get_action_open())
         self._projectMenu.addAction(qpm.get_action_save())
         self._projectMenu.addAction(qpm.get_action_close())
 
-        # a default central widget
+        # -- a default central widget--
         self.__centralStack = QtGui.QStackedWidget(self)
 
-        # status bar
+        # -- status bar --
         self._statusBar  = QtGui.QStatusBar(self)
         self._layoutMode = QtGui.QComboBox(self)
         self._statusBar.addPermanentWidget(self._layoutMode)
         self._layoutMode.setSizeAdjustPolicy(QtGui.QComboBox.AdjustToContents)
         self.__currentLayout = None
 
-        # add all those guys to the main window (self)
+        # -- add all those guys to the main window (self) --
         self.setMenuBar(self._mainMenuBar)
         self.setStatusBar(self._statusBar)
         self.setCentralWidget(self.__centralStack)
@@ -172,15 +172,14 @@ class MainWindow(QtGui.QMainWindow):
                     if data:
                         app = DataEditorSelector.mime_type_handler([data.mimetype], applet=True)
 
-        # first try to retreive the content associated to this data
-        if proj and data:
-            content = proj.get_data_property(data, "spaceContent")
-        # if content is still none, we can always try to create a new content
-        print "__on_splitter_pane_drop", content
+        # -- first try to retreive the content associated to this data --
+        # NO_SPACE_CONTENT_TRACKING
+        # if proj and data:
+        #     content = proj.get_data_property(data, "spaceContent")
+        # -- if content is still none, we can always try to create a new content --
         if content is None and data:
             if app:
                 content = app._create_space_content_0(data)
-                proj.set_data_property(data, "spaceContent", content)
         # -- find the space (applet) of the pane or create one if none:
         space = splittable.getContentAt(paneId)
         newSpace = False
@@ -287,7 +286,6 @@ class MainWindow(QtGui.QMainWindow):
         action.triggered.connect(self.__make_clear_pane_handler(splittable, paneId))
 
         applets    = list(AppletFactoryManager().gather_items().itervalues())
-
         applets.sort(cmp = lambda x,y:cmp(x.name, y.name))
         for app in applets:
             action = menu.addAction(app.icon, app.name)

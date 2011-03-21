@@ -64,8 +64,9 @@ class AbstractApplet(HasName):
 
     def _create_space_content_0(self, data):
         space = self.create_space_content(data)
-        if data.registerable:
-            ProjectManager().set_property_to_active_project(data, "spaceContent", space)
+        # NO_SPACE_CONTENT_TRACKING
+        # if data.registerable:
+        #     ProjectManager().set_property_to_active_project(data, "spaceContent", space)
         return space
 
     def __call__(self):
@@ -205,7 +206,6 @@ class AppletSpace(QtGui.QWidget):
         return data.mimetype in self.__applet.mimetypes
 
     def add_content(self, data, content):
-        print "add_content", content.widget
         content = content.widget
         self.__stack.addWidget(content)
         index = self.__browseDataBut.findText(data.name)
@@ -255,14 +255,17 @@ class AppletSpace(QtGui.QWidget):
 
     def show_data(self, data):
         index = self.__browseDataBut.findText(data.name)
-        self.__browseDataBut.setCurrentIndex(index)
+        if index > -1: #-1 is not found
+            self.__browseDataBut.setCurrentIndex(index)
 
     def show_data_at_index(self, index):
         itemData = self.__browseDataBut.itemData(index).toPyObject()
         if not itemData:
             return
         data, proj =  itemData
-        content = proj.get_data_property(data, "spaceContent")
+        # NO_SPACE_CONTENT_TRACKING
+        # content = proj.get_data_property(data, "spaceContent")
+        content = None
         if not content:
             content = self.__applet._create_space_content_0(data)
         widget = content.widget
