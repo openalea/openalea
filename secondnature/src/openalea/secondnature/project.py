@@ -22,6 +22,7 @@ from openalea.core.singleton import ProxySingleton
 from openalea.core.metaclass import make_metaclass
 import cPickle
 import zipfile
+import io
 import traceback
 
 
@@ -157,22 +158,26 @@ class Project(QtCore.QObject):
     #############
 
     def save_to(self, filepath):
-        docnames = [doc.name for doc in self.__docs.itervalues()]
+        docnames = [doc.name+":"+doc.factory_name+":"+doc.type \
+                    for doc in self.__docs.itervalues()]
         manifest = reduce(lambda x,y:x+"\n"+y, docnames, "name="+self.name)
         print manifest
         with zipfile.ZipFile(filepath, "w") as z:
             z.writestr("manifest.txt", manifest)
             for d in self.__docs.itervalues():
                 try:
-                    s = cPickle.dumps(d)
-                except cPickle.PicklingError, e:
+                    stream = io.BytesIO()
+                    d.to_stream(stream)
+                except Exception, e:
                     print "couldn't write", f, " : ", e
                 else:
-                    z.writestr(d.name,s)
-
+                    z.writestr(d.name,stream.getvalue())
 
     @classmethod
     def load_from(cls, filepath):
+        from openalea.secondnature.data import DataSourceManager
+        dataMgr = DataSourceManager()
+        dataFactories = dataMgr.gather_items()
         docs = dict()
         name = ""
         with zipfile.ZipFile(filepath, "r") as z:
@@ -180,13 +185,18 @@ class Project(QtCore.QObject):
             print manifest
             lines = manifest.split("\n")
             name = lines[0].split("=")[1]
-            files = lines[1:]
+            filesAndFactories = [f.split(":") for f in lines[1:]]
             ctr = 0
-            for f in files:
-                s = z.read(f)
+            for f, facName, type_ in filesAndFactories:
+                df = dataFactories.get(facName)
+                if not df:
+                    continue
+
+                bytes = z.read(f)
+                stream = io.BytesIO(initial_bytes=bytes)
                 try:
-                    upk = cPickle.loads(s)
-                except Exception, e:#cPickle.UnpicklingError, e:
+                    upk = df.data_from_stream(f, stream, type_)
+                except Exception, e:
                     print "couldn't read", f, " : ", e
                     traceback.print_exc()
                 else:

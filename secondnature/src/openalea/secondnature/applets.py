@@ -62,16 +62,6 @@ class AbstractApplet(HasName):
     def create_space_content(self, data):
         raise NotImplementedError
 
-    def _create_space_content_0(self, data):
-        space = self.create_space_content(data)
-        # NO_SPACE_CONTENT_TRACKING
-        # if data.registerable:
-        #     ProjectManager().set_property_to_active_project(data, "spaceContent", space)
-        return space
-
-    def __call__(self):
-        return AppletSpace(self)
-
     #####################
     # Graphical Goodies #
     #####################
@@ -95,7 +85,7 @@ class AbstractApplet(HasName):
         return self.__bgpixmap
 
     #############
-    # DataFacs #
+    # DataFactories #
     #############
     def add_data_type(self, dt):
         assert isinstance(dt, DataFactory)
@@ -105,16 +95,10 @@ class AbstractApplet(HasName):
             self.__mimemap[mt] = dt
         self.__mimemap[dt.created_mimetype] = dt
 
-    if __debug__:
-        def add_data_types(self, dts):
-            assert isinstance(dts, list)
-            for dt in dts:
-                self.add_data_type(dt)
-    else:
-        def add_data_types(self, dts):
-            self.__dataFacs.extend(dts)
-            d = dict( (dt.mimetype, dt) for dt in dts )
-            self.__mimemap.update(d)
+    def add_data_types(self, dts):
+        assert isinstance(dts, list)
+        for dt in dts:
+            self.add_data_type(dt)
 
     def get_data_types(self):
         return self.__dataFacs[:]
@@ -122,9 +106,18 @@ class AbstractApplet(HasName):
     data_types = property(lambda x:x.__dataFacs[:])
 
 
+    #################
+    # Private Stuff #
+    #################
+    def _create_space_content_0(self, data):
+        space = self.create_space_content(data)
+        # NO_SPACE_CONTENT_TRACKING
+        # if data.registerable:
+        #     ProjectManager().set_property_to_active_project(data, "spaceContent", space)
+        return space
 
-
-
+    def __call__(self):
+        return AppletSpace(self)
 
 
 
@@ -138,7 +131,6 @@ from openalea.secondnature.data      import GlobalDataManager
 from openalea.secondnature.data      import GlobalData
 from openalea.secondnature.project   import ProjectManager
 from openalea.secondnature.qtutils   import ComboBox
-
 
 class AppletSpace(QtGui.QWidget):
 

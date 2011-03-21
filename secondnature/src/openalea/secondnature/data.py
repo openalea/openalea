@@ -51,6 +51,15 @@ class DataFactory(HasName):
             cls = GlobalData
         return self.__patch_data(cls(name, obj, **kwargs))
 
+    def data_from_stream(self, name, stream, type="b"):
+        import cPickle
+        obj = cPickle.load(stream)
+        return self.wrap_data(name, obj, cls=type)
+
+    def data_to_stream(self, data, stream):
+        import cPickle
+        cPickle.dump(data.obj, stream, cPickle.HIGHEST_PROTOCOL)
+
     def new(self):
         raise NotImplementedError
 
@@ -107,6 +116,8 @@ class Data(HasName):
     registerable = property(lambda x:True)
     mimetype     = property(lambda x:x.__mimetype)
     icon         = property(lambda x:x.__dt.icon if x.__dt else QtGui.QIcon())
+    factory_name = property(lambda x:x.__dt.name)
+    type         = property(lambda x:"b")
 
     def get_inner_property(self, key):
         return self.__props.get(key)
@@ -116,16 +127,21 @@ class Data(HasName):
         self.__dt = dt
         self.__mimetype = mimetype
 
+    def to_stream(self, stream):
+        self.__dt.data_to_stream(self, stream)
+
+
+
 
 class UnregisterableData(Data):
     registerable = property(lambda x:False)
-
+    type         = property(lambda x:"u")
 
 class GlobalData(UnregisterableData):
     def __init__(self, name, obj, **kwargs):
         UnregisterableData.__init__(self, name, obj, **kwargs)
         GlobalDataManager().add_data(self)
-
+    type         = property(lambda x:"g")
 
 __global_data_manager = None
 def GlobalDataManager():
