@@ -62,11 +62,7 @@ def level_one(args=None):
             # -- main window --
             self.win = mainwindow.MainWindow(None)
             self.post_status_message("Starting up! Please wait")
-
             self.win.show()
-            self.win.setEnabled(False)
-            self.win.init_extensions()
-            self.win.setEnabled(True)
             self.clear_status_message()
 
         def post_status_message(self, msg, timeout=2000):
@@ -77,6 +73,12 @@ def level_one(args=None):
 
         def clear_status_message(self):
             self.win.statusBar().clearMessage()
+
+        def event(self, e):
+            if e.type() == QtCore.QEvent.ApplicationActivate:
+                self.win.init_extensions()
+            return QtGui.QApplication.event(self, e)
+
 
 
     signal.signal(signal.SIGINT, signal.SIG_DFL)

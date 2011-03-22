@@ -92,11 +92,13 @@ class MainWindow(QtGui.QMainWindow):
 
 
     def init_extensions(self):
+        self.setEnabled(False)
         AbstractSourceManager.init()
         # --choosing default layout--
         index = self._layoutMode.findText("Default Layout")
         if index >= 0:
             self._layoutMode.setCurrentIndex(index)
+        self.setEnabled(True)
 
     #########################################
     # Active project status change handlers #

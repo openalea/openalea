@@ -106,6 +106,11 @@ class AbstractSourceManager(QtCore.QObject):
         am.gather_items(refresh=True)
         dm.gather_items(refresh=True)
 
+    @staticmethod
+    def post_status_message(msg):
+        app = QtCore.QCoreApplication.instance()
+        app.post_status_message(msg)
+
 
 class AbstractSource(QtCore.QObject):
 
@@ -173,6 +178,8 @@ class AbstractEntryPointSource(AbstractSource):
         self.items = {}
         for ep in self.pkg_resources.iter_entry_points(self.__entry_point__):
             try:
+                AbstractSourceManager.post_status_message(self.__class__.__name__ + \
+                                                          " loading  " + ep.name)
                 it = ep.load()
             except Exception, e:
                 logger.error(self.name + " couldn't load " + str(ep) + ":" + str(e) )
@@ -210,6 +217,9 @@ class AbstractBuiltinSource(AbstractSource):
     def gather_items(self):
         if not self.is_valid():
             return None #TODO : raise something dude
+        AbstractSourceManager.post_status_message(self.__class__.__name__ + \
+                                                  " loading  " + self.mod.__name__)
+
         itemlist = self.mod.get_builtins()
         self.__items = dict( (getattr(v, self.__key__), v) for v in itemlist)
         self.item_list_changed.emit(self, self.__items.copy())
