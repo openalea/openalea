@@ -22,3 +22,4 @@ reference guide, see :ref:`openalea.celltissue_reference`.
 .. toctree::
 
     Serial Package <serial.rst>
+    GUI Package <gui.rst>

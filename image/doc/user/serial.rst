@@ -21,17 +21,4 @@ For LSM or INR images, the return value is MxNxZ.
     from openalea.image import imread
     im = imread("lena.bmp")
 
-Display images
-==============
-:class:`openalea.serial.imread` can be used for displaying a matrix as an image.
 
-.. code-block:: python
-    :linenos:
-    
-    from openalea.image import display
-    from PyQt4 import QtGui
-    app = QtGui.QApplication([])
-    w1 = display(im)
-
-
-.. image:: ./images/lena.png
