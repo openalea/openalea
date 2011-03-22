@@ -172,21 +172,28 @@ class MainWindow(QtGui.QMainWindow):
                     if data:
                         app = DataEditorSelector.mime_type_handler([data.mimetype], applet=True)
 
-        # -- first try to retreive the content associated to this data --
         # NO_SPACE_CONTENT_TRACKING
+        # -- first try to retreive the content associated to this data --
         # if proj and data:
         #     content = proj.get_data_property(data, "spaceContent")
         # -- if content is still none, we can always try to create a new content --
-        if content is None and data:
-            if app:
-                content = app._create_space_content_0(data)
+        # if content is None and data:
+        #     if app:
+        #         content = app._create_space_content_0(data)
+
         # -- find the space (applet) of the pane or create one if none:
         space = splittable.getContentAt(paneId)
         newSpace = False
-        if not space or not space.supports(data):
+        if not space:
+            space = app()
+            newSpace = True
+        elif not space.supports(data):
             newSpace = True
             space = app()
-        space.add_content(data, content)
+
+        space.show_data(data)
+        # NO_SPACE_CONTENT_TRACKING
+        # space.add_content(data, content)
 
         if newSpace is not None:
             self.__setSpaceAt(splittable, paneId, space)
