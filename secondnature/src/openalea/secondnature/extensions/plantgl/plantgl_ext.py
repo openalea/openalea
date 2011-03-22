@@ -93,14 +93,12 @@ class DT_InterpolatedProfile(DataFactory):
 class PlantGLFactory(AbstractApplet):
     __name__ = "PlantGL"
 
-    def __init__(self):
-        AbstractApplet.__init__(self)
+    def start(self):
         self.__pglEscSwallower = EscEventSwallower()
 
-        curve_dt = DT_Curve()
-        self.add_data_types([curve_dt, DT_Function(),
+        self.add_data_types([DT_Curve(), DT_Function(),
                              DT_NurbsPatch(), DT_InterpolatedProfile()])
-        self.set_default_data_type(curve_dt)
+        return True
 
     def create_space_content(self, data):
         if data.mimetype == DT_Curve.__created_mimetype__:

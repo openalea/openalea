@@ -21,20 +21,31 @@ from openalea.secondnature.base_mixins import HasName
 
 
 class Layout(HasName):
+
+    # -- PROPERTIES --
+    skeleton  = property(lambda x: x.__skeleton)
+    appletmap = property(lambda x: x.__appletmap)
+    easyname  = property(lambda x: x.__ezname or x.name)
+
+
     def __init__(self, name, skeleton, appletmap, easy_name=None):
         HasName.__init__(self, name)
         self.__skeleton  = skeleton
         self.__appletmap = appletmap
         self.__ezname    = easy_name
 
-    skeleton  = property(lambda x: x.__skeleton)
-    appletmap = property(lambda x: x.__appletmap)
-    easyname  = property(lambda x: x.__ezname or x.name)
 
 
 
 class SpaceContent(object):
     """returned by widget factories"""
+
+    # -- PROPERTIES --
+    widget  = property(lambda x:x.__widget)
+    menus   = property(lambda x:x.__menuList)
+    toolbar = property(lambda x:x.__toolbar)
+
+
     def __init__(self, widget, menuList=None, toolbar=None):
         self.__widget   = widget
         self.__menuList = menuList
@@ -43,9 +54,6 @@ class SpaceContent(object):
     def _set_applet(self, applet):
         self.__applet = applet
 
-    widget  = property(lambda x:x.__widget)
-    menus   = property(lambda x:x.__menuList)
-    toolbar = property(lambda x:x.__toolbar)
 
 
 ##########################

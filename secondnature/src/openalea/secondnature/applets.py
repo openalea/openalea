@@ -18,22 +18,37 @@ __revision__ = " $Id$ "
 
 
 from openalea.secondnature.base_mixins import HasName
-from openalea.secondnature.data import DataFactory
-from openalea.secondnature.layouts import SpaceContent
+from openalea.secondnature.base_mixins import CanBeStarted
+from openalea.secondnature.data        import DataFactory
+from openalea.secondnature.layouts     import SpaceContent
+
+from openalea.core.logger import get_logger
+
 from PyQt4 import QtCore
 
 
-class AbstractApplet(HasName):
+class AbstractApplet(HasName, CanBeStarted):
 
+    # -- API ATTRIBUTES --
     __name__ = ""
     __icon_rc__ = None
 
+    # -- PROPERTIES --
+    mimetypes  = property(lambda x:x.get_mimetypes())
+    logger     = property(lambda x:x.__logger)
+    icon       = property(lambda x:x.__icon)
+    data_types = property(lambda x:x.__dataFacs[:])
+
+
     def __init__(self):
         HasName.__init__(self, self.__name__)
+        CanBeStarted.__init__(self)
+
         self.__dataFacs       = []
-        self.__mimemap         = {}
+        self.__mimemap        = {}
         self.__defaultDataFac = None
-        self.__bgpixmap        = None
+        self.__bgpixmap       = None
+        self.__logger         = get_logger("Applet:"+self.__name__)
 
         # -- icon--
         self.__icon = None
@@ -43,30 +58,15 @@ class AbstractApplet(HasName):
             else:
                 self.__icon = QtGui.QIcon()
 
-    def set_default_data_type(self, dt):
-        assert dt in self.__dataFacs
-        self.__defaultDataFac = dt
-
-    def get_default_data_type(self):
-        if self.__defaultDataFac:
-            return self.__defaultDataFac
-        elif len(self.__dataFacs):
-            return self.__dataFacs[0]
-        return None
-
-    def get_mimetypes(self):
-        return list(self.__mimemap.iterkeys())
-
-    mimetypes = property(lambda x:x.get_mimetypes())
-
+    #################
+    # EXTENSION API #
+    #################
     def create_space_content(self, data):
         raise NotImplementedError
 
     #####################
     # Graphical Goodies #
     #####################
-    icon = property(lambda x:x.__icon)
-
     def get_background_pixmap(self, refresh=False):
         if self.__bgpixmap is None or refresh:
             # -- all icons are 32*32
@@ -84,9 +84,9 @@ class AbstractApplet(HasName):
             self.__bgpixmap = bgPixmap
         return self.__bgpixmap
 
-    #############
+    #################
     # DataFactories #
-    #############
+    #################
     def add_data_type(self, dt):
         assert isinstance(dt, DataFactory)
         self.__dataFacs.append(dt)
@@ -103,8 +103,8 @@ class AbstractApplet(HasName):
     def get_data_types(self):
         return self.__dataFacs[:]
 
-    data_types = property(lambda x:x.__dataFacs[:])
-
+    def get_mimetypes(self):
+        return list(self.__mimemap.iterkeys())
 
     #################
     # Private Stuff #
@@ -126,7 +126,7 @@ class AbstractApplet(HasName):
 
 from PyQt4 import QtGui, QtCore
 import traceback
-from openalea.secondnature.data      import DataSourceManager
+from openalea.secondnature.data      import DataFactoryManager
 from openalea.secondnature.data      import GlobalDataManager
 from openalea.secondnature.data      import GlobalData
 from openalea.secondnature.project   import ProjectManager
@@ -134,6 +134,10 @@ from openalea.secondnature.qtutils   import ComboBox
 
 class AppletSpace(QtGui.QWidget):
 
+    # -- PROPERTIES --
+    name = property(lambda x:x.__applet.name)
+
+    # -- NONE API ATTRIBUTES --
     __hh__ = 22  # header content height
 
     def __init__(self, applet, parent=None):
@@ -191,8 +195,6 @@ class AppletSpace(QtGui.QWidget):
 
         AppletFactoryManager().applet_created.emit(self)
 
-
-    name = property(lambda x:x.__applet.name)
 
     def supports(self, data):
         return data.mimetype in self.__applet.mimetypes
@@ -260,6 +262,8 @@ class AppletSpace(QtGui.QWidget):
         content = None
         if not content:
             content = self.__applet._create_space_content_0(data)
+        if content is None:
+            print "Applet", self.name, "returned None content"
         widget = content.widget
         if not self.__stack.indexOf(widget)>-1:
             self.__stack.addWidget(widget)
@@ -324,7 +328,6 @@ applet_classes = make_manager("AppletFactory",
                                builtin="applet_factories", to_derive=True)
 AbstractAppletFactoryManager = applet_classes[0]
 AppletFactorySourceMixin = applet_classes[1]
-AppletFactorySourceEntryPoints, AppletFactorySourceBuiltin = applet_classes[2]
 
 class AppletFactoryManager(AbstractAppletFactoryManager):
 
@@ -334,13 +337,15 @@ class AppletFactoryManager(AbstractAppletFactoryManager):
         AbstractAppletFactoryManager.__init__(self)
         self.__mimeMap = {}
 
-    def gather_items(self, refresh=True):
+    def gather_items(self, refresh=False):
         items = AbstractAppletFactoryManager.gather_items(self, refresh)
         if refresh:
             self.__mimeMap.clear()
             for appFac in items.itervalues():
                 if appFac is None:
                     continue
+                if not appFac.started:
+                    appFac._start_0()
                 fmts = appFac.get_mimetypes()
                 for fmt in fmts:
                     self.__mimeMap.setdefault(fmt, set()).add(appFac)

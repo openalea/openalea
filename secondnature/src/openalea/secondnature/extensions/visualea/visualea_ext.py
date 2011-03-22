@@ -47,9 +47,9 @@ class DT_Dataflow(DataReader):
 class DataflowViewFactory(AbstractApplet):
     __name__ = "DataflowView"
 
-    def __init__(self):
-        AbstractApplet.__init__(self)
+    def start(self):
         self.add_data_type(DT_Dataflow())
+        return True
 
     def create_space_content(self, data):
         node = data.obj

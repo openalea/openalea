@@ -32,11 +32,11 @@ class DT_Logger(DataFactory):
     __created_mimetype__ = "application/openalea-logger"
     __icon_rc__   = ":icons/logger.png"
 
-    def __init__(self):
-        DataFactory.__init__(self)
+    def start(self):
         from openalea.core.logger import LoggerOffice
         self.loggermodel = LoggerOffice().get_handler("qt")
         self.loggerDoc = self.wrap_data(self.__name__,  self.loggermodel, "g")
+        return True
 
     def new(self):
         return self.loggerDoc
@@ -45,9 +45,9 @@ class LoggerFactory(AbstractApplet):
     __name__ = "Logger"
     __namespace__ = "Openalea"
 
-    def __init__(self):
-        AbstractApplet.__init__(self)
+    def start(self):
         self.add_data_type(DT_Logger())
+        return True
 
     def create_space_content(self, data):
         from openalea.visualea.logger import LoggerView
@@ -55,7 +55,6 @@ class LoggerFactory(AbstractApplet):
         space = SpaceContent(view)
         return space
 
-logger_f   = LoggerFactory()
 
 
 ###############
@@ -66,30 +65,55 @@ class DT_Interpreter(DataFactory):
     __created_mimetype__ = "application/openalea-interpreter"
     __icon_rc__   = ":icons/interpreter.png"
 
-    def __init__(self):
-        DataFactory.__init__(self)
+    def start(self):
         from code import InteractiveInterpreter as Interpreter
         self.interpretermodel = Interpreter()
         self.interpreterDoc = self.wrap_data(self.__name__,  self.interpretermodel, "g")
+        return True
 
     def new(self):
         return self.interpreterDoc
 
+
+class DT_Session(DataFactory):
+    __name__             = "Session"
+    __created_mimetype__ = "application/openalea-session"
+
+    def start(self):
+        from openalea.core.session import Session
+        self.__session = Session()
+        self.session = self.wrap_data(self.__name__, self.__session, "g")
+        return True
+
+    def new(self):
+        return self.session
+
+
 class InterpreterFactory(AbstractApplet):
     __name__ = "Interpreter"
 
-    def __init__(self):
-        AbstractApplet.__init__(self)
+    def start(self):
         from openalea.visualea.shell import get_shell_class
         self.shellCls = get_shell_class()
         self.add_data_type(DT_Interpreter())
 
+        # just call it, we don't register it as a user visible type
+        # because it's just a global thing that can be used
+        # by other applets and that has no editor.
+        sessionFac = DT_Session()
+        DataFactoryManager().add_custom_item("Session", sessionFac)
+#        sessionFac._start_0()
+
+        return True
+
     def create_space_content(self, data):
         from openalea.core import cli
 
-        # cheating! needed for cli.init_interpreter
-        from PyQt4 import QtGui
-        session = QtGui.QApplication.instance().get_session()
+        session = GlobalDataManager().get_data_by_name("Session")
+        if not session:
+            self.logger.error("Couldn't retreive session, logger view cannot be created")
+            return
+        session = session.obj
 
         interpreterModel = data.obj
         #managers:
@@ -103,7 +127,6 @@ class InterpreterFactory(AbstractApplet):
         cli.init_interpreter(interpreterModel, session, mgrs)
         return SpaceContent(view)
 
-interpreter_f   = InterpreterFactory()
 
 ###################
 # PACKAGE MANAGER #
@@ -113,24 +136,24 @@ class DT_PackageManager(DataFactory):
     __created_mimetype__ = "application/openalea-packagemanager"
     __icon_rc__          = ":icons/packagemanager.png"
 
-    def __init__(self):
-        DataFactory.__init__(self)
+    def start(self):
         #lets create the PackageManager ressource
         from openalea.core.pkgmanager import PackageManager
         from openalea.secondnature.ripped.node_treeview import PkgModel
-
         self.model    = PkgModel(PackageManager())
         self.pmanagerDoc = self.wrap_data(self.__name__, self.model, "g")
+        return True
 
     def new(self):
         return self.pmanagerDoc
 
+
 class PackageManagerFactory(AbstractApplet):
     __name__ = "PackageManager"
 
-    def __init__(self):
-        AbstractApplet.__init__(self)
+    def start(self):
         self.add_data_type(DT_PackageManager())
+        return True
 
     def create_space_content(self, data):
         from openalea.secondnature.ripped.node_treeview import NodeFactoryTreeView
@@ -140,7 +163,6 @@ class PackageManagerFactory(AbstractApplet):
         space = SpaceContent(view)
         return space
 
-pmanager_f = PackageManagerFactory()
 
 
 ###################
@@ -151,13 +173,12 @@ class DT_ProjectManager(DataFactory):
     __created_mimetype__ = "application/openalea-projectmanager"
     __icon_rc__   = ":icons/projectmanager.png"
 
-    def __init__(self):
-        DataFactory.__init__(self)
+    def start(self):
         #lets create the PackageManager ressource
         from openalea.secondnature.project_view import ProjectManagerTreeModel
-
-        self.model    = ProjectManagerTreeModel()
+        self.model       = ProjectManagerTreeModel()
         self.pmanagerDoc = self.wrap_data(self.__name__, self.model, "g")
+        return True
 
     def new(self):
         return self.pmanagerDoc
@@ -165,9 +186,10 @@ class DT_ProjectManager(DataFactory):
 class ProjectManagerFactory(AbstractApplet):
     __name__ = "ProjectManager"
 
-    def __init__(self):
-        AbstractApplet.__init__(self)
+
+    def start(self):
         self.add_data_type(DT_ProjectManager())
+        return True
 
     def create_space_content(self, data):
         from PyQt4 import QtGui, QtCore
@@ -190,8 +212,7 @@ class ProjectManagerFactory(AbstractApplet):
         from PyQt4 import QtGui, QtCore
         def onContextMenuRequest(pos):
 
-            from openalea.secondnature.data import DataSourceManager
-            datafactories = sorted(DataSourceManager().gather_items().itervalues(),
+            datafactories = sorted(DataFactoryManager().gather_items().itervalues(),
                                lambda x,y:cmp(x.name, y.name))
 
             menu = QtGui.QMenu(widget)
@@ -209,8 +230,10 @@ class ProjectManagerFactory(AbstractApplet):
         return on_datafactory_chosen
 
 
-projmanager_f = ProjectManagerFactory()
-
 
 def get_builtins():
-    return [logger_f, interpreter_f, pmanager_f, projmanager_f]
+    # interpreter depends on manager being initialised
+    return [ProjectManagerFactory(),
+            PackageManagerFactory(),
+            InterpreterFactory(),
+            LoggerFactory()]

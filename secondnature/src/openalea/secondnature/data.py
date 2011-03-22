@@ -17,22 +17,32 @@ __license__ = "CeCILL v2"
 __revision__ = " $Id$ "
 
 from openalea.secondnature.base_mixins import HasName
-from openalea.secondnature.project import ProjectManager
+from openalea.secondnature.base_mixins import CanBeStarted
+from openalea.secondnature.project     import ProjectManager
 from PyQt4 import QtGui, QtCore
 
 
 
 
 
-class DataFactory(HasName):
-    __name__ = ""
+class DataFactory(HasName, CanBeStarted):
+
+    # -- API ATTRIBUTES --
+    __name__             = ""
     __created_mimetype__ = ""
     __opened_mimetypes__ = []
-    __icon_rc__ = None
-    __supports_open__ = False
+    __icon_rc__          = None
+    __supports_open__    = False
+
+    # -- PROPERTIES --
+    icon             = property(lambda x:x.__icon)
+    opened_mimetypes = property(lambda x:x.__opened_mimetypes__[:])
+    created_mimetype = property(lambda x:x.__created_mimetype__)
+
 
     def __init__(self, parent=None):
         HasName.__init__(self, self.__name__)
+        CanBeStarted.__init__(self)
 
         # -- icon--
         self.__icon = None
@@ -42,15 +52,9 @@ class DataFactory(HasName):
             else:
                 self.__icon = QtGui.QIcon()
 
-    def wrap_data(self, name, obj, cls="b", **kwargs):
-        if cls=="b":
-            cls = Data
-        elif cls=="u":
-            cls = UnregisterableData
-        elif cls=="g":
-            cls = GlobalData
-        return self.__patch_data(cls(name, obj, **kwargs))
-
+    #################
+    # EXTENSION API #
+    #################
     def data_from_stream(self, name, stream, type="b"):
         import cPickle
         obj = cPickle.load(stream)
@@ -66,9 +70,17 @@ class DataFactory(HasName):
     def supports_open(self):
         return self.__supports_open__
 
-    icon             = property(lambda x:x.__icon)
-    opened_mimetypes = property(lambda x:x.__opened_mimetypes__[:])
-    created_mimetype = property(lambda x:x.__created_mimetype__)
+    ###########
+    # UTILITY #
+    ###########
+    def wrap_data(self, name, obj, cls="b", **kwargs):
+        if cls=="b":
+            cls = Data
+        elif cls=="u":
+            cls = UnregisterableData
+        elif cls=="g":
+            cls = GlobalData
+        return self.__patch_data(cls(name, obj, **kwargs))
 
     ###################
     # Protected Stuff #
@@ -105,19 +117,21 @@ class DataReader(DataFactory):
 
 class Data(HasName):
     """"""
-    def __init__(self, name, obj, **kwargs):
-        HasName.__init__(self, name)
-        self.__obj     = obj
-        self.__mimetype = None
-        self.__props    = kwargs.copy()
-        self.__dt = None
 
+    # -- PROPERTIES --
     obj          = property(lambda x:x.__obj)
     registerable = property(lambda x:True)
     mimetype     = property(lambda x:x.__mimetype)
     icon         = property(lambda x:x.__dt.icon if x.__dt else QtGui.QIcon())
     factory_name = property(lambda x:x.__dt.name)
     type         = property(lambda x:"b")
+
+    def __init__(self, name, obj, **kwargs):
+        HasName.__init__(self, name)
+        self.__obj     = obj
+        self.__mimetype = None
+        self.__props    = kwargs.copy()
+        self.__dt = None
 
     def get_inner_property(self, key):
         return self.__props.get(key)
@@ -134,14 +148,22 @@ class Data(HasName):
 
 
 class UnregisterableData(Data):
+    # -- API ATTRIBUTES --
     registerable = property(lambda x:False)
+
+    # -- PROPERTIES --
     type         = property(lambda x:"u")
 
 class GlobalData(UnregisterableData):
+    # -- PROPERTIES --
+    type         = property(lambda x:"g")
+
     def __init__(self, name, obj, **kwargs):
         UnregisterableData.__init__(self, name, obj, **kwargs)
         GlobalDataManager().add_data(self)
-    type         = property(lambda x:"g")
+
+
+
 
 __global_data_manager = None
 def GlobalDataManager():
@@ -155,33 +177,33 @@ def GlobalDataManager():
 
 
 
-
-
 #############################
 # DATATYPE  MANAGER CLASSES #
 #############################
 from openalea.secondnature.managers import make_manager, AbstractSource
 
-datatype_classes = make_manager("DataSource", to_derive=True)
+datatype_classes = make_manager("DataFactory", to_derive=True)
 
-AbstractDataSourceManager = datatype_classes[0]
-DataSourceSourceMixin = datatype_classes[1]
-DataSourceSources = datatype_classes[2]
+AbstractDataFactoryManager = datatype_classes[0]
+DataFactorySourceMixin = datatype_classes[1]
+DataFactorySources = datatype_classes[2]
 
-class DataSourceManager(AbstractDataSourceManager):
+class DataFactoryManager(AbstractDataFactoryManager):
 
     data_created              = QtCore.pyqtSignal(object)
     data_property_set_request = QtCore.pyqtSignal(object, str, object)
 
     def __init__(self):
-        AbstractDataSourceManager.__init__(self)
+        AbstractDataFactoryManager.__init__(self)
         self.__mimeMap = {}
 
-    def gather_items(self, refresh=True):
-        items = AbstractDataSourceManager.gather_items(self, refresh)
+    def gather_items(self, refresh=False):
+        items = AbstractDataFactoryManager.gather_items(self, refresh)
         if refresh:
             self.__mimeMap.clear()
             for datatype in items.itervalues():
+                if not datatype.started:
+                    datatype._start_0()
                 if datatype is None or not datatype.supports_open():
                     continue
                 fmts = datatype.opened_mimetypes
@@ -200,11 +222,11 @@ class DataSourceManager(AbstractDataSourceManager):
 
 
 
-class DataSourceAppletSource(DataSourceSourceMixin, AbstractSource):
-    """A DataSource source that gathers DataSources from applets.
+class DataFactoryAppletSource(DataFactorySourceMixin, AbstractSource):
+    """A DataFactory source that gathers DataFactories from applets.
     It must therefor be loaded after the AppletManager."""
     def __init__(self):
-        DataSourceSourceMixin.__init__(self)
+        DataFactorySourceMixin.__init__(self)
         AbstractSource.__init__(self)
         self.items = {}
     def is_valid(self):
@@ -225,6 +247,7 @@ class DataSourceAppletSource(DataSourceSourceMixin, AbstractSource):
         return self.items.copy()
 
 
-DataSourceSourceMixin.__concrete_manager__ = DataSourceManager
-DataSourceSources.append(DataSourceAppletSource)
-DataSourceManager()
+DataFactorySourceMixin.__concrete_manager__ = DataFactoryManager
+DataFactorySources.append(DataFactoryAppletSource)
+dtmgr = DataFactoryManager()
+add_custom_data_factory = dtmgr.add_custom_item

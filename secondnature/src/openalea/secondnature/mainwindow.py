@@ -29,7 +29,7 @@ from openalea.secondnature.splittable import CustomSplittable
 from openalea.secondnature.managers   import AbstractSourceManager
 from openalea.secondnature.layouts    import LayoutManager
 from openalea.secondnature.applets    import AppletFactoryManager
-from openalea.secondnature.data       import DataSourceManager
+from openalea.secondnature.data       import DataFactoryManager
 from openalea.secondnature.project    import Project
 from openalea.secondnature.project    import ProjectManager
 from openalea.secondnature.project    import QActiveProjectManager
@@ -132,7 +132,7 @@ class MainWindow(QtGui.QMainWindow):
             return
 
         formats = map(str, mimeData.formats())
-        handlers = DataSourceManager().get_handlers_for_mimedata(formats)
+        handlers = DataFactoryManager().get_handlers_for_mimedata(formats)
         if len(handlers) > 0:
             event.acceptProposedAction()
         elif mimeData.hasFormat(ProjectManager.mimeformat):

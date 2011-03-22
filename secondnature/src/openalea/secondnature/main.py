@@ -34,8 +34,6 @@ def level_one(args=None):
     from PyQt4 import QtCore
 
     from openalea.core import logger
-    from openalea.core.session import Session
-    from openalea.visualea.visualeagui import threadit
     from openalea.secondnature import mainwindow
 
     class SecondNature(QtGui.QApplication):
@@ -48,7 +46,7 @@ def level_one(args=None):
         def __init__(self, argv):
             QtGui.QApplication.__init__(self, argv)
             # -- reconfigure LoggerOffice to use Qt log handler and a file handler --
-            logger.default_init(level=logger.DEBUG, handlers=["stream", "qt"]) #TODO get level from settings
+            logger.default_init(level=logger.DEBUG, handlers=["qt"]) #TODO get level from settings
             logger.connect_loggers_to_handlers(logger.get_logger_names(), logger.get_handler_names())
 
             if __debug__:
@@ -63,13 +61,13 @@ def level_one(args=None):
 
             # -- main window --
             self.win = mainwindow.MainWindow(None)
-            self.win.statusBar().showMessage("Starting up! Please wait")
-            self.win.setEnabled(False)
-            self.win.show()
+            self.post_status_message("Starting up! Please wait")
 
-            # -- start session in a thread --
-            self.sessionth = threadit(self.__start_session, self,
-                                      self.__cb_session_thread_end)
+            self.win.show()
+            self.win.setEnabled(False)
+            self.win.init_extensions()
+            self.win.setEnabled(True)
+            self.clear_status_message()
 
         def post_status_message(self, msg, timeout=2000):
             if self.__statusTimeout.isActive():
@@ -80,24 +78,6 @@ def level_one(args=None):
         def clear_status_message(self):
             self.win.statusBar().clearMessage()
 
-        def get_session(self):
-            return self.__session
-
-        def __start_session(self):
-            self.__session = Session()
-
-        def __cb_session_thread_end(self):
-            try:
-                self.win.init_extensions()
-            except Exception, e:
-                traceback.print_exc()
-                logger.error(e.message)
-
-            logger.default_init(level=logger.DEBUG, handlers=["qt"]) #TODO get level from settings
-            logger.connect_loggers_to_handlers(logger.get_logger_names(), logger.get_handler_names())
-
-            self.win.statusBar().clearMessage()
-            self.win.setEnabled(True)
 
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     app = SecondNature(args)

@@ -42,12 +42,16 @@ class AbstractSourceManager(QtCore.QObject):
 
     def __init__(self):
         QtCore.QObject.__init__(self)
-        self._sources = {}
-        self._items   = {}
+        self._sources     = {}
+        self._items       = {}
+        self._customItems = {}
         AbstractSourceManager.__managers__.append(self)
 
     def __iter__(self):
         return self._items.iteritems()
+
+    def add_custom_item(self, name, value):
+        self._customItems[name] = value
 
     def _add_source(self, src):
         if src.name in self._sources:
@@ -66,12 +70,12 @@ class AbstractSourceManager(QtCore.QObject):
                     continue
                 src.gather_items()
                 self._items.update(src.get_items())
+            self._items.update(self._customItems)
             self.item_list_changed.emit(list(self._items.iterkeys()))
         return self._items.copy()
 
     def get(self, name):
-        items = self.gather_items()
-        return items.get(name, None)
+        return self._items.get(name, None)
 
     def iter_item_names(self):
         return self.gather_items().iterkeys()
@@ -86,10 +90,21 @@ class AbstractSourceManager(QtCore.QObject):
 
     @classmethod
     def init(cls):
-        for manager in cls.__managers__:
-            manager.init_sources()
-        for manager in cls.__managers__:
-            manager.gather_items(refresh=True)
+        from openalea.secondnature.layouts    import LayoutManager
+        from openalea.secondnature.applets    import AppletFactoryManager
+        from openalea.secondnature.data       import DataFactoryManager
+
+        lm = LayoutManager()
+        am = AppletFactoryManager()
+        dm = DataFactoryManager()
+
+        lm.init_sources()
+        am.init_sources()
+        dm.init_sources()
+
+        lm.gather_items(refresh=True)
+        am.gather_items(refresh=True)
+        dm.gather_items(refresh=True)
 
 
 class AbstractSource(QtCore.QObject):
@@ -97,10 +112,16 @@ class AbstractSource(QtCore.QObject):
     __metaclass__ = make_metaclass((ProxySingleton,),
                                    (QtCore.pyqtWrapperType,))
 
+    # -- EXTENSION POINT SOURCES API ATTRIBUTES --
     __concrete_manager__ = None
     __key__ = "name"
 
+    # -- SIGNALS --
     item_list_changed = QtCore.pyqtSignal(object, dict)
+
+    # -- PROPERTIES --
+    name  = property( lambda x:x.__name )
+    valid = property( lambda x:x.is_valid())
 
     def __init__(self):
         QtCore.QObject.__init__(self)
@@ -110,8 +131,9 @@ class AbstractSource(QtCore.QObject):
         if mgrCls is not None:
             mgrCls()._add_source(self)
 
-    name = property( lambda x:x.__name )
-
+    #################
+    # EXTENSION API #
+    #################
     def is_valid(self):
         raise NotImplementedError
 
@@ -214,7 +236,16 @@ def make_manager(name, entry_point=None, builtin=None, to_derive=False, key="nam
         __key__ = key
     MetaSourceMixin.__name__ = name+"SourceMixin"
 
+    if builtin is not None:
+        class MetaSourceBuiltin(MetaSourceMixin, AbstractBuiltinSource):
 
+            __mod_name__ = builtin
+
+            def __init__(self):
+                MetaSourceMixin.__init__(self)
+                AbstractBuiltinSource.__init__(self)
+        MetaSourceBuiltin.__name__ = name+"SourceBuiltin"
+        sources.append(MetaSourceBuiltin)
 
     if entry_point is not None:
         class MetaSourceEntryPoints(MetaSourceMixin, AbstractEntryPointSource):
@@ -226,16 +257,6 @@ def make_manager(name, entry_point=None, builtin=None, to_derive=False, key="nam
         MetaSourceEntryPoints.__name__ = name+"SourceEntryPoints"
         sources.append(MetaSourceEntryPoints)
 
-    if builtin is not None:
-        class MetaSourceBuiltin(MetaSourceMixin, AbstractBuiltinSource):
-
-            __mod_name__ = builtin
-
-            def __init__(self):
-                MetaSourceMixin.__init__(self)
-                AbstractBuiltinSource.__init__(self)
-        MetaSourceBuiltin.__name__ = name+"SourceBuiltin"
-        sources.append(MetaSourceBuiltin)
 
     return MetaManager, MetaSourceMixin, sources
 

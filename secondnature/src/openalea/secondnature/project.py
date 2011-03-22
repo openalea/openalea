@@ -29,12 +29,16 @@ import traceback
 
 class Project(QtCore.QObject):
 
+    # -- SIGNALS --
     closed                = QtCore.pyqtSignal(object)
     saved                 = QtCore.pyqtSignal(object)
     modified              = QtCore.pyqtSignal(object)
     data_added        = QtCore.pyqtSignal(object, object)
     data_name_changed = QtCore.pyqtSignal(object, object, str)
     project_name_changed  = QtCore.pyqtSignal(object, str)
+
+    # -- PROPERTIES --
+    name = property(lambda x:x.__name, lambda x,y:x.set_name(y))
 
     def __init__(self, name):
         QtCore.QObject.__init__(self)
@@ -46,12 +50,7 @@ class Project(QtCore.QObject):
         self.__docToIds = {}
         self.__docprops = {}
 
-    @property
-    def name(self):
-        return self.__name
-
-    @name.setter
-    def name(self, value):
+    def set_name(self, value):
         self.__name = value
         self.project_name_changed.emit(self, value)
 
@@ -153,9 +152,9 @@ class Project(QtCore.QObject):
         self.saved.emit(self)
 
 
-    #############
-    # Pickling  #
-    #############
+    ############
+    # Pickling #
+    ############
 
     def save_to(self, filepath):
         docnames = [doc.name+":"+doc.factory_name+":"+doc.type \
@@ -175,8 +174,8 @@ class Project(QtCore.QObject):
 
     @classmethod
     def load_from(cls, filepath):
-        from openalea.secondnature.data import DataSourceManager
-        dataMgr = DataSourceManager()
+        from openalea.secondnature.data import DataFactoryManager
+        dataMgr = DataFactoryManager()
         dataFactories = dataMgr.gather_items()
         docs = dict()
         name = ""

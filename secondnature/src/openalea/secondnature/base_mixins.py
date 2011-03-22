@@ -18,11 +18,33 @@ __revision__ = " $Id$ "
 
 
 class HasName(object):
+    # -- PROPERTIES --
+    name = property(lambda x: x._name, lambda x, y:x.set_name(y))
+
     def __init__(self, name):
         assert isinstance(name, str)
         self._name = name
 
-    name      = property(lambda x: x._name)
-    @name.setter
-    def name(self, value):
+    def set_name(self, value):
         self._name = value
+
+
+
+class CanBeStarted(object):
+    # -- PROPERTIES --
+    started    = property(lambda x:x.__started)
+
+    def __init__(self):
+        self.__started = False
+
+    #################
+    # EXTENSION API #
+    #################
+    def start(self):
+        return True
+
+    #################
+    # Private Stuff #
+    #################
+    def _start_0(self):
+        self.__started = self.start()
