@@ -43,6 +43,22 @@ class DT_Dataflow(DataReader):
         node = pm.get_node_from_url(parsedUrl)
         return self.wrap_data(node.caption, node)
 
+    def data_to_stream(self, data, stream):
+        cn  = data.obj
+        cn.set_caption(data.name)
+        fac = cn.factory
+        cn.to_factory(fac)
+        writer = fac.get_writer()
+        facStr = str(writer)
+        stream.write(facStr)
+
+    def data_from_stream(self, name, stream, type_):
+        facStr = stream.read()
+        facStr = facStr[facStr.index("=")+1:]
+        factory = eval(facStr)
+        obj = factory.instantiate()
+        return self.wrap_data(name, obj, type_)
+
 
 class DataflowViewFactory(AbstractApplet):
     __name__ = "DataflowView"
