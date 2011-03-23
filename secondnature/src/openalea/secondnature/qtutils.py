@@ -27,19 +27,11 @@ class EscEventSwallower(QtCore.QObject):
 
 
 class ComboBox(QtGui.QComboBox):
+    def setCurrentIndex(self, index):
+        QtGui.QComboBox.setCurrentIndex(self, index)
+        self.activated[int].emit(self.currentIndex())
 
-    aboutToShow = QtCore.pyqtSignal(object)
 
-    def __init__(self, *args, **kwargs):
-        QtGui.QComboBox.__init__(self, *args, **kwargs)
-        self.currentIndexChanged[int].connect(self.activated[int])
-        self.currentIndexChanged[QtCore.QString].connect(self.activated[QtCore.QString])
-        self.installEventFilter(self)
-
-    def eventFilter(self, watched, event):
-        if watched==self and event.type() == QtCore.QEvent.MouseButtonPress:
-            self.aboutToShow.emit(self)
-        return False
 
 
 def try_to_disconnect(signal, slot=None):
