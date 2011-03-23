@@ -116,8 +116,8 @@ class AbstractApplet(HasName, CanBeStarted):
         #     ProjectManager().set_property_to_active_project(data, "spaceContent", space)
         return space
 
-    def __call__(self):
-        return AppletSpace(self)
+    def __call__(self, proj):
+        return AppletSpace(self, proj)
 
 
 
@@ -125,28 +125,35 @@ class AbstractApplet(HasName, CanBeStarted):
 
 
 from PyQt4 import QtGui, QtCore
+import weakref
 import traceback
 from openalea.secondnature.data      import DataFactoryManager
 from openalea.secondnature.data      import GlobalDataManager
 from openalea.secondnature.data      import GlobalData
 from openalea.secondnature.project   import ProjectManager
 from openalea.secondnature.qtutils   import ComboBox
+from openalea.secondnature.qtutils   import try_to_disconnect
+
 
 class AppletSpace(QtGui.QWidget):
 
     # -- PROPERTIES --
-    name = property(lambda x:x.__applet.name)
+    name    = property(lambda x:x.__applet.name)
+    project = property(lambda x:x.__project)
 
     # -- NONE API ATTRIBUTES --
     __hh__ = 22  # header content height
 
-    def __init__(self, applet, parent=None):
+    def __init__(self, applet, proj, parent=None):
         QtGui.QWidget.__init__(self, parent)
 
         self.setContentsMargins(0,0,0,0)
 
         assert isinstance(applet, AbstractApplet)
         self.__applet  = applet
+
+        self.__project   = proj
+        self.__widgetMap = {}#weakref.WeakKeyDictionary()
 
         self.__lay     = QtGui.QVBoxLayout(self)
         self.__lay.setContentsMargins(0,0,0,0)
@@ -181,10 +188,9 @@ class AppletSpace(QtGui.QWidget):
 
         self.update_dataFac_menu()
 
-        proj = ProjectManager().get_active_project()
-        data = self.update_combo_list(proj)
+        data = self.update_combo_list()
 
-        if self.__browseDataBut.count() == 1:
+        if self.__browseDataBut.count() >= 1:
             self.__browseDataBut.setCurrentIndex(0)
 
         # -- if there is only one data that is global data
@@ -194,7 +200,6 @@ class AppletSpace(QtGui.QWidget):
             self.__toolbar.hide()
 
         AppletFactoryManager().applet_created.emit(self)
-
 
     def supports(self, data):
         return data.mimetype in self.__applet.mimetypes
@@ -217,8 +222,9 @@ class AppletSpace(QtGui.QWidget):
             action.triggered.connect(func)
         self.__newDataBut.setMenu(menu)
 
-    def update_combo_list(self, proj, addedData=None, block=True):
-        self.__browseDataBut.blockSignals(block)
+    def update_combo_list(self):
+        proj = self.__project
+        self.__browseDataBut.blockSignals(True)
         currentText = self.__browseDataBut.currentText()
         self.__browseDataBut.clear()
 
@@ -248,6 +254,7 @@ class AppletSpace(QtGui.QWidget):
         return on_dataFac_chosen
 
     def show_data(self, data):
+        self.update_combo_list()
         index = self.__browseDataBut.findText(data.name)
         if index > -1: #-1 is not found
             self.__browseDataBut.setCurrentIndex(index)
@@ -259,9 +266,10 @@ class AppletSpace(QtGui.QWidget):
         data, proj =  itemData
         # NO_SPACE_CONTENT_TRACKING
         # content = proj.get_data_property(data, "spaceContent")
-        content = None
+        content = self.__widgetMap.get(data)
         if not content:
             content = self.__applet._create_space_content_0(data)
+            self.__widgetMap[data]=content
         if content is None:
             print "Applet", self.name, "returned None content"
         widget = content.widget
@@ -269,8 +277,6 @@ class AppletSpace(QtGui.QWidget):
             self.__stack.addWidget(widget)
         self.__stack.setCurrentWidget(widget)
 
-    def _set_combo_index(self, index):
-        self.__browseDataBut.setCurrentIndex(index)
 
 
 

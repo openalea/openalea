@@ -33,3 +33,8 @@ from openalea.secondnature.data import DataFactoryManager
 
 # QT UTILS
 from openalea.secondnature.qtutils import EscEventSwallower
+
+# MENU API
+def get_datafactory_menu():
+    from PyQt4 import QtCore
+    return QtCore.QCoreApplication.instance().win.get_datafactory_menu()

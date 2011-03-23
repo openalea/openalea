@@ -355,7 +355,7 @@ class QActiveProjectManager(QtCore.QObject):
                                              QtGui.QMessageBox.Yes)
             if but == QtGui.QMessageBox.Yes:
                 self.save_active_project()
-            self.__pm.close_active_project()
+        self.__pm.close_active_project()
 
 
     def save_active_project(self):

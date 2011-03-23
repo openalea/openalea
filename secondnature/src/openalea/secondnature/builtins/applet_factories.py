@@ -210,17 +210,8 @@ class ProjectManagerFactory(AbstractApplet):
 
     def __make_bound_menu_request_handler(self, widget):
         from PyQt4 import QtGui, QtCore
+        menu = get_datafactory_menu()
         def onContextMenuRequest(pos):
-
-            datafactories = sorted(DataFactoryManager().gather_items().itervalues(),
-                               lambda x,y:cmp(x.name, y.name))
-
-            menu = QtGui.QMenu(widget)
-            for dt in datafactories:
-                action = menu.addAction(dt.icon, dt.name)
-                func = self.__make_datafactory_chosen_handler(dt)
-                action.triggered.connect(func)
-
             menu.popup(widget.viewport().mapToGlobal(pos))
         return onContextMenuRequest
 

@@ -75,7 +75,8 @@ def level_one(args=None):
             self.win.statusBar().clearMessage()
 
         def event(self, e):
-            if e.type() == QtCore.QEvent.ApplicationActivate:
+            if e.type() == QtCore.QEvent.ApplicationActivate and \
+                   not self.win.extensions_initialised:
                 self.win.init_extensions()
             return QtGui.QApplication.event(self, e)
 
@@ -84,7 +85,6 @@ def level_one(args=None):
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     app = SecondNature(args)
     return app.exec_()
-
 
 if( __name__ == "__main__"):
     level_one()

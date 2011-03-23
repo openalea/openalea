@@ -52,6 +52,8 @@ class MainWindow(QtGui.QMainWindow):
         self.logger = sn_logger
         self.__applets = []
 
+        self.__extInitialised = False
+
         # -- main menu bar --
         self._mainMenuBar = QtGui.QMenuBar(self)
         self._projectMenu = self._mainMenuBar.addMenu("&Project")
@@ -98,7 +100,27 @@ class MainWindow(QtGui.QMainWindow):
         index = self._layoutMode.findText("Default Layout")
         if index >= 0:
             self._layoutMode.setCurrentIndex(index)
+        self.__extInitialised = True
         self.setEnabled(True)
+
+    extensions_initialised = property(lambda x:x.__extInitialised)
+
+    def get_datafactory_menu(self):
+        datafactories = sorted(DataFactoryManager().gather_items().itervalues(),
+                               lambda x,y:cmp(x.name, y.name))
+
+        menu = QtGui.QMenu(self)
+        for dt in datafactories:
+            action = menu.addAction(dt.icon, dt.name)
+            func = self.__make_datafactory_chosen_handler(dt)
+            action.triggered.connect(func)
+        return menu
+
+    def __make_datafactory_chosen_handler(self, dt):
+        def on_datafactory_chosen(checked):
+            data = dt._new_0()
+        return on_datafactory_chosen
+
 
     #########################################
     # Active project status change handlers #
@@ -187,11 +209,11 @@ class MainWindow(QtGui.QMainWindow):
         space = splittable.getContentAt(paneId)
         newSpace = False
         if not space:
-            space = app()
+            space = app(proj)
             newSpace = True
         elif not space.supports(data):
             newSpace = True
-            space = app()
+            space = app(proj)
 
         space.show_data(data)
         # NO_SPACE_CONTENT_TRACKING
@@ -225,6 +247,7 @@ class MainWindow(QtGui.QMainWindow):
         layout from the registered applications and installs a new splitter
         in the central window."""
 
+        proj = self.__projMan.get_active_project()
         layoutName = self._layoutMode.itemText(index)
         if layoutName is None or layoutName == "":
             return
@@ -257,7 +280,7 @@ class MainWindow(QtGui.QMainWindow):
                     self.logger.debug("__onLayoutChosen has None factory for "+appletName)
                     continue
                 try:
-                    space  = appFac()
+                    space  = appFac(proj)
                 except Exception, e:
                     self.logger.error("__onLayoutChosen cannot display "+ \
                                       appletName+":"+\
@@ -311,7 +334,7 @@ class MainWindow(QtGui.QMainWindow):
 
     def __make_new_applet_pane_handler(self, splittable, proj, paneId, applet):
         def f(checked):
-            space = applet()
+            space = applet(proj)
             self.__setSpaceAt(splittable, paneId, space)
         return f
 
