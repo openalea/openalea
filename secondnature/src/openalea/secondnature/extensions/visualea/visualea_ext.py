@@ -69,7 +69,7 @@ class DataflowViewFactory(AbstractApplet):
 
     def create_space_content(self, data):
         node = data.obj
-        gwidget = dataflowview.GraphicalGraph.create_view(node)
+        gwidget = dataflowview.GraphicalGraph.create_view(node, clone=True)
         return SpaceContent(gwidget)
 
 
