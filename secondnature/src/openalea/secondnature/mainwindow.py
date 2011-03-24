@@ -279,6 +279,7 @@ class MainWindow(QtGui.QMainWindow):
                 if appFac is None:
                     self.logger.debug("__onLayoutChosen has None factory for "+appletName)
                     continue
+
                 try:
                     space  = appFac(proj)
                 except Exception, e:

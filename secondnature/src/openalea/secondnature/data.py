@@ -19,6 +19,7 @@ __revision__ = " $Id$ "
 from openalea.secondnature.base_mixins import HasName
 from openalea.secondnature.base_mixins import CanBeStarted
 from openalea.secondnature.project     import ProjectManager
+from openalea.core.singleton           import Singleton
 from PyQt4 import QtGui, QtCore
 
 
@@ -26,6 +27,8 @@ from PyQt4 import QtGui, QtCore
 
 
 class DataFactory(HasName, CanBeStarted):
+
+    __metaclass__ = Singleton
 
     # -- API ATTRIBUTES --
     __name__             = ""

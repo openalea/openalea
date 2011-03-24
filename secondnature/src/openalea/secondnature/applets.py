@@ -21,6 +21,7 @@ from openalea.secondnature.base_mixins import HasName
 from openalea.secondnature.base_mixins import CanBeStarted
 from openalea.secondnature.data        import DataFactory
 from openalea.secondnature.layouts     import SpaceContent
+from openalea.core.singleton           import Singleton
 
 from openalea.core.logger import get_logger
 
@@ -28,6 +29,8 @@ from PyQt4 import QtCore
 
 
 class AbstractApplet(HasName, CanBeStarted):
+
+    __metaclass__ = Singleton
 
     # -- API ATTRIBUTES --
     __name__          = ""
@@ -331,23 +334,22 @@ class EmptyAppletBackground(QtGui.QWidget):
 # APPLET FACTORY MANAGER CLASSES #
 ##################################
 from openalea.secondnature.managers import make_manager
+from openalea.secondnature.managers import AbstractBuiltinSource
+from openalea.secondnature.managers import AbstractSourceManager
+from openalea.secondnature.managers import AbstractEntryPointSource
 
-applet_classes = make_manager("AppletFactory",
-                               entry_point="openalea.app.applet_factory",
-                               builtin="applet_factories", to_derive=True)
-AbstractAppletFactoryManager = applet_classes[0]
-AppletFactorySourceMixin = applet_classes[1]
+applet_sources = []
 
-class AppletFactoryManager(AbstractAppletFactoryManager):
+class AppletFactoryManager(AbstractSourceManager):
 
     applet_created = QtCore.pyqtSignal(object)
 
     def __init__(self):
-        AbstractAppletFactoryManager.__init__(self)
+        AbstractSourceManager.__init__(self)
         self.__mimeMap = {}
 
     def gather_items(self, refresh=False):
-        items = AbstractAppletFactoryManager.gather_items(self, refresh)
+        items = AbstractSourceManager.gather_items(self, refresh)
         if refresh:
             self.__mimeMap.clear()
             for appFac in items.itervalues():
@@ -369,8 +371,51 @@ class AppletFactoryManager(AbstractAppletFactoryManager):
                 handlers.update(fmt_factories)
         return list(handlers)
 
+    @classmethod
+    def init_sources(cls):
+        for src in applet_sources:
+            src()
 
+class AppletFactorySourceMixin(object):
+    __concrete_manager__ = AppletFactoryManager
 
-AppletFactorySourceMixin.__concrete_manager__ = AppletFactoryManager
+class AppletFactorySourceBuiltin(AppletFactorySourceMixin, AbstractBuiltinSource):
 
+    __mod_name__ = "applet_factories"
+
+    def __init__(self):
+        AppletFactorySourceMixin.__init__(self)
+        AbstractBuiltinSource.__init__(self)
+
+applet_sources.append(AppletFactorySourceBuiltin)
+
+class AppletFactorySourceEntryPoints(AppletFactorySourceMixin, AbstractEntryPointSource):
+    __entry_point__ = "openalea.app.applet_factory"
+    def __init__(self):
+        AppletFactorySourceMixin.__init__(self)
+        AbstractEntryPointSource.__init__(self)
+
+    def gather_items(self):
+        if not self.is_valid():
+            return None #TODO : raise something dude
+        if self.__entry_point__ is None:
+            return None #TODO : raise something dude
+
+        self.items = {}
+        for ep in self.pkg_resources.iter_entry_points(self.__entry_point__):
+            try:
+                AbstractSourceManager.post_status_message(self.__class__.__name__ + \
+                                                          " loading  " + ep.name)
+                it = ep.load()
+                it = it()
+            except Exception, e:
+                logger.error(self.name + " couldn't load " + str(ep) + ":" + str(e) )
+                traceback.print_exc()
+                continue
+            else:
+                key = getattr(it, self.__key__)
+                self.items[key] = it
+        self.item_list_changed.emit(self, self.items.copy())
+
+applet_sources.append(AppletFactorySourceEntryPoints)
 AppletFactoryManager()

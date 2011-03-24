@@ -24,6 +24,6 @@ from setuptools import setup
 setup( name = "OAEX Code Editor",
        version = "0.1",
        py_modules = ['code_editor_ext'],
-       entry_points = {"openalea.app.applet_factory":["codeEditor.edf = code_editor_ext:editor_f"]
+       entry_points = {"openalea.app.applet_factory":["codeEditor.edf = code_editor_ext:CodeEditorFactory"]
                        }
     )

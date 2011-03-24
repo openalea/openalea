@@ -24,6 +24,6 @@ from setuptools import setup
 setup( name         = "OAEX PlantGL",
        version      = "0.1",
        py_modules   = ['plantgl_ext'],
-       entry_points = {"openalea.app.applet_factory": ["plantgl.plantgl_f = plantgl_ext:plantgl_f"]
+       entry_points = {"openalea.app.applet_factory": ["plantgl.plantgl_f = plantgl_ext:PlantGLFactory"]
                        }
        )

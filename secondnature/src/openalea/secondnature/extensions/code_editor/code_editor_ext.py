@@ -86,6 +86,3 @@ class CodeEditorFactory(AbstractApplet):
         widget.setText(data.obj)
         return SpaceContent(widget)
 
-
-# -- instantiate widget factories --
-editor_f = CodeEditorFactory()

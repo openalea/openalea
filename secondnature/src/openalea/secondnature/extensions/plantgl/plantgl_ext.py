@@ -125,8 +125,3 @@ class PlantGLFactory(AbstractApplet):
         editor.installEventFilter(self.__pglEscSwallower)
         return SpaceContent(editor)
 
-
-# -- instantiate widget factories --
-plantgl_f = PlantGLFactory()
-
-
