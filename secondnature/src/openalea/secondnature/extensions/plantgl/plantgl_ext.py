@@ -91,13 +91,12 @@ class DT_InterpolatedProfile(DataFactory):
 
 
 class PlantGLFactory(AbstractApplet):
-    __name__ = "PlantGL"
+    __name__          = "PlantGL"
+    __datafactories__ = [DT_Curve, DT_Function,
+                         DT_NurbsPatch, DT_InterpolatedProfile]
 
     def start(self):
         self.__pglEscSwallower = EscEventSwallower()
-
-        self.add_data_types([DT_Curve(), DT_Function(),
-                             DT_NurbsPatch(), DT_InterpolatedProfile()])
         return True
 
     def create_space_content(self, data):

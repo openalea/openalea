@@ -30,8 +30,9 @@ from PyQt4 import QtCore
 class AbstractApplet(HasName, CanBeStarted):
 
     # -- API ATTRIBUTES --
-    __name__ = ""
-    __icon_rc__ = None
+    __name__          = ""
+    __icon_rc__       = None
+    __datafactories__ = []
 
     # -- PROPERTIES --
     mimetypes  = property(lambda x:x.get_mimetypes())
@@ -57,6 +58,8 @@ class AbstractApplet(HasName, CanBeStarted):
                 self.__icon = QtGui.QIcon(self.__icon_rc__)
             else:
                 self.__icon = QtGui.QIcon()
+
+        self.add_data_types([df() for df in self.__datafactories__])
 
     #################
     # EXTENSION API #

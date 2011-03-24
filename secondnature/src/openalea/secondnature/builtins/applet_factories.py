@@ -28,9 +28,9 @@ import builtin_icons
 # LOGGER #
 ##########
 class DT_Logger(DataFactory):
-    __name__      = "Logger"
+    __name__             = "Logger"
     __created_mimetype__ = "application/openalea-logger"
-    __icon_rc__   = ":icons/logger.png"
+    __icon_rc__          = ":icons/logger.png"
 
     def start(self):
         from openalea.core.logger import LoggerOffice
@@ -42,12 +42,8 @@ class DT_Logger(DataFactory):
         return self.loggerDoc
 
 class LoggerFactory(AbstractApplet):
-    __name__ = "Logger"
-    __namespace__ = "Openalea"
-
-    def start(self):
-        self.add_data_type(DT_Logger())
-        return True
+    __name__          = "Logger"
+    __datafactories__ = [DT_Logger]
 
     def create_space_content(self, data):
         from openalea.visualea.logger import LoggerView
@@ -61,9 +57,9 @@ class LoggerFactory(AbstractApplet):
 # INTERPRETER #
 ###############
 class DT_Interpreter(DataFactory):
-    __name__      = "Interpreter"
+    __name__             = "Interpreter"
     __created_mimetype__ = "application/openalea-interpreter"
-    __icon_rc__   = ":icons/interpreter.png"
+    __icon_rc__          = ":icons/interpreter.png"
 
     def start(self):
         from code import InteractiveInterpreter as Interpreter
@@ -91,18 +87,17 @@ class DT_Session(DataFactory):
 
 class InterpreterFactory(AbstractApplet):
     __name__ = "Interpreter"
+    __datafactories__ = [DT_Interpreter]
 
     def start(self):
         from openalea.visualea.shell import get_shell_class
         self.shellCls = get_shell_class()
-        self.add_data_type(DT_Interpreter())
 
         # just call it, we don't register it as a user visible type
         # because it's just a global thing that can be used
         # by other applets and that has no editor.
         sessionFac = DT_Session()
         DataFactoryManager().add_custom_item("Session", sessionFac)
-#        sessionFac._start_0()
 
         return True
 
@@ -150,10 +145,7 @@ class DT_PackageManager(DataFactory):
 
 class PackageManagerFactory(AbstractApplet):
     __name__ = "PackageManager"
-
-    def start(self):
-        self.add_data_type(DT_PackageManager())
-        return True
+    __datafactories__ = [DT_PackageManager]
 
     def create_space_content(self, data):
         from openalea.secondnature.ripped.node_treeview import NodeFactoryTreeView
@@ -185,11 +177,7 @@ class DT_ProjectManager(DataFactory):
 
 class ProjectManagerFactory(AbstractApplet):
     __name__ = "ProjectManager"
-
-
-    def start(self):
-        self.add_data_type(DT_ProjectManager())
-        return True
+    __datafactories__ = [DT_ProjectManager]
 
     def create_space_content(self, data):
         from PyQt4 import QtGui, QtCore

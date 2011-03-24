@@ -77,11 +77,8 @@ class DT_Text(DataReader):
 
 
 class CodeEditorFactory(AbstractApplet):
-    __name__        = "CodeEditor"
-
-    def start(self):
-        self.add_data_type(DT_Text())
-        return True
+    __name__          = "CodeEditor"
+    __datafactories__ = [DT_Text]
 
     def create_space_content(self, data):
         from openalea.visualea.scintilla_editor import ScintillaCodeEditor
