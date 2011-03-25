@@ -1,8 +1,8 @@
 """Sphinx conf.py file that is common to all OpenAlea packages
 
 
-Based on Sphinx configuration example with the proper extensions for 
-OpenAlea documentation. 
+Based on Sphinx configuration example with the proper extensions for
+OpenAlea documentation.
 
 
 .. warning:: Edit this file if you know what you are doing only !!!!
@@ -25,7 +25,7 @@ import sys, os
 import openalea.misc as misc
 
 
-# figure out where is installed misc so as to get all the sphinx configuration templates, 
+# figure out where is installed misc so as to get all the sphinx configuration templates,
 # and extensions that can be found in misc/share
 
 #develop mode
@@ -46,15 +46,15 @@ else:
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
-    'sphinx.ext.autodoc', 
-    'sphinx.ext.autosummary', 
-    'sphinx.ext.coverage', 
+    'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
+    'sphinx.ext.coverage',
     'sphinx.ext.graphviz',
-    'sphinx.ext.doctest', 
-    'sphinx.ext.intersphinx', 
-    'sphinx.ext.todo', 
-    'sphinx.ext.coverage', 
-    'sphinx.ext.pngmath', 
+    'sphinx.ext.doctest',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.todo',
+    'sphinx.ext.coverage',
+    'sphinx.ext.pngmath',
     'sphinx.ext.ifconfig',
     'sphinx.ext.inheritance_diagram',
     'sphinx.ext.viewcode',
@@ -140,6 +140,7 @@ pygments_style = 'sphinx'
 
 # -- Options for HTML output ---------------------------------------------------
 
+
 # The theme to use for HTML and HTML Help pages.  Major themes that come with
 # Sphinx are currently 'default' and 'sphinxdoc'.
 html_theme = 'default'
@@ -188,7 +189,7 @@ html_index = 'index.html'
 
 #Custom sidebar templates, maps page names to templates.
 html_sidebars = {
-                    'index': [ 'indexsidebar.html'], 
+                    'index': [ 'indexsidebar.html'],
                     'contents':'indexsidebar.html',
                     'openalea':'indexsidebar.html',
                     'vplants':'indexsidebar.html',
@@ -199,7 +200,7 @@ html_sidebars = {
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
 html_additional_pages = {   'index': 'index.html',
-                            'openalea': 'openalea.html', 
+                            'openalea': 'openalea.html',
                             'vplants': 'vplants.html',
                             'alinea': 'alinea.html'}
 
@@ -251,7 +252,7 @@ latex_elements = { 'inputenc': '\\usepackage[utf8]{inputenc}' }
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
-#latex_logo = 
+#latex_logo =
 
 # For "manual" documents, if this is true, then toplevel headings are parts,
 # not chapters.
@@ -272,7 +273,7 @@ latex_preamble = """
 
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'http://docs.python.org/': None, 
+intersphinx_mapping = {'http://docs.python.org/': None,
                        'http://openalea.gforge.inria.fr/doc/openalea/core/doc/_build/html': None,
                        'http://openalea.gforge.inria.fr/doc/openalea/deploy/doc/_build/html': None,
                        'http://openalea.gforge.inria.fr/doc/openalea/deploygui/doc/_build/html': None,
