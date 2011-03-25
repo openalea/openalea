@@ -1,4 +1,3 @@
-* Name of Author number 1
-* Name of Author number 2
-* Name of Author number 3
-
+* Daniel Barbeau (INRIA VirtualPlants)
+* Christophe Pradal (CIRAD VirtualPlants)
+* Frédéric Boudon (CIRAD VirtualPlants)

@@ -25,12 +25,12 @@ Package description
 
 Map of the problematique
 ========================
-We want to merge Visualea and LPy. They each do different tasks but share
-code. They are each different applications, with different UI approaches.
-Using both in combination is not straightforward. The same applies to other
-software being developped in the team that aren't exposed in any of these tools.
-This situation also results in coding effort being spread in different directions and there
-is also no clearly identifyable "VirtualPlants" platform.
+.. We want to merge Visualea and LPy. They each do different tasks but share
+.. code. They are each different applications, with different UI approaches.
+.. Using both in combination is not straightforward. The same applies to other
+.. software being developped in the team that aren't exposed in any of these tools.
+.. This situation also results in coding effort being spread in different directions and there
+.. is also no clearly identifyable "VirtualPlants" platform.
 
 We need to define a user interface that allows us to expose different aspects
 of your daily tasks, not exclusively dataflow, not exclusively LSystems.
@@ -50,7 +50,8 @@ Documentation
 .. toctree::
     :maxdepth: 2
 
-    User Guide<user/index.rst>
+    State of the art<previous_work>
+    Howtos<howtos/index.rst>
     Reference Guide<user/autosum.rst>
 
 - A `PDF <../latex/secondnature.pdf>`_ version of |secondnature| documentation is

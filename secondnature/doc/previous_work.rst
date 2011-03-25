@@ -146,47 +146,47 @@ entity that references all blend files, tracks them and resolves links.
 
 
 
-MedInria 2.0
-------------
-MedInria is a Medical Imaging software developped by the Asclepios INRIA team.
-Version 2.0 is a complete rewrite of the GUI, using Qt. It is based on the
-Dream Toolkit (DTK) which features a component architecture relying on a set
-of base interfaces to be implemented by plugin providers. A DTK plugin
-can provide datatypes, process types and widget types. All these are referenced
-by DTK and can be instanced on demand using a factory system.
+.. MedInria 2.0
+.. ------------
+.. MedInria is a Medical Imaging software developped by the Asclepios INRIA team.
+.. Version 2.0 is a complete rewrite of the GUI, using Qt. It is based on the
+.. Dream Toolkit (DTK) which features a component architecture relying on a set
+.. of base interfaces to be implemented by plugin providers. A DTK plugin
+.. can provide datatypes, process types and widget types. All these are referenced
+.. by DTK and can be instanced on demand using a factory system.
 
-In pratice the system is not so implementation-agnostic as it would like to be
-and the base interfaces merely serve as handbags for the underlying datatypes.
+.. In pratice the system is not so implementation-agnostic as it would like to be
+.. and the base interfaces merely serve as handbags for the underlying datatypes.
 
-However, MedInria builds upon this infrastructure. Regarding the UI, it is organised
-into two spaces : the data explorer and the data viewer. The dataviewer is organised
-into three horizontal areas: data browser, viewer, controls.
+.. However, MedInria builds upon this infrastructure. Regarding the UI, it is organised
+.. into two spaces : the data explorer and the data viewer. The dataviewer is organised
+.. into three horizontal areas: data browser, viewer, controls.
 
-The viewer area can be subdivided in several predefined ways, or into a user-specified grid.
-The controls area displays toolboxess that are task-oriented (segmentation, registration).
-A combobox allows the user to select the task that he's about to perform and the
-controls area (and maybe the viewer too?) gets updated with the according toolboxes.
+.. The viewer area can be subdivided in several predefined ways, or into a user-specified grid.
+.. The controls area displays toolboxess that are task-oriented (segmentation, registration).
+.. A combobox allows the user to select the task that he's about to perform and the
+.. controls area (and maybe the viewer too?) gets updated with the according toolboxes.
 
-Key points
-**********
-Polymorphic, extensible, component-based
+.. Key points
+.. **********
+.. Polymorphic, extensible, component-based
 
-Architecture
-~~~~~~~~~~~~
- * Language : C++, QMetaObject
- * Component Model : DTK/Qt
- * User working model : import your data, view it, edit it, save it.
+.. Architecture
+.. ~~~~~~~~~~~~
+..  * Language : C++, QMetaObject
+..  * Component Model : DTK/Qt
+..  * User working model : import your data, view it, edit it, save it.
 
-User Interface
-~~~~~~~~~~~~~~
- * Qt
- * non-overlapping, pane based.
- * reserved spaces for task specific tools.
+.. User Interface
+.. ~~~~~~~~~~~~~~
+..  * Qt
+..  * non-overlapping, pane based.
+..  * reserved spaces for task specific tools.
 
-Issues
-~~~~~~
-What happens if a a referenced blend file moves? ==> link error. There is no
-entity that references all blend files, tracks them and resolves links.
+.. Issues
+.. ~~~~~~
+.. What happens if a a referenced blend file moves? ==> link error. There is no
+.. entity that references all blend files, tracks them and resolves links.
 
 
 
@@ -200,10 +200,11 @@ Regarding the polymorphic UI problem there is a constant solution
 accross Eclipse, Emacs and Blender, where the UI is split in panes
 with widgets inside each pane. Specific layouts can be created for
 specific tasks.
-MedInria has another approach where there is a reserved pane for
-task-specific toolboxes. However, MedInria doesn't manipulate as many
-different data types as Eclipse, Emacs, Blender or the VirtualPlants team
-does.
+
+.. MedInria has another approach where there is a reserved pane for
+.. task-specific toolboxes. However, MedInria doesn't manipulate as many
+.. different data types as Eclipse, Emacs, Blender or the VirtualPlants team
+.. does.
 
 
 Data sharing
@@ -222,7 +223,7 @@ In all three, there is a top level container concept (session, project, workspac
 and allows these to be linked to each other (although it is not very well defined in Emacs).
 This top level concept is serializable.
 
-As far as I know, MedInria doesn't use such a concept.
+.. As far as I know, MedInria doesn't use such a concept.
 
 
 Between "top level containers"
@@ -232,8 +233,8 @@ Eclipse allows to reference (import w/o copy) foreign projects.
 Blender can reference any data contained in any blend file. However if the
 path of the referred file changes, the link is broken.
 
-Emacs and MedInria don't support this sort of functionnality, or at least,
-it is not specified.
+.. Emacs and MedInria don't support this sort of functionnality, or at least,
+.. it is not specified.
 
 
 Extensability
