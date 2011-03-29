@@ -792,7 +792,7 @@ class PackageManager(object):
     def get_node_from_url(self, url):
         fac = self.get_factory_from_url(url)
         return fac.instantiate()
-        
+
     def get_factory_from_url(self, url):
         """Returns a node instance from the given url.
 
@@ -809,7 +809,7 @@ class PackageManager(object):
         factory_id = queries["fac"][0]
         factory = pkg[factory_id]
         return factory
-        
+
     def get_package_from_url(self, url):
         if isinstance(url, str):
             url = urlparse.urlparse(url)
@@ -820,7 +820,7 @@ class PackageManager(object):
         pkg_id = url.path.strip("/") #the path is preceded by one "/"
         pkg = self[pkg_id]
         return pkg, queries
-        
+
 
     def get_node(self, pkg_id, factory_id):
         """ Return a node instance giving a pkg_id and a factory_id """
@@ -834,12 +834,23 @@ class PackageManager(object):
         Return a list of Factory corresponding to search_str
         If nb_inputs or nb_outputs is specified,
         return only node with the same number of (in/out) ports
+
+        The results are sorted in the following way:
+          1 - Highest Priority : presence of search_str in factory name
+                           and position in the name (closer to the
+                           begining = higher score)
+          2 - Then : Number of occurences of search_str in the factory
+              description.
+          3 - Then : Number of occurences of search_str in the category name
+          4 - Finally : presence of search_str in package name and position
+              in the name (close to the begining = higher score)
         """
 
         search_str = search_str.upper()
 
         best = None
         match = []
+        scored = []
         # Search for each package and for each factory
         for name, pkg in self.iteritems():
             if(is_protected(name)): continue # alias
@@ -847,26 +858,41 @@ class PackageManager(object):
             for fname, factory in pkg.iteritems():
                 if(is_protected(fname)): continue # alias
 
-                if(not best and (search_str == factory.name.upper())):
-                    best = factory
-                    continue
+                # -- The scores for each string that is explored.
+                # They are long ints because we make a 96 bits bitshift
+                # to compute the final score --
+                facNameScore = 0L
+                facDescScore = 0L
+                facCateScore = 0L
+                pkgNameScore = 0L
 
-                if(search_str in pkg.name.upper() or
-                   search_str in factory.name.upper() or
-                   search_str in factory.description.upper() or
-                   search_str in factory.category.upper() or
-                   search_str in "%s:%s"%(pkg.name.upper(), factory.name.upper())):
+                fname = factory.name.upper()
+                if search_str in fname:
+                    l = float(len(fname))
+                    facNameScore = long(100*(1-fname.index(search_str)/l))
 
-                    match.append(factory)
+                facDescScore = long(factory.description.upper().count(search_str))
+                facCateScore = long(factory.category.upper().count(search_str))
+
+                pname = pkg.name.upper()
+                if search_str in pname:
+                    l = float(len(pname))
+                    pkgNameScore = long(100*(1-pname.index(search_str)/l))
+
+                score = facNameScore << (32*3) | facDescScore << (32*2) | \
+                        facCateScore << (32*1) | pkgNameScore << (32)
+                if score > 0:
+                    match.append((score, factory))
 
         # Filter ports
         if(nb_inputs>=0):
-            match = filter(lambda x: x and x.inputs and len(x.inputs) == nb_inputs, match)
+            match = filter(lambda (sc, x): x and x.inputs and len(x.inputs) == nb_inputs, match)
         if(nb_outputs>=0):
-            match = filter(lambda x: x and x.outputs and len(x.outputs) == nb_outputs, match)
+            match = filter(lambda (sc, x): x and x.outputs and len(x.outputs) == nb_outputs, match)
 
-        match.sort(cmp=cmp_name)
-        if(best) : match.insert(0, best)
+        match.sort(reverse=True)
+        match = zip(*match)[1]
+
         return match
 
 
