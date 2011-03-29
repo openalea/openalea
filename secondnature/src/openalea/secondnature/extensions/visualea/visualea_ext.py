@@ -85,9 +85,9 @@ df1 = Layout("Dataflow Editing",
              # the widgets we want are those  placed under the
              # `Visualea` application namespace.
              # but you could have "PlantGl.viewer" here too.
-             appletmap={1:"PackageManager",
-                        3:"DataflowView",
-                        4:"Logger"},
+             contentmap={1:("PackageManager", "g"),
+                        3:("DataflowView","a"),
+                        4:("Logger", "g")},
              easy_name="Visual Programming")
 
 

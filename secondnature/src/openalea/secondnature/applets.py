@@ -123,7 +123,7 @@ class AbstractApplet(HasName, CanBeStarted):
         return space
 
     def __call__(self, proj):
-        return AppletSpace(self, proj)
+        return AppletSpace(proj)
 
 
 
@@ -132,6 +132,7 @@ class AbstractApplet(HasName, CanBeStarted):
 
 from PyQt4 import QtGui, QtCore
 import weakref
+import types
 import traceback
 from openalea.secondnature.data      import DataFactoryManager
 from openalea.secondnature.data      import GlobalDataManager
@@ -139,27 +140,29 @@ from openalea.secondnature.data      import GlobalData
 from openalea.secondnature.project   import ProjectManager
 from openalea.secondnature.qtutils   import ComboBox
 from openalea.secondnature.qtutils   import try_to_disconnect
-
+from openalea.secondnature.mimetools import DataEditorSelector
 
 class AppletSpace(QtGui.QWidget):
 
     # -- PROPERTIES --
-    name    = property(lambda x:x.__applet.name)
+    name    = property(lambda x:x.__applet.name if x.__applet else "uknown")
     project = property(lambda x:x.__project)
 
     # -- NONE API ATTRIBUTES --
     __hh__ = 22  # header content height
 
-    def __init__(self, applet, proj, parent=None):
+    def __init__(self, proj, applet=None, parent=None):
         QtGui.QWidget.__init__(self, parent)
 
         self.setContentsMargins(0,0,0,0)
 
-        assert isinstance(applet, AbstractApplet)
+        assert isinstance(applet, (types.NoneType, AbstractApplet))
         self.__applet  = applet
-
+        if applet is None:
+            restToApp = False
+        self.__restrictedToApplet = restToApp
         self.__project   = proj
-        self.__widgetMap = {}#weakref.WeakKeyDictionary()
+        self.__widgetMap = {} #weakref.WeakKeyDictionary()
 
         self.__lay     = QtGui.QVBoxLayout(self)
         self.__lay.setContentsMargins(0,0,0,0)
@@ -174,15 +177,20 @@ class AppletSpace(QtGui.QWidget):
         # -- configure the layout --
         self.__lay.addWidget(self.__stack)
         self.__lay.addWidget(self.__toolbar)
-        self.__newDataBut.setFixedSize(QtCore.QSize(self.__hh__, self.__hh__))
-        self.__browseDataBut.setFixedSize(QtCore.QSize(200, self.__hh__))
+        self.__newDataBut.setFixedSize(QtCore.QSize(40, self.__hh__))
+        self.__browseDataBut.setFixedSize(QtCore.QSize(150, self.__hh__))
 
         # -- an empty widget for the bkgd --
-        self.__bkgd = EmptyAppletBackground(applet, self)
+        self.__bkgd = EmptyAppletBackground(applet, self, restToApp=restToApp)
         self.__stack.addWidget(self.__bkgd)
         self.__bkgd.show()
 
         # -- configure the toolbar --
+        self.__toolbar.setStyleSheet("QToolBar{background-color: " +\
+                                     "qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, "+\
+                                     "stop:0 rgba(135,135,135,255), " +\
+                                     "stop:0.1 rgba(175,175,175,255), " +\
+                                     "stop:1 rgba(200, 200, 200, 255));}")
         self.__toolbar.setFloatable(False)
         self.__toolbar.setMovable(False)
         self.__toolbar.addWidget(self.__newDataBut)
@@ -196,19 +204,25 @@ class AppletSpace(QtGui.QWidget):
 
         data = self.update_combo_list()
 
-        if self.__browseDataBut.count() >= 1:
-            self.__browseDataBut.setCurrentIndex(0)
+        if not restToApp:
+            self.__stack.setCurrentWidget(self.__bkgd)
+        else:
+            if self.__browseDataBut.count() >= 1:
+                self.__browseDataBut.setCurrentIndex(0)
 
         # -- if there is only one data that is global data
         # and no space toolbar or menu hide the header --
         if len(data)==1 and isinstance(data[0][0], GlobalData) and \
-           len(self.__toolbar.actions()) == 2:
+           len(self.__toolbar.actions()) == 2 and self.__restrictedToApplet:
             self.__toolbar.hide()
 
         AppletFactoryManager().applet_created.emit(self)
 
     def supports(self, data):
-        return data.mimetype in self.__applet.mimetypes
+        if not self.__restrictedToApplet:
+            return True
+        else:
+            return data.mimetype in self.__applet.mimetypes
 
     def add_content(self, data, content):
         content = content.widget
@@ -219,7 +233,11 @@ class AppletSpace(QtGui.QWidget):
 
     def update_dataFac_menu(self):
         menu = QtGui.QMenu(self.__newDataBut)
-        dataFacs = self.__applet.get_data_types()
+        if not self.__restrictedToApplet:
+            dataFacs = [f for f in DataFactoryManager().gather_items().itervalues() \
+                        if not f.singleton]
+        else:
+            dataFacs = self.__applet.get_data_types()
         dataFacs.sort(cmp = lambda x,y:cmp(x.name, y.name))
         for dt in dataFacs:
             action = menu.addAction(dt.icon, dt.name)
@@ -234,13 +252,29 @@ class AppletSpace(QtGui.QWidget):
         currentText = self.__browseDataBut.currentText()
         self.__browseDataBut.clear()
 
-        mimetypes = self.__applet.get_mimetypes()
+        if not self.__restrictedToApplet:
+            mimetypes = [f.created_mimetype for f in \
+                         DataFactoryManager().gather_items().itervalues()]
+        else:
+            mimetypes = self.__applet.get_mimetypes()
+
         data = [(datum,proj) for k, datum in proj if datum.mimetype in mimetypes]
-        globalProj = GlobalDataManager()
-        data.extend([(datum, globalProj) for k, datum in globalProj \
-                     if datum.mimetype in mimetypes])
 
         for dp in data:
+            if dp[0].hidden:
+                continue
+            self.__browseDataBut.addItem(dp[0].icon, dp[0].name,
+                                         QtCore.QVariant(dp))
+
+        self.__browseDataBut.insertSeparator(self.__browseDataBut.count())
+
+        globalProj = GlobalDataManager()
+        globalData = [(datum, globalProj) for k, datum in globalProj \
+                     if datum.mimetype in mimetypes]
+
+        for dp in globalData:
+            if dp[0].hidden:
+                continue
             self.__browseDataBut.addItem(dp[0].icon, dp[0].name,
                                          QtCore.QVariant(dp))
 
@@ -252,7 +286,11 @@ class AppletSpace(QtGui.QWidget):
     def __make_dataFac_handler(self, dataFac):
         def on_dataFac_chosen(checked):
             data    = dataFac._new_0()
-            content = self.__applet._create_space_content_0(data)
+            if not self.__restrictedToApplet:
+                appFac  = DataEditorSelector.mime_type_handler([data.mimetype])
+                content = appFac._create_space_content_0(data)
+            else:
+                content = self.__applet._create_space_content_0(data)
             widget  = content.widget
             self.__stack.addWidget(widget)
             index = self.__browseDataBut.findText(data.name)
@@ -274,7 +312,11 @@ class AppletSpace(QtGui.QWidget):
         # content = proj.get_data_property(data, "spaceContent")
         content = self.__widgetMap.get(data)
         if not content:
-            content = self.__applet._create_space_content_0(data)
+            if not self.__restrictedToApplet:
+                appFac  = DataEditorSelector.mime_type_handler([data.mimetype])
+                content = appFac._create_space_content_0(data)
+            else:
+                content = self.__applet._create_space_content_0(data)
             self.__widgetMap[data]=content
         if content is None:
             print "Applet", self.name, "returned None content"
@@ -288,29 +330,50 @@ class AppletSpace(QtGui.QWidget):
 
 
 class EmptyAppletBackground(QtGui.QWidget):
-    def __init__(self, applet, appletspace, parent=None):
+
+    __button_width__ = 200
+
+    def __init__(self, applet, appletspace, parent=None, restToApp=False):
         QtGui.QWidget.__init__(self, parent)
-        self.__pm = applet.get_background_pixmap()
+        if restToApp:
+            self.__pm = applet.get_background_pixmap()
+        else:
+            self.__pm = None
         self.__lay = QtGui.QVBoxLayout()
         self.__lay.setAlignment(QtCore.Qt.AlignHCenter)
         self.setLayout(self.__lay)
 
         self.__lay.addStretch()
-        for dt in applet.get_data_types():
+        if restToApp:
+            dataFacs = applet.get_data_types()
+        else:
+            dataFacs = [f for f in DataFactoryManager().gather_items().itervalues() \
+                        if not f.singleton]
+
+        label = QtGui.QLabel("Create a new...")
+        label.setFixedWidth(self.__button_width__)
+        self.__lay.addWidget(label)
+        for dt in dataFacs:
             but  = QtGui.QPushButton(dt.icon, dt.name)
             policy = QtGui.QSizePolicy.Fixed
-            policy = QtGui.QSizePolicy(policy, policy)
-            but.setSizePolicy(policy)
+            #policy = QtGui.QSizePolicy(policy, policy)
+            but.setSizePolicy(policy, policy)
+            but.setFixedWidth(self.__button_width__)
             self.__lay.addWidget(but)
             self.__lay.setAlignment(but, QtCore.Qt.AlignHCenter)
-            func = self.__make_button_click_handler(but, applet, dt, appletspace)
+            func = self.__make_button_click_handler(but, applet, dt, appletspace, restToApp)
             but.clicked.connect(func)
         self.__lay.addStretch()
 
-    def __make_button_click_handler(self, but, applet, dataFac, appletspace):
+    def __make_button_click_handler(self, but, applet, dataFac, appletspace, restToApp):
         def on_type_selected(checked):
             data = dataFac._new_0()
-            content = applet._create_space_content_0(data)
+            if restToApp:
+                content = applet._create_space_content_0(data)
+            else:
+                appFac  = DataEditorSelector.mime_type_handler([data.mimetype])
+                content = appFac._create_space_content_0(data)
+
             appletspace.show_data(data)
         return on_type_selected
 

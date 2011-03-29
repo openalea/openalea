@@ -50,9 +50,10 @@ Documentation
 .. toctree::
     :maxdepth: 2
 
-    State of the art<previous_work>
-    Howtos<howtos/index.rst>
-    Reference Guide<user/autosum.rst>
+    State of the art <previous_work>
+    Concepts <concepts.rst>
+    Howtos <howtos/index.rst>
+    Reference Guide <user/autosum.rst>
 
 - A `PDF <../latex/secondnature.pdf>`_ version of |secondnature| documentation is
   available.

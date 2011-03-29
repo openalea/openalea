@@ -36,14 +36,20 @@ class DataFactory(HasName, CanBeStarted):
     __opened_mimetypes__ = []
     __icon_rc__          = None
     __supports_open__    = False
+    __hidden__           = False
+
 
     # -- PROPERTIES --
     icon             = property(lambda x:x.__icon)
     opened_mimetypes = property(lambda x:x.__opened_mimetypes__[:])
     created_mimetype = property(lambda x:x.__created_mimetype__)
+    hidden           = property(lambda x:x.__hidden__)
+    singleton        = property(lambda x:x.__singleton__)
 
+    # -- NON API ATTRIBUTES --
+    __singleton__        = False
 
-    def __init__(self, parent=None):
+    def __init__(self):
         HasName.__init__(self, self.__name__)
         CanBeStarted.__init__(self)
 
@@ -100,6 +106,27 @@ class DataFactory(HasName, CanBeStarted):
 
 
 
+class SingletonFactory(DataFactory):
+    __singleton__ = True
+
+    def __init__(self):
+        DataFactory.__init__(self)
+        self.__instance = None
+
+    def start(self):
+        try:
+            raw_ins = self.build_raw_instance()
+            self.__instance = self.wrap_data(self.__name__, raw_ins, "g")
+        except:
+            return False
+        else:
+            return True
+
+    def build_raw_instance(self):
+        raise NotImplementedError
+
+    def new(self):
+        return self.__instance
 
 
 
@@ -128,6 +155,7 @@ class Data(HasName):
     icon         = property(lambda x:x.__dt.icon if x.__dt else QtGui.QIcon())
     factory_name = property(lambda x:x.__dt.name)
     type         = property(lambda x:"b")
+    hidden       = property(lambda x:x.__dt.hidden)
 
     def __init__(self, name, obj, **kwargs):
         HasName.__init__(self, name)

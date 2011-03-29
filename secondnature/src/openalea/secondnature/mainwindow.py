@@ -29,7 +29,9 @@ from openalea.secondnature.splittable import CustomSplittable
 from openalea.secondnature.managers   import AbstractSourceManager
 from openalea.secondnature.layouts    import LayoutManager
 from openalea.secondnature.applets    import AppletFactoryManager
+from openalea.secondnature.applets    import AppletSpace
 from openalea.secondnature.data       import DataFactoryManager
+from openalea.secondnature.data       import GlobalDataManager
 from openalea.secondnature.project    import Project
 from openalea.secondnature.project    import ProjectManager
 from openalea.secondnature.project    import QActiveProjectManager
@@ -75,6 +77,12 @@ class MainWindow(QtGui.QMainWindow):
         self._statusBar.addPermanentWidget(self._layoutMode)
         self._layoutMode.setSizeAdjustPolicy(QtGui.QComboBox.AdjustToContents)
         self.__currentLayout = None
+        self._statusBar.setStyleSheet("QStatusBar{background-color: " +\
+                                      "qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, "+\
+                                      "stop:0 rgba(135,135,135,255), " +\
+                                      "stop:0.1 rgba(175,175,175,255), " +\
+                                      "stop:1 rgba(200, 200, 200, 255));}")
+
 
         # -- add all those guys to the main window (self) --
         self.setMenuBar(self._mainMenuBar)
@@ -106,12 +114,15 @@ class MainWindow(QtGui.QMainWindow):
     extensions_initialised = property(lambda x:x.__extInitialised)
 
     def get_datafactory_menu(self):
-        datafactories = sorted(DataFactoryManager().gather_items().itervalues(),
-                               lambda x,y:cmp(x.name, y.name))
+        datafactories = sorted( (f \
+                                 for f in DataFactoryManager().gather_items().itervalues() \
+                                 if not f.singleton),
+                                lambda x,y:cmp(x.name, y.name))
 
         menu = QtGui.QMenu(self)
         for dt in datafactories:
-            action = menu.addAction(dt.icon, dt.name)
+            action = menu.addAction(dt.icon, "New "+dt.name)
+            action.setIconVisibleInMenu(True)
             func = self.__make_datafactory_chosen_handler(dt)
             action.triggered.connect(func)
         return menu
@@ -247,7 +258,7 @@ class MainWindow(QtGui.QMainWindow):
         layout from the registered applications and installs a new splitter
         in the central window."""
 
-        proj = self.__projMan.get_active_project()
+        proj       = self.__projMan.get_active_project()
         layoutName = self._layoutMode.itemText(index)
         if layoutName is None or layoutName == "":
             return
@@ -272,22 +283,40 @@ class MainWindow(QtGui.QMainWindow):
             # create new splittable and retreive objects from previous
             newSplit, taken = self.__new_splittable(layout.skeleton)
 
-            appletmap = layout.appletmap
+            contentmap = layout.contentmap
             afm = AppletFactoryManager()
-            for paneId, appletName in appletmap.iteritems():
-                appFac = afm.get(appletName)
-                if appFac is None:
-                    self.logger.debug("__onLayoutChosen has None factory for "+appletName)
-                    continue
+            gdm = GlobalDataManager()
 
-                try:
-                    space  = appFac(proj)
-                except Exception, e:
-                    self.logger.error("__onLayoutChosen cannot display "+ \
-                                      appletName+":"+\
-                                      e.message)
-                    traceback.print_exc()
-                    continue
+            for paneId in newSplit.leaves():
+                contentDesc = contentmap.get(paneId)
+                if not contentDesc:
+                    space = AppletSpace(proj=proj)
+                else:
+                    resName, resType = contentDesc
+                    if resType == "g":
+                        dataName = resName
+                        data     = gdm.get_data_by_name(dataName)
+                        appFac = DataEditorSelector.mime_type_handler([data.mimetype], applet=True)
+                    elif resType == "a":
+                        appletName = resName
+                        appFac = afm.get(appletName)
+
+                    if appFac is None:
+                        self.logger.error("__onLayoutChosen has None factory for "+
+                                          resName)
+                        continue
+
+                    try:
+                        space  = appFac(proj)
+                        if resType == "g":
+                            space.show_data(data)
+                    except Exception, e:
+                        self.logger.error("__onLayoutChosen cannot display "+ \
+                                          resName+":"+\
+                                          e.message)
+                        traceback.print_exc()
+                        continue
+
                 if space:
                     self.__setSpaceAt(newSplit, paneId, space)
 

@@ -24,15 +24,15 @@ class Layout(HasName):
 
     # -- PROPERTIES --
     skeleton  = property(lambda x: x.__skeleton)
-    appletmap = property(lambda x: x.__appletmap)
+    contentmap = property(lambda x: x.__contentmap)
     easyname  = property(lambda x: x.__ezname or x.name)
 
 
-    def __init__(self, name, skeleton, appletmap, easy_name=None):
+    def __init__(self, name, skeleton, contentmap, easy_name=None):
         HasName.__init__(self, name)
-        self.__skeleton  = skeleton
-        self.__appletmap = appletmap
-        self.__ezname    = easy_name
+        self.__skeleton   = skeleton
+        self.__contentmap = contentmap
+        self.__ezname     = easy_name
 
 
 
@@ -44,7 +44,6 @@ class SpaceContent(object):
     widget  = property(lambda x:x.__widget)
     menus   = property(lambda x:x.__menuList)
     toolbar = property(lambda x:x.__toolbar)
-
 
     def __init__(self, widget, menuList=None, toolbar=None):
         self.__widget   = widget

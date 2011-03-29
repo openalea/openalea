@@ -27,19 +27,15 @@ import builtin_icons
 ##########
 # LOGGER #
 ##########
-class DT_Logger(DataFactory):
+class DT_Logger(SingletonFactory):
     __name__             = "Logger"
     __created_mimetype__ = "application/openalea-logger"
     __icon_rc__          = ":icons/logger.png"
 
-    def start(self):
+    def build_raw_instance(self):
         from openalea.core.logger import LoggerOffice
         self.loggermodel = LoggerOffice().get_handler("qt")
-        self.loggerDoc = self.wrap_data(self.__name__,  self.loggermodel, "g")
-        return True
-
-    def new(self):
-        return self.loggerDoc
+        return self.loggermodel
 
 class LoggerFactory(AbstractApplet):
     __name__          = "Logger"
@@ -56,33 +52,27 @@ class LoggerFactory(AbstractApplet):
 ###############
 # INTERPRETER #
 ###############
-class DT_Interpreter(DataFactory):
+class DT_Interpreter(SingletonFactory):
     __name__             = "Interpreter"
     __created_mimetype__ = "application/openalea-interpreter"
     __icon_rc__          = ":icons/interpreter.png"
 
-    def start(self):
+    def build_raw_instance(self):
         from code import InteractiveInterpreter as Interpreter
         self.interpretermodel = Interpreter()
-        self.interpreterDoc = self.wrap_data(self.__name__,  self.interpretermodel, "g")
-        return True
-
-    def new(self):
-        return self.interpreterDoc
+        return self.interpretermodel
 
 
-class DT_Session(DataFactory):
+class DT_Session(SingletonFactory):
     __name__             = "Session"
     __created_mimetype__ = "application/openalea-session"
+    __hidden__           = True
 
-    def start(self):
+    def build_raw_instance(self):
         from openalea.core.session import Session
         self.__session = Session()
-        self.session = self.wrap_data(self.__name__, self.__session, "g")
-        return True
+        return self.__session
 
-    def new(self):
-        return self.session
 
 
 class InterpreterFactory(AbstractApplet):
@@ -126,21 +116,17 @@ class InterpreterFactory(AbstractApplet):
 ###################
 # PACKAGE MANAGER #
 ###################
-class DT_PackageManager(DataFactory):
+class DT_PackageManager(SingletonFactory):
     __name__             = "PackageManager"
     __created_mimetype__ = "application/openalea-packagemanager"
     __icon_rc__          = ":icons/packagemanager.png"
 
-    def start(self):
+    def build_raw_instance(self):
         #lets create the PackageManager ressource
         from openalea.core.pkgmanager import PackageManager
         from openalea.secondnature.ripped.node_treeview import PkgModel
         self.model    = PkgModel(PackageManager())
-        self.pmanagerDoc = self.wrap_data(self.__name__, self.model, "g")
-        return True
-
-    def new(self):
-        return self.pmanagerDoc
+        return self.model
 
 
 class PackageManagerFactory(AbstractApplet):
@@ -160,20 +146,17 @@ class PackageManagerFactory(AbstractApplet):
 ###################
 # PROJECT MANAGER #
 ###################
-class DT_ProjectManager(DataFactory):
+class DT_ProjectManager(SingletonFactory):
     __name__      = "ProjectManager"
     __created_mimetype__ = "application/openalea-projectmanager"
     __icon_rc__   = ":icons/projectmanager.png"
 
-    def start(self):
+    def build_raw_instance(self):
         #lets create the PackageManager ressource
         from openalea.secondnature.project_view import ProjectManagerTreeModel
         self.model       = ProjectManagerTreeModel()
-        self.pmanagerDoc = self.wrap_data(self.__name__, self.model, "g")
-        return True
+        return self.model
 
-    def new(self):
-        return self.pmanagerDoc
 
 class ProjectManagerFactory(AbstractApplet):
     __name__ = "ProjectManager"
