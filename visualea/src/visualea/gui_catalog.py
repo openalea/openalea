@@ -292,12 +292,13 @@ class IDateTimeWidget(IInterfaceWidget, QtGui.QWidget):
             pass
 
         self.connect(self.subwidget, QtCore.SIGNAL
-                     ("dateTimeChanged( const QDateTime & datetime )"), self.valueChanged)
+                     ("dateTimeChanged( const QDateTime  )"), self.valueChanged)
 
 
     @lock_notify
     def valueChanged(self, newval):
         d = newval.toPyDateTime()
+        print self.param_str, d
         self.node.set_input(self.param_str, d)
 
 
