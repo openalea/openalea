@@ -492,8 +492,8 @@ class SplittableUI(QtGui.QWidget):
     """A widget that tries to mimic the Blender UI.
     Each pane contains a settable widget."""
 
-    __spacing__ = 8
-    __hspacing__ = __spacing__/2
+    __spacing__ = 4
+    __hspacing__ = __spacing__/2.0
 
     # used when serializing (toString) the layout
     # of the splitter to identify which properties
@@ -522,6 +522,12 @@ class SplittableUI(QtGui.QWidget):
         self._geomCache[0] = self.contentsRect()
         self._install_child(0, content)
 
+
+    def leaves(self):
+        return self._g.leaves()
+
+    def getPlaceHolder(self):
+        return None
 
     def splitPane(self, content, paneId, direction, amount):
         """Split a pane into two.
@@ -670,7 +676,7 @@ class SplittableUI(QtGui.QWidget):
     #############
     def _split_parent(self, paneId, direction, amount):
         g = self._g
-        # -- The pane at paneId will be divided : it will not
+        # -- The pane at paneId has been divided : it will not
         # contain a widget anymore (it will be transfered to
         # a child) and it's tear offs will be removed --
         self._remove_tearOffs(paneId)
@@ -744,6 +750,11 @@ class SplittableUI(QtGui.QWidget):
         # -- tearoffs would be covered by new widget, let's raise them --
         for t in self._g.get_property(paneId, "tearOffWidgets"):
             t.raise_()
+        parent = self._g.parent(paneId)
+        if parent is not None:
+            handle = self._g.get_property(parent, "handleWidget")
+            if handle:
+                handle.raise_()
 
     def __sticky_check(self, paneId, orientation, amount):
         geom = self._geomCache.get(paneId)
@@ -773,7 +784,7 @@ class SplittableUI(QtGui.QWidget):
         `paneId` will be split following `orientation` at `amount`*pane-width/height."""
         if self._g.has_children(paneId):
             return
-        fake = None
+        fake = self.getPlaceHolder()
 
         if amount == 0.0:
             amount += 0.05
@@ -1163,8 +1174,21 @@ class SplittableUI(QtGui.QWidget):
             self._thickness = SplittableUI.__spacing__
             if orientation == QtCore.Qt.Vertical:
                 self.setFixedHeight(self._thickness)
+                dirString = "x1:0, y1:1, x2:0, y2:0,"
+                self.setCursor(QtCore.Qt.SplitVCursor)
             else:
                 self.setFixedWidth(self._thickness)
+                self.setCursor(QtCore.Qt.SplitHCursor)
+                dirString = "x1:0, y1:0, x2:1, y2:0,"
+
+            self.setStyleSheet("background-color: "+\
+                               "qlineargradient(spread:pad,"+ dirString + \
+                               "stop:0 rgba(135,135,135,255), " +\
+                               "stop:0.4 rgba(155,155,155,255), " +\
+                               "stop:0.5 rgba(220,220,220,255), " +\
+                               "stop:0.6 rgba(155,155,155,255), " +\
+                               "stop:1 rgba(135, 135, 135, 255));")
+
             self.show()
 
         def _fixGeometry(self, newPt, geom):
@@ -1201,18 +1225,14 @@ class SplittableUI(QtGui.QWidget):
         # Qt Event reimplementations #
         ##############################
         def paintEvent(self, event):
+            # -- Required for stylesheets to work. Search for QWidget here:
+            # http://doc.qt.nokia.com/latest/stylesheet-reference.html --
             QStyle = QtGui.QStyle
+            opt = QtGui.QStyleOption()
+            opt.init(self)
             painter = QtGui.QPainter(self)
-            opt = QtGui.QStyleOption(0)
-            opt.rect = self.contentsRect()
-            opt.palette = self.palette()
-            opt.state = QStyle.State_Horizontal if self._orientation==QtCore.Qt.Horizontal \
-                        else QStyle.State_None
-            if self._hovered: opt.state |= QStyle.State_MouseOver
-            if self._isMoving: opt.state |= QStyle.State_Sunken
-            if self.isEnabled(): opt.state |= QStyle.State_Enabled
-            #painter.fillRect(self.rect(), QtCore.Qt.blue)
-            self.style().drawControl(QStyle.CE_Splitter, opt, painter, self)
+            self.style().drawPrimitive(QStyle.PE_Widget, opt, painter, self)
+
     ###################################################################################
     # /end Inner classes not meant to be seen by others - Inner classes not meant to  #
     ###################################################################################
