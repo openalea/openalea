@@ -139,6 +139,7 @@ class MainWindow(QtGui.QMainWindow):
         for applet in self.__applets:
             try_to_disconnect(old.data_added, applet.update_combo_list)
             proj.data_added.connect(applet.update_combo_list)
+            applet.project = proj
 
     def add_applet(self, applet):
         self.__projMan.data_added.connect(applet.update_combo_list)
@@ -198,6 +199,7 @@ class MainWindow(QtGui.QMainWindow):
                 return
 
         elif mimeData.hasFormat(ProjectManager.mimeformat):
+            print "projectmanager drop"
             dataIdBytes = mimeData.data(ProjectManager.mimeformat)
             if dataIdBytes:
                 dataId, ok = dataIdBytes.toInt()
@@ -205,6 +207,7 @@ class MainWindow(QtGui.QMainWindow):
                     data = proj.get_data(dataId)
                     if data:
                         app = DataEditorSelector.mime_type_handler([data.mimetype], applet=True)
+                        print "got applet", app.name
 
         # NO_SPACE_CONTENT_TRACKING
         # -- first try to retreive the content associated to this data --
@@ -225,11 +228,13 @@ class MainWindow(QtGui.QMainWindow):
             newSpace = True
             space = app(proj)
 
+        print "got to space", space, newSpace
+
         space.show_data(data)
         # NO_SPACE_CONTENT_TRACKING
         # space.add_content(data, content)
 
-        if newSpace is not None:
+        if newSpace:
             self.__setSpaceAt(splittable, paneId, space)
 
     ####################################

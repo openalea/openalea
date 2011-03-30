@@ -137,6 +137,7 @@ import traceback
 from openalea.secondnature.data      import DataFactoryManager
 from openalea.secondnature.data      import GlobalDataManager
 from openalea.secondnature.data      import GlobalData
+from openalea.secondnature.project   import Project
 from openalea.secondnature.project   import ProjectManager
 from openalea.secondnature.qtutils   import ComboBox
 from openalea.secondnature.qtutils   import try_to_disconnect
@@ -154,21 +155,22 @@ class AppletSpace(QtGui.QWidget):
     def __init__(self, proj, applet=None, parent=None):
         QtGui.QWidget.__init__(self, parent)
 
-        self.setContentsMargins(0,0,0,0)
-
         assert isinstance(applet, (types.NoneType, AbstractApplet))
         self.__applet  = applet
         if applet is None:
             restToApp = False
         self.__restrictedToApplet = restToApp
+
         self.__project   = proj
         self.__widgetMap = {} #weakref.WeakKeyDictionary()
-
+        self.__projToWidgets = weakref.WeakKeyDictionary()
+        self.setContentsMargins(0,0,0,0)
         self.__lay     = QtGui.QVBoxLayout(self)
         self.__lay.setContentsMargins(0,0,0,0)
         self.__lay.setSpacing(0)
         self.__toolbar = QtGui.QToolBar()
         self.__stack   = QtGui.QStackedWidget()
+
 
         self.__newDataBut    = QtGui.QPushButton("+")
         self.__browseDataBut = ComboBox()
@@ -221,6 +223,21 @@ class AppletSpace(QtGui.QWidget):
             self.__toolbar.hide()
 
         AppletFactoryManager().applet_created.emit(self)
+
+    @project.setter
+    def project(self, proj):
+        assert isinstance(proj, Project)
+
+        projWidgets = self.__projToWidgets.get(self.__project, [])
+        for w in projWidgets:
+            self.__stack.removeWidget(w)
+
+        self.__project = proj
+        self.__menubar.clear()
+        self.__widgetMap.clear()
+        self.__projToWidgets.clear()
+        self.update_combo_list()
+
 
     def supports(self, data):
         if not self.__restrictedToApplet:
@@ -290,29 +307,14 @@ class AppletSpace(QtGui.QWidget):
     def __make_dataFac_handler(self, dataFac):
         def on_dataFac_chosen(checked):
             data    = dataFac._new_0()
-
-            if not self.__restrictedToApplet:
-                appFac  = DataEditorSelector.mime_type_handler([data.mimetype])
-                content = appFac._create_space_content_0(data)
-            else:
-                content = self.__applet._create_space_content_0(data)
-            if content is None:
-                return
-
-            widget  = content.widget
-            self.__stack.addWidget(widget)
-            self.__menubar.clear()
-            for menu in content.menus:
-                self.__menubar.addMenu(menu)
-
-            index = self.__browseDataBut.findText(data.name)
-            self.__browseDataBut.setCurrentIndex(index)
+            self.show_data(data)
         return on_dataFac_chosen
 
     def show_data(self, data):
         self.update_combo_list()
         index = self.__browseDataBut.findText(data.name)
         if index > -1: #-1 is not found
+            # : calls show_data_at_index by the signals
             self.__browseDataBut.setCurrentIndex(index)
 
     def show_data_at_index(self, index):
@@ -334,6 +336,7 @@ class AppletSpace(QtGui.QWidget):
             print "Applet", self.name, "returned None content"
 
         widget = content.widget
+        self.__projToWidgets.setdefault( proj, set() ).add(widget)
         self.__menubar.clear()
         for menu in content.menus:
             self.__menubar.addMenu(menu)
