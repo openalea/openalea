@@ -136,11 +136,16 @@ class Project(QtCore.QObject):
 
 
     def close(self):
-        #...
         self.closed.emit(self)
-        self.closed.disconnect()
-        self.saved.disconnect()
-        self.modified.disconnect()
+
+        self.__names.clear()
+        self.__docs.clear()
+        self.__docToIds.clear()
+        self.__docprops.clear()
+
+        # self.closed.disconnect()
+        # self.saved.disconnect()
+        # self.modified.disconnect()
 
 
     def mark_as_modified(self):
@@ -324,15 +329,16 @@ class QActiveProjectManager(QtCore.QObject):
         if proj and proj.is_modified():
             if not self.__ask_close_active():
                 return None
-        else:
-            self.close_active_project()
-            name, ok = QtGui.QInputDialog.getText(None,
-                                                  "New project...",
-                                                  "Please give a new to your project")
-            if ok:
-                self.__pm.new_active_project(name)
             else:
-                return None
+                self.close_active_project()
+
+        name, ok = QtGui.QInputDialog.getText(None,
+                                              "New project...",
+                                              "Please give a new to your project")
+        if ok:
+            self.__pm.new_active_project(name)
+        else:
+            return None
 
     def __ask_close_active(self):
         but = QtGui.QMessageBox.question(None,
@@ -345,6 +351,7 @@ class QActiveProjectManager(QtCore.QObject):
 
     def close_active_project(self):
         proj = self.get_active_project()
+        projectClosed = False
         if proj and proj.is_modified():
             but = QtGui.QMessageBox.question(None,
                                              "Unsaved modifications!",
@@ -353,6 +360,7 @@ class QActiveProjectManager(QtCore.QObject):
                                              "Do you want to save it before closing it?",
                                              QtGui.QMessageBox.Yes|QtGui.QMessageBox.No,
                                              QtGui.QMessageBox.Yes)
+
             if but == QtGui.QMessageBox.Yes:
                 self.save_active_project()
         self.__pm.close_active_project()
@@ -375,22 +383,24 @@ class QActiveProjectManager(QtCore.QObject):
     def open_project(self):
         proj = self.get_active_project()
         if proj and proj.is_modified():
-            if not self.__ask_close_active():
-                return None
+                if not self.__ask_close_active():
+                    return None
+                else:
+                    self.close_active_project()
+
+        proj = None
+        pth = QtGui.QFileDialog.getOpenFileName(None,
+                                                "Open project from...",
+                                                os.path.expanduser("~"),
+                                                "OpenAlea project (*.oas)",
+                                                "OpenAlea project (*.oas)",
+                                                QtGui.QFileDialog.DontResolveSymlinks)
+        if pth == "":
+            return
         else:
-            proj = None
-            pth = QtGui.QFileDialog.getOpenFileName(None,
-                                                    "Save project to...",
-                                                    os.path.expanduser("~"),
-                                                    "OpenAlea project (*.oas)",
-                                                    "OpenAlea project (*.oas)",
-                                                    QtGui.QFileDialog.DontResolveSymlinks)
-            if pth == "":
-                return
-            else:
-                proj = Project.load_from(str(pth))
-                if proj:
-                    self.set_active_project(proj)
+            proj = Project.load_from(str(pth))
+            if proj:
+                self.set_active_project(proj)
 
 
 
