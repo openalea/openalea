@@ -17,7 +17,7 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-from PyQt4 import QtGui, QtCore
+from PyQt4 import QtGui, QtCore, QtSvg
 from openalea.visualea.graph_operator.base import Base
 
 from openalea.visualea.util import open_dialog, exception_display, busy_cursor
@@ -296,6 +296,92 @@ class DataflowOperators(Base):
                                              "Cannot write Graph model on disk. :\n"+
                                              "Trying to write in a System Package!\n")
         master.notify_listeners(("graphoperator_graphsaved", scene, factory))
+
+    def graph_export_script(self):
+        master = self.master
+        widget = master.get_sensible_parent()
+        composite_node = master.get_graph()
+        scr = composite_node.to_script()
+
+        filename = QtGui.QFileDialog.getSaveFileName(
+            widget, "Export to script",  QtCore.QDir.homePath(), "Python file (*.py)")
+
+        filename = str(filename)
+        if not filename:
+            return
+        elif '.' not in filename:
+            filename += '.py'
+
+        with open(filename, "w") as file:
+            file.write(scr)
+
+    def graph_export_png(self):
+        """ Export current workspace to an image """
+
+        master = self.master
+        scene  = master.get_graph_scene()
+        widget = master.get_sensible_parent()
+
+        filename = QtGui.QFileDialog.getSaveFileName(widget,
+                                                     "Export png image",
+                                                     QtCore.QDir.homePath(),
+                                                     "PNG Image (*.png)")
+
+        filename = str(filename)
+        if not filename:
+            return
+        elif '.' not in filename:
+            filename += '.png'
+
+        mg = 10
+        scene.update()
+        source  = scene.itemsBoundingRect()
+        canvas  = scene.itemsBoundingRect().adjusted(-mg, -mg, mg, mg)
+        target  = scene.itemsBoundingRect()
+        pixmap  = QtGui.QPixmap(canvas.width(), canvas.height())
+        painter = QtGui.QPainter(pixmap)
+
+        target.moveTo(mg, mg)
+        pixmap.fill()
+        painter.setRenderHint(QtGui.QPainter.Antialiasing)
+        scene.render(painter, target, source)
+        painter.end()
+        pixmap.save(filename)
+
+    def graph_export_svg(self):
+        """ Export current workspace to an image """
+
+        master = self.master
+        scene  = master.get_graph_scene()
+        widget = master.get_sensible_parent()
+
+        filename = QtGui.QFileDialog.getSaveFileName(widget,
+                                                     "Export svg image",
+                                                     QtCore.QDir.homePath(),
+                                                     "SVG Image (*.svg)")
+
+        filename = str(filename)
+        print "graph_export_svg", filename
+        if not filename:
+            return
+        elif '.' not in filename:
+            filename += '.png'
+
+        mg = 10
+        scene.update()
+        source  = scene.itemsBoundingRect()
+        canvas  = scene.itemsBoundingRect().adjusted(-mg, -mg, mg, mg)
+        target  = scene.itemsBoundingRect()
+        target.moveTo(mg, mg)
+
+        svg_gen = QtSvg.QSvgGenerator()
+        svg_gen.setFileName(filename)
+        svg_gen.setSize(canvas.toRect().size())
+
+        painter = QtGui.QPainter(svg_gen)
+        painter.setRenderHint(QtGui.QPainter.Antialiasing)
+        scene.render(painter, target, source)
+        painter.end()
 
 
     def graph_configure_io(self):
