@@ -47,7 +47,7 @@ class SpaceContent(object):
 
     def __init__(self, widget, menuList=None, toolbar=None):
         self.__widget   = widget
-        self.__menuList = menuList
+        self.__menuList = menuList or []
         self.__toolbar  = toolbar
 
     def _set_applet(self, applet):
