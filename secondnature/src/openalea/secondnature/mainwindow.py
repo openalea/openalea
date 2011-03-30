@@ -114,10 +114,9 @@ class MainWindow(QtGui.QMainWindow):
     extensions_initialised = property(lambda x:x.__extInitialised)
 
     def get_datafactory_menu(self):
-        datafactories = sorted( (f \
-                                 for f in DataFactoryManager().gather_items().itervalues() \
-                                 if not f.singleton),
-                                lambda x,y:cmp(x.name, y.name))
+        datafactories = [f for f in DataFactoryManager().gather_items().itervalues() \
+                        if not f.singleton]
+                        # lambda x,y:cmp(x.name, y.name))
 
         menu = QtGui.QMenu(self)
         for dt in datafactories:
