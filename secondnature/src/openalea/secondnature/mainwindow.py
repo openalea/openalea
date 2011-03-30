@@ -137,9 +137,15 @@ class MainWindow(QtGui.QMainWindow):
     #########################################
     def __on_active_project_set(self, proj, old):
         for applet in self.__applets:
-            try_to_disconnect(old.data_added, applet.update_combo_list)
+            # if old:
+            #     try_to_disconnect(old.data_added, applet.update_combo_list)
             proj.data_added.connect(applet.update_combo_list)
             applet.project = proj
+        proj.closed.connect(self.__on_active_project_closed)
+
+    def __on_active_project_closed(self, proj):
+        for applet in self.__applets:
+            try_to_disconnect(proj.data_added, applet.update_combo_list)
 
     def add_applet(self, applet):
         self.__projMan.data_added.connect(applet.update_combo_list)
