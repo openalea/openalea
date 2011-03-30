@@ -19,7 +19,7 @@ __revision__ = " $Id$ "
 
 from openalea.secondnature.api import *
 
-from openalea.visualea import dataflowview
+
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.compositenode import CompositeNodeFactory, CompositeNode
 
@@ -64,11 +64,92 @@ class DataflowViewFactory(AbstractApplet):
     __name__          = "DataflowView"
     __datafactories__ = [DT_Dataflow]
 
+    def start(self):
+        self.__clipboard = CompositeNodeFactory("Clipboard")
+        self.__siblings  = SiblingList()
+
     def create_space_content(self, data):
+        from openalea.visualea import dataflowview
         node = data.obj
         gwidget = dataflowview.GraphicalGraph.create_view(node, clone=True)
-        return SpaceContent(gwidget)
+        menus = self.make_menus_helper(node, gwidget)
+        return SpaceContent(gwidget, menuList=menus)
 
+    def make_menus_helper(self, node, gwidget):
+        from openalea.visualea.graph_operator import GraphOperator
+        from PyQt4 import QtGui
+
+        print "make_menus_helper", node, gwidget
+
+        operator = GraphOperator(graph      = node,
+                                 graphScene = gwidget.scene(),
+                                 clipboard  = self.__clipboard,
+                                 siblings   = self.__siblings,
+                                 )
+
+        # -- Construction the Export menu
+        exp_menu = QtGui.QMenu("Export")
+        exp_menu.addAction(operator("To Package Manager...", exp_menu,
+                                    "graph_export_to_factory"))
+
+        # ---- to app submenu ----
+        exp_toapp_menu = exp_menu.addMenu("To Application")
+        exp_toapp_menu.addAction(operator("Preview...", exp_toapp_menu,
+                                          "graph_preview_application"))
+        exp_toapp_menu.addAction(operator("Export...", exp_toapp_menu,
+                                          "graph_export_application"))
+
+        # ---- to image submenu ----
+        exp_image_menu = exp_menu.addMenu("To Image")
+        exp_image_menu.addAction(operator("Raster (PNG)", exp_image_menu,
+                                          "graph_export_png"))
+        exp_image_menu.addAction(operator("Vector (SVG)", exp_image_menu,
+                                          "graph_export_svg"))
+
+
+        exp_menu.addAction(operator("To Script", exp_menu,
+                                    "graph_export_script"))
+
+        # -- Contructing the Dataflow menu --
+        df_menu = QtGui.QMenu("Dataflow")
+        df_menu.addAction(operator("Reload", df_menu,
+                                   "graph_reload_from_factory"))
+        df_menu.addSeparator()
+        df_menu.addAction(operator("Run", df_menu,
+                                   "graph_run"))
+        df_menu.addAction(operator("Invalidate", df_menu,
+                                   "graph_invalidate"))
+        df_menu.addAction(operator("Reset", df_menu,
+                                   "graph_reset"))
+        df_menu.addAction(operator("Configure IO", df_menu,
+                                   "graph_configure_io"))
+        df_menu.addSeparator()
+        df_menu.addAction(operator("Group", df_menu,
+                                   "graph_group_selection"))
+        df_menu.addAction(operator("Copy", df_menu,
+                                   "graph_copy"))
+        df_menu.addAction(operator("Cut", df_menu,
+                                   "graph_cut"))
+        df_menu.addAction(operator("Paste", df_menu,
+                                   "graph_paste"))
+        df_menu.addAction(operator("Delete", df_menu,
+                                   "graph_remove_selection"))
+
+        return [exp_menu, df_menu]
+
+
+
+
+
+class SiblingList(object):
+    def __init__(self):
+        self.projMan = ProjectManager()
+
+    def __iter__(self):
+        activeProj = self.projMan.get_active_project()
+        for id, data in activeProj:
+            if data.mimetype == CompositeNode.mimetype:
+                yield data.obj
 
 
 # -- instantiate layouts --

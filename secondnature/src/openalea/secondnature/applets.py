@@ -173,12 +173,15 @@ class AppletSpace(QtGui.QWidget):
         self.__newDataBut    = QtGui.QPushButton("+")
         self.__browseDataBut = ComboBox()
         self.__browseDataBut.setIconSize(QtCore.QSize(16,16))
+        self.__menubar = QtGui.QMenuBar()
+        self.__menubar.setDefaultUp(True)
 
         # -- configure the layout --
         self.__lay.addWidget(self.__stack)
         self.__lay.addWidget(self.__toolbar)
         self.__newDataBut.setFixedSize(QtCore.QSize(40, self.__hh__))
         self.__browseDataBut.setFixedSize(QtCore.QSize(150, self.__hh__))
+        self.__menubar.setFixedHeight(self.__hh__)
 
         # -- an empty widget for the bkgd --
         self.__bkgd = EmptyAppletBackground(applet, self, restToApp=restToApp)
@@ -195,6 +198,7 @@ class AppletSpace(QtGui.QWidget):
         self.__toolbar.setMovable(False)
         self.__toolbar.addWidget(self.__newDataBut)
         self.__toolbar.addWidget(self.__browseDataBut)
+        self.__toolbar.addWidget(self.__menubar)
 
         # -- connect relevant stuff --
         self.__newDataBut.pressed.connect(self.update_dataFac_menu)
@@ -286,13 +290,21 @@ class AppletSpace(QtGui.QWidget):
     def __make_dataFac_handler(self, dataFac):
         def on_dataFac_chosen(checked):
             data    = dataFac._new_0()
+
             if not self.__restrictedToApplet:
                 appFac  = DataEditorSelector.mime_type_handler([data.mimetype])
                 content = appFac._create_space_content_0(data)
             else:
                 content = self.__applet._create_space_content_0(data)
+            if content is None:
+                return
+
             widget  = content.widget
             self.__stack.addWidget(widget)
+            self.__menubar.clear()
+            for menu in content.menus:
+                self.__menubar.addMenu(menu)
+
             index = self.__browseDataBut.findText(data.name)
             self.__browseDataBut.setCurrentIndex(index)
         return on_dataFac_chosen
@@ -320,7 +332,11 @@ class AppletSpace(QtGui.QWidget):
             self.__widgetMap[data]=content
         if content is None:
             print "Applet", self.name, "returned None content"
+
         widget = content.widget
+        self.__menubar.clear()
+        for menu in content.menus:
+            self.__menubar.addMenu(menu)
         if not self.__stack.indexOf(widget)>-1:
             self.__stack.addWidget(widget)
         self.__stack.setCurrentWidget(widget)
