@@ -25,6 +25,9 @@ from openalea.secondnature.applets import AbstractApplet
 from openalea.secondnature.layouts import Layout
 from openalea.secondnature.layouts import SpaceContent
 
+# PROJECT API
+from openalea.secondnature.project import ProjectManager
+
 # DATA API
 from openalea.secondnature.data import DataReader
 from openalea.secondnature.data import SingletonFactory
