@@ -270,16 +270,16 @@ class GraphListenerBase(observer.AbstractListener):
         return self.__graphAdapter.new_vertex(*args, **kwargs)
 
     def add_vertex(self, *args, **kwargs):
-        self.__graphAdapter.add_vertex(*args, **kwargs)
+        return self.__graphAdapter.add_vertex(*args, **kwargs)
 
     def get_vertex(self, *args, **kwargs):
         return self.__graphAdapter.get_vertex(*args, **kwargs)
 
     def remove_vertex(self, *args, **kwargs):
-        self.__graphAdapter.remove_vertex(*args, **kwargs)
+        return self.__graphAdapter.remove_vertex(*args, **kwargs)
 
     def remove_vertices(self, *args, **kwargs):
-        self.__graphAdapter.remove_vertices(*args, **kwargs)
+        return self.__graphAdapter.remove_vertices(*args, **kwargs)
 
     def get_vertex_inputs(self, *args, **kwargs):
         return self.__graphAdapter.get_vertex_inputs(*args, **kwargs)
@@ -294,13 +294,13 @@ class GraphListenerBase(observer.AbstractListener):
         return self.__graphAdapter.get_vertex_output(*args, **kwargs)
 
     def add_edge(self, *args, **kwargs):
-        self.__graphAdapter.add_edge(*args, **kwargs)
+        return self.__graphAdapter.add_edge(*args, **kwargs)
 
     def remove_edge(self, *args, **kwargs):
-        self.__graphAdapter.remove_edge(*args, **kwargs)
+        return self.__graphAdapter.remove_edge(*args, **kwargs)
 
     def remove_edges(self, *args, **kwargs):
-        self.__graphAdapter.remove_edges(*args, **kwargs)
+        return self.__graphAdapter.remove_edges(*args, **kwargs)
 
     #########################
     # Other utility methods #

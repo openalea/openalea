@@ -48,7 +48,7 @@ class GraphAdapter(grapheditorbase.GraphAdapterBase):
                                              "A graph cannot be contained in itself.")
 
     def remove_vertex(self, vertex):
-        self.graph().remove_node(vertex.get_id())
+        return self.graph().remove_node(vertex.get_id())
 
     def add_edge(self, src, dst):
         if(type(src[0])==int):
@@ -57,7 +57,7 @@ class GraphAdapter(grapheditorbase.GraphAdapterBase):
         else:
             vtxIdSrc, portIdSrc = src[0].get_id(), src[1].get_id()
             vtxIdDst, portIdDst = dst[0].get_id(), dst[1].get_id()
-        self.graph().connect(vtxIdSrc, portIdSrc, vtxIdDst, portIdDst)
+        return self.graph().connect(vtxIdSrc, portIdSrc, vtxIdDst, portIdDst)
 
     def remove_edge(self, src, dst):
         vtxIdSrc, portIdSrc = src[0].get_id(), src[1].get_id()
@@ -66,7 +66,7 @@ class GraphAdapter(grapheditorbase.GraphAdapterBase):
 
     # -- Utility methods, not always useful/relevant.
     def replace_vertex(self, oldVertex, newVertex):
-        self.graph().replace_node(oldVertex.get_id(), newVertex)
+        return self.graph().replace_node(oldVertex.get_id(), newVertex)
 
     def get_vertex_inputs(self, vid):
         return self.graph().node(vid).input_desc
