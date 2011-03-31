@@ -1184,9 +1184,9 @@ class SplittableUI(QtGui.QWidget):
             self.setStyleSheet("background-color: "+\
                                "qlineargradient(spread:pad,"+ dirString + \
                                "stop:0 rgba(135,135,135,255), " +\
-                               "stop:0.4 rgba(155,155,155,255), " +\
-                               "stop:0.5 rgba(220,220,220,255), " +\
-                               "stop:0.6 rgba(155,155,155,255), " +\
+                               "stop:0.3 rgba(155,155,155,255), " +\
+                               "stop:0.5 rgba(255,255,255,255), " +\
+                               "stop:0.7 rgba(155,155,155,255), " +\
                                "stop:1 rgba(135, 135, 135, 255));")
 
             self.show()
