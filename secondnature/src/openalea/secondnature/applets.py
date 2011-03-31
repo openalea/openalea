@@ -27,6 +27,7 @@ from openalea.core.logger import get_logger
 
 from PyQt4 import QtCore
 
+mod_logger = get_logger(__name__)
 
 class AbstractApplet(HasName, CanBeStarted):
 
@@ -491,7 +492,7 @@ class AppletFactorySourceEntryPoints(AppletFactorySourceMixin, AbstractEntryPoin
                 it = ep.load()
                 it = it()
             except Exception, e:
-                logger.error(self.name + " couldn't load " + str(ep) + ":" + str(e) )
+                mod_logger.error(self.name + " couldn't load " + str(ep) + ":" + str(e) )
                 traceback.print_exc()
                 continue
             else:

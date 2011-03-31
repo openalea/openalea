@@ -26,6 +26,38 @@ from openalea.core.compositenode import CompositeNodeFactory, CompositeNode
 import urlparse
 import visualea_icons
 
+# -- Datapool and Datapool view --
+class DT_DataPool(SingletonFactory):
+    __name__ = "DataPool"
+    __created_mimetype__ = "visualea/datapool"
+
+    def build_raw_instance(self):
+        from openalea.secondnature.ripped.node_treeview import DataPoolModel
+        from openalea.core.session import DataPool
+        self.datapool = DataPool() #singleton
+        # -- the other way is to get the datapool from the session --
+        # session = GlobalDataManager().get_data_by_name("Session")
+        # if not session:
+        #     return None
+        # session = session.obj
+        # self.datapool = session.datapool
+        self.dp_model = DataPoolModel(self.datapool)
+        return self.dp_model
+
+
+class DataPoolViewFactory(AbstractApplet):
+    __name__ = "DataPoolView"
+    __datafactories__ = [DT_DataPool]
+
+    def create_space_content(self, data):
+        from openalea.secondnature.ripped.node_treeview import DataPoolListView
+        poolModel = data.obj
+        widget = DataPoolListView(poolModel.datapool)
+        widget.setModel(poolModel)
+        return SpaceContent(widget)
+
+
+# -- Dataflow and Dataflow view --
 class DT_Dataflow(DataReader):
     __name__             = "Dataflow"
     __created_mimetype__ = CompositeNode.mimetype
@@ -139,8 +171,6 @@ class DataflowViewFactory(AbstractApplet):
 
 
 
-
-
 class SiblingList(object):
     def __init__(self):
         self.projMan = ProjectManager()
@@ -150,6 +180,11 @@ class SiblingList(object):
         for id, data in activeProj:
             if data.mimetype == CompositeNode.mimetype:
                 yield data.obj
+
+
+
+
+
 
 
 # -- instantiate layouts --

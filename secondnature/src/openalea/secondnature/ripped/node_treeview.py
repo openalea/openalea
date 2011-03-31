@@ -967,17 +967,14 @@ class SearchListView(NodeFactoryView, QtGui.QTreeView):
 class DataPoolListView(QtGui.QListView, SignalSlotListener):
     """ Specialized QListView to display data pool contents """
 
-    def __init__(self, main_win, datapool, parent=None):
+    def __init__(self, datapool, parent=None):
         """
-        @param main_win : main window
         @param datapool : datapool instance
         @param parent : parent widget
         """
 
         QtGui.QListView.__init__(self, parent)
         SignalSlotListener.__init__(self)
-
-        self.main_win = ref(main_win)
 
         self.setDragEnabled(True)
         self.setDropIndicatorShown(True)

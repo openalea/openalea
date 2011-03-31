@@ -131,7 +131,6 @@ class AbstractSource(QtCore.QObject):
     def __init__(self):
         QtCore.QObject.__init__(self)
         self.__name = self.__class__.__name__
-
         mgrCls = self.__concrete_manager__
         if mgrCls is not None:
             mgrCls()._add_source(self)
