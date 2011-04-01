@@ -829,7 +829,7 @@ class View(QtGui.QGraphicsView, ClientCustomisableWidget, baselisteners.GraphVie
             handler(event)
         else:
             self.__defaultDropHandler(event)
-        QtGui.QGraphicsView.dropEvent(self, event)
+        #QtGui.QGraphicsView.dropEvent(self, event)
 
     # ----hotkeys----
     def keyPressEvent(self, event):
