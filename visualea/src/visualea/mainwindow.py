@@ -89,7 +89,7 @@ class MainWindow(QtGui.QMainWindow,
         shellclass = get_shell_class()
         self.interpreterWidget = shellclass(interpreter,
                                             cli.get_welcome_msg())
-        GraphOperator.globalInterpreter = self.interpreterWidget
+        GraphOperator.globalInterpreter = interpreter
         self.lowerpane.addTab(self.interpreterWidget, "Python Shell")
 
         if logger.QT_LOGGING_MODEL_AVAILABLE:
