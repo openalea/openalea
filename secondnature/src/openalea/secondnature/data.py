@@ -22,7 +22,9 @@ from openalea.secondnature.project     import ProjectManager
 from openalea.core.singleton           import Singleton
 from PyQt4 import QtGui, QtCore
 
+from openalea.core.logger import get_logger
 
+logger = get_logger(__name__)
 
 
 
@@ -117,7 +119,8 @@ class SingletonFactory(DataFactory):
         try:
             raw_ins = self.build_raw_instance()
             self.__instance = self.wrap_data(self.__name__, raw_ins, "g")
-        except:
+        except Exception, e:
+            logger.error(str(e))
             return False
         else:
             return True
@@ -205,6 +208,17 @@ def GlobalDataManager():
     return __global_data_manager
 
 
+class SiblingList(object):
+    def __init__(self, mimetype):
+        self.mimetype = mimetype
+        self.projMan = ProjectManager()
+
+    def __iter__(self):
+        activeProj = self.projMan.get_active_project()
+        for id, data in activeProj:
+            print data.mimetype
+            if data.mimetype == self.mimetype:
+                yield data.obj
 
 
 

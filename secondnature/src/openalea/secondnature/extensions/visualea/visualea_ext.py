@@ -97,11 +97,17 @@ class DataflowViewFactory(AbstractApplet):
     __datafactories__ = [DT_Dataflow]
 
     def start(self):
+        from openalea.visualea.graph_operator import GraphOperator
         self.__clipboard = CompositeNodeFactory("Clipboard")
-        self.__siblings  = SiblingList()
+        self.__siblings  = SiblingList(CompositeNode.mimetype)
+
 
     def create_space_content(self, data):
         from openalea.visualea import dataflowview
+        from openalea.visualea.graph_operator import GraphOperator
+        interpreter = GlobalDataManager().get_data_by_name("Interpreter")
+        GraphOperator.globalInterpreter = interpreter.obj
+
         node = data.obj
         gwidget = dataflowview.GraphicalGraph.create_view(node, clone=True)
         menus = self.make_menus_helper(node, gwidget)
@@ -167,17 +173,6 @@ class DataflowViewFactory(AbstractApplet):
 
         return [exp_menu, df_menu]
 
-
-
-class SiblingList(object):
-    def __init__(self):
-        self.projMan = ProjectManager()
-
-    def __iter__(self):
-        activeProj = self.projMan.get_active_project()
-        for id, data in activeProj:
-            if data.mimetype == CompositeNode.mimetype:
-                yield data.obj
 
 
 
