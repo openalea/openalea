@@ -133,10 +133,14 @@ class PackageManagerFactory(AbstractApplet):
     __name__ = "PackageManager"
     __datafactories__ = [DT_PackageManager]
 
-    def create_space_content(self, data):
-        from openalea.secondnature.ripped.node_treeview import NodeFactoryTreeView
+    def start(self):
+        from openalea.core.compositenode import CompositeNode
+        self.__siblings  = SiblingList(CompositeNode.mimetype)
 
-        view = NodeFactoryTreeView(None)
+    def create_space_content(self, data):
+        from openalea.secondnature.ripped.node_treeview import PackageManagerView
+
+        view = PackageManagerView(self.__siblings)
         view.setModel(data.obj)
         space = SpaceContent(view)
         return space
@@ -166,8 +170,8 @@ class ProjectManagerFactory(AbstractApplet):
         from PyQt4 import QtGui, QtCore
 
         itemDelegate = QtGui.QItemDelegate()
-
         view = QtGui.QTreeView(None)
+
         view.setDragEnabled(True)
         view.setModel(data.obj)
         view.setIconSize(QtCore.QSize(16,16))
