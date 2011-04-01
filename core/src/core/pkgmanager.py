@@ -35,6 +35,7 @@ from fnmatch import fnmatch
 from pkg_resources import iter_entry_points
 
 from openalea.core.singleton import Singleton
+from openalea.core.observer import Observed
 from openalea.core.package import Package, UserPackage, PyPackageReader
 from openalea.core.package import PyPackageReaderWralea, PyPackageReaderVlab
 from openalea.core.settings import get_userpkg_dir, Settings
@@ -105,7 +106,7 @@ class Logger(object):
 
 ###############################################################################
 
-class PackageManager(object):
+class PackageManager(Observed):
     """
     The PackageManager is a Dictionary of Packages
     It can locate OpenAlea packages on the system (with wralea).
@@ -115,6 +116,7 @@ class PackageManager(object):
 
     def __init__ (self, verbose=True):
         """ Constructor """
+        Observed.__init__(self)
         self.log = Logger()
 
         #make urlparse correctly handle the glorious "oa" protocol :)
@@ -146,7 +148,8 @@ class PackageManager(object):
 
 
 
-
+    def emit_update(self):
+        self.notify_listeners("update")
 
 
 #    def get_include_namespace(self):
@@ -297,6 +300,7 @@ class PackageManager(object):
         else:
             pkg.reload()
             self.load_directory(pkg.path)
+        self.notify_listeners("update")
 
 
     def clear(self):
@@ -740,6 +744,7 @@ class PackageManager(object):
 
         self.pkgs[old_name].write()
         del(self.pkgs[old_name])
+        self.notify_listeners("update")
 
 
     # Dictionnary behaviour
@@ -752,6 +757,7 @@ class PackageManager(object):
 
     def __setitem__(self, key, val):
         self.pkgs[key] = val
+        self.notify_listeners("update")
 
     def __len__(self):
         return len(self.pkgs)
@@ -759,6 +765,7 @@ class PackageManager(object):
     def __delitem__(self, item):
         r = self.pkgs.__delitem__(item)
         self.rebuild_category()
+        self.notify_listeners("update")
         return r
 
     def __contains__(self, key):
