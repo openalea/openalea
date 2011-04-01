@@ -164,7 +164,7 @@ class MainWindow(QtGui.QMainWindow):
         elif mimedata.hasFormat(ProjectManager.mimeformat):
             good = True
         if not good:
-            self.logger.error("invalid mimedata: "+fmts)
+            self.logger.error("unknown mimedata: "+ str([str(f) for f in mimedata.formats()]))
         return good
 
     def __on_splitter_drag_enter(self, splittable, event):
