@@ -17,6 +17,10 @@ __license__ = "CeCILL v2"
 __revision__ = " $Id$ "
 
 
+from openalea.core.logger import get_logger
+
+loffer = get_logger(__name__)
+
 class HasName(object):
     # -- PROPERTIES --
     name = property(lambda x: x._name, lambda x, y:x.set_name(y))
@@ -47,4 +51,8 @@ class CanBeStarted(object):
     # Private Stuff #
     #################
     def _start_0(self):
-        self.__started = self.start()
+        try:
+            self.__started = self.start()
+        except Exception, e:
+            logger.error(str(e))
+
