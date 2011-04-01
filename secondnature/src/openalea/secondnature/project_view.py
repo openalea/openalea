@@ -136,7 +136,6 @@ class ProjectManagerTreeModel(QtGui.QStandardItemModel):
         newItem  = QtGui.QStandardItem(doc.name)
         newItem.setData(QtCore.QVariant(doc), self.dataRole)
         icon = doc.icon
-        #newItem.setData(QtCore.QVariant(icon), QtCore.Qt.DecorationRole)
         newItem.setIcon(icon)
         newItem.setDragEnabled(True)
         parItem = self.__activeProjItem
@@ -154,9 +153,9 @@ class ProjectManagerTreeModel(QtGui.QStandardItemModel):
             return None
 
         data    = QtGui.QStandardItemModel.mimeData(self, modelIndexes)
-        encoded = QtCore.QByteArray()
-
         item = self.itemFromIndex(modelIndexes[0])
+
+        encoded = QtCore.QByteArray()
         if item:
             doc = item.data(self.dataRole).toPyObject()
             if doc and self.__activeProj:
@@ -164,3 +163,6 @@ class ProjectManagerTreeModel(QtGui.QStandardItemModel):
                 encoded = QtCore.QByteArray.number(docId)
         data.setData(ProjectManager.mimeformat, encoded)
         return data
+
+    def headerData(self, section, orientation, role):
+        return QtCore.QVariant()
