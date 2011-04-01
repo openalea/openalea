@@ -89,20 +89,20 @@ class PortOperators(Base):
             port = portItem.port()
             node = port.vertex()
             data = node.get_output(port.get_id())
-            shell = master.get_interpreter()
+            interpreter = master.get_interpreter()
 
             overwrite = QtGui.QMessageBox.Ok
-            if result in shell.interpreter.locals:
+            if result in interpreter.locals:
                 overwrite = QtGui.QMessageBox.warning(widget, "Overwrite variable?",
                                                       "Variable name '" + result +"' is already used in the interpreter," +\
                                                       "Do you want to overwrite it?",
                                                       QtGui.QMessageBox.Ok|QtGui.QMessageBox.Cancel,
                                                       QtGui.QMessageBox.Ok)
             if overwrite == QtGui.QMessageBox.Ok:
-                shell.interpreter.locals[result]=data
+                interpreter.locals[result]=data
                 # print the instance name and content as if the user type its name in a shell
-                # this is only to make obvious the availability of the instance in the shell.
-                shell.interpreter.runsource("print '%s'\n" % result)
-                shell.interpreter.runsource("%s\n" % result)
+                # this is only to make obvious the availability of the instance in the
+                interpreter.runsource("print '%s'\n" % result)
+                interpreter.runsource("%s\n" % result)
 
-            shell.setFocus()
+            #setFocus()

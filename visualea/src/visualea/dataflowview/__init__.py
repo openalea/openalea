@@ -163,7 +163,7 @@ class DataflowView( qt.View ):
             position = self.mapToScene(event.pos())
             self.__drop_from_factory(factory, [position.x(), position.y()])
             event.setDropAction(QtCore.Qt.MoveAction)
-            event.accept()
+            #event.accept()
 
 
     def node_datapool_drop_handler(self, event):
