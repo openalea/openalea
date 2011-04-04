@@ -20,8 +20,9 @@ This module import functions to manipulate images
 __license__= "Cecill-C"
 __revision__ = " $Id: __init__.py 2245 2010-02-08 17:11:34Z cokelaer $ "
 
+import sys
 from math import sqrt
-from numpy import array,zeros,uint8,apply_along_axis,rollaxis
+from numpy import array,zeros,ones,uint8,apply_along_axis,rollaxis,bitwise_xor
 from colorsys import hsv_to_rgb,rgb_to_hsv,rgb_to_hls
 from ..spatial_image import SpatialImage
 
@@ -29,7 +30,7 @@ __all__ = ["bounding_box","apply_mask",
            "flatten","saturate",
            "high_level","color_select",
            "border","end_margin","stroke",
-           "reverse_image","color2grey"]
+           "reverse_image","color2grey","grey2color","logicalnot"]
 
 def bounding_box (mask) :
 	"""Compute the bounding box of a mask
@@ -303,7 +304,7 @@ def stroke(img, width, outside=False):
 def reverse_image (image ) :
     """
     """
-    return ( 255 - image )
+    return ( image.max() - image )
 
 
 def color2grey (image):
@@ -321,3 +322,41 @@ def color2grey (image):
             SpatialImage(image[:,:,:,1],image.resolution),
             SpatialImage(image[:,:,:,2],image.resolution))
 
+
+def grey2color (r,g,b):
+    """
+    convert a grey-level image into a color image.
+    """
+    if (r.shape != g.shape) or (r.shape != b.shape):
+        print "Error : r,g,b have not the same shape"
+        return -1
+
+    xdim,ydim,zdim = r.shape
+
+    if not isinstance(r,SpatialImage) :
+	r = SpatialImage(r)
+    if not isinstance(g,SpatialImage) :
+	g = SpatialImage(g)
+    if not isinstance(b,SpatialImage) :
+	b = SpatialImage(b)
+
+    color = SpatialImage(np.zeros(xdim,ydim,zdim,3),r.resolution)
+    color[:,:,:,0] = r
+    color[:,:,:,1] = g
+    color[:,:,:,2] = b
+    return color 
+
+
+def logicalnot (img) :
+    """
+    """
+    d = img.dtype
+    vmax = eval(d.name)(sys.maxint) 
+    im_target = vmax * ones(img.shape, img.dtype)
+    
+    image = bitwise_xor(img,im_target)
+
+    if isinstance(img, SpatialImage):
+        return SpatialImage(image,img.resolution)
+    else:
+        return SpatialImage(image)
