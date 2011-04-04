@@ -35,7 +35,7 @@ from pixmap_view import PixmapStackView, ScalableGraphicsView
 from palette import palette_names, palette_factory
 
 from ..serial import load
-
+from ..spatial_image import SpatialImage
 try:
     from openalea.container.utils import IdSetGenerator
 except ImportError:
@@ -334,7 +334,7 @@ class PointSelection (QMainWindow) :
         if img is not None :
             self.set_palette(palette_factory(str(palname),img.max() ) )
 
-    def add_point (self, pos, pid = None) :
+    def add_point (self, pos, my_pid = None) :
         """Add a new point
 
         :Parameters:
@@ -345,17 +345,20 @@ class PointSelection (QMainWindow) :
         if img is not None :
             i,j,k = self._view.data_coordinates(pos.x(),pos.y() )
             found_item = False
-            if self._points is not None:
-                pid = len(self._points)
-            for pt in xrange(len(self._points)):
-                if self._points[pt] is None :
-                    pid = pt
-                    found_item = True
-                    break
-            if not found_item : 
-                pid = self._id_gen.get_id(pid)
+            if my_pid is None:
+                if self._points is not None:
+                    pid = len(self._points)
+                for pt in xrange(len(self._points)):
+                    if self._points[pt] is None :
+                        pid = pt
+                        found_item = True
+                        break
+                if not found_item : 
+                    pid = self._id_gen.get_id(pid)
+            else : 
+                pid = my_pid
             col = QColor.fromHsv( (pid * 10) % 360,255,255)
-            item = self._scene.addEllipse(QRectF(-10,-10,20,20),QPen(col),QBrush(col)  )
+            item = self._scene.addEllipse(QRectF(-2.5,-2.5,5,5),QPen(col),QBrush(col)  )
             item.setZValue(10)
             item.setPos(pos.x(),pos.y())
 
@@ -369,24 +372,34 @@ class PointSelection (QMainWindow) :
                 self._points.append( (pid,item,i,j,k,textid) )
             self.update_pix()
             self.emit(SIGNAL("points_changed"),self)
+            return pid,(i,j,k)
 
-
-    def del_point (self, pos, pid = None) :
+    def del_point (self, pos, my_pid = None) :
         """Delete a new point
 
         :Parameters:
          - `pos` (QPointF) - position of the point on the screen
         """
+        ind = None
         point = self._scene.itemAt(pos)
-        for pt in self._points:
-            if pt is not None:
-                pid,item, x,y,z,textid = pt
-                if point == item :
-                    self._scene.removeItem(point)
-                    ind = self._points.index(pt)
-                    self._points[ind] = None
+        if my_pid is None : 
+            for pt in self._points:
+                if pt is not None:
+                    pid,item, x,y,z,textid = pt
+                    if point == item :
+                        self._scene.removeItem(point)
+                        ind = self._points.index(pt)
+                        self._points[ind] = None
+        else : 
+            for pt in self._points:
+                if pt is not None:
+                    pid,item, x,y,z,textid = pt
+                    if my_pid == pid :
+                        self._scene.removeItem(item)
+                        self._points[pid] = None
         self.update_pix() 
         self.emit(SIGNAL("points_changed"),self)
+        return ind
 
     def set_points (self, points) :
         """Set a point to a new ID
@@ -419,6 +432,9 @@ class PointSelection (QMainWindow) :
             self.emit(SIGNAL("points_changed"),self)
 
 def point_selection (image, palette_name = "grayscale", color_index_max = None) :
+
+    if not isinstance(image,SpatialImage):
+        image = SpatialImage(image)
 
     w = PointSelection()
     w.set_image(image)	
