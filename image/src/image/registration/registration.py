@@ -17,12 +17,12 @@
 __license__= "Cecill-C"
 __revision__=" $Id: $ "
 
-__all__ = ["cp2transfo", "angles2transfo"]
+__all__ = ["pts2transfo", "angles2transfo"]
 
 
 import numpy as np
 
-def cp2transfo(x,y):
+def pts2transfo(x,y):
     """ Infer rigid transformation from control point pairs
         using quaternions.
 
@@ -80,7 +80,7 @@ def cp2transfo(x,y):
 
         :Examples:
 
-        >>> from openalea.image import cp2transfo  
+        >>> from openalea.image import pts2transfo  
 
         >>> # x and y, two point sets with 7 known correspondences
 
@@ -110,10 +110,14 @@ def cp2transfo(x,y):
     """
     #compute barycenters
     # nx vectors of dimension kx
+    if not isinstance(x,np.ndarray):
+        x = np.array(x)
     nx,kx = x.shape
     x_barycenter = x.sum(0)/float(nx)
 
     # nx vectors of dimension kx
+    if not isinstance(y,np.ndarray):
+        y = np.array(y)
     ny,ky = y.shape
     y_barycenter = y.sum(0)/float(ny)
 
