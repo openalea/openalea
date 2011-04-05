@@ -21,6 +21,7 @@ __revision__ = " $Id$ "
 from PyQt4 import QtCore, QtGui
 from openalea.secondnature.project import ProjectManager
 from openalea.secondnature.qtutils import try_to_disconnect
+from openalea.secondnature.api     import get_datafactory_menu
 
 
 def muteItemChange(f):
@@ -166,3 +167,23 @@ class ProjectManagerTreeModel(QtGui.QStandardItemModel):
 
     def headerData(self, section, orientation, role):
         return QtCore.QVariant()
+
+
+
+class ProjectView(QtGui.QTreeView):
+    def __init__(self, model, parent=None):
+        QtGui.QTreeView.__init__(self, parent)
+
+        self.setModel(model)
+        self.expandAll()
+        self.setHeaderHidden(True)
+        self.setDragEnabled(True)
+        self.setIconSize(QtCore.QSize(16,16))
+        self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.onContextMenuRequest)
+
+    def onContextMenuRequest(pos):
+        menu = get_datafactory_menu()
+        menu.popup(self.viewport().mapToGlobal(pos))
+
+

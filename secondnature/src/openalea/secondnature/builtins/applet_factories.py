@@ -167,33 +167,9 @@ class ProjectManagerFactory(AbstractApplet):
     __datafactories__ = [DT_ProjectManager]
 
     def create_space_content(self, data):
-        from PyQt4 import QtGui, QtCore
-
-        itemDelegate = QtGui.QItemDelegate()
-        view = QtGui.QTreeView(None)
-
-        view.setDragEnabled(True)
-        view.setModel(data.obj)
-        view.setIconSize(QtCore.QSize(16,16))
-        view.setItemDelegate(itemDelegate)
-        view.expandAll()
-        view.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-        menuFunc = self.__make_bound_menu_request_handler(view)
-        view.customContextMenuRequested.connect(menuFunc)
+        view = ProjectView(data.obj)
         space = SpaceContent(view)
         return space
-
-    def __make_bound_menu_request_handler(self, widget):
-        from PyQt4 import QtGui, QtCore
-        menu = get_datafactory_menu()
-        def onContextMenuRequest(pos):
-            menu.popup(widget.viewport().mapToGlobal(pos))
-        return onContextMenuRequest
-
-    def __make_datafactory_chosen_handler(self, dt):
-        def on_datafactory_chosen(checked):
-            data = dt._new_0()
-        return on_datafactory_chosen
 
 
 

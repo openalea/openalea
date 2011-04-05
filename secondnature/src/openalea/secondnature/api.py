@@ -46,3 +46,7 @@ from openalea.secondnature.urltools import file_url_to_path
 def get_datafactory_menu():
     from PyQt4 import QtCore
     return QtCore.QCoreApplication.instance().win.get_datafactory_menu()
+
+
+# WIDGETS
+from openalea.secondnature.project_view import ProjectView

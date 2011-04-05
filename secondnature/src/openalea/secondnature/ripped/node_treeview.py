@@ -719,8 +719,13 @@ class NodeFactoryView(object):
 class PackageManagerView(QtGui.QWidget):
     def __init__(self, siblings=[], parent=None):
         QtGui.QWidget.__init__(self, parent)
+
+        statusTip =  """CTRL+F to search for a node"""
+        self.setStatusTip(statusTip)
+
         self.__lay = QtGui.QVBoxLayout()
         self.__lay.setContentsMargins(2,2,2,2)
+        self.__lay.setSpacing(2)
         self.__searchField = QtGui.QLineEdit()
         self.__treeView    = NodeFactoryTreeView(siblings)
         self.__lay.addWidget(self.__searchField)
