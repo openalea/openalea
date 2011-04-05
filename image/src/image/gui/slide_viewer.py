@@ -162,6 +162,10 @@ class SlideViewer (QMainWindow) :
 		self._im_view.set_palette(palette)
 		self.update_pix()
 	
+        def set_title(self, title=None):
+                if title is not None :
+                        self.setWindowTitle(title)
+
 	##############################################
 	#
 	#		slots
@@ -202,7 +206,7 @@ class SlideViewer (QMainWindow) :
 		self._last_mouse_y = event.y()
 		self.fill_infos()
 
-def display (image, palette_name = "grayscale", color_index_max = None) :
+def display (image, palette_name = "grayscale", title = None , color_index_max = None) :
     """
     """	
     w = SlideViewer()
@@ -219,6 +223,8 @@ def display (image, palette_name = "grayscale", color_index_max = None) :
 		
     w.set_palette(palette,palette_name)
     w.set_image(image)
-		
+
+    w.set_title(title)
+
     w.show()
     return w
