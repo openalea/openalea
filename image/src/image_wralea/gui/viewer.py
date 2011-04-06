@@ -20,8 +20,12 @@ __revision__=" $Id: $ "
 from openalea.image import SpatialImage, SlideViewer, palette_factory
 
 def display (image, palette_name, title, color_index_max) :
+
     if not isinstance(image,SpatialImage) :
 	image = SpatialImage(image)
+
+    if image.ndim < 3 :
+        image = image.reshape(image.shape + (1,))
 	
     w = SlideViewer()
 		
