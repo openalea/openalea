@@ -214,6 +214,9 @@ def display (image, palette_name = "grayscale", title = None , color_index_max =
     if not isinstance(image,SpatialImage):
         image = SpatialImage(image)
 
+    if image.ndim < 3 :
+        image = image.reshape(image.shape + (1,))
+
     if color_index_max is None :
 	cmax = image.max()
     else :

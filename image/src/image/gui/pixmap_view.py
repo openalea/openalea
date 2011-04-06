@@ -190,7 +190,7 @@ class PixmapStackView (PixmapView) :
 
 		PixmapView.__init__(self,img,palette)
 	
-	def _reconstruct_pixmaps (self) :
+	def _reconstruct_pixmaps (self, axis=2) :
 		pal = self.palette()
 		data = self.image()
 
@@ -205,9 +205,14 @@ class PixmapStackView (PixmapView) :
 		
 		#construct pixmaps
 		pix = []
-		for z in xrange(data.shape[2]) :
+		for z in xrange(data.shape[axis]) :
 			#dat = pal[data[:,:,z] ].flatten('F')
-			dat = pal[ uint32(data[:,:,z]) ]
+                        if axis == 0 :
+			    dat = pal[ uint32(data[z,:,:]) ]
+                        elif axis == 1 : 
+			    dat = pal[ uint32(data[:,z,:]) ]
+                        else : 
+			    dat = pal[ uint32(data[:,:,z]) ]
 			#img = QImage(dat,
 			#             data.shape[0],
 			#             data.shape[1],
