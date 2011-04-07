@@ -173,9 +173,12 @@ def write_inrimage (filename, img) :
 	info = dict(getattr(img,"info",{}) )
 	
 	#image dimensions
-	info["XDIM"],info["YDIM"],info["ZDIM"] = ("%d" % val for val in img.shape)
-	info["VDIM"] = "1" #TODO higher dimensions
-	
+        if img.ndim < 4 :
+	    info["XDIM"],info["YDIM"],info["ZDIM"] = ("%d" % val for val in img.shape)
+	    info["VDIM"] = "1" #TODO higher dimensions
+	else:
+            info["XDIM"],info["YDIM"],info["ZDIM"],info["VDIM"] = ("%d" % val for val in img.shape)
+
 	#image resolution
 	res = getattr(img,"resolution",(1,1,1) )
 	info["VX"],info["VY"],info["VZ"] = ("%f" % val for val in res)
@@ -233,7 +236,13 @@ def write_inrimage (filename, img) :
 	#write datas
 	#lmat = img.transpose(2,1,0)
 	#f.write(lmat.tostring() )
-        f.write(img.transpose().tostring() )
+
+        if img.ndim < 4: 
+            f.write(img.transpose().tostring() )
+        else :
+            lmat = img.transpose(2,1,0,3)
+            mat = lmat.reshape(img.shape)
+            f.write(mat.tostring() )
 
 	#return
 	if zipped :
