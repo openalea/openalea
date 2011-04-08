@@ -55,8 +55,7 @@ imread = Factory(name = "imread",
                 category = "datatype,image",
                 nodemodule = "serial",
                 nodeclass = "wra_imread",
-                inputs = (dict(name = "name", interface = IFileStr),
-                          dict(name = "channel", interface = IInt, value=0),),
+                inputs = (dict(name = "name", interface = IFileStr),),
                 outputs = (dict(name = "img", interface = IImage),),
                 )
 

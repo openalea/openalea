@@ -112,28 +112,3 @@ resample = Factory(name = "resampling",
                 )
 
 __all__.append("resample")
-
-
-asclepios_reech3d = False
-try :
-    from openalea.asclepios import reech3d
-    asclepios_reech3d = True
-except :
-    pass
-
-if asclepios_reech3d:
-    reech3d = Factory(name='reech3d',
-                    description='Node allowing 2D or 3D image resampling using a 4x4 matrix. \
-                                The value of a point in the result image is estimated : \
-                                - either by bi or tri linear interpolation, \
-                                - or by using the value of the nearest point.',
-                    category='image',
-                    nodemodule='interpolation',
-                    nodeclass='reech3d',
-                    inputs=None,
-                    outputs=None,
-                    widgetmodule=None,
-                    widgetclass=None,
-                    lazy=True
-                    )
-    __all__.append("reech3d")

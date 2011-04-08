@@ -81,16 +81,16 @@ flatten = Factory(name = "flatten",
 
 __all__.append("flatten")
 
-invert = Factory(name = "invert",
-                description = "invert colors and alpha",
-                category = "image",
-                nodemodule = "image",
-                nodeclass = "invert",
-                inputs = (dict(name = "data", interface = None),),
-                outputs = (dict(name = "data", interface = None),),
-                )
-
-__all__.append("invert")
+#invert = Factory(name = "invert",
+#                description = "invert colors and alpha",
+#                category = "image",
+#                nodemodule = "image",
+#                nodeclass = "invert",
+#                inputs = (dict(name = "data", interface = None),),
+#                outputs = (dict(name = "data", interface = None),),
+#                )
+#
+#__all__.append("invert")
 
 rotate = Factory(name = "rotate",
                 description = "rotate an image",
@@ -152,4 +152,15 @@ color_select = Factory(name = "color_select",
                 )
 
 __all__.append("color_select")
+
+reverse_image = Factory(name = "reverse_image",
+                description = "",
+                category = "image",
+                nodemodule = "algo",
+                nodeclass = "wra_reverse_image",
+                inputs = (dict(name = "img", interface = None), ),
+                outputs = (dict(name = "reverse_im", interface = None),),
+                )
+
+__all__.append("reverse_image")
 

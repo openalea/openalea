@@ -24,14 +24,12 @@ __name__ = "openalea.image.registration"
 
 __all__ = []
 
-points2transfo = Factory( name= "points2transfo", 
+points2transfo = Factory( name= "pts2transfo", 
 			     description= "Infer rigid transformation from control point pairs",
 			     category = "image",
 			     nodemodule = "registration",
 			     nodeclass = "wra_points2transfo",
-                             inputs=(dict(name="image1", interface=None),
-                                     dict(name="points1", interface=ISequence),
-                                     dict(name="image2", interface=None),
+                             inputs=(dict(name="points1", interface=ISequence),
 			             dict(name="points2", interface=ISequence),),
 			     outputs=(dict(name="rigid transformation", interface=None),),
 			    )
@@ -52,25 +50,3 @@ angles2transfo = Factory( name= "angles2transfo",
 			    )
 
 __all__.append('angles2transfo')
-
-
-asclepios_baladin = False
-try :
-    from openalea.asclepios import baladin
-    asclepios_baladin = True
-except :
-    pass
-
-if asclepios_baladin:
-    block_matching = Factory(name='Pyramidal Block Matching',
-                    description='Block-Matching algorithm.',
-                    category='image',
-                    nodemodule='registration',
-                    nodeclass='BlockMatching',
-                    inputs=None,
-                    outputs=None,
-                    widgetmodule=None,
-                    widgetclass=None,
-                    lazy=True
-                    )
-    __all__.append("block_matching")

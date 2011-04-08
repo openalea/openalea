@@ -5,11 +5,11 @@
 #       Copyright 2006 INRIA - CIRAD - INRA  
 #
 #       File author(s): Jerome Chopard <jerome.chopard@sophia.inria.fr>
-#                       Eric Moscardi <eric.moscardi@inria.fr>
+#                       Eric Moscardi <eric.moscardi@gmail.com>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
-#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
+#       http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
@@ -301,7 +301,7 @@ class PixmapStackView (PixmapView) :
 		tr.rotate(orient * 90)
 		self._pixmaps = [pix.transformed(tr) for pix in self._pixmaps]
 	
-	def data_coordinates (self, x_pix, y_pix) :
+	def data_coordinates (self, x_pix, y_pix, axis=2) :
 		"""Convert coordinates expressed in the pixmap into
 		coordinates expressed as indices in the data space.
 		
@@ -314,7 +314,13 @@ class PixmapStackView (PixmapView) :
 		if len(self._pixmaps) == 0 :
 			raise UserWarning("no image loaded")
 		
-		w,h = self.image().shape[:2]
+                if axis == 0:
+		    w,h = self.image().shape[1],self.image().shape[2]
+                elif axis == 1:
+		    w,h = self.image().shape[0],self.image().shape[2]
+                else:
+		    w,h = self.image().shape[0],self.image().shape[1]
+                    
 		w_pix = self.pixmap().width()
 		h_pix = self.pixmap().height()
 		if self._transform == 0 :

@@ -22,7 +22,7 @@ __revision__ = " $Id: __init__.py 2245 2010-02-08 17:11:34Z cokelaer $ "
 
 from scipy.ndimage import rotate,gaussian_filter
 from openalea.image import (saturate,high_level,color_select,
-                            flatten,apply_mask,SpatialImage)
+                            flatten,apply_mask,SpatialImage, reverse_image)
 
 def crop (img, x, y, dx, dy) :
 	data = img[y:(y + dy),x:(x + dx),...]
@@ -41,11 +41,10 @@ def wra_apply_mask (img, mask, background_color) :
 
 wra_apply_mask.__doc__ = apply_mask.__doc__
 
-def invert (img) :
-	if img.dtype == bool :
-		return -img
-	else :
-		return 255 - img,
+#def wra_invert (img) :
+#	return invert(img)
+#
+#wra_invert.__doc__ = invert.__doc__
 
 def wra_flatten (img_list) :
 	return flatten(img_list),
@@ -81,6 +80,10 @@ def wra_color_select (img, color, tol) :
 wra_color_select.__doc__ = color_select.__doc__
 
 
+def wra_reverse_image (img) :
+	return reverse_image(img),
+
+wra_reverse_image.__doc__ = reverse_image.__doc__
 
 
 

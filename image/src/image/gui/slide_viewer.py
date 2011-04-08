@@ -5,10 +5,11 @@
 #       Copyright 2006 INRIA - CIRAD - INRA  
 #
 #       File author(s): Jerome Chopard <jerome.chopard@sophia.inria.fr>
+#                       Eric Moscardi <eric.moscardi@gmail.com>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
-#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
+#       http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
 # 
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
@@ -23,7 +24,7 @@ __all__ = ["display","SlideViewer"]
 
 from ..spatial_image import SpatialImage
 
-from PyQt4.QtCore import Qt,QObject,SIGNAL
+from PyQt4.QtCore import Qt,QObject,SIGNAL,QString
 from PyQt4.QtGui import (QApplication,QLabel,QMainWindow,QComboBox,
                         QSlider,QToolBar)
 from palette import palette_names,palette_factory
@@ -38,6 +39,9 @@ class SlideViewer (QMainWindow) :
 		QMainWindow.__init__(self)
 		self.ui = Ui_MainWindow()
 		self.ui.setupUi(self)
+
+                self.axis = 2
+
 		#central label
 		self._im_view = PixmapStackView()
 		self._label = ScalableLabel()
@@ -82,7 +86,14 @@ class SlideViewer (QMainWindow) :
 		QObject.connect(self._palette_select,
 		                SIGNAL("currentIndexChanged(int)"),
 		                self.palette_name_changed)
-		
+		#axis
+                self._axis = QComboBox(self)
+		self.ui.toolbar.addWidget(self._axis)
+                self._axis.addItem(QString("Z-axis"))
+                self._axis.addItem(QString("Y-axis")) 
+                self._axis.addItem(QString("X-axis")) 
+                self.connect(self._axis, SIGNAL('currentIndexChanged(int)'), self.change_axis )
+
 		#slider
 		self._bot_toolbar = QToolBar("slider")
 		
@@ -102,13 +113,13 @@ class SlideViewer (QMainWindow) :
 		self._lab_ycoord = QLabel("% 4d" % 0)
 		self._lab_zcoord = QLabel("% 4d" % 0)
 		self._lab_intens = QLabel("intens: None")
-		
+
 		self.ui.statusbar.addPermanentWidget(self._lab_coord)
 		self.ui.statusbar.addPermanentWidget(self._lab_xcoord)
 		self.ui.statusbar.addPermanentWidget(self._lab_ycoord)
 		self.ui.statusbar.addPermanentWidget(self._lab_zcoord)
 		self.ui.statusbar.addPermanentWidget(self._lab_intens)
-	
+
 	##############################################
 	#
 	#		update GUI
@@ -125,7 +136,7 @@ class SlideViewer (QMainWindow) :
 		
 		img = self._im_view.image()
 		if img is not None :
-			i,j,k = self._im_view.data_coordinates(x,y)
+			i,j,k = self._im_view.data_coordinates(x,y,self.axis)
 			self._lab_xcoord.setText("% 4d" % i)
 			self._lab_ycoord.setText("% 4d" % j)
 			self._lab_zcoord.setText("% 4d" % k)
@@ -165,6 +176,14 @@ class SlideViewer (QMainWindow) :
         def set_title(self, title=None):
                 if title is not None :
                         self.setWindowTitle(title)
+
+        def change_axis(self,ind):
+            self.axis = 2-ind
+            self._im_view._reconstruct_pixmaps(self.axis)
+            self._img_slider.setRange(0,self._im_view.nb_slices() - 1)
+	    self._img_slider.setEnabled(True)
+	    self.slice_changed(self._img_slider.value() )
+
 
 	##############################################
 	#
