@@ -27,6 +27,9 @@ from ctypes import util as ctutil
 
 
 def find_library(name):
+    """Similar to ctypes.util.find_library except that on posixes that
+    are not darwin, besides using ldconfig, gcc and objdump, it also
+    browses the LD_LIBRARY_PATH."""
     libname = ctutil.find_library(name)
     if not libname:
         if os.name == "posix" and sys.platform != "darwin":
@@ -36,5 +39,6 @@ def find_library(name):
             candidateName = "lib"+name+".so"
             for lname in libs:
                 if candidateName in lname and not lname.endswith("egm"):
-                    return lname
-
+                    libname = lname
+                    break
+    return libname
