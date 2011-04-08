@@ -21,6 +21,8 @@ __all__ = ["pts2transfo", "angles2transfo"]
 
 
 import numpy as np
+from math import radians,cos,sin
+from scipy.ndimage import center_of_mass
 
 def pts2transfo(x,y):
     """ Infer rigid transformation from control point pairs
@@ -208,8 +210,6 @@ def pts2transfo(x,y):
 
     return T
 
-from math import radians,cos,sin
-from scipy.ndimage import center_of_mass
 
 def angles2transfo(image1, image2, angleX=0, angleY=0, angleZ=0) :
     """
