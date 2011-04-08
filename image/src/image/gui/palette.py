@@ -19,10 +19,13 @@ This module provide a set of palettes to associate colors to data
 __license__= "Cecill-C"
 __revision__=" $Id: $ "
 
+import numpy
 from colorsys import hsv_to_rgb,rgb_to_hsv
-from numpy import array,uint32
+from numpy import array,uint32, arange, linspace
 
-palette_names = ["grayscale","rainbow","bwrainbow","bw"]
+from matplotlib import colors, cm
+
+palette_names = ["grayscale","rainbow","bwrainbow","bw", "matplotlib"]
 
 __all__ = palette_names + ["palette_names","palette_factory"]
 
@@ -85,8 +88,19 @@ def bwrainbow (cmax, alpha = False) :
 	
 	return array(pal,uint32)
 
+def matplotlib(cmax,alpha=False):
+    cmap = cm.get_cmap()
+    data = numpy.linspace(0,1,num=cmax+1)
+    pal = cmap(data,bytes=True)
+    if alpha:
+        return pal
+    else:
+        return pal[:,0:3]
+
 def palette_factory (palname, cmax) :
 	assert palname in palette_names
 	return globals()[palname](cmax)
 
+def add_matplotlib_cmap():
+    pass 
 
