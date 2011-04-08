@@ -25,9 +25,12 @@ from numpy import array,uint32, arange, linspace
 
 from matplotlib import colors, cm
 
-palette_names = ["grayscale","rainbow","bwrainbow","bw", "matplotlib"]
+fixed_palette_names = ["grayscale","rainbow","bwrainbow","bw"]
 
-__all__ = palette_names + ["palette_names","palette_factory"]
+palette_names = ["grayscale","rainbow","bwrainbow","bw"]
+palette_names.extend([m for m in cm.datad if not m.endswith("_r")])
+
+__all__ = fixed_palette_names + ["palette_names","palette_factory"]
 
 def bw () :
 	"""Black and white palette
@@ -90,6 +93,9 @@ def bwrainbow (cmax, alpha = False) :
 
 def matplotlib(cmax,alpha=False):
     cmap = cm.get_cmap()
+    return convert(cmap,cmax,alpha)
+
+def convert(cmap,cmax, alpha=False):
     data = numpy.linspace(0,1,num=cmax+1)
     pal = cmap(data,bytes=True)
     if alpha:
@@ -97,10 +103,13 @@ def matplotlib(cmax,alpha=False):
     else:
         return pal[:,0:3]
 
-def palette_factory (palname, cmax) :
-	assert palname in palette_names
-	return globals()[palname](cmax)
 
-def add_matplotlib_cmap():
-    pass 
+def palette_factory (palname, cmax) :
+    if palname in fixed_palette_names:
+	    return globals()[palname](cmax)
+    else:
+        mpal = cm.get_cmap(palname)
+        if mpal:
+            return convert(mpal,cmax)
+ 
 
