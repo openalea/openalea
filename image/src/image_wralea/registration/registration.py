@@ -19,17 +19,6 @@ This module import functions to registration images
 __license__= "Cecill-C"
 __revision__ = " $Id:  $ "
 
-import numpy as np
-from openalea.core import Node
-from openalea.core import Factory, IFileStr, IInt, IBool, IFloat, \
-    ISequence, IEnumStr, IStr, IDirStr, ITuple, IDict
+
 from openalea.image import pts2transfo, angles2transfo
 
-
-
-def wra_points2transfo (points1,points2) :
-    transformation = pts2transfo(points1,points2)
-    return transformation
-
-def wra_angles2transfo (image1, image2, angleX, angleY, angleZ) :
-    return angles2transfo(image1, image2, angleX, angleY, angleZ)

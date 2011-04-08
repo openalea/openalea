@@ -17,7 +17,7 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id:  $ "
 
-from openalea.core import Factory
+from openalea.core import Factory, Alias
 from openalea.core.interface import *
 
 __name__ = "openalea.image.registration"
@@ -28,7 +28,7 @@ points2transfo = Factory( name= "pts2transfo",
 			     description= "Infer rigid transformation from control point pairs",
 			     category = "image",
 			     nodemodule = "registration",
-			     nodeclass = "wra_points2transfo",
+			     nodeclass = "pts2transfo",
                              inputs=(dict(name="points1", interface=ISequence),
 			             dict(name="points2", interface=ISequence),),
 			     outputs=(dict(name="rigid transformation", interface=None),),
@@ -36,11 +36,13 @@ points2transfo = Factory( name= "pts2transfo",
 
 __all__.append('points2transfo')
 
+Alias(points2transfo, 'pts2transfo')
+
 angles2transfo = Factory( name= "angles2transfo", 
 			     description= "Compute transformation matrix between 2 images from the angles in each directions",
 			     category = "image",
 			     nodemodule = "registration",
-			     nodeclass = "wra_angles2transfo",
+			     nodeclass = "angles2transfo",
                              inputs=(dict(name="image1", interface=None),
                                      dict(name="image2", interface=None),
                                      dict(name="angle X", interface=IInt, value=0),
