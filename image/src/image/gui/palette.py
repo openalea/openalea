@@ -2,7 +2,7 @@
 #
 #       image: image manipulation
 #
-#       Copyright 2006 INRIA - CIRAD - INRA  
+#       Copyright 2006 INRIA - CIRAD - INRA
 #
 #       File author(s): Jerome Chopard <jerome.chopard@sophia.inria.fr>
 #
@@ -103,7 +103,6 @@ def convert(cmap,cmax, alpha=False):
     else:
         return pal[:,0:3]
 
-
 def palette_factory (palname, cmax) :
     if palname in fixed_palette_names:
 	    return globals()[palname](cmax)
@@ -111,5 +110,3 @@ def palette_factory (palname, cmax) :
         mpal = cm.get_cmap(palname)
         if mpal:
             return convert(mpal,cmax)
- 
-

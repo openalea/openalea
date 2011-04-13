@@ -41,7 +41,7 @@ class SlideViewer (QMainWindow) :
         QMainWindow.__init__(self)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.axis = 0
+        self.axis = 2
 
         #central label
         self._im_view = PixmapStackView()
@@ -153,12 +153,10 @@ class SlideViewer (QMainWindow) :
     ##############################################
     def set_image (self, img) :
         self._im_view.set_image(img)
-
         try :
             self.resolution = img.resolution[:]
         except AttributeError :
             pass
-
         self._img_slider.setRange(0,self._im_view.nb_slices() - 1)
         self._img_slider.setEnabled(True)
         self.slice_changed(self._img_slider.value() )
@@ -167,7 +165,6 @@ class SlideViewer (QMainWindow) :
         if palette_name is not None :
             ind = self._palette_select.findText(palette_name)
             self._palette_select.setCurrentIndex(ind)
-
         self._im_view.set_palette(palette,self.axis)
         self.update_pix()
 
