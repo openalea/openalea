@@ -144,6 +144,7 @@ class SlideViewer (QMainWindow) :
             imax,jmax,kmax = img.shape
             if 0 <= i < imax and 0 <= j < jmax and 0 <= k < kmax :
                 self._lab_intens.setText("intens: % 3d" % img[i,j,k])
+            else :
                 self._lab_intens.setText("intens: None")
 
     ##############################################
