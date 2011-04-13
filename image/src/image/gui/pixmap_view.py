@@ -205,7 +205,6 @@ class PixmapStackView (PixmapView) :
 
         #construct pixmaps
         pix = []
-#        print self.image().resolution
         for z in xrange(data.shape[axis]) :
             #dat = pal[data[:,:,z] ].flatten('F')
             if axis == 0 :
@@ -259,7 +258,7 @@ class PixmapStackView (PixmapView) :
         else :
             return None
 
-    def set_palette (self, palette) :
+    def set_palette (self, palette,axis) :
         """Set the palette
 
         .. warning:: will cast color value to uint32
@@ -270,7 +269,7 @@ class PixmapStackView (PixmapView) :
         PixmapView.set_palette(self,palette)
 
         if self.image() is not None :
-            self._reconstruct_pixmaps()
+            self._reconstruct_pixmaps(axis)
 
     def set_image (self, img) :
         """Set an image to display

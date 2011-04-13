@@ -2,7 +2,7 @@
 #
 #       spatial_image.visu : spatial nd images
 #
-#       Copyright 2006 INRIA - CIRAD - INRA  
+#       Copyright 2006 INRIA - CIRAD - INRA
 #
 #       File author(s): Jerome Chopard <jerome.chopard@sophia.inria.fr>
 #                       Eric Moscardi <eric.moscardi@gmail.com>
@@ -31,6 +31,8 @@ from palette import palette_names,palette_factory
 from pixmap_view import PixmapStackView,ScalableLabel
 
 from slide_viewer_ui import Ui_MainWindow
+
+palette_names.remove('bw')
 
 class SlideViewer (QMainWindow) :
     """Display each image in a stack using a slider
@@ -63,7 +65,7 @@ class SlideViewer (QMainWindow) :
         QObject.connect(self.ui.action_close,
                         SIGNAL("triggered(bool)"),
                         self.close)
-        
+
         QObject.connect(self.ui.action_snapshot,
                         SIGNAL("triggered(bool)"),
                         self.snapshot)
@@ -142,7 +144,6 @@ class SlideViewer (QMainWindow) :
             imax,jmax,kmax = img.shape
             if 0 <= i < imax and 0 <= j < jmax and 0 <= k < kmax :
                 self._lab_intens.setText("intens: % 3d" % img[i,j,k])
-            else :
                 self._lab_intens.setText("intens: None")
 
     ##############################################
@@ -155,7 +156,6 @@ class SlideViewer (QMainWindow) :
 
         try :
             self.resolution = img.resolution[:]
-            self.change_axis(self.axis)
         except AttributeError :
             pass
 
@@ -168,7 +168,7 @@ class SlideViewer (QMainWindow) :
             ind = self._palette_select.findText(palette_name)
             self._palette_select.setCurrentIndex(ind)
 
-        self._im_view.set_palette(palette)
+        self._im_view.set_palette(palette,self.axis)
         self.update_pix()
 
     def set_title(self, title=None):
@@ -181,7 +181,11 @@ class SlideViewer (QMainWindow) :
         try :
             res = list(self.resolution)
             del res[self.axis]
-            self._label.set_resolution(*res)
+            tr = self._im_view._transform
+            if tr % 180 :
+                self._label._resolution=res[1],res[0]
+            else :
+                self._label.set_resolution(*res)
         except AttributeError :
             pass
         self._img_slider.setRange(0,self._im_view.nb_slices() - 1)
@@ -217,10 +221,14 @@ class SlideViewer (QMainWindow) :
         self._img_slider.setValue(self._img_slider.value() + inc)
 
     def rotate_left (self) :
+        res=self._label._resolution
+        self._label._resolution=res[1],res[0]
         self._im_view.rotate(-1)
         self.update_pix()
 
     def rotate_right (self) :
+        res=self._label._resolution
+        self._label._resolution=res[1],res[0]
         self._im_view.rotate(1)
         self.update_pix()
 
@@ -231,7 +239,7 @@ class SlideViewer (QMainWindow) :
 
 def display (image, palette_name = "grayscale", title = None , color_index_max = None) :
     """
-    """    
+    """
     w = SlideViewer()
 
     if not isinstance(image,SpatialImage):
