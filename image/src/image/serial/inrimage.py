@@ -2,7 +2,7 @@
 #
 #       image.serial: read/write spatial nd images
 #
-#       Copyright 2006 INRIA - CIRAD - INRA  
+#       Copyright 2006 INRIA - CIRAD - INRA
 #
 #       File author(s): Jerome Chopard <jerome.chopard@sophia.inria.fr>
 #                       Eric Moscardi <eric.moscardi@sophia.inria.fr>
@@ -10,7 +10,7 @@
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 """
@@ -47,7 +47,7 @@ def open_inrifile (filename) :
 		fzip.close()
 	else :
 		f = open(filename,'rb')
-	
+
 	return f
 
 def _read_header (f) :
@@ -58,25 +58,25 @@ def _read_header (f) :
 	header = ""
 	while header[-4:] != "##}\n" :
 		header += f.read(256)
-	
+
 	#read infos in header
 	prop = {}
 	hstart = header.find("{\n") + 1
 	hend = header.find("##}")
 	infos = [gr for gr in header[hstart:hend].split("\n") \
 	                if len(gr) > 0]
-	
+
 	#format infos
 	for prop_def in infos :
 		key,val = prop_def.split("=")
 		prop[key] = val
-	
+
 	#return
 	return prop
 
 def read_inriheader (filename) :
 	"""Read only the header of an inrimage
-	
+
 	:Parameters:
 	 - `filename` (str) - name of the file to read
 	"""
@@ -87,21 +87,21 @@ def read_inriheader (filename) :
 
 def read_inrimage (filename) :
 	"""Read an inrimage, either zipped or not according to extension
-	
+
 	:Parameters:
 	 - `filename` (str) - name of the file to read
 	"""
 	f = open_inrifile(filename)
-	
+
 	#read header
 	prop = _read_header(f)
-	
+
 	#extract usefull infos to read image
 	xdim = int(prop.pop("XDIM") )
 	ydim = int(prop.pop("YDIM") )
 	zdim = int(prop.pop("ZDIM") )
 	vdim = int(prop.pop("VDIM") )
-        
+
 	#if vdim != 1 :
         #	msg = "don't know how to handle vectorial pixel values"
 	#	raise NotImplementedError(msg)
@@ -109,7 +109,7 @@ def read_inrimage (filename) :
 	#find data type
 	pixsize = int(prop.pop("PIXSIZE","0").split(" ")[0])
 	dtype = prop.pop("TYPE")
-	
+
 	if dtype == "unsigned fixed" :
 		if pixsize == 0 :
 			ntyp = np.dtype(np.int)
@@ -133,45 +133,29 @@ def read_inrimage (filename) :
 	#read datas
 	size = ntyp.itemsize * xdim * ydim * zdim * vdim
 	mat = np.fromstring(f.read(size),ntyp)
-        if vdim != 1 : 
+        if vdim != 1 :
 	    mat = mat.reshape( (zdim,xdim,ydim,vdim) )
 	    mat = mat.transpose(2,1,0,3)
         else:
 	    mat = mat.reshape( (zdim,xdim,ydim) )
 	    mat = mat.transpose(2,1,0)
-	
+
 	#create SpatialImage
 	res = tuple(float(prop.pop(k) ) for k in ("VX","VY","VZ") )
 	for k in ("TX","TY","TZ") :
 		prop.pop(k,None)
-	
+
 	img = SpatialImage(mat,res,vdim,prop)
-	
+
 	#return
 	f.close()
 	return img
 
-def write_inrimage (filename, img) :
-	"""Write an inrimage zipped or not according to the extension
-	
-	.. warning:: if img is not a `SpatialImage`, default values will be used
-	             for the resolution of the image
-	
-	:Parameters:
-	 - `img` (SpatialImage) - image to write
-	 - `filename` (str) - name of the file to read
-	"""
-	#open stream
-	zipped = ( path.splitext(filename)[1] in (".gz",".zip") )
-	
-	if zipped :
-		f = StringIO()
-	else :
-		f = open(filename,'wb')
-	
+
+def write_inrimage_to_stream(stream, img):
 	#metadata
 	info = dict(getattr(img,"info",{}) )
-	
+
 	#image dimensions
         if img.ndim < 4 :
 	    info["XDIM"],info["YDIM"],info["ZDIM"] = ("%d" % val for val in img.shape)
@@ -182,7 +166,7 @@ def write_inrimage (filename, img) :
 	#image resolution
 	res = getattr(img,"resolution",(1,1,1) )
 	info["VX"],info["VY"],info["VZ"] = ("%f" % val for val in res)
-	
+
 	#data type
 	if img.dtype == np.uint8 :
 		info["TYPE"] = "unsigned fixed"
@@ -208,11 +192,11 @@ def write_inrimage (filename, img) :
 	else :
 		"unable to write that type of datas : %s" % str(img.dtype)
 		raise UserWarning(msg)
-	
+
         #mandatory else an error occurs when reading image
         info['#GEOMETRY']='CARTESIAN'
         info['CPU']='decm'
-        
+
 	#write header
 	header = "#INRIMAGE-4#{\n"
 	for k in specific_header_keys :#HACK pas bo to ensure order of specific headers
@@ -220,7 +204,7 @@ def write_inrimage (filename, img) :
 			header += "%s=%s\n" % (k,info[k])
 		except KeyError:
 			pass
-	
+
 	for k in set(info) - set(specific_header_keys) :
 		header += "%s=%s\n" % (k,info[k])
 
@@ -228,26 +212,47 @@ def write_inrimage (filename, img) :
 	header_size = len(header) + 4
 	if (header_size % 256) > 0 :
 		header += "\n" * ( 256 - header_size % 256 )
-	
+
 	header += "##}\n"
-	
-	f.write(header)
+
+	stream.write(header)
 
 	#write datas
 	#lmat = img.transpose(2,1,0)
 	#f.write(lmat.tostring() )
 
-        if img.ndim < 4: 
-            f.write(img.transpose().tostring() )
+        if img.ndim < 4:
+            stream.write(img.transpose().tostring() )
         else :
             lmat = img.transpose(2,1,0,3)
             mat = lmat.reshape(img.shape)
-            f.write(mat.tostring() )
+            stream.write(mat.tostring() )
+
+
+def write_inrimage (filename, img) :
+	"""Write an inrimage zipped or not according to the extension
+
+	.. warning:: if img is not a `SpatialImage`, default values will be used
+	             for the resolution of the image
+
+	:Parameters:
+	 - `img` (SpatialImage) - image to write
+	 - `filename` (str) - name of the file to read
+	"""
+	#open stream
+	zipped = ( path.splitext(filename)[1] in (".gz",".zip") )
+
+	if zipped :
+		f = StringIO()
+	else :
+		f = open(filename,'wb')
+
+	write_inrimage_to_stream(f, img)
 
 	#return
 	if zipped :
 		fzip = gzip.open(filename,'wb')
-		fzip.write(f.getvalue() )
+		fzip.write( f.getvalue() )
 		fzip.close()
 		f.close()
 
