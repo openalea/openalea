@@ -133,7 +133,6 @@ class SlideViewer (QMainWindow) :
     def fill_infos (self) :
         x,y = self._label.pixmap_coordinates(self._last_mouse_x,
                                              self._last_mouse_y)
-
         img = self._im_view.image()
         if img is not None :
             i,j,k = self._im_view.data_coordinates(x,y,self.axis)
@@ -142,10 +141,21 @@ class SlideViewer (QMainWindow) :
             self._lab_zcoord.setText("% 4d" % k)
 
             imax,jmax,kmax = img.shape
-            if 0 <= i < imax and 0 <= j < jmax and 0 <= k < kmax :
-                self._lab_intens.setText("intens: % 3d" % img[i,j,k])
+            if self.axis==0 : #axis x
+                if 0 <= i < jmax and 0 <= j < kmax and 0 <= k < imax :
+                    self._lab_intens.setText("intens: % 3d" % img[k,i,j])
+                else :
+                    self._lab_intens.setText("intens: None")
+            elif self.axis==1 :    
+                if 0 <= i < imax and 0 <= j < kmax and 0 <= k < jmax :
+                    self._lab_intens.setText("intens: % 3d" % img[i,k,j])
+                else :
+                    self._lab_intens.setText("intens: None")
             else :
-                self._lab_intens.setText("intens: None")
+                if 0 <= i < imax and 0 <= j < jmax and 0 <= k < kmax :
+                    self._lab_intens.setText("intens: % 3d" % img[i,j,k])
+                else :
+                    self._lab_intens.setText("intens: None")
 
     ##############################################
     #
@@ -175,7 +185,6 @@ class SlideViewer (QMainWindow) :
 
     def change_axis(self,ind):
         self.axis = 2-ind
-        self._im_view._reconstruct_pixmaps(self.axis)
         try :
             res = list(self.resolution)
             del res[self.axis]
@@ -186,9 +195,12 @@ class SlideViewer (QMainWindow) :
                 self._label.set_resolution(*res)
         except AttributeError :
             pass
+        self._im_view._reconstruct_pixmaps(self.axis)
         self._img_slider.setRange(0,self._im_view.nb_slices() - 1)
         self._img_slider.setEnabled(True)
-        self.slice_changed(self._img_slider.value() )
+        self.update_pix()
+        #self.fill_infos()
+
 
 
     ##############################################

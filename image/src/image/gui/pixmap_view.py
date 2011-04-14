@@ -301,7 +301,7 @@ class PixmapStackView (PixmapView) :
         tr.rotate(orient * 90)
         self._pixmaps = [pix.transformed(tr) for pix in self._pixmaps]
 
-    def data_coordinates (self, x_pix, y_pix, axis=2) :
+    def data_coordinates (self, x_pix, y_pix, axis) :
         """Convert coordinates expressed in the pixmap into
         coordinates expressed as indices in the data space.
 
@@ -313,31 +313,21 @@ class PixmapStackView (PixmapView) :
         """
         if len(self._pixmaps) == 0 :
             raise UserWarning("no image loaded")
-
-        if axis == 0:
-            w,h = self.image().shape[1],self.image().shape[2]
-        elif axis == 1:
-            w,h = self.image().shape[0],self.image().shape[2]
-        else:
-            w,h = self.image().shape[0],self.image().shape[1]
+         
         w_pix = self.pixmap().width()
         h_pix = self.pixmap().height()
         if self._transform == 0 :
-            i = x_pix * w / w_pix
-            j = y_pix * h / h_pix
+            i = x_pix
+            j = y_pix
         elif self._transform == 90 :
-            i = y_pix * h / h_pix
-            j = (w_pix - x_pix) * w / w_pix
-            #i = (h_pix - y_pix) * h / h_pix
-            #j = x_pix * w / w_pix
+            i = y_pix
+            j = w_pix - x_pix
         elif self._transform == 180 :
-            i = (w_pix - x_pix) * w / w_pix
-            j = (h_pix - y_pix) * h / h_pix
+            i = w_pix - x_pix
+            j = h_pix - y_pix
         elif self._transform == 270 :
-            i = (h_pix - y_pix) * h / h_pix
-            j = x_pix * w / w_pix
-            #i = y_pix * h / h_pix
-            #j = (w_pix - x_pix) * w / w_pix
+            i = h_pix - y_pix
+            j = x_pix
         return i,j,self._current_slice
 
     def pixmap_coordinates (self, i, j) :
