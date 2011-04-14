@@ -30,7 +30,7 @@ from openalea.core import logger
 from openalea.visualea.mainwindow import MainWindow
 from openalea.core.session import Session
 
-
+MULTITHREAD = False
 
 class Openalea(QtGui.QApplication):
     """Materialisation of the Openalea application.
@@ -60,7 +60,13 @@ class Openalea(QtGui.QApplication):
         self.win.raise_()
         self.sessionStarted.connect(self.win.on_session_started)
         # -- start session in a thread --
-        self.sessionth = threadit(timeit, self, self.__cb_session_thread_end, Session)
+        if MULTITHREAD:
+            self.sessionth = threadit(timeit, self, self.__cb_session_thread_end, Session)
+        else:
+            session = Session()
+            self.splash.finish(self.win)
+            self.win.setEnabled(True)
+            self.sessionStarted.emit(session)
 
     def __cb_session_thread_end(self):
         self.splash.finish(self.win)
