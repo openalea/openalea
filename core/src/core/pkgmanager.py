@@ -1040,6 +1040,16 @@ class PackageManager(Observed):
             return sorted(factories)
         return None
 
+    def who_use(self, factory_name):
+        """ Search who use a package or a factory 
+
+        return a list of factory.
+        """
+        res = []
+        for pkg in self.get_packages():
+            cns = [f for f in pkg.itervalues() if f.is_composite_node()]
+            res.extend((pkg.name, cn.name) for cn in cns for pname, name in self._cn_dependencies(cn) if name == factory_name)
+        return res
 
 def cmp_name(x, y):
     """ Comparison function """

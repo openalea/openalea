@@ -507,7 +507,7 @@ class For(Node):
         func = inputs[2]
 
         for i in l:
-            value = func(value)
+            value = func(value, i)
 
         return (value, )
 
