@@ -13,10 +13,13 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 
-dtkCorePath = "/Users/moscardi/Work/medinria/dtk/build/modules"
+dtkCorePath = "/home/pradal/local/inria/modules"
+
+import os
+dtkPath = os.getenv('DTKPYTHONPATH',dtkCorePath)
 
 try:
-    sys.path.insert(0, dtkCorePath)
+    sys.path.insert(0, dtkPath)
     del sys.modules['core']
     del core
 except: pass

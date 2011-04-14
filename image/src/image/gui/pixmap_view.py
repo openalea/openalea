@@ -258,7 +258,7 @@ class PixmapStackView (PixmapView) :
         else :
             return None
 
-    def set_palette (self, palette,axis) :
+    def set_palette (self, palette,axis=2) :
         """Set the palette
 
         .. warning:: will cast color value to uint32

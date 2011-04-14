@@ -26,18 +26,21 @@ Another option is to add DTKPATH in the config settings of OpenAlea.
 # The file .config/inria/dtk.conf is used to set Plugins PATH
 
 dtkCorePath = "/Users/moscardi/Work/dtk/dtk_build/modules"
+dtkCorePath = "/home/pradal/local/inria/modules"
 
-import sys
+import os, sys
+dtkPath = os.getenv('DTKPYTHONPATH',dtkCorePath)
 
 # DTK must be installed as a Python package.
 # Change import core into import dtk.core
 # You do not have the permission to change the singleton sys.modules
 # until you have to restore it at the end of the file.
 try:
-    sys.path.insert(0, dtkCorePath)
+    sys.path.insert(0, dtkPath)
     del sys.modules['core']
     del core
 except: pass
+
 
 import core
 from openalea.core import *
