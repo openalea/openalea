@@ -46,9 +46,19 @@ dict_ = Factory( name="dict",
               inputs=(dict(name="Dict", interface=IDict),),
               outputs=(dict(name="Dict", interface=IDict),),
               )
-
-
 __all__.append('dict_')
+
+edict_ = Factory( name="edit dict",
+              description="Python dictionary",
+              category="datatype",
+              nodemodule="dicts",
+              nodeclass="EditDict",
+              
+              inputs=(dict(name="Dict"), dict(name="dict", interface=IDict),),
+              outputs=(dict(name="Dict", interface=IDict),),
+              )
+
+__all__.append('edict_')
 
 
 

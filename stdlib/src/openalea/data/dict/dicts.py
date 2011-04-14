@@ -28,6 +28,21 @@ class Dict(Node):
         """ inputs is the list of input values """
         return (dict(inputs[0]), )
 
+class EditDict(Node):
+    """
+    Python Dictionary
+    """
+
+    def __call__(self, inputs):
+        """ inputs is the list of input values """
+        d0 = dict(inputs[0])
+        if inputs[1]:
+            d1 = dict(inputs[1])
+            d0.update(d1)
+        
+        self.set_input(1, d0)
+
+        return (dict(self.get_input(1)), )
 
 class Pair(Node):
     """

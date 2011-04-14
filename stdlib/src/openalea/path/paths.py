@@ -34,6 +34,8 @@ def doc(f_with_doc):
 def py_abspath(p): return path(p).abspath(),
 
 py_basename=path.basename
+@doc(path.basename)
+def py_basename(p): return path(p).basename(),
 
 @doc(path.bytes)
 def py_bytes(p):

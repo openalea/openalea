@@ -82,7 +82,7 @@ datetime_ = Factory( name="datetime",
               nodemodule="data",
               nodeclass="DateTime",
               
-              inputs=(dict(name="DateTime", interface=IDateTime, value=''),),
+              inputs=(dict(name="DateTime", interface=IDateTime),),
               outputs=(dict(name="DateTime", interface=IDateTime),),
               )
 
