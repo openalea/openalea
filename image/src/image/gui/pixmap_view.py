@@ -301,7 +301,7 @@ class PixmapStackView (PixmapView) :
         tr.rotate(orient * 90)
         self._pixmaps = [pix.transformed(tr) for pix in self._pixmaps]
 
-    def data_coordinates (self, x_pix, y_pix, axis) :
+    def data_coordinates (self, x_pix, y_pix, axis=2) :
         """Convert coordinates expressed in the pixmap into
         coordinates expressed as indices in the data space.
 
