@@ -135,7 +135,7 @@ class SlideViewer (QMainWindow) :
                                              self._last_mouse_y)
         img = self._im_view.image()
         if img is not None :
-            i,j,k = self._im_view.data_coordinates(x,y,self.axis)
+            i,j,k = self._im_view.data_coordinates(x,y)
             self._lab_xcoord.setText("% 4d" % i)
             self._lab_ycoord.setText("% 4d" % j)
             self._lab_zcoord.setText("% 4d" % k)
@@ -146,12 +146,12 @@ class SlideViewer (QMainWindow) :
                     self._lab_intens.setText("intens: % 3d" % img[k,i,j])
                 else :
                     self._lab_intens.setText("intens: None")
-            elif self.axis==1 :    
+            elif self.axis==1 : #axis y   
                 if 0 <= i < imax and 0 <= j < kmax and 0 <= k < jmax :
                     self._lab_intens.setText("intens: % 3d" % img[i,k,j])
                 else :
                     self._lab_intens.setText("intens: None")
-            else :
+            else : #axis z
                 if 0 <= i < imax and 0 <= j < jmax and 0 <= k < kmax :
                     self._lab_intens.setText("intens: % 3d" % img[i,j,k])
                 else :
