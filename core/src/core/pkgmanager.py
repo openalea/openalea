@@ -602,7 +602,7 @@ class PackageManager(Observed):
         return files
 
     def create_readers(self, wralea_files):
-        return  map(self.get_pkgreader, wralea_files)
+        return  filter(None,(self.get_pkgreader(f) for f in wralea_files))
 
 
     def get_pkgreader(self, filename):
@@ -617,7 +617,7 @@ class PackageManager(Observed):
             reader = PyPackageReaderVlab(filename)
 
         else :
-            raise UnknowFileType(filename)
+            return None
 
         return reader
 
