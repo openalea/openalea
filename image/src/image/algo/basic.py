@@ -22,7 +22,7 @@ __revision__ = " $Id: __init__.py 2245 2010-02-08 17:11:34Z cokelaer $ "
 
 import sys
 from math import sqrt
-from numpy import array,zeros,ones,uint8,apply_along_axis,rollaxis,bitwise_xor
+from numpy import array,zeros,ones,uint8,apply_along_axis,rollaxis,bitwise_xor, uint16
 from colorsys import hsv_to_rgb,rgb_to_hsv,rgb_to_hls
 from ..spatial_image import SpatialImage
 
