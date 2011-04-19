@@ -29,6 +29,7 @@ from pickle import dumps,loads
 import numpy as np
 from inrimage import *
 from lsm import *
+from tif import *
 from ..spatial_image import SpatialImage  
 
 def save (file, img) :
@@ -184,6 +185,12 @@ def imread (filename) :
     if filename.endswith("inr.gz") | filename.endswith("inr"):
         try:
             return read_inrimage(filename)
+        except :
+            pass
+
+    if filename.endswith("tif"):
+        try:
+            return read_tif(filename)
         except :
             pass
 
