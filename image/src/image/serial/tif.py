@@ -28,6 +28,7 @@ try:
     from libtiff import TIFFfile
     __all__.append("read_tif")
 except ImportError:
+    print 'Unable to import libtiff'
     pass
 
 def read_tif(filename,channel=0):
