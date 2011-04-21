@@ -110,7 +110,7 @@ def py_exec(str):
     """ Python exec """
     l= {}
     exec(str, globals(),l)
-    return l
+    return l,
 
 
 def py_zip(s1=(), s2=()):
