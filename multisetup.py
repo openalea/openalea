@@ -59,7 +59,6 @@ pkg_builder
 image
 numpy
 pylab
-openalea_meta
 """.split()
 
 
