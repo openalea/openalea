@@ -271,11 +271,12 @@ class Multisetup(object):
                     print red("cannot find this directory (%s)"
                               % directory.basename())
                     print e
-
+                    
+                print 'Python exec : ' , sys.executable
 
                 #print underline('Entering %s package' % directory.basename())
                 for cmd in self.commands:
-                    setup_command = 'python setup.py %s ' % cmd
+                    setup_command = '%s setup.py %s ' % (sys.executable,cmd)
                     print "\tExecuting " + setup_command + '...processing',
 
 
