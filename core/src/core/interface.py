@@ -135,7 +135,7 @@ class IFileStr(IStr):
     """ File Path interface """
     __color__  = color_palette.maroon
 
-    def __init__(self, filter="All (*.*)", save=False, **kargs):
+    def __init__(self, filter="All (*)", save=False, **kargs):
         IInterface.__init__(self, **kargs)
         self.filter = filter
         self.save = save
