@@ -66,7 +66,7 @@ if QtCore.PYQT_VERSION < 0x040703 and QtCore.PYQT_VERSION >= 0x040600:
 #####################################################
 # A Global to know if using QGraphicsEffect is safe #
 #####################################################
-safeEffects = QtCore.QT_VERSION >= 0x40600 and QtCore.PYQT_VERSION > 0x40704
+safeEffects = False #QtCore.QT_VERSION >= 0x40600 and QtCore.PYQT_VERSION > 0x40704
 
 
 #######################################
