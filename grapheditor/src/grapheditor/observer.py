@@ -40,7 +40,7 @@ class Observed(object):
        If the observed is currently notifying, the registration
        is delayed until it finishes."""
        if(not self.__isNotifying):
-           wr = weakref.ref(listener, self.unregister_listener)
+           wr = weakref.ref(listener, self.__clean_dead_weakrefed_listener)
            self.listeners.add(wr)
        else:
            def push_listener_after():
@@ -50,19 +50,19 @@ class Observed(object):
    def unregister_listener(self, listener):
        """ Remove listener from the list of listeners """
        if(not self.__isNotifying):
-           if isinstance(listener, weakref.ref):
-               self.listeners.discard(listener)
-           else:
-               toDiscard = None
-               for lis in self.listeners:
-                   if lis() == listener:
-                       toDiscard = lis
-                       break
-               self.listeners.discard(toDiscard)
+          toDiscard = None
+          for lis in self.listeners:
+             if lis() == listener:
+                toDiscard = lis
+                break
+          self.listeners.discard(toDiscard)
        else:
            def discard_listener_after():
                self.unregister_listener(listener)
            self.__postNotifs.append(discard_listener_after)
+
+   def __clean_dead_weakrefed_listener(self, wr_listener):
+      self.listeners.discard(wr_listener)
 
    def transfer_listeners(self, newObs):
        """Takes all this observed's listeners, unregisters them
