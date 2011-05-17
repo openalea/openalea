@@ -25,7 +25,7 @@ Algo.Morpho
 .. currentmodule:: openalea.image.algo.morpho
 
 :mod:`openalea.image.algo.morpho`
-=================================
+================================
 
 .. automodule:: openalea.image.algo.morpho
     :members:
