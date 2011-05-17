@@ -81,11 +81,9 @@ setup(
     entry_points = {
             "wralea": [ "pylab = openalea.pylab_main_wralea",
                         "pylab.demo = openalea.pylab_demo_wralea",
-                        "pylab.nodes = openalea.pylab_nodes_wralea",
                         "pylab.plotting = openalea.pylab_plotting_wralea",
                         "pylab.datasets = openalea.pylab_datasets_wralea",
                         "pylab.decorators = openalea.pylab_decorators_wralea",
-                        "pylab.text = openalea.pylab_text_wralea",
                         "pylab.test = openalea.pylab_test_wralea",
                         "pylab.patches = openalea.pylab_patches_wralea",
                         "pylab.mplot3d = openalea.pylab_3d_wralea",
