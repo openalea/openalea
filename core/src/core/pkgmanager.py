@@ -897,6 +897,9 @@ class PackageManager(Observed):
         if(nb_outputs>=0):
             match = filter(lambda (sc, x): x and x.outputs and len(x.outputs) == nb_outputs, match)
 
+        if not len(match):
+            return match
+
         match.sort(reverse=True)
         match = zip(*match)[1]
 
@@ -1041,7 +1044,7 @@ class PackageManager(Observed):
         return None
 
     def who_use(self, factory_name):
-        """ Search who use a package or a factory 
+        """ Search who use a package or a factory
 
         return a list of factory.
         """
