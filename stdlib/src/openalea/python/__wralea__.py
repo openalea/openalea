@@ -152,6 +152,18 @@ print_ = Factory(name="print",
 
 __all__.append('print_')
 
+sorted_ = Factory(name="sorted",
+                 description="Console output",
+                 category="Python",
+                 nodemodule="__builtin__",
+                 nodeclass="sorted",
+                 #outputs=(),
+                 lazy=False,
+                 )
+
+
+__all__.append('sorted_')
+
 
 method_ = Factory(name="method",
                   description="Calls object method",
