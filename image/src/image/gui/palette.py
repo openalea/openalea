@@ -9,7 +9,7 @@
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 """
@@ -39,12 +39,13 @@ def bw () :
 
 def grayscale (cmax, alpha = False) :
 	"""Grayscale values ranging from 0 to 255
-	
+
 	:Parameters:
 	 - `cmax` (int) - data maximum value
-	
+
 	:Returns Type: list of (R,G,B,(A) )
 	"""
+	if cmax==0 : return [(0,0,0)]
 	if alpha :
 		pal = [(int(i * 255. / cmax),
 		        int(i * 255. / cmax),
@@ -54,29 +55,29 @@ def grayscale (cmax, alpha = False) :
 		pal = [(int(i * 255. / cmax),
 		        int(i * 255. / cmax),
 		        int(i * 255. / cmax) ) for i in xrange(cmax + 1)]
-	
+
 	return array(pal,uint32)
 
 def rainbow (cmax) :
 	"""Rainbow values ranging from red to blue and violet
-	
+
 	:Parameters:
 	 - `cmax` (int) - data maximum value
-	
+
 	:Returns Type: list of (R,G,B)
 	"""
 	cmax = float(cmax)
 	pal = [tuple(int(v * 255) for v in hsv_to_rgb(i / cmax,1.,1.) ) \
 	       for i in xrange(int(cmax + 1) )]
-	
+
 	return array(pal,uint32)
 
 def bwrainbow (cmax, alpha = False) :
 	"""Black, White plus Rainbow values ranging from red to blue and violet
-	
+
 	:Parameters:
 	 - `cmax` (int) - data maximum value
-	
+
 	:Returns Type: list of int
 	"""
 	cmax = float(cmax)
@@ -88,7 +89,7 @@ def bwrainbow (cmax, alpha = False) :
 		pal = [(255,255,255),(0,0,0)] \
 			+ [tuple(int(v * 255) for v in hsv_to_rgb(i / cmax,1.,1.) ) \
 			   for i in xrange(int(cmax - 1) )]
-	
+
 	return array(pal,uint32)
 
 def matplotlib(cmax,alpha=False):
