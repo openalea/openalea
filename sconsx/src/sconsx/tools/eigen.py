@@ -4,9 +4,9 @@
 #       OpenAlea.SConsX: SCons extension package for building platform
 #                        independant packages.
 #
-#       Copyright 2006-2009 INRIA - CIRAD - INRA
+#       Copyright 2006-2011 INRIA - CIRAD - INRA
 #
-#       File author(s): Christophe Pradal <christophe.prada@cirad.fr>
+#       File author(s): Daniel Barbeau <daniel.barbeau@inria.fr>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
@@ -21,9 +21,8 @@ __license__ = "Cecill-C"
 __revision__ = "$Id$"
 
 
-import os, sys, platform
+import os, sys, warnings
 from openalea.sconsx.config import *
-
 
 class Eigen:
    def __init__(self, config):
@@ -33,17 +32,18 @@ class Eigen:
 
 
    def default(self):
-       system = platform.system().lower()
-       if system == "linux":
-           dist, number, name = platform.linux_distribution()
-           if dist.lower() == "ubuntu":
-               inc_path = "/usr/include/eigen"
+       name = str(platform)
+       if isinstance(platform, Linux):
+           dist = platform.distribution()
+           name += " "+dist
+           if dist == "ubuntu":
+              inc_path = "/usr/include/eigen2/"
            else:
-               warnings.warn("Currently unhandled system : " + dist + ". Implement me please.")
+              inc_path = "/usr/include/"
        else:
-            warnings.warn("Currently unhandled system : " + system + ". Implement me please.")
+         warnings.warn("Currently unhandled system : " + name + ". Implement me please.")
 
-      self._default['include'] = inc_path
+       self._default['include'] = inc_path
 
    def option( self, opts):
       self.default()

@@ -161,6 +161,9 @@ class Posix(Platform):
 class Linux(Posix):
     def __init__(self):
         self.name = "linux"
+    def distribution(self):
+        import platform
+        return platform.linux_distribution()[0].lower()
 
 class Irix(Posix):
     def __init__(self):
