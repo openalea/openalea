@@ -101,12 +101,21 @@ class Ubuntu_Lucid_PackageNames(Ubuntu_PackageNames):
     def __init__(self):
         Ubuntu_PackageNames.__init__(self)
         self.update({
-             "boostmath" : "libboost-math1.40.0",
-             "boostmath-dev" : "libboost-math1.40-dev",
-             "boostpython" : "libboost-python1.40.0",
-             "boostpython-dev" : "libboost-python1.40-dev",
+             "boostmath" : "libboost-math",
+             "boostmath-dev" : "libboost-math-dev",
+             "boostpython" : "libboost-python",
+             "boostpython-dev" : "libboost-python-dev",
              "cgal" :  "libcgal4",
              "sip4-dev":"python-sip-dev",             
+        })
+
+class Ubuntu_Natty_PackageNames(Ubuntu_Lucid_PackageNames):
+    def __init__(self):
+        Ubuntu_Lucid_PackageNames.__init__(self)
+        self.update({
+             "boostmath" : "libboost-math1.42.0",
+             "boostpython" : "libboost-python1.42.0",
+             "cgal" :  "libcgal5",         
         })
 
 # ------------------ FEDORA ------------------
@@ -151,6 +160,7 @@ dependency.DependencySolver.set_dependency_tree(get_canonincal_dependencies())
 dependency.DistributionPackageFactory().register(Ubuntu_PackageNames)
 dependency.DistributionPackageFactory().register(Ubuntu_Karmic_PackageNames)
 dependency.DistributionPackageFactory().register(Ubuntu_Lucid_PackageNames)
+dependency.DistributionPackageFactory().register(Ubuntu_Natty_PackageNames)
 dependency.DistributionPackageFactory().register(Fedora_PackageNames)
 
 
