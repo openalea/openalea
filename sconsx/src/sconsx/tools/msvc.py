@@ -83,7 +83,7 @@ class Msvc:
       env.AppendUnique(CPPDEFINES=CPPDEFINES)
       #env.AppendUnique(LIBS=LIBS)
       
-      if env['MSVS_VERSION'] >= 8:
+      if 8 <= env['MSVS_VERSION'] < 10:
         # Bug fix with scons msvc manifest. Manifest will be included into the dll.
         env['LINKCOM'] = [env['LINKCOM'], 'mt.exe -nologo -manifest ${TARGET}.manifest -outputresource:$TARGET;1']
         env['SHLINKCOM'] = [env['SHLINKCOM'], 'mt.exe -nologo -manifest ${TARGET}.manifest -outputresource:$TARGET;2']
