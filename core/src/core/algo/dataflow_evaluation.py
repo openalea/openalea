@@ -24,6 +24,10 @@ from time import clock
 import traceback as tb
 from openalea.core import ScriptLibrary
 
+from openalea.core.dataflow import SubDataflow
+from openalea.core.interface import IFunction
+
+
 # print the evaluation time
 # This variable has to be retrieve by the settings
 quantify = False
@@ -224,13 +228,17 @@ class PriorityEvaluation(BrutEvaluation):
     """ Support priority between nodes and selective"""
     __evaluators__.append("PriorityEvaluation")
 
-    def eval(self, vtx_id=None, *args):
+    def eval(self, vtx_id=None, *args, **kwds):
         """todo"""
         t0 = clock()
 
+        is_subdataflow = False if not kwds else kwds.get('is_subdataflow', False)
         df = self._dataflow
         # Unvalidate all the nodes
-        self._evaluated.clear()
+        if is_subdataflow:
+            self._evaluated -= self._resolution_node
+        else:
+            self._evaluated.clear()
 
         if (vtx_id is not None):
             return self.eval_vertex(vtx_id, *args)
@@ -339,9 +347,6 @@ class GeneratorEvaluation(AbstractEvaluation):
         return False
 
 
-from openalea.core.dataflow import SubDataflow
-from openalea.core.interface import IFunction
-
 
 class LambdaEvaluation(PriorityEvaluation):
     """ Evaluation algorithm with support of lambda / priority and selection"""
@@ -351,6 +356,7 @@ class LambdaEvaluation(PriorityEvaluation):
         PriorityEvaluation.__init__(self, dataflow)
 
         self.lambda_value = {} # lambda resolution dictionary
+        self._resolution_node = set()
 
     def eval_vertex(self, vid, context, lambda_value, *args):
         """
@@ -422,6 +428,7 @@ class LambdaEvaluation(PriorityEvaluation):
                     if (not context and not lambda_value):
                         # we are not in resolution mode
                         use_lambda = True
+                        self._resolution_node.add(vid)
                     else:
                         # We set the context value for later use.
                         # We set resolved values into the dataflow.
@@ -457,7 +464,7 @@ class LambdaEvaluation(PriorityEvaluation):
             for i in xrange(actor.get_nb_output()):
                 actor.set_output(i, SubDataflow(df, self, vid, i))
 
-    def eval(self, vtx_id=None, context=None):
+    def eval(self, vtx_id=None, context=None, is_subdataflow=False):
         """
         Eval the dataflow from vtx_id with a particular context
 
@@ -473,12 +480,15 @@ class LambdaEvaluation(PriorityEvaluation):
             # thus, we have to reverse the arguments to evaluate the function (FIFO).
             context.reverse()
 
-        PriorityEvaluation.eval(self, vtx_id, context, self.lambda_value)
+        PriorityEvaluation.eval(self, vtx_id, context, self.lambda_value, is_subdataflow=is_subdataflow)
         self.lambda_value.clear() # do not keep context in memory
         
         t1 = clock()
         if quantify:
             print "Evaluation time: %s"%(t1-t0)
+
+        if not is_subdataflow:
+            self._resolution_node.clear()
 
 
 DefaultEvaluation = LambdaEvaluation
