@@ -19,24 +19,29 @@ __revision__ = " $Id$ "
 
 def test_diamond_after_map():
     """ Tests that a diamond after a map evaluates only onces the map node.
-    
+
           Map
          /   \
         N1   N2
          \   /
            +    #evaluation of + should only trigger one evaluation of Map.
     """
-    
+
     from openalea.core import pkgmanager
+    from os.path import join
+    from os import getcwd
+
     pm = pkgmanager.PackageManager()
-    pm.find_and_register_packages()
+    pm.add_wralea_path(join(getcwd(), "pkg"), pm.user_wralea_path)
+    pm.init()
+
 
     # -- get our factories--
-    rangeFac = pm["openalea.python"]["range"]
-    listFac  = pm["openalea.data structure.list"]["list"]
-    mapFac   = pm["openalea.function operator"]["map"]
+    rangeFac = pm["pkg_test"]["range"]
+    listFac  = pm["pkg_test"]["list"]
+    mapFac   = pm["pkg_test"]["map"]
+    addFac   = pm["pkg_test"]["+"]
     xFac     = pm["openalea.flow control"]["X"]
-    addFac   = pm["openalea.math"]["+"]
 
     # -- build our df --
     from openalea.core import compositenode

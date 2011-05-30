@@ -29,3 +29,31 @@ class Float(Node):
         self.set_caption('%.1f'%res)
         return (res, )
 
+
+def pyrange(start=0, stop=0, step=1):
+    """ range(start, stop, step) """
+
+    return (range(start, stop, step),)
+
+class List(Node):
+    """Python List"""
+
+    def __call__(self, inputs):
+        """ inputs is the list of input value
+        :param inputs: The stored value
+        """
+        import copy
+        try:
+            iter(inputs[0])
+            return (copy.copy(inputs[0]), )
+        except:
+            return ([copy.copy(inputs[0])], )
+
+
+def pymap(func, seq):
+    """ map(func, seq) """
+
+    if func is not None and seq is not None and len(seq):
+        return ( map(func, seq), )
+    else:
+        return ( [], )
