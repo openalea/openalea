@@ -144,6 +144,7 @@ class Fedora_PackageNames(dependency.DistributionPackageNames):
              "readline": "readline",
              "readline-dev": "readline-devel readline",
              "rpy2" : "rpy",
+             "setuptools" : "python-setuptools",
              "scipy" : "scipy",
              "sip4-dev" : "sip-devel",
              "scons-dev" :  "scons",
