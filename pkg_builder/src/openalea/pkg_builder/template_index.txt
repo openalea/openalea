@@ -1,6 +1,6 @@
 .. _${PACKAGE}_user:
 
-£PROJECT_NAME.$PACKAGE_NAME User Guide
+$PROJECT_NAME.$PACKAGE_NAME User Guide
 #######################################
 
 :Version: |version|
