@@ -244,6 +244,18 @@ zip_ = Factory( name="zip",
 
 __all__.append('zip_')
 
+zip2_ = Factory( name="zip2",
+                description="Zip N sequences",
+                category="Python",
+                nodemodule="python",
+                nodeclass="py_zip2",
+                inputs =[dict(name="lists", interface="ISequence")],
+                outputs=[dict(name="zipped", interface="ISequence")]
+                )
+
+
+__all__.append('zip2_')
+
 flatten_ = Factory( name="flatten",
               description="flatten list",
               category="Python",

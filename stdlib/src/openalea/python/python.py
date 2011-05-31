@@ -2,12 +2,12 @@
 #
 #       OpenAlea.StdLib
 #
-#       Copyright 2006-2009 INRIA - CIRAD - INRA  
+#       Copyright 2006-2009 INRIA - CIRAD - INRA
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ################################################################################
@@ -69,12 +69,12 @@ def pylen(obj):
 
 # def py_getitem(obj, index):
     # """ obj.__getitem__ """
-    
+
     # return operator.getitem(obj, index)
 
 def py_setitem(obj, index, value):
     """ obj.__setitem__ """
-    
+
     operator.setitem(obj, index, value)
     return (obj, )
 
@@ -112,11 +112,13 @@ def py_exec(str):
     exec(str, globals(),l)
     return l,
 
-
 def py_zip(s1=(), s2=()):
     __doc__ = zip.__doc__
     return (zip(s1, s2),)
 
+def py_zip2(args):
+    __doc__ = zip.__doc__
+    return (zip(*args),)
 
 def py_flatten(obj=[]):
     """ Flatten nested list """
@@ -172,8 +174,8 @@ class FileRead(object):
 
         self.mtime = 0 # modification time
         self.filename = ''
-        self.s = '' 
-    
+        self.s = ''
+
     def __call__(self, filename=""):
 
         print "This node is DEPRECATED. Use %s instead"%("Catalog.File.read")
@@ -181,37 +183,37 @@ class FileRead(object):
             mtime = os.stat(filename).st_mtime
         except:
             mtime = 0
-        
+
         if(filename != self.filename or
            mtime != self.mtime):
 
             self.filename = filename
             self.mtime = mtime
-            
+
             f = open(filename, 'r')
             self.s = f.read()
             f.close()
-            
+
         return self.s
 
 ################################################################################
 # Widgets
 
 from openalea.visualea.node_widget import NodeWidget
-from openalea.core.observer import lock_notify         
+from openalea.core.observer import lock_notify
 
 from PyQt4 import QtGui, QtCore
 
 class ListSelectorWidget(QtGui.QListWidget, NodeWidget):
     """ This Widget allows to select an element in a list
     or in a dictionnary """
-    
+
     def __init__(self, node, parent):
         """
         @param node
         @param parent
         """
-        
+
         QtGui.QListWidget.__init__(self, parent)
         NodeWidget.__init__(self, node)
         self.connect(self, QtCore.SIGNAL("currentRowChanged(int)"),
@@ -233,7 +235,7 @@ class ListSelectorWidget(QtGui.QListWidget, NodeWidget):
         index = self.node.get_input(1)
 
         if(event[1] == 0): # index of modified input
-            
+
             # Define the mode depending of the type of input
             if(isinstance(seq, dict)) :
                 self.mode = "DICT"
@@ -258,7 +260,7 @@ class ListSelectorWidget(QtGui.QListWidget, NodeWidget):
 
     def update_list(self, seq):
         """ Rebuild the list """
-        
+
         self.clear()
         if(not seq):
             return
@@ -272,7 +274,7 @@ class ListSelectorWidget(QtGui.QListWidget, NodeWidget):
             item.setFlags(QtCore.Qt.ItemIsEnabled|
                           QtCore.Qt.ItemIsSelectable)
             self.addItem(item)
-    
+
 
     @lock_notify
     def changed(self, p):
