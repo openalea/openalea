@@ -16,7 +16,7 @@
 __license__ =  "Cecill-C"
 __revision__ = " $Id$ "
 
-from openalea.core import Node, ITextStr
+from openalea.core import Node, ITextStr, ICodeStr
 
 def pymap(func, seq):
     """ map(func, seq) """
@@ -93,7 +93,7 @@ class pyfunction(Node):
 
     def __init__(self, ins, outs):
         Node.__init__(self, ins, outs)
-        self.add_input( name="func_str", interface=ITextStr)
+        self.add_input( name="func_str", interface=ICodeStr)
         self.add_output( name="function")
 
     def __call__(self, inputs):
