@@ -10,7 +10,7 @@
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
 #       http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 """
@@ -18,7 +18,7 @@ This module provide a 2D QPixmap view on spatial images
 """
 
 __license__= "Cecill-C"
-__revision__=" $Id: $ "
+__revision__=" $Id$ "
 
 __all__ = ["PixmapView","PixmapStackView",
            "ScalableLabel","ScalableGraphicsView"]
@@ -189,9 +189,9 @@ class PixmapStackView (PixmapView) :
             #dat = pal[data[:,:,z] ].flatten('F')
             if axis == 0 :
                 dat = pal[ uint32(data[z,:,:]) ]
-            elif axis == 1 : 
+            elif axis == 1 :
                 dat = pal[ uint32(data[:,z,:]) ]
-            else : 
+            else :
                 dat = pal[ uint32(data[:,:,z]) ]
             #img = QImage(dat,
             #             data.shape[0],
@@ -293,7 +293,7 @@ class PixmapStackView (PixmapView) :
         """
         if len(self._pixmaps) == 0 :
             raise UserWarning("no image loaded")
-         
+
         w_pix = self.pixmap().width()
         h_pix = self.pixmap().height()
         if self._transform == 0 :
@@ -319,7 +319,7 @@ class PixmapStackView (PixmapView) :
                                    e.g. i,j or i,j,k
 
         :Returns Type: int,int
-        """     
+        """
         w_pix = self.pixmap().width()
         h_pix = self.pixmap().height()
         if self._transform == 0 :
@@ -332,7 +332,7 @@ class PixmapStackView (PixmapView) :
             x_pix = w_pix - i
             y_pix = h_pix - j
         elif self._transform == 270 :
-            y_pix = h_pix - i 
+            y_pix = h_pix - i
             x_pix = j
         return x_pix,y_pix
 
