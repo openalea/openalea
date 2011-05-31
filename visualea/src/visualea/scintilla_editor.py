@@ -368,8 +368,8 @@ class ScintillaCodeEditor(QtGui.QWidget):
         layout = QtGui.QVBoxLayout()
         layout.setMargin(3)
         layout.setSpacing(0)
-        layout.addWidget(tabWidget)
         layout.addWidget(self.editor)
+        layout.addWidget(tabWidget)
         self.setLayout(layout)
 
         # --- initialise everybody ---showLineNo showFolding
