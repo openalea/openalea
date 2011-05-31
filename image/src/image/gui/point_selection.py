@@ -2,14 +2,14 @@
 #
 #       image
 #
-#       Copyright 2006 INRIA - CIRAD - INRA  
+#       Copyright 2006 INRIA - CIRAD - INRA
 #
 #       File author(s): Eric Moscardi <eric.moscardi@gmail.com>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
 #       http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 """
@@ -47,7 +47,7 @@ class PointSelection (QMainWindow) :
     def __init__ (self) :
         QMainWindow.__init__(self)
 
-        # points 
+        # points
         self._points = []
         self._id_gen = IdSetGenerator()
 
@@ -61,7 +61,7 @@ class PointSelection (QMainWindow) :
         self._item.setTransformationMode(Qt.SmoothTransformation)
         self._item.setFlag(self._item.ItemIsSelectable,False)
         self._scene.addItem(self._item)
-        
+
         #QGraphicsView
         self._widget = ScalableGraphicsView(self._scene)
         self.setCentralWidget(self._widget)
@@ -84,7 +84,7 @@ class PointSelection (QMainWindow) :
                     SIGNAL("mouse_moved"),
                     self.coordinates)
 
-        ################### menubar ###################        
+        ################### menubar ###################
         self.menu = self.menuBar()
         self.menu_file = self.menu.addMenu('File')
 
@@ -104,27 +104,27 @@ class PointSelection (QMainWindow) :
         self._toolbar = self.addToolBar("tools")
         self._toolgroup = QActionGroup(self)
 
-        # QWidgetAction : "Rotation Left" 
+        # QWidgetAction : "Rotation Left"
         self._action_left = self._toolbar.addAction("left rotation")
         self._action_left.setIcon(QIcon(":/image/rotate_left.png") )
-        QObject.connect(self._action_left, 
+        QObject.connect(self._action_left,
                         SIGNAL("triggered(bool)"),
                         self.rotate_left)
 
-        # QWidgetAction : "Rotation Right" 
+        # QWidgetAction : "Rotation Right"
         self._action_right = self._toolbar.addAction("right rotation")
         self._action_right.setIcon(QIcon(":/image/rotate_right.png") )
         QObject.connect(self._action_right,
                         SIGNAL("triggered(bool)"),
                         self.rotate_right)
 
-        # QWidgetAction : "Add point" 
+        # QWidgetAction : "Add point"
         self._action_add = self._toolbar.addAction("Add point")
         self._action_add.setCheckable(True)
         self._toolgroup.addAction(self._action_add)
         self._action_add.setIcon(QIcon(":/image/add.png") )
 
-        # QWidgetAction : "Delete point" 
+        # QWidgetAction : "Delete point"
         self._action_delete = self._toolbar.addAction("Delete point")
         self._action_delete.setCheckable(True)
         self._toolgroup.addAction(self._action_delete)
@@ -175,6 +175,7 @@ class PointSelection (QMainWindow) :
         """
         """
         pix = self._view.pixmap()
+
         if pix is not None :
             self._item.setPixmap(pix)
         else:
@@ -209,7 +210,7 @@ class PointSelection (QMainWindow) :
     def coordinates (self,(i,j,k)) :
         self._last_mouse_x,self._last_mouse_y, self._last_slice = i,j,k
         self.fill_infos()
-    
+
     def fill_infos (self) :
         x,y,z = self._last_mouse_x, self._last_mouse_y, self._last_slice
         img = self._view.image()
@@ -223,7 +224,7 @@ class PointSelection (QMainWindow) :
             self._lab_intens.setText("intens: % 3d" % img[x,y,z])
         else :
             self._lab_intens.setText("intens: None")
-    
+
     def rotate_left (self) :
         self._view.rotate(-1)
         self.update_points()
@@ -240,7 +241,7 @@ class PointSelection (QMainWindow) :
                 pid,item, x,y,z,textid = pt
                 i,j = self._view.pixmap_coordinates(x,y)
                 item.setPos(i,j)
- 
+
     ##############################################
     #
     #               accessors
@@ -259,7 +260,6 @@ class PointSelection (QMainWindow) :
         self._img_slider.setRange(0, z-1)
         self._img_slider.setEnabled(True)
         self.slice_changed(self._img_slider.value() )
-        self.update_pix()
 
     def load_points (self) :
         # load file
@@ -290,7 +290,7 @@ class PointSelection (QMainWindow) :
 
     def get_points(self):
         """
-        Return the list of points in voxels 
+        Return the list of points in voxels
         """
         _pts = {}
         for pt in self._points :
@@ -353,9 +353,9 @@ class PointSelection (QMainWindow) :
                         pid = pt
                         found_item = True
                         break
-                if not found_item : 
+                if not found_item :
                     pid = self._id_gen.get_id(pid)
-            else : 
+            else :
                 pid = my_pid
             col = QColor.fromHsv( (pid * 10) % 360,255,255)
             item = self._scene.addEllipse(QRectF(-2.5,-2.5,5,5),QPen(col),QBrush(col)  )
@@ -382,7 +382,7 @@ class PointSelection (QMainWindow) :
         """
         ind = None
         point = self._scene.itemAt(pos)
-        if my_pid is None : 
+        if my_pid is None :
             for pt in self._points:
                 if pt is not None:
                     pid,item, x,y,z,textid = pt
@@ -390,14 +390,14 @@ class PointSelection (QMainWindow) :
                         self._scene.removeItem(point)
                         ind = self._points.index(pt)
                         self._points[ind] = None
-        else : 
+        else :
             for pt in self._points:
                 if pt is not None:
                     pid,item, x,y,z,textid = pt
                     if my_pid == pid :
                         self._scene.removeItem(item)
                         self._points[pid] = None
-        self.update_pix() 
+        self.update_pix()
         self.emit(SIGNAL("points_changed"),self)
         return ind
 
@@ -428,7 +428,7 @@ class PointSelection (QMainWindow) :
                 textid.setPos(8,8)
                 textid.setPen(QPen(col))
                 self._points.append( (pid,item,x,y,z,textid) )
-            self.update_pix()  
+            self.update_pix()
             self.emit(SIGNAL("points_changed"),self)
 
 def point_selection (image, palette_name = "grayscale", color_index_max = None) :
@@ -437,7 +437,7 @@ def point_selection (image, palette_name = "grayscale", color_index_max = None) 
         image = SpatialImage(image)
 
     w = PointSelection()
-    w.set_image(image)	
+    w.set_image(image)
     if color_index_max is None :
         cmax = image.max()
     else :
