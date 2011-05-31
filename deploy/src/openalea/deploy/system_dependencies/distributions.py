@@ -17,7 +17,7 @@ import dependency
 # -- our dependency tree --
 
 canonical_dependencies = {
-    "openalea" : ["pyqt4", "numpy", "scipy", "matplotlib", "pyqscintilla", "setuptools"],
+    "openalea" : ["pyqt4", "numpy", "scipy", "matplotlib", "pyqscintilla", "setuptools", "pil"],
     "vplants"  : [
                     "bison-dev",
                     "boostmath",
@@ -70,6 +70,7 @@ class Ubuntu_PackageNames(dependency.DistributionPackageNames):
              "matplotlib" : "python-matplotlib",
              "nose-dev" : "python-nose",
              "numpy" : "python-numpy",
+             "pil" : "python-imaging",
              "pyopengl":"python-opengl",
              "pyqt4" : "python-qt4 python-qt4-gl",
              "pyqt4-dev" : "python-qt4-dev libqt4-opengl-dev",
@@ -135,6 +136,7 @@ class Fedora_PackageNames(dependency.DistributionPackageNames):
              "matplotlib" : "python-matplotlib",
              "nose-dev" : "python-nose",
              "numpy" : "numpy",
+             "pil" : "python-imaging",
              "pyopengl":"PyOpenGL",
              "pyqt4" : "PyQt4",
              "pyqt4-dev" : "PyQt4-devel",
