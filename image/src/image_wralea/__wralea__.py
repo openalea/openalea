@@ -2,12 +2,12 @@
 #
 #       OpenAlea.Image
 #
-#       Copyright 2006-2009 INRIA - CIRAD - INRA  
+#       Copyright 2006-2009 INRIA - CIRAD - INRA
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ################################################################################
@@ -130,7 +130,23 @@ __all__.append("grayscale")
 #	spatial image
 #
 #########################################
-resolution = Factory( name= "resolution", 
+spatial_image = Factory( name= "spatial_image",
+                         description= "create a SpatialImage from a numpy array",
+				category = "image",
+				nodemodule = "spatial_image",
+				nodeclass = "image",
+                                inputs=(dict(name="array", interface="ISequence",),
+                                        dict(name="resolution", interface="ITuple",),
+                                        dict(name="vectorDim", interface="IInt",),
+                                        dict(name="info", interface="IDict",),
+                                        ),
+                         outputs=(dict(name="image", interface=IImage),),
+                         )
+
+__all__.append('spatial_image')
+
+
+resolution = Factory( name= "resolution",
 				description= "extract resolution from spatial image",
 				category = "image",
 				nodemodule = "spatial_image",
@@ -141,7 +157,7 @@ resolution = Factory( name= "resolution",
 
 __all__.append('resolution')
 
-info = Factory( name= "info", 
+info = Factory( name= "info",
 				description= "extract info from spatial image",
 				category = "image",
 				nodemodule = "spatial_image",
@@ -152,4 +168,16 @@ info = Factory( name= "info",
 
 __all__.append('info')
 
+
+null_vector_field_like = Factory( name= "null_vector_field_like",
+                         description= "create a SpatialImage from a numpy array",
+				category = "image",
+				nodemodule = "spatial_image",
+				nodeclass = "null_vector_field_like",
+                                inputs=(dict(name="image", interface=IImage,),
+                                        ),
+                         outputs=(dict(name="image", interface=IImage),),
+                         )
+
+__all__.append('null_vector_field_like')
 
