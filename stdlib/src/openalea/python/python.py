@@ -23,7 +23,7 @@ import operator
 
 def py_ifelse(c=True, a=None, b=None):
     """ Return a if c is true else b """
-    return bool(c) and a or b
+    return a if bool(c) else b
 
 
 def keys(obj):

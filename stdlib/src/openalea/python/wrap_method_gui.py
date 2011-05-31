@@ -116,13 +116,19 @@ class SelectCallable(QtGui.QWidget, NodeWidget):
         self.refresh_layout()
 
     def refresh_layout(self):
-        # refresh the layout (without these three lines, the widget won't shrink!)
+        ''' refresh the layout (without these three lines, the widget won't shrink!)
+        This method is a hack to refresh the size of the widget by refreshing the parent widget own by VisuAlea.:w
+
+        '''
         self.__methodGBox.layout().activate()
         self._mainLayout.activate()
         parent = self.parentWidget()
         if parent is not None:
+            pos = parent.geometry().topLeft()
+            rect = QtCore.QRect()
+            rect.moveTo(pos)
             parent.layout().activate()
-            parent.setGeometry(QtCore.QRect())
+            parent.setGeometry(rect)
 
 
     def _methodChosen(self, toggled):
