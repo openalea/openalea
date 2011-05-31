@@ -60,6 +60,10 @@ def pyapply(func, seq):
     else:
         return ()
 
+def pyifelse(val, cond, f, g):
+
+    h = f if bool(cond) else g
+    return h(val),
 
 """
 def pyfunction(func_str):

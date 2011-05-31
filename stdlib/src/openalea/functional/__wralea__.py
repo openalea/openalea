@@ -81,4 +81,14 @@ func = Factory( name="function",
                 nodemodule="functional",
                 nodeclass="pyfunction",
                 )
-
+ifelse= Factory( name="ifelse",
+                description="Execute two dataflow functions depending on a condition",
+                category="Functional",
+                   inputs=(dict(name='value',), 
+                           dict(name='condition', interface=IBool), 
+                           dict(name='function1', interface=IFunction), 
+                           dict(name='function2', interface=IFunction), 
+                           ),
+                nodemodule="functional",
+                nodeclass="pyifelse",
+                )
