@@ -107,6 +107,9 @@ class SpatialImage (np.ndarray) :
 
 
 
+def empty_image_like(spatial_image):
+	array = np.zeros( spatial_image.shape, dtype=spatial_image.dtype )
+	return SpatialImage(array, spatial_image.resolution, vdim=1)
 
 
 def null_vector_field_like(spatial_image):

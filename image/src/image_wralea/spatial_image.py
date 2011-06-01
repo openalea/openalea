@@ -17,7 +17,7 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id: interface.py 2245 2010-02-08 17:11:34Z cokelaer $"
 
-from openalea.image.spatial_image import SpatialImage, null_vector_field_like
+from openalea.image.spatial_image import SpatialImage, null_vector_field_like, empty_image_like
 
 def image(array, resolution=(1,1,1), vdim=1, info=None):
 	return SpatialImage(array, resolution, vdim, info)

@@ -145,6 +145,18 @@ spatial_image = Factory( name= "spatial_image",
 
 __all__.append('spatial_image')
 
+empty_image = Factory( name= "empty_image_like",
+                         description= "create a SpatialImage from a numpy array",
+				category = "image",
+				nodemodule = "spatial_image",
+				nodeclass = "empty_image_like",
+                                inputs=(dict(name="image", interface=IImage,),
+                                        ),
+                         outputs=(dict(name="image", interface=IImage),),
+                         )
+
+__all__.append('empty_image')
+
 
 resolution = Factory( name= "resolution",
 				description= "extract resolution from spatial image",
