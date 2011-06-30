@@ -20,7 +20,7 @@ __revision__ = " $Id$ "
 
 import weakref, types, gc, warnings
 from PyQt4 import QtGui, QtCore
-import base, baselisteners, interfaces, qtutils
+import base, baselisteners, qtutils
 import edgefactory
 
 from math import sqrt
@@ -196,9 +196,6 @@ class Connector(Element):
         self.__makeConnectionMouseButton = QtCore.Qt.LeftButton
         self.__makeConnectionModifiers   = QtCore.Qt.ControlModifier
 
-    def category(self):
-        return "connector"
-
     def set_connection_button(self, button):
         self.__makeConnectionMouseButton = button
 
@@ -313,9 +310,6 @@ class Vertex(Element):
         if defaultCenterConnector:
             self.__defaultConnector = Vertex.InvisibleConnector(self, vertex, graph)
 
-    def category(self):
-        return "vertex"
-
     vertex = baselisteners.GraphElementListenerBase.get_observed
 
     def iter_connectors(self, filter=lambda x:True):
@@ -357,6 +351,8 @@ class Vertex(Element):
             Element.notify(self, sender, event)
 
     def notify_position_change(self):
+        """ Triggers a visual refresh of anything that observes the position
+        of the vertex. """
         if self.__defaultConnector:
             center = self.sceneBoundingRect().center()
             self.__defaultConnector.setPos( center.x()-Vertex.InvisibleConnector.size/2.0,
@@ -369,10 +365,18 @@ class Vertex(Element):
     # ----Qt World----  #
     #####################
     def itemChange(self, change, value):
+        """ Used mainly to capture position changes from the QGraphicsScene
+        and store it in the model so that it can be saved. """
+        sc = self.scene()
+        if sc:
+            sc.invalidate()
+
         if change == QtGui.QGraphicsItem.ItemVisibleHasChanged:
             self.notify_position_change()
 
         elif change == qtutils.ItemPositionHasChanged:
+            print self.scene().sceneRect()
+            print self.scene().itemsBoundingRect()
             self.deaf(True)
             point = value.toPointF()
             self.store_view_data(position=[point.x(), point.y()])
@@ -411,9 +415,6 @@ class Edge(Element):
         if dst is not None: self.set_observed_destination(dst)
         self.setPath(self.__edge_creator.get_path(self.srcPoint, self.dstPoint))
 
-    def category(self):
-        return "edge"
-
     edge = baselisteners.GraphElementListenerBase.get_observed
 
     def initialise_from_model(self):
@@ -435,14 +436,14 @@ class Edge(Element):
 
     def set_observed_source(self, src):
         if self.srcBBox is None:
-            self.srcBBox = baselisteners.ObservedBlackBox(self, src)
+            self.srcBBox = baselisteners.BlackBoxModel(self, src)
         else:
             self.srcBBox.clear_observed()
             self.srcBBox(src)
 
     def set_observed_destination(self, dst):
         if self.dstBBox is None:
-            self.dstBBox = baselisteners.ObservedBlackBox(self, dst)
+            self.dstBBox = baselisteners.BlackBoxModel(self, dst)
         else:
             self.dstBBox.clear_observed()
             self.dstBBox(dst)
@@ -521,7 +522,6 @@ class Edge(Element):
         return QtGui.QGraphicsItem.itemChange(self, change, value)
 
 
-
 class FloatingEdge( Edge ):
 
     def __init__(self, srcPoint, graph):
@@ -593,6 +593,8 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
         baselisteners.GraphListenerBase.__init__(self)
         self.__selectAdditions  = False #select newly added items
         self.__views = set()
+
+        # -- used by upper class to operate snapping to connectors. --
         self._connector_types.add(Connector)
 
 
@@ -758,7 +760,7 @@ class View(QtGui.QGraphicsView, ClientCustomisableWidget, baselisteners.GraphVie
         self.__releaseHotkeyMap = {}
 
         # ---Qt Stuff---
-        self.setCacheMode(QtGui.QGraphicsView.CacheBackground)
+#        self.setCacheMode(QtGui.QGraphicsView.CacheBackground)
         self.setRenderHint(QtGui.QPainter.Antialiasing)
         self.setTransformationAnchor(QtGui.QGraphicsView.AnchorUnderMouse)
         self.setResizeAnchor(QtGui.QGraphicsView.AnchorViewCenter)
@@ -829,6 +831,10 @@ class View(QtGui.QGraphicsView, ClientCustomisableWidget, baselisteners.GraphVie
             handler(event)
         else:
             self.__defaultDropHandler(event)
+        # Do not call the basic implementation
+        # as it does a "move" instead of a "copy"
+        # and the item is deleted from where it was
+        # dragged from :
         #QtGui.QGraphicsView.dropEvent(self, event)
 
     # ----hotkeys----
@@ -866,7 +872,7 @@ class View(QtGui.QGraphicsView, ClientCustomisableWidget, baselisteners.GraphVie
         else:
             QtGui.QGraphicsView.keyReleaseEvent(self, event)
 
-    # ----low level----
+    # ----low level and Qt-Related----
     def closeEvent(self, evt):
         """a big hack to cleanly remove items from the view
         and delete the python objects so that they stop leaking
@@ -887,23 +893,7 @@ class View(QtGui.QGraphicsView, ClientCustomisableWidget, baselisteners.GraphVie
         in order to display the entire content
         without scrolling.
         """
-        sc_rect = self.scene().itemsBoundingRect()
-
-        sc_center = sc_rect.center()
-        if sc_rect.width() > 0. :
-            w_ratio = self.width() / sc_rect.width() * 0.9
-        else :
-            w_ratio = 1.
-        if sc_rect.height() > 0. :
-            h_ratio = self.height() / sc_rect.height() * 0.9
-        else :
-            h_ratio = 1.
-        sc_scale = min(w_ratio,h_ratio)
-
-        mat = QtGui.QMatrix()
-        mat.scale(sc_scale,sc_scale)
-        self.setMatrix(mat)
-        self.centerOn(sc_center)
+        self.fitInView(self.scene().itemsBoundingRect(), QtCore.Qt.KeepAspectRatio)
 
 
     ######################
@@ -920,8 +910,9 @@ class View(QtGui.QGraphicsView, ClientCustomisableWidget, baselisteners.GraphVie
     post_addition = deprecate("post_addition")
     notify = deprecate("notify")
 
-
-interfaces.IGraphListener.check(Scene)
+if __debug__:
+    import interfaces
+    interfaces.IGraphListener.check(Scene)
 
 def QtGraphStrategyMaker(*args, **kwargs):
     _type = base.GraphStrategyMaker(*args, **kwargs)

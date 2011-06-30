@@ -41,12 +41,9 @@ class GraphElementListenerBase(observer.AbstractListener):
 
     def __init__(self, observed=None, graph=None):
         observer.AbstractListener.__init__(self)
-        self.__obsBBox = ObservedBlackBox(self, observed)
+        self.__obsBBox = BlackBoxModel(self, observed)
         self.set_graph(graph)
         return
-
-    def category(self):
-        return "base"
 
     def set_observed(self, observed):
         if self.get_observed():
@@ -79,9 +76,8 @@ class GraphElementListenerBase(observer.AbstractListener):
         #currently, the grapheditor widget maps models with graphical items
         #to track which graphic item to delete when something is being
         #deleted in the model:
-        t = self.category()
-        self.get_view()._unregister_widget_from_model(self, old, t)
-        self.get_view()._register_widget_with_model(self, new, t)
+        self.get_view()._unregister_widget_from_model(self, old)
+        self.get_view()._register_widget_with_model(self, new)
 
     def set_graph(self, graph):
         if(graph is not None):
@@ -149,7 +145,7 @@ class GraphListenerBase(observer.AbstractListener):
 
         #mappings from models to widgets
         #used by cleanup (gc) procedures
-        self.widgetmap = {}
+        self.__widgetmap = {}
 
         self.__graph           = None
         self.__strategyCls     = None
@@ -204,7 +200,7 @@ class GraphListenerBase(observer.AbstractListener):
         self.__graph = None
         self.__graphAdapter = None
         self.__observableGraph = None
-        self.widgetmap.clear()
+        self.__widgetmap.clear()
 
     #############################################################
     # Observer methods come next. They DO NOT modify the model. #
@@ -251,21 +247,21 @@ class GraphListenerBase(observer.AbstractListener):
         return self._element_removed(edgeModel, "edge")
 
     def vertex_event(self, vertex, data):
-        observers = self.widgetmap.setdefault("vertex",{}).get(vertex)
+        observers = self.__widgetmap.setdefault("vertex",{}).get(vertex)
         if observers:
             for obs in observers:
                 obs().notify(vertex, data)
 
     def edge_event(self, edge, data):
-        observers = self.widgetmap.setdefault("edge",{}).get(edge)
+        observers = self.__widgetmap.setdefault("edge",{}).get(edge)
         if observers:
             for obs in observers:
                 obs().notify(vertex, data)
 
 
-    ##################################################################
-    # Protected controller methods come next. They MODIFY the model. #
-    ##################################################################
+    ########################################################
+    # Controller methods come next. They MODIFY the model. #
+    ########################################################
     def new_vertex(self, *args, **kwargs):
         return self.__graphAdapter.new_vertex(*args, **kwargs)
 
@@ -324,7 +320,7 @@ class GraphListenerBase(observer.AbstractListener):
         return self.__graphAdapter.get_edge_types()
 
     def get_graphical_edges_connected_to(self, cmodel):
-        edgeMap = self.widgetmap.setdefault("edge",{})
+        edgeMap = self.__widgetmap.setdefault("edge",{})
         retSet = set()
         for edgeModel, graphicalEdges in edgeMap.iteritems():
             if hasattr(edgeModel, "__iter__") and cmodel in edgeModel:
@@ -355,28 +351,32 @@ class GraphListenerBase(observer.AbstractListener):
         the views when the model has been deleted.
         It uses the weakref callback to maintain the mapping up-to-date.
         """
+        if model is None : return
+        t = type(model)
         widgetWeakRef = weakref.ref(widget, self._widget_died)
-        widgetTypeMap = self.widgetmap.setdefault(t,{})
+        widgetTypeMap = self.__widgetmap.setdefault(t,{})
         modelWidgets = widgetTypeMap.setdefault(model, set())
         modelWidgets.add(widgetWeakRef)
 #        widgetTypeMap[widgetWeakRef] = model
-        self.widgetmap[widgetWeakRef] = t
+        self.__widgetmap[widgetWeakRef] = t
         self.post_addition(widget) #virtual function call
         return widget
 
     def _element_removed(self, model, t):
         if model is None : return
-        widgets = self.widgetmap.setdefault(t, {}).pop(model, None)
+        t = type(model)
+        widgets = self.__widgetmap.setdefault(t, {}).pop(model, None)
         if(widgets is None): return
         for widgetWeakRef in widgets:
-            self.widgetmap.pop(widgetWeakRef, None)
+            self.__widgetmap.pop(widgetWeakRef, None)
             widget = widgetWeakRef()
             widget.remove_from_view(self.get_scene())
             del widgetWeakRef
 
     def _unregister_widget_from_model(self, widget, model, t):
         if model is None : return
-        widgets = self.widgetmap.setdefault(t, {}).get(model, None)
+        t = type(model)
+        widgets = self.__widgetmap.setdefault(t, {}).get(model, None)
         if(widgets is None): return
         toDiscard = None
         for widgetWeakRef in widgets:
@@ -384,15 +384,18 @@ class GraphListenerBase(observer.AbstractListener):
         if toDiscard:
             widgets.discard(toDiscard)
 
-
     def _widget_died(self, widgetWeakRef):
-        t = self.widgetmap.pop(widgetWeakRef, None)
+        # get the type associated with this weakref instance.
+        # this will let us get the set that contains this instance
+        # and that must be discarded.
+        # the type is mainly used as an accelerator.
+        t = self.__widgetmap.pop(widgetWeakRef, None)
         if t is None:
             return
-        model = self.widgetmap.setdefault(t,{}).pop(widgetWeakRef, None)
+        model = self.__widgetmap.setdefault(t,{}).pop(widgetWeakRef, None)
         if not model: return
             # raise Exception("__widget_died without associated model")
-        modelWidgets = self.widgetmap.get(model, None)
+        modelWidgets = self.__widgetmap.get(model, None)
         if not modelWidgets : return
         modelWidgets.discard(widgetWeakRef)
 
@@ -442,9 +445,13 @@ class GraphListenerBase(observer.AbstractListener):
 
 
 
+class BlackBoxModel(object):
+    """An object that allows to unify certain model (in the MVC meaning) operations calls,
+    wether the model is an Observed instance or just any random class.
 
-
-class ObservedBlackBox(object):
+    In the case it is an Observed instance, it calls the according methods of the model.
+    In any other case, the implementation do (almost) nothing.
+    """
     def __init__(self, owner, observed):
         self.owner = weakref.ref(owner)
         self.__observed = None
@@ -524,5 +531,5 @@ class ObservedBlackBox(object):
         return self.__observed().listeners
 
     def __get_fake_observers(self):
-        return 0 #ugh... don't know how to do anything smart here yet.
+        return None #ugh... don't know how to do anything smart here yet.
 
