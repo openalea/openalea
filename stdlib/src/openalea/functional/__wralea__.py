@@ -29,7 +29,7 @@ __institutes__ = 'INRIA/CIRAD'
 __description__ = 'Functional Node library.'
 __url__ = 'http://openalea.gforge.inria.fr'
 
-__all__ = ['map_', 'filter_', 'reduce_', 'apply_', 'func']    
+__all__ = ['map_', 'filter_', 'reduce_', 'apply_', 'func', 'ifelse_']    
 
 
 map_ = Factory( name="map",
@@ -81,7 +81,7 @@ func = Factory( name="function",
                 nodemodule="functional",
                 nodeclass="pyfunction",
                 )
-ifelse= Factory( name="ifelse",
+ifelse_= Factory( name="ifelse",
                 description="Execute two dataflow functions depending on a condition",
                 category="Functional",
                    inputs=(dict(name='value',), 
