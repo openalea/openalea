@@ -375,8 +375,6 @@ class Vertex(Element):
             self.notify_position_change()
 
         elif change == qtutils.ItemPositionHasChanged:
-            print self.scene().sceneRect()
-            print self.scene().itemsBoundingRect()
             self.deaf(True)
             point = value.toPointF()
             self.store_view_data(position=[point.x(), point.y()])
