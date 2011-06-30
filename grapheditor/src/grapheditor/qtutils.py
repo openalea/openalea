@@ -257,6 +257,9 @@ class AleaQGraphicsVanishingMixin(object):
     def wakeup(self):
         self.__sleeping = False
 
+    def sleep(self):
+        self.__sleeping = True
+
     def setSleepOnDisappear(self, val):
         self.__toSleep = val
 
