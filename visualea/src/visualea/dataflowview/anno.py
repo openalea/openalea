@@ -37,13 +37,22 @@ class AnnotationTextToolbar(AleaQGraphicsToolbar):
         self.addItem(self.annotationColor)
         self.refreshGeometry()
         self.setBaseOpactity(0.001)
+        self.disappear()
+        self.sleep()
 
-    def set_annotation(self, anno):
+    def set_annotation(self, anno, view=None):
         self.annotationColor.colorChanged.disconnect()
         self.fontColorButton.fontColorChanged.disconnect()
         if anno is not None:
+            if view:
+                pos = anno.sceneBoundingRect().topLeft()
+                pos.setY(pos.y() - self.rect().height()/view.matrix().m22())
+                self.setPos(pos)
             self.annotationColor.colorChanged.connect(anno._onAnnotationColorChanged)
             self.fontColorButton.fontColorChanged.connect(anno._onTextFontColorChanged)
+            self.appear()
+        else:
+            self.disappear()
 
 
 ##################
