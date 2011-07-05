@@ -182,7 +182,7 @@ class ProjectView(QtGui.QTreeView):
         self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.onContextMenuRequest)
 
-    def onContextMenuRequest(pos):
+    def onContextMenuRequest(self, pos):
         menu = get_datafactory_menu()
         menu.popup(self.viewport().mapToGlobal(pos))
 
