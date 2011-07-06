@@ -221,7 +221,7 @@ class GraphListenerBase(observer.AbstractListener):
     def vertex_added(self, vtype, vertexModel, *args, **kwargs):
         if vertexModel is None : return
         vertexWidget = self.__strategyCls.create_vertex_widget(vtype, vertexModel, self.get_graph(), *args, **kwargs)
-        return self._element_added(vertexWidget, vertexModel, "vertex")
+        return self._element_added(vertexWidget, vertexModel)
 
 
     def edge_added(self, etype, edgeModel, src, dst, *args, **kwargs):
@@ -229,7 +229,7 @@ class GraphListenerBase(observer.AbstractListener):
         edgeWidget = self.__strategyCls.create_edge_widget(etype, edgeModel, self.get_graph(),
                                                         src, dst, *args, **kwargs)
 
-        w = self._element_added(edgeWidget, edgeModel, "edge")
+        w = self._element_added(edgeWidget, edgeModel)
 
         # needed to place the edge tips at the right position
         self.vertex_event(src, "notify_position_change")
@@ -240,20 +240,20 @@ class GraphListenerBase(observer.AbstractListener):
 
     def vertex_removed(self, vtype, vertexModel):
         if vertexModel is None : return
-        return self._element_removed(vertexModel, "vertex")
+        return self._element_removed(vertexModel)
 
     def edge_removed(self, vtype, edgeModel):
         if edgeModel is None : return
-        return self._element_removed(edgeModel, "edge")
+        return self._element_removed(edgeModel)
 
     def vertex_event(self, vertex, data):
-        observers = self.__widgetmap.setdefault("vertex",{}).get(vertex)
+        observers = self.__widgetmap.setdefault(type(vertex),{}).get(vertex)
         if observers:
             for obs in observers:
                 obs().notify(vertex, data)
 
     def edge_event(self, edge, data):
-        observers = self.__widgetmap.setdefault("edge",{}).get(edge)
+        observers = self.__widgetmap.setdefault(type(edge),{}).get(edge)
         if observers:
             for obs in observers:
                 obs().notify(vertex, data)
@@ -333,13 +333,13 @@ class GraphListenerBase(observer.AbstractListener):
     ###############################################################
     # Internal book-keeping methods to make all system's gc happy #
     ###############################################################
-    def _element_added(self, widget, model, t):
+    def _element_added(self, widget, model):
         widget.add_to_view(self.get_scene())
         widget.initialise_from_model()
-        self._register_widget_with_model(widget, model, t)
+        self._register_widget_with_model(widget, model)
         return widget
 
-    def _register_widget_with_model(self, widget, model, t):
+    def _register_widget_with_model(self, widget, model):
         """
         This method maps widgets to models. A single model
         can be viewed be many widgets.
@@ -362,7 +362,7 @@ class GraphListenerBase(observer.AbstractListener):
         self.post_addition(widget) #virtual function call
         return widget
 
-    def _element_removed(self, model, t):
+    def _element_removed(self, model):
         if model is None : return
         t = type(model)
         widgets = self.__widgetmap.setdefault(t, {}).pop(model, None)
@@ -373,7 +373,7 @@ class GraphListenerBase(observer.AbstractListener):
             widget.remove_from_view(self.get_scene())
             del widgetWeakRef
 
-    def _unregister_widget_from_model(self, widget, model, t):
+    def _unregister_widget_from_model(self, widget, model):
         if model is None : return
         t = type(model)
         widgets = self.__widgetmap.setdefault(t, {}).get(model, None)
