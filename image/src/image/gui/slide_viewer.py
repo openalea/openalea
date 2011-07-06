@@ -10,7 +10,7 @@
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
 #       http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 """
@@ -23,7 +23,7 @@ __revision__=" $Id: $ "
 __all__ = ["display","SlideViewer"]
 
 from ..spatial_image import SpatialImage
-
+import numpy as np
 from PyQt4.QtCore import Qt,QObject,SIGNAL,QString
 from PyQt4.QtGui import (QApplication,QLabel,QMainWindow,QComboBox,
                         QSlider,QToolBar)
@@ -33,6 +33,7 @@ from pixmap_view import PixmapStackView,ScalableLabel
 from slide_viewer_ui import Ui_MainWindow
 
 palette_names.remove('bw')
+palette_names.sort()
 
 class SlideViewer (QMainWindow) :
     """Display each image in a stack using a slider
@@ -91,13 +92,13 @@ class SlideViewer (QMainWindow) :
         self._axis = QComboBox(self)
         self.ui.toolbar.addWidget(self._axis)
         self._axis.addItem(QString("Z-axis"))
-        self._axis.addItem(QString("Y-axis")) 
-        self._axis.addItem(QString("X-axis")) 
+        self._axis.addItem(QString("Y-axis"))
+        self._axis.addItem(QString("X-axis"))
         self.connect(self._axis, SIGNAL('currentIndexChanged(int)'), self.change_axis )
 
         #slider
         self._bot_toolbar = QToolBar("slider")
-        
+
         self._img_slider = QSlider(Qt.Horizontal)
         self._img_slider.setEnabled(False)
         QObject.connect(self._img_slider,
@@ -130,6 +131,13 @@ class SlideViewer (QMainWindow) :
         if pix is not None :
             self._label.setPixmap(pix)
 
+    def get_pixel_value_str(self, img, x, y, z):
+        px = img[x,y,z]
+        if isinstance(px, np.ndarray):
+            return str(px)
+        else:
+            return "%3d"%px
+
     def fill_infos (self) :
         x,y = self._label.pixmap_coordinates(self._last_mouse_x,
                                              self._last_mouse_y)
@@ -140,20 +148,21 @@ class SlideViewer (QMainWindow) :
             self._lab_ycoord.setText("% 4d" % j)
             self._lab_zcoord.setText("% 4d" % k)
 
-            imax,jmax,kmax = img.shape
+            imax,jmax,kmax = img.shape[:3]
+            print imax, jmax, kmax
             if self.axis==0 : #axis x
                 if 0 <= i < jmax and 0 <= j < kmax and 0 <= k < imax :
-                    self._lab_intens.setText("intens: % 3d" % img[k,i,j])
+                    self._lab_intens.setText("intens: %s" % self.get_pixel_value_str(img,k,i,j))
                 else :
                     self._lab_intens.setText("intens: None")
-            elif self.axis==1 : #axis y   
+            elif self.axis==1 : #axis y
                 if 0 <= i < imax and 0 <= j < kmax and 0 <= k < jmax :
-                    self._lab_intens.setText("intens: % 3d" % img[i,k,j])
+                    self._lab_intens.setText("intens: %s" % self.get_pixel_value_str(img,i,k,j))
                 else :
                     self._lab_intens.setText("intens: None")
             else : #axis z
                 if 0 <= i < imax and 0 <= j < jmax and 0 <= k < kmax :
-                    self._lab_intens.setText("intens: % 3d" % img[i,j,k])
+                    self._lab_intens.setText("intens: %s" % self.get_pixel_value_str(img,i,j,k))
                 else :
                     self._lab_intens.setText("intens: None")
 

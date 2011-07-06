@@ -211,6 +211,13 @@ class PointSelection (QMainWindow) :
         self._last_mouse_x,self._last_mouse_y, self._last_slice = i,j,k
         self.fill_infos()
 
+    def get_pixel_value_str(self, img, x, y, z):
+        px = img[x,y,z]
+        if isinstance(px, np.ndarray):
+            return str(px)
+        else:
+            return "%3d"%px
+
     def fill_infos (self) :
         x,y,z = self._last_mouse_x, self._last_mouse_y, self._last_slice
         img = self._view.image()
@@ -219,9 +226,10 @@ class PointSelection (QMainWindow) :
             self._lab_xcoord.setText("% 4d" % x)
             self._lab_ycoord.setText("% 4d" % y)
             self._lab_zcoord.setText("% 4d" % z)
-        xmax,ymax,zmax = img.shape
+        xmax,ymax,zmax = img.shape[:3]
         if 0 <= x < xmax and 0 <= y < ymax and 0 <= z < zmax :
-            self._lab_intens.setText("intens: % 3d" % img[x,y,z])
+            px_str = self.get_pixel_value_str(img, x,y,z)
+            self._lab_intens.setText("intens: %s" % px_str)
         else :
             self._lab_intens.setText("intens: None")
 
@@ -256,7 +264,7 @@ class PointSelection (QMainWindow) :
 
     def set_image (self, img) :
         self._view.set_image(img)
-        x,y,z = img.shape
+        x,y,z = img.shape[:3]
         self._img_slider.setRange(0, z-1)
         self._img_slider.setEnabled(True)
         self.slice_changed(self._img_slider.value() )

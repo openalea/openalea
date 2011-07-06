@@ -23,7 +23,7 @@ __revision__=" $Id$ "
 __all__ = ["PixmapView","PixmapStackView",
            "ScalableLabel","ScalableGraphicsView"]
 
-from numpy import array,uint32
+from numpy import array,uint32, uint8
 from PyQt4.QtCore import Qt,SIGNAL
 from PyQt4.QtGui import (QImage,QPixmap,QTransform,QMatrix,
                          QLabel,QGraphicsView)
@@ -82,12 +82,10 @@ class PixmapView (object) :
     def set_palette (self, palette) :
         """Set the palette
 
-        .. warning:: will cast color value to uint32
-
         :Parameters:
          - `palette` (list of int)
         """
-        self._palette = array(palette,uint32)
+        self._palette = palette
 
     def pixmap (self) :
         """Return a pixmap representation of the spatial image
@@ -188,16 +186,60 @@ class PixmapStackView (PixmapView) :
         for z in xrange(data.shape[axis]) :
             #dat = pal[data[:,:,z] ].flatten('F')
             if axis == 0 :
-                dat = pal[ uint32(data[z,:,:]) ]
+                dat = pal[ data[z,:,:] ]
             elif axis == 1 :
-                dat = pal[ uint32(data[:,z,:]) ]
+                dat = pal[ data[:,z,:] ]
             else :
-                dat = pal[ uint32(data[:,:,z]) ]
+                dat = pal[ data[:,:,z] ]
             #img = QImage(dat,
             #             data.shape[0],
             #             data.shape[1],
             #             QImage.Format_ARGB32)
-            dat = to_pix (dat,order)
+            dat = to_pix (dat)
+            pix.append(dat.transformed(tr) )
+
+        self._pixmaps = pix
+        self._current_slice = min(max(self._current_slice,0),len(pix) - 1)
+
+    def _reconstruct_pixmaps_fast (self, axis=2) :
+        pal = self.palette()
+        data = self.image()
+
+        #rotation
+        tr = QTransform()
+        tr.rotate(self._transform)
+
+        #construct pixmaps
+        pix = []
+
+	if len(data.shape) == 4:
+            vdim = data.shape[3]
+        else:
+            vdim = 1
+
+
+        # when viewing in Z and in Z only, we can use
+        # the system's native LUT
+        forceNativeLut = False  #True if axis == 2 else False
+
+	# set to true to copy img to a c_contiguous buffer
+        make_contiguous = False if (vdim == 1 or axis!=2) else True
+
+        for z in xrange(data.shape[axis]) :
+            if axis == 0 :
+                dat = data[z,:,:]
+            elif axis == 1 :
+                dat = data[:,z,:]
+            else :
+                dat = data[:,:,z]
+
+            if make_contiguous:
+                dat = dat.copy()
+
+            dat = to_pix(dat,
+                         lut=pal,
+                         forceNativeLut=forceNativeLut)
+
             pix.append(dat.transformed(tr) )
 
         self._pixmaps = pix
@@ -351,6 +393,9 @@ class ScalableLabel (QLabel) :
         pix = self.pixmap()
         if pix is not None :
             vx,vy = self._resolution
+            # NOTE : this is part of the weirdness : someone serves us
+            #with inverted voxel sizes
+            #vx, vy = vy, vx
             self._ratio = (pix.height() * vy) / (pix.width() * vx)
 
     def set_resolution (self, x_scale, y_scale) :
