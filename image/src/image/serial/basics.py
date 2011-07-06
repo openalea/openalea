@@ -2,7 +2,7 @@
 #
 #       image.serial: read/write images
 #
-#       Copyright 2006 INRIA - CIRAD - INRA  
+#       Copyright 2006 INRIA - CIRAD - INRA
 #
 #       File author(s): Eric Moscardi <eric.moscardi@inria.fr>
 #                       Jerome Chopard <jerome.chopard@sophia.inria.fr>
@@ -10,7 +10,7 @@
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 """
@@ -30,11 +30,11 @@ import numpy as np
 from inrimage import *
 from lsm import *
 from tif import *
-from ..spatial_image import SpatialImage  
+from ..spatial_image import SpatialImage
 
 def save (file, img) :
 	"""Save an array to a binary file in numpy format
-	
+
 	:Parameters:
 	 - `file` (file or str) - File or filename to which the data is saved.
 	                          If the filename does not already have a ".npy"
@@ -47,19 +47,19 @@ def save (file, img) :
 				file = open(file,'wb')
 			else :
 				file = open("%s.npy" % file,'wb')
-		
+
 		file.write("SpatialImage")
 		header = dumps( (img.resolution,img.info) )
 		file.write(pack('i',len(header) ) )
 		file.write(header)
-		
+
 		np.save(file,img)
 	else :
 		np.save(file,img)
 
 def load (file, mmap_mode=None) :
 	"""Load a pickled, ``.npy``, or ``.npz`` binary file.
-	
+
 	:Parameters:
 	 - `file` (file or str)
 	 - `mmap_mode` (None, 'r+', 'r', 'w+', 'c') - optional
@@ -71,24 +71,24 @@ def load (file, mmap_mode=None) :
 	    ndarray.  Memory mapping is especially useful for accessing
 	    small fragments of large files without reading the entire file
 	    into memory.
-	
+
 	:Returns Type: array, tuple, dict, etc.
 	"""
 	if isinstance(file,str) :
 		file = open(file,'rb')
-	
+
 	header = file.read(12)
-	
+
 	if header == "SpatialImage" :
 		nb, = unpack('i',file.read(calcsize('i') ) )
 		res,info = loads(file.read(nb) )
 		data = np.load(file,mmap_mode)
-		
+
 		if len(res) == len(data.shape) :
 			vdim = 1
 		else :
 			vdim = data.shape[-1]
-		
+
 		return SpatialImage(data,res,vdim,info)
 	else :
 		file.seek(0)
@@ -111,7 +111,7 @@ def read_sequence ( directory, grayscale=True, number_images=None, start=0, incr
     - `voxels_size (tuple) - specify voxels size
     - `verbose` (bool) - verbose mode
     """
-    
+
     _images = []
     _files = []
 
@@ -123,15 +123,15 @@ def read_sequence ( directory, grayscale=True, number_images=None, start=0, incr
                 _files.append(f)
                 if grayscale is True :
                     _images.append(ImageOps.grayscale(im))
-                else: 
+                else:
                     _images.append(im)
             except :
                 if verbose : print "\t warning : cannot open %s" %f
-            
+
     if len(_images) == 0 :
         if verbose : print "\t no images loaded"
         return -1
-        
+
     xdim, ydim = _images[0].size
 
     if number_images is None :
@@ -156,7 +156,7 @@ def read_sequence ( directory, grayscale=True, number_images=None, start=0, incr
             if verbose : print "%s : wrong size - %s expected, %s found" %(_files[_images.index(i)], _images[start].size, i.size)
     result = nd_image.transpose(1,0,2)
 
-    if voxels_size is None :  
+    if voxels_size is None :
         return SpatialImage(result)
     else :
         return SpatialImage(result, voxels_size)
@@ -164,18 +164,18 @@ def read_sequence ( directory, grayscale=True, number_images=None, start=0, incr
 
 def imread (filename) :
     """Read an image file
-	
+
     .. warning:: supported format are either the classical format for images
 	         like png and jpg or lsm and inrimage format for spatial nd images
-	
+
     :Parameters:
     - `filename` (str)
-	
+
     :Returns Type: array
     """
     if not exists(filename) :
 	raise IOError("The requested file do not exist: %s" % filename)
-        
+
     if filename.endswith(".lsm"):
         try :
             return read_lsm(filename)
@@ -194,4 +194,18 @@ def imread (filename) :
         except :
             pass
 
-    return _imread(filename)
+    # -- We use the normal numpy reader. It returns 2D images.
+    # If len(shape) == 2 : scalar image.
+    # If len(shape) == 3 and shape[2] == 3 : rgb image
+    # If len(shape) == 3 and shape[3] == 4 : rgba image.
+    # Return a SpatialImage please! --
+
+    # Use the array protocol to convert a PIL image to an array.
+    # Don't use pylab'es PIL_to_array conversion as it flips images vertically.
+    im_array = np.array(Image.open(filename))
+    shape    = im_array.shape
+    newShape = (shape[0], shape[1], 1, shape[2])
+    newarr   = np.zeros(newShape, dtype=im_array.dtype, order="C")
+    newarr[:,:,0] = im_array[:,:]
+    vdim     = 1 if( len(shape) < 3 ) else shape[2]
+    return SpatialImage(newarr, None, vdim)
