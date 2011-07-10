@@ -62,24 +62,23 @@ class VertexOperators(Base):
             # -- check the rect doesn't have crazy negative values or too close to screen edge
             # -- or else we loose window or window decorations.
             scRectF.moveTo(INSPECTOR_EDGE_OFFSET, INSPECTOR_EDGE_OFFSET*2)
-
             scRect     = scRectF.toRect()
             screenGeom = QtGui.QApplication.instance().desktop().screenGeometry(widget)
-            if screenGeom.contains(scRect):
-                widget.setGeometry(scRect)
-            else:
+            ratio = 1.
+            if not screenGeom.contains(scRect):
                 if scRect.width() > screenGeom.width():
                     ratio    = screenGeom.width() / scRectF.width()*0.75
                     scRect.setWidth(ratio*scRect.width())
                 if scRect.height() > screenGeom.height():
                     ratio    = screenGeom.height() / scRectF.height()*0.75
                     scRect.setHeight(ratio*scRect.height())
-                widget.setGeometry(scRect)
+            widget.resize(scRect.size())
+            widget.scale(1./ratio, 1./ratio)
             ##################
             # -- Finished -- #
             ##################
             widget.setWindowTitle("Inspecting " + vertex.get_caption())
-            widget.show_entire_scene()
+#            widget.show_entire_scene()
             widget.show()
 
     @exception_display
