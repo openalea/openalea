@@ -149,7 +149,6 @@ class SlideViewer (QMainWindow) :
             self._lab_zcoord.setText("% 4d" % k)
 
             imax,jmax,kmax = img.shape[:3]
-            print imax, jmax, kmax
             if self.axis==0 : #axis x
                 if 0 <= i < jmax and 0 <= j < kmax and 0 <= k < imax :
                     self._lab_intens.setText("intens: %s" % self.get_pixel_value_str(img,k,i,j))
