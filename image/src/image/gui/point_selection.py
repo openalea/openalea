@@ -373,7 +373,6 @@ class PointSelection (QMainWindow) :
             textid = QGraphicsSimpleTextItem('%s' % pid, item)
             textid.setPos(8,8)
             textid.setPen(QPen(col))
-            print i,j,k
             if found_item:
                 self._points[pid] = (pid,item, i,j,k,textid)
             else :
