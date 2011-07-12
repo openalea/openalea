@@ -204,8 +204,13 @@ def imread (filename) :
     # Don't use pylab'es PIL_to_array conversion as it flips images vertically.
     im_array = np.array(Image.open(filename))
     shape    = im_array.shape
-    newShape = (shape[0], shape[1], 1, shape[2])
-    newarr   = np.zeros(newShape, dtype=im_array.dtype, order="C")
-    newarr[:,:,0] = im_array[:,:]
+    if len(shape)==2:
+        newShape = (shape[0], shape[1], 1, 1)
+    elif len(shape) == 3:
+        newShape = (shape[0], shape[1], 1, shape[2])
+    else:
+        raise Exception("unhandled image shape : %s, %s"%(filename, str(shape)))
+    #newarr   = np.zeros(newShape, dtype=im_array.dtype, order="C")
+    #newarr[:,:,0] = im_array[:,:]
     vdim     = 1 if( len(shape) < 3 ) else shape[2]
-    return SpatialImage(newarr, None, vdim)
+    return SpatialImage(im_array[..., np.newaxis], None, vdim)
