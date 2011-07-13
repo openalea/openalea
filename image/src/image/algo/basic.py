@@ -30,7 +30,8 @@ __all__ = ["bounding_box","apply_mask",
            "flatten","saturate",
            "high_level","color_select",
            "border","end_margin","stroke",
-           "reverse_image","color2grey","grey2color","logicalnot"]
+           "reverse_image","color2grey","grey2color","logicalnot",
+	   "scale_shift_intensities"]
 
 def bounding_box (mask) :
 	"""Compute the bounding box of a mask
@@ -378,3 +379,26 @@ def logicalnot (img) :
         return SpatialImage(image,img.resolution)
     else:
         return SpatialImage(image)
+
+
+def scale_shift_intensities(image, dtype=None, maxIn=None, maxOut=255, minIn=None, minOut=0):
+
+	if dtype is None:
+		dtype = uint8
+
+	if maxIn is None:
+		print 'maxIn is', maxIn, "and should be", image.max()
+		maxIn = image.max()
+
+	if minIn is None:
+		print 'minIn is', maxIn, "and should be", image.min()
+		minIn = image.min()
+
+	shift = minIn-minOut
+	scale = maxOut/(float(maxIn)-minIn)
+
+
+	if shift == 0:
+		return SpatialImage( dtype( image*scale ), image.resolution)
+	else:
+		return SpatialImage( dtype( image*scale-shift ), image.resolution)
