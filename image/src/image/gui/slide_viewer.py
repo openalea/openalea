@@ -24,7 +24,7 @@ __all__ = ["display","SlideViewer"]
 
 from ..spatial_image import SpatialImage
 import numpy as np
-from PyQt4.QtCore import Qt,QObject,SIGNAL,QString
+from PyQt4.QtCore import Qt,QObject,SIGNAL
 from PyQt4.QtGui import (QApplication,QLabel,QMainWindow,QComboBox,
                         QSlider,QToolBar)
 from palette import palette_names,palette_factory
@@ -91,9 +91,9 @@ class SlideViewer (QMainWindow) :
         #axis
         self._axis = QComboBox(self)
         self.ui.toolbar.addWidget(self._axis)
-        self._axis.addItem(QString("Z-axis"))
-        self._axis.addItem(QString("Y-axis"))
-        self._axis.addItem(QString("X-axis"))
+        self._axis.addItem("Z-axis")
+        self._axis.addItem("Y-axis")
+        self._axis.addItem("X-axis")
         self.connect(self._axis, SIGNAL('currentIndexChanged(int)'), self.change_axis )
 
         #slider
