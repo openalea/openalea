@@ -2,7 +2,7 @@
 #
 #       image: image manipulation
 #
-#       Copyright 2006 INRIA - CIRAD - INRA  
+#       Copyright 2006 INRIA - CIRAD - INRA
 #
 #       File author(s): Jerome Chopard <jerome.chopard@sophia.inria.fr>
 #                       Eric Moscardi <eric.moscardi@sophia.inria.fr>
@@ -10,7 +10,7 @@
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 """
@@ -22,18 +22,19 @@ __revision__ = " $Id: __init__.py 2245 2010-02-08 17:11:34Z cokelaer $ "
 
 from scipy.ndimage import rotate,gaussian_filter
 from openalea.image import (saturate,high_level,color_select,
-                            flatten,apply_mask,SpatialImage, reverse_image)
+                            flatten,apply_mask,SpatialImage, reverse_image,
+			    scale_shift_intensities)
 
 def crop (img, x, y, dx, dy) :
 	data = img[y:(y + dy),x:(x + dx),...]
-	
+
 	return data,
 
 def paste (img, im2, x, y, reshape) :
 	data = img + 0
 	dy,dx = im2.shape[:2]
 	data[y:(y + dy),x:(x + dx),...] = im2
-	
+
 	return data,
 
 def wra_apply_mask (img, mask, background_color) :
@@ -52,14 +53,14 @@ def wra_flatten (img_list) :
 wra_flatten.__doc__ = flatten.__doc__
 def wra_rotate (img, angle, reshape) :
 	data = rotate(img,angle,(0,1),reshape)
-	
+
 	return data,
 
 wra_rotate.__doc__ = rotate.__doc__
 
 def gaussian (img, sigma) :
 	data = gaussian_filter(img,sigma)
-	
+
 	return data,
 
 gaussian.__doc__ = gaussian_filter.__doc__
