@@ -2,7 +2,7 @@
 #
 #       image.gui : spatial nd images
 #
-#       Copyright 2006 INRIA - CIRAD - INRA
+#       Copyright 2006 - 2011 INRIA - CIRAD - INRA
 #
 #       File author(s): Jerome Chopard <jerome.chopard@sophia.inria.fr>
 #                       Eric Moscardi <eric.moscardi@gmail.com>
@@ -12,7 +12,8 @@
 #       http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
 #
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
-#
+################################################################################
+
 """
 This module provide a 2D QPixmap view on spatial images
 """

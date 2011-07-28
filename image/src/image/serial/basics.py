@@ -2,23 +2,24 @@
 #
 #       image.serial: read/write images
 #
-#       Copyright 2006 INRIA - CIRAD - INRA
+#       Copyright 2006 - 2011 INRIA - CIRAD - INRA
 #
 #       File author(s): Eric Moscardi <eric.moscardi@inria.fr>
 #                       Jerome Chopard <jerome.chopard@sophia.inria.fr>
+#                       Daniel BARBEAU <daniel.barbeau@sophia.inria.fr>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
 #
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
-#
+################################################################################
 """
 This module redefine load and save to account for spatial images
 """
 
 __license__= "Cecill-C"
-__revision__=" $Id: $ "
+__revision__=" $Id$ "
 
 from os.path import exists
 import Image,ImageOps
@@ -30,7 +31,7 @@ import numpy as np
 from inrimage import *
 from lsm import *
 from tif import *
-from ..spatial_image import SpatialImage
+from openalea.image.spatial_image import SpatialImage
 
 def save (file, img) :
 	"""Save an array to a binary file in numpy format

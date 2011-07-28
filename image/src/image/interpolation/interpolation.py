@@ -2,26 +2,26 @@
 #
 #       image: geometric transform filters
 #
-#       Copyright 2006 INRIA - CIRAD - INRA  
+#       Copyright 2006-2011 INRIA - CIRAD - INRA
 #
 #       File author(s): Eric Moscardi <eric.moscardi@sophia.inria.fr>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-# 
-#       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
+#       OpenAlea WebSite : http://openalea.gforge.inria.fr
+################################################################################
 """
 This module import functions for Geometric Transformation Filters
 """
 
 __license__= "Cecill-C"
-__revision__ = " $Id:  $ "
+__revision__ = " $Id$ "
 
 import numpy as np
 from scipy.ndimage import geometric_transform, affine_transform
-from ..spatial_image import SpatialImage
+from openalea.image.spatial_image import SpatialImage
 
 
 __all__ = ["resampling"]
@@ -36,11 +36,11 @@ def resampling(img, transformation, order=1, output_shape=None, output_voxels=No
 
     The value of a point in the result image is determined by spline interpolation of the requested order.
 
-    :Parameters: 
+    :Parameters:
     - `img`
 
-    - `transformation` (array) - Matrix 4x4 or deformation field 
-                    
+    - `transformation` (array) - Matrix 4x4 or deformation field
+
     - `order` (int) - optional
     order corresponds to the degree of a polynomial used to the spline interpolation
     By default, order = 1 (linear interpolation)
@@ -58,12 +58,12 @@ def resampling(img, transformation, order=1, output_shape=None, output_voxels=No
     By default, it is equal to the input voxels size
 
     - `mode` (string) - optional
-    Points outside the boundaries of the input are filled 
-    according to the given mode ("constant", "nearest", "reflect" or "wrap")                
+    Points outside the boundaries of the input are filled
+    according to the given mode ("constant", "nearest", "reflect" or "wrap")
     By default, the given mode is "constant"
 
     - `prefilter` (boolean) - optional
-    The parameter prefilter determines if the input is pre-filtered before interpolation 
+    The parameter prefilter determines if the input is pre-filtered before interpolation
     (necessary for spline interpolation of order > 1)
     If False it is assumed that the input is already filtered
 
@@ -87,10 +87,10 @@ def resampling(img, transformation, order=1, output_shape=None, output_voxels=No
         else:
             _data = img
 
-    #extraction of the Rotation and Translation matrix (R,t) 
+    #extraction of the Rotation and Translation matrix (R,t)
     _R = transformation[0:3,0:3]
     _t = transformation[0:3,3]
-        
+
     #extraction of voxel size of image
     vx,vy,vz = _data.resolution
 
@@ -99,7 +99,7 @@ def resampling(img, transformation, order=1, output_shape=None, output_voxels=No
         output_voxels = vx,vy,vz
     vox,voy,voz = output_voxels
 
-    #scaling matrix  
+    #scaling matrix
     #_output_scaling = np.diag([vox,voy,voz])
     #_input_scaling = np.diag([1. / vx, 1. / vy, 1. / vz])
 

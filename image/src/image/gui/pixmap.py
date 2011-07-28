@@ -2,7 +2,7 @@
 #
 #       image: image manipulation GUI
 #
-#       Copyright 2006 INRIA - CIRAD - INRA
+#       Copyright 2006 - 2011 INRIA - CIRAD - INRA
 #
 #       File author(s): Jerome Chopard <jerome.chopard@sophia.inria.fr>
 #                       Eric Moscardi <eric.moscardi@sophia.inria.fr>
@@ -12,7 +12,8 @@
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
 #
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
-#
+################################################################################
+
 """
 This module defines functions to transform images into QPixmaps
 """
@@ -37,13 +38,17 @@ def to_img (img, scalar_type=None, lut=None, forceNativeLut=None) :
 
 	:Returns Type: QImage
 	"""
+	# -- personnal opinion (DB) : there shouldn't be ANY transposition
+	# applied automatically in viewing code, except for transpositions
+	# explicitly asked by the user view GUI or what. If the image is not
+	# properly oriented it is up to the reading code to fix the orientation! --
 	l_sh = len(img.shape)
 	if l_sh == 3:
 		vdim = img.shape[2]
 		img = img.transpose(1,0,2).copy("C")
 	elif l_sh == 4:
 		vdim = img.shape[3]
-		img = img.transpose(1,0,0,2).copy("C")
+		img = img.transpose(1,0,2,3).copy("C")
         elif l_sh == 2:
 		vdim = 1
 		img = img.transpose(1,0).copy("C")

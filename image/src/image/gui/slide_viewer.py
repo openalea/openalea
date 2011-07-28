@@ -2,7 +2,7 @@
 #
 #       spatial_image.visu : spatial nd images
 #
-#       Copyright 2006 INRIA - CIRAD - INRA
+#       Copyright 2006 - 2011 INRIA - CIRAD - INRA
 #
 #       File author(s): Jerome Chopard <jerome.chopard@sophia.inria.fr>
 #                       Eric Moscardi <eric.moscardi@gmail.com>
@@ -12,7 +12,7 @@
 #       http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
 #
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
-#
+################################################################################
 """
 This module provide a simple viewer to display 3D stacks
 """
@@ -22,7 +22,7 @@ __revision__=" $Id: $ "
 
 __all__ = ["display","SlideViewer"]
 
-from ..spatial_image import SpatialImage
+from openalea.image.spatial_image import SpatialImage
 import numpy as np
 from PyQt4.QtCore import Qt,QObject,SIGNAL
 from PyQt4.QtGui import (QApplication,QLabel,QMainWindow,QComboBox,

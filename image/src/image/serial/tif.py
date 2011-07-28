@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-#       image.serial: read lsm
+#       image.serial: read tif
 #
 #       Copyright 2011 INRIA - CIRAD - INRA
 #
@@ -12,16 +12,16 @@
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
 #
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
-#
+################################################################################
 """
 This module reads 3D tiff format
 """
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: $ "
+__revision__ = " $Id$ "
 
 import numpy as np
-from ..spatial_image import SpatialImage
+from openalea.image.spatial_image import SpatialImage
 
 __all__ = []
 

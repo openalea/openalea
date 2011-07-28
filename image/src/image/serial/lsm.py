@@ -2,16 +2,16 @@
 #
 #       image.serial: read lsm
 #
-#       Copyright 2006 INRIA - CIRAD - INRA  
+#       Copyright 2006 - 2011 INRIA - CIRAD - INRA
 #
 #       File author(s): Eric Moscardi <eric.moscardi@sophia.inria.fr>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-# 
-#       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
+#       OpenAlea WebSite : http://openalea.gforge.inria.fr
+################################################################################
 """
 This module reads lsm format
 """
@@ -20,7 +20,7 @@ __license__ = "Cecill-C"
 __revision__ = " $Id: $ "
 
 import numpy as np
-from ..spatial_image import SpatialImage
+from openalea.image.spatial_image import SpatialImage
 
 __all__ = []
 
@@ -32,7 +32,7 @@ except ImportError:
 
 def read_lsm(filename,channel=0):
     """Read an lsm image
-	
+
     :Parameters:
      - `filename` (str) - name of the file to read
      - `channel` (int) - optional
@@ -41,7 +41,7 @@ def read_lsm(filename,channel=0):
     # LSM reader
     imageFile = lsmreader.Lsmimage(filename)
     imageFile.open()
-	
+
     _info = {}
     #LSM header
     _VX = imageFile.header['CZ LSM info']['Voxel Size X']
@@ -58,8 +58,8 @@ def read_lsm(filename,channel=0):
     _info["SCALE"] = 2
     _info["CPU"] = 'decm'
     _info["#GEOMETRY"] = 'CARTESIAN'
- 
-    #LSM datas   
+
+    #LSM datas
     _data = imageFile.image['data'][channel]
     im = SpatialImage(_data)
     im.resolution = _vx,_vy,_vz

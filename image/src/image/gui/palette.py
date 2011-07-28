@@ -1,8 +1,8 @@
 # -*- python -*-
 #
-#       image: image manipulation
+#       colormap manipulations
 #
-#       Copyright 2006 INRIA - CIRAD - INRA
+#       Copyright 2006 - 2011 INRIA - CIRAD - INRA
 #
 #       File author(s): Jerome Chopard <jerome.chopard@sophia.inria.fr>
 #
@@ -11,7 +11,7 @@
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
 #
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
-#
+################################################################################
 """
 This module provide a set of palettes to associate colors to data
 """

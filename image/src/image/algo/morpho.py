@@ -2,14 +2,14 @@
 #
 #       image: image morphology
 #
-#       Copyright 2006 INRIA - CIRAD - INRA  
+#       Copyright 2006 INRIA - CIRAD - INRA
 #
 #       File author(s): Eric Moscardi <eric.moscardi@sophia.inria.fr>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 """
@@ -17,7 +17,7 @@ This module import morphology functions
 """
 
 __license__= "Cecill-C"
-__revision__ = " $Id:  $ "
+__revision__ = " $Id$ "
 
 import numpy as np
 from scipy import ndimage
@@ -34,13 +34,13 @@ connectivity_26 = np.ones((3,3,3), dtype=bool)
 def component_labeling(img, structure=None, output=None, threshold=0, number_labels=0):
     """
     Connected-component label features in an array.
-    
-    :Parameters: 
-    - `img` (array) - object to be labeled. 
+
+    :Parameters:
+    - `img` (array) - object to be labeled.
     Any non-zero values in input are counted as features and zero values are considered the background.
 
     - `structure` (array) optional - structuring element that defines feature connections.
-    structure must be symmetric. 
+    structure must be symmetric.
     If no structuring element is provided, one is automatically generated with a squared connectivity equal to one.
 
     That is, for a 2D input array, the default structuring element is:
@@ -54,14 +54,14 @@ def component_labeling(img, structure=None, output=None, threshold=0, number_lab
     If output is an array-like object, then output will be updated with the labeled features from this function.
 
     - `threshold` (float) optional
-    If threshold > 0, the threshold is used to the input 
+    If threshold > 0, the threshold is used to the input
     The input contains elements 'False' if input < threshold, and elements 'True' elsewhere
 
-    - `number_labels` (int) 
-    If number_labels > 0, number_labels of connected component labels is returned 
-    If number_labels = 1, the largest connected component label is returned 
+    - `number_labels` (int)
+    If number_labels > 0, number_labels of connected component labels is returned
+    If number_labels = 1, the largest connected component label is returned
 
-    :Returns Type:    
+    :Returns Type:
     - `labeled_array` - array object where each unique feature has a unique value
 
     - `num_features` (int)
@@ -74,7 +74,7 @@ def component_labeling(img, structure=None, output=None, threshold=0, number_lab
         img = np.where(img < threshold, False, True)
 
     mat, num_features = ndimage.label(img, structure, output)
-    
+
     if not number_labels:
         return mat, num_features
 
@@ -82,7 +82,7 @@ def component_labeling(img, structure=None, output=None, threshold=0, number_lab
     areas = np.array(ndimage.sum(img / img.max(), mat, object_labels))
     areas_decreasing = -np.sort(-areas)
     labels = object_labels[areas>=areas_decreasing[number_labels-1]]
-        
+
     condlist = [mat==label for label in labels]
     choicelist = list(np.arange(1,number_labels+1))
     mat = np.select(condlist, choicelist)

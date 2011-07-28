@@ -2,7 +2,7 @@
 #
 #       image: image manipulation
 #
-#       Copyright 2006 INRIA - CIRAD - INRA
+#       Copyright 2006 - 2011 INRIA - CIRAD - INRA
 #
 #       File author(s): Jerome Chopard <jerome.chopard@sophia.inria.fr>
 #                       Eric Moscardi <eric.moscardi@sophia.inria.fr>
@@ -24,7 +24,7 @@ import sys
 from math import sqrt
 from numpy import array,zeros,ones,uint8,apply_along_axis,rollaxis,bitwise_xor, uint16
 from colorsys import hsv_to_rgb,rgb_to_hsv,rgb_to_hls
-from ..spatial_image import SpatialImage
+from openalea.image.spatial_image import SpatialImage
 
 __all__ = ["bounding_box","apply_mask",
            "flatten","saturate",
@@ -387,11 +387,9 @@ def scale_shift_intensities(image, dtype=None, maxIn=None, maxOut=255, minIn=Non
 		dtype = uint8
 
 	if maxIn is None:
-		print 'maxIn is', maxIn, "and should be", image.max()
 		maxIn = image.max()
 
 	if minIn is None:
-		print 'minIn is', maxIn, "and should be", image.min()
 		minIn = image.min()
 
 	shift = minIn-minOut

@@ -3,7 +3,7 @@
 #
 #       IdGenerator : graph package
 #
-#       Copyright  or Copr. 2006 INRIA - CIRAD - INRA
+#       Copyright  or Copr. 2006 - 2011 INRIA - CIRAD - INRA
 #
 #       File author(s): Jerome Chopard <jerome.chopard@sophia.inria.fr>
 #                       Fred Theveny <theveny@cirad.fr>
@@ -13,7 +13,7 @@
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
 #
 #       VPlants WebSite : https://gforge.inria.fr/projects/vplants/
-#
+################################################################################
 
 __doc__="""
 This module provide a generator for id numbers

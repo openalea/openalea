@@ -2,7 +2,7 @@
 #
 #       image
 #
-#       Copyright 2006 INRIA - CIRAD - INRA
+#       Copyright 2006 - 2011 INRIA - CIRAD - INRA
 #
 #       File author(s): Eric Moscardi <eric.moscardi@gmail.com>
 #
@@ -11,13 +11,13 @@
 #       http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
 #
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
-#
+################################################################################
 """
 This module provide a Control Point Selection Tool
 """
 
 __license__= "Cecill-C"
-__revision__=" $Id: $ "
+__revision__=" $Id$ "
 
 __all__ = ["PointSelection","point_selection"]
 
@@ -34,8 +34,8 @@ from openalea.image.gui import icons_rc
 from pixmap_view import PixmapStackView, ScalableGraphicsView
 from palette import palette_names, palette_factory
 
-from ..serial import load
-from ..spatial_image import SpatialImage
+from openalea.image.serial.basics import load
+from openalea.image.spatial_image import SpatialImage
 try:
     from openalea.container.utils import IdSetGenerator
 except ImportError:

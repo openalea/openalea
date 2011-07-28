@@ -2,30 +2,31 @@
 #
 #       image.serial: read/write spatial nd images
 #
-#       Copyright 2006 INRIA - CIRAD - INRA
+#       Copyright 2006 - 2011 INRIA - CIRAD - INRA
 #
 #       File author(s): Jerome Chopard <jerome.chopard@sophia.inria.fr>
 #                       Eric Moscardi <eric.moscardi@sophia.inria.fr>
+#                       Daniel Barbeau <daniel.barbeau@sophia.inria.fr>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
 #
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
-#
+################################################################################
 """
 This module defines inrimage format
 """
 
 __license__= "Cecill-C"
-__revision__=" $Id: $ "
+__revision__=" $Id$ "
 
 from os import path
 import numpy as np
 from struct import calcsize,pack,unpack
 import gzip
 from cStringIO import StringIO
-from ..spatial_image import SpatialImage
+from openalea.image.spatial_image import SpatialImage
 
 __all__ = ["read_inriheader","read_inrimage","write_inrimage"]
 

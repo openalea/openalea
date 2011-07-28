@@ -1,16 +1,16 @@
 # -*- python -*-
 # -*- coding: latin-1 -*-
 #
-#       image : registration 
+#       image : registration
 #
-#       Copyright 2006 - 2010 INRIA - CIRAD - INRA  
+#       Copyright 2006 - 2010 INRIA - CIRAD - INRA
 #
 #       File author(s): Eric MOSCARDI <eric.moscardi@sophia.inria.fr>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 ################################################################################
 
@@ -28,27 +28,28 @@ def pts2transfo(x,y):
     """ Infer rigid transformation from control point pairs
         using quaternions.
 
-        The quaternion representation is used to registering two point sets with known correspondences.
+        The quaternion representation is used to register two point sets with known correspondences.
         It computes the rigid transformation as a solution to a least squares formulation of the problem.
 
-        The rigid transformation, defined by the rotation R and the translation t, is optimized by minimizing the following cost function :
-        
-            C(R,t) = sum ( |yi - R.xi - t|^2 )       
-        
+        The rigid transformation, defined by the rotation R and the translation t,
+        is optimized by minimizing the following cost function :
+
+            C(R,t) = sum ( |yi - R.xi - t|^2 )
+
         The optimal translation is given by :
 
-            t_ = y_b - R.x_b    
-        
+            t_ = y_b - R.x_b
+
                 with x_b and y_b the barycenters of two point sets
-    
+
         The optimal rotation using quaternions is optimized by minimizing the following cost function :
 
-            C(q) = sum ( |yi'*q - q*xi'|^2 ) 
-                
+            C(q) = sum ( |yi'*q - q*xi'|^2 )
+
                 with yi' and xi' converted to barycentric coordinates and identified by quaternions
 
-        With the matrix representations : 
-        
+        With the matrix representations :
+
             yi'*q - q*xi' = Ai.q
 
             C(q) = q^T.|sum(A^T.A)|.q = q^T.B.q
@@ -58,31 +59,32 @@ def pts2transfo(x,y):
                                  [-(xn_j - yn_j) , -(-xn_k - yn_k),      0         ,  (-xn_i - yn_i)],
                                  [-(xn_k - yn_k) , -(xn_j + yn_j) , -(-xn_i - yn_i),         0      ] ])
 
-        The unit quaternion representing the best rotation is the unit eigenvector corresponding to the smallest eigenvalue of the matrix -B :
+        The unit quaternion representing the best rotation is the unit eigenvector
+        corresponding to the smallest eigenvalue of the matrix -B :
 
             v = a, b.i, c.j, d.k
 
-        The orthogonal matrix corresponding to a rotation by the unit quaternion v = a + bi + cj + dk (with |z| = 1) is given by : 
+        The orthogonal matrix corresponding to a rotation by the unit quaternion v = a + bi + cj + dk (with |z| = 1) is given by :
 
             R = array([ [a*a + b*b - c*c - d*d,       2bc - 2ad      ,       2bd + 2ac      ],
                         [      2bc + 2ad      , a*a - b*b + c*c - d*d,       2cd - 2ab      ],
                         [      2bd - 2ac      ,       2cd + 2ab      , a*a - b*b - c*c + d*d] ])
 
-        
+
         :Parameters:
          - `x` (list) - list of points
          - `y` (list) - list of points
-         
+
         :Returns:
             T : array_like (R,t) which correspond to the optimal rotation and translation
-                T = | R t | 
+                T = | R t |
                     | 0 1 |
 
                 T.shape(4,4)
 
         :Examples:
 
-        >>> from openalea.image import pts2transfo  
+        >>> from openalea.image import pts2transfo
 
         >>> # x and y, two point sets with 7 known correspondences
 
@@ -94,21 +96,21 @@ def pts2transfo(x,y):
                  [248.*0.200320, 252.*0.200320, 8.],
                  [305.*0.200320, 219.*0.200320, 10.]]
 
-        >>> y = [[173.*0.200320, 151.*0.200320, 17.],  
-                 [147.*0.200320, 179.*0.200320, 16.],  
-                 [165.*0.200320, 208.*0.200320, 12.],  
-                 [226.*0.200320, 204.*0.200320, 9.],  
-                 [170.*0.200320, 254.*0.200320, 10.],  
-                 [223.*0.200320, 155.*0.200320, 13.], 
+        >>> y = [[173.*0.200320, 151.*0.200320, 17.],
+                 [147.*0.200320, 179.*0.200320, 16.],
+                 [165.*0.200320, 208.*0.200320, 12.],
+                 [226.*0.200320, 204.*0.200320, 9.],
+                 [170.*0.200320, 254.*0.200320, 10.],
+                 [223.*0.200320, 155.*0.200320, 13.],
                  [218.*0.200320, 109.*0.200320, 23.]]
 
         >>> cp2transfo(x,y)
-        
+
         array([[  0.40710149,   0.89363883,   0.18888626, -22.0271968 ],
                [ -0.72459862,   0.19007589,   0.66244094,  51.59203463],
                [  0.55608022,  -0.40654742,   0.72490964,  -0.07837002],
                [  0.        ,   0.        ,   0.        ,   1.        ]])
-      
+
     """
     #compute barycenters
     # nx vectors of dimension kx
@@ -146,21 +148,21 @@ def pts2transfo(x,y):
     A[:,0,2] = x[:,1] - y[:,1]
     A[:,0,3] = x[:,2] - y[:,2]
 
-    A[:,1,0] = -A[:,0,1] 
+    A[:,1,0] = -A[:,0,1]
     A[:,1,2] = -x[:,2] - y[:,2]
     A[:,1,3] = x[:,1] + y[:,1]
 
-    A[:,2,0] = -A[:,0,2] 
+    A[:,2,0] = -A[:,0,2]
     A[:,2,1] = -A[:,1,2]
     A[:,2,3] = -x[:,0] - y[:,0]
 
-    A[:,3,0] = -A[:,0,3] 
+    A[:,3,0] = -A[:,0,3]
     A[:,3,1] = -A[:,1,3]
     A[:,3,2] = -A[:,2,3]
 
     #compute of B = Sum [A^T.A]
     B = np.zeros([nx,4,4])
-    At = A.transpose(0,2,1) 
+    At = A.transpose(0,2,1)
 
     #Maybe there is an another way to do not the "FOR" loop
     for i in xrange(nx):
@@ -168,7 +170,7 @@ def pts2transfo(x,y):
 
     B = B.sum(0)
 
-    #The solution q minimizes the sum of the squares of the errors : C(R) = q^T.B.q is done by 
+    #The solution q minimizes the sum of the squares of the errors : C(R) = q^T.B.q is done by
     #the eigenvector corresponding to the smallest eigenvalue of the matrix -B
 
     W,V = np.linalg.eig(-B)
@@ -216,12 +218,12 @@ def angles2transfo(image1, image2, angleX=0, angleY=0, angleZ=0) :
     Compute transformation matrix between 2 images from the angles in each directions.
 
     :Parameters:
-     - `image1` (SpatialImage) - 
-     - `image2` (SpatialImage) - 
+     - `image1` (SpatialImage) -
+     - `image2` (SpatialImage) -
      - `angleX` (int) - Rotation through angleX (degree)
      - `angleY` (int) - Rotation through angleY (degree)
      - `angleZ` (int) - Rotation through angleZ (degree)
-         
+
     :Returns:
      - matrix (numpy array) - Transformation matrix
     """
@@ -254,7 +256,7 @@ def angles2transfo(image1, image2, angleX=0, angleY=0, angleZ=0) :
 
     # General rotations
     R = np.dot(np.dot(Rx,Ry),Rz)
-    
+
     t = y - np.dot(R,x)
 
     matrix = np.zeros((4,4))
