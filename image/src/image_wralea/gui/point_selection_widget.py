@@ -2,12 +2,12 @@
 #
 #       OpenAlea.Image
 #
-#       Copyright 2006 - 2008 INRIA - CIRAD - INRA  
+#       Copyright 2006 - 2008 INRIA - CIRAD - INRA
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ################################################################################
@@ -15,13 +15,13 @@
 from PyQt4.QtCore import QObject,SIGNAL
 from openalea.visualea.node_widget import NodeWidget
 from openalea.core.observer import lock_notify
-from openalea.image import PointSelection, SpatialImage, palette_names,palette_factory
+from openalea.image.all import PointSelection, SpatialImage, palette_names, palette_factory
 
 class PointSelectionWidget(NodeWidget,PointSelection) :
     """
-    """	
+    """
     def __init__ (self, node, parent = None) :
-        
+
 	PointSelection.__init__(self)
     	NodeWidget.__init__(self, node)
 
@@ -33,7 +33,7 @@ class PointSelectionWidget(NodeWidget,PointSelection) :
         self.window().setWindowTitle(node.get_caption())
 
 
-    @lock_notify      
+    @lock_notify
     def pointsChanged(self,event):
         """ update points """
         print "update points"
@@ -46,7 +46,7 @@ class PointSelectionWidget(NodeWidget,PointSelection) :
         """ Notification sent by node """
         if event[0] == 'caption_modified':
             self.window().setWindowTitle(event[1])
-            
+
         if event[0] == 'input_modified' :
             image = self.node.get_input(0)
             if image is not None :

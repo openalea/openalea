@@ -23,7 +23,9 @@ from PyQt4.QtGui import (QWidget,QLabel,QPixmap,
                          QColor,QCursor,QPainter,QPen)
 from openalea.core import Node
 from openalea.visualea.node_widget import NodeWidget
-from openalea.image.gui import to_pix,ScalableLabel,icons_rc
+from openalea.image.gui.all import to_pix, ScalableLabel
+from openalea.image.gui import icons_rc
+
 
 def select_box (img, x, y, dx, dy) :
 	return img,x,y,dx,dy

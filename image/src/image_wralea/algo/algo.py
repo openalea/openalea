@@ -21,9 +21,9 @@ __license__= "Cecill-C"
 __revision__ = " $Id: __init__.py 2245 2010-02-08 17:11:34Z cokelaer $ "
 
 from scipy.ndimage import rotate,gaussian_filter
-from openalea.image import (saturate,high_level,color_select,
-                            flatten,apply_mask,SpatialImage, reverse_image,
-			    scale_shift_intensities)
+from openalea.image.algo.all import (saturate, high_level, color_select,
+				     flatten, apply_mask, reverse_image,
+				     scale_shift_intensities)
 
 def crop (img, x, y, dx, dy) :
 	data = img[y:(y + dy),x:(x + dx),...]

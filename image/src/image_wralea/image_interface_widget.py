@@ -1,14 +1,14 @@
 # -*- python -*-
 #
 #
-#       Copyright 2006-2010 INRIA - CIRAD - INRA  
+#       Copyright 2006-2010 INRIA - CIRAD - INRA
 #
 #       File author(s): Chopard
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 """Declaration of IImage interface widget
@@ -21,7 +21,7 @@ from PyQt4.QtCore import Qt,QObject,SIGNAL
 from PyQt4.QtGui import QMainWindow,QToolBar,QSlider
 from openalea.core.observer import lock_notify
 from openalea.core.interface import IInterfaceWidget,make_metaclass
-from openalea.image.gui import to_pix,ScalableLabel
+from openalea.image.gui.all import to_pix,ScalableLabel
 from image_interface import IImage
 
 class IImageWidget (IInterfaceWidget, QMainWindow) :
@@ -29,10 +29,10 @@ class IImageWidget (IInterfaceWidget, QMainWindow) :
 	"""
 	__interface__ = IImage
 	__metaclass__ = make_metaclass()
-	
+
 	def __init__(self, node, parent, parameter_str, interface):
 		"""Constructor
-		
+
 		:Parameters:
 		 - `node` (Node) - node that own the widget
 		 - `parent` (QWidget) - parent widget
@@ -42,38 +42,38 @@ class IImageWidget (IInterfaceWidget, QMainWindow) :
 		QMainWindow.__init__(self,parent)
 		IInterfaceWidget.__init__(self,node,parent,parameter_str,interface)
 		self.setMinimumSize(100,50)
-		
+
 		#ui
 		self._lab = ScalableLabel()
 		self.setCentralWidget(self._lab)
-		
+
 		self._bot_toolbar = QToolBar("slider")
-		
+
 		self._img_slider = QSlider(Qt.Horizontal)
 		self._img_slider.setEnabled(False)
 		QObject.connect(self._img_slider,
 		                SIGNAL("valueChanged(int)"),
 		                self.slice_changed)
-		
+
 		self._bot_toolbar.addWidget(self._img_slider)
 		self.addToolBar(Qt.BottomToolBarArea,self._bot_toolbar)
 		self._bot_toolbar.hide()
-		
+
 		#update
 		self.notify(node,("input_modified",self.param_str) )
-	
+
 	@lock_notify
 	def notify(self, sender, event):
 		"""Notification sent by node
 		"""
 		if event[0] == "input_modified" :
 			self.set_image(self.node.get_input(self.param_str))
-	
+
 	def set_image (self, img) :
 		"""Change the displayed image
 		"""
 		self._img = img
-		
+
 		if img is None :
 			self._lab.setText("no pix")
 			self._img_slider.setEnabled(False)
@@ -92,9 +92,9 @@ class IImageWidget (IInterfaceWidget, QMainWindow) :
 			else :
 				msg = "Don't know how to display more than 3D images"
 				raise UserWarning(msg)
-		
+
 		self.update()
-	
+
 	def slice_changed (self, ind) :
 		self._lab.setPixmap(to_pix(self._img[:,:,ind]) )
 

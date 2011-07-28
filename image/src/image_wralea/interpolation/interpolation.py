@@ -2,14 +2,14 @@
 #
 #       image: geometric transform filters
 #
-#       Copyright 2006 INRIA - CIRAD - INRA  
+#       Copyright 2006 INRIA - CIRAD - INRA
 #
 #       File author(s): Eric Moscardi <eric.moscardi@sophia.inria.fr>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 """
@@ -20,7 +20,7 @@ __license__= "Cecill-C"
 __revision__ = " $Id:  $ "
 
 from scipy import ndimage
-from openalea.image import resampling
+from openalea.image.interpolation.all import resampling
 
 def wra_shift (img, shift, output, order, mode, cval, prefilter) :
     data = ndimage.shift(input=img, shift=shift, output=output, order=order, mode=mode, cval=cval, prefilter=prefilter)
