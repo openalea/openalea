@@ -2,14 +2,14 @@
 #
 #       image: image algo
 #
-#       Copyright 2006 INRIA - CIRAD - INRA  
+#       Copyright 2006 INRIA - CIRAD - INRA
 #
 #       File author(s): Eric Moscardi <eric.moscardi@sophia.inria.fr>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 """
@@ -20,14 +20,14 @@ __license__= "Cecill-C"
 __revision__ = " $Id:  $ "
 
 from numpy import array, random, zeros
-from openalea.image import border,end_margin,stroke
+from openalea.image.all import border,end_margin,stroke
 
 def test_border():
-    """Test : border 
+    """Test : border
     """
 
     img = random.random((1,2,3))
-    
+
     assert img.shape == (1,2,3)
 
     out = border(img)
@@ -43,7 +43,7 @@ def test_border():
     assert out.shape == (1,3,3)
     assert (out[:,0,:] == array([0,0,0]) ).all()
     assert (out[:,1:,:] == img).all()
-    
+
     out = border(img, (1,0,0))
     assert out.shape == (2,2,3)
     assert (out[0,:,:] == array([[0,0,0],[0,0,0]]) ).all()
@@ -60,7 +60,7 @@ def test_border():
     assert (out[:,0,:] == array([0,0,0]) ).all()
     assert (out[:,3,:] == array([0,0,0]) ).all()
     assert (out[:,1:3,:] == img).all()
-    
+
     out = border(img, (1,0,0), (1,0,0))
     assert out.shape == (3,2,3)
     assert (out[0,:,:] == array([[0,0,0],[0,0,0]]) ).all()
@@ -72,7 +72,7 @@ def test_end_margin():
     Test : end_margin
     """
     img = random.random((3,4,5))
-    
+
     assert img.shape == (3,4,5)
 
     out = end_margin(img,1,0)
@@ -113,15 +113,15 @@ def test_end_margin():
         assert False
     except :
         assert True
-    
+
 
 def test_input_stroke():
     """
-    Test : output stroke  
+    Test : output stroke
     """
 
     img = random.random((3,4,5))
-    
+
     assert img.shape == (3,4,5)
 
     out = stroke(img,1)
@@ -140,11 +140,11 @@ def test_input_stroke():
 
 def test_output_stroke():
     """
-    Test : output stroke  
+    Test : output stroke
     """
 
     img = random.random((3,4,5))
-    
+
     assert img.shape == (3,4,5)
 
     out = stroke(img,1,True)

@@ -1,4 +1,4 @@
-from openalea.image import read_inrimage,write_inrimage
+from openalea.image.all import read_inrimage,write_inrimage
 
 try:
     img = read_inrimage("SAM.inr.gz")

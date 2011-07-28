@@ -1,14 +1,14 @@
 #
 #       image: image GUI
 #
-#       Copyright 2006 INRIA - CIRAD - INRA  
+#       Copyright 2006 INRIA - CIRAD - INRA
 #
 #       File author(s): Eric Moscardi <eric.moscardi@sophia.inria.fr>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 """
@@ -19,7 +19,7 @@ __license__= "Cecill-C"
 __revision__ = " $Id: $ "
 
 from PyQt4.QtGui import QApplication
-from openalea.image import point_selection, SpatialImage
+from openalea.image.all import point_selection, SpatialImage
 from square import square
 from scipy.ndimage import rotate
 
@@ -32,5 +32,5 @@ im2 = SpatialImage(im2,im1.resolution)
 
 w1 = point_selection (im1)
 w2 = point_selection (im2)
-    
+
 qapp.exec_()
