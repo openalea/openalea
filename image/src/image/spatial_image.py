@@ -25,8 +25,7 @@ class SpatialImage (np.ndarray) :
 	"""Associate meta data to np.ndarray
 	"""
 	def __new__ (cls, input_array, resolution = None,
-	                               vdim = 1,
-	                               info = None) :
+		     vdim = 1, info = None, dtype = None) :
 		"""Instantiate a new SpatialImage
 
 		if resolution is None, vdim will be used to infer space size and affect
@@ -41,10 +40,11 @@ class SpatialImage (np.ndarray) :
 		 - `info` (dict of str|any) - metainfo
 		"""
 		#initialize datas
+		dtype = dtype if dtype is not None else input_array.dtype
                 if input_array.flags.f_contiguous :
-                        obj = np.asarray(input_array).view(cls)
+                        obj = np.asarray(input_array, dtype=dtype).view(cls)
 		else :
-                        obj = np.asarray(input_array,order='F').view(cls)
+                        obj = np.asarray(input_array, dtype=dtype, order='F').view(cls)
 
 		#assert resolution
 		if resolution is None :
