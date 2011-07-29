@@ -39,14 +39,14 @@ def read_tif(filename,channel=0):
      - `filename` (str) - name of the file to read
     """
 
-    # LSM reader
+    # TIF reader
     tif = TIFFfile(filename)
     arr = tif.get_tiff_array()
     _data = arr[:].T
 
     nx, ny, nz = _data.shape
 
-    # -- prepare metadata dictionnary
+    # -- prepare metadata dictionnary --
     info_str = tif.get_info()
     info_dict = dict( filter( lambda x: len(x)==2,
                               (inf.split(':') for inf in info_str.split("\n"))
@@ -56,7 +56,9 @@ def read_tif(filename,channel=0):
 
     # -- getting the voxelsizes from the tiff image: sometimes
     # there is a BoundingBox attribute, sometimes there are
-    # XResolution, YResolution, ZResolution or spacing. --
+    # XResolution, YResolution, ZResolution or spacing.
+    # the object returned by get_tiff_array has a "get_voxel_sizes()"
+    # method but it fails, so here we go. --
     if "BoundingBox" in info_dict:
         bbox = info_dict["BoundingBox"]
         xm, xM, ym, yM, zm, zM = map(float,bbox.split())
@@ -87,9 +89,11 @@ def read_tif(filename,channel=0):
             else:
                 _vz = 1.0 # dumb fallback, maybe we will find something smarter later on
 
-
+    # -- dtypes are not really stored in a compatible way (">u2" instead of uint16)
+    # but we can convert those --
+    dt = np.dtype(arr.dtype.name)
     # -- Return a SpatialImage please! --
-    im = SpatialImage(_data)
+    im = SpatialImage(_data, dtype=dt)
     im.resolution = _vx,_vy,_vz
 
     return im
