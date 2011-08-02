@@ -56,8 +56,8 @@ def to_img (img, scalar_type=None, lut=None, forceNativeLut=None) :
 		raise Exception("Unknown image shape, cannot deduce pixel format")
 
 	qimg = QImage(img,
-	              img.shape[0],
 	              img.shape[1],
+	              img.shape[0],
 	              QImage.Format_ARGB32)
 
 	return qimg.copy()
