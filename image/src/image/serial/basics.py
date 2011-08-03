@@ -190,10 +190,8 @@ def imread (filename) :
             pass
 
     if filename.endswith("tif"):
-        try:
-            return read_tif(filename)
-        except :
-            pass
+	return read_tif(filename)
+
 
     # -- We use the normal numpy reader. It returns 2D images.
     # If len(shape) == 2 : scalar image.

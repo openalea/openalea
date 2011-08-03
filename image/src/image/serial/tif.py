@@ -67,28 +67,50 @@ def read_tif(filename,channel=0):
         _vz = (zM-zm)/nz
     else:
         if "XResolution" in info_dict:
-            # --resolution is stored in a [(values, precision)] list-of-one-tuple --
-            xres_str = eval(info_dict["XResolution"])[0]
-            _vx = float(xres_str[0])/xres_str[1]
+            # --resolution is stored in a [(values, precision)] list-of-one-tuple, or
+            # sometimes as a single number --
+            xres_str = eval(info_dict["XResolution"])
+            if isinstance(xres_str, list) and isinstance(xres_str[0], tuple):
+                xres_str = xres_str[0]
+                _vx = float(xres_str[0])/xres_str[1]
+            elif isinstance(xres_str, (int, float)):
+                _vx = float(xres_str)
+            else:
+                _vx = 1.
         else:
             _vx = 1.0 # dumb fallback, maybe we will find something smarter later on
         if "YResolution" in info_dict:
-            # --resolution is stored in a [(values, precision)] list-of-one-tuple --
-            yres_str = eval(info_dict["YResolution"])[0]
-            _vy = float(yres_str[0])/yres_str[1]
+            # --resolution is stored in a [(values, precision)] list-of-one-tuple, or
+            # sometimes as a single number --
+            yres_str = eval(info_dict["YResolution"])
+            if isinstance(yres_str, list) and isinstance(yres_str[0], tuple):
+                yres_str = yres_str[0]
+                _vy = float(yres_str[0])/yres_str[1]
+            elif isinstance(yres_str, (int, float)):
+                _vy = float(yres_str)
+            else:
+                _vy = 1.
         else:
             _vy = 1.0 # dumb fallback, maybe we will find something smarter later on
 
         if "ZResolution" in info_dict:
-            # --resolution is stored in a [(values, precision)] list-of-one-tuple --
-            zres_str = eval(info_dict["ZResolution"])[0]
-            _vz = float(zres_str[0])/zres_str[1]
+            # --resolution is stored in a [(values, precision)] list-of-one-tuple, or
+            # sometimes as a single number --
+            zres_str = eval(info_dict["ZResolution"])
+            if isinstance(zres_str, list) and isinstance(zres_str[0], tuple):
+                zres_str = zres_str[0]
+                _vz = float(zres_str[0])/zres_str[1]
+            elif isinstance(zres_str, (int, float)):
+                _vz = float(zres_str)
+            else:
+                _vz = 1.
         else:
             if "spacing" in info_dict:
                 _vz = eval(info_dict["spacing"])
             else:
                 _vz = 1.0 # dumb fallback, maybe we will find something smarter later on
 
+    tif.close()
     # -- dtypes are not really stored in a compatible way (">u2" instead of uint16)
     # but we can convert those --
     dt = np.dtype(arr.dtype.name)
