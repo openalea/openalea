@@ -173,8 +173,6 @@ scale_shift_intensities = Factory(name = "scale_shift_intensities",
                           dict(name = "dtype", interface = None),
                           dict(name = "maxIn", interface = IFloat, value=None),
                           dict(name = "maxOut", interface = IFloat, value=255),
-                          dict(name = "minIn", interface = IFloat, value=None),
-                          dict(name = "minOut", interface = IFloat, value=0),
                           ),
                 outputs = (dict(name = "im", interface = IImage),),
                 )

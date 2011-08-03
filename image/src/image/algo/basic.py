@@ -381,7 +381,7 @@ def logicalnot (img) :
         return SpatialImage(image)
 
 
-def scale_shift_intensities(image, dtype=None, maxIn=None, maxOut=255, minIn=None, minOut=0):
+def scale_shift_intensities(image, dtype=None, maxIn=None, maxOut=255):
 
 	if dtype is None:
 		dtype = uint8
@@ -389,14 +389,7 @@ def scale_shift_intensities(image, dtype=None, maxIn=None, maxOut=255, minIn=Non
 	if maxIn is None:
 		maxIn = image.max()
 
-	if minIn is None:
-		minIn = image.min()
+	scale = maxOut/(float(maxIn))
 
-	shift = minIn-minOut
-	scale = maxOut/(float(maxIn)-minIn)
+	return SpatialImage( dtype( image*scale ), image.resolution)
 
-
-	if shift == 0:
-		return SpatialImage( dtype( image*scale ), image.resolution)
-	else:
-		return SpatialImage( dtype( image*scale-shift ), image.resolution)
