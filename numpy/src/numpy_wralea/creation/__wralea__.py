@@ -325,9 +325,21 @@ loadtxt = Factory(name = "loadtxt",
     description = "Load data from a text file.",
     category = "numpy",
     inputs = (dict(name='filename', interface= IFileStr),),
-    outputs = (dict(name='array', interface= None),), 
+    outputs = (dict(name='array', interface= None),),
     nodemodule = "numpy",
     nodeclass = "loadtxt",
 )
 __all__.append("loadtxt")
 
+
+axis_rotation = Factory(name= "axis_rotation_matrix",
+                        description= "Create a 4x4 matrix that represents a rotation around one axis",
+                        category = "numpy",
+                        inputs = ( dict(name='axis', interface=IEnumStr(["X", "Y", "Z"]), value="Z"),
+                                   dict(name='angle (degree)', interface=IFloat, value=0.0),),
+                                   outputs = (dict(name='rotation_matrix', interface=ISequence),),
+                                   nodemodule = "numpy_utils",
+                                   nodeclass = "axis_rotation_matrix",
+                                   )
+
+__all__.append("axis_rotation")
