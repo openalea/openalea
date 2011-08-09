@@ -124,7 +124,8 @@ class PkgModel(QtGui.QStandardItemModel, AbstractListener):
                 cpar = newNode
             par = cpar
 
-        for fac in pkg.iter_public_values():
+        public_values = sorted(pkg.iter_public_values(), lambda x,y:cmp(x.name, y.name))
+        for fac in public_values:
             item = par.children.get(fac.name)
             if not item:
                 item = QtGui.QStandardItem(fac.name)
