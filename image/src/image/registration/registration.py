@@ -171,18 +171,18 @@ def pts2transfo(x,y):
     B = B.sum(0)
 
     #The solution q minimizes the sum of the squares of the errors : C(R) = q^T.B.q is done by
-    #the eigenvector corresponding to the smallest eigenvalue of the matrix -B
+    #the eigenvector corresponding to the biggest eigenvalue of the matrix -B
 
     W,V = np.linalg.eig(-B)
-
+    max_ind = np.argmax(W)
     #The orthogonal matrix corresponding to a rotation by the unit quaternion q = a + bi + cj + dk (with |q| = 1) is given by
     #   R = array([ [a*a + b*b - c*c - d*d,       2bc - 2ad      ,       2bd + 2ac],
     #               [      2bc + 2ad      , a*a - b*b + c*c - d*d,       2cd - 2ab],
     #               [      2bd - 2ac      ,       2cd + 2ab      , a*a - b*b - c*c + d*d] ])
     #
 
-    #eigenvector corresponding to the smallest eigenvalue
-    v = V[:,0]
+    #eigenvector corresponding to the biggest eigenvalue
+    v = V[:,max_ind]
 
     R = np.zeros([3,3])
     R[0,0] = v[0]*v[0] + v[1]*v[1] - v[2]*v[2] - v[3]*v[3]
