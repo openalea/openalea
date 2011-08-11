@@ -25,23 +25,26 @@ from openalea.image.all import rainbow,grayscale, to_pix
 from numpy import array
 from scipy.ndimage import rotate
 
-data = array(range(10000) ).reshape( (100,100) )
+qapp = QApplication.instance()
 
-data = rotate(data,30)
+if qapp:
+    data = array(range(10000) ).reshape( (100,100) )
 
-pal = rainbow(10000)
+    data = rotate(data,30)
 
-img = pal[data]
+    pal = rainbow(10000)
 
-qapp = QApplication([])
+    img = pal[data]
 
-pix = to_pix(img)
 
-w = QLabel()
-w.setPixmap(pix)
 
-w.show()
+    pix = to_pix(img)
 
-qapp.exec_()
+    w = QLabel()
+    w.setPixmap(pix)
+
+    w.show()
+
+
 
 

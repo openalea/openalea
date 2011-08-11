@@ -24,27 +24,26 @@ from PyQt4.QtGui import QApplication,QLabel
 from openalea.image.all import rainbow,grayscale, to_pix, to_img
 from numpy import array,zeros,uint
 
-data = zeros( (100,100),uint)
-data[50:,:50] += 1
-data[:50,50:] += 2
-data[50:,50:] += 3
+qapp = QApplication.instance()
 
-pal = array([(255,0,0,255),(0,255,0,255),(0,0,255,255),(0,255,255,255)])
+if qapp:
+    data = zeros( (100,100),uint)
+    data[50:,:50] += 1
+    data[:50,50:] += 2
+    data[50:,50:] += 3
 
-img = pal[data]
+    pal = array([(255,0,0,255),(0,255,0,255),(0,0,255,255),(0,255,255,255)])
 
-qapp = QApplication([])
+    img = pal[data]
 
-ii = to_img(img)
-ii.save("toto.png")
+    ii = to_img(img)
+    ii.save("toto.png")
 
-pix = to_pix(img)
+    pix = to_pix(img)
 
-w = QLabel()
-w.setPixmap(pix)
+    w = QLabel()
+    w.setPixmap(pix)
 
-w.show()
-
-qapp.exec_()
+    w.show()
 
 

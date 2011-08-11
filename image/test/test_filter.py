@@ -24,29 +24,30 @@ from PyQt4.QtGui import QApplication,QLabel
 from openalea.image.all import rainbow,grayscale, to_pix
 from numpy import array,apply_along_axis
 
-data = array(range(10000) ).reshape( (100,100) )
+qapp = QApplication.instance()
 
-pal = rainbow(10000)
+if qapp:
+	data = array(range(10000) ).reshape( (100,100) )
 
-img = pal[data]
+	pal = rainbow(10000)
 
-def func (pix) :
-	if pix[0] > 100 :
-		return (0,0,0)
-	else :
-		return (255,255,255)
+	img = pal[data]
 
-img = apply_along_axis(func,-1,img)
+	def func (pix) :
+		if pix[0] > 100 :
+			return (0,0,0)
+		else :
+			return (255,255,255)
 
-qapp = QApplication([])
+	img = apply_along_axis(func,-1,img)
 
-pix = to_pix(img)
 
-w = QLabel()
-w.setPixmap(pix)
 
-w.show()
+	pix = to_pix(img)
 
-qapp.exec_()
+	w = QLabel()
+	w.setPixmap(pix)
+
+	w.show()
 
 

@@ -14,9 +14,12 @@
 #
 
 import numpy as np
+from PyQt4.QtGui import QApplication
 import matplotlib.pyplot as plt
 
 from openalea.image.all import component_labeling
+
+qapp = QApplication.instance()
 
 def test_component_labeling_with_threshold_image():
     """
@@ -35,14 +38,15 @@ def test_component_labeling_with_threshold_image():
     out,nlabels = component_labeling(thresh_im)
     assert nlabels == 18
 
-    plt.figure()
-    plt.subplot(121)
-    plt.imshow(img, cmap=plt.cm.gray)
-    plt.title('reference image')
-    plt.subplot(122)
-    plt.imshow(out, cmap=plt.cm.gray)
-    plt.title('labeled image')
-    plt.show()
+    if qapp:
+        plt.figure()
+        plt.subplot(121)
+        plt.imshow(img, cmap=plt.cm.gray)
+        plt.title('reference image')
+        plt.subplot(122)
+        plt.imshow(out, cmap=plt.cm.gray)
+        plt.title('labeled image')
+        plt.show()
 
 def test_component_labeling_with_threshold():
     """
@@ -61,14 +65,15 @@ def test_component_labeling_with_threshold():
     out,nlabels = component_labeling(img, threshold=127)
     assert nlabels == 18
 
-    plt.figure()
-    plt.subplot(121)
-    plt.imshow(img, cmap=plt.cm.gray)
-    plt.title('reference image')
-    plt.subplot(122)
-    plt.imshow(out, cmap=plt.cm.gray)
-    plt.title('labeled image')
-    plt.show()
+    if qapp:
+        plt.figure()
+        plt.subplot(121)
+        plt.imshow(img, cmap=plt.cm.gray)
+        plt.title('reference image')
+        plt.subplot(122)
+        plt.imshow(out, cmap=plt.cm.gray)
+        plt.title('labeled image')
+        plt.show()
 
 def test_component_labeling_with_number_labels():
     """
@@ -86,11 +91,12 @@ def test_component_labeling_with_number_labels():
     out,nlabels = component_labeling(img, threshold=127, number_labels=3)
     assert nlabels == 3
 
-    plt.figure()
-    plt.subplot(121)
-    plt.imshow(img, cmap=plt.cm.gray)
-    plt.title('reference image')
-    plt.subplot(122)
-    plt.imshow(out, cmap=plt.cm.gray)
-    plt.title('labeled image')
-    plt.show()
+    if qapp:
+        plt.figure()
+        plt.subplot(121)
+        plt.imshow(img, cmap=plt.cm.gray)
+        plt.title('reference image')
+        plt.subplot(122)
+        plt.imshow(out, cmap=plt.cm.gray)
+        plt.title('labeled image')
+        plt.show()

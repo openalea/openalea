@@ -24,13 +24,11 @@ from square import square
 from scipy.ndimage import rotate
 
 
-qapp = QApplication([])
+qapp = QApplication.instance()
+if qapp:
+    im1 = square()
+    im2 = rotate(im1, 30)
+    im2 = SpatialImage(im2,im1.resolution)
 
-im1 = square()
-im2 = rotate(im1, 30)
-im2 = SpatialImage(im2,im1.resolution)
-
-w1 = point_selection (im1)
-w2 = point_selection (im2)
-
-qapp.exec_()
+    w1 = point_selection (im1)
+    w2 = point_selection (im2)

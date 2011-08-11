@@ -24,23 +24,23 @@ from PyQt4.QtGui import QApplication
 from openalea.image.all import imread, to_pix,ScalableLabel
 from numpy import zeros,uint32
 
-try:
-    img = imread("4_ocean_currents.png")
-except:
-    img = imread("test/4_ocean_currents.png")
 
-#img = zeros( (100,50,3),uint32)
-#img[10:20,10:30,1] = 255
+qapp = QApplication.instance()
 
-qapp = QApplication([])
+if qapp:
+    try:
+        img = imread("4_ocean_currents.png")
+    except:
+        img = imread("test/4_ocean_currents.png")
 
-pix = to_pix(img)
+    #img = zeros( (100,50,3),uint32)
+    #img[10:20,10:30,1] = 255
 
-w = ScalableLabel()
-w.setPixmap(pix)
+    pix = to_pix(img)
 
-w.show()
+    w = ScalableLabel()
+    w.setPixmap(pix)
 
-qapp.exec_()
+    w.show()
 
 
