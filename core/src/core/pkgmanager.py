@@ -43,6 +43,7 @@ from openalea.core.pkgdict import PackageDict, is_protected, protected
 from openalea.core.category import PackageManagerCategory
 from openalea.core import logger
 
+from ConfigParser import NoSectionError,NoOptionError
 
 # Exceptions
 import time
@@ -141,6 +142,8 @@ class PackageManager(Observed):
         # list of path to search wralea file related to the system
         self.user_wralea_path = set()
         self.sys_wralea_path = set()
+        # for packages that we don't want to save in the config file
+        self.temporary_wralea_paths = set()
 
 
         self.set_user_wralea_path()
@@ -170,7 +173,7 @@ class PackageManager(Observed):
     def get_wralea_path(self):
         """ return the list of wralea path (union of user and system)"""
 
-        return list(self.sys_wralea_path.union(self.user_wralea_path))
+        return list(self.temporary_wralea_paths.union(self.sys_wralea_path.union(self.user_wralea_path)))
 
 
     def set_user_wralea_path(self):
@@ -181,18 +184,18 @@ class PackageManager(Observed):
 
         self.user_wralea_path = set()
         config = Settings()
-
+        l = []
         # wralea path
         try:
             s = config.get("pkgmanager", "path")
             l = eval(s)
-
-            for p in l:
-                self.add_wralea_path(os.path.abspath(p), self.user_wralea_path)
-
-        except Exception, e:
-            logger.error(str(e))
-            #self.log.add(str(e))
+        except NoSectionError, e:
+            config.add_section("pkgmanager")
+            config.add_option("pkgmanager", "path", [])
+        except NoOptionError, e:
+            config.add_option("pkgmanager", "path", [])
+        for p in l:
+            self.add_wralea_path(os.path.abspath(p), self.user_wralea_path)
 
 
     def write_config(self):

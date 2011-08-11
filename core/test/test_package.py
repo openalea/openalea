@@ -45,9 +45,10 @@ def test_userpackage():
 
 
     factory = mypackage.create_user_node("TestFact",\
-         "category test", "this is a test",
-                                       gen_port_list(3),
-                                       gen_port_list(2))
+                                         "category test",
+                                         "this is a test",
+                                         gen_port_list(3),
+                                         gen_port_list(2))
     assert path in factory.search_path
     assert len(factory.inputs)==3
     assert len(factory.outputs)==2
@@ -68,7 +69,9 @@ def test_userpackage():
 
     # todo this is not working !!
     from openalea.core.pkgmanager import PackageManager
-    PackageManager().init()
+    pm = PackageManager()
+    pm.add_wralea_path(path, pm.temporary_wralea_paths)
+    pm.init()
     pkg2.clone_from_package(mypackage)
     pkg2.write()
 
