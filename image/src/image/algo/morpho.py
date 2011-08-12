@@ -78,10 +78,21 @@ def component_labeling(img, structure=None, output=None, threshold=0, number_lab
     if not number_labels:
         return mat, num_features
 
+#    areas = np.array(ndimage.sum(img / img.max(), mat, object_labels))
+#    areas_decreasing = -np.sort(-areas)
+#    labels = object_labels[areas>=areas_decreasing[number_labels-1]]
+
     object_labels = np.arange(1, num_features+1, dtype=np.int32)
-    areas = np.array(ndimage.sum(img / img.max(), mat, object_labels))
-    areas_decreasing = -np.sort(-areas)
-    labels = object_labels[areas>=areas_decreasing[number_labels-1]]
+    areas = ndimage.sum(img / img.max(), mat, object_labels)
+    if isinstance(areas, (int,float)): #when there is only one label, this is True
+        areas_decreasing = np.array([areas])
+    else:
+        areas_decreasing = np.array(sorted(areas, reverse=True))
+
+    mask   = areas>=areas_decreasing[number_labels-1]
+    if isinstance(mask, (int, float)): # true if only one element
+        mask = np.array([mask])
+    labels = object_labels[mask]
 
     condlist = [mat==label for label in labels]
     choicelist = list(np.arange(1,number_labels+1))
