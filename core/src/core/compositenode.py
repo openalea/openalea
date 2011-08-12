@@ -909,8 +909,12 @@ class CompositeNode(Node, DataFlow):
         self.graph_modified = True
 
     def remove_edge(self, eid):
+        target = self.target(eid)
+        port = self.port(target)
         DataFlow.remove_edge(self, eid)
+        self.actor(port._vid).set_input_state(port._local_pid, "disconnected")
         self.notify_listeners(("edge_removed", ("default",eid) ))
+
 
     def simulate_destruction_notifications(self):
         """emits messages as if we were adding elements to
