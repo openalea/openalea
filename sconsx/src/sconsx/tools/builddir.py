@@ -63,10 +63,10 @@ class BuildDir:
 
         # Creation of missing directories
         for udir in build:
-            path = build[udir]
-            env[udir] = os.path.abspath(path)
-            if not os.path.exists(path):
-                os.makedirs(path)
+            _path = build[udir]
+            env[udir] = os.path.abspath(_path)
+            if _path and not os.path.exists(_path):
+                os.makedirs(_path)
 
         if not env['with_build_dir']:
             env['build_dir'] = pj(env['build_prefix'], 'src')
