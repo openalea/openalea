@@ -22,7 +22,41 @@ __revision__ = " $Id$ "
 import numpy as np
 from scipy import ndimage
 
-__all__ = ["connectivity_4","connectivity_6","connectivity_8","connectivity_26","component_labeling"]
+__all__ = ["connectivity_4","connectivity_6","connectivity_8","connectivity_26","component_labeling", "skiz"]
+
+
+
+def skiz(image, points, vectors=None):
+    """ Compute the Skeleton of Influence Zone - also know as Generalized Voronoi Diagram.
+
+    Compute a labelled image ...
+
+    :Parameters:
+        - image : initial 3d image to get its shape
+        - points : a list of 3d points
+        - vectors: a list of 3d points
+
+    :Returns:
+        - labelled image with the same shape of the initial one.
+    """
+    shape = image.shape
+    img = np.ones(shape=shape)
+    if vectors is None:
+        label = np.zeros(shape=shape, dtype=np.int)
+    else:
+        label = np.zeros(shape=shape+(3,))
+
+    for i, (x,y,z) in enumerate(points):
+        img[x,y,z] = 0
+        if vectors is None:
+            label[x,y,z] = i+1
+        else:
+            label[x,y,z] = vectors[i]
+
+    ix, iy, iz= ndimage.morphology.distance_transform_bf(img, metric='euclidean',
+                    return_distances=False, return_indices=True)
+    return label[ix, iy, iz]
+
 
 
 # Definition of 3D structure elements :
