@@ -20,9 +20,10 @@ __license__= "Cecill-C"
 __revision__ = " $Id$ "
 
 import numpy as np
-from scipy.ndimage import geometric_transform, affine_transform
+from scipy.ndimage import geometric_transform, affine_transform, filters
 from openalea.image.spatial_image import SpatialImage
-
+from openalea.image.algo.morpho import skiz
+from openalea.image.algo.basic import component_gaussian_filter
 
 __all__ = ["resampling"]
 
@@ -112,3 +113,42 @@ def resampling(img, transformation, order=1, output_shape=None, output_voxels=No
     output = SpatialImage(_output, output_voxels)
     return output
 
+
+
+def deformation_field( image, points1, points2, sigma):
+    """
+
+    """
+    vectors = points2-points1
+    points1 = np.round(points1)
+    del points2
+    #points2 = np.round(points2)
+    label = skiz(image, points1, vectors)
+    img_vectors = component_gaussian_filter(label,sigma=sigma)
+    del label
+
+    # create an image with only the vectors at the points otherelse 0
+    img_vect0 = np.zeros(shape=image.shape+(3,))
+    for i, (x,y,z) in enumerate(points1):
+        img_vect0[x,y,z] = vectors[i]
+    img_vect0 = component_gaussian_filter(img_vect0,sigma=sigma, in_place = True)
+
+    # create an image with only 1 at the points and fit it.
+    img_pt1 = np.zeros(shape=image.shape)
+    for x,y,z in points1:
+        img_pt1[x,y,z] = 1
+    img_pt1 = filters.gaussian_filter(img_pt1,sigma=sigma)
+
+    # Normalization
+    img_vect0[:,:,:,0] /= img_pt1
+    img_vect0[:,:,:,1] /= img_pt1
+    img_vect0[:,:,:,2] /= img_pt1
+    zero_mask = img_pt1 <1e-6
+    del img_pt1
+    masked_vectors = img_vectors[zero_mask]
+    img_vect0[zero_mask] = masked_vectors
+    del masked_vectors, zero_mask
+
+    img_vect0 = component_gaussian_filter(img_vect0,sigma=sigma, in_place=True)
+
+    return SpatialImage(img_vect0, image.resolution,vdim=3)
