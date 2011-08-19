@@ -21,6 +21,7 @@ This module defines inrimage format
 __license__= "Cecill-C"
 __revision__=" $Id$ "
 
+import os
 from os import path
 import numpy as np
 from struct import calcsize,pack,unpack
@@ -244,16 +245,18 @@ def write_inrimage (filename, img) :
 	zipped = ( path.splitext(filename)[1] in (".gz",".zip") )
 
 	if zipped :
-		f = StringIO()
+		f = gzip.GzipFile(filename, "wb")
+		#f = StringIO()
 	else :
 		f = open(filename,'wb')
 
-	write_inrimage_to_stream(f, img)
-
-	#return
-	if zipped :
-		fzip = gzip.open(filename,'wb')
-		fzip.write( f.getvalue() )
-		fzip.close()
+	try:
+		write_inrimage_to_stream(f, img)
+	except:
+		# -- remove probably corrupt file--
 		f.close()
-
+		if path.exists(filename) and path.isfile(filename):
+			os.remove(filename)
+		raise
+	else:
+		f.close()
