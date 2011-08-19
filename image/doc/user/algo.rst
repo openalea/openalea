@@ -53,7 +53,7 @@ Algo.Morpho
 .. .. code-block:: python
 ..     :linenos:
 
-..     from openalea.image import end_margin
+..     from openalea.image.all import end_margin
 ..     img = random.random((3,4,5))
 
 ..     out = end_margin(img,1,0)

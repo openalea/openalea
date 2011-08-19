@@ -7,8 +7,8 @@ Display images
 
 .. code-block:: python
     :linenos:
-    
-    from openalea.image import display
+
+    from openalea.image.all import display
     from PyQt4 import QtGui
     app = QtGui.QApplication([])
     w1 = display(im)
@@ -29,7 +29,7 @@ Point Selection Tool
 .. code-block:: python
     :linenos:
 
-    from openalea.image import point_selection
+    from openalea.image.all import point_selection
     from PyQt4 import QtGui
     app = QtGui.QApplication([])
 
@@ -51,6 +51,6 @@ The following points can be get with :class:`openalea.gui.point_selection.get_po
 
 .. code-block:: python
     :linenos:
-    
+
     pts1 = ps1.get_points()
     np.savetxt("pts1.txt",pts1)
