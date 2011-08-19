@@ -145,13 +145,14 @@ defaultHandlerNames = ["file",  #TimedRotatingFileHandler
                        "stream", #Output to stream
                        ]
 
-#: The QLogHandlerItemModel class is only created if PyQt4 is available
+#: The QLogHandlerItemModel class is only created if PyQt4 is already loaded
 # otherwise ties core with PyQt and could prevent UI-less usage of core.
-try:
-    from PyQt4 import QtCore, QtGui
+if "PyQt4.QtCore" in sys.modules and "PyQt4.QtGui" in sys.modules:
+    QtCore = sys.modules["PyQt4.QtCore"]
+    QtGui  = sys.modules["PyQt4.QtGui"]
     QT_LOGGING_MODEL_AVAILABLE=True
     defaultHandlerNames.append("qt") #log to a QStandardItemModel
-except Exception, e:
+else:
     print __name__+".QLogHandlerItemModel won't be available"
     QT_LOGGING_MODEL_AVAILABLE=False
 
