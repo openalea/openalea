@@ -53,7 +53,7 @@ def open_inrifile (filename) :
 	return f
 
 def _read_header (f) :
-	"""Eextract header from a stream and return it
+	"""Extract header from a stream and return it
 	as a python dict
 	"""
 	#read header string
