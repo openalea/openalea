@@ -47,7 +47,7 @@ class TypeInterfaceMap(dict):
         if type and type not in self:
             self[type] = interface
 
-            TypeNameInterfaceMap().declare_interface(str(interface), interface)
+        TypeNameInterfaceMap().declare_interface(str(interface), interface)
 
 class TypeNameInterfaceMap(dict):
     """
@@ -85,6 +85,8 @@ class IInterfaceMetaClass(type):
         super(IInterfaceMetaClass, cls).__init__(name, bases, dic)
         if( hasattr(cls, "__pytype__") ):
             TypeInterfaceMap().declare_interface(cls.__pytype__, cls)
+        else:
+            TypeInterfaceMap().declare_interface(None, cls)
         IInterfaceMetaClass.all.append(cls)
 
     def __repr__(cls):
