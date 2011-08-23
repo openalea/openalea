@@ -213,3 +213,14 @@ def imread (filename) :
     #newarr[:,:,0] = im_array[:,:]
     vdim     = 1 if( len(shape) < 3 ) else shape[2]
     return SpatialImage(im_array[..., np.newaxis], None, vdim)
+
+
+def lazy_image_or_path(image):
+	""" Takes an image or a path to an image and returns the image """
+	wp = False
+	if isinstance(image, (str, unicode)):
+		image = imread(image)
+		wp = True
+	else:
+		assert isinstance(image, SpatialImage)
+	return image, wp
