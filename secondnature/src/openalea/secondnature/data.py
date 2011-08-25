@@ -25,7 +25,7 @@ from PyQt4 import QtGui, QtCore
 from openalea.core.logger import get_logger
 
 logger = get_logger(__name__)
-
+import sys
 
 
 class DataFactory(HasName, CanBeStarted):
@@ -118,11 +118,11 @@ class SingletonFactory(DataFactory):
     def start(self):
         try:
             raw_ins = self.build_raw_instance()
-            self.__instance = self.wrap_data(self.__name__, raw_ins, "g")
         except Exception, e:
-            logger.error(str(e))
+            logger.error("%s instanciation failed: %s"%(self.__name__, str(e)))
             return False
         else:
+            self.__instance = self.wrap_data(self.__name__, raw_ins, "g")
             return True
 
     def build_raw_instance(self):
