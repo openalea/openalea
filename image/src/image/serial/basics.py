@@ -21,10 +21,11 @@ This module redefine load and save to account for spatial images
 __license__= "Cecill-C"
 __revision__=" $Id$ "
 
-from os.path import exists
+from os.path import exists, splitext, split as psplit
 import Image,ImageOps
 import os, fnmatch
-from pylab import imread as _imread
+#from pylab import imread as _imread, imsave as _imsave
+from scipy.misc import imsave as _imsave
 from struct import pack,unpack,calcsize
 from pickle import dumps,loads
 import numpy as np
@@ -33,67 +34,70 @@ from lsm import *
 from tif import *
 from openalea.image.spatial_image import SpatialImage
 
-def save (file, img) :
-	"""Save an array to a binary file in numpy format
+__all__ = ["save", "load", "read_sequence", "imread", "imsave", "lazy_image_or_path"]
 
-	:Parameters:
-	 - `file` (file or str) - File or filename to which the data is saved.
-	                          If the filename does not already have a ".npy"
-	                          extension, it is added.
-	 - `img` (array)
-	"""
-	if isinstance(img,SpatialImage) :
-		if isinstance(file,str) :
-			if file.endswith(".npy") :
-				file = open(file,'wb')
-			else :
-				file = open("%s.npy" % file,'wb')
+def save (filename, img) :
+    """Save an array to a binary file in numpy format with a SpatialImage header.
 
-		file.write("SpatialImage")
-		header = dumps( (img.resolution,img.info) )
-		file.write(pack('i',len(header) ) )
-		file.write(header)
+    :Parameters:
+     - `filename` (file or str) - Filename to which the data is saved.
+                                  If the filename does not already have a ".npy"
+                                  extension, it is added.
+     - `img` (array)
+    """
+    if isinstance(filename,str) :
+        if filename.endswith(".npy") :
+            file_ = open(filename,'wb')
+        else :
+            file_ = open("%s.npy" % filename,'wb')
+    file_.write("SpatialImage")
 
-		np.save(file,img)
-	else :
-		np.save(file,img)
+    if isinstance(img,SpatialImage) :
+        header = dumps( (img.resolution,img.info) )
+    elif isinstance(img, np.ndarray):
+        header = dumps( ((1.,1.,1.,),{}) )
+
+    file_.write(pack('i',len(header) ) )
+    file_.write(header)
+    np.save(file_,img)
+
 
 def load (file, mmap_mode=None) :
-	"""Load a pickled, ``.npy``, or ``.npz`` binary file.
+    """Load a pickled, ``.npy``, or ``.npz`` binary file.
 
-	:Parameters:
-	 - `file` (file or str)
-	 - `mmap_mode` (None, 'r+', 'r', 'w+', 'c') - optional
-	    If not None, then memory-map the file, using the given mode
-	    (see `numpy.memmap`).  The mode has no effect for pickled or
-	    zipped files.
-	    A memory-mapped array is stored on disk, and not directly loaded
-	    into memory.  However, it can be accessed and sliced like any
-	    ndarray.  Memory mapping is especially useful for accessing
-	    small fragments of large files without reading the entire file
-	    into memory.
+    :Parameters:
+     - `file` (file or str)
+     - `mmap_mode` (None, 'r+', 'r', 'w+', 'c') - optional
+        If not None, then memory-map the file, using the given mode
+        (see `numpy.memmap`).  The mode has no effect for pickled or
+        zipped files.
+        A memory-mapped array is stored on disk, and not directly loaded
+        into memory.  However, it can be accessed and sliced like any
+        ndarray.  Memory mapping is especially useful for accessing
+        small fragments of large files without reading the entire file
+        into memory.
 
-	:Returns Type: array, tuple, dict, etc.
-	"""
-	if isinstance(file,str) :
-		file = open(file,'rb')
+    :Returns Type: array, tuple, dict, etc.
+    """
+    if isinstance(file,str) :
+        file = open(file,'rb')
 
-	header = file.read(12)
+    header = file.read(12)
 
-	if header == "SpatialImage" :
-		nb, = unpack('i',file.read(calcsize('i') ) )
-		res,info = loads(file.read(nb) )
-		data = np.load(file,mmap_mode)
+    if header == "SpatialImage" :
+        nb, = unpack('i',file.read(calcsize('i') ) )
+        res,info = loads(file.read(nb) )
+        data = np.load(file,mmap_mode)
 
-		if len(res) == len(data.shape) :
-			vdim = 1
-		else :
-			vdim = data.shape[-1]
+        if len(res) == len(data.shape) :
+            vdim = 1
+        else :
+            vdim = data.shape[-1]
 
-		return SpatialImage(data,res,vdim,info)
-	else :
-		file.seek(0)
-		return np.load(file,mmap_mode)
+        return SpatialImage(data,res,vdim,info)
+    else :
+        file.seek(0)
+        return SpatialImage(np.load(file,mmap_mode))
 
 ##################################################
 # TODO : Read voxels size in xlm file if provided #
@@ -104,13 +108,14 @@ def read_sequence ( directory, grayscale=True, number_images=None, start=0, incr
     The images must all be the same size and type.
     They can be in TIFF, .... format.
 
-    - `grayscale` (bool) - convert the image to grayscale
-    - `number_images` (int) - specify how many images to open
-    - `start` (int) - used to start with the nth image in the folder (default = 0 for the first image)
-    - `increment` (int) - set to "n" to open every "n" image (default = 1 for opening all images)
-    - `filename_contains` (str) - only files whose name contains that string are opened
-    - `voxels_size (tuple) - specify voxels size
-    - `verbose` (bool) - verbose mode
+    :Parameters:
+        - `grayscale` (bool) - convert the image to grayscale
+        - `number_images` (int) - specify how many images to open
+        - `start` (int) - used to start with the nth image in the folder (default = 0 for the first image)
+        - `increment` (int) - set to "n" to open every "n" image (default = 1 for opening all images)
+        - `filename_contains` (str) - only files whose name contains that string are opened
+        - `voxels_size (tuple) - specify voxels size
+        - `verbose` (bool) - verbose mode
     """
 
     _images = []
@@ -164,63 +169,134 @@ def read_sequence ( directory, grayscale=True, number_images=None, start=0, incr
 
 
 def imread (filename) :
-    """Read an image file
+    """Reads an image file completely into memory.
 
-    .. warning:: supported format are either the classical format for images
-	         like png and jpg or lsm and inrimage format for spatial nd images
+    It uses the file extension to determine how to read the file. It first tries
+    some specific readers for volume images (Inrimages, TIFFs, LSMs, NPY) or falls
+    back on PIL readers for common formats if installed.
+
+    In all cases the returned image is 3D (2D is upgraded to single slice 3D).
+    If it has colour or is a vector field it is even 4D.
 
     :Parameters:
-    - `filename` (str)
+     - `filename` (str)
 
-    :Returns Type: array
+    :Returns Type:
+        `openalea.image.all.SpatialImage`
     """
     if not exists(filename) :
-	raise IOError("The requested file do not exist: %s" % filename)
+        raise IOError("The requested file do not exist: %s" % filename)
 
-    if filename.endswith(".lsm"):
-        try :
-            return read_lsm(filename)
-	except :
-            pass
-
-    if filename.endswith("inr.gz") | filename.endswith("inr"):
-        try:
-            return read_inrimage(filename)
-        except :
-            pass
-
-    if filename.endswith("tif"):
-	return read_tif(filename)
-
-
-    # -- We use the normal numpy reader. It returns 2D images.
-    # If len(shape) == 2 : scalar image.
-    # If len(shape) == 3 and shape[2] == 3 : rgb image
-    # If len(shape) == 3 and shape[3] == 4 : rgba image.
-    # Return a SpatialImage please! --
-
-    # Use the array protocol to convert a PIL image to an array.
-    # Don't use pylab'es PIL_to_array conversion as it flips images vertically.
-    im_array = np.array(Image.open(filename))
-    shape    = im_array.shape
-    if len(shape)==2:
-        newShape = (shape[0], shape[1], 1, 1)
-    elif len(shape) == 3:
-        newShape = (shape[0], shape[1], 1, shape[2])
+    root, ext = splitext(filename)
+    ext = ext.lower()
+    if ext == ".gz":
+        root, ext = splitext(root)
+        ext = ext.lower()
+    if ext == ".inr":
+        return read_inrimage(filename)
+    elif ext == ".lsm":
+        return read_lsm(filename)
+    elif ext in [".tif", ".tiff"]:
+        return read_tif(filename)
+    elif ext in [".npz", ".npy"]:
+        return load(filename)
     else:
-        raise Exception("unhandled image shape : %s, %s"%(filename, str(shape)))
-    #newarr   = np.zeros(newShape, dtype=im_array.dtype, order="C")
-    #newarr[:,:,0] = im_array[:,:]
-    vdim     = 1 if( len(shape) < 3 ) else shape[2]
-    return SpatialImage(im_array[..., np.newaxis], None, vdim)
+        # -- We use the normal numpy reader. It returns 2D images.
+        # If len(shape) == 2 : scalar image.
+        # If len(shape) == 3 and shape[2] == 3 : rgb image
+        # If len(shape) == 3 and shape[3] == 4 : rgba image.
+        # Return a SpatialImage please! --
 
+        # Use the array protocol to convert a PIL image to an array.
+        # Don't use pylab'es PIL_to_array conversion as it flips images vertically.
+        im_array = np.array(Image.open(filename))
+        shape    = im_array.shape
+        if len(shape)==2:
+            newShape = (shape[0], shape[1], 1, 1)
+        elif len(shape) == 3:
+            newShape = (shape[0], shape[1], 1, shape[2])
+        else:
+            raise IOError("unhandled image shape : %s, %s"%(filename, str(shape)))
+        #newarr   = np.zeros(newShape, dtype=im_array.dtype, order="C")
+        #newarr[:,:,0] = im_array[:,:]
+        vdim     = 1 if( len(shape) < 3 ) else shape[2]
+        return SpatialImage(im_array[..., np.newaxis], None, vdim)
+
+def imsave(filename, img):
+    """Save a `openalea.image.all.SpatialImage` to filename.
+
+    .. note: `img` **must** be a SpatialImage.
+
+    The filewriter is choosen according to the file extension. However all file extensions
+    will not match the data held by img, in dimensionnality or encoding, and might raise `IOError`s.
+
+    For real volume data, Inrimage and NPY are currently supported.
+    For SpatialImages that are actually 2D, PNG, BMP, JPG among others are supported if PIL is installed.
+
+    :Parameters:
+     - `filename` (str)
+     - `img` (openalea.image.all.SpatialImage)
+    """
+
+    assert isinstance(img, SpatialImage)
+    # -- images are always at least 3D! If the size of dimension 3 (indexed 2) is 1, then it is actually
+    # a 2D image. If it is 4D it has vectorial or RGB[A] data. --
+
+    head, tail = psplit(filename)
+    head = head or "."
+    if not exists(head):
+        raise IOError("The directory do not exist: %s" % head)
+
+    root, ext = splitext(filename)
+
+    is2D = img.shape[2] == 1
+    ext = ext.lower()
+    if ext == ".gz":
+        root, ext = splitext(root)
+        ext = ext.lower()
+    if ext == ".inr":
+        write_inrimage(filename, img)
+    elif ext in [".npz", ".npy"]:
+        save(filename)
+    else:
+        if not is2D:
+            raise IOError("No writer found for format of 3D image %s"%filename)
+        else:
+            # -- fallback on Pylab.
+            # WARNING: Careful, this can fail in many ways still!
+            # For example, many formats wont support writing scalar floats, or
+            # vector floats, or encodings different from uchar8 --
+            if len(img.shape) == 4: # RGB[A] images
+                _imsave(filename,img[:,:,0,:])
+            elif len(img.shape) == 3: #scalar images
+                _imsave(filename, img[:,:,0])
+            else:
+                raise IOError("Unhandled image shape %s"%str(img.shape))
+
+###################
+# UTILITY METHODS #
+###################
 
 def lazy_image_or_path(image):
-	""" Takes an image or a path to an image and returns the image """
-	wp = False
-	if isinstance(image, (str, unicode)):
-		image = imread(image)
-		wp = True
-	else:
-		assert isinstance(image, SpatialImage)
-	return image, wp
+    """ Takes an image or a path to an image and returns the image.
+
+    Extensively used in other functions to make them accept images given as paths.
+    If `image` is already a SpatialImage this method is a pass-thru. If it looks
+    like a path, it will load the image at that path and return it.
+
+    :Parameters:
+     -`image` (openalea.image.spatial_image.SpatialImage, str) - [Path] or image.
+
+    :Returns:
+     - image or imread(image)
+
+    :Returns Type:
+        `openalea.image.all.SpatialImage`
+    """
+    wp = False
+    if isinstance(image, (str, unicode)):
+        image = imread(image)
+        wp = True
+    else:
+        assert isinstance(image, SpatialImage)
+    return image, wp

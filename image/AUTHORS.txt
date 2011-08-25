@@ -1,5 +1,7 @@
-Jerome Chopard
-Eric Moscardi
-Romain Fernandez
-David Da-Silva
-Szymon Stoma
+ * Christophe Pradal
+ * Daniel Barbeau
+ * David Da-Silva
+ * Eric Moscardi
+ * Jerome Chopard
+ * Romain Fernandez
+ * Szymon Stoma

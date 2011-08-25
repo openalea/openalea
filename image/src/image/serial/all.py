@@ -16,5 +16,5 @@
 __license__= "Cecill-C"
 __revision__ = " $Id$ "
 
-from basics import save,load,read_sequence,imread
+from basics import *
 from inrimage import *

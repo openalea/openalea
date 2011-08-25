@@ -24,7 +24,7 @@ from os.path import exists
 from numpy import issubdtype
 from openalea.image.spatial_image import SpatialImage
 from openalea.image.serial.inrimage import write_inrimage
-from openalea.image.serial.basics import load,save,imread
+from openalea.image.serial.basics import load,save,imread, imsave
 from pylab import imsave
 
 def wra_load (filename, mmap_mode) :
@@ -44,28 +44,7 @@ def wra_imread (filename) :
 wra_imread.__doc__ = imread.__doc__
 
 def wra_imsave (filename, img) :
-	"""Save an image into a file
-
-	.. warning:: depending on the type of data in the image the method chosen
-	             to save the image will be different. If the image is an RGB(A)
-	             2D array, the image will be saved using pilutils.imsave. If
-	             the image is a SpatialImage or a 3D array or an array of data
-	             then the write_inrimage function will be used
-
-	:Parameters:
-	 - `filename` (str)
-	 - `img` (array)
-	"""
-	if isinstance(img,SpatialImage) :
-		write_inrimage(filename,img)
-	elif len(img.shape) == 3 \
-	     and img.shape[2] in (3,4) \
-	     and issubdtype(img.dtype,int) :
-		imsave(filename,img)
-	else :
-		raise UserWarning("unable to find the type of this image")
-
-	return img,
+    return imsave(filename, img)
 
 wra_imsave.__doc__ = imsave.__doc__
 

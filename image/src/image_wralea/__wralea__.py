@@ -79,9 +79,9 @@ __all__.append("size3")
 lena = Factory(name = "lena",
                 description = "lena image",
                 category = "image",
-                nodemodule = "scipy",
+                nodemodule = "image",
                 nodeclass = "lena",
-                outputs = (dict(name = "img", interface = None),),
+                outputs = (dict(name = "img", interface = "IImage"),),
                 )
 
 __all__.append("lena")

@@ -1,14 +1,14 @@
 # -*- python -*-
 #
 #
-#       Copyright 2006-2010 INRIA - CIRAD - INRA  
+#       Copyright 2006-2010 INRIA - CIRAD - INRA
 #
 #       File author(s): Chopard
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 """Declaration of image node functors
@@ -16,6 +16,13 @@
 
 __license__ = "Cecill-C"
 __revision__ = " $Id: interface.py 2245 2010-02-08 17:11:34Z cokelaer $"
+
+
+from openalea.image.spatial_image import SpatialImage
+from scipy import lena as sci_lena
+
+def lena():
+    return SpatialImage(sci_lena())
 
 def image (img) :
 	return img,
@@ -33,5 +40,5 @@ def geom_size (img) :
 		res = img.resolution
 	except AttributeError :
 		res = (1.,) * len(img.shape)
-	
+
 	return (v * res[i] for i,v in enumerate(img.shape) )
