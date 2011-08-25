@@ -1,3 +1,2 @@
-This file should contain a brief description of your package. 
-In the future it maiy simply be replaced by the long_description contained in
-the metainfo file.
+This package brings image manipulation capabilities to Openalea. The possibilities range from
+image loading/saving to morphology operations or registration.
