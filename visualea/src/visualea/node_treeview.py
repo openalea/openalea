@@ -92,6 +92,18 @@ def get_icon(item):
 
 
 # Qt4 Models/View classes
+type_hierarchy = [(Package, UserPackage, PseudoPackage, PseudoGroup), (CompositeNodeFactory,), (NodeFactory,), (DataFactory,)]
+type_order_map = {}
+for i, types in enumerate(type_hierarchy):
+    for t in types:
+        type_order_map[t] = i
+
+def item_compare(x, y):
+    if type(x) == type(y):
+        return cmp(x.get_id(), y.get_id())
+    else:
+        tx, ty = type(x), type(y)
+        return cmp(type_order_map[tx], type_order_map[ty])
 
 class PkgModel (QAbstractItemModel) :
     """ QT4 data model (model/view pattern) to support pkgmanager """
@@ -182,7 +194,7 @@ class PkgModel (QAbstractItemModel) :
             parentItem = parent.internalPointer()
 
         l = list(parentItem.iter_public_values())
-        l.sort((lambda x,y : cmp(x.get_id(), y.get_id())))
+        l.sort(item_compare)# (lambda x,y : cmp(x.get_id(), y.get_id())))
         childItem = l[row]
 
         # save parent and row
