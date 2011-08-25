@@ -22,6 +22,8 @@ __revision__ = " $Id$ "
 from openalea.core.metaclass import make_metaclass
 from openalea.core.singleton import Singleton
 from openalea.core.observer import AbstractListener
+
+import color_palette #used for colors of interfaces
 import types
 
 # Dictionary to map Interface with corresponding python type
@@ -87,6 +89,8 @@ class IInterfaceMetaClass(type):
             TypeInterfaceMap().declare_interface(cls.__pytype__, cls)
         else:
             TypeInterfaceMap().declare_interface(None, cls)
+        if isinstance(cls.__color__, str):
+            cls.__color__ = color_palette.HTMLColorToRGB(cls.__color__)
         IInterfaceMetaClass.all.append(cls)
 
     def __repr__(cls):
@@ -94,7 +98,7 @@ class IInterfaceMetaClass(type):
 
 # Defaults interfaces
 
-import color_palette #used for colors of interfaces
+
 
 class IInterface(object):
     """ Abstract base class for all interfaces """
