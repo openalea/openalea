@@ -1173,7 +1173,7 @@ class upload_sphinx(Command):
         ('project=', None, None),
         ('package=', None, None),
         ('release=', None,None),
-
+        ('unstable=', 'r', "put the documentation in the unstable repository"),
         ]
 
     def initialize_options(self):
@@ -1183,6 +1183,7 @@ class upload_sphinx(Command):
         self.project = None
         self.package = None
         self.release = None
+        self.unstable = True
 
     def finalize_options(self):
         if (not self.package):
@@ -1193,6 +1194,14 @@ class upload_sphinx(Command):
                 It should be either vplants, alinea or openalea. %s provided""" % self.project)
         elif self.project not in ['vplants','alinea','openalea']:
             raise ValueError("""Project must be vplants, alinea or openalea. Check your setup.cfg pupload_sphinx] section. %s provided""" % self.project)
+
+        if self.unstable is True:
+            print "Documentation will be uploaded to unstable directory"
+            self.destination = '/home/groups/openalea/htdocs/beta_doc'
+        else:
+            print "Documentation will be uploaded to stable directory"
+            self.destination = '/home/groups/openalea/htdocs/doc'
+
         if (not self.release):
             version = self.distribution.metadata.version
             try:
@@ -1216,16 +1225,37 @@ class upload_sphinx(Command):
                """
         print "Copying files on the GForge. Be patient ..."
 
+        self.test_and_build_dir()
         for output in  ['html' , 'latex']:
+
             cmd1 = 'scp -r %s %s@%s:%s/%s/%s/doc/_build/' \
-                % ( os.path.join('doc', '_build', output),
+                % ( os.path.join(os.getcwd(), 'doc', '_build', output),
                     self.username,
                     self.DOMAIN,
-                    '/home/groups/openalea/htdocs/doc/',
+                    self.destination,
                     self.project,
                     self.package
                     )
             self.upload_file(cmd1)
+
+    def test_and_build_dir(self):
+        direc = "%s/%s/%s/doc/_build/"%(self.destination, self.project, self.package)
+
+        cmd1 = 'ssh  %s@%s "if [ ! -d %s ]; then mkdir -p %s; fi;"' \
+            % ( self.username,
+                self.DOMAIN,
+                direc,
+                direc )
+
+        print cmd1
+        status = subprocess.call(cmd1 ,stdout=open('/tmp/test','w'),stderr=None, shell=True)
+        if status!=0:
+            print 'This command failed'
+            import sys
+            sys.exit(status)
+        print "Ensured directory exists."
+
+
 
     def upload_file(self, command):
         print "Project: ", self.project
@@ -1236,7 +1266,7 @@ class upload_sphinx(Command):
         if status!=0:
             print 'This command failed'
             import sys
-            sys.exit(status)
+            #sys.exit(status)
         print "Files uploaded."
 
 
