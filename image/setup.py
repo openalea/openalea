@@ -47,7 +47,7 @@ setup(
     # Namespace packages creation by deploy
     namespace_packages = [namespace],
     create_namespaces = True,
-    # tell setup not  tocreate a zip file but install the egg as a directory (recomended to be set to False)
+    # tell setup not to create a zip file but install the egg as a directory (recomended to be set to False)
     zip_safe= False,
     # Dependencies
     setup_requires = ['openalea.deploy'],
@@ -58,12 +58,12 @@ setup(
     # (flowing is to include all versioned files other than .py)
     include_package_data = True,
     # (you can provide an exclusion dictionary named exclude_package_data to remove parasites).
-    # alternatively to global inclusion, list the file to include   
+    # alternatively to global inclusion, list the file to include
     package_data = {'' : ['*.pyd', '*.so', '*.zip', '*.png', '*.qrc'],},
 
     # postinstall_scripts = ['',],
 
-    # Declare scripts and wralea as entry_points (extensions) of your package 
+    # Declare scripts and wralea as entry_points (extensions) of your package
     entry_points = {
             'wralea': ['openalea.image = openalea.image_wralea',
                         'openalea.image.serial = openalea.image_wralea.serial',
@@ -71,8 +71,7 @@ setup(
                         'openalea.image.algo = openalea.image_wralea.algo',
                         'openalea.image.registration = openalea.image_wralea.registration',
                         'openalea.image.gui = openalea.image_wralea.gui',
-                       'openalea.image.demo = openalea.image_demo_wralea',
-                       'openalea.image.test = openalea.image_tuto_wralea']
+                       'openalea.image.demo = openalea.image_demo_wralea',]
         },
 
     )
