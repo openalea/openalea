@@ -27,6 +27,8 @@ import openalea
 
 import sys
 import os
+from os.path import join as pj
+
 import tempfile
 import glob
 import urlparse
@@ -926,10 +928,11 @@ class PackageManager(Observed):
         return [self[p] for p in pkgs]
 
 
-    def get_data(self, pattern='*.*',pkg_name=None):
+    def get_data(self, pattern='*.*',pkg_name=None, as_paths=False):
         """ Return all data that match the pattern. """
         pkgs = self.get_packages(pkg_name)
-        datafiles = [f for p in pkgs for f in p.itervalues() if not is_protected(f.name) and f.is_data() and fnmatch(f.name,pattern)]
+        datafiles = [(pj(p.path,f.name) if as_paths else f) for p in pkgs \
+                         for f in p.itervalues() if not is_protected(f.name) and f.is_data() and fnmatch(f.name,pattern)]
         return datafiles
 
     def get_composite_nodes(self, pkg_name=None):
