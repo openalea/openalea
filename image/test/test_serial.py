@@ -23,31 +23,34 @@ __revision__ = " $Id: __init__.py 2245 2010-02-08 17:11:34Z cokelaer $ "
 from numpy import array
 from openalea.image.all import save,load,SpatialImage,rainbow
 
-#create image
-data = array(range(30000) ).reshape( (100,300) )
 
-pal = rainbow(30000)
+def test_numpy_serialiser():
+    #create image
+    data = array(range(30000) ).reshape( (100,300) )
 
-img = pal[data]
+    pal = rainbow(30000)
 
-sp = SpatialImage(img,(0.5,0.6),vdim = 3)
+    img = pal[data]
 
-#save
-save("00_data",data)
-save("00_img",img)
-save("00_sp",sp)
+    sp = SpatialImage(img,(0.5,0.6),vdim = 3)
 
-#load
-rdata = load("00_data.npy")
-rimg = load("00_img.npy")
-rsp = load("00_sp.npy")
+    #save
+    save("00_data",data)
+    save("00_img",img, is_vectorial=True)
+    save("00_sp",sp, is_vectorial=True)
 
-assert (rdata == data).all()
-assert (rimg == img).all()
-assert (rsp == sp).all()
+    #load
+    rdata = load("00_data.npy")
+    rimg  = load("00_img.npy")
+    rsp   = load("00_sp.npy")
 
-assert hasattr(rsp,"resolution")
-assert rsp.resolution == sp.resolution
-assert hasattr(rsp,"info")
+    # -- save will promote everything to 3D --
+    assert (rdata[:,:,0] == data).all()
+    assert (rimg[:,:,0] == img).all()
+    assert (rsp[:,:,0] == sp).all()
+
+    assert hasattr(rsp,"resolution")
+    assert rsp.resolution[:2] == sp.resolution
+    assert hasattr(rsp,"info")
 
 

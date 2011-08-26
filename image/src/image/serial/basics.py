@@ -36,8 +36,14 @@ from openalea.image.spatial_image import SpatialImage
 
 __all__ = ["save", "load", "read_sequence", "imread", "imsave", "lazy_image_or_path"]
 
-def save (filename, img) :
+def save (filename, img, is_vectorial=False) :
     """Save an array to a binary file in numpy format with a SpatialImage header.
+
+    .. warning::
+
+      There is no way to distinguish a 2D RGB[A] image from a 3D scalar image.
+      If img is a 2D RGB[A] image, make sure its shape is similar to (SX,SY,1,3) for RGB or
+      (SX,SY,1,4) for RGBA.
 
     :Parameters:
      - `filename` (file or str) - Filename to which the data is saved.
@@ -52,17 +58,42 @@ def save (filename, img) :
             file_ = open("%s.npy" % filename,'wb')
     file_.write("SpatialImage")
 
-    if isinstance(img,SpatialImage) :
-        header = dumps( (img.resolution,img.info) )
-    elif isinstance(img, np.ndarray):
-        header = dumps( ((1.,1.,1.,),{}) )
 
+    lenShape = len(img.shape)
+    if isinstance(img,SpatialImage) :
+        resolution = img.resolution
+        info       = img.info
+    elif isinstance(img, np.ndarray):
+        resolution = (1.,)*lenShape
+        info       = {}
+
+    # if the data is of shape 2 then
+    # we can be sure it is a scalar 2D image
+    # and we can reshape to a 3D scalar image.
+    if lenShape==2:
+        print "openalea.image.serial.basics.save: assuming 2D scalar image"
+        img = img.reshape(img.shape+(1,))
+        if len(resolution) == 2:
+            resolution += (1.,)
+    elif lenShape == 3 and not is_vectorial:
+        print "openalea.image.serial.basics.save: assuming 3D scalar image"
+    elif lenShape == 3 and  is_vectorial:
+        print "openalea.image.serial.basics.save: interpreting as 2D scalar RGB[A] image"
+        img = img.reshape( img.shape[:2] + (1, img.shape[2]) )
+        if len(resolution) == 2:
+            resolution += (1.,)
+    elif lenShape == 4 and not is_vectorial:
+        print "openalea.image.serial.basics.save: assuming 3D RGB[A] image"
+    else:
+        raise IOError("Unable to identify image shape and encoding")
+
+    header = dumps( (resolution, info) )
     file_.write(pack('i',len(header) ) )
     file_.write(header)
     np.save(file_,img)
 
 
-def load (file, mmap_mode=None) :
+def load (file, mmap_mode=None, is_vectorial=False) :
     """Load a pickled, ``.npy``, or ``.npz`` binary file.
 
     :Parameters:
@@ -77,7 +108,7 @@ def load (file, mmap_mode=None) :
         small fragments of large files without reading the entire file
         into memory.
 
-    :Returns Type: array, tuple, dict, etc.
+    :Returns Type: SpatialImage
     """
     if isinstance(file,str) :
         file = open(file,'rb')
@@ -88,6 +119,26 @@ def load (file, mmap_mode=None) :
         nb, = unpack('i',file.read(calcsize('i') ) )
         res,info = loads(file.read(nb) )
         data = np.load(file,mmap_mode)
+
+        # if the read data is of shape 2 then
+        # we can be sure it is a scalar 2D image
+        # and we can reshape to a 3D scalar image.
+        if len(data.shape) == 2:
+            print "openalea.image.serial.basics.load: assuming 2D scalar image"
+            data = data.reshape(data.shape+(1,))
+            if len(res) == 2:
+                res += (1.,)
+        elif len(data.shape) == 3 and not is_vectorial:
+            print "openalea.image.serial.basics.load: assuming 3D scalar image"
+        elif len(data.shape) == 3 and  is_vectorial:
+            print "openalea.image.serial.basics.load: interpreting as 2D scalar RGB[A] image"
+            data = data.reshape( data.shape[:2] + (1, data.shape[2]) )
+            if len(res) == 2:
+                res += (1.,)
+        elif len(data.shape) == 4 and not is_vectorial:
+            print "openalea.image.serial.basics.load: assuming 3D RGB[A] image"
+        else:
+            raise IOError("Unable to identify image shape and encoding")
 
         if len(res) == len(data.shape) :
             vdim = 1
