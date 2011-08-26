@@ -50,6 +50,9 @@ def save (filename, img, is_vectorial=False) :
                                   If the filename does not already have a ".npy"
                                   extension, it is added.
      - `img` (array)
+     - `is_vectorial` (bool) - specifically deal with img as if it was
+        a 2D vectorial (RGB[A]) image so that it saves it as a 3D RGBA image
+        and conforms to the contract.
     """
     if isinstance(filename,str) :
         if filename.endswith(".npy") :
@@ -107,7 +110,9 @@ def load (file, mmap_mode=None, is_vectorial=False) :
         ndarray.  Memory mapping is especially useful for accessing
         small fragments of large files without reading the entire file
         into memory.
-
+     - `is_vectorial` (bool) - specifically deal with file as if it was
+        a 2D vectorial (RGB[A]) image so that it returns a 3D RGBA image
+        and conforms to the contract.
     :Returns Type: SpatialImage
     """
     if isinstance(file,str) :
