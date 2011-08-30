@@ -193,9 +193,9 @@ class PackageManager(Observed):
             l = eval(s)
         except NoSectionError, e:
             config.add_section("pkgmanager")
-            config.add_option("pkgmanager", "path", [])
+            config.add_option("pkgmanager", "path", str([]))
         except NoOptionError, e:
-            config.add_option("pkgmanager", "path", [])
+            config.add_option("pkgmanager", "path", str([]))
         for p in l:
             self.add_wralea_path(os.path.abspath(p), self.user_wralea_path)
 
