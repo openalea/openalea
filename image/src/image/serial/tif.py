@@ -66,6 +66,10 @@ def read_tif(filename,channel=0):
         _vy = (yM-ym)/ny
         _vz = (zM-zm)/nz
     else:
+        # -- When we have [XYZ]Resolution fields, it describes the
+        # number of voxels per real unit. In SpatialImage we want the
+        # voxelsizes, which is the number of real units per voxels.
+        # So we must invert the result. --
         if "XResolution" in info_dict:
             # --resolution is stored in a [(values, precision)] list-of-one-tuple, or
             # sometimes as a single number --
@@ -77,6 +81,7 @@ def read_tif(filename,channel=0):
                 _vx = float(xres_str)
             else:
                 _vx = 1.
+            _vx = 1./_vx
         else:
             _vx = 1.0 # dumb fallback, maybe we will find something smarter later on
         if "YResolution" in info_dict:
@@ -90,6 +95,7 @@ def read_tif(filename,channel=0):
                 _vy = float(yres_str)
             else:
                 _vy = 1.
+            _vy = 1./_vy
         else:
             _vy = 1.0 # dumb fallback, maybe we will find something smarter later on
 
@@ -104,6 +110,7 @@ def read_tif(filename,channel=0):
                 _vz = float(zres_str)
             else:
                 _vz = 1.
+            _vz = 1./_vz
         else:
             if "spacing" in info_dict:
                 _vz = eval(info_dict["spacing"])
