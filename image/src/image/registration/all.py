@@ -17,3 +17,4 @@ __license__= "Cecill-C"
 __revision__ = " $Id$ "
 
 from registration import *
+from matrix import *
