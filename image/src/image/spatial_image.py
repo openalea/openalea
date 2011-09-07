@@ -39,7 +39,11 @@ class SpatialImage (np.ndarray) :
 		 - `vdim` (int) - size of data if vector data are used
 		 - `info` (dict of str|any) - metainfo
 		"""
-		#initialize datas
+		#initialize datas. For some obscure reason, we want the data
+		#to be F-Contiguous in the NUMPY sense. I mean, if this is not
+		#respected, we will have problems when communicating with
+		#C-Code... yeah, that makes so much sense (fortran-contiguous
+		#to be c-readable...).
 		dtype = dtype if dtype is not None else input_array.dtype
                 if input_array.flags.f_contiguous :
                         obj = np.asarray(input_array, dtype=dtype).view(cls)
