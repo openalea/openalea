@@ -155,15 +155,18 @@ def read_inrimage (filename) :
 
 
 def write_inrimage_to_stream(stream, img):
+	assert img.ndim in (3,4)
+
 	#metadata
 	info = dict(getattr(img,"info",{}) )
 
 	#image dimensions
+	# for some reason again, YDIM and XDIM must be inverted... dunno why though.
         if img.ndim < 4 :
-	    info["XDIM"],info["YDIM"],info["ZDIM"] = ("%d" % val for val in img.shape)
+	    info["YDIM"],info["XDIM"],info["ZDIM"] = ("%d" % val for val in img.shape)
 	    info["VDIM"] = "1" #TODO higher dimensions
 	else:
-            info["XDIM"],info["YDIM"],info["ZDIM"],info["VDIM"] = ("%d" % val for val in img.shape)
+            info["YDIM"],info["XDIM"],info["ZDIM"],info["VDIM"] = ("%d" % val for val in img.shape)
 
 	#image resolution
 	res = getattr(img,"resolution",(1,1,1) )
@@ -219,16 +222,14 @@ def write_inrimage_to_stream(stream, img):
 
 	stream.write(header)
 
-	#write datas
-	#lmat = img.transpose(2,1,0)
-	#f.write(lmat.tostring() )
-
-        if img.ndim < 4:
-            stream.write(img.transpose().tostring() )
-        else :
+        if img.ndim == 3:
+            stream.write(img.transpose().tostring("C") )
+        elif img.ndim == 4 :
             lmat = img.transpose(2,1,0,3)
             mat = lmat.reshape(img.shape)
             stream.write(mat.tostring() )
+	else:
+            raise Exception("Unhandled image dimension %d."%img.ndim)
 
 
 def write_inrimage (filename, img) :
