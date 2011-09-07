@@ -313,7 +313,9 @@ def imsave(filename, img):
     if ext == ".inr":
         write_inrimage(filename, img)
     elif ext in [".npz", ".npy"]:
-        save(filename)
+        save(filename, img)
+    elif ext in [".tiff", ".tif"]:
+        write_tif(filename, img)
     else:
         if not is2D:
             raise IOError("No writer found for format of 3D image %s"%filename)
