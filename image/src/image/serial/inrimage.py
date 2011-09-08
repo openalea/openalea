@@ -235,11 +235,11 @@ def write_inrimage_to_stream(stream, img):
 def write_inrimage (filename, img) :
 	"""Write an inrimage zipped or not according to the extension
 
-	.. warning:: if img is not a `SpatialImage`, default values will be used
+	.. warning:: if img is not a |SpatialImage|, default values will be used
 	             for the resolution of the image
 
 	:Parameters:
-	 - `img` (SpatialImage) - image to write
+	 - `img` (|SpatialImage|) - image to write
 	 - `filename` (str) - name of the file to read
 	"""
 	#open stream

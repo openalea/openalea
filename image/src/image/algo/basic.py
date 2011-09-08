@@ -113,8 +113,8 @@ def flatten (img_list, alpha = False) :
     If alpha is True, the resulting image will use the max of all alpha channels
     as an alpha channel.
 
-    .. warning:: if the first image is a SpatialImage, the resulting image will
-                 also be a SpatialImage but no test is made to ensure
+    .. warning:: if the first image is a |SpatialImage|, the resulting image will
+                 also be a |SpatialImage| but no test is made to ensure
                  consistency in the resolution of the layers
 
     :Parameters:

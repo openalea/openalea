@@ -37,7 +37,7 @@ from openalea.image.spatial_image import SpatialImage
 __all__ = ["save", "load", "read_sequence", "imread", "imsave", "lazy_image_or_path"]
 
 def save (filename, img, is_vectorial=False) :
-    """Save an array to a binary file in numpy format with a SpatialImage header.
+    """Save an array to a binary file in numpy format with a |SpatialImage| header.
 
     .. warning::
 
@@ -113,7 +113,7 @@ def load (file, mmap_mode=None, is_vectorial=False) :
      - `is_vectorial` (bool) - specifically deal with file as if it was
         a 2D vectorial (RGB[A]) image so that it returns a 3D RGBA image
         and conforms to the contract.
-    :Returns Type: SpatialImage
+    :Returns Type: |SpatialImage|
     """
     if isinstance(file,str) :
         file = open(file,'rb')
@@ -238,7 +238,7 @@ def imread (filename) :
      - `filename` (str)
 
     :Returns Type:
-        `openalea.image.all.SpatialImage`
+        |SpatialImage|
     """
     if not exists(filename) :
         raise IOError("The requested file do not exist: %s" % filename)
@@ -279,19 +279,19 @@ def imread (filename) :
         return SpatialImage(im_array[..., np.newaxis], None, vdim)
 
 def imsave(filename, img):
-    """Save a `openalea.image.all.SpatialImage` to filename.
+    """Save a |SpatialImage| to filename.
 
-    .. note: `img` **must** be a SpatialImage.
+    .. note: `img` **must** be a |SpatialImage|.
 
     The filewriter is choosen according to the file extension. However all file extensions
     will not match the data held by img, in dimensionnality or encoding, and might raise `IOError`s.
 
     For real volume data, Inrimage and NPY are currently supported.
-    For SpatialImages that are actually 2D, PNG, BMP, JPG among others are supported if PIL is installed.
+    For |SpatialImage|s that are actually 2D, PNG, BMP, JPG among others are supported if PIL is installed.
 
     :Parameters:
      - `filename` (str)
-     - `img` (openalea.image.all.SpatialImage)
+     - `img` (|SpatialImage|)
     """
 
     assert isinstance(img, SpatialImage)
@@ -339,17 +339,17 @@ def lazy_image_or_path(image):
     """ Takes an image or a path to an image and returns the image.
 
     Extensively used in other functions to make them accept images given as paths.
-    If `image` is already a SpatialImage this method is a pass-thru. If it looks
+    If `image` is already a |SpatialImage| this method is a pass-thru. If it looks
     like a path, it will load the image at that path and return it.
 
     :Parameters:
-     -`image` (openalea.image.spatial_image.SpatialImage, str) - [Path] or image.
+     - `image` (|SpatialImage|, str) - [Path] or image.
 
     :Returns:
      - image or imread(image)
 
     :Returns Type:
-        `openalea.image.all.SpatialImage`
+        |SpatialImage|
     """
     wp = False
     if isinstance(image, (str, unicode)):

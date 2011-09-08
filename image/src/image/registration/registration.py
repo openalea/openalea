@@ -218,8 +218,8 @@ def angles2transfo(image1, image2, angleX=0, angleY=0, angleZ=0) :
     Compute transformation matrix between 2 images from the angles in each directions.
 
     :Parameters:
-     - `image1` (SpatialImage) -
-     - `image2` (SpatialImage) -
+     - `image1` (|SpatialImage|) -
+     - `image2` (|SpatialImage|) -
      - `angleX` (int) - Rotation through angleX (degree)
      - `angleY` (int) - Rotation through angleY (degree)
      - `angleZ` (int) - Rotation through angleZ (degree)
