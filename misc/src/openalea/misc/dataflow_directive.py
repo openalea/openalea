@@ -130,7 +130,7 @@ class DataflowRenderer(QtGui.QWidget):
 
         # -- we create the view whose content we will 
         # render to file --
-        self.view = GraphicalGraph.create_view(node, parent=self)
+        self.view = GraphicalGraph.create_view(node, parent=self, noToolBar=True)
         self.timerId = self.startTimer(0)
 
     def timerEvent(self, event):

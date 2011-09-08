@@ -39,7 +39,7 @@ import openalea.grapheditor.base
 
 class DataflowView( qt.View ):
 
-    def __init__(self, parent):
+    def __init__(self, parent, *args, **kwargs):
         qt.View.__init__(self, parent)
 
         self.__clipboard = None
@@ -51,9 +51,12 @@ class DataflowView( qt.View ):
                           "openalea/data_instance":self.node_datapool_drop_handler}
         self.set_mime_handler_map(mimeFormatsMap)
 
-        #self.__annoNotAdded = True
-        self.__annoToolBar = anno.AnnotationTextToolbar(None)
-        self.__annoToolBar.setSleepOnDisappear(True)
+        # -- handle the toolbar --
+        self.__noToolBar = kwargs.get("noToolBar", False)
+
+        if not self.__noToolBar:
+            self.__annoToolBar = anno.AnnotationTextToolbar(None)
+            self.__annoToolBar.setSleepOnDisappear(True)
 
         self.copyRequest.connect(self.on_copy_request)
         self.cutRequest.connect(self.on_cut_request)
@@ -61,7 +64,7 @@ class DataflowView( qt.View ):
         self.deleteRequest.connect(self.on_delete_request)
 
     def setScene(self, scene):
-        if scene is not None:
+        if scene is not None and not self.__noToolBar:
             scene.addItem(self.__annoToolBar)
         qt.View.setScene(self, scene)
 
@@ -213,20 +216,21 @@ class DataflowView( qt.View ):
     # Handling mouse events #
     #########################
     def mouseMoveEvent(self, e):
-        # -- the annotation toolbar (color of the text/postit) is positionned
-        # here. When the pointer is over an annotation, the annotation is set
-        # as the annotation of the annotation toolbar. This correctly puts the
-        # toolbar in the right place and reveals it.
-        # If the pointer not over an annotation it is hidden unless it is over
-        # the toolbar. --
-        items = self.items(e.pos())
-        annotations = [i for i in items if isinstance(i, anno.GraphicalAnnotation)]
-        if len(annotations) > 0:
-            firstAnno = annotations[0]
-            self.__annoToolBar.wakeup()
-            self.__annoToolBar.set_annotation(firstAnno, self)
-        elif not self.__annoToolBar in items :
-            self.__annoToolBar.set_annotation(None)
+        if not self.__noToolBar:
+            # -- the annotation toolbar (color of the text/postit) is positionned
+            # here. When the pointer is over an annotation, the annotation is set
+            # as the annotation of the annotation toolbar. This correctly puts the
+            # toolbar in the right place and reveals it.
+            # If the pointer not over an annotation it is hidden unless it is over
+            # the toolbar. --
+            items = self.items(e.pos())
+            annotations = [i for i in items if isinstance(i, anno.GraphicalAnnotation)]
+            if len(annotations) > 0:
+                firstAnno = annotations[0]
+                self.__annoToolBar.wakeup()
+                self.__annoToolBar.set_annotation(firstAnno, self)
+            elif not self.__annoToolBar in items :
+                self.__annoToolBar.set_annotation(None)
 
         qt.View.mouseMoveEvent(self, e)
 
