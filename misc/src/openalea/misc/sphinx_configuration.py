@@ -271,6 +271,15 @@ latex_preamble = """
 # If false, no module index is generated.
 #latex_use_modindex = True
 
+# Add an epilog to every read file so as to ensure proper
+# substituions throughout our documentation
+rst_epilog = ""
+
+from os.path import dirname as dn, join as pj
+f=open(pj(dn(__file__),"global_substitutions.rst"))
+rst_epilog += f.read() +"\n"
+f.close()
+
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'http://docs.python.org/': None,
