@@ -4,12 +4,12 @@ Serial Package
 Reading images
 ==============
 
-:class:`openalea.image.all.imread` reads a grayscale or color image from the file specified by a filename.
-Return value is a :class:`openalea.image.all.SpatialImage`. All images are returned as 3D images. Images
+The :func:`imread <openalea.image.serial.basics.imread>` reads a grayscale or color image from the file specified by a filename.
+Return value is a |SpatialImage|. All images are returned as 3D images. Images
 that are only 2D are upgraded to 3D images (with only one slice). 3D images are returned as SX*SY*SZ images. RGB or RGBA images add
 a fourth dimension (of size 3 or 4) to the returned array.
 
-Supported formats are Inrimage (.inr), TIFF (.tif), LSM (*.lsm) and more common formats like PNG, JPG, BMP...
+Supported formats are Inrimage (.inr), TIFF (.tif), LSM (.lsm) and more common formats like PNG, JPG, BMP...
 
 The reader tries to retreive voxel sizes data from image files and it is stored in the "resolution" attribute of the returned SpatialImage.
 
@@ -25,8 +25,9 @@ The reader tries to retreive voxel sizes data from image files and it is stored 
 Saving images
 =============
 
-:class:`openalea.image.all.imsave` writes exclusively :class:`openalea.image.all.SpatialImage` instances.
+:func:`openalea.image.serial.basics.imsave` writes exclusively |SpatialImage| instances.
 The writer is selected by looking at the extension. The directory where the file is written must exist.
+
 
 .. code-block:: python
     :linenos:
@@ -37,3 +38,5 @@ The writer is selected by looking at the extension. The directory where the file
     imsave("lena_2.png", im)
 
 .. dataflow:: openalea.image.demo imsave
+
+

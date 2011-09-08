@@ -14,4 +14,5 @@ Reference Guide
     reference/interpolation.rst
     reference/registration.rst
     reference/serial.rst
-
+    reference/spatial_image.rst
+    
