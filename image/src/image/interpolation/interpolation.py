@@ -122,6 +122,7 @@ def deformation_field( image, points1, points2, sigma):
     vectors = points2-points1
     points1 = np.round(points1)
     del points2
+
     #points2 = np.round(points2)
     label = skiz(image, points1, vectors)
     img_vectors = component_gaussian_filter(label,sigma=sigma)

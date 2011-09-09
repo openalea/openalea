@@ -87,6 +87,10 @@ class SpatialImage (np.ndarray) :
 		warnings.warn(rezexc)
 		return self.voxelsize
 
+	@property
+	def real_shape(self):
+		return np.multiply(self.shape[:3], self.voxelsize)
+
 	def __array_finalize__ (self, obj) :
 		if obj is None :
 			return
