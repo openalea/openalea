@@ -21,27 +21,27 @@ canonical_dependencies = {
     "vplants"  : [
                     "bison-dev",
                     "boostmath",
-                    "boostmath-dev", 
-                    "boostpython", 
-                    "boostpython-dev", 
-                    "cgal", 
-                    "cgal-dev", 
+                    "boostmath-dev",
+                    "boostpython",
+                    "boostpython-dev",
+                    "cgal",
+                    "cgal-dev",
                     "compilers-dev",
                     "flex-dev",
                     "glut",
-                    "glut-dev", 
+                    "glut-dev",
                     "nose-dev",
-                    "openalea", 
-                    "pyopengl",     
-                    "pyqt4", 
-                    "pyqt4-dev", 
-                    "qhull", 
-                    "qhull-dev", 
-                    "readline", 
+                    "openalea",
+                    "pyopengl",
+                    "pyqt4",
+                    "pyqt4-dev",
+                    "qhull",
+                    "qhull-dev",
+                    "readline",
                     "readline-dev",
                     "rpy2",
                     "scons-dev",
-                    "sip4-dev", 
+                    "sip4-dev",
                     "svn-dev",
                     ],
     "alinea"   : ["vplants", "openalea"]
@@ -57,7 +57,7 @@ def get_canonincal_dependencies():
 class Ubuntu_PackageNames(dependency.DistributionPackageNames):
     def __init__(self):
         d = {"bison-dev" : "bison",
-             "boostmath" : "libboost-math",             
+             "boostmath" : "libboost-math",
              "boostmath-dev" : "libboost-math-dev",
              "boostpython" : "libboost-python",
              "boostpython-dev" : "libboost-python-dev",
@@ -107,7 +107,7 @@ class Ubuntu_Lucid_PackageNames(Ubuntu_PackageNames):
              "boostpython" : "libboost-python",
              "boostpython-dev" : "libboost-python-dev",
              "cgal" :  "libcgal4",
-             "sip4-dev":"python-sip-dev",             
+             "sip4-dev":"python-sip-dev",
         })
 
 class Ubuntu_Natty_PackageNames(Ubuntu_Lucid_PackageNames):
@@ -116,7 +116,7 @@ class Ubuntu_Natty_PackageNames(Ubuntu_Lucid_PackageNames):
         self.update({
              "boostmath" : "libboost-math1.42.0",
              "boostpython" : "libboost-python1.42.0",
-             "cgal" :  "libcgal5",         
+             "cgal" :  "libcgal5",
         })
 
 # ------------------ FEDORA ------------------
@@ -142,7 +142,7 @@ class Fedora_PackageNames(dependency.DistributionPackageNames):
              "pyqt4-dev" : "PyQt4-devel",
              "pyqscintilla" : "qscintilla-python",
              "qhull" : "qhull",
-             "qhull-dev" : "qhull-dev",
+             "qhull-dev" : "qhull-devel qhull-dev",
              "readline": "readline",
              "readline-dev": "readline-devel readline",
              "rpy2" : "rpy",
