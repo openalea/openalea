@@ -21,7 +21,7 @@ This module redefine load and save to account for spatial images
 __license__= "Cecill-C"
 __revision__=" $Id$ "
 
-from os.path import exists, splitext, split as psplit
+from os.path import exists, splitext, split as psplit, expanduser as expusr
 import Image,ImageOps
 import os, fnmatch
 #from pylab import imread as _imread, imsave as _imsave
@@ -240,6 +240,7 @@ def imread (filename) :
     :Returns Type:
         |SpatialImage|
     """
+    filename = expusr(filename)
     if not exists(filename) :
         raise IOError("The requested file do not exist: %s" % filename)
 
@@ -297,7 +298,7 @@ def imsave(filename, img):
     assert isinstance(img, SpatialImage)
     # -- images are always at least 3D! If the size of dimension 3 (indexed 2) is 1, then it is actually
     # a 2D image. If it is 4D it has vectorial or RGB[A] data. --
-
+    filename = expusr(filename)
     head, tail = psplit(filename)
     head = head or "."
     if not exists(head):
