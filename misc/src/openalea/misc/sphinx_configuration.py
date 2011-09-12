@@ -284,17 +284,17 @@ f.close()
 
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'http://docs.python.org/': None,
-                       'http://openalea.gforge.inria.fr/doc/openalea/core/doc/_build/html': None,
-                       'http://openalea.gforge.inria.fr/beta_doc/openalea/image/doc/_build/html': None,
-                       'http://openalea.gforge.inria.fr/doc/openalea/deploy/doc/_build/html': None,
-                       'http://openalea.gforge.inria.fr/doc/openalea/deploygui/doc/_build/html': None,
-                       'http://openalea.gforge.inria.fr/doc/openalea/misc/doc/_build/html': None,
-                       'http://openalea.gforge.inria.fr/doc/openalea/scheduler/doc/_build/html': None,
-                       'http://openalea.gforge.inria.fr/doc/openalea/visualea/doc/_build/html': None,
-                       'http://openalea.gforge.inria.fr/doc/openalea/sconsx/doc/_build/html': None,
-                       'http://openalea.gforge.inria.fr/doc/openalea/stdlib/doc/_build/html': None,
-                       'http://openalea.gforge.inria.fr/doc/vplants/stat_tool/doc/_build/html': None,
-                       'http://openalea.gforge.inria.fr/doc/vplants/sequence_analysis/doc/_build/html': None,
+intersphinx_mapping = {"python":('http://docs.python.org/', None),
+                       "oacore":('http://openalea.gforge.inria.fr/doc/openalea/core/doc/_build/html', None),
+                       "oaimage":('http://openalea.gforge.inria.fr/beta_doc/openalea/image/doc/_build/html', None),
+                       "oadeploy":('http://openalea.gforge.inria.fr/doc/openalea/deploy/doc/_build/html', None),
+                       "oadeploygui":('http://openalea.gforge.inria.fr/doc/openalea/deploygui/doc/_build/html', None),
+                       "oamisc":('http://openalea.gforge.inria.fr/doc/openalea/misc/doc/_build/html', None),
+                       "oascheduler":('http://openalea.gforge.inria.fr/doc/openalea/scheduler/doc/_build/html', None),
+                       "oavisualea":('http://openalea.gforge.inria.fr/doc/openalea/visualea/doc/_build/html', None),
+                       "oasconsx":('http://openalea.gforge.inria.fr/doc/openalea/sconsx/doc/_build/html', None),
+                       "oastdlib":('http://openalea.gforge.inria.fr/doc/openalea/stdlib/doc/_build/html', None),
+                       "vpstattool":('http://openalea.gforge.inria.fr/doc/vplants/stat_tool/doc/_build/html', None),
+                       "vpsequenceanalysis":('http://openalea.gforge.inria.fr/doc/vplants/sequence_analysis/doc/_build/html', None),
                     }
 
