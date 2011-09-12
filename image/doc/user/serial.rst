@@ -1,10 +1,10 @@
-Serial Package
-##############
+Input/Output
+############
 
 Reading images
 ==============
 
-The :func:`imread <openalea.image.serial.basics.imread>` reads a grayscale or color image from the file specified by a filename.
+The :func:`~openalea.image.serial.basics.imread` reads a grayscale or color image from the file specified by a filename.
 Return value is a |SpatialImage|. All images are returned as 3D images. Images
 that are only 2D are upgraded to 3D images (with only one slice). 3D images are returned as SX*SY*SZ images. RGB or RGBA images add
 a fourth dimension (of size 3 or 4) to the returned array.
@@ -25,7 +25,7 @@ The reader tries to retreive voxel sizes data from image files and it is stored 
 Saving images
 =============
 
-:func:`openalea.image.serial.basics.imsave` writes exclusively |SpatialImage| instances.
+:func:`~openalea.image.serial.basics.imsave` writes exclusively |SpatialImage| instances.
 The writer is selected by looking at the extension. The directory where the file is written must exist.
 
 

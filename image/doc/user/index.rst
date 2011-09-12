@@ -7,13 +7,13 @@ Image User Guide
 :Release: |release|
 :Date: |today|
 
-This manual details functions, modules, and objects included in 
-openalea.mechanics, describing what they are and what they do. For a complete 
+This manual details functions, modules, and objects included in
+openalea.mechanics, describing what they are and what they do. For a complete
 reference guide, see :ref:`openalea.celltissue_reference`.
 
 .. warning::
 
-   This "User Guide" is still very much in progress. 
+   This "User Guide" is still very much in progress.
    Many aspects of openalea.image are not covered.
 
    More documentation can be found on the
@@ -21,5 +21,6 @@ reference guide, see :ref:`openalea.celltissue_reference`.
 
 .. toctree::
 
-    Serial Package <serial.rst>
-    GUI Package <gui.rst>
+    serial
+    gui
+
