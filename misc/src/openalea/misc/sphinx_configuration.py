@@ -285,6 +285,7 @@ f.close()
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {"python":('http://docs.python.org/', None),
+                       "numpy":("http://docs.scipy.org/doc/numpy/", None),
                        "oacore":('http://openalea.gforge.inria.fr/doc/openalea/core/doc/_build/html', None),
                        "oaimage":('http://openalea.gforge.inria.fr/beta_doc/openalea/image/doc/_build/html', None),
                        "oadeploy":('http://openalea.gforge.inria.fr/doc/openalea/deploy/doc/_build/html', None),

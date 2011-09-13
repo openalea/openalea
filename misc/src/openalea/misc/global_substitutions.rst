@@ -4,4 +4,4 @@
 .. _IPython : http://ipython.org/
 .. |SpatialImage| replace:: :class:`~openalea.image.spatial_image.SpatialImage`
 .. |Registration Matrices| replace:: Hahahahaaaa Something to substituuuute
-.. |QtEnSh| replace:: :ref:`Qt-enabled shell <oaimage:qt_enabled_shell>`
+.. |QtEnSh| replace:: :ref:`oaimage:qt_enabled_shell`
