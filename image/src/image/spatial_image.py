@@ -82,10 +82,15 @@ class SpatialImage (np.ndarray) :
 		#return
 		return obj
 
-	@property
-	def resolution(self):
+	def _get_resolution(self):
 		warnings.warn(rezexc)
 		return self.voxelsize
+
+	def _set_resolution(self, val):
+		warnings.warn(rezexc)
+		self.voxelsize = val
+	
+	resolution = property(_get_resolution, _set_resolution)
 
 	@property
 	def real_shape(self):
