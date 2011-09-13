@@ -1,18 +1,23 @@
-.. _qt_enabled_shell:
+
 
 Graphical Tools
 ###############
 
-.. warning ::
+.. _qt_enabled_shell:
 
-    If you use these classes from the Python command line make sure you have
+Qt Enabled Shell
+================
+
+.. note ::
+
+    To use graphical tools from the Python command line make sure you have
     created a QApplication or else they will crash your shell.
 
     You can either use IPython_:
 
     .. code-block:: bash
 
-        user@computer$ ipython gui=qt # or -q4thread on pre- 0.11 versions of IPython.
+        user@computer$ ipython --gui=qt # or -q4thread on pre- 0.11 versions of IPython.
 
     or you can manually start a QApplication. In the python command line::
 
@@ -29,16 +34,18 @@ Displaying images
     :linenos:
 
     from openalea.image.all import display
-    from PyQt4 import QtGui
-    app = QtGui.QApplication([])
-    w1 = display(im)
+    w1 = display(im, title="An image")
 
 
 .. image:: ./images/lena.png
 
-In VisuAlea, the same function exits in the package :class:`openalea.image.gui`. Let us drag and drop the node :class:`~openalea.display` in the workspace.
+In VisuAlea, the same function exits in the package :class:`openalea.image.gui`.
+Let's drag and drop the node :class:`~openalea.display` in the workspace.
 
 .. dataflow:: openalea.image.demo display
+
+
+
 
 
 .. _point_selection_tool:
@@ -46,16 +53,13 @@ In VisuAlea, the same function exits in the package :class:`openalea.image.gui`.
 Point Selection Tool
 ====================
 
-:func:`openalea.image.gui.point_selection.point_selection` is a graphical tool that letse you place points in an image.
-It works for 2D and for 3D (by navigating through the slices).
+:func:`openalea.image.gui.point_selection.point_selection` is a graphical tool that lets you place points in an image.
+It naturally works for 2D but also for 3D by navigating through the slices.
 
 .. code-block:: python
     :linenos:
 
     from openalea.image.all import point_selection
-    from PyQt4 import QtGui
-    app = QtGui.QApplication([])
-
     ps1 = point_selection(im1)
 
 .. dataflow:: openalea.image.demo point_selection

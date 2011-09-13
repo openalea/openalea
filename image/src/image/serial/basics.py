@@ -325,6 +325,10 @@ def imsave(filename, img):
             # WARNING: Careful, this can fail in many ways still!
             # For example, many formats wont support writing scalar floats, or
             # vector floats, or encodings different from uchar8 --
+
+            #WARNING 2: Still this damn transposition thing that may appear.
+            #the problem is that what we write doesn't look like what is shown
+            #with "display()". display() is broken, not the write functions.
             if len(img.shape) == 4: # RGB[A] images
                 _imsave(filename,img[:,:,0,:])
             elif len(img.shape) == 3: #scalar images

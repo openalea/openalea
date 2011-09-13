@@ -46,6 +46,10 @@ class SpatialImage (np.ndarray) :
 		 - `vdim` (int) - size of data if vector data are used
 		 - `info` (dict of str|any) - metainfo
 		"""
+                #if the input_array is 2D we can reshape it to 3D.
+                if input_array.ndim == 2:
+                    input_array = input_array.reshape( input_array.shape+(1,) )
+
 		#initialize datas. For some obscure reason, we want the data
 		#to be F-Contiguous in the NUMPY sense. I mean, if this is not
 		#respected, we will have problems when communicating with
@@ -56,7 +60,7 @@ class SpatialImage (np.ndarray) :
                         obj = np.asarray(input_array, dtype=dtype).view(cls)
 		else :
                         obj = np.asarray(input_array, dtype=dtype, order='F').view(cls)
-		
+
 		voxelsize = kwargs.get("resolution", voxelsize) #to manage transition
 		if voxelsize is None :
 			if vdim == 1 :
@@ -89,7 +93,7 @@ class SpatialImage (np.ndarray) :
 	def _set_resolution(self, val):
 		warnings.warn(rezexc)
 		self.voxelsize = val
-	
+
 	resolution = property(_get_resolution, _set_resolution)
 
 	@property

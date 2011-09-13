@@ -130,7 +130,7 @@ class Fedora_PackageNames(dependency.DistributionPackageNames):
              "cgal" :  "CGAL",
              "cgal-dev" : "CGAL-devel",
              "compilers-dev" : "gcc-c++ gcc-gfortran",
-             "flex-dev" : "flex",
+             "flex-dev" : "flex flex-static",
              "glut" : "freeglut",
              "glut-dev" : "freeglut-devel",
              "matplotlib" : "python-matplotlib",
