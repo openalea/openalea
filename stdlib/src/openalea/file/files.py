@@ -19,7 +19,7 @@ __revision__ = " $Id$ "
 import sys, os, subprocess
 import tempfile
 from openalea.core import *
-from openalea.core.path import path
+import openalea.core.path as path
 
 # File name manipulation
 
@@ -39,7 +39,7 @@ class FileName(object):
         return (str(fname), )
 
 
-class DirName(object):
+class DirName(Node):
     """Browser to select a directory name
 
     :param object: a string representing a valid directory path name
@@ -47,14 +47,17 @@ class DirName(object):
 
     """
 
-    def __call__(self, input):
+    def __call__(self, inputs):
         """
         :param input: list of input values 
         :returns: the path string
         """
 
-        fname = input
-        return (str(fname), )
+        fname = str(inputs[0])
+        d = path.path(fname)
+        d.basename()
+        self.set_caption('.../'+d.basename())
+        return (fname, )
 
 
 class PackageDir(Node):
@@ -71,25 +74,24 @@ class PackageDir(Node):
         from openalea.core.pkgmanager import PackageManager
         pm = PackageManager()
         pkg = pm.get(pname)
-        path = ''
+        p = ''
 
         if pkg:
-            path = pkg.path
+            p = pkg.path
 
-        return (path, )
+        return (p, )
 
 # Path
-import openalea.core.path as path
 
 
-def glob(pattern):
-    """Return a list of path that math the pattern
+def glob(directory,pattern):
+    """Return a list of path that match the pattern
 
     :param pattern: a pattern to glob
     :return: a list of paths that match the pattern
     """
-    ret = path.glob.glob(pattern)
-    return (ret, )
+    ret = path.path(directory).glob(pattern)
+    return ret,
 
 
 def expanduser(pth):
