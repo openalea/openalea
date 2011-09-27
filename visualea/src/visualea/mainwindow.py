@@ -406,7 +406,7 @@ class MainWindow(QtGui.QMainWindow,
         mess = QtGui.QMessageBox.about(self, "About Visualea",
                                        "Version %s\n\n"%(metainfo.get_version()) +
                                        "VisuAlea is part of the OpenAlea framework.\n"+
-                                       metainfo.get_copyrigth()+
+                                       metainfo.get_copyright()+
                                        "This Software is distributed under the Cecill-V2 License.\n\n"+
                                        "Visit " + metainfo.url +"\n\n"
                                        )
