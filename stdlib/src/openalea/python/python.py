@@ -289,7 +289,7 @@ class ListSelectorWidget(QtGui.QListWidget, NodeWidget):
         elif row >= 0:
             key = row
 
-        if(key):
+        if key is not None:
             self.node.set_input(1, key)
 
 
