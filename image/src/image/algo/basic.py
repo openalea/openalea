@@ -22,10 +22,11 @@ __revision__ = " $Id: __init__.py 2245 2010-02-08 17:11:34Z cokelaer $ "
 
 import sys
 from math import sqrt
-from numpy import array,zeros,ones,uint8,apply_along_axis,rollaxis,bitwise_xor, uint16, zeros, zeros_like
+from numpy import ndarray, array,zeros,ones,uint8,apply_along_axis,rollaxis,bitwise_xor, uint16, zeros, zeros_like
 from colorsys import hsv_to_rgb,rgb_to_hsv,rgb_to_hls
 from openalea.image.spatial_image import SpatialImage
 from scipy import ndimage
+
 
 __all__ = ["bounding_box","apply_mask",
            "flatten","saturate",
@@ -178,7 +179,9 @@ def saturate (img) :
 def intensity (color) :
     """Returns the intensity of a color
     """
-    return (color[0] + color[1] + color[2]) / 3.
+    if isinstance(color, (tuple, list, ndarray)):
+        return sum(color)/len(color)
+    return color
 
 def high_level (img, threshold) :
     """Create a mask where all pixel whose intensity is smaller than threshold
