@@ -18,8 +18,6 @@ __license__ = "Cecill-C"
 __revision__ = " $Id: interface.py 2245 2010-02-08 17:11:34Z cokelaer $"
 
 from openalea.core import *
-from openalea.visualea.node_widget import SignalSlotInterfaceWidget
-from openalea.image.gui.slide_viewer import SlideViewer
 from openalea.image.spatial_image import SpatialImage
 
 class IImage(IInterface) :
@@ -28,22 +26,3 @@ class IImage(IInterface) :
 	__color__ = "#194BFF"
         __pytype__ = SpatialImage
 
-
-
-class IImageWidget(SignalSlotInterfaceWidget, SlideViewer):
-
-    __interface__ = IImage
-    __metaclass__ = make_metaclass()
-
-    def __init__(self, node, parent, parameter_str, interface):
-        SlideViewer.__init__(self, parent)
-        # SignalSlotInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
-        print "constructed!"
-
-    def valueChanged(self, newval):
-        pass
-
-    def notify(self, sender, event):
-        im = self.node.get_input_by_key(self.param_str)
-        self.set_image(im)
-        self.show()
