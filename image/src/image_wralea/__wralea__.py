@@ -81,7 +81,7 @@ lena = Factory(name = "lena",
                 category = "image",
                 nodemodule = "image",
                 nodeclass = "lena",
-                outputs = (dict(name = "img", interface = ""IImage""),),
+                outputs = (dict(name = "img", interface = "IImage"),),
                 )
 
 __all__.append("lena")
