@@ -18,8 +18,8 @@ __license__ = "Cecill-C"
 __revision__ = " $Id: __wralea__.py 2585 2010-07-02 15:28:03Z chopard $ "
 
 from openalea.core import *
-from image_interface import IImage
-from image_interface_widget import IImageWidget
+# from image_interface import IImage
+# from image_interface_widget import IImageWidget
 from openalea.color import IColor,IColorWidget
 
 __name__ = "openalea.image"
@@ -44,8 +44,8 @@ image = Factory(name = "img",
                 category = "image",
                 nodemodule = "image",
                 nodeclass = "image",
-                inputs = (dict(name = "img", interface = IImage),),
-                outputs = (dict(name = "img", interface = IImage),),
+                inputs = (dict(name = "img", interface = "IImage"),),
+                outputs = (dict(name = "img", interface = "IImage"),),
                 )
 
 __all__.append("image")
@@ -55,7 +55,7 @@ size2 = Factory(name = "size2",
                 category = "image",
                 nodemodule = "image",
                 nodeclass = "size2",
-                inputs = (dict(name = "img", interface = IImage),),
+                inputs = (dict(name = "img", interface = "IImage"),),
                 outputs = (dict(name = "width", interface = IInt),
                            dict(name = "height", interface = IInt),),
                 )
@@ -67,7 +67,7 @@ size3 = Factory(name = "size3",
                 category = "image",
                 nodemodule = "image",
                 nodeclass = "size3",
-                inputs = (dict(name = "img", interface = IImage),),
+                inputs = (dict(name = "img", interface = "IImage"),),
                 outputs = (dict(name = "width", interface = IInt),
                            dict(name = "height", interface = IInt),
                            dict(name = "depth", interface = IInt),),
@@ -81,7 +81,7 @@ lena = Factory(name = "lena",
                 category = "image",
                 nodemodule = "image",
                 nodeclass = "lena",
-                outputs = (dict(name = "img", interface = "IImage"),),
+                outputs = (dict(name = "img", interface = ""IImage""),),
                 )
 
 __all__.append("lena")
@@ -98,7 +98,7 @@ apply_palette = Factory(name = "apply_palette",
                 nodeclass = "apply_palette",
                 inputs = (dict(name = "data", interface = None),
                           dict(name = "pal", interface = None),),
-                outputs = (dict(name = "img", interface = IImage),),
+                outputs = (dict(name = "img", interface = "IImage"),),
                 )
 
 __all__.append("apply_palette")
@@ -140,7 +140,7 @@ spatial_image = Factory( name= "spatial_image",
                                         dict(name="vectorDim", interface="IInt",),
                                         dict(name="info", interface="IDict",),
                                         ),
-                         outputs=(dict(name="image", interface=IImage),),
+                         outputs=(dict(name="image", interface="IImage"),),
                          )
 
 __all__.append('spatial_image')
@@ -150,9 +150,9 @@ empty_image = Factory( name= "empty_image_like",
 				category = "image",
 				nodemodule = "spatial_image",
 				nodeclass = "empty_image_like",
-                                inputs=(dict(name="image", interface=IImage,),
+                                inputs=(dict(name="image", interface="IImage",),
                                         ),
-                         outputs=(dict(name="image", interface=IImage),),
+                         outputs=(dict(name="image", interface="IImage"),),
                          )
 
 __all__.append('empty_image')
@@ -163,7 +163,7 @@ resolution = Factory( name= "resolution",
 				category = "image",
 				nodemodule = "spatial_image",
 				nodeclass = "resolution",
-				inputs=(dict(name="img", interface=IImage,),),
+				inputs=(dict(name="img", interface="IImage",),),
 				outputs=(dict(name="res", interface = ISequence),),
 			)
 
@@ -174,7 +174,7 @@ info = Factory( name= "info",
 				category = "image",
 				nodemodule = "spatial_image",
 				nodeclass = "info",
-				inputs=(dict(name="img", interface=IImage,),),
+				inputs=(dict(name="img", interface="IImage",),),
 				outputs=(dict(name="info", interface=IDict),),
 			)
 
@@ -186,9 +186,9 @@ null_vector_field_like = Factory( name= "null_vector_field_like",
 				category = "image",
 				nodemodule = "spatial_image",
 				nodeclass = "null_vector_field_like",
-                                inputs=(dict(name="image", interface=IImage,),
+                                inputs=(dict(name="image", interface="IImage",),
                                         ),
-                         outputs=(dict(name="image", interface=IImage),),
+                         outputs=(dict(name="image", interface="IImage"),),
                          )
 
 __all__.append('null_vector_field_like')
