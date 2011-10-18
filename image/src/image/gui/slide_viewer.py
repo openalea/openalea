@@ -38,8 +38,11 @@ palette_names.sort()
 class SlideViewer (QMainWindow) :
     """Display each image in a stack using a slider
     """
-    def __init__ (self) :
-        QMainWindow.__init__(self)
+
+    viewer_count = 0
+
+    def __init__ (self, parent=None) :
+        QMainWindow.__init__(self, parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.axis = 2
@@ -120,6 +123,9 @@ class SlideViewer (QMainWindow) :
         self.ui.statusbar.addPermanentWidget(self._lab_ycoord)
         self.ui.statusbar.addPermanentWidget(self._lab_zcoord)
         self.ui.statusbar.addPermanentWidget(self._lab_intens)
+
+        self.set_title("<"+str(self.viewer_count)+">")
+        SlideViewer.viewer_count += 1
 
     ##############################################
     #
@@ -258,6 +264,7 @@ class SlideViewer (QMainWindow) :
 def display (image, palette_name = "grayscale", title = None , color_index_max = None) :
     """
     """
+
     w = SlideViewer()
 
     if not isinstance(image,SpatialImage):
