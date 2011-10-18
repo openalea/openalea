@@ -30,7 +30,7 @@ class SpatialImage (np.ndarray) :
 	"""Associate meta data to np.ndarray
 	"""
 	def __new__ (cls, input_array, voxelsize = None,
-		     vdim = 1, info = None, dtype = None, **kwargs) :
+		     vdim = None, info = None, dtype = None, **kwargs) :
 		"""Instantiate a new |SpatialImage|
 
 		if voxelsize is None, vdim will be used to infer space size and affect
@@ -63,19 +63,13 @@ class SpatialImage (np.ndarray) :
 
 		voxelsize = kwargs.get("resolution", voxelsize) #to manage transition
 		if voxelsize is None :
-			if vdim == 1 :
-				voxelsize = (1.,) * len(obj.shape)
-			else :
-				voxelsize = (1.,) * (len(obj.shape) - 1)
+                    voxelsize = (1.,) * 3
 		else :
-			if vdim == 1 :
-				if len(voxelsize) != len(obj.shape) :
-					raise ValueError("data dimension and voxelsize mismatch")
-			else :
-				if len(voxelsize) != (len(obj.shape) - 1) :
-					raise ValueError("data dimension and voxelsize mismatch")
+                    if len(voxelsize) != 3 :
+                        raise ValueError("data dimension and voxelsize mismatch")
 
 		obj.voxelsize = tuple(voxelsize)
+                obj.vdim = vdim if vdim else ( 1 if len(input_array.shape) == 3 else input_array.shape[3] )
 
 		#set metadata
 		if info is None :
