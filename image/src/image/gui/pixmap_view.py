@@ -173,10 +173,6 @@ class PixmapStackView (PixmapView) :
         pal = self.palette()
         data = self.image()
 
-        if data.flags.c_contiguous :
-            order = 'C'
-        else:
-            order = 'F'
 
         #rotation
         tr = QTransform()
