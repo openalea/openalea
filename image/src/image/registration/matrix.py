@@ -45,7 +45,12 @@ def inverse_matrix( numpy_matrix ) :
     assert numpy_matrix.shape == (4,4)
     return np.linalg.inv(numpy_matrix)
 
-
+def identity(target_res=None, source_res=None):
+    mat = np.identity(4)
+    if target_res is not None and source_res is not None:
+        mat = matrix_real2voxels(mat, target_res, source_res)
+    return mat
+     
 def matrix_voxels2real( matrix, target_res, source_res ) :
     """ Converts a transform matrix (M') expressed in voxel coordinates
     (from space_s to space_t) into a matrix M from space_r to space_r
