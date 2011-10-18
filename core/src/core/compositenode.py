@@ -1186,3 +1186,35 @@ $NAME = CompositeNodeFactory(name=$PNAME,
                                       EVALALGO=self.pprint_repr(f.eval_algo),
                                       )
         return result
+
+import json
+class JSONCNFactoryWriter(PyCNFactoryWriter):
+
+    def __repr__(self):
+        f = self.factory
+
+        minx = min(f.elt_ad_hoc.itervalues(), key=lambda x: x["position"][0])["position"][0]
+        miny = min(f.elt_ad_hoc.itervalues(), key=lambda x: x["position"][1])["position"][1]
+
+        print minx, miny
+
+        for elt in f.elt_ad_hoc.itervalues():
+            elt["position"][0] -= minx
+            elt["position"][1] -= miny
+
+        d = dict(type="CompositeNodeFactory",
+                 name=f.name,
+                 description=f.description,
+                 category=f.category,
+                 doc=f.doc,
+                 #inputs=f.inputs,
+                 #outputs=f.outputs,
+                 #elt_factory=f.elt_factory,
+                 elt_connections=list(f.connections.itervalues()),
+                 #elt_data=f.elt_data,
+                 #elt_value=f.elt_value,
+                 elt_ad_hoc=f.elt_ad_hoc,
+                 lazy=f.lazy,
+                 eval_algo=f.eval_algo,
+                 )
+        return json.dumps(d)
