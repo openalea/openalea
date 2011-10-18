@@ -2,12 +2,12 @@
 #
 #       OpenAlea.Image
 #
-#       Copyright 2006-2009 INRIA - CIRAD - INRA  
+#       Copyright 2006-2009 INRIA - CIRAD - INRA
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ################################################################################
@@ -29,7 +29,7 @@ from openalea.core import Factory
 from openalea.core.interface import *
 
 
-frames = Factory( name= "frames", 
+frames = Factory( name= "frames",
 				description= "",
 				category = "",
 				nodemodule = "frame",
@@ -45,7 +45,7 @@ frames = Factory( name= "frames",
 
 __all__.append('frames')
 
-frame_list = Factory( name= "frame_list", 
+frame_list = Factory( name= "frame_list",
 				description= "",
 				category = "",
 				nodemodule = "frame",
@@ -59,7 +59,7 @@ frame_list = Factory( name= "frame_list",
 
 __all__.append('frame_list')
 
-animator_node = Factory( name= "Animator", 
+animator_node = Factory( name= "Animator",
 				description= "",
 				category = "",
 				nodemodule = "animator_widget",
@@ -77,7 +77,7 @@ animator_node = Factory( name= "Animator",
 
 __all__.append('animator_node')
 
-pick_color = Factory( name= "PickColor", 
+pick_color = Factory( name= "PickColor",
 				description= "",
 				category = "",
 				nodemodule = "pick_color_widget",
@@ -93,7 +93,7 @@ pick_color = Factory( name= "PickColor",
 
 __all__.append('pick_color')
 
-select_box = Factory( name= "SelectBox", 
+select_box = Factory( name= "SelectBox",
 				description= "",
 				category = "",
 				nodemodule = "select_box_widget",
@@ -121,12 +121,12 @@ __all__.append('select_box')
 #
 #########################################
 
-display = Factory(  name= "display", 
+display = Factory(  name= "display",
 		    description= "",
 		    category = "",
 		    nodemodule = "viewer",
 		    nodeclass = "display",
-		    inputs=(dict(name="images", interface=None),
+		    inputs=(dict(name="images", interface="IImage"),
 			    dict(name="palette_name", interface=IStr, value="grayscale"),
 			    dict(name="title", interface=IStr, value=None),
 			    dict(name="color_index_max", interface=IInt, value=None),),
@@ -136,7 +136,7 @@ display = Factory(  name= "display",
 __all__.append('display')
 
 
-point_selection = Factory(name= "Point Selection", 
+point_selection = Factory(name= "Point Selection",
 			  description= "enable to select points in an image",
 			  category = "image",
 			  nodemodule = "point_selection_node",
