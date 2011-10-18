@@ -277,7 +277,7 @@ def imread (filename) :
         #newarr   = np.zeros(newShape, dtype=im_array.dtype, order="C")
         #newarr[:,:,0] = im_array[:,:]
         vdim     = 1 if( len(shape) < 3 ) else shape[2]
-        return SpatialImage(im_array[:,:,np.newaxis,:], None, vdim)
+        return SpatialImage(im_array.reshape(newShape), None, vdim)
 
 def imsave(filename, img):
     """Save a |SpatialImage| to filename.
