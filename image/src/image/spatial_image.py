@@ -20,6 +20,7 @@ __license__= "Cecill-C"
 __revision__=" $Id: $ "
 
 import numpy as np
+from scipy import ndimage
 
 # -- deprecation messages --
 import warnings, exceptions
@@ -142,3 +143,38 @@ def empty_image_like(spatial_image):
 def null_vector_field_like(spatial_image):
 	array = np.zeros( list(spatial_image.shape)+[3], dtype=np.float32 )
 	return SpatialImage(array, spatial_image.voxelsize, vdim=3)
+
+def random_vector_field_like(spatial_image, smooth=0, max_=1):
+    if spatial_image.vdim == 1:
+        shape = spatial_image.shape+(3,)
+    else:
+        shape = spatial_image.shape
+    array = np.random.uniform(-max_, max_, shape)
+    if smooth:
+        array = ndimage.gaussian_filter(array, smooth)
+    return SpatialImage(array, spatial_image.voxelsize, dtype=np.float32)
+
+
+def checkerboard(nx=9, ny=8, nz=5, size=10, vs=(1.,1.,1.), dtype=np.uint8):
+    """Creates a 3D checkerboard image with `nx` squares in width,
+    `ny` squares in height and `nz` squares in depth. The length of the edge in real units
+    of each square is `size`."""
+
+    sxv, syv, szv = np.array([size]*3) / np.array(vs)
+    array = np.zeros( (sxv*nx, syv*ny, szv*nz), dtype=dtype, order="F")
+    typeinfo = np.iinfo(dtype)
+
+    # -- wooo surely not the most beautiful implementation out here --
+    for k in xrange(nz):
+        kval = typeinfo.max if (k%2==0) else typeinfo.min
+        jval = kval
+        for j in xrange(ny):
+            ival = jval
+            for i in xrange(nx):
+                array[i*sxv:i*sxv+sxv, j*syv:j*syv+syv, k*szv:k*szv+szv] = ival
+                ival = typeinfo.max if (ival==typeinfo.min) else typeinfo.min
+            jval = typeinfo.max if (jval==typeinfo.min) else typeinfo.min
+        kval = typeinfo.max if (kval==typeinfo.min) else typeinfo.min
+
+    return SpatialImage(array, vs, dtype=dtype)
+
