@@ -97,11 +97,11 @@ def read_inrimage (filename) :
 
 	#read header
 	prop = _read_header(f)
-
+        print prop
 	#extract usefull infos to read image
-	xdim = int(prop.pop("XDIM") )
-	ydim = int(prop.pop("YDIM") )
 	zdim = int(prop.pop("ZDIM") )
+	ydim = int(prop.pop("YDIM") )
+	xdim = int(prop.pop("XDIM") )
 	vdim = int(prop.pop("VDIM") )
 
 	#if vdim != 1 :
@@ -136,11 +136,11 @@ def read_inrimage (filename) :
 	size = ntyp.itemsize * xdim * ydim * zdim * vdim
 	mat = np.fromstring(f.read(size),ntyp)
         if vdim != 1 :
-	    mat = mat.reshape( (zdim,xdim,ydim,vdim) )
-	    mat = mat.transpose(2,1,0,3)
+	    mat = mat.reshape( (vdim,xdim,ydim,zdim), order="F" )
+	    mat = mat.transpose(1,2,3,0)
         else:
-	    mat = mat.reshape( (zdim,xdim,ydim) )
-	    mat = mat.transpose(2,1,0)
+	    mat = mat.reshape( (xdim,ydim,zdim), order="F" )
+	    #mat = mat.transpose(2,1,0)
 
 	#create SpatialImage
 	res = tuple(float(prop.pop(k) ) for k in ("VX","VY","VZ") )
@@ -161,12 +161,11 @@ def write_inrimage_to_stream(stream, img):
 	info = dict(getattr(img,"info",{}) )
 
 	#image dimensions
-	# for some reason again, YDIM and XDIM must be inverted... dunno why though.
         if img.ndim < 4 :
-	    info["YDIM"],info["XDIM"],info["ZDIM"] = ("%d" % val for val in img.shape)
-	    info["VDIM"] = "1" #TODO higher dimensions
+	    info["XDIM"],info["YDIM"],info["ZDIM"] = ("%d" % val for val in img.shape)
+	    info["VDIM"] = "1"
 	else:
-            info["YDIM"],info["XDIM"],info["ZDIM"],info["VDIM"] = ("%d" % val for val in img.shape)
+            info["XDIM"],info["YDIM"],info["ZDIM"],info["VDIM"] = ("%d" % val for val in img.shape)
 
 	#image resolution
 	res = getattr(img,"resolution",(1,1,1) )
@@ -220,14 +219,14 @@ def write_inrimage_to_stream(stream, img):
 
 	header += "##}\n"
 
-	stream.write(header)
+        print info
 
+	stream.write(header)
         if img.ndim == 3:
-            stream.write(img.transpose().tostring("C") )
+            stream.write(img.tostring("F"))
         elif img.ndim == 4 :
-            lmat = img.transpose(2,1,0,3)
-            mat = lmat.reshape(img.shape)
-            stream.write(mat.tostring() )
+            mat = img.transpose(3,0,1,2)
+            stream.write(mat.tostring("F") )
 	else:
             raise Exception("Unhandled image dimension %d."%img.ndim)
 
