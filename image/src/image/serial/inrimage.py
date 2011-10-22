@@ -97,7 +97,7 @@ def read_inrimage (filename) :
 
 	#read header
 	prop = _read_header(f)
-        print prop
+
 	#extract usefull infos to read image
 	zdim = int(prop.pop("ZDIM") )
 	ydim = int(prop.pop("YDIM") )
@@ -218,8 +218,6 @@ def write_inrimage_to_stream(stream, img):
 		header += "\n" * ( 256 - header_size % 256 )
 
 	header += "##}\n"
-
-        print info
 
 	stream.write(header)
         if img.ndim == 3:
