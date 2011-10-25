@@ -163,8 +163,8 @@ def write_tif(filename, obj):
                   #"spacing": vsz, # : no way to save the spacing (no specific tag)
                   }
     print extra_info
-    #return pylibtiff_write_file(image, filename, info=extra_info)
-    return image.write_file(filename, compression='lzw')
+    return pylibtiff_write_file(image, filename, info=extra_info)
+    #return image.write_file(filename, compression='lzw')
 
 
 def pylibtiff_write_file(tif, filename, compression="none",
