@@ -1,0 +1,24 @@
+
+#THIS SCRIPT IS CONFIGURED AND RUN BY THE DEPENDENCY_BUILDER PROCESS.
+#OTHERWISE IT WILL MOST PROBABLY FAIL AS THAT PROCESS CONFIGURES PATH
+#AND PYTHONPATH TEMPORARILY FOR SUBPROCESSES TO WORK PROPERLY.
+
+from setuptools import setup
+
+from PyQt4 import Qt
+
+setup(name="qt4_dev",
+      version     = Qt.QT_VERSION_STR,
+      zip_safe    = False,
+      description = "PyQt Runtime packaged as an egg for windows-gcc",
+      author      = "Riverbank Computing is the author of PyQt4. This egg was prepared by the Openalea Team.",
+      data_files = [("bin", $BINFILES),
+                    $INCLUDES,
+                    $LIBS,
+                    $SIP,
+                    $TRA,
+                    $MKS,
+                    $PLU,
+                    $SRC],
+      install_requires = ["qt4"],
+      )
