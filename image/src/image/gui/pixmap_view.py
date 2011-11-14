@@ -180,14 +180,24 @@ class PixmapStackView (PixmapView) :
 
         #construct pixmaps
         pix = []
+        
+        # Manage also colored images.
+        if len(data.shape) == 4 and data.shape[-1] in (3,4):
+            if data.dtype != uint8:
+                raise Exception("Only uint8 RGB[A] images supported, got %s instead"%str(data.dtype))
+            pal = None
+            
         for z in xrange(data.shape[axis]) :
-            #dat = pal[data[:,:,z] ].flatten('F')
             if axis == 0 :
-                dat = pal[ data[z,:,:] ]
+                dat = data[z,:,:] 
             elif axis == 1 :
-                dat = pal[ data[:,z,:] ]
+                dat = data[:,z,:] 
             else :
-                dat = pal[ data[:,:,z] ]
+                dat = data[:,:,z]
+
+            if pal is not None:
+                dat = pal[dat]
+            
             #img = QImage(dat,
             #             data.shape[0],
             #             data.shape[1],

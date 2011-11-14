@@ -278,6 +278,7 @@ def display (image, palette_name = "grayscale", title = None , color_index_max =
     else :
         cmax = color_index_max
 
+    #palette = palette_factory(palette_name,cmax,False)
     palette = palette_factory(palette_name,cmax)
 
     w.set_palette(palette,palette_name)

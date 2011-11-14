@@ -224,7 +224,7 @@ def read_sequence ( directory, grayscale=True, number_images=None, start=0, incr
         return SpatialImage(result, voxels_size)
 
 
-def imread (filename) :
+def imread (filename, dimension=3) :
     """Reads an image file completely into memory.
 
     It uses the file extension to determine how to read the file. It first tries
