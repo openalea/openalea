@@ -43,6 +43,14 @@ def to_img (img, scalar_type=None, lut=None, forceNativeLut=None) :
     # explicitly asked by the user view GUI or what. If the image is not
     # properly oriented it is up to the reading code to fix the orientation! --
 
+    try:
+        import Image, ImageQt
+    except ImportError:
+        return None
+
+    _img = Image.fromarray(img)
+    pseudo_QImage = ImageQt.ImageQt(_img)
+    return pseudo_QImage
 
     try:
         imgconvarray={
@@ -79,6 +87,7 @@ def to_img (img, scalar_type=None, lut=None, forceNativeLut=None) :
                   img.shape[0],
                   imgconvarray[vdim])
 
+    
     return qimg.copy()
 
 def to_img_fast( img, scalar_type=None, lut=None, forceNativeLut=False):

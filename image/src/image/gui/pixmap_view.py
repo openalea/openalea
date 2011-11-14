@@ -402,7 +402,7 @@ class ScalableLabel (QLabel) :
             vx,vy = self._resolution
             # NOTE : this is part of the weirdness : someone serves us
             #with inverted voxel sizes
-            #vx, vy = vy, vx
+            vx, vy = vy, vx
             self._ratio = (pix.height() * vy) / (pix.width() * vx)
 
     def set_resolution (self, x_scale, y_scale) :
