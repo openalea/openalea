@@ -226,7 +226,7 @@ class SlideViewer (QMainWindow) :
         palname = str(self._palette_select.currentText() )
         img = self._im_view.image()
         if img is not None :
-            self.set_palette(palette_factory(str(palname),img.max() ) )
+            self.set_palette(palette_factory(str(palname),img.max()) )
 
     def slice_changed (self, ind) :
         self._im_view.set_current_slice(ind)
@@ -278,7 +278,6 @@ def display (image, palette_name = "grayscale", title = None , color_index_max =
     else :
         cmax = color_index_max
 
-    #palette = palette_factory(palette_name,cmax,False)
     palette = palette_factory(palette_name,cmax)
 
     w.set_palette(palette,palette_name)
