@@ -25,32 +25,21 @@ sj = os.pathsep.join
 # a Project with a None url implicitely means the sources are already here because some other proj installed it.
 
 projs = OrderedDict ( (p.name,p) for p in  [Project("qt4"         , "http://download.qt.nokia.com/qt/source/qt-everywhere-opensource-src-4.7.4.zip", "qt4_src.zip", "qt-every*"),
-                                                 Project("sip"         , "http://www.riverbankcomputing.co.uk/static/Downloads/sip4/sip-4.13.zip", "sip_src.zip", "sip*"),
-                                                 Project("pyqt4"       , "http://www.riverbankcomputing.co.uk/static/Downloads/PyQt4/PyQt-win-gpl-4.8.6.zip", "pyqt4_src.zip", "PyQt*"),
-                                                 Project("qscintilla"  , "http://www.riverbankcomputing.co.uk/static/Downloads/QScintilla2/QScintilla-gpl-2.5.1.zip", "qscintilla_src.zip", "QScint*/Qt4"),
-                                                 Project("pyqscintilla", None, "qscintilla_src.zip", "QScint*/Python"), # shares the same as qscintilla
-                                                 Project("qglviewer"   , "https://gforge.inria.fr/frs/download.php/28138/libQGLViewer-2.3.9-py.tgz", "qglviewer_src.tgz", "libQGLV*/QGLViewer"),
-                                                 Project("pyqglviewer" , "https://gforge.inria.fr/frs/download.php/28212/PyQGLViewer-0.9.1.zip", "pyqglviewer_src.zip", "PyQGLV*"),
+                                             Project("sip"         , "http://www.riverbankcomputing.co.uk/static/Downloads/sip4/sip-4.13.zip", "sip_src.zip", "sip*"),
+                                             Project("pyqt4"       , "http://www.riverbankcomputing.co.uk/static/Downloads/PyQt4/PyQt-win-gpl-4.8.6.zip", "pyqt4_src.zip", "PyQt*"),
+                                             Project("qscintilla"  , "http://www.riverbankcomputing.co.uk/static/Downloads/QScintilla2/QScintilla-gpl-2.5.1.zip", "qscintilla_src.zip", "QScint*/Qt4"),
+                                             Project("pyqscintilla", None, "qscintilla_src.zip", "QScint*/Python"), # shares the same as qscintilla
+                                             Project("qglviewer"   , "https://gforge.inria.fr/frs/download.php/28138/libQGLViewer-2.3.9-py.tgz", "qglviewer_src.tgz", "libQGLV*/QGLViewer"),
+                                             Project("pyqglviewer" , "https://gforge.inria.fr/frs/download.php/28212/PyQGLViewer-0.9.1.zip", "pyqglviewer_src.zip", "PyQGLV*"),
                                                 ]
                         )
                         
-eggs = OrderedDict ( (p.name,p) for p in  [#Egg("qt4"), 
+eggs = OrderedDict ( (p.name,p) for p in  [Egg("qt4"), 
                                            Egg("qt4_dev"), 
                                            Egg("pyqglviewer")]
                    )
 
 # Some utilities
-def makedirs(pth, verbose=False):
-    """ A wrapper around os.makedirs that prints what itt's doing and catches harmless errors. """
-    print "creating", pth, "...",
-    try:
-        os.makedirs( pth )
-        print "ok"
-    except os.error, e:
-        print "already exists or access denied"
-        if verbose:
-            traceback.print_exc()
-
 def recursive_glob(dir_, filepatterns=None, regexp=None, strip_dir_=False, levels=-1):
     """ Goes down a file hierarchy and returns files paths
     that match filepatterns or regexp."""
@@ -73,7 +62,7 @@ def recursive_glob(dir_, filepatterns=None, regexp=None, strip_dir_=False, level
         lev += 1
     return files if not strip_dir_ else [ f[len(dir_)+1:] for f in files]
     
-def recursive_glob_as_dict(dir_, filepatterns=None, regexp=None, strip_dir_=False, strip_keys=False, prefix_key=None):
+def recursive_glob_as_dict(dir_, filepatterns=None, regexp=None, strip_dir_=False, strip_keys=False, prefix_key=None, dirs=False):
     files     = recursive_glob(dir_, filepatterns, regexp, strip_dir_)
     by_direct = defaultdict(list)
     dirlen = len(dir_)
@@ -83,9 +72,25 @@ def recursive_glob_as_dict(dir_, filepatterns=None, regexp=None, strip_dir_=Fals
             target_dir = target_dir[dirlen+1:]
         if prefix_key:
             target_dir = pj(prefix_key, target_dir)
-        by_direct[target_dir].append(f)
+        if dirs:
+            f = os.path.split(f)[0]
+            if f not in by_direct[target_dir]:
+                by_direct[target_dir].append(f)
+        else:
+            by_direct[target_dir].append(f)
     return by_direct
 
+def makedirs(pth, verbose=False):
+    """ A wrapper around os.makedirs that prints what itt's doing and catches harmless errors. """
+    print "creating", pth, "...",
+    try:
+        os.makedirs( pth )
+        print "ok"
+    except os.error, e:
+        print "already exists or access denied"
+        if verbose:
+            traceback.print_exc()    
+    
 def copy(source, dest, patterns):
     patterns = patterns.split(",")
     files = []
@@ -93,9 +98,10 @@ def copy(source, dest, patterns):
         files += glob.glob( pj(source, pat) )
     for f in files: shutil.copy(f, dest)
 
-def recursive_copy(sourcedir, destdir, filepatterns=None, regexp=None, levels=-1):
+def recursive_copy(sourcedir, destdir, filepatterns=None, regexp=None, levels=-1, flat=False):
+    print "recursive_copy", sourcedir, destdir, filepatterns, regexp
     src = recursive_glob( sourcedir, filepatterns, regexp, levels=levels )
-    src_r = [ pj(destdir, f[len(sourcedir)+1:]) for f in src]
+    src_r = [destdir]*len(src) if flat else [ pj(destdir, f[len(sourcedir)+1:]) for f in src]
     bases = set([ split(f)[0] for f in src_r])
     for pth in bases:
         makedirs(pth)
@@ -116,6 +122,25 @@ class Singleton(type):
             cls.instance=type.__call__(cls, *args, **kw)
         return cls.instance
 
+        
+proj_process_map = OrderedDict([("d",("download_source",True)),
+                                ("u",("unpack_source",True)),
+                                ("f",("fix_source_dir",False)),
+                                ("c",("_configure",True)),
+                                ("b",("_build",True)),
+                                ("i",("_install",True)),
+                                ("p",("_patch", True)), #where should you be?
+                                ("x",("_extend_sys_path",False)),
+                                ("y",("_extend_python_path",False)),
+                                ])
+
+egg_process_map = OrderedDict([("c",("_configure_script",True)),
+                               ("e",("_eggify",True)),
+                               #("u",("_upload_egg",True))
+                              ])        
+        
+        
+        
 class BuildEnvironment(object):
     __metaclass__ = Singleton
 
@@ -139,10 +164,24 @@ class BuildEnvironment(object):
         except:
             traceback.print_exc()
             self.proc_flags = {}
-
+            
+    def skippable_proc(self, proj, proc):               
+        if not isinstance(proj, Egg):            
+            name = proj.name
+            d    = proj_process_map
+        else:
+            name = proj.name+'_egg'
+            d    =  egg_process_map
+        
+        skippable = d[proc][1]
+        forced_proc_flags = self.options.setdefault("PROC_FLAGS",{}).setdefault(name, "")
+        skip = proc in self.proc_flags.setdefault(name, "") and proc not in forced_proc_flags and skippable
+        return skip
+            
     def mark_proc_as_done(self, proj, proc):
-        if proc not in self.proc_flags.setdefault(proj.name, ""):
-            self.proc_flags[proj.name] += proc
+        name = proj.name if not isinstance(proj, Egg) else proj.name+'_egg'
+        if proc not in self.proc_flags.setdefault(name, ""):
+            self.proc_flags[name] += proc
 
     def __exit__(self, exc_type, exc_value, traceback):
         with open(self.proc_file_path, "wb") as f:
@@ -430,14 +469,13 @@ class qt4(BaseProjectBuilder):
         BaseProjectBuilder.__init__(self, *args, **kwargs)
         # define installation paths
         self.inst_paths = pj(self.installdir, "bin"), pj(self.installdir, "dll"), pj(self.installdir, "lib"), pj(self.installdir, "src"), \
-                          pj(self.installdir, "include"), pj(self.installdir, "plugins"), pj(self.installdir, "mkspecs"), pj(self.installdir, "translations")
-        self.install_bin_dir, self.install_dll_dir, self.install_lib_dir, self.install_src_dir, self.install_inc_dir, self.install_plu_dir, self.install_mks_dir, self.install_tra_dir = self.inst_paths
+                          pj(self.installdir, "include"), pj(self.installdir, "dll"), pj(self.installdir, "plugins_lib"), pj(self.installdir, "mkspecs"), pj(self.installdir, "translations")
+        self.install_bin_dir, self.install_dll_dir, self.install_lib_dir, self.install_src_dir, self.install_inc_dir, self.install_plu_dir, self.install_plu_lib_dir, self.install_mks_dir, self.install_tra_dir = self.inst_paths
         self.bin_pattern = "*.exe"
         self.dll_pattern = "*.dll"
         self.lib_pattern = "*.a,*.prl,*.pri,*.pfa,*.pfb,*.qpf,*.ttf,README"
         self.src_pattern = "*.pro,*.pri,*.rc,*.def,*.h,*.hxx"
-        self.inc_pattern = r"^Q[A-Z]\w|.*\.h"
-        self.plu_pattern = "*.dll,*.a"
+        self.inc_pattern = r"^Q[A-Z]\w|.*\.h"        
         self.mks_pattern = "*"
         self.tra_pattern = "*.qm"
     def configure(self):
@@ -463,7 +501,9 @@ class qt4(BaseProjectBuilder):
         # copy include
         recursive_copy( pj(self.sourcedir, "include"), self.install_inc_dir, regexp=self.inc_pattern )
         # copy plugins
-        recursive_copy( pj(self.sourcedir, "plugins"), self.install_plu_dir, self.plu_pattern )
+        recursive_copy( pj(self.sourcedir, "plugins"), self.install_plu_dir, self.dll_pattern, flat=True )
+        # copy plugins
+        recursive_copy( pj(self.sourcedir, "plugins"), self.install_plu_lib_dir, self.lib_pattern )
         # copy plugins
         recursive_copy( pj(self.sourcedir, "mkspecs"), self.install_mks_dir, self.mks_pattern )
         # copy translations
@@ -486,7 +526,10 @@ class sip(BaseProjectBuilder):
     def __init__(self, *args, **kwargs):
         BaseProjectBuilder.__init__(self, *args, **kwargs)
         # define installation paths
-        self.inst_paths = pj(self.installdir, "bin"), pj(self.installdir, "site"), pj(self.installdir, "include"), pj(self.installdir, "sip")
+        # we install sip binaries in the qt bin installation directory to easily recover it
+        # for the egg. 
+        qt4_ = qt4.instance
+        self.inst_paths = qt4_.install_bin_dir, pj(self.installdir, "site"), pj(self.installdir, "include"), pj(self.installdir, "sip")
         self.install_bin_dir, self.install_site_dir, self.install_inc_dir, self.install_sip_dir = self.inst_paths    
     def configure(self):
         return subprocess.call(sys.executable + " configure.py --platform=win32-g++ -b %s -d %s -e %s -v %s"%self.inst_paths) == 0
@@ -505,7 +548,10 @@ class pyqt4(BaseProjectBuilder) :
     def __init__(self, *args, **kwargs):
         BaseProjectBuilder.__init__(self, *args, **kwargs)
         # define installation paths
-        self.inst_paths = pj(self.installdir,"bin"), pj(self.installdir,"site"), pj(self.installdir,"sip")
+        # we install pyqt4 binaries in the qt bin installation directory to easily recover it
+        # for the egg.
+        qt4_ = qt4.instance
+        self.inst_paths = qt4_.install_bin_dir, pj(self.installdir,"site"), pj(self.installdir,"sip")
         self.install_bin_dir, self.install_site_dir, self.install_sip_dir = self.inst_paths    
     def configure(self):
         return subprocess.call(sys.executable + " configure.py --confirm-license -b %s -d %s -v %s"%self.inst_paths) == 0
@@ -525,65 +571,66 @@ class qscintilla(BaseProjectBuilder):
         # The install procedure will install qscintilla in qt's installation directories
         qt4_ = qt4.instance
         paths = qt4_.install_inc_dir, qt4_.install_tra_dir, qt4_.installdir, qt4_.install_dll_dir, 
-        return subprocess.call("qmake -after qscintilla.pro header.path=%s trans.path=%s qsci.path=%s target.path=%s -spec win32-g++"%paths) == 0
+        return subprocess.call("qmake -after header.path=%s trans.path=%s qsci.path=%s target.path=%s -spec win32-g++ qscintilla.pro"%paths) == 0
     def install(self):
         ret = BaseProjectBuilder.install(self)
         qt4_ = qt4.instance
-        shutil.move( pj(qt4_.install_dll_dir, "libqscintilla2.a"), qt4_.install_lib_dir)
+        try:
+            shutil.move( pj(qt4_.install_dll_dir, "libqscintilla2.a"), qt4_.install_lib_dir)
+        except Exception, epyqt :
+            print e
         return ret
         
 class pyqscintilla(BaseProjectBuilder):
-    def configure(self):
-        """pyqscintilla installs itself in PyQt4's installation directory"""
+    def __init__(self, *args, **kwargs):
+        BaseProjectBuilder.__init__(self, *args, **kwargs)
+        # define installation paths
         qsci = qscintilla.instance
         qt4_ = qt4.instance
-        pyqt = pyqt4.instance
+        pyqt = pyqt4.instance        
+        self.install_paths = pj(qsci.sourcedir,"release"), pj(qt4_.installdir, "qsci"), qsci.sourcedir, pj(pyqt.install_site_dir, "PyQt4"), pyqt.install_sip_dir
+        self.qsci_dir = self.install_paths[1]
+    def configure(self):
+        """pyqscintilla installs itself in PyQt4's installation directory"""
         # we want pyqscintilla to install itself where pyqt4 installed itself.
-        install_paths = pj(qsci.sourcedir,"release"), qt4_.installdir, qsci.sourcedir, pj(pyqt.install_site_dir, "PyQt4"), pyqt.install_sip_dir
-        return subprocess.call(sys.executable + " configure.py -o %s -a %s -n %s -d %s -v %s"%install_paths) == 0 #make this smarter
+        return subprocess.call(sys.executable + " configure.py -o %s -a %s -n %s -d %s -v %s"%self.install_paths ) == 0 #make this smarter
 
 class qglviewer(BaseProjectBuilder):
     def __init__(self, *args, **kwargs):
         BaseProjectBuilder.__init__(self, *args, **kwargs)
         # qmake is annoying with backslashes
-        self.includedir        = pj(self.installdir, "include").replace("\\", "/")
-        self.includedirVRender = pj(self.installdir, "include", "VRender").replace("\\", "/")
-        self.libdir            = pj(self.installdir, "lib").replace("\\", "/")
-    def configure(self):
-        # The install procedure will install qscintilla in qt's directories
-        paths = self.includedir, self.libdir
-        return subprocess.call("qmake include.path=%s target.path=%s QGLViewer*.pro"%paths) == 0
+        self.install_inc_dir = pj(self.installdir, "include", "QGLViewer")
+        self.install_dll_dir = pj(self.installdir, "dll")
+        self.install_lib_dir = pj(self.installdir, "lib")
+    def configure(self):        
+        return subprocess.call("qmake QGLViewer*.pro") == 0
     def build(self):
         # by default, and since we do not use self.options yet, we build in release mode
         return subprocess.call("mingw32-make release") == 0
     def install(self):
-        dirs = self.includedirVRender, self.libdir
-        for d in dirs:
-            makedirs(d)
-        # copy headers
-        copy(self.sourcedir, self.includedir, "*.h")
-        # copy vrender headers
-        copy( pj(self.sourcedir, "VRender"), self.includedirVRender, "*.h")
-        # copy libs
-        copy( pj(self.sourcedir, "release"), self.libdir, "*.dll,*.a")
+        # The install procedure will install qscintilla in qt's directories   
+        recursive_copy( self.sourcedir, self.install_inc_dir, "*.h")
+        recursive_copy( pj(self.sourcedir, "release"), self.install_lib_dir, "*.a,*.prl")
+        recursive_copy( pj(self.sourcedir, "release"), self.install_dll_dir, "*.dll")
         return True
     def extra_paths(self):
-        return self.libdir
+        return self.install_dll_dir
 
 class pyqglviewer(BaseProjectBuilder):
-    def configure(self):
+    def __init__(self, *args, **kwargs):
+        BaseProjectBuilder.__init__(self, *args, **kwargs)
         qglbuilder = qglviewer.instance
-        paths = pj(qglbuilder.sourcedir, os.path.pardir),
-        return subprocess.call(sys.executable + " configure.py -Q %s "%paths) == 0
+        self.qglbuilderbase = pj(qglbuilder.sourcedir, os.path.pardir),        
+        self.install_sip_dir  =  pj(qglbuilder.installdir, "sip")
+        self.install_site_dir = qglbuilder.installdir
+        self.install_exa_dir =  pj(qglbuilder.installdir, "examples")        
+    def configure(self):
+        return subprocess.call(sys.executable + " configure.py -Q %s "%self.qglbuilderbase) == 0
     def install(self):
         """ pyqglviewer installs itself into the same directory as qglviewer """
-        qglbuilder = qglviewer.instance
-        try:
-            shutil.copy( pj(self.sourcedir, "build", "PyQGLViewer.pyd"), qglbuilder.installdir)
-            shutil.copytree( pj(self.sourcedir, "src", "sip"), pj(qglbuilder.installdir, "sip"))
-        except os.error, e:
-            print e
-            
+        recursive_copy( pj(self.sourcedir, "build"), self.install_site_dir, "*.pyd", levels=1)
+        recursive_copy( pj(self.sourcedir, "src", "sip"), self.install_sip_dir, "*.sip", levels=1)
+        recursive_copy( pj(self.sourcedir, "examples"), self.install_exa_dir, "*")
         return True
     def extra_python_paths(self):
         qglbuilder = qglviewer.instance
@@ -594,32 +641,29 @@ class pyqglviewer(BaseProjectBuilder):
 ################################################################################
 # - EGG BUILDERS - EGG BUILDERS - EGG BUILDERS - EGG BUILDERS - EGG BUILDERS - #
 ################################################################################
-
+def merge_list_dict(l):
+    d = defaultdict(list)
+    for k, v in l:
+        d[k].extend(v)
+        
+    return dict( (k, sj(v)) for k,v in d.iteritems() )
+    
 class egg_qt4(BaseEggBuilder):
     __eggname__ = "qt4"
     def script_substitutions(self):
         qt4_   = qt4.instance
         pyqt4_ = pyqt4.instance
+        pysci_ = pyqscintilla.instance
         sip_   = sip.instance
-        # binaries are the union of qt, pyqt and sip binaries 
-        bins = recursive_glob( qt4_.install_bin_dir  , "*.exe") + \
-               recursive_glob( pyqt4_.install_bin_dir, "*.exe,*.bat") + \
-               recursive_glob( sip_.install_bin_dir  , "*.exe")
-        # includes are recursive subdirectories and the union of qt and sip includes               
-        incs = recursive_glob_as_dict( qt4_.install_inc_dir, regexp=qt4_.inc_pattern, strip_keys=True ).items()+\
-               recursive_glob_as_dict( sip_.install_inc_dir, regexp=qt4_.inc_pattern, strip_keys=True ).items()
-        # libs are recursive subdirectories of qt libs          
-        libs = recursive_glob_as_dict(qt4_.install_lib_dir, qt4_.lib_pattern, strip_keys=True).items()
-        # sip files are recursive subdirectories and the union of pyqt4 and...
-        sips = recursive_glob_as_dict(pyqt4_.install_sip_dir, "*.sip", strip_keys=True).items()
-        # sources are recursive subdirectories and the union of qt4 and...
-        srcs = recursive_glob_as_dict(qt4_.install_src_dir, qt4_.src_pattern, strip_keys=True).items()
+        # dlls are the union of qt dlls and plugins directories (which is actually the same!)
+        # qscis apis are recursive from qt4 (need to list all files)        
+        qscis   = recursive_glob_as_dict(pysci_.qsci_dir, "*.api", strip_keys=True, prefix_key="qsci").items()
         
-        return { "BINFILES": repr(bins),
-                 "INCLUDES": repr(incs),
-                 "LIBS": repr(libs)    ,
-                 "SIP": repr(sips)     ,
-                 "SRC": repr(srcs) }
+        return { "DLLS": repr(qt4_.install_dll_dir),
+                 "PYQT4DIR" : repr(pyqt4_.install_site_dir), 
+                 "SIPDIR": repr(sip_.install_site_dir),
+                 "QSCI": repr(qscis) ,
+                 }
                  
 class egg_qt4_dev(BaseEggBuilder):
     __eggname__ = "qt4_dev"
@@ -628,27 +672,26 @@ class egg_qt4_dev(BaseEggBuilder):
         pyqt4_ = pyqt4.instance
         sip_   = sip.instance
         # binaries are the union of qt, pyqt and sip binaries 
-        bins = recursive_glob( qt4_.install_bin_dir  , "*.exe") + \
-               recursive_glob( pyqt4_.install_bin_dir, "*.exe,*.bat") + \
-               recursive_glob( sip_.install_bin_dir  , "*.exe")
+        bin_dirs = {"bin":qt4_.install_bin_dir}
         # includes are recursive subdirectories and the union of qt and sip includes               
-        incs = recursive_glob_as_dict( qt4_.install_inc_dir, regexp=qt4_.inc_pattern, strip_keys=True, prefix_key="include" ).items()+\
-               recursive_glob_as_dict( sip_.install_inc_dir, regexp=qt4_.inc_pattern, strip_keys=True, prefix_key="include" ).items()
+        incs = recursive_glob_as_dict( qt4_.install_inc_dir, regexp=qt4_.inc_pattern, strip_keys=True, prefix_key="include", dirs=True).items() + \
+               recursive_glob_as_dict( sip_.install_inc_dir, regexp=qt4_.inc_pattern, strip_keys=True, prefix_key="include", dirs=True).items()
+        inc_dirs = merge_list_dict( incs )
         # libs are recursive subdirectories of qt libs          
         libs = recursive_glob_as_dict(qt4_.install_lib_dir, qt4_.lib_pattern, strip_keys=True, prefix_key="lib").items()
         # sip files are recursive subdirectories and the union of pyqt4 and...
         sips = recursive_glob_as_dict(pyqt4_.install_sip_dir, "*.sip", strip_keys=True, prefix_key="sip").items()
-        # sources are recursive subdirectories and the union of qt4 and...
+        # sources are recursive subdirectories and the union of qt4 and that all (CPP have been removed)...
         srcs = recursive_glob_as_dict(qt4_.install_src_dir, qt4_.src_pattern, strip_keys=True, prefix_key="src").items()
-        # tra files are recursive subdirectories and the union of pyqt4 and...
+        # tra files are recursive subdirectories in qt4
         tra = recursive_glob_as_dict(qt4_.install_tra_dir, qt4_.tra_pattern, strip_keys=True, prefix_key="translations").items()
-        # mks files are recursive subdirectories and the union of pyqt4 and...
+        # mks files are recursive subdirectories in qt4
         mks = recursive_glob_as_dict(qt4_.install_mks_dir, qt4_.mks_pattern, strip_keys=True, prefix_key="mkspecs").items()        
-        # plugins files are recursive subdirectories and the union of pyqt4 and...
-        plu = recursive_glob_as_dict(qt4_.install_plu_dir, qt4_.plu_pattern, strip_keys=True, prefix_key="plugins").items()        
+        # plugins files are recursive subdirectories in qt4
+        plu = recursive_glob_as_dict(qt4_.install_plu_lib_dir, qt4_.lib_pattern, strip_keys=True, prefix_key="plugins").items()        
 
-        return { "BINFILES": repr(bins),
-                 "INCLUDES": repr(incs)[1:-1],
+        return { "BINDIRS": repr(bin_dirs),
+                 "INCLUDEDIRS": repr(inc_dirs),
                  "LIBS": repr(libs)[1:-1]    ,
                  "SIP": repr(sips)[1:-1]     ,
                  "SRC": repr(srcs)[1:-1],
@@ -659,35 +702,48 @@ class egg_qt4_dev(BaseEggBuilder):
 
 class egg_pyqglviewer(BaseEggBuilder):
     __eggname__ = "pyqglviewer"
-    pass
+    def script_substitutions(self):
+        qt4_   = qt4.instance
+        qglv_   = qglviewer.instance
+        pyqglv_   = pyqglviewer.instance
+        # binaries are the union of qt, pyqt and sip binaries 
+        bin_dirs = {"bin":qt4_.install_bin_dir}
+        # includes are recursive subdirectories of qglviewer           
+        incs = recursive_glob_as_dict( qglv_.install_inc_dir, "*.h", strip_keys=True, prefix_key="include", dirs=True).items()
+        inc_dirs = merge_list_dict( incs )
+        # libs are recursive subdirectories of qt libs          
+        libs = recursive_glob_as_dict(qglv_.install_lib_dir, qt4_.lib_pattern, strip_keys=True, prefix_key="lib").items()
+        # sip files are recursive subdirectories of pyqglviewer sip installation directory
+        sips = recursive_glob_as_dict(pyqglv_.install_sip_dir, "*.sip", strip_keys=True, prefix_key="sip").items()
+        # examples are recursive subdirectories of pyqglviewer examples installation directory contains various types of files
+        exas = recursive_glob_as_dict(pyqglv_.install_exa_dir, "*", strip_keys=True, prefix_key="examples").items()        
+        
+        return { "PYQGLDIR": repr(pyqglv_.install_site_dir),
+                 "INCLUDEDIRS": repr(inc_dirs),
+                 "QGLVDLLDIR": repr(qglv_.install_dll_dir),
+                 "LIBS": repr(libs)[1:-1]    ,
+                 "SIP": repr(sips)[1:-1]     ,
+                 "EXA": repr(exas)[1:-1],
+                 }
     
 # MAIN LOOP AND RELATIVES
 def parse_process_flags(sysargv, options):
     proc_flags = {}
-    for argv in sysargv:
+    for argv in sysargv[1:]:
         try:
-            pk, flags = argv.split("_")
+            if argv.count("_") == 1:
+                pk, flags = argv.split("_")
+            elif argv.count("_") > 1:
+                spl = argv.split("_")
+                pk = "_".join(spl[:-1])
+                flags = spl[-1]
+            else:
+                continue
             proc_flags[pk] = flags
         except:
             continue
     options["PROC_FLAGS"] = proc_flags
 
-
-proj_process_map = OrderedDict([("d",("download_source",True)),
-                                ("u",("unpack_source",True)),
-                                ("f",("fix_source_dir",False)),
-                                ("c",("_configure",True)),
-                                ("b",("_build",True)),
-                                ("i",("_install",True)),
-                                ("p",("_patch", True)), #where should you be?
-                                ("x",("_extend_sys_path",False)),
-                                ("y",("_extend_python_path",False)),
-                                ])
-
-egg_process_map = OrderedDict([("c",("_configure_script",True)),
-                               ("e",("_eggify",True)),
-                               #("u",("_upload_egg",True))
-                              ])
                                 
                                 
 def main():
@@ -696,7 +752,8 @@ def main():
 
     options = {}
     parse_process_flags(sys.argv, options)
-
+    print options
+    
     env = BuildEnvironment()
     env.set_options(options)
     # give priority to OUR compiler!
@@ -714,7 +771,7 @@ def main():
 
             builder = ProjectBuilders.builders[proj.name](options)
             for proc, (proc_func, skippable) in proj_process_map.iteritems():
-                if proj.name in env.proc_flags and proc in env.proc_flags[proj.name] and proc not in proc_flags and skippable:
+                if env.skippable_proc(proj, proc):
                     print "\t-->ignoring %s for %s"%(proc_func, proj.name)
                     continue
                 else:
@@ -738,7 +795,7 @@ def main():
 
             builder = EggBuilders.builders[egg.name](options)            
             for proc, (proc_func, skippable) in egg_process_map.iteritems():
-                if egg.name in env.proc_flags and proc in env.proc_flags[egg.name] and proc not in proc_flags and skippable:
+                if env.skippable_proc(egg, proc):
                     print "\t-->ignoring %s for %s"%(proc_func, egg.name)
                     continue
                 else:
@@ -748,7 +805,7 @@ def main():
                         print "\t-->%s for %s failed"%(proc_func, egg.name)
                         # break
                     else:
-                        env.mark_proc_as_done(proj, proc)
+                        env.mark_proc_as_done(egg, proc)
 
     
     

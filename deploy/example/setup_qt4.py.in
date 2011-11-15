@@ -7,21 +7,23 @@ from setuptools import setup
 
 from PyQt4 import Qt
 
-setup(name="qt4_dev",
+setup(name="qt4",
       version     = Qt.QT_VERSION_STR,
       zip_safe    = False,
-      description = "PyQt Development packaged as an egg for windows-gcc",
+      description = "PyQt Runtime packaged as an egg for windows-gcc",
       author      = "Riverbank Computing is the author of PyQt4. This egg was prepared by the Openalea Team.",
       
-      bin_dirs   = $BINDIRS,
-      inc_dirs   = $INCLUDEDIRS,
-      data_files = [$LIBS,
-                    $SIP,
-                    $TRA,
-                    $MKS,
-                    $PLU,
-                    $SRC],
-      install_requires = ["qt4"],
+      packages    = ["PyQt4", ""],
+      
+      package_dir = {"PyQt4": $PYQT4DIR,
+                     "":      $SIPDIR},
+                     
+      package_data = {'' : ['*.pyd']},
+                     
+      lib_dirs    = {"PyQt4": $DLLS},
+
+      data_files = $QSCI,
+
       setup_requires   = ["openalea.deploy"],
       dependency_links = ['http://openalea.gforge.inria.fr/pi'],
       )

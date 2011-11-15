@@ -5,23 +5,29 @@
 
 from setuptools import setup
 
-from PyQt4 import Qt
+import PyQGLViewer
 
-setup(name="qt4_dev",
-      version     = Qt.QT_VERSION_STR,
+setup(name="pyqglviewer",
+      version     = PyQGLViewer.QGLViewerVersionString(),
       zip_safe    = False,
-      description = "PyQt Development packaged as an egg for windows-gcc",
+      description = "PyQGLViewer packaged as an egg for windows-gcc",
       author      = "Riverbank Computing is the author of PyQt4. This egg was prepared by the Openalea Team.",
       
-      bin_dirs   = $BINDIRS,
+      packages    = [""],
+      
+      package_dir = { "":$PYQGLDIR},
+                     
+      package_data = {'' : ['*.pyd']},
+      
       inc_dirs   = $INCLUDEDIRS,
-      data_files = [$LIBS,
+      
+      lib_dirs    = {"": $QGLVDLLDIR},
+
+      data_files = [$EXA,
                     $SIP,
-                    $TRA,
-                    $MKS,
-                    $PLU,
-                    $SRC],
-      install_requires = ["qt4"],
+                    $LIBS
+                    ],
+
       setup_requires   = ["openalea.deploy"],
       dependency_links = ['http://openalea.gforge.inria.fr/pi'],
       )
