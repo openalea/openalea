@@ -818,8 +818,10 @@ class PackageManager(Observed):
         "factoryType" is one of {"CompositeNodeFactory", "NodeFactory", "DataFactory"}
         """
         pkg, queries = self.get_package_from_url(url)#url.path.strip("/") #the path is preceded by one "/"
+        if "fac" not in queries:
+            raise IllFormedUrlError(url.geturl())
         factory_id = queries["fac"][0]
-        factory = pkg[factory_id]
+        factory = pkg[factory_id.strip("/")]
         return factory
 
     def get_package_from_url(self, url):
@@ -827,8 +829,6 @@ class PackageManager(Observed):
             url = urlparse.urlparse(url)
         assert isinstance(url, urlparse.ParseResult)
         queries  = urlparse.parse_qs(url.query)
-        if "fac" not in queries:
-            raise IllFormedUrlError(url.geturl())
         pkg_id = url.path.strip("/") #the path is preceded by one "/"
         pkg = self[pkg_id]
         return pkg, queries

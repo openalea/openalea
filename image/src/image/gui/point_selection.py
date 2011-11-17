@@ -50,6 +50,7 @@ class PointSelection (QMainWindow) :
         # points
         self._points = []
         self._id_gen = IdSetGenerator()
+        self.version = 2
 
         self._view = PixmapStackView()
 
@@ -286,6 +287,13 @@ class PointSelection (QMainWindow) :
                 if ret == QMessageBox.No:
                     loading = False
             if loading == True:
+                f = open(str(filename))
+                l = f.readline()
+                f.close()
+                if 'version' not in l:
+                    self.version= 1
+                else: 
+                    self.version = int(l.split('=')[1].strip())
                 new_pts = np.loadtxt(str(filename))
                 self.set_points(new_pts)
 
@@ -294,7 +302,11 @@ class PointSelection (QMainWindow) :
         # load file
         filename = QFileDialog.getSaveFileName(self, 'Save File',
                             '/home');
-        np.savetxt(str(filename),np.array(pts),fmt='%d')
+        fname = str(filename)
+        f = open(fname,'w')
+        f.write('# version = 2\n')
+        np.savetxt(f,np.array(pts),fmt='%d')
+        f.close()
 
     def get_points(self):
         """
@@ -414,6 +426,7 @@ class PointSelection (QMainWindow) :
         :Parameters:
          - `pos` (QPointF) - position of the point on the screen
         """
+        version = self.version
         if self._points :
             for pt in self._points:
                 pid,item, x,y,z,textid = pt
@@ -425,7 +438,10 @@ class PointSelection (QMainWindow) :
         if img is not None :
             for i in xrange(len(points)):
                 pid = i
-                x,y,z = points[i,0],points[i,1],points[i,2]
+                if version >= 2:
+                    x,y,z = points[i,0],points[i,1],points[i,2]
+                else: 
+                    x,y,z = points[i,1],points[i,0],points[i,2]
                 col = QColor.fromHsv( (pid * 10) % 360,255,255)
                 item = self._scene.addEllipse(QRectF(-10,-10,20,20),QPen(col),QBrush(col)  )
                 item.setZValue(10)

@@ -165,19 +165,19 @@ def from_argb_swap_columns_and_recast(pal):
 
 palette_to_argb_func = to_argb_swap_columns_and_recast
 
-def palette_factory (palname, cmax, as_ARGB=True) :
+def palette_factory (palname, cmax, as_ARGB=False) :
     if cmax==0 : cmax = 255
     pal = None
     if palname in fixed_palette_names:
-	    pal = globals()[palname](cmax)
+        pal = globals()[palname](cmax)
     else:
         mpal = cm.get_cmap(palname)
         if mpal:
             pal = convert(mpal,cmax)
 
     if as_ARGB:
-	    return palette_to_argb_func(pal)
+        return palette_to_argb_func(pal)
     else:
-	    return pal
+        return pal
 
 

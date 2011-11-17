@@ -115,7 +115,7 @@ def resampling(img, transformation, order=1, output_shape=None, output_voxels=No
 
 
 
-def deformation_field( image, points1, points2, sigma):
+def deformation_field( image, points1, points2, sigma, dtype=np.float64):
     """
 
     """
@@ -129,13 +129,13 @@ def deformation_field( image, points1, points2, sigma):
     del label
 
     # create an image with only the vectors at the points otherelse 0
-    img_vect0 = np.zeros(shape=image.shape+(3,))
+    img_vect0 = np.zeros(shape=image.shape+(3,), dtype=dtype)
     for i, (x,y,z) in enumerate(points1):
         img_vect0[x,y,z] = vectors[i]
     img_vect0 = component_gaussian_filter(img_vect0,sigma=sigma, in_place = True)
 
     # create an image with only 1 at the points and fit it.
-    img_pt1 = np.zeros(shape=image.shape)
+    img_pt1 = np.zeros(shape=image.shape, dtype=dtype)
     for x,y,z in points1:
         img_pt1[x,y,z] = 1
     img_pt1 = filters.gaussian_filter(img_pt1,sigma=sigma)
