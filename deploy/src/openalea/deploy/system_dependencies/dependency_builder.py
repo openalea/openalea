@@ -78,6 +78,15 @@ eggs = OrderedDict ( (p.name,p) for p in  [Egg("mingw"),
                    )
 
 # Some utilities
+def merge_list_dict(li):
+    """ Converts li which is a list of (key,value) into
+    a dictionnary where items with the same keys get appended
+    to a list instead of overwriting the key."""    
+    d = defaultdict(list)
+    for k, v in li:
+        d[k].extend(v)        
+    return dict( (k, sj(v)) for k,v in d.iteritems() )
+    
 def recursive_glob(dir_, filepatterns=None, regexp=None, strip_dir_=False, levels=-1):
     """ Goes down a file hierarchy and returns files paths
     that match filepatterns or regexp."""
@@ -177,7 +186,11 @@ def ascii_file_replace(fname, oldstr, newstr):
             print "patching", fname
             f.write(txt)
                                
-        
+class Later(object):
+    """ Just a way to be able to check if a process should be done later,
+    and not mark it as done or failed"""
+    pass
+    
 # Every class used here is a Singleton. Hum, maybe this == bad-design.
  # - The base Singleton metaclass is just that: a metaclass that converts
    # the classes that use it into Singletons
@@ -227,7 +240,7 @@ proj_process_map = OrderedDict([("d",("download_source",True)),
                                 ("c",("_configure",True)),
                                 ("b",("_build",True)),
                                 ("i",("_install",True)),
-                                ("p",("_patch", True)), #where should you be?
+                                #("p",("_patch", True)), #where should you be?
                                 ("x",("_extend_sys_path",False)),
                                 ("y",("_extend_python_path",False)),
                                 ])
@@ -244,15 +257,18 @@ class BuildEnvironment(object):
 
     def __init__(self):
         self.options = {}
-        self.working_path = pj( os.getcwd(), self.get_platform_string() )
-        recursive_copy( split(abspath(sys.argv[0]))[0], self.working_path, "setup*.py.in", levels=1)
-        self.proc_file_path = pj(self.working_path,"proc_flags.pk")
-        self.create_working_directories()
-        os.environ["PATH"] = sj([os.environ["PATH"],self.get_compiler_bin_path()])
+        self.working_path = None
+        self.proc_file_path = None
+        
 
     def set_options(self, options):
-        self.options = options.copy()
-
+        self.options        = options.copy()
+        self.working_path   = pj( options.get("wdr", abspath(".")), self.get_platform_string() )
+        self.proc_file_path = pj(self.working_path,"proc_flags.pk")
+        self.create_working_directories()        
+        recursive_copy( split(abspath(sys.argv[0]))[0], self.working_path, "setup.py.in", levels=1)
+        os.environ["PATH"] = sj([os.environ["PATH"],self.get_compiler_bin_path()])
+        
     # -- context manager protocol --
     def __enter__(self):
         try:
@@ -287,14 +303,17 @@ class BuildEnvironment(object):
         builder = bdict[proj.name]()
         builder.set_options(self.options)
         for proc, (proc_func, skippable) in processes.iteritems():
+            nice_func = proc_func.strip("_")
             if self.must_skip_proc(builder, proj, proc):
-                print "\t-->ignoring %s for %s"%(proc_func, proj.name)
+                print "\t-->ignoring %s for %s"%(nice_func, proj.name)
                 continue
             else:
-                print "\t-->performing %s for %s"%(proc_func, proj.name)
+                print "\t-->performing %s for %s"%(nice_func, proj.name)
                 success = getattr(builder, proc_func)()
-                if not success :
-                    print "\t-->%s for %s failed"%(proc_func, proj.name)
+                if success == Later:
+                    print "\t-->%s for %s we be done later"%(nice_func, proj.name)
+                elif success == False:
+                    print "\t-->%s for %s failed"%(nice_func, proj.name)
                     sys.exit(-1)
                 else:
                     self.mark_proc_as_done(proj, proc)        
@@ -605,7 +624,7 @@ class BaseEggBuilder(object):
     def _upload_egg(self):
         if not self.options["login"] or not self.options["passwd"]:
             print "No login or passwd provided, skipping egg upload"
-            return True
+            return Later
         return self.upload_egg()
 
     def script_substitutions(self):
@@ -627,15 +646,10 @@ class mingwrt(BaseProjectBuilder):
     def __init__(self, *args, **kwargs):
         BaseProjectBuilder.__init__(self, *args, **kwargs)
         self.sourcedir = pj(self.env.get_compiler_bin_path(), os.pardir)
-        # define installation paths
-        self.install_dll_dir = pj(self.installdir, "dll").inst_paths
+        self.install_dll_dir = pj(self.installdir, "dll")
         self.dll_pattern = "*.dll"        
     def install(self):
-        #recursive_copy( pj(self.sourcedir, "bin"), self.install_dll_dir, self.dll_pattern, levels=1)
-        # create the installation directories
-        makedirs(self.install_dll_dir)
-        # copy dlls
-        copy( pj(self.sourcedir, "bin"), self.install_dll_dir, self.dll_pattern )     
+        recursive_copy( pj(self.sourcedir, "bin"), self.install_dll_dir, self.dll_pattern, levels=1)
         return True
         
 class qt4(BaseProjectBuilder):
@@ -818,8 +832,7 @@ class boost(BaseProjectBuilder):
     def configure(self):
         """ bjam configures, builds and installs so nothing to do here"""
         return True
-    def build(self):
-        """ pyqglviewer installs itself into the same directory as qglviewer """        
+    def build(self):    
         # it is possible to bootstrap boost if no bjam.exe is found:
         if not exists( pj(self.sourcedir, "bjam.exe") ):
             if subprocess.call("bootstrap.bat") != 0:
@@ -845,24 +858,16 @@ class boost(BaseProjectBuilder):
         return subprocess.call(cmd) == 0
     def install(self):
         """ bjam configures, builds and installs so nothing to do here"""
-        return True
+        return self.build()
 
 
 ################################################################################
 # - EGG BUILDERS - EGG BUILDERS - EGG BUILDERS - EGG BUILDERS - EGG BUILDERS - #
-################################################################################
-def merge_list_dict(l):
-    d = defaultdict(list)
-    for k, v in l:
-        d[k].extend(v)
-        
-    return dict( (k, sj(v)) for k,v in d.iteritems() )
-    
-    
+################################################################################        
 class egg_mingwrt(BaseEggBuilder):
     __eggname__ = "mingwrt"
     def script_substitutions(self):
-        mgw = mingw()
+        mgw = mingwrt()
         libdirs = {"bin":mgw.install_dll_dir}
         return dict( 
                     VERSION  = "5.1.4_3",
@@ -873,19 +878,21 @@ class egg_mingwrt(BaseEggBuilder):
 
 class egg_mingw(BaseEggBuilder):
     __eggname__ = "mingw"
-    def script_substitutions(self):        
-        subd = os.listdir( cpath )
+    def script_substitutions(self):
+        cpath = self.env.get_compiler_bin_path()
+        mingwbase = pj(cpath,os.pardir)
+        subd  = os.listdir( mingwbase )
         subd.remove("EGG-INFO")
         subd.remove("bin")
         subd.remove("include")
         data = []
         
         for dir in subd:
-            dat = recursive_glob_as_dict(pj(cpath,dir), "*", strip_keys=True, prefix_key=dir).items()         
+            dat = recursive_glob_as_dict(pj(mingwbase,dir), "*", strip_keys=True, prefix_key=dir).items()         
             data += [ (d, [f for f in t if not f.endswith(".dll")]) for d,t in dat]
 
-        bindirs = {"bin": self.env.get_compiler_bin_path()}
-        incdirs = {"include": pj(cpath, "include")}
+        bindirs = {"bin": cpath}
+        incdirs = {"include": pj(mingwbase, "include")}
             
         return dict( 
                     VERSION  = "5.1.4_3",
@@ -971,6 +978,8 @@ class egg_pyqglviewer(BaseEggBuilder):
         qt4_   = qt4()
         qglv_   = qglviewer()
         pyqglv_   = pyqglviewer()
+        
+        pyqgl_mods = recursive_glob_as_dict(pyqglv_.install_site_dir, "*.py,*.pyd", strip_keys=True, levels=1).items()
         # includes are recursive subdirectories of qglviewer           
         incs = recursive_glob_as_dict( qglv_.install_inc_dir, "*.h", strip_keys=True, prefix_key="include", dirs=True).items()
         inc_dirs = merge_list_dict( incs )
@@ -980,11 +989,9 @@ class egg_pyqglviewer(BaseEggBuilder):
         sips = recursive_glob_as_dict(pyqglv_.install_sip_dir, "*.sip", strip_keys=True, prefix_key="sip").items()
         # examples are recursive subdirectories of pyqglviewer examples installation directory contains various types of files
         exas = recursive_glob_as_dict(pyqglv_.install_exa_dir, "*", strip_keys=True, prefix_key="examples").items()        
-
-        packages    = [""]
-        package_dir = {"" : pyqglv_.install_site_dir}
+        
         lib_dirs    = {"" : qglv_.install_dll_dir}
-        data_files  = exas+sips+libs
+        data_files  = exas+sips+libs+pyqgl_mods
         
         import PyQGLViewer
         
@@ -993,9 +1000,8 @@ class egg_pyqglviewer(BaseEggBuilder):
                     CODE_AUTHOR  = "libQGLViewer developers for libQGLViewer, PyQGLViewer (INRIA) developers for PyQGLViewer",
                     DESCRIPTION  = "Win-GCC version of PyQGLViewer",                    
                     
-                    PACKAGES     = packages,
                     PACKAGE_DATA = {'' : ['*.pyd']},
-                    PACKAGE_DIRS = package_dir,
+                    #PACKAGE_DIRS = package_dir,
                     
                     LIB_DIRS     = lib_dirs,
                     INC_DIRS     = inc_dirs,
@@ -1061,6 +1067,8 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description="Build and package binary Openalea dependencies",
                                      epilog=build_epilog(),
                                      formatter_class=argparse.RawDescriptionHelpFormatter,)
+    parser.add_argument("--wdr", default=os.curdir, help="Under which directory we will create our working dir",
+                        type=abspath)
             
     for proj in projs:
         name = proj
@@ -1093,10 +1101,10 @@ def main():
     
     with env:
         for proj in projs.itervalues():
-            env.build_proj(env, proj)
+            env.build_proj(proj)
        
         for egg in eggs.itervalues():
-            env.build_proj(env, egg)
+            env.build_proj(egg)
 
             
             
