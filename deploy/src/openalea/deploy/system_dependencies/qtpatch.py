@@ -1,6 +1,24 @@
-"""This module convert hard coded compilation paths inside Qt binairies into
+# -*- python -*-
+#
+#       openalea.deploy.qtpatch
+#
+#       Copyright 2006-2011 INRIA - CIRAD - INRA
+#
+#       File author(s): Daniel Barbeau
+#
+#       Distributed under the Cecill-C License.
+#       See accompanying file LICENSE.txt or copy at
+#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
+#
+#       OpenAlea WebSite : http://openalea.gforge.inria.fr
+#
+###############################################################################
+
+"""This module converts hard coded compilation paths inside Qt binairies into
 relative paths suitable for use inside eggs."""
 
+__license__ = "Cecill-C"
+__revision__ = " $Id$"
 
 import sys
 import os, os.path
