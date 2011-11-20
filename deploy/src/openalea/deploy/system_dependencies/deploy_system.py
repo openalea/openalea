@@ -51,7 +51,7 @@ for the one it is running on.
 * dry_run can be True or False. Defaults to False
 """
 
-if __name__=="__main__":
+def main():
     import distributions, dependency
     import sys
 
@@ -66,3 +66,7 @@ if __name__=="__main__":
     fake     = bool(args.get("dry_run", False))
 
     install_dependencies(software, osname, fake)
+
+    
+if __name__=="__main__":
+    main()
