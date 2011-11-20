@@ -684,16 +684,18 @@ class alea_install(old_easy_install):
 
     user_options = []
     user_options.extend(old_easy_install.user_options)
-    user_options.append(('install-dyn-lib=',
-                          None,
-                          'Directory to install dynamic library.'))
+    user_options.extend([ ('install-dyn-lib=', None, 'Directory to install dynamic library.'),
+                          ('gforge-login=',    None, "Login to connect to private gforge repository"),
+                          ('gforge-passwd=',   None, "Password to connect to private gforge repository"),
+                        ])
 
     def initialize_options(self):
         old_easy_install.initialize_options(self)
         self.install_dyn_lib = None
+        self.gforge_login    = None
+        self.gforge_passwd   = None
 
-    def finalize_options(self):
-
+    def finalize_options(self):    
         # Add openalea package link
         repolist = get_repo_list()
         if (not self.find_links):
@@ -712,6 +714,12 @@ class alea_install(old_easy_install):
 
     def run(self):
         self.set_system()
+        
+        if self.gforge_login and self.gforge_passwd:
+            from openalea.deploy.gforge_util import add_private_gforge_repositories
+            print "Connecting to gforge"
+            add_private_gforge_repositories(self.gforge_login, self.gforge_passwd)
+        
         old_easy_install.run(self)
 
         # Activate the correct egg

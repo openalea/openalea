@@ -153,10 +153,11 @@ def cookie_login(loginurl, values):
     # (which is the cookie containing the session identifier.)
     if not 'session_ser' in [cookie.name for cookie in cookiejar]:
         print "Login failed !"
+        return False
     else:
         print "We are logged in !"
-    
-    
+        return True
+        
 ########################################
 # To add a new function:
 #  + go to the web page and display the source.
@@ -175,9 +176,8 @@ def gforge_login(userid, passwd):
               'login' : "Connexion avec SSL" }
     
     url = "https://gforge.inria.fr/account/login.php"
-    cookie_login(url, values)
-
-
+    return cookie_login(url, values)
+   
 def delete_package(group_id, pkg_id):
     """ Delete a package """
     url = "https://gforge.inria.fr/frs/admin/?group_id=%i"%(group_id,)
@@ -232,3 +232,46 @@ def upload_file(filename, group_id, pkg_id, release_id, type_id, proc_id):
                'userfile' : open(filename, "rb"),
                }
     fp = urlOpener.open(url, values)
+
+    
+    
+ # Extending Setuptools Package Indexes with GForge private repositories:
+def add_private_gforge_repositories(userid, passwd):
+    if gforge_login(userid, passwd):
+        # Replace open_with_auth function
+        import setuptools.package_index
+        #from setuptools.package_index import user_agent
+        setuptools.package_index.open_with_auth = open_with_auth2
+    
+def open_with_auth2(url):
+    """
+    Open a urllib2 request, handling HTTP authentication
+    In this version, user-agent is ignored
+    """
+
+    scheme, netloc, path, params, query, frag = urlparse.urlparse(url)
+
+    if scheme in ('http', 'https'):
+        auth, host = urllib2.splituser(netloc)
+    else:
+        auth = None
+
+    if auth:
+        auth = "Basic " + urllib2.unquote(auth).encode('base64').strip()
+        new_url = urlparse.urlunparse((scheme, host, path, params, query, frag))
+        request = urllib2.Request(new_url)
+        request.add_header("Authorization", auth)
+    else:
+        request = urllib2.Request(url)
+
+    # request.add_header('User-Agent', user_agent)
+    fp = urllib2.urlopen(request)
+
+    if auth:
+        # Put authentication info back into request URL if same host,
+        # so that links found on the page will work
+        s2, h2, path2, param2, query2, frag2 = urlparse.urlparse(fp.url)
+        if s2 == scheme and h2 == host:
+            fp.url = urlparse.urlunparse((s2, netloc, path2, param2, query2, frag2))
+
+    return fp

@@ -35,6 +35,7 @@ import ui_mainwindow
 
 from openalea.deploy.command import set_env
 from openalea.deploy.util import get_repo_list as util_get_repo_list
+from openalea.deploy.gforge_util import add_private_gforge_repositories
 
 from fake_pkg_generation import *
 
@@ -42,7 +43,6 @@ from setuptools.package_index import PackageIndex
 import pkg_resources
 from pkg_resources import parse_version
 from setuptools import setup, find_packages
-from auth import cookie_login
 
 
 
@@ -459,16 +459,8 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         if not ok :
             password = None
             return
-
-        # Create login/password values
-        values = {'form_loginname':login,
-                  'form_pw':password,
-                  'return_to' : '',
-                  'login' : "Connexion avec SSL" }
-
-        url = "https://gforge.inria.fr/account/login.php"
-
-        cookie_login(url, values)
+        
+        add_private_gforge_repositories(login, password)
         self.refresh()
 
 

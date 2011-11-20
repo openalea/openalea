@@ -110,7 +110,7 @@ try:
     except:
         pass
 
-    urllib.urlretrieve( "http://gforge.inria.fr/scm/viewvc.php/*checkout*/trunk/deploygui/src/openalea/deploygui/auth.py?root=openalea",
+    urllib.urlretrieve( "http://gforge.inria.fr/scm/viewvc.php/*checkout*/trunk/deploy/src/openalea/deploy/gforge_util.py?root=openalea",
                         filename )
 
     import auth
@@ -130,15 +130,7 @@ def cli_login():
     print "gforge username: ",
     login = raw_input()
     password = getpass.getpass("gforge password: ")
-
-    values = {'form_loginname':login,
-              'form_pw':password,
-              'return_to' : '',
-              'login' : "Connexion avec SSL" }
-
-    login_url = "https://gforge.inria.fr/account/login.php"
-
-    auth.cookie_login(login_url, values)
+    auth.add_private_gforge_repositories(login, password)
 
 
 def use_setuptools(
