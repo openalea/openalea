@@ -19,7 +19,13 @@ __revision__ = " $Id: interface.py 2245 2010-02-08 17:11:34Z cokelaer $"
 
 
 from openalea.image.spatial_image import SpatialImage
-from scipy import lena as sci_lena
+try:
+    from scipy import lena as sci_lena
+except ImportError:
+    try:
+        from scipy.misc import lena as sci_lena
+    except ImportError:
+        print "lena unavailable"
 
 def lena():
     return SpatialImage(sci_lena())
