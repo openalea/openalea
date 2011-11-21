@@ -86,7 +86,7 @@ projs = OrderedDict ( (p.name,p) for p in  [
                     )
                         
 eggs = OrderedDict ( (p.name,p) for p in  [Egg("mingw"),
-                                           Egg("mingwrt"), 
+                                           Egg("mingw_rt"), 
                                            Egg("qt4"), 
                                            Egg("qt4_dev"), 
                                            Egg("pyqglviewer"),
@@ -103,15 +103,18 @@ def merge_list_dict(li):
     for k, v in li:
         d[k].extend(v)        
     return dict( (k, sj(v)) for k,v in d.iteritems() )
-    
-def recursive_glob(dir_, filepatterns=None, regexp=None, strip_dir_=False, levels=-1):
+
+CRE = re.compile    
+CompiledRe = type(CRE(""))    
+def recursive_glob(dir_, patterns=None, strip_dir_=False, levels=-1):
     """ Goes down a file hierarchy and returns files paths
     that match filepatterns or regexp."""
     files = []
-    if filepatterns:
-        filepatterns = filepatterns.split(",")
-    elif regexp:
-        regexp = re.compile(regexp)
+    if isinstance(patterns, CompiledRe):
+        filepatterns, regexp = None, patterns
+    else:
+        filepatterns, regexp = patterns.split(","), None
+        
     lev = 0
     for dir_path, sub_dirs, subfiles in os.walk(dir_):
         if lev == levels:
@@ -127,12 +130,12 @@ def recursive_glob(dir_, filepatterns=None, regexp=None, strip_dir_=False, level
     dirlen = len(dir_)
     return files if not strip_dir_ else [ f[dirlen+1:] for f in files]
     
-def recursive_glob_as_dict(dir_, filepatterns=None, regexp=None, strip_dir_=False, 
+def recursive_glob_as_dict(dir_, patterns=None, strip_dir_=False, 
                            strip_keys=False, prefix_key=None, dirs=False, levels=-1):
     """Recursively globs files and returns a list of the glob files.
     The globbing can use regexps or shell wildcards. 
     """
-    files     = recursive_glob(dir_, filepatterns, regexp, strip_dir_, levels)
+    files     = recursive_glob(dir_, patterns, strip_dir_, levels)
     by_direct = defaultdict(list)
     dirlen = len(dir_)
     for f in files:        
@@ -171,10 +174,9 @@ def copy(source, dest, patterns):
     for f in files: 
         shutil.copy(f, dest)
 
-def recursive_copy(sourcedir, destdir, filepatterns=None, regexp=None, levels=-1, flat=False):
+def recursive_copy(sourcedir, destdir, patterns=None, levels=-1, flat=False):
     """Like shutil.copytree except that it accepts a filepattern or a file regexp."""
-    src = recursive_glob( sourcedir, filepatterns, 
-                          regexp, levels=levels )
+    src = recursive_glob( sourcedir, patterns, levels=levels )
     dests = [destdir]*len(src) if flat else \
             [ pj(destdir, f[len(sourcedir)+1:]) for f in src]            
     bases = set([ split(f)[0] for f in dests])
@@ -257,7 +259,7 @@ proj_process_map = OrderedDict([("d",("download_source",True)),
                                 ("c",("_configure",True)),
                                 ("b",("_build",True)),
                                 ("i",("_install",True)),
-                                #("p",("_patch", True)), #where should you be?
+                                ("p",("_patch", True)), #where should you be?
                                 ("x",("_extend_sys_path",False)),
                                 ("y",("_extend_python_path",False)),
                                 ])
@@ -283,7 +285,7 @@ class BuildEnvironment(object):
         self.working_path   = pj( options.get("wdr", abspath(".")), self.get_platform_string() )
         self.proc_file_path = pj(self.working_path,"proc_flags.pk")
         self.create_working_directories()        
-        recursive_copy( split(abspath(sys.argv[0]))[0], self.working_path, "setup.py.in", levels=1)
+        recursive_copy( split(__file__)[0], self.working_path, "setup.py.in", levels=1)
         os.environ["PATH"] = sj([os.environ["PATH"],self.get_compiler_bin_path()])
         
     # -- context manager protocol --
@@ -366,7 +368,7 @@ class BuildEnvironment(object):
     def get_platform_string(self):
         # TODO : do smart things according to self.options
         return "_".join([platform.python_version(),
-                        "Win"+platform.win32_ver()[0],
+                        platform.system(),
                         platform.architecture()[0]])
 
     def get_working_path(self):
@@ -506,7 +508,6 @@ class BaseProjectBuilder(object):
         elif ext == ".tgz":
             tarf = tarfile.open( self.archname, "r:gz")
             tarf.extractall( path=self.sourcedir )
-
         print "done"
         return True
 
@@ -527,7 +528,7 @@ class BaseProjectBuilder(object):
         if exp is not None:
             if isinstance(exp, tuple):
                 exp = sj(exp)           
-            os.environ["PATH"] = sj([os.environ["PATH"],exp])
+            os.environ["PATH"] = sj([exp,os.environ["PATH"]])
         return True
 
     def _extend_python_path(self):
@@ -538,7 +539,7 @@ class BaseProjectBuilder(object):
                 exp = sj(exp)       
             elif isinstance(exp, str):
                 sys.path.extend(exp.split(os.pathsep))
-            os.environ["PYTHONPATH"] = sj([os.environ.get("PYTHONPATH",""),exp])
+            os.environ["PYTHONPATH"] = sj([exp,os.environ.get("PYTHONPATH","")])
         return True
 
     # -- Top level process, they delegate to abstract methods, try not to override --
@@ -575,7 +576,8 @@ class BaseProjectBuilder(object):
 
 
         
-
+class TemplateStr(string.Template):
+    delimiter = "@"
 
     
 class BaseEggBuilder(object):
@@ -623,7 +625,7 @@ class BaseEggBuilder(object):
                 conf = self.default_substitutions.copy()
                 conf.update(self.script_substitutions())
                 conf = dict( (k,repr(v)) for k,v in conf.iteritems() )
-                template = string.Template(input.read())
+                template = TemplateStr(input.read())
                 output.write(template.substitute(conf))
         except Exception, e:
             traceback.print_exc()
@@ -654,7 +656,37 @@ class BaseEggBuilder(object):
     def upload_egg(self):
         opts = self.options["login"], self.options["passwd"], self.name, "\"ThirdPartyLibraries\"", "vplants" if not self.options["release"] else "openalea" 
         return subprocess.call(sys.executable + " setup.py egg_upload --yes-to-all --login %s --password %s --release %s --package %s --project %s"%opts) == 0
+        
+        
 
+# -- Glob and regexp patterns --
+class Pattern:
+    # -- generalities --
+    any     = "*"
+    execut  = "*.exe"
+    dynlib  = "*.dll"
+    stalib  = "*.a"
+    include = "*.h,*.hxx"
+    
+    # -- pythonities --
+    pymod   = "*.py"
+    pyext   = "*.pyd"
+    pyall   = ",".join([pymod, pyext])
+        
+    # -- scintillacities --
+    sciapi  = "*.api"
+    
+    # -- sip --
+    sipfiles = "*.sip"
+    
+    # -- Qtities --
+    qtstalib = "*.a,*.prl,*.pri,*.pfa,*.pfb,*.qpf,*.ttf,README"
+    qtsrc    = "*.pro,*.pri,*.rc,*.def,*.h,*.hxx"
+    qtinc    = CRE(r"^Q[0-9A-Z]\w|.*\.h")
+    qtmkspec = "*"
+    qttransl = "*.qm"
+        
+        
 ####################################################################################################
 # - PROJECT BUILDERS - PROJECT BUILDERS - PROJECT BUILDERS - PROJECT BUILDERS - PROJECT BUILDERS - #
 ####################################################################################################
@@ -664,25 +696,20 @@ class mingwrt(BaseProjectBuilder):
         BaseProjectBuilder.__init__(self, *args, **kwargs)
         self.sourcedir = pj(self.env.get_compiler_bin_path(), os.pardir)
         self.install_dll_dir = pj(self.installdir, "dll")
-        self.dll_pattern = "*.dll"        
     def install(self):
-        recursive_copy( pj(self.sourcedir, "bin"), self.install_dll_dir, self.dll_pattern, levels=1)
+        recursive_copy( pj(self.sourcedir, "bin"), self.install_dll_dir, Pattern.dynlib, levels=1)
         return True
         
 class qt4(BaseProjectBuilder):
     def __init__(self, *args, **kwargs):
         BaseProjectBuilder.__init__(self, *args, **kwargs)
         # define installation paths
-        self.inst_paths = pj(self.installdir, "bin"), pj(self.installdir, "dll"), pj(self.installdir, "lib"), pj(self.installdir, "src"), \
-                          pj(self.installdir, "include"), pj(self.installdir, "dll"), pj(self.installdir, "plugins_lib"), pj(self.installdir, "mkspecs"), pj(self.installdir, "translations")
-        self.install_bin_dir, self.install_dll_dir, self.install_lib_dir, self.install_src_dir, self.install_inc_dir, self.install_plu_dir, self.install_plu_lib_dir, self.install_mks_dir, self.install_tra_dir = self.inst_paths
-        self.bin_pattern = "*.exe"
-        self.dll_pattern = "*.dll"
-        self.lib_pattern = "*.a,*.prl,*.pri,*.pfa,*.pfb,*.qpf,*.ttf,README"
-        self.src_pattern = "*.pro,*.pri,*.rc,*.def,*.h,*.hxx"
-        self.inc_pattern = r"^Q[A-Z]\w|.*\.h"        
-        self.mks_pattern = "*"
-        self.tra_pattern = "*.qm"
+        self.inst_paths = pj(self.installdir, "bin"), pj(self.installdir, "dll"), \
+                          pj(self.installdir, "lib"), pj(self.installdir, "src"), \
+                          pj(self.installdir, "include"), pj(self.installdir, "dll"), \
+                          pj(self.installdir, "plugins_lib"), pj(self.installdir, "mkspecs"), \
+                          pj(self.installdir, "translations")
+        self.install_bin_dir, self.install_dll_dir, self.install_lib_dir, self.install_src_dir, self.install_inc_dir, self.install_plu_dir, self.install_plu_lib_dir, self.install_mks_dir, self.install_tra_dir = self.inst_paths        
     def configure(self):
         pop = subprocess.Popen("configure.exe -platform win32-g++ -release -opensource -shared -nomake demos -nomake examples -mmx -sse2 -3dnow -declarative -webkit -no-s60 -no-cetest",
                                stdin=subprocess.PIPE) # PIPE is required or else pop.comminicate won't do anything!
@@ -696,36 +723,37 @@ class qt4(BaseProjectBuilder):
         for pth in self.inst_paths:
             makedirs(pth)
         # copy binaries
-        copy( pj(self.sourcedir, "bin"), self.install_bin_dir, self.bin_pattern )
+        copy( pj(self.sourcedir, "bin"), self.install_bin_dir, Pattern.execut )
         # copy dlls
-        copy( pj(self.sourcedir, "bin"), self.install_dll_dir, self.dll_pattern )
+        copy( pj(self.sourcedir, "bin"), self.install_dll_dir, Pattern.dynlib )
         # copy libs
-        recursive_copy( pj(self.sourcedir, "lib"), self.install_lib_dir, self.lib_pattern )
+        recursive_copy( pj(self.sourcedir, "lib"), self.install_lib_dir, Pattern.qtstalib )
         # copy src -- actually only header files in src --
-        recursive_copy( pj(self.sourcedir, "src"), self.install_src_dir, self.src_pattern )
+        recursive_copy( pj(self.sourcedir, "src"), self.install_src_dir, Pattern.qtsrc )
         # copy include
-        recursive_copy( pj(self.sourcedir, "include"), self.install_inc_dir, regexp=self.inc_pattern )
+        recursive_copy( pj(self.sourcedir, "include"), self.install_inc_dir, Pattern.qtinc )
         # copy plugins
-        recursive_copy( pj(self.sourcedir, "plugins"), self.install_plu_dir, self.dll_pattern, flat=True )
+        recursive_copy( pj(self.sourcedir, "plugins"), self.install_plu_dir, Pattern.dynlib, flat=True )
         # copy plugins
-        recursive_copy( pj(self.sourcedir, "plugins"), self.install_plu_lib_dir, self.lib_pattern )
+        recursive_copy( pj(self.sourcedir, "plugins"), self.install_plu_lib_dir, Pattern.qtstalib )
         # copy plugins
-        recursive_copy( pj(self.sourcedir, "mkspecs"), self.install_mks_dir, self.mks_pattern )
+        recursive_copy( pj(self.sourcedir, "mkspecs"), self.install_mks_dir, Pattern.qtmkspec )
         # copy translations
-        recursive_copy( pj(self.sourcedir, "translations"), self.install_tra_dir, self.tra_pattern )        
+        recursive_copy( pj(self.sourcedir, "translations"), self.install_tra_dir, Pattern.qttransl )        
         return True
     def extra_paths(self):
         return pj(self.sourcedir, "bin"), self.install_dll_dir
     def patch(self):
         """ Patch qt *.exes and *.dlls so that they do not contain hard coded paths anymore. """
-        import qtpatch
-        try:
-            qtpatch.patch("*.exe", qtDirPath=self.sourcedir, where=self.installdir)
-        except:
-            traceback.print_exc()
-            return False
-        else:
-            return True
+        return
+        # import qtpatch
+        # try:
+            # qtpatch.patch("*.exe", qtDirPath=self.sourcedir, where=self.installdir)
+        # except:
+            # traceback.print_exc()
+            # return False
+        # else:
+            # return True
 
 class sip(BaseProjectBuilder):
     def __init__(self, *args, **kwargs):
@@ -737,7 +765,8 @@ class sip(BaseProjectBuilder):
         self.inst_paths = qt4_.install_bin_dir, pj(self.installdir, "site"), pj(self.installdir, "include"), pj(self.installdir, "sip")
         self.install_bin_dir, self.install_site_dir, self.install_inc_dir, self.install_sip_dir = self.inst_paths    
     def configure(self):
-        return subprocess.call(sys.executable + " configure.py --platform=win32-g++ -b %s -d %s -e %s -v %s"%self.inst_paths) == 0
+        # -- The -S flag is needed or else configure.py sees any existing sip installation and can fail. --
+        return subprocess.call(sys.executable + " -S configure.py --platform=win32-g++ -b %s -d %s -e %s -v %s"%self.inst_paths) == 0
     def extra_paths(self):
         return self.install_bin_dir
     def extra_python_paths(self):
@@ -759,7 +788,8 @@ class pyqt4(BaseProjectBuilder) :
         self.inst_paths = qt4_.install_bin_dir, pj(self.installdir,"site"), pj(self.installdir,"sip")
         self.install_bin_dir, self.install_site_dir, self.install_sip_dir = self.inst_paths    
     def configure(self):
-        return subprocess.call(sys.executable + " configure.py --confirm-license -b %s -d %s -v %s"%self.inst_paths) == 0
+        # -- The -S flag is needed or else configure.py sees any existing sip installation and can fail. --
+        return subprocess.call(sys.executable + " -S configure.py --confirm-license -b %s -d %s -v %s"%self.inst_paths) == 0
     def extra_paths(self):
         return self.install_bin_dir
     def extra_python_paths(self):
@@ -798,7 +828,8 @@ class pyqscintilla(BaseProjectBuilder):
     def configure(self):
         """pyqscintilla installs itself in PyQt4's installation directory"""
         # we want pyqscintilla to install itself where pyqt4 installed itself.
-        return subprocess.call(sys.executable + " configure.py -o %s -a %s -n %s -d %s -v %s"%self.install_paths ) == 0 #make this smarter
+        # -- The -S flag is needed or else configure.py sees any existing sip installation and can fail. --
+        return subprocess.call(sys.executable + " -S configure.py -o %s -a %s -n %s -d %s -v %s"%self.install_paths ) == 0 #make this smarter
 
 class qglviewer(BaseProjectBuilder):
     def __init__(self, *args, **kwargs):
@@ -814,9 +845,9 @@ class qglviewer(BaseProjectBuilder):
         return subprocess.call("mingw32-make release") == 0
     def install(self):
         # The install procedure will install qscintilla in qt's directories   
-        recursive_copy( self.sourcedir, self.install_inc_dir, "*.h")
-        recursive_copy( pj(self.sourcedir, "release"), self.install_lib_dir, "*.a,*.prl")
-        recursive_copy( pj(self.sourcedir, "release"), self.install_dll_dir, "*.dll")
+        recursive_copy( self.sourcedir               , self.install_inc_dir, Pattern.include)
+        recursive_copy( pj(self.sourcedir, "release"), self.install_lib_dir, Pattern.qtstalib)
+        recursive_copy( pj(self.sourcedir, "release"), self.install_dll_dir, Pattern.dynlib)
         return True
     def extra_paths(self):
         return self.install_dll_dir
@@ -826,16 +857,17 @@ class pyqglviewer(BaseProjectBuilder):
         BaseProjectBuilder.__init__(self, *args, **kwargs)
         qglbuilder = qglviewer()
         self.qglbuilderbase = pj(qglbuilder.sourcedir, os.path.pardir),        
-        self.install_sip_dir  =  pj(qglbuilder.installdir, "sip")
+        self.install_sip_dir  = pj(qglbuilder.installdir, "sip")
         self.install_site_dir = qglbuilder.installdir
-        self.install_exa_dir =  pj(qglbuilder.installdir, "examples")        
+        self.install_exa_dir  = pj(qglbuilder.installdir, "examples")        
     def configure(self):
-        return subprocess.call(sys.executable + " configure.py -Q %s "%self.qglbuilderbase) == 0
+        # -- The -S flag is needed or else configure.py sees any existing sip installation and can fail. --
+        return subprocess.call(sys.executable + " -S configure.py -Q %s "%self.qglbuilderbase) == 0
     def install(self):
         """ pyqglviewer installs itself into the same directory as qglviewer """
-        recursive_copy( pj(self.sourcedir, "build"), self.install_site_dir, "*.pyd", levels=1)
-        recursive_copy( pj(self.sourcedir, "src", "sip"), self.install_sip_dir, "*.sip", levels=1)
-        recursive_copy( pj(self.sourcedir, "examples"), self.install_exa_dir, "*")
+        recursive_copy( pj(self.sourcedir, "build"), self.install_site_dir, Pattern.pyext, levels=1)
+        recursive_copy( pj(self.sourcedir, "src", "sip"), self.install_sip_dir, Pattern.sipfiles, levels=1)
+        recursive_copy( pj(self.sourcedir, "examples"), self.install_exa_dir, Pattern.any)
         return True
     def extra_python_paths(self):
         qglbuilder = qglviewer()
@@ -881,8 +913,8 @@ class boost(BaseProjectBuilder):
 ################################################################################
 # - EGG BUILDERS - EGG BUILDERS - EGG BUILDERS - EGG BUILDERS - EGG BUILDERS - #
 ################################################################################        
-class egg_mingwrt(BaseEggBuilder):
-    __eggname__ = "mingwrt"
+class egg_mingw_rt(BaseEggBuilder):
+    __eggname__ = "mingw_rt"
     def script_substitutions(self):
         mgw = mingwrt()
         libdirs = {"bin":mgw.install_dll_dir}
@@ -929,8 +961,8 @@ class egg_qt4(BaseEggBuilder):
         sip_   = sip()
         # dlls are the union of qt dlls and plugins directories (which is actually the same!)
         # qscis apis are recursive from qt4 (need to list all files)        
-        qscis    = recursive_glob_as_dict(pysci_.qsci_dir, "*.api", strip_keys=True, prefix_key="qsci").items()
-        sip_mods = recursive_glob_as_dict(sip_.install_site_dir, "*.py,*.pyd", strip_keys=True, levels=1).items()
+        qscis    = recursive_glob_as_dict(pysci_.qsci_dir, Pattern.sciapi, strip_keys=True, prefix_key="qsci").items()
+        sip_mods = recursive_glob_as_dict(sip_.install_site_dir, Pattern.pyall, strip_keys=True, levels=1).items()
 
         lib_dirs    = {"PyQt4": qt4_.install_dll_dir}
         package_dir = {"PyQt4": pj(pyqt4_.install_site_dir, "PyQt4")}
@@ -943,11 +975,11 @@ class egg_qt4(BaseEggBuilder):
                     DESCRIPTION  = "Sip+PyQt4+QScintilla Runtime packaged as an egg for windows-gcc",
                     PACKAGES = ["PyQt4"],
                     PACKAGE_DIRS = package_dir,
-                    PACKAGE_DATA = {'' : ['*.pyd']},
+                    PACKAGE_DATA = {'' : [Pattern.pyext]},
                     
                     LIB_DIRS         = lib_dirs,
                     DATA_FILES       = qscis+sip_mods,
-                    INSTALL_REQUIRES = [egg_mingwrt.__eggname__]
+                    INSTALL_REQUIRES = [egg_mingw_rt.__eggname__]
                     )  
                     
                  
@@ -960,21 +992,21 @@ class egg_qt4_dev(BaseEggBuilder):
         # binaries are the union of qt, pyqt and sip binaries 
         bin_dirs = {"bin":qt4_.install_bin_dir}
         # includes are recursive subdirectories and the union of qt and sip includes               
-        incs = recursive_glob_as_dict( qt4_.install_inc_dir, regexp=qt4_.inc_pattern, strip_keys=True, prefix_key="include", dirs=True).items() + \
-               recursive_glob_as_dict( sip_.install_inc_dir, regexp=qt4_.inc_pattern, strip_keys=True, prefix_key="include", dirs=True).items()
+        incs = recursive_glob_as_dict( qt4_.install_inc_dir, Pattern.qtinc, strip_keys=True, prefix_key="include", dirs=True).items() + \
+               recursive_glob_as_dict( sip_.install_inc_dir, Pattern.qtinc, strip_keys=True, prefix_key="include", dirs=True).items()
         inc_dirs = merge_list_dict( incs )
         # libs are recursive subdirectories of qt libs          
-        libs = recursive_glob_as_dict(qt4_.install_lib_dir, qt4_.lib_pattern, strip_keys=True, prefix_key="lib").items()
+        libs = recursive_glob_as_dict(qt4_.install_lib_dir, Pattern.qtstalib, strip_keys=True, prefix_key="lib").items()
         # sip files are recursive subdirectories and the union of pyqt4 and...
-        sips = recursive_glob_as_dict(pyqt4_.install_sip_dir, "*.sip", strip_keys=True, prefix_key="sip").items()
+        sips = recursive_glob_as_dict(pyqt4_.install_sip_dir, Pattern.sipfiles, strip_keys=True, prefix_key="sip").items()
         # sources are recursive subdirectories and the union of qt4 and that all (CPP have been removed)...
-        srcs = recursive_glob_as_dict(qt4_.install_src_dir, qt4_.src_pattern, strip_keys=True, prefix_key="src").items()
+        srcs = recursive_glob_as_dict(qt4_.install_src_dir, Pattern.qtsrc, strip_keys=True, prefix_key="src").items()
         # tra files are recursive subdirectories in qt4
-        tra = recursive_glob_as_dict(qt4_.install_tra_dir, qt4_.tra_pattern, strip_keys=True, prefix_key="translations").items()
+        tra = recursive_glob_as_dict(qt4_.install_tra_dir, Pattern.qttransl, strip_keys=True, prefix_key="translations").items()
         # mks files are recursive subdirectories in qt4
-        mks = recursive_glob_as_dict(qt4_.install_mks_dir, qt4_.mks_pattern, strip_keys=True, prefix_key="mkspecs").items()        
+        mks = recursive_glob_as_dict(qt4_.install_mks_dir, Pattern.qtmkspec, strip_keys=True, prefix_key="mkspecs").items()        
         # plugins files are recursive subdirectories in qt4
-        plu = recursive_glob_as_dict(qt4_.install_plu_lib_dir, qt4_.lib_pattern, strip_keys=True, prefix_key="plugins").items()        
+        plu = recursive_glob_as_dict(qt4_.install_plu_lib_dir, Pattern.qtstalib, strip_keys=True, prefix_key="plugins").items()        
 
         from PyQt4 import Qt
         
@@ -996,16 +1028,16 @@ class egg_pyqglviewer(BaseEggBuilder):
         qglv_   = qglviewer()
         pyqglv_   = pyqglviewer()
         
-        pyqgl_mods = recursive_glob_as_dict(pyqglv_.install_site_dir, "*.py,*.pyd", strip_keys=True, levels=1).items()
+        pyqgl_mods = recursive_glob_as_dict(pyqglv_.install_site_dir, Pattern.pyall, strip_keys=True, levels=1).items()
         # includes are recursive subdirectories of qglviewer           
-        incs = recursive_glob_as_dict( qglv_.install_inc_dir, "*.h", strip_keys=True, prefix_key="include", dirs=True).items()
+        incs = recursive_glob_as_dict( qglv_.install_inc_dir, Pattern.include, strip_keys=True, prefix_key="include", dirs=True).items()
         inc_dirs = merge_list_dict( incs )
         # libs are recursive subdirectories of qt libs          
-        libs = recursive_glob_as_dict(qglv_.install_lib_dir, qt4_.lib_pattern, strip_keys=True, prefix_key="lib").items()
+        libs = recursive_glob_as_dict(qglv_.install_lib_dir, Pattern.qtstalib, strip_keys=True, prefix_key="lib").items()
         # sip files are recursive subdirectories of pyqglviewer sip installation directory
-        sips = recursive_glob_as_dict(pyqglv_.install_sip_dir, "*.sip", strip_keys=True, prefix_key="sip").items()
+        sips = recursive_glob_as_dict(pyqglv_.install_sip_dir, Pattern.sipfiles, strip_keys=True, prefix_key="sip").items()
         # examples are recursive subdirectories of pyqglviewer examples installation directory contains various types of files
-        exas = recursive_glob_as_dict(pyqglv_.install_exa_dir, "*", strip_keys=True, prefix_key="examples").items()        
+        exas = recursive_glob_as_dict(pyqglv_.install_exa_dir, Pattern.any, strip_keys=True, prefix_key="examples").items()        
         
         lib_dirs    = {"" : qglv_.install_dll_dir}
         data_files  = exas+sips+libs+pyqgl_mods
@@ -1017,13 +1049,14 @@ class egg_pyqglviewer(BaseEggBuilder):
                     CODE_AUTHOR  = "libQGLViewer developers for libQGLViewer, PyQGLViewer (INRIA) developers for PyQGLViewer",
                     DESCRIPTION  = "Win-GCC version of PyQGLViewer",                    
                     
-                    PACKAGE_DATA = {'' : ['*.pyd']},
+                    PACKAGE_DATA = {'' : [Pattern.pyext]},
                     #PACKAGE_DIRS = package_dir,
                     
                     LIB_DIRS     = lib_dirs,
                     INC_DIRS     = inc_dirs,
                     
                     DATA_FILES   = data_files,
+                    INSTALL_REQUIRES = [egg_qt4.__eggname__]
                     )  
                     
 class egg_boost(BaseEggBuilder):
@@ -1035,7 +1068,7 @@ class egg_boost(BaseEggBuilder):
         qt4_   = qt4() # just to have the inc/lib regexp/glob patterns
 
         # includes are recursive subdirectories and the union of qt and sip includes               
-        incs = recursive_glob_as_dict( boost_.install_inc_dir, regexp=qt4_.inc_pattern, strip_keys=True, prefix_key="include", dirs=True).items()
+        incs = recursive_glob_as_dict( boost_.install_inc_dir, Pattern.qtinc, strip_keys=True, prefix_key="include", dirs=True).items()
         inc_dirs = merge_list_dict( incs )
            
         # get the version from Jamroot file
@@ -1053,6 +1086,7 @@ class egg_boost(BaseEggBuilder):
                     DESCRIPTION  = "Windows gcc libs and includes of Boost",                    
                     LIB_DIRS         = lib_dirs,
                     INC_DIRS         = inc_dirs,
+                    INSTALL_REQUIRES = [egg_mingw_rt.__eggname__]
                     )  
                  
                  
@@ -1113,6 +1147,19 @@ def main():
 
     env = BuildEnvironment()
     env.set_options(options)
+    
+    # Clean sys.path for this process so that we don't import existing eggs or site-installed thingys.
+    our_egg_names = EggBuilders.builders.keys()
+    for pth in sys.path[:] :
+        pth_p = pth.lower()
+        for egg_name in our_egg_names:
+            if egg_name in pth_p:
+                print pth
+                sys.path.remove(pth)
+                break
+    
+    # TODO : Clean env so that we do not propagate preexisting installations in subprocesses
+    # TODO : Clean python env so that we do not propagate preexisting installations in subprocesses
     # give priority to OUR compiler!
     os.environ["PATH"] = os.pathsep.join([env.get_compiler_bin_path(), os.environ["PATH"]])
     
@@ -1129,4 +1176,4 @@ def main():
     
     
 if __name__ ==  "__main__":
-            main()
+    main()

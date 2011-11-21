@@ -1,10 +1,10 @@
 # -*- python -*-
 #
-#       $NAME setup.py
+#       @NAME setup.py
 #
-#       Copyright 2006-$THIS_YEAR INRIA - CIRAD - INRA
+#       Copyright 2006-@THIS_YEAR INRIA - CIRAD - INRA
 #
-#       File author(s): $SETUP_AUTHORS
+#       File author(s): @SETUP_AUTHORS
 #       Template File author(s): Daniel Barbeau
 #
 #       Distributed under the Cecill-C License.
@@ -15,6 +15,9 @@
 #
 ###############################################################################
 
+__license__ = "Cecill-C"
+__revision__ = " $Id$"
+
 #THIS SCRIPT IS CONFIGURED AND RUN BY THE DEPENDENCY_BUILDER PROCESS.
 #OTHERWISE IT WILL MOST PROBABLY FAIL AS THAT PROCESS CONFIGURES PATH
 #AND PYTHONPATH TEMPORARILY FOR SUBPROCESSES TO WORK PROPERLY.
@@ -22,26 +25,26 @@
 from setuptools import setup
 
 # General information
-name        = $NAME
-version     = $VERSION
-author      = "%s author : %s. Egg author : %s"%( $NAME, $CODE_AUTHOR, $SETUP_AUTHORS )
-description = $DESCRIPTION
-url         = $URL
-license     = $LICENSE
+name        = @NAME
+version     = @VERSION
+author      = "%s author : %s. Egg author : %s"%( @NAME, @CODE_AUTHOR, @SETUP_AUTHORS )
+description = @DESCRIPTION
+url         = @URL
+license     = @LICENSE
 
 # Technicalities
-zip_safe      = $ZIP_SAFE
-packages      = $PACKAGES
-package_dir   = $PACKAGE_DIRS
-package_data  = $PACKAGE_DATA
-data_files    = $DATA_FILES
+zip_safe      = @ZIP_SAFE
+packages      = @PACKAGES
+package_dir   = @PACKAGE_DIRS
+package_data  = @PACKAGE_DATA
+data_files    = @DATA_FILES
 
-install_requires = $INSTALL_REQUIRES
+install_requires = @INSTALL_REQUIRES
 
 # Openalea Extensions
-bin_dirs = $BIN_DIRS
-lib_dirs = $LIB_DIRS
-inc_dirs = $INC_DIRS
+bin_dirs = @BIN_DIRS
+lib_dirs = @LIB_DIRS
+inc_dirs = @INC_DIRS
 
 # The point in nesting the setup call is that
 # we can then import setup.py to extract the meta information
