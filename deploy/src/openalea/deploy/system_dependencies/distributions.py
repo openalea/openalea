@@ -17,7 +17,7 @@ import dependency
 # -- our dependency tree --
 
 canonical_dependencies = {
-    "openalea" : ["pyqt4", "numpy", "scipy", "matplotlib", "pyqscintilla", "setuptools", "pil"],
+    "openalea" : ["pyqt4", "numpy", "scipy", "matplotlib", "pyqscintilla", "setuptools", "pil", "soappy"],
     "vplants"  : [
                     "bison-dev",
                     "boostmath",
@@ -84,6 +84,7 @@ class Ubuntu_PackageNames(dependency.DistributionPackageNames):
              "sip4-dev" : "python-sip4",
              "scipy" : "python-scipy",
              "scons-dev" :  "scons",
+             "soappy" : "python-soappy",
              "svn-dev" : "subversion",
              }
         dependency.DistributionPackageNames.__init__(self, **d)
@@ -150,6 +151,7 @@ class Fedora_PackageNames(dependency.DistributionPackageNames):
              "scipy" : "scipy",
              "sip4-dev" : "sip-devel",
              "scons-dev" :  "scons",
+             "soappy" : "SOAPpy",
              "svn-dev" : "subversion",
              }
         dependency.DistributionPackageNames.__init__(self, **d)
