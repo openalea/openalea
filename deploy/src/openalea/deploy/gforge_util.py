@@ -231,6 +231,7 @@ def upload_file(filename, group_id, pkg_id, release_id, type_id, proc_id):
                'processor_id' : str(proc_id),
                'userfile' : open(filename, "rb"),
                }
+    
     fp = urlOpener.open(url, values)
 
     

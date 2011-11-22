@@ -49,6 +49,7 @@ import platform
 import os
 import sys
 import shutil
+import urllib2
 import urllib
 import subprocess
 import glob
@@ -77,7 +78,7 @@ projs = OrderedDict ( (p.name,p) for p in  [
                                              Project("qt4"         , "http://download.qt.nokia.com/qt/source/qt-everywhere-opensource-src-4.7.4.zip", "qt4_src.zip", "qt-every*"),
                                              Project("sip"         , "http://www.riverbankcomputing.co.uk/static/Downloads/sip4/sip-4.13.zip", "sip_src.zip", "sip*"),
                                              Project("pyqt4"       , "http://www.riverbankcomputing.co.uk/static/Downloads/PyQt4/PyQt-win-gpl-4.8.6.zip", "pyqt4_src.zip", "PyQt*"),
-                                             Project("qscintilla"  , "http://www.riverbankcomputing.co.uk/static/Downloads/QScintilla2/QScintilla-gpl-2.5.1.zip", "qscintilla_src.zip", "QScint*/Qt4"),
+                                             Project("qscintilla"  , "http://www.riverbankcomputing.co.uk/static/Downloads/QScintilla2/QScintilla-gpl-2.6.zip", "qscintilla_src.zip", "QScint*/Qt4"),
                                              Project("pyqscintilla", None, "qscintilla_src.zip", "QScint*/Python"), # shares the same as qscintilla
                                              Project("qglviewer"   , "https://gforge.inria.fr/frs/download.php/28138/libQGLViewer-2.3.9-py.tgz", "qglviewer_src.tgz", "libQGLV*/QGLViewer"),
                                              Project("pyqglviewer" , "https://gforge.inria.fr/frs/download.php/28212/PyQGLViewer-0.9.1.zip", "pyqglviewer_src.zip", "PyQGLV*"),
@@ -104,8 +105,8 @@ def merge_list_dict(li):
         d[k].extend(v)        
     return dict( (k, sj(v)) for k,v in d.iteritems() )
 
-CRE = re.compile    
-CompiledRe = type(CRE(""))    
+compile = re.compile    
+CompiledRe = type(compile(""))    
 def recursive_glob(dir_, patterns=None, strip_dir_=False, levels=-1):
     """ Goes down a file hierarchy and returns files paths
     that match filepatterns or regexp."""
@@ -286,6 +287,7 @@ class BuildEnvironment(object):
         self.proc_file_path = pj(self.working_path,"proc_flags.pk")
         self.create_working_directories()        
         recursive_copy( split(__file__)[0], self.working_path, "setup.py.in", levels=1)
+        recursive_copy( split(__file__)[0], self.working_path, "qmake_main.cpp.sub", levels=1)
         os.environ["PATH"] = sj([os.environ["PATH"],self.get_compiler_bin_path()])
         
     # -- context manager protocol --
@@ -311,22 +313,18 @@ class BuildEnvironment(object):
             proc_str  = "PROCESSING " + proj.name    
             bdict     = ProjectBuilders.builders
             processes = proj_process_map
-            
-        print "\n",proc_str
-        print "="*len(proc_str)
-        # proc_flags is a string containing proj_process_map keys.
-        # if a process is in proc_flags it gets forced.
-        proc_flags = self.options.get(proj.name, "")
-        print "process flags are:", proc_flags
-        
+                    
         builder = bdict[proj.name]()
         builder.set_options(self.options)
         for proc, (proc_func, skippable) in processes.iteritems():
             nice_func = proc_func.strip("_")
-            if self.must_skip_proc(builder, proj, proc):
-                print "\t-->ignoring %s for %s"%(nice_func, proj.name)
-                continue
-            else:
+            if not self.must_skip_proc(builder, proj, proc):
+                print "\n",proc_str
+                print "="*len(proc_str)
+                # proc_flags is a string containing proj_process_map keys.
+                # if a process is in proc_flags it gets forced.
+                proc_flags = self.options.get(proj.name, "")
+                print "process flags are:", proc_flags            
                 print "\t-->performing %s for %s"%(nice_func, proj.name)
                 success = getattr(builder, proc_func)()
                 if success == Later:
@@ -461,8 +459,10 @@ class BaseProjectBuilder(object):
         
     def download_source(self):
         def download_reporter(bk, bksize, bytes):
+            if bytes == 0:
+                raise urllib2.URLError("Url doesn't point to a valid resource (version might have changed?)")
             progress= float(bk)/(bytes/bksize) * 100
-            sys.stdout.write(("Dl %s from %.20s to %s: %.1f"%(self.proj[:3]+(progress,)))+"\r")
+            sys.stdout.write(("Dl %s from %.20s to %s: %.1f %%"%(self.proj[:3]+(progress,)))+"\r")
             sys.stdout.flush()
 
         # a proj with a none url implicitely means 
@@ -663,7 +663,7 @@ class BaseEggBuilder(object):
 class Pattern:
     # -- generalities --
     any     = "*"
-    execut  = "*.exe"
+    exe  = "*.exe"
     dynlib  = "*.dll"
     stalib  = "*.a"
     include = "*.h,*.hxx"
@@ -682,7 +682,7 @@ class Pattern:
     # -- Qtities --
     qtstalib = "*.a,*.prl,*.pri,*.pfa,*.pfb,*.qpf,*.ttf,README"
     qtsrc    = "*.pro,*.pri,*.rc,*.def,*.h,*.hxx"
-    qtinc    = CRE(r"^Q[0-9A-Z]\w|.*\.h")
+    qtinc    = compile(r"^Q[0-9A-Z]\w|.*\.h")
     qtmkspec = "*"
     qttransl = "*.qm"
         
@@ -711,19 +711,34 @@ class qt4(BaseProjectBuilder):
                           pj(self.installdir, "translations")
         self.install_bin_dir, self.install_dll_dir, self.install_lib_dir, self.install_src_dir, self.install_inc_dir, self.install_plu_dir, self.install_plu_lib_dir, self.install_mks_dir, self.install_tra_dir = self.inst_paths        
     def configure(self):
+        # we must patch qmake/main.cpp to handle all file arguments
+        # as absolute and as early as possible.
+        # txt = ""
+        # src = pj("qmake", "main.cpp")
+        # bkp = pj("qmake", "main.cpp.bkp")
+        # rep = pj( self.env.working_path, "qmake_main.cpp.sub")
+        # with open( src ) as f:
+            # txt = f.read()
+        # if not "// WorkingDirShiftPatch" in txt and not exists( bkp ):
+            # print "patching qmake/main.cpp"
+            # with open(bkp, "w") as f:
+                # f.write(txt)                
+            # cut_ind = txt.find("int main(int argc, char **argv)")
+            # with open(rep) as f:
+                # txt = txt[:cut_ind] + f.read()
+            # with open(src, "w") as f:
+                # f.write(txt)                
         pop = subprocess.Popen("configure.exe -platform win32-g++ -release -opensource -shared -nomake demos -nomake examples -mmx -sse2 -3dnow -declarative -webkit -no-s60 -no-cetest",
                                stdin=subprocess.PIPE) # PIPE is required or else pop.comminicate won't do anything!
         time.sleep(2) #give enough time for executable to load before it asks for license agreement.
-        pop.communicate("y\r") #accepts license agreement, also waits for configure to finish
-        
-        
+        pop.communicate("y\r") #accepts license agreement, also waits for configure to finish                       
         return pop.returncode == 0
     def install(self):
         # create the installation directories
         for pth in self.inst_paths:
             makedirs(pth)
         # copy binaries
-        copy( pj(self.sourcedir, "bin"), self.install_bin_dir, Pattern.execut )
+        copy( pj(self.sourcedir, "bin"), self.install_bin_dir, Pattern.exe )
         # copy dlls
         copy( pj(self.sourcedir, "bin"), self.install_dll_dir, Pattern.dynlib )
         # copy libs
@@ -1154,7 +1169,6 @@ def main():
         pth_p = pth.lower()
         for egg_name in our_egg_names:
             if egg_name in pth_p:
-                print pth
                 sys.path.remove(pth)
                 break
     

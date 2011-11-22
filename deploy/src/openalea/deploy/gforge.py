@@ -398,7 +398,7 @@ class GForgeProxy(object):
         @param release_id : a number or a name
         """
 
-        project_id, package_id, release_id = \
+        _project_id, _package_id, _release_id = \
             self.convert_to_id(project_id, package_id, release_id)
 
         name = os.path.basename(filename)
@@ -419,13 +419,14 @@ class GForgeProxy(object):
 
         try:
             
-            ret = self.server.addFile(self.session, project_id, package_id, release_id,
+            ret = self.server.addFile(self.session, _project_id, _package_id, _release_id,
                                  name, filestr, type, processor, release_time)
             print "Done."
             return ret
         
         except Exception, e:
-            print e, "Failed to upload file."
+            return self.add_big_file(project_id,package_id, release_id, 
+                filename, proc_type, file_type)
 
 
     def remove_package(self, project_id, package_id):

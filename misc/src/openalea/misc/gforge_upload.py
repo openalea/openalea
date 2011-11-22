@@ -255,7 +255,7 @@ class Uploader(object):
                     self.server.add_big_file(self.project, self.package, self.release, 
                         file, p_type, f_type)
                 else:
-                    self.server.add_file(self.project, self.package, self.release, 
+                    res = self.server.add_file(self.project, self.package, self.release, 
                         file, p_type, f_type)
             print '%s file has been uploaded on the server (in %s)' % (os.path.basename(file), self.get_location())
         else:
