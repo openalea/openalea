@@ -242,34 +242,11 @@ class EggBuilders(Singleton):
     def __init__(cls, name, bases, dic):
         Singleton.__init__(cls, name, bases, dic)
         if "egg_" in name: #dunno why "EggBuilder" gets passed here.
-            EggBuilders.builders[name[4:]] = cls        
+            EggBuilders.builders[cls.__eggname__] = cls        
         
-        
-        
-# The following ordered dictionnaries descibe in which order
-# each builder function will be called for projects (compilation)
-# and eggs (packaging). The key are used in three ways:
-   # - The user can specify in the command line to specifically do this action
-   # - This script can mark this action as done in the proc_flags.pk file.
-   # - Each builder class can list a subset of process keys as supported
-     # (by default, all are supported)
-        
-proj_process_map = OrderedDict([("d",("download_source",True)),
-                                ("u",("unpack_source",True)),
-                                ("f",("fix_source_dir",False)),
-                                ("c",("_configure",True)),
-                                ("b",("_build",True)),
-                                ("i",("_install",True)),
-                                ("p",("_patch", True)), #where should you be?
-                                ("x",("_extend_sys_path",False)),
-                                ("y",("_extend_python_path",False)),
-                                ])
-
-egg_process_map = OrderedDict([("c",("_configure_script",True)),
-                               ("e",("_eggify",True)),
-                               ("u",("_upload_egg",True))
-                              ])        
-        
+class NullOutput(object):
+    def write(self, s):
+        pass
         
 # -- we define a micro build environment --
 class BuildEnvironment(object):
@@ -277,92 +254,109 @@ class BuildEnvironment(object):
 
     def __init__(self):
         self.options = {}
-        self.working_path = None
-        self.proc_file_path = None
+        self.proj_builders = None
+        self.egg_builders  = None
+        self.options = {}
+        self.working_path    = None
+        self.proc_file_path  = None
+        self.original_stdout = sys.stdout
+        self.original_stderr = sys.stderr        
+        self.null_stdout     = NullOutput()
         
-
     def set_options(self, options):
         self.options        = options.copy()
-        self.working_path   = pj( options.get("wdr", abspath(".")), self.get_platform_string() )
+        self.init()
+        
+    def init(self):
+        self.working_path   = pj( self.options.get("wdr", abspath(".")), self.get_platform_string() )
         self.proc_file_path = pj(self.working_path,"proc_flags.pk")
         self.create_working_directories()        
         recursive_copy( split(__file__)[0], self.working_path, "setup.py.in", levels=1)
         recursive_copy( split(__file__)[0], self.working_path, "qmake_main.cpp.sub", levels=1)
-        os.environ["PATH"] = sj([os.environ["PATH"],self.get_compiler_bin_path()])
+        self.__fix_environment()
+        self.__fix_sys_path()              
+
+    def __fix_environment(self):
+        # TODO : Clean env so that we do not propagate preexisting installations in subprocesses        
+        # give priority to OUR compiler!
+        os.environ["PATH"] = sj([self.get_compiler_bin_path(), os.environ["PATH"]])    
+        
+    def __fix_sys_path(self):
+        # Clean sys.path for this process so that we don't import 
+        # existing eggs or site-installed thingys.
+        our_egg_names = EggBuilders.builders.keys()
+        for pth in sys.path[:] :
+            pth_p = pth.lower()
+            for egg_name in our_egg_names:
+                if egg_name in pth_p:
+                    sys.path.remove(pth)
+                    break
         
     # -- context manager protocol --
     def __enter__(self):
         try:
             with open(self.proc_file_path, "rb") as f:
                 txt  = f.read()
-                self.proc_flags = eval(txt)
+                self.done_tasks = eval(txt)
         except:
             traceback.print_exc()
-            self.proc_flags = {}
+            self.done_tasks = {}
+            
     def __exit__(self, exc_type, exc_value, traceback):
         with open(self.proc_file_path, "wb") as f:
-            pprint.pprint(self.proc_flags, f)
+            pprint.pprint(self.done_tasks, f)
                 
     # -- Project building --
-    def build_proj(self, proj):
-        if isinstance(proj, Egg):
-            proc_str  = "PROCESSING EGG " + proj.name
-            bdict     = EggBuilders.builders
-            processes = egg_process_map
-        else:
-            proc_str  = "PROCESSING " + proj.name    
-            bdict     = ProjectBuilders.builders
-            processes = proj_process_map
-                    
-        builder = bdict[proj.name]()
-        builder.set_options(self.options)
-        for proc, (proc_func, skippable) in processes.iteritems():
-            nice_func = proc_func.strip("_")
-            if not self.must_skip_proc(builder, proj, proc):
-                print "\n",proc_str
-                print "="*len(proc_str)
-                # proc_flags is a string containing proj_process_map keys.
-                # if a process is in proc_flags it gets forced.
-                proc_flags = self.options.get(proj.name, "")
-                print "process flags are:", proc_flags            
-                print "\t-->performing %s for %s"%(nice_func, proj.name)
-                success = getattr(builder, proc_func)()
-                if success == Later:
-                    print "\t-->%s for %s we be done later"%(nice_func, proj.name)
-                elif success == False:
-                    print "\t-->%s for %s failed"%(nice_func, proj.name)
-                    sys.exit(-1)
-                else:
-                    self.mark_proc_as_done(proj, proc)        
-
-    def mark_proc_as_done(self, proj, proc):
+    def __init_builders(self):
+        self.proj_builders = [self.__get_project_builder(spec) for spec in projs.itervalues()]
+        self.egg_builders  = [self.__get_egg_builder(spec) for spec in eggs.itervalues()]
+                
+    def __get_project_builder(self, spec):
+        builder = ProjectBuilders.builders[spec.name]
+        return builder
+        
+    def __get_egg_builder(self, spec):
+        builder = EggBuilders.builders[spec.name]
+        return builder
+            
+    def build(self):
+        self.__init_builders()  
+        for buildercls in self.proj_builders + self.egg_builders:
+            builder = buildercls()
+            if builder.has_pending:
+                builder.process_me()
+            
+    def task_is_done(self, name, task):
+        """ Marks that the `task` step has been accomplished for `proj`.
+        name is a string (class name)
+        task is a key from proj_taskess_map or egg_taskess_map
+        """
+        if task not in self.done_tasks.setdefault(name, ""):
+            self.done_tasks[name] += task
+            
+    def is_task_done(self, name, task):
         """ Marks that the `proc` step has been accomplished for `proj`.
-        proj is an instance of Egg or Project.
+        name is a string (class name)
         proc is a key from proj_process_map or egg_process_map
         """
-        name = proj.name if not isinstance(proj, Egg) else proj.name+'_egg'
-        if proc not in self.proc_flags.setdefault(name, ""):
-            self.proc_flags[name] += proc
-                            
-    def must_skip_proc(self, builder, proj, proc):               
-        if not isinstance(proj, Egg):            
-            name = proj.name
-            d    = proj_process_map
-        else:
-            name = proj.name+'_egg'
-            d    =  egg_process_map
+        return task in self.done_tasks.setdefault(name, "")
         
-        if proc not in builder.supported_procs:
-            return True #must skip this proc
-            
-        skippable = d[proc][1]
-        forced_proc_flags = self.options.setdefault(name, "")
-        skip = proc in self.proc_flags.setdefault(name, "") and proc not in forced_proc_flags and skippable
-        return skip
-            
+    def task_is_forced(self, name, task):
+        """ Marks that the `proc` step has been accomplished for `proj`.
+        name is a string (class name)
+        proc is a key from proj_process_map or egg_process_map
+        """
+        return task in self.options.setdefault(name, "")
 
-            
-    # Some info to tell us where to build
+    def make_silent(self, silent):
+        if silent:
+            sys.stdout = self.null_stdout
+            sys.stderr = self.null_stdout            
+        else:
+            sys.stdout = self.original_stdout
+            sys.stderr = self.original_stderr            
+
+            # Some info to tell us where to build
     def get_platform_string(self):
         # TODO : do smart things according to self.options
         return "_".join([platform.python_version(),
@@ -429,6 +423,7 @@ def in_dir(directory):
         calls f and moves back to BuildEnvironment.get_working_path()"""
         def wrapper(self, *args, **kwargs):
             d_ = getattr(self, directory)
+            print "changing to", directory, "for", f
             os.chdir(d_)
             ret = f(self, *args, **kwargs)
             os.chdir(self.env.get_working_path())
@@ -437,42 +432,120 @@ def in_dir(directory):
     return dir_changer
     
 
-class BaseProjectBuilder(object):
-    __metaclass__ = ProjectBuilders
+class BaseBuilder(object):
+    supported_procs = None
+    all_procs       = None
+    silent_procs    = ""
     
-    supported_procs = "".join(proj_process_map.keys())
-
     def __init__(self):
-        self.options = {}
-        self.proj = None
-        proj_name = self.__class__.__name__
-        self.proj = projs.get(proj_name)
-        if self.proj is None:
-            raise Exception("cannot find", proj_name, "in projs")
-        self.env = BE()        
-        self.archname  = pj( self.env.get_dl_path() , self.proj.dlname)
-        self.sourcedir = pj( self.env.get_src_path(), splitext(self.proj.dlname)[0] )
-        self.installdir = pj( self.env.get_install_path(), splitext(self.proj.dlname)[0] )
+        self.env = BE()
+        if self.spec is None:
+            raise Exception("cannot find " + self.name + " specifications")
+        self.pending = None
+        
+    @property
+    def options(self):
+        return self.env.options
+    @property
+    def spec(self):
+        raise NotImplementedError
+    @property
+    def name(self):
+        return self.__class__.__name__
+    @property
+    def has_pending(self):
+        if self.pending is None:
+            self.__find_pending_tasks()
+        return len(self.pending) != 0
+        
+    def __find_pending_tasks(self):
+        tasks = []
+        name  = self.name
+        for task in self.supported_procs:
+            task_func, skippable = self.all_procs[task]
+            done   = self.env.is_task_done(name, task)
+            forced = self.env.task_is_forced(name, task)
+            skip = done and not forced and skippable
+            if not skip:
+                tasks.append((task, task_func, skippable))
+        self.pending = tasks
 
-    def set_options(self, options):
-        self.options = options.copy()
+    def __has_pending_verbose_tasks(self):
+        for task, func, skippable in self.pending:
+            if task not in self.silent_procs:
+                return True
+        return False     
+        
+    def process_me(self):
+        self.env.make_silent( not self.__has_pending_verbose_tasks() )
+
+        proc_str  = "PROCESSING " + self.name         
+        print "\n",proc_str
+        print "="*len(proc_str)
+        # forced_tasks is a string containing self.all_procs keys.
+        # if a process is in forced_tasks it gets forced.
+        forced_tasks = self.options.get(self.spec, "")
+        print "forced tasks are:", forced_tasks   
+
+        for task, task_func, skippable in self.pending:
+            nice_func = task_func.strip("_")
+            print "\t-->performing %s for %s"%(nice_func, self.name)
+            success = getattr(self, task_func)()
+            if success == Later:
+                print "\t-->%s for %s we be done later"%(nice_func, self.name)
+            elif success == False:
+                print "\t-->%s for %s failed"%(nice_func, self.name)
+                sys.exit(-1)
+            else:
+                self.env.task_is_done(self.name, task)
+                
+        self.env.make_silent(False)        
+      
+
+
+  
+class BaseProjectBuilder(BaseBuilder):
+    __metaclass__ = ProjectBuilders
+        
+    all_procs       = OrderedDict([ ("d",("download_source",True)),
+                                    ("u",("unpack_source",True)),
+                                    ("f",("fix_source_dir",False)),
+                                    ("c",("_configure",True)),
+                                    ("b",("_build",True)),
+                                    ("i",("_install",True)),
+                                    ("p",("_patch", True)), #where should you be?
+                                    ("x",("_extend_sys_path",False)),
+                                    ("y",("_extend_python_path",False)),
+                                    ])
+    silent_procs = "fxy"
+    supported_procs = "".join(all_procs.keys())
+    
+    def __init__(self):
+        BaseBuilder.__init__(self)   
+        self.archname  = pj( self.env.get_dl_path() , self.spec.dlname)
+        self.sourcedir = pj( self.env.get_src_path(), splitext(self.spec.dlname)[0] )
+        self.installdir = pj( self.env.get_install_path(), splitext(self.spec.dlname)[0] )
+        
+    @property
+    def spec(self):
+        return projs.get(self.__class__.__name__)        
         
     def download_source(self):
         def download_reporter(bk, bksize, bytes):
             if bytes == 0:
                 raise urllib2.URLError("Url doesn't point to a valid resource (version might have changed?)")
             progress= float(bk)/(bytes/bksize) * 100
-            sys.stdout.write(("Dl %s from %.20s to %s: %.1f %%"%(self.proj[:3]+(progress,)))+"\r")
+            sys.stdout.write(("Dl %s from %.20s to %s: %.1f %%"%(self.spec[:3]+(progress,)))+"\r")
             sys.stdout.flush()
 
         # a proj with a none url implicitely means 
         # the sources are already here because some
         # other proj installed it.
-        if self.proj.url is None:
+        if self.spec.url is None:
             return True
         remote_sz = float("inf")
         try:
-            remote    = urllib.urlopen(self.proj.url)
+            remote    = urllib.urlopen(self.spec.url)
         except IOError:
             traceback.print_exc()
             return False
@@ -485,7 +558,7 @@ class BaseProjectBuilder(object):
                 raise os.error # download is incomplete, raise error to download
         except os.error:
             try:
-                urllib.urlretrieve(self.proj.url, self.archname, download_reporter)
+                urllib.urlretrieve(self.spec.url, self.archname, download_reporter)
             except:
                 traceback.print_exc()
                 ret = False
@@ -495,12 +568,12 @@ class BaseProjectBuilder(object):
         # a proj with a none url implicitely means 
         # the sources are already here because some
         # other proj installed it.
-        if self.proj.url is None:
+        if self.spec.url is None:
             return True
         if exists(self.sourcedir):
             return True
-        base, ext = splitext( self.proj.dlname )
-        print "unpacking", self.proj.dlname
+        base, ext = splitext( self.spec.dlname )
+        print "unpacking", self.spec.dlname
         if ext == ".zip":
             zipf = zipfile.ZipFile( self.archname, "r" )
             # TODO : verify that there is no absolute path inside zip.
@@ -514,8 +587,8 @@ class BaseProjectBuilder(object):
     def fix_source_dir(self):
         try:
             print "fixing sourcedir", self.sourcedir,
-            if self.proj.arch_subdir is not None:
-                self.sourcedir = glob.glob(pj(self.sourcedir,self.proj.arch_subdir))[0]
+            if self.spec.arch_subdir is not None:
+                self.sourcedir = glob.glob(pj(self.sourcedir,self.spec.arch_subdir))[0]
             print self.sourcedir
         except:
             traceback.print_exc()
@@ -580,21 +653,24 @@ class TemplateStr(string.Template):
     delimiter = "@"
 
     
-class BaseEggBuilder(object):
+class BaseEggBuilder(BaseBuilder):
     __metaclass__ = EggBuilders
     
-    supported_procs = "".join(egg_process_map.keys())
+    all_procs       = OrderedDict([("c",("_configure_script",True)),
+                                   ("e",("_eggify",True)),
+                                   ("u",("_upload_egg",True))
+                                  ]) 
+    supported_procs = "".join(all_procs.keys())
     
     def __init__(self):
-        self.options        = {}
-        self.name           = self.__class__.__eggname__
-        self.env            = BE()
-        self.eggdir         = pj(self.env.get_egg_path(), self.name)
+        BaseBuilder.__init__(self) 
+        self.eggdir         = pj(self.env.get_egg_path(), self.__eggname__)
         self.setup_in_name  = pj(self.env.get_working_path(), "setup.py.in")
         self.setup_out_name = pj(self.eggdir, "setup.py")
+        self.use_cfg_login  = False
         makedirs(self.eggdir)
         
-        self.default_substitutions = dict( NAME      = self.name,
+        self.default_substitutions = dict( NAME      = self.__eggname__,
                                            VERSION   = "1.0",
                                            THIS_YEAR = datetime.date.today().year,
                                            SETUP_AUTHORS = "Openalea Team",
@@ -616,12 +692,14 @@ class BaseEggBuilder(object):
                                            INC_DIRS = None,
                                            )
                             
-    def set_options(self, options):
-        self.options = options.copy()
+    @property
+    def spec(self):
+        return eggs.get(self.__eggname__) 
         
     def _configure_script(self):
         try:
-            with open( self.setup_in_name, "r") as input, open( self.setup_out_name, "w") as output:
+            with open( self.setup_in_name, "r") as input, \
+                 open( self.setup_out_name, "w") as output:
                 conf = self.default_substitutions.copy()
                 conf.update(self.script_substitutions())
                 conf = dict( (k,repr(v)) for k,v in conf.iteritems() )
@@ -642,8 +720,12 @@ class BaseEggBuilder(object):
     @try_except
     def _upload_egg(self):
         if not self.options["login"] or not self.options["passwd"]:
-            print "No login or passwd provided, skipping egg upload"
-            return Later
+            self.use_cfg_login = True
+            ret = self.upload_egg()
+            if not ret:
+                print "No login or passwd provided, skipping egg upload"
+                return Later
+            return ret
         return self.upload_egg()
 
     def script_substitutions(self):
@@ -654,16 +736,20 @@ class BaseEggBuilder(object):
         return subprocess.call(sys.executable + " setup.py bdist_egg") == 0
         
     def upload_egg(self):
-        opts = self.options["login"], self.options["passwd"], self.name, "\"ThirdPartyLibraries\"", "vplants" if not self.options["release"] else "openalea" 
-        return subprocess.call(sys.executable + " setup.py egg_upload --yes-to-all --login %s --password %s --release %s --package %s --project %s"%opts) == 0
-        
+        if not self.use_cfg_login:
+            opts = self.options["login"], self.options["passwd"], \
+                    self.__eggname__, "\"ThirdPartyLibraries\"", "vplants" if not self.options["release"] else "openalea" 
+            return subprocess.call(sys.executable + " setup.py egg_upload --yes-to-all --login %s --password %s --release %s --package %s --project %s"%opts) == 0
+        else:
+            opts = self.__eggname__, "\"ThirdPartyLibraries\"", "vplants" if not self.options["release"] else "openalea" 
+            return subprocess.call(sys.executable + " setup.py egg_upload --yes-to-all --release %s --package %s --project %s"%opts) == 0
         
 
 # -- Glob and regexp patterns --
 class Pattern:
     # -- generalities --
     any     = "*"
-    exe  = "*.exe"
+    exe     = "*.exe"
     dynlib  = "*.dll"
     stalib  = "*.a"
     include = "*.h,*.hxx"
@@ -1119,12 +1205,12 @@ class egg_boost(BaseEggBuilder):
 ################################
 def build_epilog():
     epilog = "PROJ_ACTIONS are a concatenation of flags specifying what actions will be done:\n"
-    for proc, (funcname, skippable) in proj_process_map.iteritems():
+    for proc, (funcname, skippable) in BaseProjectBuilder.all_procs.iteritems():
         if skippable:
             epilog += "\t%s : %s\n"%(proc, funcname.strip("_"))
     epilog += "\n"
     epilog += "EGG_ACTIONS are a concatenation of flags specifying what actions will be done:\n"
-    for proc, (funcname, skippable) in egg_process_map.iteritems():
+    for proc, (funcname, skippable) in BaseEggBuilder.all_procs.iteritems():
         if skippable:
             epilog += "\t%s : %s\n"%(proc, funcname.strip("_"))
     return epilog
@@ -1136,19 +1222,19 @@ def parse_arguments():
     parser.add_argument("--wdr", default=os.curdir, help="Under which directory we will create our working dir",
                         type=abspath)
             
-    for proj in projs:
+    for proj in ProjectBuilders.builders.iterkeys():
         name = proj
         parser.add_argument("--"+name, default="", 
                             help="Force actions on %s"%name, dest=name,
                             metavar="PROJ_ACTIONS")
 
-    for egg in eggs:
+    for egg in EggBuilders.builders.iterkeys():
         name = egg + "_egg"
         parser.add_argument("--"+name, default="", 
                             help="Force actions on %s"%name, dest=name,
                             metavar="EGG_ACTIONS")
                             
-    parser.add_argument("--login", default=None, help="login to connect to GForge")
+    parser.add_argument("--login",  default=None, help="login to connect to GForge")
     parser.add_argument("--passwd", default=None, help="password to connect to GForge")
     parser.add_argument("--release", action="store_const", const=True, default=False, help="upload eggs to vplants repository for testing.")
     return parser.parse_args()
@@ -1162,28 +1248,8 @@ def main():
 
     env = BuildEnvironment()
     env.set_options(options)
-    
-    # Clean sys.path for this process so that we don't import existing eggs or site-installed thingys.
-    our_egg_names = EggBuilders.builders.keys()
-    for pth in sys.path[:] :
-        pth_p = pth.lower()
-        for egg_name in our_egg_names:
-            if egg_name in pth_p:
-                sys.path.remove(pth)
-                break
-    
-    # TODO : Clean env so that we do not propagate preexisting installations in subprocesses
-    # TODO : Clean python env so that we do not propagate preexisting installations in subprocesses
-    # give priority to OUR compiler!
-    os.environ["PATH"] = os.pathsep.join([env.get_compiler_bin_path(), os.environ["PATH"]])
-    
     with env:
-        for proj in projs.itervalues():
-            env.build_proj(proj)
-       
-        for egg in eggs.itervalues():
-            env.build_proj(egg)
-
+        env.build()
             
             
 
