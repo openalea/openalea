@@ -197,11 +197,11 @@ def parse_arguments():
     parser.add_argument("--login", default=None, help="login to connect to GForge.")
     parser.add_argument("--passwd", default=None, help="password to connect to GForge.")
     
-    parser.add_argument("--not-dry-run", action="store_const", const=True, default=False, help="Don't do anything but print.")
+    parser.add_argument("--not-dry-run", action="store_const", const=True, default=False, help="Actually do things! By default we just print comamnds.")
     parser.add_argument("--silent", action="store_const", const=True, default=False, help="Don't print anything.")
     
     parser.add_argument("project", default=None, help="Which project to branch.", choices=["openalea","vplants"])
-    parser.add_argument("version", default=None, help="Version of the branch.", type=_parse_version)
+    parser.add_argument("version", default=None, help="Version of the branch (ex: 1.0).", type=_parse_version)
     
     return parser.parse_args()
     

@@ -46,6 +46,7 @@ setup(
                  "make_develop = openalea.misc.make_develop:main",
                  "upload_dist = openalea.misc.upload_dist:main",
                  "gforge_upload = openalea.misc.gforge_upload:main",
+                 "alea_branch = openalea.misc.alea_branch:main",
                  ],
 
             "wralea": [ 
