@@ -12,6 +12,9 @@
 #
 ###############################################################################
 
+__revision__ = "$Id$"
+url = " $URL$ "
+
 import os
 import argparse
 import fnmatch
