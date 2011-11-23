@@ -66,7 +66,7 @@ from os.path import join as pj, splitext, getsize, exists, abspath, split
 from collections import namedtuple, OrderedDict, defaultdict
 
 Project = namedtuple("Project", "name url dlname arch_subdir")
-Egg = namedtuple("Egg", "name")
+Egg = namedtuple("Egg", "name license authors description")
 sj = os.pathsep.join
 
 
@@ -86,12 +86,41 @@ projs = OrderedDict ( (p.name,p) for p in  [
                                            ]
                     )
                         
-eggs = OrderedDict ( (p.name,p) for p in  [Egg("mingw"),
-                                           Egg("mingw_rt"), 
-                                           Egg("qt4"), 
-                                           Egg("qt4_dev"), 
-                                           Egg("pyqglviewer"),
-                                           Egg("boost"), 
+eggs = OrderedDict ( (p.name,p) for p in  [Egg("mingw", 
+                                               "PublicDomain for MingW runtime. GLP or LGPL for some libraries.",
+                                               "The Mingw Project",
+                                               "Mingw Development (compiler, linker, libs, includes)"
+                                               ),
+                                               
+                                           Egg("mingw_rt", 
+                                               "PublicDomain for MingW runtime. GLP or LGPL for some libraries.",
+                                               "The Mingw Project",
+                                               "Mingw Runtime"
+                                               ), 
+                                               
+                                           Egg("qt4", 
+                                               "General Public License V3",
+                                               "Riverbank Computing (Sip+PyQt4+QSCintilla) & Nokia (Qt4)",
+                                               "Sip+PyQt4+QScintilla Runtime packaged as an egg for windows-gcc"
+                                               ), 
+                                               
+                                           Egg("qt4_dev", 
+                                               "General Public License V3",
+                                               "Riverbank Computing (Sip+PyQt4+QSCintilla) & Nokia (Qt4)",
+                                               "Sip+PyQt4+QScintilla Development packaged as an egg for windows-gcc"
+                                               ), 
+                                               
+                                           Egg("pyqglviewer", 
+                                               "General Public License",
+                                               "libQGLViewer developers for libQGLViewer, PyQGLViewer (INRIA) developers for PyQGLViewer",
+                                               "Win-GCC version of PyQGLViewer"
+                                               ),
+                                               
+                                           Egg("boost", 
+                                               "Boost Software License 1.0",
+                                               "Boost.org",
+                                               "Windows gcc libs and includes of Boost"
+                                               ), 
                                            ]
                    )
 
@@ -674,10 +703,10 @@ class BaseEggBuilder(BaseBuilder):
                                            VERSION   = "1.0",
                                            THIS_YEAR = datetime.date.today().year,
                                            SETUP_AUTHORS = "Openalea Team",
-                                           CODE_AUTHOR   = "Unknown",
-                                           DESCRIPTION   = "",
+                                           CODE_AUTHOR   = self.spec.authors,
+                                           DESCRIPTION   = self.spec.description,
                                            URL           = "",
-                                           LICENSE       = "Cecill-C",
+                                           LICENSE       = self.spec.license,
                                            
                                            ZIP_SAFE       = False,
                                            PACKAGES       = None,
@@ -1021,8 +1050,6 @@ class egg_mingw_rt(BaseEggBuilder):
         libdirs = {"bin":mgw.install_dll_dir}
         return dict( 
                     VERSION  = "5.1.4_3",
-                    CODE_AUTHOR  = "The Mingw Project",
-                    DESCRIPTION  = "Mingw Runtime",
                     LIB_DIRS = libdirs,
                     )                
 
@@ -1046,8 +1073,6 @@ class egg_mingw(BaseEggBuilder):
             
         return dict( 
                     VERSION  = "5.1.4_3",
-                    CODE_AUTHOR  = "The Mingw Project",
-                    DESCRIPTION  = "Mingw Development (compiler, linker, libs, includes)",
                     BIN_DIRS = bindirs,
                     INC_DIRS = incdirs,
                     DATA_FILES   = data,
@@ -1072,8 +1097,6 @@ class egg_qt4(BaseEggBuilder):
         
         return dict( 
                     VERSION  = Qt.QT_VERSION_STR,
-                    CODE_AUTHOR  = "Riverbank Computing (Sip+PyQt4+QSCintilla) & Nokia (Qt4)",
-                    DESCRIPTION  = "Sip+PyQt4+QScintilla Runtime packaged as an egg for windows-gcc",
                     PACKAGES = ["PyQt4"],
                     PACKAGE_DIRS = package_dir,
                     PACKAGE_DATA = {'' : [Pattern.pyext]},
@@ -1112,9 +1135,7 @@ class egg_qt4_dev(BaseEggBuilder):
         from PyQt4 import Qt
         
         return dict( 
-                    VERSION  = Qt.QT_VERSION_STR,
-                    CODE_AUTHOR  = "Riverbank Computing (Sip+PyQt4+QSCintilla) & Nokia (Qt4)",
-                    DESCRIPTION  = "Sip+PyQt4+QScintilla Development packaged as an egg for windows-gcc",                    
+                    VERSION  = Qt.QT_VERSION_STR,                   
                     BIN_DIRS         = bin_dirs,
                     INC_DIRS         = inc_dirs,
                     DATA_FILES       = libs+sips+srcs+tra+mks+plu,
@@ -1146,13 +1167,9 @@ class egg_pyqglviewer(BaseEggBuilder):
         import PyQGLViewer
         
         return dict( 
-                    VERSION      = PyQGLViewer.QGLViewerVersionString(),
-                    CODE_AUTHOR  = "libQGLViewer developers for libQGLViewer, PyQGLViewer (INRIA) developers for PyQGLViewer",
-                    DESCRIPTION  = "Win-GCC version of PyQGLViewer",                    
-                    
+                    VERSION      = PyQGLViewer.QGLViewerVersionString(),                                  
                     PACKAGE_DATA = {'' : [Pattern.pyext]},
-                    #PACKAGE_DIRS = package_dir,
-                    
+                    #PACKAGE_DIRS = package_dir,                    
                     LIB_DIRS     = lib_dirs,
                     INC_DIRS     = inc_dirs,
                     
@@ -1182,9 +1199,7 @@ class egg_boost(BaseEggBuilder):
         lib_dirs    = {"lib": boost_.install_lib_dir}
         
         return dict( 
-                    VERSION      = version,
-                    CODE_AUTHOR  = "Boost.org",
-                    DESCRIPTION  = "Windows gcc libs and includes of Boost",                    
+                    VERSION      = version,                 
                     LIB_DIRS         = lib_dirs,
                     INC_DIRS         = inc_dirs,
                     INSTALL_REQUIRES = [egg_mingw_rt.__eggname__]
