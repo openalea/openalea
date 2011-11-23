@@ -18,6 +18,7 @@ from fnmatch import fnmatch
 import glob
 import os
 from openalea.deploy.gforge import GForgeProxy, proc_id, type_id
+from openalea.deploy.gforge_util import find_login_passwd
 try:
     from openalea.deploy.console import nocolor, color_terminal, green, red, bold, purple
 except:
@@ -91,13 +92,10 @@ class Uploader(object):
         print 'Filname(s): %s' %  self.glob
 
     def mylogin(self):
-        """  Open a session """
-        import getpass
+        """  Open a session """        
         self.info()
-        if(self.login is None):
-            self.login = raw_input(green("Enter your GForge login:"))
-        if(self.password is None):
-            self.password = getpass.getpass(green("Enter you GForge password:"))
+        rc_userid, rc_passwd = find_login_passwd()
+        self.login = self.login or rc_userid
 
         self.server.login(self.login, self.password)
         if server.session is None:

@@ -62,12 +62,10 @@ class GForgeProxy(object):
 
     def login(self, userid=None, passwd=None):
         """  Open a session """
-
-        if(userid is None):
-            userid = raw_input("Enter your GForge login:")
-
-        if(passwd is None):
-            passwd = getpass.getpass("Enter you GForge password:")
+        import gforge_util
+        rc_userid, rc_passwd = gforge_util.find_login_passwd()
+        userid = userid or rc_userid
+        passwd = passwd or rc_passwd       
 
         try:
             self.session = self.server.login(userid, passwd)
@@ -463,7 +461,7 @@ class GForgeProxy(object):
         
         import gforge_util
         gforge_util.gforge_login(self.userid, self.passwd)
-        print 'Trying to delete file %s',
+        print 'Trying to delete file %s'%file_id,
         gforge_util.delete_file(project_id, package_id, release_id, file_id)
         print 'Done.'
 

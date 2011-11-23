@@ -128,9 +128,45 @@ class MultipartPostHandler(urllib2.BaseHandler):
 
 import cookielib, urllib, urllib2, urlparse
 import os
+from os.path import join as pj, exists
 import glob
+import ConfigParser
+import getpass
+
 urlOpener = None
 
+def find_login_passwd(allow_user_input=True):
+    home = ""
+    # Get password
+    if os.environ.has_key('USERPROFILE'):
+        home = os.environ['USERPROFILE']
+
+    elif os.environ.has_key('HOME'):
+        home = os.environ['HOME']
+        
+    rc = pj(home, '.pypirc')
+    if not exists(rc):
+        matched = glob.glob( pj(home, "*pydistutils.cfg") )
+        if len(matched):
+            rc = matched[0]
+
+    username, password = None, None
+    print "find_login_passwd", rc
+    if exists(rc):
+        print 'Using PyPI login from %s' %(rc)
+        config = ConfigParser.ConfigParser({
+            'username':'',
+            'password':'',
+            'repository':''})
+        config.read(rc)
+
+        username = config.get('server-login', 'username')        
+        password = config.get('server-login', 'password')
+    elif allow_user_input:
+        username = raw_input("Enter your GForge login:")
+        password = getpass.getpass("Enter you GForge password:")
+    return username, password
+            
 def cookie_login(loginurl, values):
     """ Open a session
 
@@ -167,9 +203,12 @@ def cookie_login(loginurl, values):
 #  + Create the function (dict+ post url)
 
 
-def gforge_login(userid, passwd):
+def gforge_login(userid=None, passwd=None):
     """ Login on Gforge """
     # Create login/password values
+    rc_user, rc_pass = find_login_passwd()
+    userid = userid or rc_user
+    passwd = passwd or rc_pass
     values = {'form_loginname': userid,
               'form_pw': passwd,
               'return_to' : '',
