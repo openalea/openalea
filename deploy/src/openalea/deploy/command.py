@@ -715,9 +715,11 @@ class alea_install(old_easy_install):
     def run(self):
         self.set_system()
         
+        from openalea.deploy.gforge_util import add_private_gforge_repositories, find_login_passwd
+        rc_user, rc_pass = find_login_passwd()
+        self.gforge_login = self.gforge_login or rc_user
+        self.gforge_passwd = self.gforge_passwd or rc_pass
         if self.gforge_login and self.gforge_passwd:
-            from openalea.deploy.gforge_util import add_private_gforge_repositories
-            print "Connecting to gforge"
             add_private_gforge_repositories(self.gforge_login, self.gforge_passwd)
         
         old_easy_install.run(self)
