@@ -98,6 +98,21 @@ def download_packages_file(project):
     pass
 
 
+def branch_path(project, version, package=None, rev=None):
+    trunk, branchbase = projects.get(project, (None, None))
+    sub = dict(branchbase=branchbase, version=version, pack=package, rev=rev)
+    pth = "%(branchbase)s/release_%(version)s"
+    if package: pth+="/%(pack)s"
+    if rev: pth+="@%(rev)s"
+    return pth%sub
+    
+def trunk_path(project, package=None, rev=None):
+    trunk, branchbase = projects.get(project, (None, None))
+    sub = dict(trunk=trunk, pack=package, rev=rev)
+    pth = "%(trunk)s"
+    if package: pth+="/%(pack)s"
+    if rev: pth+="@%(rev)s"
+    return pth%sub
 
 def get_packages(project):
     return package_lists.get(project, [])
@@ -107,86 +122,104 @@ def get_packages(project):
         # obj_code = compile(mod_file.read(), project, "exec")
         # mod = eval(obj_code, {}, mod_dict)
 
-def svn_branch_exists(branch, version):
-    sub = dict(svnexec=svn_exec, branchbase=branch,version=version)
-    cmd = "%(svnexec)s info %(branchbase)s/release_%(version)s@HEAD"%sub    
-    ret = subprocess.call(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    # svn returns 0 if the branch exists.    
-    return ret==0
+def svn_path_exists(path):
+    sub = dict(svnexec=svn_exec, path=path)
+    cmd = "%(svnexec)s info %(path)s@HEAD"%sub
+    ret = subprocess.call(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)    
+    return ret==0 # svn returns 0 if the path exists.    
     
-def svn_remove_branch(branch, version, not_dry_run, silent):
-    sub = dict(svnexec=svn_exec, branchbase=branch,version=version)
-    cmd = "%(svnexec)s remove %(branchbase)s/release_%(version)s -m \"removing release_%(version) branch.\""%sub
-    if not silent: print cmd
+def svn_remove_path(path, not_dry_run):
+    sub = dict(svnexec=svn_exec, path=path)
+    cmd = "%(svnexec)s remove %(path)s -m \"removing %(path) branch.\""%sub
+    print cmd
     if not_dry_run: 
         return subprocess.call(cmd) == 0
     else:
         return True
     
-def svn_copy_node(trunk, branchbase, version, node, rev, not_dry_run, silent ):
-    sub = dict(svnexec=svn_exec, trunk=trunk, node=node, revision=rev, branchbase=branchbase, version=version)
+def svn_copy_path(src, tgt, not_dry_run):
+    sub = dict(svnexec=svn_exec, src=src, tgt=tgt)
     # TODO: ERROR HANDLING!    
     # let's obtain info to feed into the log message
-    infocmd = "%(svnexec)s info %(trunk)s/%(node)s@%(revision)s"%sub
+    infocmd = "%(svnexec)s info %(src)s"%sub
     pop     = subprocess.Popen(infocmd, stdout=subprocess.PIPE)
     info, err    = pop.communicate()
         
     sub["info"] = info
     
     # let's branch!
-    cmd = "%(svnexec)s copy %(trunk)s/%(node)s@%(revision)s %(branchbase)s/release_%(version)s/%(node)s -m \"%(info)s\""%sub
-    if not silent: print cmd
+    cmd = "%(svnexec)s copy %(src)s %(tgt)s -m \"%(info)s\""%sub
+    print cmd
     if not_dry_run:
         return subprocess.call(cmd)==0  
     else:
         return True
 
-def svn_mkdir(dir, not_dry_run, silent):
-    sub = dict(svnexec=svn_exec, dir=dir)
+def svn_mkdir(direct, not_dry_run):
+    sub = dict(svnexec=svn_exec, dir=direct)
     cmd = "%(svnexec)s mkdir %(dir)s -m \"creating %(dir)s directory.\""%sub
-    if not silent: print cmd
+    print cmd
     if not_dry_run:
         return subprocess.call(cmd)==0  
     else:
         return True
-    
-def svn_branch_project(project, version, delete_existing, not_dry_run, silent):
-    verbose = not silent
-    packages = get_packages(project)
-    
-    trunk, branchbase = projects.get(project, (None, None))
-   
-    exists = svn_branch_exists(branchbase, version)
+
+def __svn_del_path_if_exists(path, delete_existing, not_dry_run):
+    exists = svn_path_exists(path)
     if exists:
-        if verbose: 
-            print "Release branch for version %s of %s already exists"%(version, project)    
+        print "Path %s already exists"%path    
         if delete_existing:
-            if verbose: 
-                print "Removing branch for version %s of %s"%(version, project)
-            svn_remove_branch(branchbase, version, not_dry_run, silent)
+            print "Removing %s"%path
+            svn_remove_path(path, not_dry_run)
         else:
             return None
+        
+def svn_branch_project(project, version, delete_existing, not_dry_run, 
+                       packages=None, branch_can_exist=False, no_multisetup=False):   
+    if not packages:
+        packages = get_packages(project)
     
-    if not_dry_run:
-        assert not svn_branch_exists(branchbase, version)
+    branchpath = branch_path(project, version)
     
-    svn_mkdir( "/".join([branchbase, "release_"+version]), not_dry_run, silent)
+    if not branch_can_exist:
+        __svn_del_path_if_exists( branchpath, delete_existing, not_dry_run)
+        if not_dry_run:
+            assert not svn_path_exists(branchpath)
+        svn_mkdir( branchpath, not_dry_run)
         
     ret_dict = {}
     for pack, rev in packages:
-        if verbose: 
-            print "Processing", pack, "" if not_dry_run else "for fake"
-        ret_dict[pack] = svn_copy_node(trunk, branchbase, version, pack, rev, not_dry_run, silent)
+        print "Processing", pack, "" if not_dry_run else "for fake"
+        src = trunk_path( project, pack, rev )
+        ret_dict[pack] = svn_copy_path(src, branchpath, not_dry_run)
 
     # copy multisetup
-    success = svn_copy_node(trunk, branchbase, version, "multisetup.py", rev, not_dry_run, silent)
+    if not no_multisetup:
+        pth = trunk_path( project, "multisetup.py" )
+        success = svn_copy_path(pth, branchpath, not_dry_run)
     
     return ret_dict
         
         
-    
+#######################
+# MAIN AND PARSE ARGS #
+#######################
+
+class NullOutput(object):
+    def write(self, s):
+        pass
+
 def _parse_version(version):
     return version.replace(".", "_")
+    
+def _parse_package(pkg):
+    pkg_rev = pkg.split("@")
+    if len(pkg_rev) == 1:
+        return pkg_rev[0], "HEAD"
+    elif len(pkg_rev) == 2:
+        return pkg_rev
+    else:
+        raise Exception("What is this : %s ??????"%pkg)
     
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Manage branches and tags for releases on the server side.",
@@ -195,26 +228,45 @@ def parse_arguments():
     parser.add_argument("--svndir", default=os.curdir, help="path to %s executable"%svn_exec,
                         type=abspath)
                         
-    parser.add_argument("--delete-existing", action="store_const", const=True, default=False, help="If the branch already exists, delete it.")                                    
+    parser.add_argument("--delete-existing", "-e", action="store_const", const=True, default=False, help="If the branch already exists, delete it.")                                    
     
     parser.add_argument("--login", default=None, help="login to connect to GForge.")
     parser.add_argument("--passwd", default=None, help="password to connect to GForge.")
     
     parser.add_argument("--not-dry-run", action="store_const", const=True, default=False, help="Actually do things! By default we just print comamnds.")
-    parser.add_argument("--silent", action="store_const", const=True, default=False, help="Don't print anything.")
+    parser.add_argument("--silent", "-s", action="store_const", const=True, default=False, help="Don't print anything.")
     
     parser.add_argument("project", default=None, help="Which project to branch.", choices=["openalea","vplants"])
     parser.add_argument("version", default=None, help="Version of the branch (ex: 1.0).", type=_parse_version)
     
+    parser.add_argument("--package", "-p", action="append", help="Copy one specific package from project.", type=_parse_package, dest="packages")
+    parser.add_argument("--ignore-rbase", "-r", action="store_const", const=True, default=False, 
+                        help="Don't check if the destination root exists.")
+    parser.add_argument("--no-multisetup", "-m", action="store_const", const=True, default=False, 
+                        help="Don't copy multisetup.")
+    
     return parser.parse_args()
     
 def main():
+    import sys
+
     args = parse_arguments()
     os.environ["PATH"] += os.pathsep.join( [os.environ["PATH"], args.svndir] )
+    
+    if not args.not_dry_run:
+        print "Doing a dry run. Check that the command lines are correct then rerun with the --not-dry-run flag\n"
+
+    if args.silent:
+        sys.stdout = NullOutput()
+        
     if not has_svn():
         print "svn command in not available"        
         
-    if not svn_branch_project(args.project, args.version, args.delete_existing, args.not_dry_run, args.silent):
+    if not svn_branch_project(args.project, args.version, args.delete_existing, 
+                              args.not_dry_run,
+                              packages=args.packages,
+                              branch_can_exist=args.ignore_rbase,
+                              no_multisetup=args.no_multisetup):
         print "svn operation failed"
     
 if __name__ == "__main__":
