@@ -36,7 +36,7 @@ setup(
     packages = find_packages('src'),
 
     package_dir = { '' : 'src'},
-
+    package_data = { '': ["*.rst"]},
     share_dirs = { 'share' : 'share' },
 
 
