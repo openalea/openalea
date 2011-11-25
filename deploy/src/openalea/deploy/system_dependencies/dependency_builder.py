@@ -64,8 +64,9 @@ import zipfile
 import tarfile
 from os.path import join as pj, splitext, getsize, exists, abspath, split
 from collections import namedtuple, OrderedDict, defaultdict
+from setuptools import find_packages
 
-Project = namedtuple("Project", "name url dlname arch_subdir")
+Project = namedtuple("Project", "name url")
 Egg = namedtuple("Egg", "name license authors description")
 sj = os.pathsep.join
 
@@ -74,15 +75,16 @@ sj = os.pathsep.join
 
 # A Project with a None url implicitely means the sources are already here because some other proj installed it.
 projs = OrderedDict ( (p.name,p) for p in  [ 
-                                             Project("mingwrt"     , None, "mingw", None),
-                                             Project("qt4"         , "http://download.qt.nokia.com/qt/source/qt-everywhere-opensource-src-4.7.4.zip", "qt4_src.zip", "qt-every*"),
-                                             Project("sip"         , "http://www.riverbankcomputing.co.uk/static/Downloads/sip4/sip-4.13.zip", "sip_src.zip", "sip*"),
-                                             Project("pyqt4"       , "http://www.riverbankcomputing.co.uk/static/Downloads/PyQt4/PyQt-win-gpl-4.8.6.zip", "pyqt4_src.zip", "PyQt*"),
-                                             Project("qscintilla"  , "http://www.riverbankcomputing.co.uk/static/Downloads/QScintilla2/QScintilla-gpl-2.6.zip", "qscintilla_src.zip", "QScint*/Qt4"),
-                                             Project("pyqscintilla", None, "qscintilla_src.zip", "QScint*/Python"), # shares the same as qscintilla
-                                             Project("qglviewer"   , "https://gforge.inria.fr/frs/download.php/28138/libQGLViewer-2.3.9-py.tgz", "qglviewer_src.tgz", "libQGLV*/QGLViewer"),
-                                             Project("pyqglviewer" , "https://gforge.inria.fr/frs/download.php/28212/PyQGLViewer-0.9.1.zip", "pyqglviewer_src.zip", "PyQGLV*"),
-                                             Project("boost"       , "http://switch.dl.sourceforge.net/project/boost/boost/1.48.0/boost_1_48_0.zip", "boost_src.zip", "boost*"),
+                                             Project("mingwrt"     , None),
+                                             Project("qt4"         , "http://download.qt.nokia.com/qt/source/qt-everywhere-opensource-src-4.7.4.zip"),
+                                             Project("sip"         , "http://www.riverbankcomputing.co.uk/static/Downloads/sip4/sip-4.13.zip"),
+                                             Project("pyqt4"       , "http://www.riverbankcomputing.co.uk/static/Downloads/PyQt4/PyQt-win-gpl-4.8.6.zip"),
+                                             Project("qscintilla"  , "http://www.riverbankcomputing.co.uk/static/Downloads/QScintilla2/QScintilla-gpl-2.6.zip"),
+                                             Project("pyqscintilla", None), # shares the same as qscintilla
+                                             Project("qglviewer"   , "https://gforge.inria.fr/frs/download.php/28138/libQGLViewer-2.3.9-py.tgz"),
+                                             Project("pyqglviewer" , "https://gforge.inria.fr/frs/download.php/28212/PyQGLViewer-0.9.1.zip"),
+                                             Project("boost"       , "http://switch.dl.sourceforge.net/project/boost/boost/1.48.0/boost_1_48_0.zip"),
+                                             #Project("ann"         , "http://www.cs.umd.edu/~mount/ANN/Files/1.1.2/ann_1.1.2.zip"),
                                            ]
                     )
                         
@@ -120,7 +122,32 @@ eggs = OrderedDict ( (p.name,p) for p in  [Egg("mingw",
                                                "Boost Software License 1.0",
                                                "Boost.org",
                                                "Windows gcc libs and includes of Boost"
+                                               ),
+                                               
+                                           # The following eggs require the libs to be installed on your computer.
+                                           Egg("numpy", 
+                                               "Numpy License",
+                                               "(c) Numpy Developers",
+                                               "Numpy packaged as an egg"
                                                ), 
+                                               
+                                           Egg("scipy", 
+                                               "Scipy License",
+                                               "(c) Entought",
+                                               "Scipy packaged as an egg"
+                                               ),     
+                                               
+                                           Egg("matplotlib", 
+                                               "Python Software Foundation License Derivative - BSD Compatible.",
+                                               "Matplotlib developers",
+                                               "Scipy packaged as an egg"
+                                               ),         
+                                               
+                                           Egg("PIL", 
+                                               "PIL License.",
+                                               "Copyright (c) 1997-2011 by Secret Labs AB, Copyright (c) 1995-2011 by Fredrik Lundh.",
+                                               "PIL packaged as an egg"
+                                               ),                                                
                                            ]
                    )
 
@@ -293,7 +320,8 @@ class BuildEnvironment(object):
         self.null_stdout     = NullOutput()
         
     def set_options(self, options):
-        self.options        = options.copy()
+        self.options = options.copy()
+        print "set_options", options
         self.init()
         
     def init(self):
@@ -352,7 +380,7 @@ class BuildEnvironment(object):
         self.__init_builders()  
         for buildercls in self.proj_builders + self.egg_builders:
             builder = buildercls()
-            if builder.has_pending:
+            if builder.has_pending and builder.enabled:
                 builder.process_me()
             
     def task_is_done(self, name, task):
@@ -465,6 +493,7 @@ class BaseBuilder(object):
     supported_procs = None
     all_procs       = None
     silent_procs    = ""
+    enabled         = True
     
     def __init__(self):
         self.env = BE()
@@ -546,14 +575,17 @@ class BaseProjectBuilder(BaseBuilder):
                                     ("x",("_extend_sys_path",False)),
                                     ("y",("_extend_python_path",False)),
                                     ])
-    silent_procs = "fxy"
+    silent_procs    = "fxy"
     supported_procs = "".join(all_procs.keys())
+    
+    download_name  = None
+    archive_subdir = None
     
     def __init__(self):
         BaseBuilder.__init__(self)   
-        self.archname  = pj( self.env.get_dl_path() , self.spec.dlname)
-        self.sourcedir = pj( self.env.get_src_path(), splitext(self.spec.dlname)[0] )
-        self.installdir = pj( self.env.get_install_path(), splitext(self.spec.dlname)[0] )
+        self.archname  = pj( self.env.get_dl_path() , self.download_name)
+        self.sourcedir = pj( self.env.get_src_path(), splitext(self.download_name)[0] )
+        self.installdir = pj( self.env.get_install_path(), splitext(self.download_name)[0] )
         
     @property
     def spec(self):
@@ -564,7 +596,7 @@ class BaseProjectBuilder(BaseBuilder):
             if bytes == 0:
                 raise urllib2.URLError("Url doesn't point to a valid resource (version might have changed?)")
             progress= float(bk)/(bytes/bksize) * 100
-            sys.stdout.write(("Dl %s from %.20s to %s: %.1f %%"%(self.spec[:3]+(progress,)))+"\r")
+            sys.stdout.write(("Dl %s from %.20s to %s: %.1f %%"%(self.spec.name, self.spec.url, self.download_name, progress))+"\r")
             sys.stdout.flush()
 
         # a proj with a none url implicitely means 
@@ -601,8 +633,8 @@ class BaseProjectBuilder(BaseBuilder):
             return True
         if exists(self.sourcedir):
             return True
-        base, ext = splitext( self.spec.dlname )
-        print "unpacking", self.spec.dlname
+        base, ext = splitext( self.download_name )
+        print "unpacking", self.download_name
         if ext == ".zip":
             zipf = zipfile.ZipFile( self.archname, "r" )
             # TODO : verify that there is no absolute path inside zip.
@@ -616,8 +648,8 @@ class BaseProjectBuilder(BaseBuilder):
     def fix_source_dir(self):
         try:
             print "fixing sourcedir", self.sourcedir,
-            if self.spec.arch_subdir is not None:
-                self.sourcedir = glob.glob(pj(self.sourcedir,self.spec.arch_subdir))[0]
+            if self.archive_subdir is not None:
+                self.sourcedir = glob.glob(pj(self.sourcedir,self.archive_subdir))[0]
             print self.sourcedir
         except:
             traceback.print_exc()
@@ -689,7 +721,7 @@ class BaseEggBuilder(BaseBuilder):
                                    ("e",("_eggify",True)),
                                    ("u",("_upload_egg",True))
                                   ]) 
-    supported_procs = "".join(all_procs.keys())
+    supported_procs = "".join(all_procs.keys())        
     
     def __init__(self):
         BaseBuilder.__init__(self) 
@@ -709,9 +741,10 @@ class BaseEggBuilder(BaseBuilder):
                                            LICENSE       = self.spec.license,
                                            
                                            ZIP_SAFE       = False,
+                                           PYTHON_MODS    = None,
                                            PACKAGES       = None,
                                            PACKAGE_DIRS   = None,
-                                           PACKAGE_DATA   = None,
+                                           PACKAGE_DATA   = {},
                                            DATA_FILES     = None,
                                            
                                            INSTALL_REQUIRES = None,
@@ -806,7 +839,9 @@ class Pattern:
 # - PROJECT BUILDERS - PROJECT BUILDERS - PROJECT BUILDERS - PROJECT BUILDERS - PROJECT BUILDERS - #
 ####################################################################################################
 class mingwrt(BaseProjectBuilder):
-    supported_procs = "i"
+    supported_procs = "i" 
+    download_name  = "mingw"
+    archive_subdir = None    
     def __init__(self, *args, **kwargs):
         BaseProjectBuilder.__init__(self, *args, **kwargs)
         self.sourcedir = pj(self.env.get_compiler_bin_path(), os.pardir)
@@ -816,6 +851,8 @@ class mingwrt(BaseProjectBuilder):
         return True
         
 class qt4(BaseProjectBuilder):
+    download_name  = "qt4_src.zip"
+    archive_subdir = "qt-every*"    
     def __init__(self, *args, **kwargs):
         BaseProjectBuilder.__init__(self, *args, **kwargs)
         # define installation paths
@@ -886,6 +923,8 @@ class qt4(BaseProjectBuilder):
             # return True
 
 class sip(BaseProjectBuilder):
+    download_name  = "sip_src.zip"
+    archive_subdir = "sip*"
     def __init__(self, *args, **kwargs):
         BaseProjectBuilder.__init__(self, *args, **kwargs)
         # define installation paths
@@ -909,6 +948,8 @@ class sip(BaseProjectBuilder):
         # prefix = sys.prefix
 
 class pyqt4(BaseProjectBuilder) :
+    download_name  = "pyqt4_src.zip"
+    archive_subdir = "PyQt*"
     def __init__(self, *args, **kwargs):
         BaseProjectBuilder.__init__(self, *args, **kwargs)
         # define installation paths
@@ -932,6 +973,8 @@ class pyqt4(BaseProjectBuilder) :
         # prefix = sys.prefix
 
 class qscintilla(BaseProjectBuilder):
+    download_name  = "qscintilla_src.zip"
+    archive_subdir = "QScint*/Qt4"
     def configure(self):
         # The install procedure will install qscintilla in qt's installation directories
         qt4_ = qt4()
@@ -947,6 +990,8 @@ class qscintilla(BaseProjectBuilder):
         return ret
         
 class pyqscintilla(BaseProjectBuilder):
+    download_name  = "qscintilla_src.zip"
+    archive_subdir = "QScint*/Python"
     def __init__(self, *args, **kwargs):
         BaseProjectBuilder.__init__(self, *args, **kwargs)
         # define installation paths
@@ -962,6 +1007,8 @@ class pyqscintilla(BaseProjectBuilder):
         return subprocess.call(sys.executable + " -S configure.py -o %s -a %s -n %s -d %s -v %s"%self.install_paths ) == 0 #make this smarter
 
 class qglviewer(BaseProjectBuilder):
+    download_name  = "qglviewer_src.tgz"
+    archive_subdir = "libQGLV*/QGLViewer"
     def __init__(self, *args, **kwargs):
         BaseProjectBuilder.__init__(self, *args, **kwargs)
         # qmake is annoying with backslashes
@@ -983,6 +1030,8 @@ class qglviewer(BaseProjectBuilder):
         return self.install_dll_dir
 
 class pyqglviewer(BaseProjectBuilder):
+    download_name  = "pyqglviewer_src.zip"
+    archive_subdir = "PyQGLV*"
     def __init__(self, *args, **kwargs):
         BaseProjectBuilder.__init__(self, *args, **kwargs)
         qglbuilder = qglviewer()
@@ -1004,6 +1053,8 @@ class pyqglviewer(BaseProjectBuilder):
         return qglbuilder.installdir
 
 class boost(BaseProjectBuilder):
+    download_name  = "boost_src.zip"
+    archive_subdir = "boost*"
     def __init__(self, *args, **kwargs):
         BaseProjectBuilder.__init__(self, *args, **kwargs)
         self.install_inc_dir = pj(self.installdir, "include")
@@ -1039,7 +1090,22 @@ class boost(BaseProjectBuilder):
         """ bjam configures, builds and installs so nothing to do here"""
         return self.build()
 
-
+class ann(BaseProjectBuilder):
+    download_name  = "ann_src.zip"
+    archive_subdir = "ann*"
+    def __init__(self, *args, **kwargs):
+        BaseProjectBuilder.__init__(self, *args, **kwargs)
+        self.install_inc_dir = pj(self.installdir, "include")
+        self.install_lib_dir = pj(self.installdir, "lib")
+    def configure(self):
+        """ bjam configures, builds and installs so nothing to do here"""
+        return True
+    def build(self):    
+        return subprocess.call(cmd) == 0
+    def install(self):
+        """ bjam configures, builds and installs so nothing to do here"""
+        return self.build()
+        
 ################################################################################
 # - EGG BUILDERS - EGG BUILDERS - EGG BUILDERS - EGG BUILDERS - EGG BUILDERS - #
 ################################################################################        
@@ -1091,13 +1157,14 @@ class egg_qt4(BaseEggBuilder):
         sip_mods = recursive_glob_as_dict(sip_.install_site_dir, Pattern.pyall, strip_keys=True, levels=1).items()
 
         lib_dirs    = {"PyQt4": qt4_.install_dll_dir}
-        package_dir = {"PyQt4": pj(pyqt4_.install_site_dir, "PyQt4")}
+        package_dir = {"PyQt4": pj(pyqt4_.install_site_dir, "PyQt4"),
+                       "PyQt4.uic": pj(pyqt4_.install_site_dir, "PyQt4", "uic")}
         
         from PyQt4 import Qt
         
         return dict( 
                     VERSION  = Qt.QT_VERSION_STR,
-                    PACKAGES = ["PyQt4"],
+                    PACKAGES = ["PyQt4", "PyQt4.uic"],
                     PACKAGE_DIRS = package_dir,
                     PACKAGE_DATA = {'' : [Pattern.pyext]},
                     
@@ -1204,6 +1271,91 @@ class egg_boost(BaseEggBuilder):
                     INC_DIRS         = inc_dirs,
                     INSTALL_REQUIRES = [egg_mingw_rt.__eggname__]
                     )  
+
+                    
+############################################################
+# The following egg builders require that you have the     #
+# corresponding library installed. This is because they    #
+# are too difficult to compile and that we don't actually  #
+# need to compile them (no linkage from us to them)        #
+# or that they come as .exes and not eggs already          #
+############################################################
+class InstalledPackageEggBuilder(BaseEggBuilder):
+    __packagename__ = None
+    def __init__(self):
+        BaseEggBuilder.__init__(self)
+        try:
+            p = self.package
+        except:
+            self.enabled = False
+        else:
+            self.enabled = True
+    @property 
+    def package(self):
+        return __import__(self.packagename)     
+    @property 
+    def packagename(self):
+        return self.__packagename__ or self.__eggname__
+    @property
+    def install_dir(self):
+        return os.path.dirname(self.package.__file__)
+
+    def find_packages(self):
+        pkgs   = find_packages( pj(self.install_dir, os.pardir) )
+        parpkg = self.packagename + "."
+        pkgs = [ p for p in pkgs if (p == self.packagename or p.startswith(parpkg))]
+        return pkgs
+        
+    def find_packages_and_directories(self):
+        pkgs = self.find_packages()
+        dirs = {}
+        base = abspath( pj(self.install_dir, os.pardir) )
+        for pk in pkgs:
+            dirs[pk] =  pj(base, pk.replace(".", os.sep))
+        #dirs[""] = self.install_dir
+        return pkgs, dirs
+        
+    def script_substitutions(self):        
+        py_modules = recursive_glob(self.install_dir, Pattern.pymod)
+        data_files = recursive_glob_as_dict(self.install_dir, 
+                    ",".join(["*.example","*.txt",Pattern.pyext,"*.c",".1"])).items()                    
+        packages, package_dirs = self.find_packages_and_directories()
+
+        #print packages, package_dirs
+        for p, d in package_dirs.iteritems():
+            print p, "\t===>\t", d
+        #sys.exit(-1)
+        d = dict ( PACKAGES = packages,
+                   PACKAGE_DIRS = package_dirs,
+                   DATA_FILES  = data_files,
+                  )        
+        d.update(self.script_substitutions_2())
+        return d
+        
+    def script_substitutions_2(self):    
+        raise NotImplementedError
+    
+        
+class egg_numpy(InstalledPackageEggBuilder):
+    __eggname__ = "numpy"
+    def script_substitutions_2(self):
+        return dict( VERSION = self.package.version.full_version )
+        
+class egg_scipy(InstalledPackageEggBuilder):
+    __eggname__ = "scipy"
+    def script_substitutions_2(self):
+        return dict( VERSION = self.package.version.full_version )
+        
+class egg_matplotlib(InstalledPackageEggBuilder):
+    __eggname__ = "matplotlib"
+    def script_substitutions_2(self):        
+        return dict( VERSION = self.package.__version__ )
+                                               
+class egg_PIL(InstalledPackageEggBuilder):
+    __eggname__ = "PIL"
+    __packagename__ = "Image"
+    def script_substitutions_2(self):
+        return dict( VERSION = self.package.VERSION )
                  
                  
                  
@@ -1213,11 +1365,9 @@ class egg_boost(BaseEggBuilder):
                  
                  
                  
-                 
-                 
-################################
-# -- MAIN LOOP AND RELATIVES --
-################################
+#################################
+# -- MAIN LOOP AND RELATIVES -- #
+#################################
 def build_epilog():
     epilog = "PROJ_ACTIONS are a concatenation of flags specifying what actions will be done:\n"
     for proc, (funcname, skippable) in BaseProjectBuilder.all_procs.iteritems():
@@ -1244,7 +1394,7 @@ def parse_arguments():
                             metavar="PROJ_ACTIONS")
 
     for egg in EggBuilders.builders.iterkeys():
-        name = egg + "_egg"
+        name = "egg_"+egg
         parser.add_argument("--"+name, default="", 
                             help="Force actions on %s"%name, dest=name,
                             metavar="EGG_ACTIONS")

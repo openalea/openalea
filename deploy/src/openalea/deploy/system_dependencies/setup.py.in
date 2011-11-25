@@ -38,7 +38,7 @@ packages      = @PACKAGES
 package_dir   = @PACKAGE_DIRS
 package_data  = @PACKAGE_DATA
 data_files    = @DATA_FILES
-
+python_mods   = @PYTHON_MODS
 install_requires = @INSTALL_REQUIRES
 
 # Openalea Extensions
@@ -56,6 +56,7 @@ if __name__ == "__main__":
           url         = url,
           license     = license,
           
+          py_modules  = python_mods,
           zip_safe    = zip_safe,                
           packages    = packages,
           package_dir = package_dir,                                             
