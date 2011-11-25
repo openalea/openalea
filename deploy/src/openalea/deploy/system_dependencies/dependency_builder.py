@@ -721,7 +721,10 @@ class BaseEggBuilder(BaseBuilder):
                                    ("e",("_eggify",True)),
                                    ("u",("_upload_egg",True))
                                   ]) 
-    supported_procs = "".join(all_procs.keys())        
+    supported_procs = "".join(all_procs.keys())
+    
+    py_dependent   = True
+    arch_dependent = True
     
     def __init__(self):
         BaseBuilder.__init__(self) 
@@ -776,8 +779,19 @@ class BaseEggBuilder(BaseBuilder):
     @in_dir("eggdir")
     @try_except
     def _eggify(self):
-        return self.eggify()
-
+        ret     = self.eggify()
+        # -- fix file name --
+        eggname = glob.glob( pj(self.eggdir, "dist", "*.egg") )[0]
+        dir_, filename = split(eggname)
+        pyver   = "-py"+sys.winver
+        archver = "-"+sys.platform
+        if not self.py_dependent:
+            filename = filename.replace(pyver, "")
+        if not self.arch_dependent:
+            filename = filename.replace(archver, "")            
+        os.rename(eggname, pj(dir_, filename))
+        return ret
+                
     @in_dir("eggdir")
     @try_except
     def _upload_egg(self):
@@ -1111,6 +1125,8 @@ class ann(BaseProjectBuilder):
 ################################################################################        
 class egg_mingw_rt(BaseEggBuilder):
     __eggname__ = "mingw_rt"
+    py_dependent   = False
+    arch_dependent = True
     def script_substitutions(self):
         mgw = mingwrt()
         libdirs = {"bin":mgw.install_dll_dir}
@@ -1121,6 +1137,8 @@ class egg_mingw_rt(BaseEggBuilder):
 
 class egg_mingw(BaseEggBuilder):
     __eggname__ = "mingw"
+    py_dependent   = False
+    arch_dependent = True
     def script_substitutions(self):
         cpath = self.env.get_compiler_bin_path()
         mingwbase = pj(cpath,os.pardir)
@@ -1146,6 +1164,8 @@ class egg_mingw(BaseEggBuilder):
     
 class egg_qt4(BaseEggBuilder):
     __eggname__ = "qt4"
+    py_dependent   = True
+    arch_dependent = True
     def script_substitutions(self):        
         qt4_   = qt4()
         pyqt4_ = pyqt4()
@@ -1176,6 +1196,8 @@ class egg_qt4(BaseEggBuilder):
                  
 class egg_qt4_dev(BaseEggBuilder):
     __eggname__ = "qt4_dev"
+    py_dependent   = True
+    arch_dependent = True
     def script_substitutions(self):
         qt4_   = qt4()
         pyqt4_ = pyqt4()
@@ -1212,6 +1234,8 @@ class egg_qt4_dev(BaseEggBuilder):
 
 class egg_pyqglviewer(BaseEggBuilder):
     __eggname__ = "pyqglviewer"
+    py_dependent   = True
+    arch_dependent = True
     def script_substitutions(self):
         qt4_   = qt4()
         qglv_   = qglviewer()
@@ -1247,7 +1271,8 @@ class egg_pyqglviewer(BaseEggBuilder):
 class egg_boost(BaseEggBuilder):
     __eggname__ = "boost"
     version_re  = re.compile("^.*BOOST_VERSION\s:\s([\d\.]{4,8}).*$", re.MULTILINE|re.DOTALL)
-    
+    py_dependent   = True
+    arch_dependent = True    
     def script_substitutions(self):
         boost_ = boost()
         qt4_   = qt4() # just to have the inc/lib regexp/glob patterns
@@ -1321,10 +1346,6 @@ class InstalledPackageEggBuilder(BaseEggBuilder):
                     ",".join(["*.example","*.txt",Pattern.pyext,"*.c",".1"])).items()                    
         packages, package_dirs = self.find_packages_and_directories()
 
-        #print packages, package_dirs
-        for p, d in package_dirs.iteritems():
-            print p, "\t===>\t", d
-        #sys.exit(-1)
         d = dict ( PACKAGES = packages,
                    PACKAGE_DIRS = package_dirs,
                    DATA_FILES  = data_files,
@@ -1338,22 +1359,30 @@ class InstalledPackageEggBuilder(BaseEggBuilder):
         
 class egg_numpy(InstalledPackageEggBuilder):
     __eggname__ = "numpy"
+    py_dependent   = True
+    arch_dependent = True    
     def script_substitutions_2(self):
         return dict( VERSION = self.package.version.full_version )
         
 class egg_scipy(InstalledPackageEggBuilder):
     __eggname__ = "scipy"
+    py_dependent   = True
+    arch_dependent = True        
     def script_substitutions_2(self):
         return dict( VERSION = self.package.version.full_version )
         
 class egg_matplotlib(InstalledPackageEggBuilder):
     __eggname__ = "matplotlib"
+    py_dependent   = True
+    arch_dependent = True        
     def script_substitutions_2(self):        
         return dict( VERSION = self.package.__version__ )
                                                
 class egg_PIL(InstalledPackageEggBuilder):
     __eggname__ = "PIL"
     __packagename__ = "Image"
+    py_dependent   = True
+    arch_dependent = True    
     def script_substitutions_2(self):
         return dict( VERSION = self.package.VERSION )
                  
