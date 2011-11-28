@@ -16,10 +16,17 @@
 # BTW think of this module as a root-level class. It behaves mostly like a class excepted I didn't
 # encapsulate it inside a class.
 
-import sys, os
-from os.path import exists, join as pj, basename, abspath
-import shutil, glob, string
+import argparse
+import glob
+from os.path import exists, join as pj, basename, abspath, split
+import os
+import platform
+import shutil
+import string
+import sys
 
+from setuptools.package_index import PackageIndex
+from openalea.deploy.util import get_base_dir, get_repo_list, OPENALEA_PI
 
 
 # -- Some Flags : DONT CHANGE THESE IF YOU DON'T KNOW WHAT YOU'RE DOING --
@@ -50,64 +57,8 @@ APPNAME=None
 APPVERSION=None
 thirdPartyPackages = None
 
-
-CWD = str(os.getcwd())
-
 class StrictTemplate(string.Template):
     idpattern = r"[_A-Z0-9]*"
-
-###########################################
-# OPTION HANDLING                         #
-# (too lazy to use getopts)               #
-###########################################
-goodOptions = { "conf":str,
-                "pyMaj":int,
-                "pyMin":int,
-                "srcDir":str,
-                "eggGlobs":str,
-                "eggDir":str,
-                "runtime":bool,
-                "arch":str,
-                "setup":dict}
-                    
-optionsThatCanBeInConf = set(["eggGlobs", "setup"])
-                            
-optionDefaults = {"runtime":True,
-                  "pyMaj":sys.version_info[0],
-                  "pyMin":sys.version_info[1],
-                  "setup":{}
-                  }
-
-def evalOption(val, type):
-    if type==str:
-        return val
-    elif type==bool:
-        return val=="True" or bool(val)
-    elif type==int:
-        return int(val)
-    elif type==dict:
-        return eval(val) if not isinstance(val, dict) else val
-###########################################
-                     
-
-
-
-
-def print_usage():
-    msg="""
-python makeWinInstaller conf=vplants.conf pyMaj=2 pyMin=6 srcDir=%HOMEPATH%\\Downloads\\ eggGlobs="VPlants*.egg|Openalea*.egg" runtime=True arch=i386
-
-
-python makeWinInstaller conf=openalea.conf pyMaj=2 pyMin=7 srcDir=%HOMEPATH%\\Downloads\\ eggGlobs="Openalea*.egg" runtime=False arch=x86_64
-
-python makeWinInstaller.py conf=alinea_conf.py srcDir=%DISTBASE%\\..\\thirdPartyPackages eggDir=%DISTBASE%\\al26 arch=i386 
-    setup="{'LicenseFile':r'%DISTBASE%\\..\\..\\vplants\\src\\release_0_9\\vplants_meta\\license.txt'}"
-
-You can have multiple globs, just use: eggGlobs="Openalea*.egg|Vplants*.egg".
-The glob will be mangled with to incorporate python version information so you
-should NOT write "Openalea*py2.6.egg" because it will be done automatically.
-"""
-    print msg
 
 # function to test bitmasks
 def bt(val, bit):
@@ -191,27 +142,22 @@ python_package_ti_template_egg=python_package_test_template+python_package_insta
 python_package_ti_template_zipdist=python_package_test_template+python_package_install_template_zipdist
 python_package_ti_template_msi=python_package_test_template+python_package_install_template_msi
 
-
-
 def get_wd(options):
-    pyMaj, pyMin = options["pyMajStr"], options["pyMinStr"]
-    instDir = pj(CWD, APPNAME+"-"+pyMaj+"."+pyMin)
-    return instDir
+    return options["wd"]
 
-def prepare_working_dir(options):
-    instDir = get_wd(options)
+def prepare_working_dir(instDir):    
     if exists(instDir):
-        shutil.rmtree(instDir, ignore_errors=True)
-    os.mkdir(instDir)
+        print instDir, "will be deleted"
+        shutil.rmtree(instDir, ignore_errors=False)
+    print instDir, "will be created"
+    os.makedirs(instDir)
 
 import traceback
-def copy_installer_files(options):
-    srcDir  = options["srcDir"]
-    pyMaj  = options["pyMajStr"]
-    pyMin  = options["pyMinStr"]
+def copy_installer_files(outDir, srcDir, pyMaj, pyMin, arch ):
 
+    arch = "win32" if arch == "x86" else "win64"
+    
     def globInstaller(pk, mask):
-        arch = "win32" if options["arch"] == "i386" else "64"
         
         identifier = pk+"*"
         if bt(mask, PY_DEP):
@@ -247,14 +193,14 @@ def copy_installer_files(options):
         filename = basename(ef)
         easyThirdPartyNames[pk] = filename
 
-        src, dst = ef, pj(get_wd(options), basename(ef)) #easyThirdPartyNames[pk])
+        src, dst = ef, pj(outDir, basename(ef)) #easyThirdPartyNames[pk])
         print "\t"+src+" => "+dst+"...",
         shutil.copyfile(src, dst)
         print "ok"
     
     print "Copying environment testing scripts..."
     for f in thirdPartyTests.itervalues():
-        src, dst = f, pj(get_wd(options), f)
+        src, dst = f, pj(outDir, f)
         print "\t"+src+" => "+dst+"...",
         shutil.copyfile(src, dst)
         print "ok"
@@ -268,7 +214,7 @@ def copy_eggs(options):
     # so simply encoding the os in the glob is a bad idea. What we do is:
     # [glob for project_prefix*python_version.egg] + [glob for project_prefix*python_version*os.egg]
     # The egg globs at this stage have the project_prefix*python_version*.egg form.   
-    arch = "win32" if options["arch"] == "i386" else "64"    
+    arch = "win32" if options["arch"] == "x86" else "64"    
     globs = options["eggGlobs"]        
     
     files = []
@@ -511,109 +457,155 @@ def configure_inno_setup(options):
     f.close()
     print "ok"
 
-def make_stitcher(options):
+def make_stitcher( eggDir, pyMaj, pyMin):
     """Creates a function that inserts the pyX.X string
     in the egg glob string if it's not there already."""
-    pyfix = "py"+options["pyMajStr"]+"."+options["pyMinStr"]+"*"
+    pyfix = "py"+pyMaj+"."+pyMin+"*"
     def __stitch_egg_names(eggName):
         if pyfix in eggName:
-            return pj(options["eggDir"], eggName)
+            return pj(eggDir, eggName)
         part = eggName.partition(".egg")
-        return pj(options["eggDir"], part[0] + pyfix + part[1])
+        return pj(eggDir, part[0] + pyfix + part[1])
     return __stitch_egg_names
-
-
-def read_conf_file(options):
-        confFile = options["conf"]
-        print "Reading conf file:", confFile, "...",
-        execfile(confFile, globals())
-        print "Done"
 
 def processInstaller(mask, runtimeMode):
     if (runtimeMode==True and bt(mask, RUNTIME)) or (runtimeMode==False and bt(mask, DEVELOP)):
         return True
     return False                                   
-        
-def printMissingArgs(input):
-    goodSet = set(goodOptions.iterkeys())
-    missing = goodSet-set(options.iterkeys())
-    for i in missing:
-        print "\t", i         
-    return missing
+   
+
+   
+######################
+# MAIN AND RELATIVE  #
+######################
+   
+def read_conf_file(confFile, as_globals=False):
+        print "Reading conf file:", confFile, "...",
+        if as_globals:
+            ret = globals()
+            execfile(confFile, globals())            
+        else:
+            d = {} 
+            ret = d
+            execfile(confFile, globals(), d)
+        print "done"
+        return ret
+   
+def epilog():
+    msg="""
+python makeWinInstaller conf=vplants.conf pyMaj=2 pyMin=6 srcDir=%HOMEPATH%\\Downloads\\ eggGlobs="VPlants*.egg|Openalea*.egg" runtime=True arch=x86
 
 
+python makeWinInstaller conf=openalea.conf pyMaj=2 pyMin=7 srcDir=%HOMEPATH%\\Downloads\\ eggGlobs="Openalea*.egg" runtime=False arch=x86_64
 
+python makeWinInstaller.py conf=alinea_conf.py srcDir=%DISTBASE%\\..\\thirdPartyPackages eggDir=%DISTBASE%\\al26 arch=x86 
+    setup="{'LicenseFile':r'%DISTBASE%\\..\\..\\vplants\\src\\release_0_9\\vplants_meta\\license.txt'}"
 
+You can have multiple globs, just use: eggGlobs="Openalea*.egg|Vplants*.egg".
+The glob will be mangled with to incorporate python version information so you
+should NOT write "Openalea*py2.6.egg" because it will be done automatically.
+"""
+    return msg
 
-
-
-
-
-
-
-
-
+def _parse_dict_string(d_str):
+    return eval(d_str) if not isinstance(d_str, dict) else d_str    
     
-        
-if __name__ == "__main__":
-    options = dict(map(lambda x: x.split('='), sys.argv[1:]))
-
-    # -- Read the configuration file given on command line
-    read_conf_file(options)
-    goodSet = set(goodOptions.iterkeys())
+def parse_arguments():
+    parser = argparse.ArgumentParser(description="Create InnoSetup installers for Windows, for Openalea, VPlants and Alinea",
+                                     epilog = epilog(),
+                                     formatter_class=argparse.RawDescriptionHelpFormatter,)
     
-    # -- Quick options parsing, first check if all required options are given.
-    if not set(options.iterkeys()) == goodSet:
+    default = str(sys.version_info.major)
+    parser.add_argument("--pyMaj", "-P", default=default, help="Major python version (default = %s)."%default, type=str)
+    default = str(sys.version_info.minor)
+    parser.add_argument("--pyMin", "-p", default=default, help="Minor python version (default = %s)."%default, type=str)
+    default = pj(abspath(os.curdir), "eggs", "thirdparty")
+    parser.add_argument("--srcDir", "-s", default=default, help="Directory to look for third party installers or eggs (default = %s)."%default, type=abspath)
+    default = pj(abspath(os.curdir), "output", "PROJECT")
+    parser.add_argument("--outDir", "-o", default=default, help="Directory to put output (default=%s)."%default, type=abspath)
     
-        # -- some options can be given in the conf file, and if they are, we find them in the global dict
-        for opt in optionsThatCanBeInConf:
-            print "Looking for value for the following arguments in conf file:"
-            printMissingArgs(set(options.iterkeys()))               
-            if opt not in options and opt in globals():
-                options[opt] = globals()[opt]
-            
-        # -- some options can have default values
-        curOpts = set(options.iterkeys())
-        if not curOpts == goodSet:
-            print "Looking for defaults for the following arguments:"
-            printMissingArgs(curOpts)        
-            for opt, val in optionDefaults.iteritems():
-                if opt not in options:
-                    options[opt] = val
-        
-        # -- are we dead -- ?
-        curOpts = set(options.iterkeys())
-        if not set(options.iterkeys()) == goodSet:
-            print_usage()
-            print "You didn't supply the following arguments:"
-            printMissingArgs(curOpts)
-            sys.exit(-1)
+    parser.add_argument("--eggGlobs", "-b", default=None, help="Pattern to match the PROJECT egg names (is not defined in CONFFILE). Use '|' to specify many patterns.")
+    
+    default = pj(abspath(os.curdir), "eggs", "PROJECT")
+    parser.add_argument("--eggDir", "-e", default=default, help="Directory where we will look for the PROJECT eggs (default = %s)"%default, type=abspath)
+    
+    parser.add_argument("--devel", "-d", action="store_const", const=False, default=True, help="Build Development Toolkit or Runtime (default=runtime)", dest="runtime")
+    default = platform.machine()
+    parser.add_argument("--arch", "-a", default=default, help="Build installer for this arch (default=%s)"%default, choices=["x86", "x86_64"])
+    parser.add_argument("--setup", "-m", default={}, help="Additinnal values to complete InnoSetup conf file. (example :%s) "%str({'LicenseFile':'c:\\pthtolicensefile'}), 
+                        type=_parse_dict_string)
+    
+    parser.add_argument("--confFile", "-c", default=None, help="Configuration file for to build with", type=abspath)
+       
+    parser.add_argument("--private-packages", "-g", action="store_const", const=True, default=False, help="Use private packages from gforge.")
+    parser.add_argument("--login",  default=None, help="login to connect to GForge")
+    parser.add_argument("--passwd", default=None, help="password to connect to GForge")
+       
+    parser.add_argument("project", default="openalea", help="Which project to build installer for", choices=["openalea", "vplants", "alinea"])
+    
+    return parser.parse_args()
 
-            
-    options = dict((k, evalOption(v, goodOptions[k])) for k, v in options.iteritems())
+
+optionsThatCanBeInConf = set(["eggGlobs", "setup"])
+    
+def main():
+    global dependenciesToProcess
+    global thirdPartyTests
+    
+    args = parse_arguments()
+    
+    if "PROJECT" in args.outDir:
+        args.outDir = args.outDir.replace("PROJECT", args.project+"_"+sys.platform+"_"+args.pyMaj+"."+args.pyMin)
+    else:
+        args.outDir = pj(args.outDir, args.project+"_"+sys.platform+"_"+args.pyMaj+"."+args.pyMin)
+    if "PROJECT" in args.eggDir:
+        args.eggDir = args.eggDir.replace("PROJECT", args.project+"_"+sys.platform+"_"+args.pyMaj+"."+args.pyMin)
+    else:
+        args.eggDir = pj(args.eggDir, args.project+"_"+sys.platform+"_"+args.pyMaj+"."+args.pyMin)
+    
+    # -- convert parameters to dict --
+    options = vars(args)
+    # -- Read the configuration file
+    confFile = args.confFile or pj(split(__file__)[0], args.project+"_conf.py")
+    
+    # -- Get what is in the configuration file --
+    confDict = read_conf_file(confFile, as_globals=True)
+    
     # pyMaj and pyMin are also handy as string:
-    options["pyMajStr"] = str(options["pyMaj"])
-    options["pyMinStr"] = str(options["pyMin"])
+    args.pyMajStr = str(args.pyMaj)
+    args.pyMinStr = str(args.pyMin)
     
+    args.eggGlobs = args.eggGlobs or confDict["eggGlobs"]
+                            
     # -- Fix the egg globs to include python version and architecture dependency.
-    options["eggGlobs"] = map(make_stitcher(options), options["eggGlobs"].split("|"))
-    print "The following egg globs will be used:", options["eggGlobs"]
-    
-
-    
+    globs = map(make_stitcher(args.eggDir, args.pyMaj, args.pyMin), args.eggGlobs.split("|"))
+    print "The following egg globs will be used:", globs
+        
     # -- Filter the dependencies to process according to the type of installer (for runtimes or devtools)
-    installerMode = options["runtime"]
     dependenciesToProcess = [pk for pk, (mask, order) in sorted(thirdPartyPackages.iteritems(), key=lambda x:x[1][1]) 
-                            if processInstaller(mask, installerMode)]
-
-    # -- create easy names for the packages. The generated inno script will use the short names. This might aswell disappear one day
-    # -- NO! This is now done in copy_installer_files
+                            if processInstaller(mask, args.runtime)]
 
     # -- find out package testing python module names for the packages that need to be tested
-    thirdPartyTests = dict((k, k+"_test.py") for k in dependenciesToProcess if bt(thirdPartyPackages[k][0],TEST_ME))    
+    thirdPartyTests = dict((k, k+"_test.py") for k in dependenciesToProcess if bt(thirdPartyPackages[k][0],TEST_ME))   
+
+    
+    # if args.private_packages:
+        # rc_user, rc_pass = find_login_passwd()
+        # gforge_login = args.login or rc_user
+        # gforge_passwd = args.passwd or rc_pass        
+        # add_private_gforge_repositories(gforge_login, gforge_passwd)
         
-    prepare_working_dir(options)
-    copy_installer_files(options)
-    copy_eggs(options)
-    configure_inno_setup(options)
+    # pi = PackageIndex()
+    # pi.add_find_links(get_repo_list())
+    
+        
+    prepare_working_dir(args.outDir)
+    copy_installer_files(args.outDir, args.srcDir, args.pyMaj, args.pyMin, args.arch)
+    # copy_eggs(options)
+    # configure_inno_setup(options)
     print "Done, please check the generated file."
+
+    
+    
+if __name__ == "__main__":
+    main()

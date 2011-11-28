@@ -6,15 +6,20 @@ setup = {"LicenseFile":"LICENSE.TXT", "WizardSmallImageFile":"oalogo.bmp"}
 eggGlobs = "OpenAlea*.egg"
 
 # package -> (installerFlags, installationOrder)
+# NOTE: Symbols here are "injected" by master makeWinInstaller.py script.
+# TODO : Use ordered dict
 thirdPartyPackages = {   "python":      (MSI|RUNTIME|DEVELOP, 0),
                          "pywin32":     (EXE|PY_DEP|ARCH|RUNTIME|DEVELOP|TEST_ME, 1),
                          "setuptools":  (EXE|PY_DEP|ARCH|RUNTIME|DEVELOP|TEST_ME, 2),
 #                         "PyQt":       (EXE|PY_DEP|ARCH|RUNTIME|DEVELOP|TEST_ME, 3), #if using standard installer
-                         "qt4":         (EGG|PY_DEP|ARCH|RUNTIME|TEST_ME, 3),
-                         "numpy":       (EGG|PY_DEP|ARCH|RUNTIME|TEST_ME, 4),
-                         "scipy":       (EGG|PY_DEP|ARCH|RUNTIME|TEST_ME, 5),
-                         "matplotlib":  (EXE|PY_DEP|ARCH|RUNTIME|TEST_ME, 6),                         
-                         "pil":         (EGG|PY_DEP|ARCH|RUNTIME|TEST_ME, 7),
+                         "mingw_rt":    (EGG|ARCH|RUNTIME, 3),
+                         "qt4":         (EGG|PY_DEP|ARCH|RUNTIME|TEST_ME, 4),
+                         "numpy":       (EGG|PY_DEP|ARCH|RUNTIME|TEST_ME, 5),
+                         "scipy":       (EGG|PY_DEP|ARCH|RUNTIME|TEST_ME, 6),
+                         "matplotlib":  (EGG|PY_DEP|ARCH|RUNTIME|TEST_ME, 7),                         
+                         "pil":         (EGG|PY_DEP|RUNTIME|TEST_ME, 8),
+                         "pylsm":       (EGG|PY_DEP|RUNTIME, 8),
+                         #"pylibtiff":   (EGG|PY_DEP|ARCH|RUNTIME|TEST_ME, 8),
                          }
                          
 
