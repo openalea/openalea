@@ -147,6 +147,12 @@ eggs = OrderedDict ( (p.name,p) for p in  [Egg("mingw",
                                                "PIL License.",
                                                "Copyright (c) 1997-2011 by Secret Labs AB, Copyright (c) 1995-2011 by Fredrik Lundh.",
                                                "PIL packaged as an egg"
+                                               ),  
+                                               
+                                           Egg("pylsm", 
+                                               "PYLSM License.",
+                                               "Freesbi.ch",
+                                               "Patched version of PyLSM"
                                                ),                                                
                                            ]
                    )
@@ -380,6 +386,7 @@ class BuildEnvironment(object):
         self.__init_builders()  
         for buildercls in self.proj_builders + self.egg_builders:
             builder = buildercls()
+            print "enabled", builder.name, builder.enabled
             if builder.has_pending and builder.enabled:
                 builder.process_me()
             
@@ -713,10 +720,18 @@ class BaseProjectBuilder(BaseBuilder):
 class TemplateStr(string.Template):
     delimiter = "@"
 
-    
+def with_original_sys_path(f):
+    def func(*args,**kwargs):
+        cursyspath = sys.path[:]
+        sys.path = BaseEggBuilder.__oldsyspath__[:]
+        ret = f(*args, **kwargs)
+        sys.path = cursyspath
+        return ret
+    return func
+       
 class BaseEggBuilder(BaseBuilder):
-    __metaclass__ = EggBuilders
-    
+    __metaclass__  = EggBuilders
+    __oldsyspath__ = sys.path[:]
     all_procs       = OrderedDict([("c",("_configure_script",True)),
                                    ("e",("_eggify",True)),
                                    ("u",("_upload_egg",True))
@@ -726,10 +741,14 @@ class BaseEggBuilder(BaseBuilder):
     py_dependent   = True
     arch_dependent = True
     
-    def __init__(self):
-        BaseBuilder.__init__(self) 
-        self.eggdir         = pj(self.env.get_egg_path(), self.__eggname__)
-        self.setup_in_name  = pj(self.env.get_working_path(), "setup.py.in")
+    def __init__(self,**kwargs):
+        BaseBuilder.__init__(self, **kwargs)
+        if "no_env" in kwargs:      
+            self.eggdir         = ""
+            self.setup_in_name  = ""
+        else:
+            self.eggdir         = pj(self.env.get_egg_path(), self.__eggname__)
+            self.setup_in_name  = pj(self.env.get_working_path(), "setup.py.in")
         self.setup_out_name = pj(self.eggdir, "setup.py")
         self.use_cfg_login  = False
         makedirs(self.eggdir)
@@ -1311,13 +1330,18 @@ class InstalledPackageEggBuilder(BaseEggBuilder):
         BaseEggBuilder.__init__(self)
         try:
             p = self.package
-        except:
+        except Exception, e:
+            print e
             self.enabled = False
         else:
             self.enabled = True
     @property 
     def package(self):
-        return __import__(self.packagename)     
+        return __import__(self.packagename)
+    @property
+    def module(self):
+        if self.__modulename__:
+            return __import__(".".join([self.packagename,self.__modulename__]), fromlist=[self.__modulename__])
     @property 
     def packagename(self):
         return self.__packagename__ or self.__eggname__
@@ -1325,10 +1349,13 @@ class InstalledPackageEggBuilder(BaseEggBuilder):
     def install_dir(self):
         return os.path.dirname(self.package.__file__)
 
-    def find_packages(self):
-        pkgs   = find_packages( pj(self.install_dir, os.pardir) )
+    def _filter_packages(self, pkgs):
         parpkg = self.packagename + "."
-        pkgs = [ p for p in pkgs if (p == self.packagename or p.startswith(parpkg))]
+        return [ p for p in pkgs if (p == self.packagename or p.startswith(parpkg))]
+        
+    def find_packages(self):
+        pkgs   = find_packages( pj(self.install_dir, os.pardir) )        
+        pkgs = self._filter_packages(pkgs)
         return pkgs
         
     def find_packages_and_directories(self):
@@ -1337,7 +1364,6 @@ class InstalledPackageEggBuilder(BaseEggBuilder):
         base = abspath( pj(self.install_dir, os.pardir) )
         for pk in pkgs:
             dirs[pk] =  pj(base, pk.replace(".", os.sep))
-        #dirs[""] = self.install_dir
         return pkgs, dirs
         
     def script_substitutions(self):        
@@ -1380,11 +1406,29 @@ class egg_matplotlib(InstalledPackageEggBuilder):
                                                
 class egg_PIL(InstalledPackageEggBuilder):
     __eggname__ = "PIL"
-    __packagename__ = "Image"
+    __modulename__  = "Image"
     py_dependent   = True
     arch_dependent = True    
     def script_substitutions_2(self):
-        return dict( VERSION = self.package.VERSION )
+        return dict( VERSION = self.module.VERSION )
+                 
+class egg_pylsm(InstalledPackageEggBuilder):
+    __eggname__ = "pylsm"
+    py_dependent   = True
+    arch_dependent = False
+    
+    @property 
+    @with_original_sys_path
+    def package(self):
+        return __import__(self.packagename)
+    
+    def script_substitutions_2(self):
+        pth = self.package.__path__[0]
+        version = "UNKNOWN"
+        for p in pth.split("\\"):
+            if ".egg" in p:
+                version = p.split("-")[1]
+        return dict( VERSION = version )
                  
                  
                  
