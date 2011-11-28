@@ -151,7 +151,6 @@ def find_login_passwd(allow_user_input=True):
             rc = matched[0]
 
     username, password = None, None
-    print "find_login_passwd", rc
     if exists(rc):
         print 'Using PyPI login from %s' %(rc)
         config = ConfigParser.ConfigParser({
@@ -206,9 +205,10 @@ def cookie_login(loginurl, values):
 def gforge_login(userid=None, passwd=None):
     """ Login on Gforge """
     # Create login/password values
-    rc_user, rc_pass = find_login_passwd()
-    userid = userid or rc_user
-    passwd = passwd or rc_pass
+    if not userid or not passwd:
+        rc_user, rc_pass = find_login_passwd()
+        userid = userid or rc_user
+        passwd = passwd or rc_pass
     values = {'form_loginname': userid,
               'form_pw': passwd,
               'return_to' : '',
@@ -276,7 +276,7 @@ def upload_file(filename, group_id, pkg_id, release_id, type_id, proc_id):
     
     
  # Extending Setuptools Package Indexes with GForge private repositories:
-def add_private_gforge_repositories(userid, passwd):
+def add_private_gforge_repositories(userid=None, passwd=None):
     if gforge_login(userid, passwd):
         # Replace open_with_auth function
         import setuptools.package_index

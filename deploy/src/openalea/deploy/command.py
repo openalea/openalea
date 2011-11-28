@@ -685,15 +685,15 @@ class alea_install(old_easy_install):
     user_options = []
     user_options.extend(old_easy_install.user_options)
     user_options.extend([ ('install-dyn-lib=', None, 'Directory to install dynamic library.'),
-                          ('gforge-login=',    None, "Login to connect to private gforge repository"),
-                          ('gforge-passwd=',   None, "Password to connect to private gforge repository"),
-                        ])
+                          ('gforge-private',  "g" , "Use private gforge repository too (will search for authentication pydistutils.cfg or ask if not found)"),                        
+                          ])
+                        
+    boolean_options = old_easy_install.boolean_options + ["gforge-private"]
 
     def initialize_options(self):
         old_easy_install.initialize_options(self)
         self.install_dyn_lib = None
-        self.gforge_login    = None
-        self.gforge_passwd   = None
+        self.gforge_private  = False
 
     def finalize_options(self):    
         # Add openalea package link
@@ -715,13 +715,10 @@ class alea_install(old_easy_install):
     def run(self):
         self.set_system()
         
-        from openalea.deploy.gforge_util import add_private_gforge_repositories, find_login_passwd
-        rc_user, rc_pass = find_login_passwd()
-        self.gforge_login = self.gforge_login or rc_user
-        self.gforge_passwd = self.gforge_passwd or rc_pass
-        if self.gforge_login and self.gforge_passwd:
-            add_private_gforge_repositories(self.gforge_login, self.gforge_passwd)
-        
+        if self.gforge_private:
+            from openalea.deploy.gforge_util import add_private_gforge_repositories
+            add_private_gforge_repositories()
+            
         old_easy_install.run(self)
 
         # Activate the correct egg
