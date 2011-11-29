@@ -17,17 +17,23 @@
 # encapsulate it inside a class.
 
 import argparse
+from collections import OrderedDict
 import glob
-from os.path import exists, join as pj, basename, abspath, split
+from os.path import exists, join as pj, basename, abspath, split, dirname
 import os
 import platform
 import shutil
 import string
 import sys
+import types
 
 from setuptools.package_index import PackageIndex
 from openalea.deploy.util import get_base_dir, get_repo_list, OPENALEA_PI
 
+
+err = sys.stderr.write
+out = sys.stdout.write
+__path__ = dirname(abspath(__file__))
 
 # -- Some Flags : DONT CHANGE THESE IF YOU DON'T KNOW WHAT YOU'RE DOING --
 NOFLAG = 0
@@ -53,9 +59,9 @@ COMPONENT = 2**10
 
 # -- Installer and dependency packages description are declared here but are actually defined in the
 # -- conf file.
-APPNAME=None
-APPVERSION=None
-thirdPartyPackages = None
+# APPNAME=None
+# APPVERSION=None
+# thirdPartyPackages = None
 
 class StrictTemplate(string.Template):
     idpattern = r"[_A-Z0-9]*"
@@ -64,13 +70,6 @@ class StrictTemplate(string.Template):
 def bt(val, bit):
     return bit==(val&bit)
 
-# -- The following globals are configured in the "if __name__ == '__main__'" section. --
-#Subset of package names that will be incorporated wether we're building runtime or "sdk".
-dependenciesToProcess=None    
-# create easy names for the packages. This might aswell disappear one day
-easyThirdPartyNames = {}
-# create package testing python module names for the packages that want to be tested
-thirdPartyTests = None
 
 installerExtensions = { 0:"",
                         EGG:".egg",
@@ -137,13 +136,13 @@ end;
 """
 
 #"ti" stands for "test and install"
-python_package_ti_template_exe=python_package_test_template+python_package_install_template_exe
-python_package_ti_template_egg=python_package_test_template+python_package_install_template_egg
-python_package_ti_template_zipdist=python_package_test_template+python_package_install_template_zipdist
-python_package_ti_template_msi=python_package_test_template+python_package_install_template_msi
+python_package_ti_template_exe    = python_package_test_template+python_package_install_template_exe
+python_package_ti_template_egg    = python_package_test_template+python_package_install_template_egg
+python_package_ti_template_zipdist= python_package_test_template+python_package_install_template_zipdist
+python_package_ti_template_msi    = python_package_test_template+python_package_install_template_msi
 
-def get_wd(options):
-    return options["wd"]
+
+
 
 def prepare_working_dir(instDir):    
     if exists(instDir):
@@ -153,7 +152,7 @@ def prepare_working_dir(instDir):
     os.makedirs(instDir)
 
 import traceback
-def copy_installer_files(outDir, srcDir, pyMaj, pyMin, arch ):
+def find_installer_files(outDir, srcDir, pyMaj, pyMin, arch, dependencies):
 
     arch = "win32" if arch == "x86" else "win64"
     
@@ -179,34 +178,28 @@ def copy_installer_files(outDir, srcDir, pyMaj, pyMin, arch ):
             else:
                 return glob.glob(pj(srcDir, identifier))[0]
         except:
-            traceback.print_exc()
-            print srcDir, identifier
-            return "No installer found for "+pk+" with for "+srcDir+" "+identifier
-
-            
-    print "Copying binaries..."    
-    for pk in dependenciesToProcess:
-        mask = thirdPartyPackages[pk][0]
+            #traceback.print_exc()
+            err("\tNo installer found for "+pk+" with for "+srcDir+" "+identifier+"\n")
+            return None
+                        
+    print "Gathering paths to binaries..."
+    ok = True
+    for pk, info in dependencies.iteritems():
+        mask = info[0]
         if bt(mask, NOT_INSTALLABLE):
             continue
         ef = globInstaller(pk, mask)
-        filename = basename(ef)
-        easyThirdPartyNames[pk] = filename
+        if ef is None:
+            #err( "\tNo installer found for %s.\n"%pk )
+            ok = False
+            continue
+        info[1] = ef
+        out("\tWill install %s\n"%ef)        
+    return ok
 
-        src, dst = ef, pj(outDir, basename(ef)) #easyThirdPartyNames[pk])
-        print "\t"+src+" => "+dst+"...",
-        shutil.copyfile(src, dst)
-        print "ok"
-    
-    print "Copying environment testing scripts..."
-    for f in thirdPartyTests.itervalues():
-        src, dst = f, pj(outDir, f)
-        print "\t"+src+" => "+dst+"...",
-        shutil.copyfile(src, dst)
-        print "ok"
 
         
-def copy_eggs(options):
+def get_project_eggs(arch, globs, outDir, srcDir):
     # real egg names have the project prefix eg, "OpenAlea", "VPlants".
     # then comes the python version "py2.6"
     # and optionnaly the OS "linux-i686", "win32".
@@ -214,76 +207,65 @@ def copy_eggs(options):
     # so simply encoding the os in the glob is a bad idea. What we do is:
     # [glob for project_prefix*python_version.egg] + [glob for project_prefix*python_version*os.egg]
     # The egg globs at this stage have the project_prefix*python_version*.egg form.   
-    arch = "win32" if options["arch"] == "x86" else "64"    
-    globs = options["eggGlobs"]        
+    arch = "win32" if arch == "x86" else "64"         
     
     files = []
     for g in globs:
         files += glob.glob(g)
 
-    # -- then we filter these files.
+    # -- then we filter these files --
     files = [f for f in files if (arch in f) or (not "win" in f)]
         
-    print "Copying eggs..."
+    print "Gathering path to eggs..."
+    egg_paths = []
     localFiles = map(basename, files)
     for f, filename in zip(files, localFiles):
-        src, dst = f, pj(get_wd(options), filename)
-        print "\t"+src+" => "+dst+"...",
-        shutil.copyfile(src, dst)
-        print "ok"
-    options["eggs"] = localFiles
+        egg_paths.append(f)
+        out("\tWill install %s\n"%f)
+    return egg_paths
 
 
-# -- ATTENTION PLEASE -- must be run after "copy eggs" and "copy_installer_files"<
+# -- ATTENTION PLEASE -- must be run after "copy eggs" and "get_installer_files"<
 # -- Override me to generate innosetup [setup] section.       
-def generate_inno_installer_setup_group(options):    
+def generate_inno_installer_setup_group(setup):    
     final = ""
-    setupStuff = options.get("setup", {})
-    setupStuff.update(globals().get("setup", {}))
-    print "-------------------------------->", setupStuff
-    for k, v in setupStuff.iteritems():
+    for k, v in setup.iteritems():
         basev = basename(v)
         if "file" in k.lower():
-            src, dst = abspath(v), pj(get_wd(options), basev)
-            print "\t"+src+" => "+dst+"...",
-            shutil.copyfile(src,dst)
-            print "ok"
-        final += k + "=" + basev + "\n"
+            src = abspath(v)
+            out("\t"+src+"\n")
+        final += k + "=" + src + "\n"
     return final
     
 
-# -- ATTENTION PLEASE -- must be run after "copy eggs" and "copy_installer_files"<
-def generate_inno_installer_files_group(options):
+# -- ATTENTION PLEASE -- must be run after "copy eggs" and "get_installer_files"<
+def generate_inno_installer_files_group(dependencies, egg_pths):
     final = ""
-    #installers
-    for pk, f in easyThirdPartyNames.iteritems():
-        if bt(thirdPartyPackages[pk][0], NOT_INSTALLABLE):
-            continue
-        final += "Source: \""+f+"\"; DestDir: {tmp}; Flags: dontcopy\n"
-        
+    #installers and test files
+    for pk, info in dependencies.iteritems():
+        mask = info[0]
+        if info[2]: # if we have test files associated
+            final += "Source: \""+info[2]+"\"; DestDir: {tmp}; Flags: dontcopy\n"
+        if info[1]: #if we have an installer to package
+            final += "Source: \""+info[1]+"\"; DestDir: {tmp}; Flags: dontcopy\n"                
     #eggs 
-    for f in options["eggs"]:
-        final += "Source: \""+f+"\"; DestDir: {tmp}; Flags: dontcopy\n"
-        
-    #test scripts
-    for f in thirdPartyTests.itervalues():
-        final += "Source: \""+f+"\"; DestDir: {tmp}; Flags: dontcopy\n"
-
+    for f in egg_pths:
+        final += "Source: \""+f+"\"; DestDir: {tmp}; Flags: dontcopy\n"        
     return final
     
-# -- ATTENTION PLEASE -- must be run after "copy eggs" and "copy_installer_files"    
-def generate_pascal_test_install_code(options):
+# -- ATTENTION PLEASE -- must be run after "copy eggs" and "get_installer_files"    
+def generate_pascal_test_install_code(dependencies):
     final = ""
     testVariables = {"python":"PyInstalled"} #there's always this variable
 
-    for pk in dependenciesToProcess:
-        mask = thirdPartyPackages[pk][0]
+    for pk, info in dependencies.iteritems():
+        mask = info[0]
+        testVariables[pk] = pk+"Installed" #always defined
         if bt(mask,TEST_ME):
-            testVariables[pk] = pk+"Installed"
             if bt(mask, NOT_INSTALLABLE):
                 template = StrictTemplate(python_package_test_template)
                 final += template.substitute(PACKAGE=pk,
-                                             PACKAGE_TEST=thirdPartyTests[pk])
+                                             PACKAGE_TEST=info[2])
             else:            
                 #"ti" stands for "test and install"
                 if bt(mask, MSI): template = python_package_ti_template_msi
@@ -293,8 +275,8 @@ def generate_pascal_test_install_code(options):
                 else: raise Exception("Unknown installer type: " + pk +":"+str(mask))
                 template = StrictTemplate(template)
                 final+=template.substitute(PACKAGE=pk,
-                                           PACKAGE_TEST=thirdPartyTests[pk],
-                                           PACKAGE_INSTALLER=easyThirdPartyNames[pk])
+                                           PACKAGE_TEST=basename(info[2]),
+                                           PACKAGE_INSTALLER=basename(info[1]) )
         else:
             if bt(mask, NOT_INSTALLABLE):
                 continue
@@ -306,13 +288,13 @@ def generate_pascal_test_install_code(options):
                 else: raise Exception("Unknown installer type: " + pk +":"+str(mask))
                 template = StrictTemplate(template)
                 final+=template.substitute(PACKAGE=pk,
-                                           PACKAGE_INSTALLER=easyThirdPartyNames[pk])
+                                           PACKAGE_INSTALLER=basename(info[1]) )
                                        
     return final, testVariables
 
 
     
-def generate_pascal_detect_env_body(testVars):
+def generate_pascal_detect_env_body(dependencies, testVars, appname):
     testReportingPascalTemplate = StrictTemplate(
 """
   if not $VAR then
@@ -334,9 +316,8 @@ def generate_pascal_detect_env_body(testVars):
 """)
     testing = ""
     reporting = ""
-    
-    for pk in dependenciesToProcess:
-        mask = thirdPartyPackages[pk][0]  
+    for pk, info in dependencies.iteritems():
+        mask = info[0]  
         if bt(mask, TEST_ME) or pk == "python":                 
             var = testVars[pk]
             testing += "  "+ var + " := PyInstalled and Detect"+pk+"();\n"
@@ -344,15 +325,15 @@ def generate_pascal_detect_env_body(testVars):
             if bt(mask, NOT_INSTALLABLE): #if tested and not installable, then fatal!
                 reporting += testFatalReportingPascalTemplate.substitute(PACKAGE=pk,
                                                                          VAR=var,
-                                                                         APPNAME=APPNAME)
+                                                                         APPNAME=appname)
             else:       
                 reporting += testReportingPascalTemplate.substitute(PACKAGE=pk,
                                                                     VAR=var,
-                                                                    APPNAME=APPNAME)
+                                                                    APPNAME=appname)
     return testing, reporting
             
  
-def generate_pascal_deploy_body(testVars, step):
+def generate_pascal_deploy_body(dependencies, testVars, step):
     installationPascalTemplate = StrictTemplate(
 """
   if res and not $VAR then
@@ -365,8 +346,8 @@ def generate_pascal_deploy_body(testVars, step):
 """)    
     installation = ""
     
-    for pk in dependenciesToProcess:
-        mask = thirdPartyPackages[pk][0]
+    for pk, info in dependencies.iteritems():
+        mask = info[0]
         if bt(mask, NOT_INSTALLABLE):
             continue
         var = testVars[pk]
@@ -398,40 +379,37 @@ begin
     Result := True;
 end;"""
     
-def configure_inno_setup(options):
+def configure_inno_setup(appname, appversion, dependencies, args, funcs, egg_pths):
     print "Configuring inno script...",
-    f = open("template_win_inst.iss.in")
+    f = open( pj(__path__,"template_win_inst.iss.in") )
     s = f.read()
     f.close()
 
     template = StrictTemplate(s)
-    eggs = options["eggs"]
-    eggnum = len(eggs)
+    #eggs = options["eggs"]
+    eggnum = len(egg_pths)
 
     eggArrayInit = ""
-    visualeaId = -1
-    for i, e in enumerate(eggs):
-        eggArrayInit+="Eggs[%i] := '%s';\n"%(i, e)
-        if "Visualea" in e:
-            visualeaId = str(i)            
+    for i, e in enumerate(egg_pths):
+        eggArrayInit+="Eggs[%i] := '%s';\n"%(i, e)      
             
-    step = int(100./(eggnum+len(dependenciesToProcess)))    
-    detect, testVars = generate_pascal_test_install_code(options)
-    testingBody, reportingBody =generate_pascal_detect_env_body(testVars)
-    installationBody = generate_pascal_deploy_body(testVars, step)
-    
-    modeStr = "" if options["runtime"] else "dev"
-    s = template.substitute(APPNAME=APPNAME,
-                            APPVERSION=APPVERSION,
+    step = int(100./(eggnum+len(dependencies)))    
+    detect, testVars = funcs["generate_pascal_test_install_code"](dependencies)
+    testingBody, reportingBody = funcs["generate_pascal_detect_env_body"](dependencies, testVars, appname)
+    installationBody = funcs["generate_pascal_deploy_body"](dependencies, testVars, step)
+
+    modeStr = "" if args.runtime else "dev"
+    s = template.substitute(APPNAME=appname,
+                            APPVERSION=appversion,
                             INSTTYPE=modeStr.upper(),
-                            SETUP_CONF=generate_inno_installer_setup_group(options),
+                            SETUP_CONF=funcs["generate_inno_installer_setup_group"](args.setup),
                             #configure Python Major and Minor
-                            PYTHONMAJOR=options["pyMajStr"],
-                            PYTHONMINOR=options["pyMinStr"],
+                            PYTHONMAJOR=args.pyMaj,
+                            PYTHONMINOR=args.pyMin,
                             #the pascal booleans that store if this or that package is installed or not.
                             TEST_VARIABLES=reduce(lambda x,y: x+", "+y, testVars.itervalues(), "dummy"),
                             #the files that will be packed by the installer.
-                            INSTALLER_FILES=generate_inno_installer_files_group(options),
+                            INSTALLER_FILES=funcs["generate_inno_installer_files_group"](dependencies, egg_pths),
                             #configure number of eggs
                             EGGMAXID=str(eggnum-1),
                             #configure the initialisation of egg array
@@ -444,15 +422,15 @@ def configure_inno_setup(options):
                             TEST_VAR_RESULTS=testingBody,
                             #configure the body of DetectEnv that reports
                             REPORT_VAR_RESULTS=reportingBody,
-                            INSTALL_APP_BODY=generate_pascal_install_code(options),
-                            #configure the body of Deploy that installs the soft
+                            INSTALL_APP_BODY=funcs["generate_pascal_install_code"](None),
+                            #configure the body of Deploy that installs the dependencies
                             DEPLOY_BODY=installationBody,
                             #Code to run on post install
-                            POSTINSTALLCODE=generate_pascal_post_install_code(options),                            
+                            POSTINSTALLCODE=funcs["generate_pascal_post_install_code"](egg_pths),                            
                             )
 
     
-    f = open( pj(get_wd(options), APPNAME+"_installer_"+modeStr+".iss"), "w" )
+    f = open( pj(args.outDir, appname+"_installer_"+modeStr+".iss"), "w" )
     f.write(s)
     f.close()
     print "ok"
@@ -549,46 +527,53 @@ def parse_arguments():
 optionsThatCanBeInConf = set(["eggGlobs", "setup"])
     
 def main():
-    global dependenciesToProcess
-    global thirdPartyTests
-    
+    #print __path__
+    #sys.exit(-1)
     args = parse_arguments()
     
     if "PROJECT" in args.outDir:
         args.outDir = args.outDir.replace("PROJECT", args.project+"_"+sys.platform+"_"+args.pyMaj+"."+args.pyMin)
     else:
         args.outDir = pj(args.outDir, args.project+"_"+sys.platform+"_"+args.pyMaj+"."+args.pyMin)
-    if "PROJECT" in args.eggDir:
-        args.eggDir = args.eggDir.replace("PROJECT", args.project+"_"+sys.platform+"_"+args.pyMaj+"."+args.pyMin)
-    else:
-        args.eggDir = pj(args.eggDir, args.project+"_"+sys.platform+"_"+args.pyMaj+"."+args.pyMin)
     
-    # -- convert parameters to dict --
-    options = vars(args)
-    # -- Read the configuration file
-    confFile = args.confFile or pj(split(__file__)[0], args.project+"_conf.py")
+    prepare_working_dir(args.outDir)
     
-    # -- Get what is in the configuration file --
-    confDict = read_conf_file(confFile, as_globals=True)
+    # -- Find the configuration file
+    confFile  = args.confFile or pj(split(__file__)[0], args.project+"_conf.py")        
+    confDict = read_conf_file(confFile)    
     
-    # pyMaj and pyMin are also handy as string:
-    args.pyMajStr = str(args.pyMaj)
-    args.pyMinStr = str(args.pyMin)
+    #   -- funcs will contain function overrides read from confFile --
+    funcs = dict( (fname, f) for fname, f in globals().iteritems() if isinstance(f, types.FunctionType) )
+    funcs.update(dict( (fname, f) for fname, f in confDict.iteritems() if isinstance(f, types.FunctionType)))    
+    #   -- vars will contain vars read from confFile --    
+    thirdPartyPackages = confDict["thirdPartyPackages"]
+    appname            = confDict["APPNAME"]
+    appversion         = confDict["APPVERSION"]
     
     args.eggGlobs = args.eggGlobs or confDict["eggGlobs"]
+    args.setup    = args.setup or confDict["setup"]
                             
     # -- Fix the egg globs to include python version and architecture dependency.
-    globs = map(make_stitcher(args.eggDir, args.pyMaj, args.pyMin), args.eggGlobs.split("|"))
-    print "The following egg globs will be used:", globs
+    args.eggGlobs = map(make_stitcher(args.eggDir, args.pyMaj, args.pyMin), args.eggGlobs.split("|"))
+    print "The following egg globs will be used:", args.eggGlobs
         
     # -- Filter the dependencies to process according to the type of installer (for runtimes or devtools)
-    dependenciesToProcess = [pk for pk, (mask, order) in sorted(thirdPartyPackages.iteritems(), key=lambda x:x[1][1]) 
-                            if processInstaller(mask, args.runtime)]
+    dependencies = OrderedDict( (pk, [mask, None, None]) for pk, (mask,) in thirdPartyPackages  \
+                                if processInstaller(mask, args.runtime) )
 
+    # -- find out the installers to package for this mega installer --
+    ok = find_installer_files(args.outDir, args.srcDir, args.pyMaj, args.pyMin, args.arch, 
+                              dependencies)                            
+                            
+    if not ok:
+        sys.exit(-1)
     # -- find out package testing python module names for the packages that need to be tested
-    thirdPartyTests = dict((k, k+"_test.py") for k in dependenciesToProcess if bt(thirdPartyPackages[k][0],TEST_ME))   
-
-    
+    out("Gathering paths to testing scripts... \n")
+    for pk, info in dependencies.iteritems():
+        test    = pj(__path__, pk+"_test.py") if bt(info[0],TEST_ME) else None
+        info[2] = test
+        out("\tWill install %s for %s\n"%(test,pk))
+                           
     # if args.private_packages:
         # rc_user, rc_pass = find_login_passwd()
         # gforge_login = args.login or rc_user
@@ -597,12 +582,10 @@ def main():
         
     # pi = PackageIndex()
     # pi.add_find_links(get_repo_list())
-    
-        
-    prepare_working_dir(args.outDir)
-    copy_installer_files(args.outDir, args.srcDir, args.pyMaj, args.pyMin, args.arch)
-    # copy_eggs(options)
-    # configure_inno_setup(options)
+                
+
+    proj_egg_pths = get_project_eggs(args.arch, args.eggGlobs, args.outDir, args.srcDir)
+    configure_inno_setup(appname, appversion, dependencies, args, funcs, proj_egg_pths)
     print "Done, please check the generated file."
 
     

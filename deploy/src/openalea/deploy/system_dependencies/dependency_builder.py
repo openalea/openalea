@@ -1247,7 +1247,7 @@ class egg_qt4_dev(BaseEggBuilder):
                     BIN_DIRS         = bin_dirs,
                     INC_DIRS         = inc_dirs,
                     DATA_FILES       = libs+sips+srcs+tra+mks+plu,
-                    INSTALL_REQUIRES = [egg_qt4.__eggname__, egg_mingw.__eggname__]
+                    INSTALL_REQUIRES = [egg_qt4.__eggname__]
                     )  
                     
 

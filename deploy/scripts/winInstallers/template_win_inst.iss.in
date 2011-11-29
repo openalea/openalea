@@ -153,6 +153,7 @@ procedure DetectEnv(Sender: TWizardPage);
 var
   DetectInfo : TNewStaticText;
   caption : String;
+  PyInstalled   : Boolean; 
 begin
   PyInstalled   := True; (*fixed by TEST_VAR_RESULTS*)
 
