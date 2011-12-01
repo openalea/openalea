@@ -13,19 +13,19 @@ thirdPartyPackages = [   ("python", (NOT_INSTALLABLE|RUNTIME|DEVELOP,)), #always
                          ("boost", (EGG|PY_DEP|ARCH|RUNTIME|DEVELOP|TEST_ME,)),
                          ("qhull", (EGG|ARCH|DEVELOP|TEST_ME,)),
                          ("gnuplot", (EGG|ARCH|RUNTIME|DEVELOP|TEST_ME,)),
-                         ("pyopengl", (ZIPDIST|ARCH|RUNTIME|DEVELOP|TEST_ME,)),
+                         ("pyopengl", (EXEDIST|ARCH|RUNTIME|DEVELOP|TEST_ME,)),
                          ("pyqglviewer", (EGG|ARCH|PY_DEP|RUNTIME|DEVELOP|TEST_ME,)),
                          ("qt4_dev", (EGG|ARCH|DEVELOP|TEST_ME,)),
                          ("mingw", (EGG|ARCH|DEVELOP,)),
                          ("r", (EXE|ARCH|RUNTIME|TEST_ME,)),
-                         ("rpy2", (MSI|PY_DEP|ARCH|RUNTIME|TEST_ME,)),                         
+                         #("rpy2", (MSI|PY_DEP|ARCH|RUNTIME|TEST_ME,)),                         
                          ]                         
                          
-manuallyInstalled = ["VPlants"]
 
- 
                          
 def generate_pascal_install_code(options):        
+    manuallyInstalled = ["VPlants"]
+
     s = """
 var i, incr:Integer;
 var s:String;
@@ -84,4 +84,4 @@ def generate_pascal_post_install_code(egg_pths):
         for p in names:
             if p in e.lower():
                 s += egg_post_inst.substitute(EGGID=str(i), EGGNAME=p)          
-    return postInstallPascal    
+    return s    

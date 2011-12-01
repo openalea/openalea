@@ -14,13 +14,13 @@ thirdPartyPackages = [  ("python", (MSI|RUNTIME|DEVELOP,)),
                         ("pywin32", (EXE|PY_DEP|ARCH|RUNTIME|DEVELOP|TEST_ME,)),
                         ("setuptools", (EXE|PY_DEP|ARCH|RUNTIME|DEVELOP|TEST_ME,)),
                         #("PyQt", (EXE|PY_DEP|ARCH|RUNTIME|DEVELOP|TEST_ME,)), #if using standard installer
-                        ("mingw_rt", (EGG|ARCH|RUNTIME,)),
+                        ("mingw_rt", (EGG|ARCH|RUNTIME|DEVELOP,)),
                         ("qt4", (EGG|PY_DEP|ARCH|RUNTIME|TEST_ME,)),
                         ("numpy", (EGG|PY_DEP|ARCH|RUNTIME|TEST_ME,)),
                         ("scipy", (EGG|PY_DEP|ARCH|RUNTIME|TEST_ME,)),
                         ("matplotlib", (EGG|PY_DEP|ARCH|RUNTIME|TEST_ME,)),                         
                         ("pil", (EGG|PY_DEP|RUNTIME|TEST_ME,)),
-                        ("pylsm", (EGG|PY_DEP|RUNTIME,)),
+                        ("pylsm", (EGG|PY_DEP|RUNTIME|TEST_ME,)),
                         #("pylibtiff", (EGG|PY_DEP|ARCH|RUNTIME|TEST_ME,)),
                          ]
                          
