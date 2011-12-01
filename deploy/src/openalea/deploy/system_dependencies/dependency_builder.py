@@ -70,7 +70,7 @@ Project = namedtuple("Project", "name url")
 Egg = namedtuple("Egg", "name license authors description")
 sj = os.pathsep.join
 
-
+verbose = False
 
 
 # A Project with a None url implicitely means the sources are already here because some other proj installed it.
@@ -251,12 +251,12 @@ def recursive_glob_as_dict(dir_, patterns=None, strip_dir_=False,
 def makedirs(pth, verbose=False):
     """ A wrapper around os.makedirs that prints what 
     it's doing and catches harmless errors. """
-    print "creating", pth, "...",
+    #print "creating", pth, "...",
     try:
         os.makedirs( pth )
-        print "ok"
+        #print "ok"
     except os.error, e:
-        print "already exists or access denied"
+        #print "already exists or access denied"
         if verbose:
             traceback.print_exc()    
     
@@ -279,7 +279,7 @@ def recursive_copy(sourcedir, destdir, patterns=None, levels=-1, flat=False):
     for pth in bases:
         makedirs(pth)
     for src, dst in zip(src, dests):
-        print src, dst
+        #print src, dst
         shutil.copy(src, dst)               
 
 def ascii_file_replace(fname, oldstr, newstr):
@@ -360,7 +360,6 @@ class BuildEnvironment(object):
         
     def set_options(self, options):
         self.options = options.copy()
-        print "set_options", options
         self.init()
         
     def init(self):
@@ -419,7 +418,6 @@ class BuildEnvironment(object):
         self.__init_builders()  
         for buildercls in self.proj_builders + self.egg_builders:
             builder = buildercls()
-            print "enabled", builder.name, builder.enabled
             if builder.has_pending and builder.enabled:
                 builder.process_me()
             
@@ -928,24 +926,7 @@ class qt4(BaseProjectBuilder):
                           pj(self.installdir, "plugins_lib"), pj(self.installdir, "mkspecs"), \
                           pj(self.installdir, "translations")
         self.install_bin_dir, self.install_dll_dir, self.install_lib_dir, self.install_src_dir, self.install_inc_dir, self.install_plu_dir, self.install_plu_lib_dir, self.install_mks_dir, self.install_tra_dir = self.inst_paths        
-    def configure(self):
-        # we must patch qmake/main.cpp to handle all file arguments
-        # as absolute and as early as possible.
-        # txt = ""
-        # src = pj("qmake", "main.cpp")
-        # bkp = pj("qmake", "main.cpp.bkp")
-        # rep = pj( self.env.working_path, "qmake_main.cpp.sub")
-        # with open( src ) as f:
-            # txt = f.read()
-        # if not "// WorkingDirShiftPatch" in txt and not exists( bkp ):
-            # print "patching qmake/main.cpp"
-            # with open(bkp, "w") as f:
-                # f.write(txt)                
-            # cut_ind = txt.find("int main(int argc, char **argv)")
-            # with open(rep) as f:
-                # txt = txt[:cut_ind] + f.read()
-            # with open(src, "w") as f:
-                # f.write(txt)                
+    def configure(self):              
         pop = subprocess.Popen("configure.exe -platform win32-g++ -release -opensource -shared -nomake demos -nomake examples -mmx -sse2 -3dnow -declarative -webkit -no-s60 -no-cetest",
                                stdin=subprocess.PIPE) # PIPE is required or else pop.comminicate won't do anything!
         time.sleep(2) #give enough time for executable to load before it asks for license agreement.
@@ -954,11 +935,14 @@ class qt4(BaseProjectBuilder):
     def install(self):
         # create the installation directories
         for pth in self.inst_paths:
-            makedirs(pth)
+            makedirs(pth)            
         # copy binaries
-        copy( pj(self.sourcedir, "bin"), self.install_bin_dir, Pattern.exe )
+        recursive_copy( pj(self.sourcedir, "bin"), self.install_bin_dir, Pattern.exe )
+        # add a qt.conf file that tells qmake to look into directories that are relative to the executable.
+        with open( pj(self.install_bin_dir, "qt.conf"), "w") as qtconf:
+            qtconf.write("[Paths]")
         # copy dlls
-        copy( pj(self.sourcedir, "bin"), self.install_dll_dir, Pattern.dynlib )
+        recursive_copy( pj(self.sourcedir, "bin"), self.install_dll_dir, Pattern.dynlib )        
         # copy libs
         recursive_copy( pj(self.sourcedir, "lib"), self.install_lib_dir, Pattern.qtstalib )
         # copy src -- actually only header files in src --
@@ -978,19 +962,20 @@ class qt4(BaseProjectBuilder):
         return pj(self.sourcedir, "bin"), self.install_dll_dir
     def patch(self):
         """ Patch qt *.exes and *.dlls so that they do not contain hard coded paths anymore. """
-        return
-        # import qtpatch
-        # try:
-            # qtpatch.patch("*.exe", qtDirPath=self.sourcedir, where=self.installdir)
-        # except:
-            # traceback.print_exc()
-            # return False
-        # else:
-            # return True
+        import qtpatch
+        try:
+            qtpatch.patch("*.exe", qtDirPath=self.sourcedir, where=self.installdir)
+        except:
+            traceback.print_exc()
+            return False
+        else:
+            return True
 
 class sip(BaseProjectBuilder):
     download_name  = "sip_src.zip"
     archive_subdir = "sip*"
+    regexp         = re.compile(r"\s*'\w*':\s*'C:\\\\.*\\\\.*'")
+    
     def __init__(self, *args, **kwargs):
         BaseProjectBuilder.__init__(self, *args, **kwargs)
         # define installation paths
@@ -1006,12 +991,48 @@ class sip(BaseProjectBuilder):
         return self.install_bin_dir
     def extra_python_paths(self):
         return self.install_site_dir
-    # def patch(self):
-        # txt = None
-        # with open("sipconfig.py") as f:
-            # txt = f.read()
-        # shutil.copyfile( "sipconfig.py", "sipconfig.py.old" )
-        # prefix = sys.prefix
+    def patch(self):
+        # Feel free to do better
+        header = """
+import re
+from os.path import join as pj     
+from pkg_resources import Environment
+
+# Default Path. 
+qtdev = os.environ.get('QTDIR') if 'QTDIR' in os.environ else 'C:\\Qt\\4.6.0'
+sip_bin     = pj(sys.prefix,'sip')
+sip_include = pj(sys.prefix, 'include')
+env = Environment()
+if 'qt4' in env:
+    qt = env['qt4'][0].location # Warning: 0 is the active one
+if 'qt4-dev' in env:
+    qtdev       = env['qt4-dev'][0].location # Warning: 0 is the active one
+    sip_bin     = pj(qtdev,'bin','sip.exe')
+    sip_include = pj(qtdev, 'include')
+    """
+        
+        txt = ""
+        print "sip patching", os.getcwd()
+        with open("sipconfig.py") as f:
+            txt = f.read()
+        
+        txt = txt.replace("import re", header)
+        prefix = sys.prefix.replace("\\", r"\\\\")
+        txt = re.sub(r"(\s*'default_bin_dir':\s*)'%s'"%prefix,    r"\1sys.prefix", txt)
+        txt = re.sub(r"(\s*'default_mod_dir':\s*)'%s.*'"%prefix,  r"\1pj(sys.prefix,'Lib\site-packages')", txt)
+        txt = re.sub(r"(\s*'default_sip_dir':\s*)'[A-Z]:\\\\.*'", r"\1pj(qtdev,'sip')", txt)
+        txt = re.sub(r"(\s*'py_conf_inc_dir':\s*)'%s.*'"%prefix,  r"\1pj(sys.prefix,'include')", txt)
+        txt = re.sub(r"(\s*'py_inc_dir':\s*)'%s.*'"%prefix,       r"\1pj(sys.prefix,'include')", txt)
+        txt = re.sub(r"(\s*'py_lib_dir':\s*)'%s.*'"%prefix,       r"\1pj(sys.prefix,'libs')", txt)
+        txt = re.sub(r"(\s*'sip_bin':\s*)'[A-Z]:\\\\.*'",         r"\1sip_bin", txt)
+        txt = re.sub(r"(\s*'sip_inc_dir':\s*)'[A-Z]:\\\\.*'",     r"\1sip_include", txt)
+        txt = re.sub(r"(\s*'sip_mod_dir':\s*)'[A-Z]:\\\\.*'",     r"\1qt", txt)
+
+        shutil.copyfile( "sipconfig.py", "sipconfig.py.old" )
+        with open("sipconfig.py", "w") as f:
+            f.write(txt)
+                    
+        return True
 
 class pyqt4(BaseProjectBuilder) :
     download_name  = "pyqt4_src.zip"
@@ -1031,12 +1052,34 @@ class pyqt4(BaseProjectBuilder) :
         return self.install_bin_dir
     def extra_python_paths(self):
         return self.install_site_dir
-    # def patch(self):
-        # txt = None
-        # with open("sipconfig.py") as f:
-            # txt = f.read()
-        # shutil.copyfile( "sipconfig.py", "sipconfig.py.old" )
-        # prefix = sys.prefix
+    def patch(self):
+        header = """
+import sipconfig
+from sipconfig import pj as pj
+from sipconfig import qtdev as qtdev
+from sipconfig import qt as qt"""
+        
+        txt = ""
+        with open("pyqtconfig.py") as f:
+            txt = f.read()
+            
+        txt = txt.replace("import sipconfig", header)
+        txt = re.sub(r"(\s*'pyqt_bin_dir':\s*)'[A-Z]:(\\\\|/).*'", r"\1pj(qtdev,'bin')", txt)
+        txt = re.sub(r"(\s*'pyqt_mod_dir':\s*)'[A-Z]:(\\\\|/).*'", r"\1pj(qt,'PyQt4')", txt)
+        txt = re.sub(r"(\s*'pyqt_sip_dir':\s*)'[A-Z]:(\\\\|/).*'", r"\1pj(qtdev,'sip')", txt)
+        txt = re.sub(r"(\s*'qt_data_dir':\s*)'[A-Z]:(\\\\|/).*'",  r"\1qtdev.replace('\\','/')", txt)
+        txt = re.sub(r"(\s*'qt_dir':\s*)'[A-Z]:(\\\\|/).*'",       r"\1qt", txt)
+        txt = re.sub(r"(\s*'qt_inc_dir':\s*)'[A-Z]:(\\\\|/).*'",   r"\1pj(qtdev, 'include')", txt)
+        txt = re.sub(r"(\s*'qt_lib_dir':\s*)'[A-Z]:(\\\\|/).*'",   r"\1pj(qtdev, 'lib')", txt)
+        
+        txt = re.sub(r"(\s*'INCDIR_QT':\s*)'[A-Z]:(\\\\|/).*'",    r"\1pj(qtdev, 'include')", txt)
+        txt = re.sub(r"(\s*'LIBDIR_QT':\s*)'[A-Z]:(\\\\|/).*'",    r"\1pj(qtdev, 'lib')", txt)
+        txt = re.sub(r"(\s*'MOC':\s*)'[A-Z]:(\\\\|/).*'",          r"\1pj(qtdev, 'bin', 'moc.exe')", txt)
+        
+        shutil.copyfile( "pyqtconfig.py", "pyqtconfig.py.old" )
+        with open("pyqtconfig.py", "w") as f:
+            f.write(txt)        
+        prefix = sys.prefix
 
 class qscintilla(BaseProjectBuilder):
     download_name  = "qscintilla_src.zip"
@@ -1460,7 +1503,7 @@ class egg_pylsm(InstalledPackageEggBuilder):
         version = "UNKNOWN"
         for p in pth.split("\\"):
             if ".egg" in p:
-                version = p.split("-")[1]
+                version = p.split("-")[1]+"_1" # we have a patched version
         return dict( VERSION = version )
                  
                  
@@ -1508,6 +1551,7 @@ def parse_arguments():
     parser.add_argument("--login",  default=None, help="login to connect to GForge")
     parser.add_argument("--passwd", default=None, help="password to connect to GForge")
     parser.add_argument("--release", action="store_const", const=True, default=False, help="upload eggs to vplants repository for testing.")
+    parser.add_argument("--verbose", action="store_const", const=True, default=False, help="upload eggs to vplants repository for testing.")
     return parser.parse_args()
 
 def main():
