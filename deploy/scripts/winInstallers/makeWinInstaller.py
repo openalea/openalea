@@ -28,8 +28,13 @@ import sys
 import types
 
 from setuptools.package_index import PackageIndex
-from openalea.deploy.util import get_base_dir, get_repo_list, OPENALEA_PI
+from setuptools.command.easy_install import parse_requirement_arg
+from openalea.deploy.gforge_util import add_private_gforge_repositories
+from openalea.deploy.util import get_repo_list
+from distutils import log
 
+pi = PackageIndex(search_path=[])
+pi.add_find_links(get_repo_list())
 
 err = sys.stderr.write
 out = sys.stdout.write
@@ -186,15 +191,13 @@ def find_installer_files(outDir, srcDir, pyMaj, pyMin, arch, dependencies):
     ok = True
     for pk, info in dependencies.iteritems():
         mask = info[0]
-        if bt(mask, NOT_INSTALLABLE):
-            continue
-        ef = globInstaller(pk, mask)
-        if ef is None:
-            #err( "\tNo installer found for %s.\n"%pk )
-            ok = False
-            continue
-        info[1] = ef
-        out("\tWill install %s\n"%ef)        
+        if not bt(mask, NOT_INSTALLABLE) and info[1] is not None:
+            ef = globInstaller(pk, mask)
+            if ef is None:
+                ok = False
+                continue
+            info[1] = ef
+            out("\tWill install %s\n"%ef)        
     return ok
 
 
@@ -451,7 +454,10 @@ def processInstaller(mask, runtimeMode):
         return True
     return False                                   
    
-
+def download_egg(eggname, dir_):
+    out("Downloading %s\n"%eggname)
+    return pi.download(eggname, dir_)
+    
    
 ######################
 # MAIN AND RELATIVE  #
@@ -508,6 +514,7 @@ def parse_arguments():
     parser.add_argument("--eggDir", "-e", default=default, help="Directory where we will look for the PROJECT eggs (default = %s)"%default, type=abspath)
     
     parser.add_argument("--devel", "-d", action="store_const", const=False, default=True, help="Build Development Toolkit or Runtime (default=runtime)", dest="runtime")
+    parser.add_argument("--fetch-online", "-f", action="store_const", const=True, default=False, help="Download eggs from online repositories and use them.")
     default = platform.machine()
     parser.add_argument("--arch", "-a", default=default, help="Build installer for this arch (default=%s)"%default, choices=["x86", "x86_64"])
     parser.add_argument("--setup", "-m", default={}, help="Additinnal values to complete InnoSetup conf file. (example :%s) "%str({'LicenseFile':'c:\\pthtolicensefile'}), 
@@ -555,11 +562,24 @@ def main():
                             
     # -- Fix the egg globs to include python version and architecture dependency.
     args.eggGlobs = map(make_stitcher(args.eggDir, args.pyMaj, args.pyMin), args.eggGlobs.split("|"))
-    print "The following egg globs will be used:", args.eggGlobs
+    print "The following project egg globs will be used:", args.eggGlobs
         
     # -- Filter the dependencies to process according to the type of installer (for runtimes or devtools)
     dependencies = OrderedDict( (pk, [mask, None, None]) for pk, (mask,) in thirdPartyPackages  \
                                 if processInstaller(mask, args.runtime) )
+
+                                
+    # -- if args.srcDir contains "ONLINE_EGGS", this means that we will look for eggs on PYPI and GForge.
+    #   - if args.private_packages is True, we add private gforge packages.
+    if args.fetch_online:
+        log.set_verbosity(2)
+        dldir = pj(args.outDir, "dl_eggs")
+        if args.private_packages:
+            add_private_gforge_repositories(args.login, args.passwd)
+        for egg, info in dependencies.iteritems():
+            if bt(info[0], EGG):
+                info[1] = download_egg(egg, dldir)
+                out("Online egg %s downloaded to %s\n"%(egg, info[1])
 
     # -- find out the installers to package for this mega installer --
     ok = find_installer_files(args.outDir, args.srcDir, args.pyMaj, args.pyMin, args.arch, 
@@ -573,16 +593,6 @@ def main():
         test    = pj(__path__, pk+"_test.py") if bt(info[0],TEST_ME) else None
         info[2] = test
         out("\tWill install %s for %s\n"%(test,pk))
-                           
-    # if args.private_packages:
-        # rc_user, rc_pass = find_login_passwd()
-        # gforge_login = args.login or rc_user
-        # gforge_passwd = args.passwd or rc_pass        
-        # add_private_gforge_repositories(gforge_login, gforge_passwd)
-        
-    # pi = PackageIndex()
-    # pi.add_find_links(get_repo_list())
-                
 
     proj_egg_pths = get_project_eggs(args.arch, args.eggGlobs, args.outDir, args.srcDir)
     configure_inno_setup(appname, appversion, dependencies, args, funcs, proj_egg_pths)
