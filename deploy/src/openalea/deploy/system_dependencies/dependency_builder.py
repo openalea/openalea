@@ -85,6 +85,9 @@ projs = OrderedDict ( (p.name,p) for p in  [
                                              Project("pyqglviewer" , "https://gforge.inria.fr/frs/download.php/28212/PyQGLViewer-0.9.1.zip"),
                                              Project("boost"       , "http://switch.dl.sourceforge.net/project/boost/boost/1.48.0/boost_1_48_0.zip"),
                                              #Project("ann"         , "http://www.cs.umd.edu/~mount/ANN/Files/1.1.2/ann_1.1.2.zip"),
+                                             #Project("gnuplot"     , "http://heanet.dl.sourceforge.net/project/gnuplot/gnuplot/4.4.4/gp444win32.zip"),
+                                             #Project("qhull"       , "http://www.qhull.org/download/qhull-2011.2.zip"),
+                                             #Project("rpy2"       , "http://cran.cict.fr/bin/windows/base/R-2.14.0-win.exe"),
                                            ]
                     )
                         
@@ -120,11 +123,35 @@ eggs = OrderedDict ( (p.name,p) for p in  [Egg("mingw",
                                                
                                            Egg("boost", 
                                                "Boost Software License 1.0",
-                                               "Boost.org",
+                                               "Boost contributors",
                                                "Windows gcc libs and includes of Boost"
-                                               ),
+                                               ),                                               
+
+                                           # Egg("ann", 
+                                               # "GNU Lesser Public License",
+                                               # "Copyright (c) 1997-2010 University of Maryland and Sunil Arya and David Mount",
+                                               # "Windows gcc libs and includes of ANN"
+                                               # ),
                                                
-                                           # The following eggs require the libs to be installed on your computer.
+                                           # Egg("gnuplot", 
+                                               # "GNUPlot license",
+                                               # "Copyright 1986 - 1993, 1998, 2004 Thomas Williams, Colin Kelley",
+                                               # "Windows gcc libs and includes of gnuplot"
+                                               # ),
+                                               
+                                           # Egg("qhull", 
+                                               # "GNUPlot license",
+                                               # "Copyright (c) 1993-2011 C.B. Barber, Arlington, MA and The Geometry Center, University of Minnesota",
+                                               # "Windows gcc libs and includes of qhull"
+                                               # ),
+                                               
+                                           # Egg("rpy2", 
+                                               # "rpy2 license",
+                                               # "RPy2 Contributors",
+                                               # "Windows gcc libs and includes of rpy2"
+                                               # ),
+                                               
+                                           # The following eggs require the PYTHON libs to be installed on your computer.
                                            Egg("numpy", 
                                                "Numpy License",
                                                "(c) Numpy Developers",
@@ -154,6 +181,12 @@ eggs = OrderedDict ( (p.name,p) for p in  [Egg("mingw",
                                                "Freesbi.ch",
                                                "Patched version of PyLSM"
                                                ),                                                
+
+                                           # Egg("pylibtiff", 
+                                               # "BSD License.",
+                                               # "Pearu Peterson & friends.",
+                                               # "Precompiled pylibtiff for Windows."
+                                               # ),                                                
                                            ]
                    )
 
