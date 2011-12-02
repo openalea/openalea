@@ -493,6 +493,14 @@ class BuildEnvironment(object):
 
     def get_compiler_bin_path(self):
         # TODO : do smart things according to self.options
+        
+        # -- try to find it in eggs --
+        try:
+            from pkg_resources import Environment
+            env = Environment()
+            return pj(env["mingw"], "bin")
+        except:
+            return r"c:\mingw\bin"
         return r"c:\mingw\bin"
 #a shorthand:
 BE=BuildEnvironment
