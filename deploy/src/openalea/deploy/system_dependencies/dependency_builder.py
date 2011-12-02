@@ -1415,7 +1415,7 @@ class InstalledPackageEggBuilder(BaseEggBuilder):
         try:
             p = self.package
         except Exception, e:
-            print e
+            print self.spec.name, "disabled:", e
             self.enabled = False
         else:
             self.enabled = True
