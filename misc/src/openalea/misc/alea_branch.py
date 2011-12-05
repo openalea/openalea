@@ -295,7 +295,7 @@ def parse_arguments():
                         help="Don't copy multisetup.")
 
     parser.add_argument("--update-package", "-u", action="append", 
-                        help="Syncs a branch package with the trunk. ALL|package|package@revN:revM|package@revU,revW,revW", type=_parse_package, dest="update")
+                        help="Syncs a branch package with the trunk. ROOT|ALL|package|package@revN:revM|package@revU,revW,revW", type=_parse_package, dest="update")
     parser.add_argument("--working-copy", "-w", default = None, help="Working copy to merge into", type=abspath)
     parser.add_argument("--auto-commit", "-a", action="store_const", const=True, default = False, help="Auto commit merges")
     return parser.parse_args()
