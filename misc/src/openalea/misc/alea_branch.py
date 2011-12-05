@@ -32,9 +32,12 @@ projects = {
             "openalea": ProjectAdresses("https://scm.gforge.inria.fr/svn/openalea/trunk",
                                         "https://scm.gforge.inria.fr/svn/openalea/branches"),
             "vplants": ProjectAdresses("https://scm.gforge.inria.fr/svn/vplants/vplants/trunk",
-                                       "https://scm.gforge.inria.fr/svn/vplants/vplants/branches")
+                                       "https://scm.gforge.inria.fr/svn/vplants/vplants/branches"),
+            "alinea": ProjectAdresses("https://scm.gforge.inria.fr/svn/openaleapkg/trunk",
+                                       "https://scm.gforge.inria.fr/svn/openaleapkg/branches")
            }
 
+           
 package_lists = { 
                  "openalea": [ 
                              ("core", "HEAD"),
@@ -101,7 +104,7 @@ class dry_popen(object):
         self.returncode = 0
     
     def communicate(self, *args, **kwargs):
-        return None, None
+        return "", None
 
 #################
 # SVN Functions #
@@ -233,7 +236,12 @@ def svn_update_package(project, version, packages, working_copy, auto_commit=Fal
             return False
         if auto_commit:
             ret = svn_commit(working_copy, txt)
-        if not ret:
+        else:
+            fname = pj(working_copy, "merge_log_%s.txt"%pack)
+            with open( fname, "w" ) as f:
+                f.write(txt)
+                print "Possible commit log written to:", fname
+        if ret:
             return False
     return True
     
@@ -287,13 +295,14 @@ def parse_arguments():
                         help="Don't copy multisetup.")
 
     parser.add_argument("--update-package", "-u", action="append", 
-                        help="Syncs a branch package with the trunk. package|package@revN:revM|package@revU,revW,revW", type=_parse_package, dest="update")
+                        help="Syncs a branch package with the trunk. ALL|package|package@revN:revM|package@revU,revW,revW", type=_parse_package, dest="update")
     parser.add_argument("--working-copy", "-w", default = None, help="Working copy to merge into", type=abspath)
     parser.add_argument("--auto-commit", "-a", action="store_const", const=True, default = False, help="Auto commit merges")
     return parser.parse_args()
 
 
 
+   
 
 def main():
     import sys
@@ -321,6 +330,10 @@ def main():
         sys.stdout = NullOutput()        
     
     if len(args.update):
+        if "ALL" in zip(*args.update)[0]:
+            args.update = package_lists.get(args.project)
+        elif "ROOT" in zip(*args.update)[0]:
+            args.update = [("","")]
         sys.exit( 0 if svn_update_package(args.project, args.version, args.update, args.working_copy, args.auto_commit) else -1)
         
     if not svn_branch_project(args.project, args.version, args.delete_existing, 
