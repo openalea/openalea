@@ -1,3 +1,11 @@
+openalea-grapheditor (1.0.0b1~ppa2) oneiric; urgency=low
+
+  * Release.
+  * Update a new version 
+  * 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Mon, 05 Dec 2011 09:12:30 +0100
+
 openalea-grapheditor (0.9.0-2~ppa2) lucid; urgency=low
 
   * Final release

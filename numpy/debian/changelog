@@ -1,3 +1,9 @@
+openalea-numpy (1.0.0b1~ppa1) oneiric; urgency=low
+
+  * Final release
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 02 Dec 2011 11:33:10 +0100
+
 openalea-numpy (0.9.0-2~ppa4) lucid; urgency=low
 
   * Once again

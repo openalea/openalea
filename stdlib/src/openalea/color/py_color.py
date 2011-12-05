@@ -86,8 +86,13 @@ class GreenNode (FixedColorNode) :
 class BlueNode (FixedColorNode) :
     _color = [0,0,255]
 
-def col_item (ind) :
-    return color_list[ind % len(color_list)],
+def col_item (ind, color_list=color_list) :
+    if ind is None:
+        return lambda x: color_list[x % len(color_list)]
+    elif callable(ind):
+        return lambda x: color_list[ind(x) % len(color_list)]
+    else:
+        return color_list[ind % len(color_list)],
 
 def random (alpha) :
     col = tuple(rd.random() * 255 for i in range(3) )

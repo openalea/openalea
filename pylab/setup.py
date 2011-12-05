@@ -22,23 +22,17 @@ package_dir = dict( [('',pkg_root_dir)] + [(namespace + "." + pkg, pkg_root_dir 
 
 # Define global variables 
 has_scons = False
-if has_scons:
-    build_prefix = "build-scons"
-    scons_scripts=['SConstruct']
-    lib_dirs = {'lib' : build_prefix+'/lib' }
-    inc_dirs = { 'include' : build_prefix+'/include' }
-    bin_dirs = { 'bin' : build_prefix+'/bin' }
-else:
-    build_prefix = None
-    scons_scripts=None
-    lib_dirs = None
-    inc_dirs = None
-    bin_dirs = None
+
+build_prefix = None
+scons_scripts=None
+lib_dirs = None
+inc_dirs = None
+bin_dirs = None
 
 
-setup_requires = ['openalea.deploy', 'openalea.numpy']
+setup_requires = ['openalea.deploy']
 if("win32" in sys.platform):
-    install_requires = []
+    install_requires = ['openalea.numpy']
 else:
     install_requires = []
     

@@ -1,8 +1,8 @@
-openalea-deploygui (0.9.0-2~ppa2) lucid; urgency=low
+openalea-deploygui (1.0.0b1~ppa1) oneiric; urgency=low
 
   * final release
 
- -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 29 Oct 2010 20:38:11 +0200
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 02 Dec 2011 11:11:34 +0100
 
 openalea-deploygui (0.9.0-1ubuntu1ppa1) lucid; urgency=low
 
