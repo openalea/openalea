@@ -74,6 +74,7 @@ package_lists = {
                             ("phyllotaxis_analysis", "HEAD"),
                             ("physics", "HEAD"),
                             ("PlantGL", "HEAD"),
+                            ("pglviewer", "HEAD"),
                             ("sequence_analysis", "HEAD"),
                             ("stat_tool", "HEAD"),
                             ("svgdraw", "HEAD"),
@@ -85,6 +86,14 @@ package_lists = {
                             ("tree_statistic", "HEAD"),
                             ("WeberPenn", "HEAD"),
                             ("vplants_meta", "HEAD"),
+                            ],
+                             
+                 "alinea": [
+                            ("caribu", "HEAD"),
+                            ("graphtal", "HEAD"),
+                            ("adel", "HEAD"),
+                            ("../topvine", "HEAD"),
+                            ("alinea_meta", "HEAD"),
                             ]
                 }
 
@@ -138,7 +147,11 @@ def branch_path(project, version, package=None, rev=None):
     return pth%sub
     
 def trunk_path(project, package=None, rev=None):
-    trunk, branchbase = projects.get(project, (None, None))
+    trunk, branchbase = projects.get(project, (None, None))    
+    if package.startswith(".."):
+        # go up in trunk base:
+        trunk = trunk[:trunk.rindex("/")] # remove the trailing directory from trunk path
+        package = package[3:] # remove "../" from package
     sub = dict(trunk=trunk, pack=package, rev=rev)
     pth = "%(trunk)s"
     if package: pth+="/%(pack)s"
@@ -197,10 +210,10 @@ def svn_branch_project(project, version, delete_existing,
     branchpath = branch_path(project, version)
     
     if not branch_can_exist:
-        __svn_del_path_if_exists( branchpath, delete_existing, not_dry_run)
+        __svn_del_path_if_exists( branchpath, delete_existing)
         if not_dry_run:
             assert not svn_path_exists(branchpath)
-        svn_mkdir( branchpath, not_dry_run)
+        svn_mkdir( branchpath )
         
     ret_dict = {}
     for pack, rev in packages:
@@ -285,7 +298,7 @@ def parse_arguments():
     parser.add_argument("--not-dry-run", action="store_const", const=True, default=False, help="Actually do things! By default we just print comamnds.")
     parser.add_argument("--silent", "-s", action="store_const", const=True, default=False, help="Don't print anything.")
     
-    parser.add_argument("project", default=None, help="Which project to branch.", choices=["openalea","vplants"])
+    parser.add_argument("project", default=None, help="Which project to branch.", choices=["openalea","vplants","alinea"])
     parser.add_argument("version", default=None, help="Version of the branch (ex: 1.0).", type=_parse_version)
     
     parser.add_argument("--package", "-p", action="append", help="Copy one specific package from project. package|package@revision", type=_parse_package, dest="packages")
@@ -322,14 +335,14 @@ def main():
     if not has_svn():
         print "svn command in not available"
 
-    if not args.working_copy and len(args.update):
+    if not args.working_copy and args.update:
         print "Cannot merge, no working copy given"
         sys.exit(-1)
         
     if args.silent:
         sys.stdout = NullOutput()        
     
-    if len(args.update):
+    if args.update:
         if "ALL" in zip(*args.update)[0]:
             args.update = package_lists.get(args.project)
         elif "ROOT" in zip(*args.update)[0]:
