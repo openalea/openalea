@@ -16,6 +16,10 @@
 
 __license__ = "Cecill-C"
 __revision__ = " $Id$"
+
+import distributions, dependency
+import sys
+
 def install_dependencies(software, osname=None, fake=False):
     if osname is None:
         osname = dependency.get_platform()
@@ -67,8 +71,7 @@ for the one it is running on.
 """
 
 def main():
-    import distributions, dependency
-    import sys
+
 
     if len(sys.argv)==1:
         print usage%( reduce( lambda x, y: x+" "+y, distributions.canonical_dependencies.iterkeys() ), )
