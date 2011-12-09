@@ -166,7 +166,7 @@ def svn_path_exists(path, revision="HEAD", peg="HEAD"):
     
 def svn_remove_path(path):
     sub = dict(svnexec=svn_exec, path=path)
-    cmd = "%(svnexec)s remove %(path)s -m \"removing %(path) branch.\""%sub
+    cmd = "%(svnexec)s remove %(path)s -m \"removing %(path)s branch.\""%sub
     print cmd
     return dr_call(cmd) == 0
     
@@ -183,12 +183,12 @@ def svn_copy_path(src, tgt, revision="HEAD", peg="HEAD"):
     
     # let's branch!
     cmd = "%(svnexec)s copy %(src)s %(tgt)s -m \"%(info)s\""%sub
-    print cmd
+    print cmd, "\n"
     return dr_call(cmd)==0
 
 def svn_mkdir(direct):
     sub = dict(svnexec=svn_exec, dir=direct)
-    cmd = "%(svnexec)s mkdir -p %(dir)s -m \"creating %(dir)s directory.\""%sub
+    cmd = "%(svnexec)s mkdir --parents %(dir)s -m \"creating %(dir)s directory.\""%sub
     print cmd
     return dr_call(cmd)==0  
     
@@ -201,7 +201,7 @@ def __svn_del_path_if_exists(path, delete_existing):
             svn_remove_path(path)
         else:
             return None
-        
+import sys        
 def svn_branch_project(project, version, delete_existing, 
                        packages=None, branch_can_exist=False, no_multisetup=False):   
     if not packages:
@@ -211,6 +211,7 @@ def svn_branch_project(project, version, delete_existing,
     
     if not branch_can_exist:
         __svn_del_path_if_exists( branchpath, delete_existing)
+        #sys.exit(-1)
         if not_dry_run:
             assert not svn_path_exists(branchpath)
         svn_mkdir( branchpath )
