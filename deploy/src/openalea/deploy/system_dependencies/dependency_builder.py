@@ -65,6 +65,7 @@ import tarfile
 from os.path import join as pj, splitext, getsize, exists, abspath, split
 from collections import namedtuple, OrderedDict, defaultdict
 from setuptools import find_packages
+from re import compile
 
 Project = namedtuple("Project", "name url")
 Egg = namedtuple("Egg", "name license authors description")
@@ -87,7 +88,7 @@ projs = OrderedDict ( (p.name,p) for p in  [
                                              #Project("ann"         , "http://www.cs.umd.edu/~mount/ANN/Files/1.1.2/ann_1.1.2.zip"),
                                              #Project("gnuplot"     , "http://heanet.dl.sourceforge.net/project/gnuplot/gnuplot/4.4.4/gp444win32.zip"),
                                              #Project("qhull"       , "http://www.qhull.org/download/qhull-2011.2.zip"),
-                                             #Project("rpy2"       , "http://cran.cict.fr/bin/windows/base/R-2.14.0-win.exe"),
+                                             Project("rpy2"       , "http://pypi.python.org/packages/source/r/rpy2/rpy2-2.2.4.tar.gz#md5=0192a3c05d8d97971e2bcf888944aff5"),
                                            ]
                     )
                         
@@ -199,8 +200,7 @@ def merge_list_dict(li):
     for k, v in li:
         d[k].extend(v)        
     return dict( (k, sj(v)) for k,v in d.iteritems() )
-
-compile = re.compile    
+  
 CompiledRe = type(compile(""))    
 def recursive_glob(dir_, patterns=None, strip_dir_=False, levels=-1):
     """ Goes down a file hierarchy and returns files paths
@@ -518,6 +518,7 @@ def try_except( f ) :
             return False
         else:
             return ret
+    wrapper.__name__ = f.__name__
     return wrapper
 
 def in_dir(directory):    
@@ -526,11 +527,12 @@ def in_dir(directory):
         calls f and moves back to BuildEnvironment.get_working_path()"""
         def wrapper(self, *args, **kwargs):
             d_ = getattr(self, directory)
-            print "changing to", directory, "for", f
+            print "changing to", d_, "for", f.__name__
             os.chdir(d_)
             ret = f(self, *args, **kwargs)
             os.chdir(self.env.get_working_path())
             return ret
+        wrapper.__name__ = f.__name__
         return wrapper
     return dir_changer
     
@@ -671,7 +673,7 @@ class BaseProjectBuilder(BaseBuilder):
                 ret = False
         return ret
 
-    def unpack_source(self):
+    def unpack_source(self, arch=None):
         # a proj with a none url implicitely means 
         # the sources are already here because some
         # other proj installed it.
@@ -679,15 +681,19 @@ class BaseProjectBuilder(BaseBuilder):
             return True
         if exists(self.sourcedir):
             return True
-        base, ext = splitext( self.download_name )
-        print "unpacking", self.download_name
+        arch = arch or self.archname
+        base, ext = splitext( arch )
+        print "unpacking", arch
+        # TODO : verify that there is no absolute path inside zip.
         if ext == ".zip":
-            zipf = zipfile.ZipFile( self.archname, "r" )
-            # TODO : verify that there is no absolute path inside zip.
-            zipf.extractall( path=self.sourcedir )
+            zipf = zipfile.ZipFile( arch, "r" )
+            zipf.extractall( path=arch )
         elif ext == ".tgz":
-            tarf = tarfile.open( self.archname, "r:gz")
+            tarf = tarfile.open( arch, "r:gz")
             tarf.extractall( path=self.sourcedir )
+        elif ext == ".tar":
+            tarf = tarfile.open( arch, "r")
+            tarf.extractall( path=self.sourcedir )            
         print "done"
         return True
 
@@ -878,7 +884,6 @@ class BaseEggBuilder(BaseBuilder):
             opts = self.__eggname__, "\"ThirdPartyLibraries\"", "vplants" if not self.options["release"] else "openalea" 
             return subprocess.call(sys.executable + " setup.py egg_upload --yes-to-all --release %s --package %s --project %s"%opts) == 0
         
-
 # -- Glob and regexp patterns --
 class Pattern:
     # -- generalities --
@@ -1214,14 +1219,94 @@ class ann(BaseProjectBuilder):
         BaseProjectBuilder.__init__(self, *args, **kwargs)
         self.install_inc_dir = pj(self.installdir, "include")
         self.install_lib_dir = pj(self.installdir, "lib")
-    def configure(self):
-        """ bjam configures, builds and installs so nothing to do here"""
+    def configure(self):        
         return True
     def build(self):    
-        return subprocess.call(cmd) == 0
+        return True
     def install(self):
-        """ bjam configures, builds and installs so nothing to do here"""
-        return self.build()
+        return True
+        
+class rpy2(BaseProjectBuilder):
+    download_name  = "rpy2_src.tgz"
+    archive_subdir = "rpy2*"
+    
+    def configure(self):
+        # TODO: THIS IS PROBABLY VERSION SPECIFIC SO THERE NEEDS TO BE
+        # BOTH RPY2 AND PYTHON VERSION CHECKS
+
+        
+        # Hack for MingW to be able to compile rpy2.
+        # The problem is that PyTypoObject definitions have the tp_base attribute
+        # initialiser hardcoded as a pointer to some other PyTypeObject instance
+        # that is not const. This is not allowed by C standard.
+        # The idea of this hack is to find all PyTypeObject definitions and 
+        # tp_base specification and hack the module init functions to fill
+        # that at init runtime.
+        c_dir     = pj(self.sourcedir, "rpy", "rinterface")
+        c_sources = [ pj(c_dir, f) for f in os.listdir(c_dir) if f.endswith(".c") ]
+        
+        # FIRST OF ALL:
+        # R doesn't come with Rinterface.h. We must download it.
+        url = "http://svn.r-project.org/R/trunk/src/include/Rinterface.h"
+        urllib.urlretrieve(url, pj(c_dir, "Rinterface.h"))
+        
+        # -- gather Python type definitions --
+        poss_py_type_re  = compile(r"static PyTypeObject (\w+)\s*=\s*\{.*?\};", re.MULTILINE|re.DOTALL)
+        py_type_re  = compile(r"static PyTypeObject (\w+)\s*=\s*\{(.*?)(&?\w*),\s*/\*tp_base\*/(.*?)\};", re.MULTILINE|re.DOTALL)
+        py_types = []
+        poss_py_types = []
+        for src in c_sources:
+            with open(src) as f:
+                txt = f.read()                
+            res = py_type_re.findall(txt)
+            py_types.extend(res)
+            poss_py_types.extend(poss_py_type_re.findall(txt))
+            # -- replace hard initialisation with NULL initialisation --
+            txt = py_type_re.sub(r"static PyTypeObject \1 = {\2 0, /*tp_base*/\4};", txt)
+            with open(src, "w") as f:
+                f.write(txt)
+        # Some blabla
+        print "Found", len(poss_py_types), "candidate types, patched", len(py_types)
+        if abs(len(poss_py_types) - len(py_types)) != 0:
+            notpatched = set(poss_py_types) - set( k for k,X1,v,X2 in py_types )
+            print "Couldn't patch:"
+            for np in notpatched:
+                print "\t==>", np
+            raise Exception("Some files that should have been patched were not patched:  probably a regex error.")
+            
+        # -- Pactch the module initialisers --
+        # all PyObjectTypes belong to the rinterface module, except "GrDev_Type" which belong to rpy_device
+        # so we patch init_rinterface and initrpy_device.
+        init_rinterface_patch = initrpy_device_patch = "  /*Patched Section*/\n"
+        for pytype, X1, tp_base, X2 in py_types:
+            if pytype == "GrDev_Type":
+                initrpy_device_patch += "  %s.tp_base = %s;\n"%(pytype, tp_base)
+            else:
+                init_rinterface_patch += "  %s.tp_base = %s;\n"%(pytype, tp_base)
+              
+        for modname, patch in [ ("_rinterface", init_rinterface_patch), ("rpy_device", initrpy_device_patch)]:
+            txt = ""
+            with open( pj(c_dir, modname+".c") ) as f:
+                txt = f.read()            
+            txt = re.sub( r"(%s\(void\)[\n\#A-Za-z0-9]*)\{"%modname, r"\1{\n"+patch, txt, flags=re.MULTILINE)
+            with open( pj(c_dir, modname+".c"), "w") as f:
+                f.write(txt)             
+        
+        # Next step is to patch the setup.py script.
+        # But since it is sooooo complicated, we will simply copy a working setup.py
+        print "Until there is a proper patching or until RPy2 becomes easy to compile on windows, coping the working setup.py"
+        shutil.copyfile( pj(split(__file__)[0], "rpy2_setup.py"), pj(self.sourcedir,"setup.py"))
+        return True
+                
+    def build(self):
+        cmd = sys.executable + " setup.py build --compiler=mingw32"
+        return subprocess.call(cmd) == 0  
+        
+    def install(self):
+        cmd = sys.executable + " setup.py install --install-lib=" + self.installdir
+        return subprocess.call(cmd) == 0        
+            
+            
         
 ################################################################################
 # - EGG BUILDERS - EGG BUILDERS - EGG BUILDERS - EGG BUILDERS - EGG BUILDERS - #
