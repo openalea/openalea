@@ -497,11 +497,17 @@ class BuildEnvironment(object):
         # -- try to find it in eggs --
         try:
             from pkg_resources import Environment
-            env = Environment()
-            return pj(env["mingw"], "bin")
-        except:
+            from distutils.sysconfig import get_python_lib
+            env  = Environment()
+            base = get_python_lib().lower()
+            # this works in virtualenvs
+            for f in env["mingw"]:
+                if f.location.lower().startswith(base):
+                    return pj(f.location, "bin")
+            raise Exception("Mingw not found")
+        except Exception, e:
+            print e
             return r"c:\mingw\bin"
-        return r"c:\mingw\bin"
 #a shorthand:
 BE=BuildEnvironment
 
