@@ -693,7 +693,7 @@ class BaseProjectBuilder(BaseBuilder):
         # TODO : verify that there is no absolute path inside zip.
         if ext == ".zip":
             zipf = zipfile.ZipFile( arch, "r" )
-            zipf.extractall( path=arch )
+            zipf.extractall( path=self.sourcedir )
         elif ext == ".tgz":
             tarf = tarfile.open( arch, "r:gz")
             tarf.extractall( path=self.sourcedir )
