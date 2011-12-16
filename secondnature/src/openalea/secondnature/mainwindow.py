@@ -68,7 +68,8 @@ class MainWindow(QtGui.QMainWindow):
         self._projectMenu.addAction(qpm.get_action_save())
         self._projectMenu.addAction(qpm.get_action_close())
 
-        # -- a default central widget--
+        # -- a default central widget : the different layouts
+        # will be managed by the stackedwidget
         self.__centralStack = QtGui.QStackedWidget(self)
 
         # -- status bar --
