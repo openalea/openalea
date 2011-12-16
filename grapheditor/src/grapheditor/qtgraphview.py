@@ -574,17 +574,17 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
 
 
     @classmethod
-    def make_scene(cls, graph, clone=False):
+    def make_scene(cls, graph, clone=False, parent=None):
         if graph is not None:
             #if the graph has already a qtgraphview.Scene GraphListener
             #reuse it:
             existingScene = cls.__instanceMap__.get(graph)
             if existingScene is None or clone is True:
-                existingScene = Scene(None)
+                existingScene = Scene(parent)
                 cls.__instanceMap__[graph] = existingScene
             return existingScene
         else:
-            return Scene(None)
+            return Scene(parent)
 
     def __init__(self, parent):
         QtGui.QGraphicsScene.__init__(self, parent)
