@@ -31,7 +31,28 @@ def compute_rank( mat) :
     return rank
 
 
-def read_matrix( numpy_matrix ) :
+def read_matrix(filename):
+    """Reads 4x4 matrices either written by numpy or 
+    Baladin matrices"""
+    try:
+        return np.loadtxt(filename)
+    except ValueError:
+        txt = ""
+        with open(filename) as f:
+            txt = f.read()
+        if "O8" in txt:
+            mat = []
+            for l in txt.split("\n"):
+                if "(" in l or "O8" in l:
+                    continue
+                if ")" in l:
+                    break
+                mat.append( [float(f) for f in l.split()] )
+            return np.array(mat)
+        else:
+            raise Exception("Cannot read %s"%filename)
+    
+def numpy_4x4_mat_to_c_array( numpy_matrix ) :
     """
     """
     assert numpy_matrix.shape == (4,4)
@@ -103,9 +124,12 @@ def matrix_real2voxels( matrix, target_res, source_res ) :
 
     res = matrix.copy()
     h_out = np.diag(source_res)
-    res[:,0:3] = np.dot(res[:,0:3],h_out)
+    res[0:3,0:3] = np.dot(res[0:3,0:3],h_out)
+    
     size_in = map(lambda x:1./x, target_res)
     h_in = np.diag(size_in)
     res[0:3,:] = np.dot(h_in, res[0:3,:])
+    assert (res[3,0:3] == (0,0,0)).all()
+    assert res[3,3]   == 1
     return res
 

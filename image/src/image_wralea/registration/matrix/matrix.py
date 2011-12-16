@@ -19,4 +19,4 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 
-from openalea.image.registration.matrix import matrix_voxels2real, matrix_real2voxels
+from openalea.image.registration.matrix import matrix_voxels2real, matrix_real2voxels, read_matrix
