@@ -57,6 +57,7 @@ def get_canonincal_dependencies():
 class Ubuntu_PackageNames(dependency.DistributionPackageNames):
     def __init__(self):
         d = {"bison-dev" : "bison",
+             "boost-dev" : "libboost-dev",
              "boostmath" : "libboost-math",
              "boostmath-dev" : "libboost-math-dev",
              "boostpython" : "libboost-python",
@@ -120,6 +121,17 @@ class Ubuntu_Natty_PackageNames(Ubuntu_Lucid_PackageNames):
              "cgal" :  "libcgal5",
         })
 
+class Ubuntu_Oneiric_PackageNames(Ubuntu_Natty_PackageNames):
+    def __init__(self):
+        Ubuntu_Lucid_PackageNames.__init__(self)
+        self.update({
+             "boostmath" : "libboost-math1.46.1",
+             "boostmath-dev" : "libboost-math-dev",
+             "boostpython-dev" : "libboost-python-dev",
+             "boostpython" : "libboost-python1.46.1",
+             "cgal" :  "libcgal7",
+        })
+
 # ------------------ FEDORA ------------------
 class Fedora_PackageNames(dependency.DistributionPackageNames):
     def __init__(self):
@@ -166,6 +178,7 @@ dependency.DistributionPackageFactory().register(Ubuntu_PackageNames)
 dependency.DistributionPackageFactory().register(Ubuntu_Karmic_PackageNames)
 dependency.DistributionPackageFactory().register(Ubuntu_Lucid_PackageNames)
 dependency.DistributionPackageFactory().register(Ubuntu_Natty_PackageNames)
+dependency.DistributionPackageFactory().register(Ubuntu_Oneiric_PackageNames)
 dependency.DistributionPackageFactory().register(Fedora_PackageNames)
 
 

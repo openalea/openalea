@@ -1180,7 +1180,7 @@ class upload_sphinx(Command):
         ('project=', None, None),
         ('package=', None, None),
         ('release=', None,None),
-        ('unstable=', 'r', "put the documentation in the unstable repository"),
+        ('stable=', 'r', "put the documentation in the unstable repository [default False]"),
         ]
 
     def initialize_options(self):
@@ -1190,7 +1190,7 @@ class upload_sphinx(Command):
         self.project = None
         self.package = None
         self.release = None
-        self.unstable = True
+        self.stable = False
 
     def finalize_options(self):
         if (not self.package):
@@ -1202,7 +1202,7 @@ class upload_sphinx(Command):
         elif self.project not in ['vplants','alinea','openalea']:
             raise ValueError("""Project must be vplants, alinea or openalea. Check your setup.cfg pupload_sphinx] section. %s provided""" % self.project)
 
-        if self.unstable is True:
+        if self.stable is False:
             print "Documentation will be uploaded to unstable directory"
             self.destination = '/home/groups/openalea/htdocs/beta_doc'
         else:
