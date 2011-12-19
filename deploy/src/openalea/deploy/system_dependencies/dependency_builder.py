@@ -1649,7 +1649,7 @@ def parse_arguments():
                             
     parser.add_argument("--login",  default=None, help="login to connect to GForge")
     parser.add_argument("--passwd", default=None, help="password to connect to GForge")
-    parser.add_argument("--release", action="store_const", const=True, default=False, help="upload eggs to vplants repository for testing.")
+    parser.add_argument("--release", action="store_const", const=True, default=False, help="upload eggs to openalea repository or vplants (if False - for testing).")
     parser.add_argument("--verbose", action="store_const", const=True, default=False, help="upload eggs to vplants repository for testing.")
     return parser.parse_args()
 
