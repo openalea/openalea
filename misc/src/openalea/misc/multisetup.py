@@ -197,17 +197,27 @@ class Multisetup(object):
         """
         if self.commands[0]=='--update-version':
             old_version = self.commands[1]
-            new_version = self.commands[2]    
-            regexp = re.compile(r"version\s*=\s*%s"%old_version.replace(".",r"\."))
+            new_version = self.commands[2]            
+            ver_regexp = re.compile(r"version\s*=\s*%s"%old_version.replace(".",r"\."))
+            rel_regexp = re.compile(r"release\s*=\s*%s"%old_version[:old_version.rindex(".")].replace(".",r"\."))
             for dir in self.packages:
                 txt = ""
-                with open( dir+os.sep+"metainfo.ini" ) as f:
-                    txt = f.read()
-                txt, n = regexp.subn("version = %s"%new_version, txt)
+                try:
+                    with open( dir+os.sep+"metainfo.ini" ) as f:
+                        txt = f.read()
+                except IOError, e:
+                    print "Couldn't read "+dir+os.sep+"metainfo.ini", e 
+                    continue
+                    
+                txt, n = ver_regexp.subn("version = %s"%new_version, txt)
+                txt, n = rel_regexp.subn("release = %s"%new_version[:new_version.rindex(".")], txt)
                 if n :
                     print "updating "+dir+os.sep+"metainfo.ini"
-                    with open( dir+os.sep+"metainfo.ini", "w" ) as f:
-                        f.write(txt)
+                    try:
+                        with open( dir+os.sep+"metainfo.ini", "w" ) as f:
+                            f.write(txt)
+                    except Exception, e:
+                        print "Couldn't update "+dir+os.sep+"metainfo.ini", e                        
                 else:
                     print "Couldn't update "+dir+os.sep+"metainfo.ini"
             sys.exit(0)
