@@ -1180,7 +1180,7 @@ class upload_sphinx(Command):
         ('project=', None, None),
         ('package=', None, None),
         ('release=', None,None),
-        ('stable=', 'r', "put the documentation in the unstable repository [default False]"),
+        ('stable=', 'r', "put the documentation in the stable repository [default False]"),
         ]
 
     def initialize_options(self):
