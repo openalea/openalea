@@ -99,6 +99,7 @@ package_lists = {
                             ("adel", "HEAD"),
                             ("../topvine", "HEAD"),
                             ("alinea_meta", "HEAD"),
+                            ("leafOptical", "HEAD"),
                             ]
                 }
 # -- END LISTS TO UPDATE --
