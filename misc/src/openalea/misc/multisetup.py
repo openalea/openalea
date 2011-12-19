@@ -14,7 +14,7 @@ there are a few commands dedicated to multisetup (see --help).
 __license__ = "Cecill-C"
 __revision__ = " $Id$"
 
-import sys, os
+import sys, os, re
 from optparse import OptionParser
 from subprocess import call, PIPE, Popen
 
@@ -195,7 +195,22 @@ class Multisetup(object):
         to multisetup such as --help, --quiet, --keep-going so that the
         remaining commands are fully comptatible with setuptools.
         """
-
+        if self.commands[0]=='--update-version':
+            old_version = self.commands[1]
+            new_version = self.commands[2]    
+            regexp = re.compile(r"version\s*=\s*%s"%old_version.replace(".",r"\."))
+            for dir in self.packages:
+                txt = ""
+                with open( dir+os.sep+"metainfo.ini" ) as f:
+                    txt = f.read()
+                txt, n = regexp.subn("version = %s"%new_version, txt)
+                if n :
+                    print "updating "+dir+os.sep+"metainfo.ini"
+                    with open( dir+os.sep+"metainfo.ini", "w" ) as f:
+                        f.write(txt)
+                else:
+                    print "Couldn't update "+dir+os.sep+"metainfo.ini"
+            sys.exit(0)
         if '--quiet' in self.commands:
             self.verbose = False
             self.commands.remove('--quiet')
