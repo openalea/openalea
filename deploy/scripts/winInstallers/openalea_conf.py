@@ -2,7 +2,7 @@
 __path__ = dirname(abspath(__file__))
 
 APPNAME="OpenAlea"
-APPVERSION="1.0.0b1"
+APPVERSION="1.0"
 setup = {"LicenseFile": pj(__path__,"LICENSE.TXT"), "WizardSmallImageFile":pj(__path__,"oalogo.bmp") } 
 
 eggGlobs = "*\\dist\\OpenAlea*.egg"

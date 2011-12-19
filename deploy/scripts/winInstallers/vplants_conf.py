@@ -1,6 +1,6 @@
 # -- Installer and dependency packages description : EDIT THIS --
 APPNAME="VPlants"
-APPVERSION="0.9"
+APPVERSION="1.0"
 setup = {"LicenseFile":"LICENSE.TXT", "WizardSmallImageFile":"vplogo.bmp"}  
 
 eggGlobs = "*\\dist\\VPlants*.egg|*\\dist\\OpenAlea*.egg"
@@ -16,9 +16,7 @@ thirdPartyPackages = [   ("python", (NOT_INSTALLABLE|RUNTIME|DEVELOP,)), #always
                          ("pyopengl", (EXEDIST|ARCH|RUNTIME|DEVELOP|TEST_ME,)),
                          ("pyqglviewer", (EGG|ARCH|PY_DEP|RUNTIME|DEVELOP|TEST_ME,)),
                          ("qt4_dev", (EGG|ARCH|DEVELOP|TEST_ME,)),
-                         ("mingw", (EGG|ARCH|DEVELOP,)),
-                         ("r", (EXE|ARCH|RUNTIME|TEST_ME,)),
-                         #("rpy2", (MSI|PY_DEP|ARCH|RUNTIME|TEST_ME,)),                         
+                         ("mingw", (EGG|ARCH|DEVELOP,)),                       
                          ]                         
                          
 

@@ -164,7 +164,7 @@ def prepare_working_dir(instDir, no_del=False):
     os.makedirs(instDir)
 
 import traceback
-def find_installer_files(outDir, tpp_eggDir, srcDir, pyMaj, pyMin, arch, dependencies):
+def find_installer_files(tpp_eggDir, srcDir, pyMaj, pyMin, arch, dependencies):
 
     arch = "win32" if arch == "x86" else "win64"
     
@@ -531,7 +531,7 @@ def parse_arguments():
     
     default = pj(abspath(os.getcwdu()), "eggs", "PROJECT")
     parser.add_argument("--eggDir", "-e", default=default, help=u"Directory where we will look for the PROJECT eggs (default = %s)"%default, type=abspath)
-    parser.add_argument("--tpp-eggDir", "-t", default=default, help="Directory where we will look for the third party eggs (default = srcDir)", type=abspath)
+    parser.add_argument("--tpp-eggDir", "-t", default=None, help="Directory where we will look for the third party eggs (default = srcDir)", type=abspath)
     
     parser.add_argument("--devel", "-d", action="store_const", const=False, default=True, help="Build Development Toolkit or Runtime (default=runtime)", dest="runtime")
     parser.add_argument("--fetch-online", "-f", action="store_const", const=True, default=False, help="Download eggs from online repositories and use them.")
@@ -587,6 +587,7 @@ def main():
     print "The following project egg globs will be used:", args.eggGlobs
         
     # -- Filter the dependencies to process according to the type of installer (for runtimes or devtools)
+    # -- The dict points from package names to package info [bitmask, installer_path, test_script_path]
     dependencies = OrderedDict( (pk, [mask, None, None]) for pk, (mask,) in thirdPartyPackages  \
                                 if processInstaller(mask, args.runtime) )
 
@@ -606,7 +607,8 @@ def main():
                 print "Online egg %s downloaded to %s"%(egg, info[1])
 
     # -- find out the installers to package for this mega installer --
-    ok = find_installer_files(args.outDir, args.tpp_eggDir, args.srcDir, args.pyMaj, args.pyMin, args.arch, 
+    # will complete dependencies if they have no info[1].
+    ok = find_installer_files(args.tpp_eggDir, args.srcDir, args.pyMaj, args.pyMin, args.arch, 
                               dependencies)                            
                             
     if not ok:
