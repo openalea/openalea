@@ -17,6 +17,7 @@ url = " $URL$ "
 
 import os
 import argparse
+import tarfile
 import fnmatch
 import platform
 import subprocess
@@ -37,7 +38,11 @@ projects = {
                                        "https://scm.gforge.inria.fr/svn/openaleapkg/branches")
            }
 
-           
+
+# -- LISTS TO UPDATE --
+# Here we list for each project the packages to branch.
+# for each package we specify the revision at which we want to 
+# branch.
 package_lists = { 
                  "openalea": [ 
                              ("core", "HEAD"),
@@ -96,24 +101,11 @@ package_lists = {
                             ("alinea_meta", "HEAD"),
                             ]
                 }
+# -- END LISTS TO UPDATE --
+                
+                
+                
 
-# -- Argument parsing will set this to True or False --
-not_dry_run = True
-# -- The following will be substituted by 
-# no op functions if not_dry_run is True --
-dr_call  = subprocess.call
-dr_popen = subprocess.Popen
-
-# -- No op functions used when not_dry_run is False --
-def dry_call(*args, **kwargs):
-    return 0
-    
-class dry_popen(object):
-    def __init__(self, *args, **kwargs):
-        self.returncode = 0
-    
-    def communicate(self, *args, **kwargs):
-        return "", None
 
 #################
 # SVN Functions #
@@ -142,6 +134,16 @@ def branch_path(project, version, package=None, rev=None):
     trunk, branchbase = projects.get(project, (None, None))
     sub = dict(branchbase=branchbase, version=version, pack=package, rev=rev)
     pth = "%(branchbase)s/release_%(version)s"
+    if package: pth+="/%(pack)s"
+    if rev: pth+="@%(rev)s"
+    return pth%sub
+    
+def tag_path(project, version, package=None, rev=None):
+    trunk, tagbase = projects.get(project, (None, None))
+    if tagbase:
+        tagbase = tagbase.replace("branches", "tags")
+    sub = dict(tagbase=tagbase, version=version, pack=package, rev=rev)
+    pth = "%(tagbase)s/release_%(version)s"
     if package: pth+="/%(pack)s"
     if rev: pth+="@%(rev)s"
     return pth%sub
@@ -203,11 +205,14 @@ def __svn_del_path_if_exists(path, delete_existing):
             return None
 import sys        
 def svn_branch_project(project, version, delete_existing, 
-                       packages=None, branch_can_exist=False, no_multisetup=False):   
+                       packages=None, branch_can_exist=False, no_multisetup=False, tag=False):   
     if not packages:
         packages = get_packages(project)
     
-    branchpath = branch_path(project, version)
+    if tag:
+        branchpath = tag_path(project, version)
+    else:
+        branchpath = branch_path(project, version)
     
     if not branch_can_exist:
         __svn_del_path_if_exists( branchpath, delete_existing)
@@ -219,7 +224,10 @@ def svn_branch_project(project, version, delete_existing,
     ret_dict = {}
     for pack, rev in packages:
         print "Processing", pack, "" if not_dry_run else "for fake"
-        src = trunk_path( project, pack, rev )
+        if tag:
+            src = branch_path( project, version, pack, rev )
+        else:
+            src = trunk_path( project, pack, rev )
         ret_dict[pack] = svn_copy_path(src, branchpath)
 
     # copy multisetup
@@ -263,11 +271,54 @@ def svn_commit(working_copy, message):
     subd = dict(svnexec=svn_exec,  wc=working_copy, message=message)
     cmd = "%(svnexec)s ci %(wc)s -m \"%(message)s\""%subd
     return dr_call(cmd) == 0
-    
+
+
+def svn_export_project(project, version, working_copy):
+    project_ver = project+"_"+version
+    project_exp = project+"_"+version+"_exp"
+    subd = dict(svnexec=svn_exec,  wc=working_copy, proj=project_exp)
+    cmd = "%(svnexec)s export %(wc)s %(proj)s"%subd
+    if dr_call(cmd) == 0:
+        tarf = project_ver+".tar.gz"
+        print "create tarfile", tarf
+        if not_dry_run:
+            try:
+                with tarfile.open(tarf, "w:gz") as tar:
+                    tar.add( pj(working_copy, project_exp), arcname=project )
+            except Exception, e:
+                print e
+                return -1
+            else:
+                return 0
+        else:
+            return 0
+    else:
+        return -1
+        
 #######################
 # MAIN AND PARSE ARGS #
 #######################
+# -- Argument parsing will set this to True or False --
+not_dry_run = True
+# -- The following will be substituted by 
+# no op functions if not_dry_run is True --
+dr_call  = subprocess.call
+dr_popen = subprocess.Popen
 
+# -- No op functions used when not_dry_run is False --
+def dry_call(*args, **kwargs):
+    print "dry_call", args, kwargs
+    return 0
+    
+class dry_popen(object):
+    def __init__(self, *args, **kwargs):
+        print "dry_popen", args, kwargs
+        self.returncode = 0
+    
+    def communicate(self, *args, **kwargs):
+        print "dry_popen.communicate", args, kwargs
+        return "", None
+        
 class NullOutput(object):
     def write(self, s):
         pass
@@ -306,12 +357,16 @@ def parse_arguments():
     parser.add_argument("--ignore-rbase", "-r", action="store_const", const=True, default=False, 
                         help="Don't check if the destination root exists.")
     parser.add_argument("--no-multisetup", "-m", action="store_const", const=True, default=False, 
-                        help="Don't copy multisetup.")
+                        help="Don't copy multisetup.")    
+    
+    parser.add_argument("--tag", "-t", action="store_const", const=True, default=False, 
+                        help="Create a tag for release.")
 
     parser.add_argument("--update-package", "-u", action="append", 
                         help="Syncs a branch package with the trunk. ROOT|ALL|package|package@revN:revM|package@revU,revW,revW", type=_parse_package, dest="update")
     parser.add_argument("--working-copy", "-w", default = None, help="Working copy to merge into", type=abspath)
     parser.add_argument("--auto-commit", "-a", action="store_const", const=True, default = False, help="Auto commit merges")
+    parser.add_argument("--export-srcs", "-x", action="store_const", const=True, default = False, help="Create source tarball")
     return parser.parse_args()
 
 
@@ -336,13 +391,16 @@ def main():
     if not has_svn():
         print "svn command in not available"
 
-    if not args.working_copy and args.update:
-        print "Cannot merge, no working copy given"
+    if not args.working_copy and (args.update or args.export_srcs):
+        print "Cannot merge export, no working copy given"
         sys.exit(-1)
         
     if args.silent:
         sys.stdout = NullOutput()        
     
+    if args.export_srcs:
+        sys.exit( 0 if svn_export_project(args.project, args.version, args.working_copy) else -1)        
+        
     if args.update:
         if "ALL" in zip(*args.update)[0]:
             args.update = package_lists.get(args.project)
@@ -350,11 +408,18 @@ def main():
             args.update = [("","")]
         sys.exit( 0 if svn_update_package(args.project, args.version, args.update, args.working_copy, args.auto_commit) else -1)
         
-    if not svn_branch_project(args.project, args.version, args.delete_existing, 
-                              packages=args.packages,
-                              branch_can_exist=args.ignore_rbase,
-                              no_multisetup=args.no_multisetup):
-        print "svn operation failed"
-    
+    if args.tag:
+        if not svn_branch_project(args.project, args.version, args.delete_existing, 
+                                  packages=args.packages,
+                                  branch_can_exist=args.ignore_rbase,
+                                  no_multisetup=args.no_multisetup, tag=True):
+            print "svn tag operation failed"
+    else:
+        if not svn_branch_project(args.project, args.version, args.delete_existing, 
+                                  packages=args.packages,
+                                  branch_can_exist=args.ignore_rbase,
+                                  no_multisetup=args.no_multisetup):
+            print "svn branch operation failed"
+        
 if __name__ == "__main__":
     main()
