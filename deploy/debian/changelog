@@ -1,3 +1,9 @@
+openalea-deploy (1.0.0b1~ppa2) oneiric; urgency=low
+
+  * Fix openalea namespace
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Thu, 05 Jan 2012 17:21:45 +0100
+
 openalea-deploy (1.0.0b1~ppa1) oneiric; urgency=low
 
   * beta version for release 1.0

@@ -1,3 +1,9 @@
+openalea-misc (1.0.0b1~ppa2) oneiric; urgency=low
+
+  * Fix openalea namespace 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Thu, 05 Jan 2012 17:30:44 +0100
+
 openalea-misc (1.0.0b1~ppa1) oneiric; urgency=low
 
   * Release 1.0 
