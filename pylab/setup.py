@@ -56,7 +56,7 @@ setup(
     package_dir= package_dir,
 
     # Namespace packages creation by deploy
-    #namespace_packages = [namespace],
+    namespace_packages = [namespace],
     #create_namespaces = True,
     zip_safe= False,
     
