@@ -958,9 +958,13 @@ class CompositeNode(Node, DataFlow):
         :param port_dst: destination input port number
         """
 
-        source_pid = self.out_port(src_id, port_src)
-        target_pid = self.in_port(dst_id, port_dst)
-        eid = DataFlow.connect(self, source_pid, target_pid)
+        try:
+            source_pid = self.out_port(src_id, port_src)
+            target_pid = self.in_port(dst_id, port_dst)
+            eid = DataFlow.connect(self, source_pid, target_pid)
+        except:
+            logger.error("Enable to create the edge %s %d %d %d %d"%( self.factory.name,  src_id, port_src, dst_id, port_dst))
+            return
 
         self.actor(dst_id).set_input_state(port_dst, "connected")
         self.notify_listeners(("connection_modified", ))
