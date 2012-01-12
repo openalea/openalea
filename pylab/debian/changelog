@@ -1,3 +1,9 @@
+openalea-pylab (1.0.0b1~ppa5) oneiric; urgency=low
+
+  * Port to oneiric
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Thu, 12 Jan 2012 14:24:47 +0100
+
 openalea-pylab (1.0.0b1~ppa4) natty; urgency=low
 
   * Specify in setup.py that openalea is a namespace package 
