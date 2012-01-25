@@ -47,7 +47,18 @@ def to_img (img, scalar_type=None, lut=None, forceNativeLut=None) :
         import Image, ImageQt
     except ImportError:
         return None
-
+    #print isinstance(img, SpatialImage)
+    if isinstance(img, SpatialImage):
+        nb_dim = len(img.shape)
+        if nb_dim == 3:
+            img = img.transpose(1,0,2)
+        elif nb_dim == 4:
+            img = img.transpose(1,0,2,3)
+        elif nb_dim == 2:
+            print "hello world !!"
+            img = img.transpose(1,0)
+        else:
+            raise Exception("Unknown image shape, cannot deduce pixel format")
     _img = Image.fromarray(img)
     pseudo_QImage = ImageQt.ImageQt(_img)
     return pseudo_QImage

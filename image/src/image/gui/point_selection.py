@@ -455,7 +455,7 @@ class PointSelection (QMainWindow) :
             self.emit(SIGNAL("points_changed"),self)
 
 def point_selection (image, palette_name = "grayscale", color_index_max = None) :
-
+    
     if not isinstance(image,SpatialImage):
         image = SpatialImage(image)
 
