@@ -18,3 +18,4 @@ __revision__ = " $Id$ "
 
 from basic import *
 from morpho import *
+from analysis import *

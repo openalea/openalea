@@ -33,12 +33,12 @@ class SpatialImage (np.ndarray) :
 	def __new__ (cls, input_array, voxelsize = None,
 		     vdim = None, info = None, dtype = None, **kwargs) :
 		"""Instantiate a new |SpatialImage|
-
+		
 		if voxelsize is None, vdim will be used to infer space size and affect
 		a voxelsize of 1 in each direction of space
-
+		
 		.. warning :: `resolution` keyword is deprecated. Use `voxelsize` instead.
-
+		
 		:Parameters:
 		 - `cls` - internal python
 		 - `input_array` (array) - data to put in the image
@@ -47,50 +47,50 @@ class SpatialImage (np.ndarray) :
 		 - `vdim` (int) - size of data if vector data are used
 		 - `info` (dict of str|any) - metainfo
 		"""
-                #if the input_array is 2D we can reshape it to 3D.
-                if input_array.ndim == 2:
-                    input_array = input_array.reshape( input_array.shape+(1,) )
-
+		#if the input_array is 2D we can reshape it to 3D.
+		if input_array.ndim == 2:
+			input_array = input_array.reshape( input_array.shape+(1,) )
+		
 		#initialize datas. For some obscure reason, we want the data
 		#to be F-Contiguous in the NUMPY sense. I mean, if this is not
 		#respected, we will have problems when communicating with
 		#C-Code... yeah, that makes so much sense (fortran-contiguous
 		#to be c-readable...).
 		dtype = dtype if dtype is not None else input_array.dtype
-                if input_array.flags.f_contiguous :
-                        obj = np.asarray(input_array, dtype=dtype).view(cls)
+		if input_array.flags.f_contiguous :
+			obj = np.asarray(input_array, dtype=dtype).view(cls)
 		else :
-                        obj = np.asarray(input_array, dtype=dtype, order='F').view(cls)
-
+			obj = np.asarray(input_array, dtype=dtype, order='F').view(cls)
+		
 		voxelsize = kwargs.get("resolution", voxelsize) #to manage transition
 		if voxelsize is None :
-                    voxelsize = (1.,) * 3
+			voxelsize = (1.,) * 3
 		else :
-                    if len(voxelsize) != 3 :
-                        raise ValueError("data dimension and voxelsize mismatch")
-
+			if len(voxelsize) != 3 :
+				raise ValueError("data dimension and voxelsize mismatch")
+		
 		obj.voxelsize = tuple(voxelsize)
-                obj.vdim = vdim if vdim else ( 1 if len(input_array.shape) == 3 else input_array.shape[3] )
-
+		obj.vdim = vdim if vdim else ( 1 if len(input_array.shape) == 3 else input_array.shape[3] )
+		
 		#set metadata
 		if info is None :
 			obj.info = {}
 		else :
 			obj.info = dict(info)
-
+		
 		#return
 		return obj
-
+	
 	def _get_resolution(self):
 		warnings.warn(rezexc)
 		return self.voxelsize
-
+	
 	def _set_resolution(self, val):
 		warnings.warn(rezexc)
 		self.voxelsize = val
-
+	
 	resolution = property(_get_resolution, _set_resolution)
-
+	
 	@property
 	def real_shape(self):
 		return np.multiply(self.shape[:3], self.voxelsize)
