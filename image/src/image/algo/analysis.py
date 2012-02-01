@@ -428,13 +428,25 @@ class SpatialImageAnalysis(object):
 
     def neighbor_kernels(self):
         if self._kernels is None:        
-            Xkernel = np.zeros((3,3,3),np.bool)
-            Xkernel[:,1,1] = True
-            Ykernel = np.zeros((3,3,3),np.bool)
-            Ykernel[1,:,1] = True
-            Zkernel = np.zeros((3,3,3),np.bool)
-            Zkernel[1,1,:] = True
-            self._kernels = (Xkernel,Ykernel,Zkernel)
+            X1kernel = np.zeros((3,3,3),np.bool)
+            X1kernel[:,1,1] = True
+            X1kernel[0,1,1] = False
+            X2kernel = np.zeros((3,3,3),np.bool)
+            X2kernel[:,1,1] = True
+            X2kernel[2,1,1] = False
+            Y1kernel = np.zeros((3,3,3),np.bool)
+            Y1kernel[1,:,1] = True
+            Y1kernel[1,0,1] = False
+            Y2kernel = np.zeros((3,3,3),np.bool)
+            Y2kernel[1,:,1] = True
+            Y2kernel[1,2,1] = False
+            Z1kernel = np.zeros((3,3,3),np.bool)
+            Z1kernel[1,1,:] = True
+            Z1kernel[1,1,0] = False
+            Z2kernel = np.zeros((3,3,3),np.bool)
+            Z2kernel[1,1,:] = True
+            Z2kernel[1,1,2] = False
+            self._kernels = (X1kernel,X2kernel,Y1kernel,Y2kernel,Z1kernel,Z2kernel)
         return self._kernels
 
     def get_voxel_face_surface(self):
@@ -474,13 +486,13 @@ class SpatialImageAnalysis(object):
             neighbors = [neighbors]
         
         wall = {}        
-        for a in (0,1,2):
+        for a in xrange(6):
             dil = ndimage.binary_dilation(mask_img, structure=xyz_kernels[a])
             frontier = dilated_bbox_img[dil-mask_img]
 
             for n in neighbors:
                 nb_pix = len(frontier[frontier==n])
-                surface = float(nb_pix*resolution[a])
+                surface = float(nb_pix*resolution[a//2])
                 i,j = min(label_id,n), max(label_id,n)
                 wall[(i,j)] = wall.get((i,j),0.0) + surface
 

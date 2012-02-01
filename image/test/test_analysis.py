@@ -55,7 +55,6 @@ def test_on_simple_array():
     
     assert analysis.volume() == [10.0, 3.0, 4.0, 1.0, 1.0, 1.0, 4.0]
     
-    print analysis.center_of_mass(7)
     assert analysis.center_of_mass(7) == [0.75, 2.75, 0.0]
     
     assert analysis.center_of_mass([7,2]) == [[0.75, 2.75, 0.0], [1.3333333333333333, 0.66666666666666663, 0.0]]
@@ -64,16 +63,11 @@ def test_on_simple_array():
      
     assert analysis.wall_surface(7,2) ==  1
     
-    walls = analysis.all_wall_surfaces() 
-    a = list(walls.items())
-    a.sort()
-    print a
-    assert  walls == {(1, 2): 5.0, (1, 3): 4.0, (1, 4): 2.0, (1, 5): 1.0, (1, 6): 1.0, (1, 7): 2.0, (2, 6): 2.0, (2, 7): 1.0, (3, 7): 2, (4, 7): 1, (5, 6): 1.0, (5, 7): 2.0 }
-    # (1, 2): 4.0 - 5.0,  (1, 4): 1.0 - 2.0, (2, 6): 1.0 - 2.0, 
+    assert  analysis.all_wall_surfaces()  == {(1, 2): 5.0, (1, 3): 4.0, (1, 4): 2.0, (1, 5): 1.0, (1, 6): 1.0, (1, 7): 2.0, (2, 6): 2.0, (2, 7): 1.0, (3, 7): 2, (4, 7): 1, (5, 6): 1.0, (5, 7): 2.0 }
     print 'ok'
     
     
 if __name__ == '__main__':
-    #test_on_segmentation()
     test_on_simple_array()
+    test_on_segmentation()
     
