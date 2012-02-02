@@ -28,7 +28,8 @@ def graph_from_image(image,
                      labels = None, 
                      background = 1, 
                      default_properties = default_properties,
-                     default_real_property = True):
+                     default_real_property = True,
+                     bbox_as_real = False):
     """ 
         Construct a PropertyGraph from a SpatialImage (or equivalent) representing a segmented image.
 
@@ -37,7 +38,8 @@ def graph_from_image(image,
             If labels is None, all labels are used.
          - `background` (int) - label representing background.
          - `default_properties` (list) - the list of name of properties to create. It should be in default_properties.
-         - `default_real_property` (bool) - If real = True, center of mass is in real-world units else in voxels.
+         - `default_real_property` (bool) - If default_real_property = True, property is in real-world units else in voxels.
+         - `bbox_as_real` (bool) - If bbox_as_real = True, bounding boxes are in real-world units else in voxels.
 
         :rtype: PropertyGraph
 
@@ -69,7 +71,7 @@ def graph_from_image(image,
     graph, label2vertex, edges = generate_graph_topology(labels, neigborhood)
     
     if 'boundingbox' in default_properties : 
-        add_vertex_property_from_label_and_value(graph,'boundingbox',labels,analysis.boundingbox(labels,real=default_real_property),mlabel2vertex=label2vertex)
+        add_vertex_property_from_label_and_value(graph,'boundingbox',labels,analysis.boundingbox(labels,real=bbox_as_real),mlabel2vertex=label2vertex)
     
     if 'volume' in default_properties : 
         add_vertex_property_from_label_and_value(graph,'volume',labels,analysis.volume(labels,real=default_real_property),mlabel2vertex=label2vertex)
