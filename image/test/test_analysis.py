@@ -26,7 +26,7 @@ def test_on_segmentation():
     time_result('Center of mass',analysis.center_of_mass)
     show_result('Neigbbors',lambda: len(analysis.neighbors(range(10,20))))
     show_result('All Neigbbors',lambda: len(analysis.neighbors()))
-    show_result('All Wall Surface',lambda: len(analysis.all_wall_surfaces()))
+    show_result('All Wall Surface',lambda: len(analysis.wall_surfaces()))
 
     
 def test_on_simple_array():
@@ -35,7 +35,6 @@ def test_on_simple_array():
                   [1, 6, 5, 7, 3, 3],
                   [2, 2, 1, 7, 3, 3],
                   [1, 1, 1, 4, 1, 1]])
-    print a.shape
     
     from openalea.image.algo.analysis import SpatialImageAnalysis
     analysis = SpatialImageAnalysis(a)
@@ -48,6 +47,18 @@ def test_on_simple_array():
 
     neighbors = analysis.neighbors()
     assert neighbors == { 1: [2, 3, 4, 5, 6, 7], 2: [1, 6, 7], 3: [1, 7], 4: [1, 7], 5: [1, 6, 7], 6: [1, 2, 5], 7: [1, 2, 3, 4, 5] }
+    
+    assert analysis.boundingbox(7) == (slice(0, 3), slice(2, 4), slice(0, 1))
+
+    assert analysis.boundingbox([7,2]) == [(slice(0, 3), slice(2, 4), slice(0, 1)), (slice(0, 3), slice(0, 2), slice(0, 1))]
+
+    assert analysis.boundingbox() == [(slice(0, 4), slice(0, 6), slice(0, 1)), 
+                                      (slice(0, 3), slice(0, 2), slice(0, 1)), 
+                                      (slice(1, 3), slice(4, 6), slice(0, 1)), 
+                                      (slice(3, 4), slice(3, 4), slice(0, 1)), 
+                                      (slice(1, 2), slice(2, 3), slice(0, 1)), 
+                                      (slice(1, 2), slice(1, 2), slice(0, 1)), 
+                                      (slice(0, 3), slice(2, 4), slice(0, 1))]
 
     assert analysis.volume(7) == 4.0
     
@@ -61,9 +72,13 @@ def test_on_simple_array():
     
     assert analysis.center_of_mass() == [[1.8, 2.2999999999999998, 0.0],[1.3333333333333333, 0.66666666666666663, 0.0], [1.5, 4.5, 0.0], [3.0, 3.0, 0.0], [1.0, 2.0, 0.0], [1.0, 1.0, 0.0], [0.75, 2.75, 0.0]]
      
-    assert analysis.wall_surface(7,2) ==  1
+    assert analysis.cell_wall_surface(7,2) ==  1
     
-    assert  analysis.all_wall_surfaces()  == {(1, 2): 5.0, (1, 3): 4.0, (1, 4): 2.0, (1, 5): 1.0, (1, 6): 1.0, (1, 7): 2.0, (2, 6): 2.0, (2, 7): 1.0, (3, 7): 2, (4, 7): 1, (5, 6): 1.0, (5, 7): 2.0 }
+    assert analysis.cell_wall_surface(7,[2,5]) == {(2, 7): 1.0, (5, 7): 2.0}
+
+    assert analysis.wall_surfaces({ 1 : [2, 3], 2 : [6] }) == {(1, 2): 5.0, (1, 3): 4.0, (2, 6): 2.0 }
+
+    assert analysis.wall_surfaces()  == {(1, 2): 5.0, (1, 3): 4.0, (1, 4): 2.0, (1, 5): 1.0, (1, 6): 1.0, (1, 7): 2.0, (2, 6): 2.0, (2, 7): 1.0, (3, 7): 2, (4, 7): 1, (5, 6): 1.0, (5, 7): 2.0 }
     print 'ok'
     
     

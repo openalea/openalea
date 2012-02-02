@@ -35,6 +35,8 @@ def contact_surface(mask_img,label_id):
     img = wall(mask_img,label_id)
     return set(np.unique(img))
 
+def real_indices(slices, resolutions):
+    return [ (s.start*r, s.stop*r) for s,r in zip(slices,resolutions)]
 
 class SpatialImageAnalysis(object):
     """
@@ -50,63 +52,13 @@ class SpatialImageAnalysis(object):
             self.image = SpatialImage(image)
         else:
             self.image = image
+        # variables for caching information
         self._labels = self.__labels()
         self._bbox = None
         self._kernels = None
         self._neighbors = None
-        
-    def _region(self, label):
-        """
-        """
-        _coords = ndimage.find_objects(self.image==label)[0]
-
-        if self.image.ndim == 2 :
-            _x,_y = _coords
-            _xmax,_ymax = self.image.shape
-
-            _neighbors = list()
-            for i in xrange(_x.start,_x.stop):
-                for j in xrange(_y.start,_y.stop):
-                    if self.image[slice(i,i+1),slice(j,j+1)] == label:
-                        _neighbors += list(np.unique(self.image[slice(i-1,i),slice(j,j+1)]))
-                        _neighbors += list(np.unique(self.image[slice(i+1,i+2),slice(j,j+1)]))
-                        _neighbors += list(np.unique(self.image[slice(i,i+1),slice(j-1,j)]))
-                        _neighbors += list(np.unique(self.image[slice(i,i+1),slice(j+1,j+2)]))
-
-            return _neighbors
-
-        elif self.image.ndim == 3 :
-            _x,_y,_z = _coords
-            _xmax,_ymax,_zmax = self.image.shape
-
-            _neighbors = list()
-            for i in xrange(_x.start,_x.stop):
-                for j in xrange(_y.start,_y.stop):
-                    for k in xrange(_z.start,_z.stop):
-
-                        if self.image[slice(i,i+1),slice(j,j+1),slice(k,k+1)] == label:
-                            _neighbors += list(np.unique(self.image[slice(i-1,i),slice(j,j+1),slice(k,k+1)]))
-                            _neighbors += list(np.unique(self.image[slice(i+1,i+2),slice(j,j+1),slice(k,k+1)]))
-                            _neighbors += list(np.unique(self.image[slice(i,i+1),slice(j-1,j),slice(k,k+1)]))
-                            _neighbors += list(np.unique(self.image[slice(i,i+1),slice(j+1,j+2),slice(k,k+1)]))
-                            _neighbors += list(np.unique(self.image[slice(i,i+1),slice(j,j+1),slice(k-1,k)]))
-                            _neighbors += list(np.unique(self.image[slice(i,i+1),slice(j,j+1),slice(k+1,k+2)]))
-
-            return _neighbors
-
-
-    def _neighbors(self,label):
-        """
-        """
-        if label != 1:
-            _labels = self._region(label)
-            _neighbors = list(set(_labels))
-            neighbors = [x for x in _neighbors if x!=label]
-            return neighbors
-        else:
-            print 'Label 1 is the background, not a valid cell.'
-
-
+    
+    
     def labels(self):
         """
         Return the list of labels used.
@@ -125,7 +77,7 @@ class SpatialImageAnalysis(object):
         >>> analysis.labels()
         [1,2,3,4,5,6,7]
         """
-        return self._labels
+        return np.array(self._labels)
         
     def __labels(self):
         """ Compute the actual list of labels """
@@ -253,9 +205,9 @@ class SpatialImageAnalysis(object):
             return volume
 
 
-    def __old_neighbors(self,labels=None):
+    def boundingbox(self, labels = None, real = False):
         """
-        Return the list of neighbors of a label.
+        Return the bounding box of a label.
 
         :Examples:
 
@@ -268,41 +220,37 @@ class SpatialImageAnalysis(object):
         >>> from openalea.image.algo.analysis import SpatialImageAnalysis
         >>> analysis = SpatialImageAnalysis(a)
 
-        >>> analysis.neighbors(7)
-        { 7:[1, 2, 3, 4, 5]}
+        >>> analysis.boundingbox(7)
+        (slice(0, 3), slice(2, 4), slice(0, 1))
 
-        >>> analysis.neighbors([7,2])
-        {7: [1, 2, 3, 4, 5], 2: [1, 6, 7] }
+        >>> analysis.boundingbox([7,2])
+        [(slice(0, 3), slice(2, 4), slice(0, 1)), (slice(0, 3), slice(0, 2), slice(0, 1))]
 
-        >>> analysis.neighbors()
-        {1: [1, 6, 7],
-         2: [1, 7],
-         3: [1, 7],
-         4: [1, 6, 7],
-         5: [1, 2, 5],
-         6: [1, 2, 3, 4, 5] }
-        """
-        if labels is None:
-            # return self.all_neighbors()
-            labels = self.labels()
-        elif not isinstance (labels, list):
-            labels = [labels]
-            
-        neighbors = map(self._neighbors,labels)
-        print  neighbors
-        return neighbors
-
-    def boundingbox(self,labels = None):
+        >>> analysis.boundingbox()
+        [(slice(0, 4), slice(0, 6), slice(0, 1)), 
+        (slice(0, 3), slice(0, 2), slice(0, 1)), 
+        (slice(1, 3), slice(4, 6), slice(0, 1)), 
+        (slice(3, 4), slice(3, 4), slice(0, 1)), 
+        (slice(1, 2), slice(2, 3), slice(0, 1)), 
+        (slice(1, 2), slice(1, 2), slice(0, 1)), 
+        (slice(0, 3), slice(2, 4), slice(0, 1))]
+        """        
         if self._bbox is None:
             self._bbox = ndimage.find_objects(self.image)
         if labels is None:
-            return self._bbox
+            if real: return [real_indices(bbox,self.image.resolution) for bbox in self._bbox]
+            else :   return self._bbox
+        
         # bbox of object labelled 1 to n are stored into self._bbox. To access i-th element, we have to use i-1 index
         if isinstance (labels, list):
-            return [self._bbox[i-1] for i in labels]
+            bboxes = [self._bbox[i-1] for i in labels]
+            if real : return [real_indices(bbox,self.image.resolution) for bbox in bboxes]
+            else : return bboxes
+            
         else : 
             try:
-                return self._bbox[labels-1]
+                if real:  return real_indices(self._bbox[labels-1],self.image.resolution)
+                else : return self._bbox[labels-1]
             except:
                 return None
         
@@ -400,32 +348,6 @@ class SpatialImageAnalysis(object):
         return edges
 
 
-    def __surface_area(self,label1,label2,real=True):
-        """
-        Return the surface of contact between two labels.
-
-        :Examples:
-
-        >>> import numpy as np
-        >>> a = np.array([[1, 2, 7, 7, 1, 1],
-                          [1, 6, 5, 7, 3, 3],
-                          [2, 2, 1, 7, 3, 3],
-                          [1, 1, 1, 4, 1, 1]])
-
-        >>> from openalea.image.algo.analysis import SpatialImageAnalysis
-        >>> analysis = SpatialImageAnalysis(a)
-
-        >>> analysis.surface_area(7,2)
-        1
-        """
-        _labels = self._region(label1)
-        surface = [x for x in _labels if x==label2]
-        if real is True:
-            surface = len(surface) * reduce(lambda x,y:x*y,self.image.resolution)
-        else:
-            surface = len(surface)
-        return surface
-
     def neighbor_kernels(self):
         if self._kernels is None:        
             X1kernel = np.zeros((3,3,3),np.bool)
@@ -453,7 +375,7 @@ class SpatialImageAnalysis(object):
         a = self.image.resolution
         return np.array([a[1] * a[2],a[2] * a[0],a[0] * a[1] ])
         
-    def wall_surface( self, label_id, neighbors ):
+    def cell_wall_surface( self, label_id, neighbors, real = True):
         """
         Return the surface of contact between a label and its neighbors.
         A list or a unique id can be given as neighbors.
@@ -469,8 +391,10 @@ class SpatialImageAnalysis(object):
         >>> from openalea.image.algo.analysis import SpatialImageAnalysis
         >>> analysis = SpatialImageAnalysis(a)
 
-        >>> analysis.wall_surface(7,2)
-        1
+        >>> analysis.cell_wall_surface(7,2)
+        1.0
+        >>> analysis.cell_wall_surface(7,[2,5])
+        {(2, 7): 1.0, (5, 7): 2.0}
         """
         
         resolution = self.get_voxel_face_surface()
@@ -492,14 +416,15 @@ class SpatialImageAnalysis(object):
 
             for n in neighbors:
                 nb_pix = len(frontier[frontier==n])
-                surface = float(nb_pix*resolution[a//2])
+                if real:  surface = float(nb_pix*resolution[a//2])
+                else : surface = nb_pix
                 i,j = min(label_id,n), max(label_id,n)
                 wall[(i,j)] = wall.get((i,j),0.0) + surface
 
         if unique_neighbor: return wall.itervalues().next()
         else : return wall
         
-    def all_wall_surfaces(self, neighbors = None):
+    def wall_surfaces(self, neighbors = None, real = True):
         """
         Return the surface of contact between all neighbor labels.
         If neighbors is not given, it is computed first.
@@ -515,8 +440,11 @@ class SpatialImageAnalysis(object):
         >>> from openalea.image.algo.analysis import SpatialImageAnalysis
         >>> analysis = SpatialImageAnalysis(a)
 
+        >>> analysis.all_wall_surfaces({ 1 : [2, 3], 2 : [6] })
+       {(1, 2): 5.0, (1, 3): 4.0, (2, 6): 2.0 }
+        
         >>> analysis.all_wall_surfaces()
-        {(1, 2): 5.0, (1, 3): 6.0, (1, 4): 3.0, (1, 5): 2.0, (1, 6): 1.0, (1, 7): 2.0, (2, 6): 2.0, (2, 7): 1.0, (5, 6): 1.0, (5, 7): 1.0 }
+        {(1, 2): 5.0, (1, 3): 4.0, (1, 4): 2.0, (1, 5): 1.0, (1, 6): 1.0, (1, 7): 2.0, (2, 6): 2.0, (2, 7): 1.0, (3, 7): 2, (4, 7): 1, (5, 6): 1.0, (5, 7): 2.0 }
         """
         if neighbors is None : neighbors = self._all_neighbors()
         surfaces = {}
@@ -524,7 +452,7 @@ class SpatialImageAnalysis(object):
             # To avoid computing 2 times the same wall surface, we select wall between i and j with j > i.
             neigh = [n for n in lneighbors if n > label_id]
             if len(neigh) > 0:
-                lsurfaces = self.wall_surface(label_id, neigh)
+                lsurfaces = self.cell_wall_surface(label_id, neigh, real = real)
                 for i,j in lsurfaces.iterkeys():
                     surfaces[(i,j)] = surfaces.get((i,j),0.0) + lsurfaces[(i,j)]
         return surfaces
