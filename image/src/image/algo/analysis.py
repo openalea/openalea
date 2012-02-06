@@ -469,13 +469,14 @@ class SpatialImageAnalysis(object):
             borders.update(np.unique(self.image[:,:,-1]))
         return list(borders)
         
-    def inertia_axis(self, labels = None, center_of_mass = None):
+    def inertia_axis(self, labels = None, center_of_mass = None, real = True):
         unique_label = False
         if labels is None : labels = self.labels()
         elif not isinstance(labels,list) : 
             labels = [labels]
             unique_label = True
         
+        is2d = (self.image.shape[2] <= 1)
         # results
         inertia_eig_vec = []
         inertia_eig_val = []
@@ -489,30 +490,43 @@ class SpatialImageAnalysis(object):
             # project center into the slices sub_image coordinate
             for i,slice in enumerate(slices):
                 center[i] = center[i] - slice.start
-            label_image = self.image[slices]
+            label_image = (self.image[slices] == label)
             
             # compute the indices of voxel with adequate label
-            x,y,z = np.where(label_image == label)
+            x,y,z = label_image.nonzero()
+            
             # difference with the center
             x = x - center[0]
             y = y - center[1]
-            z = z - center[2]
             
-            # compute P^T.P
-            a = np.array((x,y,z))
-            b = np.transpose(a)            
-            c = np.dot(a,b)
+            if is2d : coord = np.array([x,y])
+            else: 
+                z = z - center[2]
+                coord = np.array([x,y,z])
+            
+            # compute P.P^T            
+            cov = np.dot(coord,coord.T)
+            
             
             # Find the eigen values and vectors.
-            eig_val, eig_vec = np.linalg.eig(c)
+            eig_val, eig_vec = np.linalg.eig(cov)
             
             inertia_eig_vec.append(eig_vec)
+            
+            if real:
+                if self.image.shape[2] > 1:
+                    for i in xrange(3):
+                        eig_val[i] *= np.linalg.norm(np.multiply(eig_vec[i],self.image.resolution))
+                else:
+                    for i in xrange(2):
+                        eig_val[i] *= np.linalg.norm(np.multiply(eig_vec[i],self.image.resolution[:2]))
+                    
             inertia_eig_val.append(eig_val)
         
         if unique_label :
-            return inertia_eig_val[0], inertia_eig_vec[0]
+            return inertia_eig_vec[0], inertia_eig_val[0]
         else:
-            return inertia_eig_val, inertia_eig_vec
+            return inertia_eig_vec, inertia_eig_val
         
 def extract_L1(image):
     """

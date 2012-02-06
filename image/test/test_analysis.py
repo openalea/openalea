@@ -22,8 +22,11 @@ def test_on_segmentation():
     analysis = SpatialImageAnalysis(im)
     show_result('Nb labels',analysis.nb_labels)
     time_result('Bounding Box',analysis.boundingbox)
+    barycenters = time_result('Center of mass',analysis.center_of_mass)
+    labels = list(analysis.labels())
+    labels.remove(1)
+    time_result('Inertia Axis',lambda: analysis.inertia_axis(center_of_mass=barycenters,labels=labels))
     show_result('Mean volume',lambda : mean(analysis.volume()))
-    time_result('Center of mass',analysis.center_of_mass)
     show_result('Neigbbors',lambda: len(analysis.neighbors(range(10,20))))
     show_result('All Neigbbors',lambda: len(analysis.neighbors()))
     show_result('All Wall Surface',lambda: len(analysis.wall_surfaces()))
@@ -39,8 +42,6 @@ def test_on_simple_array():
     from openalea.image.algo.analysis import SpatialImageAnalysis
     analysis = SpatialImageAnalysis(a)
 
-    # print analysis.inertia_axis(7)
-    # assert False
     
     res = analysis.neighbors(7)
     assert res == { 7:[1, 2, 3, 4, 5]}
@@ -84,8 +85,11 @@ def test_on_simple_array():
     assert analysis.wall_surfaces()  == {(1, 2): 5.0, (1, 3): 4.0, (1, 4): 2.0, (1, 5): 1.0, (1, 6): 1.0, (1, 7): 2.0, (2, 6): 2.0, (2, 7): 1.0, (3, 7): 2, (4, 7): 1, (5, 6): 1.0, (5, 7): 2.0 }
     print 'ok'
     
+    inertia_axis, inertia_norm = analysis.inertia_axis(7)
+    assert np.allclose(inertia_axis, [[ 0.9486833 , -0.31622777],[ 0.31622777,  0.9486833]])
+    assert np.allclose(inertia_norm,[ 3.,  0.5 ])
     
 if __name__ == '__main__':
-    test_on_simple_array()
+    #test_on_simple_array()
     test_on_segmentation()
     

@@ -2,7 +2,7 @@ from analysis import SpatialImageAnalysis
 from openalea.image.spatial_image import SpatialImage
 from openalea.container import PropertyGraph
 
-default_properties = ['volume','barycenter','boundingbox','border','L1','epidermis_wall_surface','wall_surface']
+default_properties = ['volume','barycenter','boundingbox','border','L1','epidermis_wall_surface','wall_surface','inertia']
 
 def generate_graph_topology(labels, neigborhood):
     graph = PropertyGraph()
@@ -76,8 +76,10 @@ def graph_from_image(image,
     if 'volume' in default_properties : 
         add_vertex_property_from_label_and_value(graph,'volume',labels,analysis.volume(labels,real=default_real_property),mlabel2vertex=label2vertex)
     
-    if 'barycenter' in default_properties : 
-        add_vertex_property_from_label_and_value(graph,'barycenter',labels,analysis.center_of_mass(labels,real=default_real_property),mlabel2vertex=label2vertex)
+    barycenters = None
+    if 'barycenter' in default_properties :
+        barycenters = analysis.center_of_mass(labels,real=default_real_property)
+        add_vertex_property_from_label_and_value(graph,'barycenter',labels,barycenters,mlabel2vertex=label2vertex)
 
     if 'L1' in default_properties :         
         background_neighbors = set(analysis.neighbors(background)[background])
@@ -90,8 +92,11 @@ def graph_from_image(image,
         border_cells = set(border_cells)
         add_vertex_property_from_label_and_value(graph,'border',labels,[(l in border_cells) for l in labels],mlabel2vertex=label2vertex)
         
-
-            
+    if 'inertia_axis' in default_properties : 
+        inertia_axis, inertia_values = analysis.inertia_axis(labels,barycenters)
+        add_vertex_property_from_label_and_value(graph,'inertia_axis',labels,zip(inertia_axis,inertia_value),mlabel2vertex=label2vertex)
+        
+    
     if 'wall_surface' in default_properties : 
         filtered_edges = {}
         for source,targets in neigborhood.iteritems():
