@@ -39,6 +39,9 @@ def test_on_simple_array():
     from openalea.image.algo.analysis import SpatialImageAnalysis
     analysis = SpatialImageAnalysis(a)
 
+    # print analysis.inertia_axis(7)
+    # assert False
+    
     res = analysis.neighbors(7)
     assert res == { 7:[1, 2, 3, 4, 5]}
 

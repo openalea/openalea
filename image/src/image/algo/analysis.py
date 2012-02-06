@@ -457,7 +457,63 @@ class SpatialImageAnalysis(object):
                     surfaces[(i,j)] = surfaces.get((i,j),0.0) + lsurfaces[(i,j)]
         return surfaces
     
-
+    def L1(self, background = 1):
+        return self.neighbors(background)
+        
+    def border_cells(self):
+        borders = set()
+        for l in [np.unique(self.image[0,:,:]),np.unique(self.image[-1,:,:]),np.unique(self.image[:,0,:]),np.unique(self.image[:,-1,:])]:
+            borders.update(l)
+        if self.image.shape[2] != 1 : 
+            borders.update(np.unique(self.image[:,:,0]))
+            borders.update(np.unique(self.image[:,:,-1]))
+        return list(borders)
+        
+    def inertia_axis(self, labels = None, center_of_mass = None):
+        unique_label = False
+        if labels is None : labels = self.labels()
+        elif not isinstance(labels,list) : 
+            labels = [labels]
+            unique_label = True
+        
+        # results
+        inertia_eig_vec = []
+        inertia_eig_val = []
+        
+        # if center of mass is not specified
+        if center_of_mass is None:
+            center_of_mass = self.center_of_mass(labels)
+        for i,label in enumerate(labels):
+            slices = self.boundingbox(label)
+            center = center_of_mass[i]
+            # project center into the slices sub_image coordinate
+            for i,slice in enumerate(slices):
+                center[i] = center[i] - slice.start
+            label_image = self.image[slices]
+            
+            # compute the indices of voxel with adequate label
+            x,y,z = np.where(label_image == label)
+            # difference with the center
+            x = x - center[0]
+            y = y - center[1]
+            z = z - center[2]
+            
+            # compute P^T.P
+            a = np.array((x,y,z))
+            b = np.transpose(a)            
+            c = np.dot(a,b)
+            
+            # Find the eigen values and vectors.
+            eig_val, eig_vec = np.linalg.eig(c)
+            
+            inertia_eig_vec.append(eig_vec)
+            inertia_eig_val.append(eig_val)
+        
+        if unique_label :
+            return inertia_eig_val[0], inertia_eig_vec[0]
+        else:
+            return inertia_eig_val, inertia_eig_vec
+        
 def extract_L1(image):
     """
     Return the list of all cell labels in the layer 1.
@@ -468,13 +524,14 @@ def extract_L1(image):
     :Returns:
         - `L1` (list)
     """
-    L1 = []
-    im = np.zeros_like(image)
-    im[image!=1]=1
-    ero = ndimage.binary_erosion(im)
-    mask = im - ero
-    res = np.where(mask==1,image,0)
-    for cell in xrange(1,image.max()+1):
-        if cell in res:
-            L1.append(cell)
-    return L1
+    return SpatialImageAnalysis(image).L1()
+    # L1 = []
+    # im = np.zeros_like(image)
+    # im[image!=1]=1
+    # ero = ndimage.binary_erosion(im)
+    # mask = im - ero
+    # res = np.where(mask==1,image,0)
+    # for cell in xrange(1,image.max()+1):
+        # if cell in res:
+            # L1.append(cell)
+    # return L1

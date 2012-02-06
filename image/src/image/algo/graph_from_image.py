@@ -2,7 +2,7 @@ from analysis import SpatialImageAnalysis
 from openalea.image.spatial_image import SpatialImage
 from openalea.container import PropertyGraph
 
-default_properties = ['volume','barycenter','boundingbox','wall_surface']
+default_properties = ['volume','barycenter','boundingbox','border','L1','epidermis_wall_surface','wall_surface']
 
 def generate_graph_topology(labels, neigborhood):
     graph = PropertyGraph()
@@ -62,7 +62,7 @@ def graph_from_image(image,
         filter_label = False
         labels = list(analysis.labels())
         if background in labels : del labels[labels.index(background)]
-        neigborhood = analysis.neighbors()
+        neigborhood = analysis.neighbors(labels)
     else:
         filter_label = True
         neigborhood = analysis.neighbors(labels)
@@ -79,36 +79,70 @@ def graph_from_image(image,
     if 'barycenter' in default_properties : 
         add_vertex_property_from_label_and_value(graph,'barycenter',labels,analysis.center_of_mass(labels,real=default_real_property),mlabel2vertex=label2vertex)
 
-    default_edge_properties = [i for i in default_properties if i in ['wall_surface']]
-    if not default_edge_properties is None:
+    if 'L1' in default_properties :         
+        background_neighbors = set(analysis.neighbors(background)[background])
+        add_vertex_property_from_label_and_value(graph,'L1',labels,[(l in background_neighbors) for l in labels],mlabel2vertex=label2vertex)
+        
+    if 'border' in default_properties : 
+        border_cells = analysis.border_cells()
+        try: border_cells.remove(background)
+        except: pass
+        border_cells = set(border_cells)
+        add_vertex_property_from_label_and_value(graph,'border',labels,[(l in border_cells) for l in labels],mlabel2vertex=label2vertex)
+        
+
+            
+    if 'wall_surface' in default_properties : 
         filtered_edges = {}
         for source,targets in neigborhood.iteritems():
             if source in labelset :
                 filtered_edges[source] = [ target for target in targets if source < target and target in labelset ]
-            
-        if 'wall_surface' in default_edge_properties : 
-            wall_surfaces = analysis.wall_surfaces(filtered_edges,real=default_real_property)
-            add_edge_property_from_label_property(graph,'wall_surface',wall_surfaces,mlabelpair2edge=edges)
+        wall_surfaces = analysis.wall_surfaces(filtered_edges,real=default_real_property)
+        add_edge_property_from_label_property(graph,'wall_surface',wall_surfaces,mlabelpair2edge=edges)
+        
+    if 'epidermis_surface' in default_properties :
+        background_edges = {}
+        for source,targets in neigborhood.iteritems():
+            if source == background :
+                background_edges[source] = targets
+            elif source < background and background in targets:
+                background_edges[source] = [background]
+    
+        epidermis_surfaces = analysis.wall_surfaces(background_edges,real=default_real_property)
+        epidermis_surfaces = dict([(sum(indices)-background,value) for indices,value in epidermis_surfaces.iteritems()])
+        add_vertex_property_from_label_property(graph,'epidermis_surface',epidermis_surfaces,mlabel2vertex=label2vertex)
     
     return graph       
 
-def label2vertex(graph):
+def label2vertex_map(graph):
     """
         Compute a dictionary that map label to vertex id.
-        It requires the existence of a 'label' property
+        It requires the existence of a 'label' vertex property
         
         :rtype: dict
     """
-    return dict([(j,i) for i,j in graph.property('label')])
+    return dict([(j,i) for i,j in graph.vertex_property('label').iteritems()])
 
-def labelpair2edge(graph):
+def label2vertex(graph,labels):
+    """
+        Translate label as vertex id.
+        It requires the existence of a 'label' vertex property
+        
+        :rtype: dict
+    """
+    label2vertexmap = label2vertex_map(graph)
+    if isinstance(labels,list):
+        return [label2vertexmap[label] for label in labels]
+    else : return label2vertexmap[labels]
+
+def labelpair2edge_map(graph):
     """
         Compute a dictionary that map pair of labels to edge id.
         It requires the existence of a 'label' property
         
         :rtype: dict
     """
-    mlabel2vertex = label2vertex(graph)
+    mlabel2vertex = label2vertex_map(graph)
     return dict([((mlabel2vertex[graph.source(eid)],mlabel2vertex[graph.target(eid)]),eid) for eid in graph.edges()])
 
 
@@ -121,7 +155,7 @@ def add_vertex_property_from_label_and_value(graph, name, labels, property_value
     """
         
     if mlabel2vertex is None:    
-        mlabel2vertex = label2vertex(graph)
+        mlabel2vertex = label2vertex_map(graph)
     
     graph.add_vertex_property(name)
     graph.vertex_property(name).update(dict([(mlabel2vertex[i], v) for i,v in zip(labels,property_values)]))
@@ -133,7 +167,7 @@ def add_vertex_property_from_label_property(graph, name, label_property, mlabel2
         Labels are first translated in id of the graph and values are assigned to these ids in the graph
     """
     if mlabel2vertex is None:    
-        mlabel2vertex = label2vertex(graph)
+        mlabel2vertex = label2vertex_map(graph)
     
     graph.add_vertex_property(name)
     graph.vertex_property(name).update(dict([(mlabel2vertex[i], v) for i,v in label_property.iteritems]))
@@ -147,7 +181,7 @@ def add_edge_property_from_label_and_value(graph, name, label_pairs, property_va
     """
         
     if mlabelpair2edge is None:
-        mlabelpair2edge = labelpair2edge(graph)
+        mlabelpair2edge = labelpair2edge_map(graph)
     
     graph.add_edge_property(name)
     graph.edge_property(name).update(dict([(mlabelpair2edge[i], v) for labelpair,value in zip(label_pairs,property_values)]))
@@ -159,7 +193,7 @@ def add_edge_property_from_label_property(graph, name, labelpair_property, mlabe
         Pairs of labels are first translated in edge ids of the graph and values are assigned to these ids in the graph
     """
     if mlabelpair2edge is None:
-        mlabelpair2edge = labelpair2edge(graph)
+        mlabelpair2edge = labelpair2edge_map(graph)
     
     graph.add_edge_property(name)
     graph.edge_property(name).update(dict([(mlabelpair2edge[labelpair], value) for labelpair,value in labelpair_property.iteritems()]))    
