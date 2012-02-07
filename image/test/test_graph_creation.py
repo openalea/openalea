@@ -30,11 +30,11 @@ def test_graph_from_simple_image(visual = False):
     
     for propname in graph.edge_property_names():
         print propname
-        print graph.edge_property(propname)
+        print [(i,graph.edge_vertices(i),j) for i,j in graph.edge_property(propname).iteritems()]
     if visual :
         Viewer.display(graph2pglscene(graph,graph.vertex_property('barycenter'),graph.vertex_property('border')))
     
 if __name__ == '__main__':
-    #test_graph_from_simple_image()
+    test_graph_from_simple_image()
     test_graph_from_image()
     

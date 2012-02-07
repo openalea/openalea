@@ -2,7 +2,7 @@ from analysis import SpatialImageAnalysis
 from openalea.image.spatial_image import SpatialImage
 from openalea.container import PropertyGraph
 
-default_properties = ['volume','barycenter','boundingbox','border','L1','epidermis_wall_surface','wall_surface','inertia']
+default_properties = ['volume','barycenter','boundingbox','border','L1','epidermis_surface','wall_surface','inertia_axis']
 
 def generate_graph_topology(labels, neigborhood):
     graph = PropertyGraph()
@@ -81,8 +81,8 @@ def graph_from_image(image,
         barycenters = analysis.center_of_mass(labels,real=default_real_property)
         add_vertex_property_from_label_and_value(graph,'barycenter',labels,barycenters,mlabel2vertex=label2vertex)
 
+    background_neighbors = set(analysis.neighbors(background)[background])
     if 'L1' in default_properties :         
-        background_neighbors = set(analysis.neighbors(background)[background])
         add_vertex_property_from_label_and_value(graph,'L1',labels,[(l in background_neighbors) for l in labels],mlabel2vertex=label2vertex)
         
     if 'border' in default_properties : 
@@ -94,7 +94,7 @@ def graph_from_image(image,
         
     if 'inertia_axis' in default_properties : 
         inertia_axis, inertia_values = analysis.inertia_axis(labels,barycenters)
-        add_vertex_property_from_label_and_value(graph,'inertia_axis',labels,zip(inertia_axis,inertia_value),mlabel2vertex=label2vertex)
+        add_vertex_property_from_label_and_value(graph,'inertia_axis',labels,zip(inertia_axis,inertia_values),mlabel2vertex=label2vertex)
         
     
     if 'wall_surface' in default_properties : 
@@ -106,14 +106,7 @@ def graph_from_image(image,
         add_edge_property_from_label_property(graph,'wall_surface',wall_surfaces,mlabelpair2edge=edges)
         
     if 'epidermis_surface' in default_properties :
-        background_edges = {}
-        for source,targets in neigborhood.iteritems():
-            if source == background :
-                background_edges[source] = targets
-            elif source < background and background in targets:
-                background_edges[source] = [background]
-    
-        epidermis_surfaces = analysis.wall_surfaces(background_edges,real=default_real_property)
+        epidermis_surfaces = analysis.cell_wall_surface(background,list(background_neighbors) ,real=default_real_property)
         epidermis_surfaces = dict([(sum(indices)-background,value) for indices,value in epidermis_surfaces.iteritems()])
         add_vertex_property_from_label_property(graph,'epidermis_surface',epidermis_surfaces,mlabel2vertex=label2vertex)
     
@@ -175,7 +168,7 @@ def add_vertex_property_from_label_property(graph, name, label_property, mlabel2
         mlabel2vertex = label2vertex_map(graph)
     
     graph.add_vertex_property(name)
-    graph.vertex_property(name).update(dict([(mlabel2vertex[i], v) for i,v in label_property.iteritems]))
+    graph.vertex_property(name).update(dict([(mlabel2vertex[i], v) for i,v in label_property.iteritems()]))
 
 def add_edge_property_from_label_and_value(graph, name, label_pairs, property_values, mlabelpair2edge = None):
     """ 
