@@ -106,8 +106,15 @@ def graph_from_image(image,
         add_edge_property_from_label_property(graph,'wall_surface',wall_surfaces,mlabelpair2edge=edges)
         
     if 'epidermis_surface' in default_properties :
+        def not_background(indices):
+            a,b = indices
+            if a == background: 
+                if b == background: raise ValueError(indices)
+                else : return b
+            elif b == background: return a
+            else: raise ValueError(indices)
         epidermis_surfaces = analysis.cell_wall_surface(background,list(background_neighbors) ,real=default_real_property)
-        epidermis_surfaces = dict([(sum(indices)-background,value) for indices,value in epidermis_surfaces.iteritems()])
+        epidermis_surfaces = dict([(not_background(indices),value) for indices,value in epidermis_surfaces.iteritems()])
         add_vertex_property_from_label_property(graph,'epidermis_surface',epidermis_surfaces,mlabel2vertex=label2vertex)
     
     return graph       
