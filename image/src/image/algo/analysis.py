@@ -37,6 +37,108 @@ def contact_surface(mask_img,label_id):
 
 def real_indices(slices, resolutions):
     return [ (s.start*r, s.stop*r) for s,r in zip(slices,resolutions)]
+    
+def hollow_out_cells(mat):
+	"""
+	Laplacian filter used to dectect and return an Spatial Image containing only cell walls.
+	(The Laplacian of an image highlights regions of rapid intensity change.)
+	:INPUT:
+		.mat: Spatial Image containing cells (segmented image)
+	:OUTPUT:
+		.mat: Spatial Image containing hollowed out cells (cells walls from full segmented image)
+	"""
+	print 'Hollowing out cells...'
+	b=nd.laplace(mat)
+	mat[b==0]=0
+	mat[np.where(mat==1)]=0
+	print 'Done !!'
+	return mat
+	
+def cells_walls_detection(mat, hollowed_out=False):
+	"""
+	:INPUT:
+		.mat: Spatial Image containing cells (segmented image)
+	:OUTPUT:
+		.x,y,z: coordinates of the cells' boundaries (walls)
+	"""
+	if !hollowed_out:
+		mat=hollow_out_cells(mat)
+	print 'Extracting cell walls coordinates...'
+	x,y,z=np.where(mat!=0)
+	print 'Done !!'
+	return list(x),list(y),list(z)
+
+def extraction_vertex(mat,display=False,display_edges=False,remove_borders=False):
+	"""
+	Calculates cell's vertices positions according to the rule: a vertex is the point where you can find 4 differents cells (in 3D!!)
+	For the surface, the outer 'cell' #1 is considered as a cell.
+	
+	:INPUTS:
+		.mat: Spatial Image containing cells (segmented image). Can be a full spatial image or an extracted surface.
+		.display: boolean defining if the function should open an mlab window to represent the cells and the vertex (red cubes)
+		.remove_borders: boolean defining if the function sould try to remove cells at the border of the stack before representation.
+	
+	:OUTPUT:
+		.Bary_vrtx: 
+			*keys = the 4 cells ids associated with the vertex position(values);
+			*values = 3D coordinates of the vertex in the Spatial Image;
+	"""
+	x,y,z=cells_walls_detection(mat)
+	## Compute vertices positions by findind the voxel belonging to each vertex.
+	print 'Compute cell vertex positions...'
+	Vvox_c={}
+	Evox_c={}
+	dim=len(x)
+	for n in xrange(dim):
+		if n%20000==0:
+			print n,'/',dim
+		i,j,k=x[n],y[n],z[n]
+		sub=mat[(i-1):(i+2),(j-1):(j+2),(k-1):(k+2)] # we generate a sub-matrix...
+		sub=tuple(np.unique(sub)) 
+		# -- Now we detect voxels defining cells' vertices.
+		if (len(sub)==4): # ...in which we search for 4 different labels
+			if Vvox_c.has_key(sub):
+				Vvox_c[sub]=np.vstack((Vvox_c[sub],np.array((i,j,k)).T)) # we group voxels defining the same vertex by the IDs of the 4 cells.
+			else:
+				Vvox_c[sub]=np.ndarray((0,3))
+		# -- If asked, we detect voxels defining cells' edges (an edge is where you can find4 differents cells -in 3D!!-).
+		if display_edges:
+			if (len(sub)==3):# ...in which we search for 3 different labels
+				if Evox_c.has_key(sub):
+					Evox_c[sub]=np.vstack((Evox_c[sub],np.array((i,j,k)).T))
+				else:
+					Evox_c[sub]=np.ndarray((0,3))
+	## Compute the barycenter of the voxels associated to each vertex (correspondig to the 3 cells detected previously).
+	Bary_vrtx={}
+	for i in Vvox_c.keys():
+		Bary_vrtx[i]=np.mean(Vvox_c[i],0)
+	print 'Done !!'
+
+	if display:
+		Vvox_x,Vvox_y,Vvox_z=[],[],[]
+		Bary_vrtx_x,Bary_vrtx_y,Bary_vrtx_z=[],[],[]
+		for i in Vvox_c.keys():
+			if len(Vvox_c[i]) != 0:
+				Vvox_x+=list(Vvox_c[i][:,0])
+				Vvox_y+=list(Vvox_c[i][:,1])
+				Vvox_z+=list(Vvox_c[i][:,2])
+				Bary_vrtx_x.append(np.mean(Vvox_c[i][:,0]))
+				Bary_vrtx_y.append(np.mean(Vvox_c[i][:,1]))
+				Bary_vrtx_z.append(np.mean(Vvox_c[i][:,2]))
+		print 'Generating mlab representation of the surface. Red cube indicate the location of the vertices.'
+		around=np.vectorize(np.around)
+		intv=np.vectorize(int)
+		s=mat[intv(around(Bary_vrtx_x)),intv(around(Bary_vrtx_y)),intv(around(Bary_vrtx_z))]
+		mlab.figure(size=(800, 800))
+		mlab.points3d(Bary_vrtx_x,Bary_vrtx_y,Bary_vrtx_z,s,mode="cube",scale_mode='none',scale_factor=2,color=(1,0,0),opacity=0.6)
+		if display_edges:
+			mlab.points3d(Evox_c[0],Evox_c[1],Evox_c[2],s,mode="cube",scale_mode='none',scale_factor=1,color=(0,0,0),opacity=0.3)
+		x,y,z=cells_walls_detection(mat)		
+		mlab.points3d(x,y,z,mat[x,y,z],mode="point",scale_mode='none',scale_factor=0.3,colormap='prism')
+		mlab.show()
+
+	return Bary_vrtx
+
 
 class SpatialImageAnalysis(object):
     """
@@ -77,7 +179,7 @@ class SpatialImageAnalysis(object):
         >>> analysis.labels()
         [1,2,3,4,5,6,7]
         """
-        return np.array(self._labels)
+        return self._labels
         
     def __labels(self):
         """ Compute the actual list of labels """

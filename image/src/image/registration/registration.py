@@ -133,7 +133,7 @@ def pts2transfo(x,y):
     y = y - y_barycenter
 
     #Change of basis (y -> x)
-    y = y - x_barycenter
+    #~ y = y - x_barycenter
 
     #compute of A = yi*q - q*xi
     #             = array([ [       0       ,  (xn_i - yn_i) , (xn_j - yn_j)  ,  (xn_k - yn_k) ],
