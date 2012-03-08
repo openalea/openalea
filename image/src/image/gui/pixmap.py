@@ -77,16 +77,14 @@ def to_img (img, scalar_type=None, lut=None, forceNativeLut=None) :
 
     nb_dim = len(img.shape)
     if nb_dim == 3:
-        print 'Image dimension 3'
         vdim = img.shape[-1]
-        #img = img.transpose(1,0,2).copy("C")
+        img = img.transpose(1,0,2).copy("C")
     elif nb_dim == 4:
         vdim = img.shape[-1]
-        #img = img.transpose(1,0,2,3).copy("C")
+        img = img.transpose(1,0,2,3).copy("C")
     elif nb_dim == 2:
-        print 'Image dimension 2'
         vdim = 1
-        #img = img.transpose(1,0).copy("C")
+        img = img.transpose(1,0).copy("C")
     else:
         raise Exception("Unknown image shape, cannot deduce pixel format")
 
