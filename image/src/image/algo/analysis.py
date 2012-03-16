@@ -393,15 +393,15 @@ class SpatialImageAnalysis(object):
         else:
             return self._neighbors_from_list_with_mask(labels)
 
-    def _neighbors_with_mask(self,label):
+    def _neighbors_with_mask(self,labels):
         if not self._neighbors is None:
             return { labels:self._neighbors[labels] }
         
-        slices = self.boundingbox(label)
+        slices = self.boundingbox(labels)
         
         ex_slices = dilation(slices)
         mask_img = self.image[ex_slices]
-        return list(contact_surface(mask_img,label))
+        return list(contact_surface(mask_img,labels))
 
         
     def _neighbors_from_list_with_mask(self,labels):        
