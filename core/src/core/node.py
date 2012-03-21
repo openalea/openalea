@@ -1277,7 +1277,7 @@ class NodeFactory(AbstractFactory):
 
         else:
             # load module
-            (file, pathname, desc) = imp.find_module(modulename, \
+            (file, pathname, desc) = imp.find_module(modulename, 
                 self.search_path + sys.path)
 
             sys.path.append(os.path.dirname(pathname))
@@ -1301,62 +1301,41 @@ class NodeFactory(AbstractFactory):
         Raise an Import Error if no module is associated
         """
 
-        if(self.nodemodule_name):
-            # Test if the module is already in sys.modules
-            if(self.nodemodule_path and self.module_cache
-               and not hasattr(self.module_cache, 'oa_invalidate')):
-                return self.module_cache
+        if not self.nodemodule_name:
+            self.nodemodule_name = '__builtin__'
 
-            sav_path = sys.path
+        # Test if the module is already in sys.modules
+        if (self.nodemodule_path and 
+            self.module_cache and
+            not hasattr(self.module_cache, 'oa_invalidate')):
+            return self.module_cache
+
+        sav_path = sys.path
+        sys.path = self.search_path + sav_path
+        #print 'SEARCH PATH ', self.search_path
+        try:
+            # load module
+
+            # Delete the module from the sys.modules if another local exists and 
+            # has the same name
+            if self.nodemodule_name in sys.modules:
+                del sys.modules[self.nodemodule_name]
+            __import__(self.nodemodule_name)
+            nodemodule = sys.modules[self.nodemodule_name]
             try:
-                # load module
-                sys.path = self.search_path + sav_path
-                (file, pathname, desc) = imp.find_module(self.nodemodule_name)
+                self.nodemodule_path = inspect.getsourcefile(nodemodule)
+            except TypeError, type_error:
+                self.nodemodule_path = None
 
-                self.nodemodule_path = pathname
+            self.module_cache = nodemodule
+            sys.path = sav_path
+            return nodemodule
 
-                sys.path.append(os.path.dirname(pathname))
-                nodemodule = imp.load_module(str(id(self.nodemodule_path+self.nodemodule_name)),
-                        file, pathname, desc)
-                sys.path = sav_path
-
-                if(file):
-                    file.close()
-                self.module_cache = nodemodule
-                return nodemodule
-            except ImportError, import_error:
-                name = self.nodemodule_name
-                if '.' not in name:
-                    raise import_error
-                sys.path = self.search_path + sav_path
-                package = '.'.join(name.split('.')[0:-1])
-                obj = name.split('.')[-1]
-                execString = 'from %s import %s' % (package, obj)
-                try:
-                    exec execString
-                except SyntaxError, syntax_error:
-                    sys.path = sav_path
-                    #raise ImportError("Invalid class specification: %s" % name)
-                    print "Invalid class specification: %s" % name
-                    raise syntax_error
-                exec 'nodemodule = %s' % obj
-
-                exec 'import %s' % package
-                exec 'pkg_temp = %s' % package
-
-                (f, pathname, desc) = imp.find_module(nodemodule, pkg_temp.__path__)
-                if f:
-                    f.close()
-
-                self.module_cache = nodemodule
-                self.nodemodule_path = pathname
-
-                sys.path = sav_path
-                return nodemodule
+        except ImportError, import_error:
+            sys.path = sav_path
+            raise import_error
         else:
-            # By default use __builtin__ module
-            import __builtin__
-            return __builtin__
+            sys.path = sav_path
 
     def get_node_file(self):
         """
@@ -1364,20 +1343,10 @@ class NodeFactory(AbstractFactory):
 
         """
 
-        if(self.nodemodule_path):
+        if self.nodemodule_path or self.module_cache:
             return self.nodemodule_path
-        elif(self.nodemodule_name):
-            # load module
-            #sav_path = sys.path
-            #sys.path = self.search_path + sav_path
-            (file, pathname, desc) = imp.find_module(self.nodemodule_name, self.search_path + sys.path)
-
-            self.nodemodule_path = pathname
-
-            #sys.path = sav_path
-
-            if(file):
-                file.close()
+        elif self.nodemodule_name:
+            self.get_node_module()
             return self.nodemodule_path
 
 
