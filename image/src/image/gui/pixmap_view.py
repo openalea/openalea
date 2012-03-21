@@ -29,6 +29,7 @@ from PyQt4.QtCore import Qt,SIGNAL
 from PyQt4.QtGui import (QImage,QPixmap,QTransform,QMatrix,
                          QLabel,QGraphicsView)
 from pixmap import to_img, to_pix
+from openalea.image.all import SpatialImage
 
 class PixmapView (object) :
     """Base class for 2D views on spatial images
@@ -186,7 +187,6 @@ class PixmapStackView (PixmapView) :
             if data.dtype != uint8:
                 raise Exception("Only uint8 RGB[A] images supported, got %s instead"%str(data.dtype))
             pal = None
-            
         for z in xrange(data.shape[axis]) :
             if axis == 0 :
                 dat = data[z,:,:] 
@@ -197,7 +197,8 @@ class PixmapStackView (PixmapView) :
 
             if pal is not None:
                 dat = pal[dat]
-            
+                if isinstance(data, SpatialImage):
+                    dat=SpatialImage(dat)
             #img = QImage(dat,
             #             data.shape[0],
             #             data.shape[1],
@@ -242,7 +243,7 @@ class PixmapStackView (PixmapView) :
 
             if make_contiguous:
                 dat = dat.copy()
-
+            print "hello"
             dat = to_pix(dat,
                          lut=pal,
                          forceNativeLut=forceNativeLut)
