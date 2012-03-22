@@ -45,7 +45,7 @@ def patch(files, qtDirPath, where):
     # PortableExecutables have file size encoded in header.
     # Instead of modifying the header we replace by a string 
     # of exactly the same size using padding "/".
-    replacement = bytearray(".." + "/"*(len(qtDirPath)-2)) # the -2 is here for the drive specifier
+    replacement = bytearray(".." + "/"*(len(qtDirPath)-2))
     qtDirPathA  = bytearray(qtDirPath)
     qtDirPathA2 = bytearray(qtDirPath.replace("\\", "/"))
     patches     = 0 # a counter 
@@ -57,7 +57,7 @@ def patch(files, qtDirPath, where):
         
         print "patch file", f,
         if not os.path.exists(f):
-            print "qpatch: warning: file not found"
+            print "qpatch: warning: file not found", f
             continue
               
         source = None
