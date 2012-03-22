@@ -77,10 +77,10 @@ verbose = False
 # A Project with a None url implicitely means the sources are already here because some other proj installed it.
 projs = OrderedDict ( (p.name,p) for p in  [ 
                                              Project("mingwrt"     , None),
-                                             Project("qt4"         , "http://download.qt.nokia.com/qt/source/qt-everywhere-opensource-src-4.7.4.zip"),
-                                             Project("sip"         , "http://www.riverbankcomputing.co.uk/static/Downloads/sip4/sip-4.13.zip"),
-                                             Project("pyqt4"       , "http://www.riverbankcomputing.co.uk/static/Downloads/PyQt4/PyQt-win-gpl-4.8.6.zip"),
-                                             Project("qscintilla"  , "http://www.riverbankcomputing.co.uk/static/Downloads/QScintilla2/QScintilla-gpl-2.6.zip"),
+                                             Project("qt4"         , "http://get.qt.nokia.com/qt/source/qt-everywhere-opensource-src-4.8.0.zip"),
+                                             Project("sip"         , "http://www.riverbankcomputing.co.uk/static/Downloads/sip4/sip-4.13.2.zip"),
+                                             Project("pyqt4"       , "http://www.riverbankcomputing.co.uk/static/Downloads/PyQt4/PyQt-win-gpl-4.9.1.zip"),
+                                             Project("qscintilla"  , "http://www.riverbankcomputing.co.uk/static/Downloads/QScintilla2/QScintilla-gpl-2.6.1.zip"),
                                              Project("pyqscintilla", None), # shares the same as qscintilla
                                              Project("qglviewer"   , "https://gforge.inria.fr/frs/download.php/28138/libQGLViewer-2.3.9-py.tgz"),
                                              Project("pyqglviewer" , "https://gforge.inria.fr/frs/download.php/28212/PyQGLViewer-0.9.1.zip"),
