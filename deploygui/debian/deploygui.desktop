@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=OpenAlea Installer
+Comment=Install, Update, Remove eggs from OpenAlea.
+Exec=alea_install_gui
+Icon=deploygui
+Terminal=false
+Type=Application
+Categories=Education;Science;Biology;
+StartupNotify=true
