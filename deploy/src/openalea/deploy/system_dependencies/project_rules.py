@@ -483,33 +483,39 @@ class qhull(BaseProjectBuilder):
         BaseProjectBuilder.__init__(self, *args, **kwargs)
         self.install_inc_dir = pj(self.installdir, "include")
         self.install_lib_dir = pj(self.installdir, "lib")
-
+    
     def configure(self):
         return True
 
     def build(self):
         return True
-
+    
     def install(self):
         return True
 
 class cgal(BaseProjectBuilder):
-    url = "http://www.qhull.org/download/qhull-2011.2.zip"
-    download_name  = "qhull_src.zip"
-    archive_subdir = "qhull*"
+    url = "https://gforge.inria.fr/frs/download.php/30390/CGAL-4.0.zip"
+    download_name  = "cgal_src.zip"
+    archive_subdir = "cgal*"
 
-    enabled = False
+    enabled = True
     def __init__(self, *args, **kwargs):
         BaseProjectBuilder.__init__(self, *args, **kwargs)
         self.install_inc_dir = pj(self.installdir, "include")
         self.install_lib_dir = pj(self.installdir, "lib")
-
+    
     def configure(self):
-        return True
+        try: 
+            subprocess.call("cmake --version")
+        except:
+            raise ValueError("CMake should be installed and in your path.")
+        compiler = Comp.get_compiler_bin_path()
+        boost_ = boost()
+        return subprocess.call('cmake -G"MinGW Makefiles" -DCMAKE_INSTALL_PREFIX="'+self.installdir+'" -DCMAKE_CXX_COMPILER:FILEPATH="'+compiler+'\\g++.exe" -DBOOST_ROOT="'+boost.installdir+'". ') == 0
 
-    def build(self):
-        return True
-
+    def build(self):  
+        return subprocess.call("make") == 0
+    
     def install(self):
         return True
 
