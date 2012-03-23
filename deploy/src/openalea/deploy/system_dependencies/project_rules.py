@@ -427,7 +427,8 @@ import os
 ModuleBaseDir = os.path.abspath(os.path.dirname(__file__))
 
 class ann(BaseProjectBuilder):
-    url = "http://www.cs.umd.edu/~mount/ANN/Files/1.1.2/ann_1.1.2.zip"
+    version = '1.1.2'
+    url = "http://www.cs.umd.edu/~mount/ANN/Files/"+version+"/ann_"+version+".zip"
     download_name  = "ann_src.zip"
     archive_subdir = "ann*"
     enabled = True
@@ -435,8 +436,8 @@ class ann(BaseProjectBuilder):
     def __init__(self, *args, **kwargs):
         BaseProjectBuilder.__init__(self, *args, **kwargs)
         self.patchfile = os.path.join(ModuleBaseDir,"ann_mgw.patch")
-        self.install_inc_dir = pj(self.installdir, "include")
-        self.install_lib_dir = pj(self.installdir, "lib")
+        self.install_inc_dir = pj(self.sourcedir, "include")
+        self.install_lib_dir = pj(self.sourcedir, "lib")
     def configure(self):
         import patch as p
         patch = p.fromfile(self.patchfile)
@@ -473,6 +474,26 @@ class gnuplot(BaseProjectBuilder):
 
 
 class qhull(BaseProjectBuilder):
+    url = "http://www.qhull.org/download/qhull-2011.2.zip"
+    download_name  = "qhull_src.zip"
+    archive_subdir = "qhull*"
+
+    enabled = False
+    def __init__(self, *args, **kwargs):
+        BaseProjectBuilder.__init__(self, *args, **kwargs)
+        self.install_inc_dir = pj(self.installdir, "include")
+        self.install_lib_dir = pj(self.installdir, "lib")
+
+    def configure(self):
+        return True
+
+    def build(self):
+        return True
+
+    def install(self):
+        return True
+
+class cgal(BaseProjectBuilder):
     url = "http://www.qhull.org/download/qhull-2011.2.zip"
     download_name  = "qhull_src.zip"
     archive_subdir = "qhull*"

@@ -186,13 +186,25 @@ class egg_boost(BaseEggBuilder):
                     INSTALL_REQUIRES = [egg_mingw_rt.__eggname__]
                     )  
 
-# class egg_ann(BaseEggBuilder): 
-    # license = "GNU Lesser Public License"
-    # authors = "Copyright (c) 1997-2010 University of Maryland and Sunil Arya and David Mount"
-    # description = "Windows gcc libs and includes of ANN"
-    # py_dependent   = False
-    # arch_dependent = True  
-   
+class egg_ann(BaseEggBuilder): 
+    license = "GNU Lesser Public License"
+    authors = "Copyright (c) 1997-2010 University of Maryland and Sunil Arya and David Mount"
+    description = "Windows gcc libs and includes of ANN"
+    py_dependent   = False
+    arch_dependent = True  
+    def script_substitutions(self):
+        ann_ = ann()
+        ann_.fix_source_dir()
+        ann_path = ann_.sourcedir
+        
+        return dict( 
+                    VERSION          = ann_.version,                 
+                    LIB_DIRS         = {'lib' : os.path.join(ann_path,'lib') },
+                    INC_DIRS         = {'include' : os.path.join(ann_path,'include') },
+                    BIN_DIRS         = {'bin' : os.path.join(ann_path,'include') },
+                    DATA_FILES       = [('doc' , [os.path.join(ann_path,'doc','ANNmanual.pdf')] )]
+                    ) 
+
 # class egg_gnuplot(BaseEggBuilder): 
     # license = "GNUPlot license"
     # authors = "Copyright 1986 - 1993, 1998, 2004 Thomas Williams, Colin Kelley"
