@@ -1,3 +1,9 @@
+openalea-deploygui (1.0.1~ppa1) precise; urgency=low
+
+  * Release 1.0 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 23 Mar 2012 11:19:57 +0100
+
 openalea-deploygui (1.0.0b1~ppa2) oneiric; urgency=low
 
   * Fix OpenAlea namespace 

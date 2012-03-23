@@ -1,3 +1,9 @@
+openalea-pylab (1.0.1~ppa1) precise; urgency=low
+
+  *  Release 1. 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 23 Mar 2012 11:22:09 +0100
+
 openalea-pylab (1.0.0b1~ppa5) oneiric; urgency=low
 
   * Port to oneiric
