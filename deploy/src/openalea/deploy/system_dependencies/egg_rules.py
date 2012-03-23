@@ -1,3 +1,22 @@
+# -*- python -*-
+#
+#       openalea.deploy.dependency_builder
+#
+#       Copyright 2006-2012 INRIA - CIRAD - INRA
+#
+#       File author(s): Daniel Barbeau
+#       File Contributors(s):   
+#                             - Yassin Refahi,
+#                             - Frederic Boudon,
+#
+#       Distributed under the Cecill-C License.
+#       See accompanying file LICENSE.txt or copy at
+#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
+#
+#       OpenAlea WebSite : http://openalea.gforge.inria.fr
+#
+###############################################################################
+
 ################################################################################
 # - EGG BUILDERS - EGG BUILDERS - EGG BUILDERS - EGG BUILDERS - EGG BUILDERS - #
 # !!!!   THE ORDER OF CLASS DEFINITIONS IS THE ORDER OF EGG COMPILATION    !!!!#
@@ -164,9 +183,7 @@ class egg_boost(BaseEggBuilder):
     def script_substitutions(self):
         version_re  = re_compile("^.*BOOST_VERSION\s:\s([\d\.]{4,8}).*$", re.MULTILINE|re.DOTALL)
         boost_ = boost()
-        qt4_   = qt4() # just to have the inc/lib regexp/glob patterns
-
-        # includes are recursive subdirectories and the union of qt and sip includes               
+                  
         incs = recursive_glob_as_dict( boost_.install_inc_dir, Pattern.qtinc, strip_keys=True, prefix_key="include", dirs=True).items()
         inc_dirs = merge_list_dict( incs )
            
@@ -180,7 +197,7 @@ class egg_boost(BaseEggBuilder):
         lib_dirs    = {"lib": boost_.install_lib_dir}
         
         return dict( 
-                    VERSION      = version,                 
+                    VERSION          = version,                 
                     LIB_DIRS         = lib_dirs,
                     INC_DIRS         = inc_dirs,
                     INSTALL_REQUIRES = [egg_mingw_rt.__eggname__]
@@ -194,7 +211,7 @@ class egg_ann(BaseEggBuilder):
     arch_dependent = True  
     def script_substitutions(self):
         ann_ = ann()
-        ann_.fix_source_dir()
+        #ann_.fix_source_dir()
         ann_path = ann_.sourcedir
         
         return dict( 
