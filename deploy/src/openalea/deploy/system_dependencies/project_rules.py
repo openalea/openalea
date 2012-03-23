@@ -423,23 +423,28 @@ class boost(BaseProjectBuilder):
         """ bjam configures, builds and installs so nothing to do here"""
         return self.build()
 
-
+import os
+ModuleBaseDir = os.path.abspath(os.path.dirname(__file__))
 
 class ann(BaseProjectBuilder):
     url = "http://www.cs.umd.edu/~mount/ANN/Files/1.1.2/ann_1.1.2.zip"
     download_name  = "ann_src.zip"
     archive_subdir = "ann*"
-    enabled = False
+    enabled = True
 
     def __init__(self, *args, **kwargs):
         BaseProjectBuilder.__init__(self, *args, **kwargs)
+        self.patchfile = os.path.join(ModuleBaseDir,"ann_mgw.patch")
         self.install_inc_dir = pj(self.installdir, "include")
         self.install_lib_dir = pj(self.installdir, "lib")
     def configure(self):
+        import patch as p
+        patch = p.fromfile(self.patchfile)
+        patch.apply()
         return True
 
     def build(self):
-        return True
+        return subprocess.call("mingw32-make win32-g++") == 0
 
     def install(self):
         return True
