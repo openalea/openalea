@@ -8,7 +8,16 @@ from distutils.core import setup
 from distutils.core import Extension
 
 if sys.platform == "win32":
-    from win32api import GetShortPathName
+    def GetShortPathName(path):
+        import ctypes
+        nsize = 2048
+        out = ctypes.create_unicode_buffer(nsize)
+        short = None
+        if ctypes.windll.kernel32.GetShortPathNameW(path, ctypes.pointer(out), nsize):
+            return ctypes.wstring_at(path)
+        else:
+            print ctypes.windll.kernel32.GetLastError()
+
 
 pack_name = 'rpy2'
 pack_version = __import__('rpy').__version__
@@ -309,8 +318,10 @@ def get_rconfig(r_home, about, allow_empty = False):
     if sys.platform == "win32":
         # parse the make conf file      
         arch = 'i386'
-        inc_dirs     = GetShortPathName(os.path.join(r_home, 'include'))
-        arch_inc_dir = GetShortPathName(os.path.join(r_home, 'etc', arch))
+        inc_dirs     = os.path.join(r_home, 'include')
+        arch_inc_dir = os.path.join(r_home, 'etc', arch)
+        print os.path.join(r_home, 'include')
+        print arch_inc_dir
         d = get_makeconf_dict(r_home, arch)
         if about == "--cppflags":
             rconfig = d.get("ALL_CPPFLAGS") + r' -I"%s" -I"%s"'%(inc_dirs, arch_inc_dir)
@@ -346,7 +357,7 @@ var_re = re.compile(r"\$\(([\-\w]*)\)$")
 var_re2 = re.compile(r"(.*)\$\(([\-\w]*)\)(.*)")
 def get_makeconf_dict(r_home, arch):
     makeconf = os.path.join(r_home, 'etc', arch, 'Makeconf')
-    return parse_make(makeconf, initial_vars={"R_HOME": GetShortPathName(r_home)} )    
+    return parse_make(makeconf, initial_vars={"R_HOME": r_home} )    
 
 def parse_make(makefile, initial_vars=None):	
     if isinstance(makefile, file):

@@ -145,6 +145,63 @@ def strip_tags(html):
     return s.get_data()
 
 
+def download(url, easy_name, arch_path):
+    def download_reporter(bk, bksize, bytes):
+        if bytes == 0:
+            raise urllib2.URLError("Url doesn't point to an existing resource.")
+        progress= float(bk)/(bytes/bksize) * 100
+        sys.stdout.write(("Dl %s to %s: %.1f %%"%(url, easy_name, progress))+"\r")
+        sys.stdout.flush()
+
+    # get the size of the ressource we're about to download
+    remote_sz = float("inf")
+    try:
+        remote    = urllib.urlopen(url)
+        # the content type shouldn' be text/*,
+        # but application/*. text/* == error
+        if remote.info().getheaders("Content-Type")[0].startswith("application"):
+            remote_sz = int(remote.info().getheaders("Content-Length")[0])
+        elif remote.info().getheaders("Content-Type")[0].startswith("text/html"):
+            raise IOError( strip_tags(remote.read()) )
+        else:
+            raise IOError( remote.read() )
+    except IOError:
+        traceback.print_exc()
+        return False
+    finally:
+        remote.close()
+
+    ret = True
+    try:
+        #raises os.error if arch_path doesn't exist
+        local_sz = getsize(arch_path)
+        # download is incomplete, raise error to download
+        if local_sz<remote_sz :
+            raise os.error
+    except os.error:
+        try:
+            urllib.urlretrieve(url, arch_path, download_reporter)
+        except:
+            traceback.print_exc()
+            ret = False
+    return ret
+
+def unpack(arch, where):
+    arch = arch
+    base, ext = splitext( arch )
+    print "unpacking", arch
+    # TODO : verify that there is no absolute path inside zip.
+    if ext == ".zip":
+        zipf = zipfile.ZipFile( arch, "r" )
+        zipf.extractall( path=where )
+    elif ext == ".tgz":
+        tarf = tarfile.open( arch, "r:gz")
+        tarf.extractall( path=where )
+    elif ext == ".tar":
+        tarf = tarfile.open( arch, "r")
+        tarf.extractall( path=where )
+    print "done"
+    return True
 
 ##################################
 # File list digging and mangling #
@@ -309,6 +366,70 @@ class MEggBuilders(MSingleton):
 #############################
 # A micro build environment #
 #############################
+class Compiler(object):
+    __metaclass__ = MSingleton
+
+    def set_options(self, options):
+        self.options = options.copy()
+    
+    # Obtaining Compiler Info - We only want MINGW-family compiler
+    def ensure_has_mingw_compiler(self):
+        try:
+            subprocess.call("gcc --version")
+        except WindowsError:
+            print "No MingW compiler found, you can specify its path with -c"
+            print "or install a default MingW compiler."
+            install = raw_input("Install a default MingW? (Y/N). :")
+            if install.lower() == "y":
+                self.install_compiler()
+            else:
+                print "Cannot compile, continuing anyway..."
+                    
+    def install_compiler(self):
+        print "Will now install a default 32 bits MingW compiler to c:\mingw"
+        print "Make sure you have to rights to do so and that the directory does NOT exist"
+        if raw_input("Proceed? (Y/N):").lower() == "y":
+            archpath = pj(BE.working_path, "mingw.zip")
+            if download("https://gforge.inria.fr/frs/download.php/29029/MinGW-5.1.4_2-win32.egg",
+                     "mingw.zip",
+                     archpath):
+                if not unpack(archpath, "c:\mingw"):
+                    print "Couldn't install MingW32, continuing anyway..."
+            
+                     
+
+    def get_compiler_bin_path(self):
+        # TODO : do smart things according to self.options
+        if self.options["compiler"]:
+            return self.options["compiler"]
+
+        # -- try to find it in eggs --
+        try:
+            from pkg_resources import Environment
+            from distutils.sysconfig import get_python_lib
+            env  = Environment()
+            base = get_python_lib().lower()
+            # this works in virtualenvs
+            for f in env["mingw"]:
+                if f.location.lower().startswith(base):
+                    return pj(f.location, "bin")
+            raise Exception("Mingw not found")
+        except Exception, e:
+            print e
+            return r"c:\mingw\bin"
+
+    def is_tdm_compiler(self):
+        """Return True if we are using a compiler from tdm-gcc.tdragon.net/"""
+        pop = subprocess.Popen( pj(self.get_compiler_bin_path(), "gcc --version"),
+                                           stdout=subprocess.PIPE)
+        time.sleep(1) #give enough time for executable to load before it asks for license agreement.
+        output = pop.stdout.read()
+        return "(tdm"  in output
+# Shortcut:
+Comp = Compiler()
+    
+    
+    
 class BuildEnvironment(object):
     __metaclass__ = MSingleton
 
@@ -325,10 +446,11 @@ class BuildEnvironment(object):
 
     def set_options(self, options):
         self.options = options.copy()
+        Comp.set_options(options)
         self.init()
 
     def init(self):
-        self.working_path = pj( self.options.get("wdr", abspath(".")), self.get_platform_string() )
+        self.working_path = pj( self.options.get("wdr"), self.get_platform_string() )
         self.proc_file_path = pj(self.working_path,"proc_flags.pk")
         self.create_working_directories()
         recursive_copy( split(__file__)[0], self.working_path, "setup.py.in", levels=1)
@@ -346,7 +468,7 @@ class BuildEnvironment(object):
                 print "Building for Win64 can only be done using 64 bits Python."
                 print "Indeed, some linking is done with the Python in use."
                 raise Exception("Could not continue compilation for 64 bits release")
-            # if not self.is_tdm_compiler():
+            # if not Comp.is_tdm_compiler():
                 # print "Building for Win64 can currently only be done using TDM-GCC compilers."
                 # raise Exception("Could not continue compilation for 64 bits release")
 
@@ -438,42 +560,10 @@ class BuildEnvironment(object):
         for pth in pths:
             makedirs(pth)
 
-    # Obtaining Compiler Info - We only want MINGW-family compiler
-    def install_compiler(self):
-        raise NotImplementedError
-
-    def get_compiler_bin_path(self):
-        # TODO : do smart things according to self.options
-        if self.options["compiler"]:
-            return self.options["compiler"]
-
-        # -- try to find it in eggs --
-        try:
-            from pkg_resources import Environment
-            from distutils.sysconfig import get_python_lib
-            env  = Environment()
-            base = get_python_lib().lower()
-            # this works in virtualenvs
-            for f in env["mingw"]:
-                if f.location.lower().startswith(base):
-                    return pj(f.location, "bin")
-            raise Exception("Mingw not found")
-        except Exception, e:
-            print e
-            return r"c:\mingw\bin"
-
-    def is_tdm_compiler(self):
-        """Return True if we are using a compiler from tdm-gcc.tdragon.net/"""
-        pop = subprocess.Popen( pj(self.get_compiler_bin_path(), "gcc --version"),
-                                           stdout=subprocess.PIPE)
-        time.sleep(1) #give enough time for executable to load before it asks for license agreement.
-        output = pop.stdout.read()
-        return "(tdm"  in output
-
     def __fix_environment(self):
         # TODO : Clean env so that we do not propagate preexisting installations in subprocesses
         # give priority to OUR compiler!
-        os.environ["PATH"] = sj([self.get_compiler_bin_path(), os.environ["PATH"]])
+        os.environ["PATH"] = sj([Comp.get_compiler_bin_path(), os.environ["PATH"]])
         self.ensure_python_lib()
 
     def __fix_sys_path(self):
@@ -509,7 +599,7 @@ class BuildEnvironment(object):
         else:
             print "Python lib is ok"
 #a shorthand:
-BE=BuildEnvironment
+BE=BuildEnvironment()
 
 
 
@@ -573,7 +663,7 @@ class BaseBuilder(object):
     enabled         = True
 
     def __init__(self):
-        self.env = BE()
+        self.env = BE
         self.pending = None
     @property
     def name(self):
@@ -682,6 +772,9 @@ class BaseProjectBuilder(BaseBuilder):
         # other proj installed it.
         if self.url is None:
             return True
+        
+        return download(self.url, self.download_name, self.archname)
+        
         # get the size of the ressource we're about to download
         remote_sz = float("inf")
         try:
@@ -724,6 +817,8 @@ class BaseProjectBuilder(BaseBuilder):
         if exists(self.sourcedir):
             return True
         arch = arch or self.archname
+        return unpack(arch, self.sourcedir)
+        
         base, ext = splitext( arch )
         print "unpacking", arch
         # TODO : verify that there is no absolute path inside zip.
@@ -1056,7 +1151,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description="Build and package binary Openalea dependencies",
                                      epilog=build_epilog(),
                                      formatter_class=argparse.RawDescriptionHelpFormatter,)
-    parser.add_argument("--wdr", default=os.curdir, help="Under which directory we will create our working dir",
+    parser.add_argument("--wdr", default=abspath(os.curdir), help="Under which directory we will create our working dir",
                         type=abspath)
 
     for proj in MProjectBuilders.builders.iterkeys():
@@ -1079,7 +1174,7 @@ def parse_arguments():
     parser.add_argument("--login",  default=None, help="login to connect to GForge")
     parser.add_argument("--passwd", default=None, help="password to connect to GForge")
     parser.add_argument("--release", action="store_const", const=True, default=False, help="upload eggs to openalea repository or vplants (if False - for testing).")
-    parser.add_argument("--verbose", action="store_const", const=True, default=False, help="upload eggs to vplants repository for testing.")
+    parser.add_argument("--verbose", action="store_const", const=True, default=False, help="Well try to say more things.")
     return parser.parse_args()
 
 def main():
@@ -1123,7 +1218,7 @@ def main():
         options = vars(args)
         env = BuildEnvironment()
         env.set_options(options)
-
+        Comp.ensure_has_mingw_compiler()
         with env:
             env.build()
 

@@ -9,7 +9,7 @@ class mingwrt(BaseProjectBuilder):
     archive_subdir = None
     def __init__(self, *args, **kwargs):
         BaseProjectBuilder.__init__(self, *args, **kwargs)
-        self.sourcedir = pj(self.env.get_compiler_bin_path(), os.pardir)
+        self.sourcedir = pj(Comp.get_compiler_bin_path(), os.pardir)
         self.install_dll_dir = pj(self.installdir, "dll")
 
     def install(self):
@@ -39,7 +39,7 @@ class qt4(BaseProjectBuilder):
                            and attr.endswith("_dir")]
 
     def new_env_vars(self):
-        if self.env.is_tdm_compiler():
+        if Comp.is_tdm_compiler():
             return [ ("QMAKESPEC","win32-g++-4.6") ]
         else:
             return [ ("QMAKESPEC","win32-g++") ]
@@ -53,7 +53,7 @@ class qt4(BaseProjectBuilder):
         common = " -release -opensource -shared -nomake demos -nomake examples -mmx -sse2 -3dnow"
         common += " -declarative -webkit -no-s60 -no-cetest"
         cmd = "configure.exe -platform %(QMAKESPEC)s"%dict(self.new_env_vars()) + common
-        if self.env.is_tdm_compiler():
+        if Comp.is_tdm_compiler():
             # TDM doesn't ship with DirectX headers. Cannot use Phonon
             # Actually this is useless as configure.exe will check himself.
             cmd += " -no-phonon" #  + " -no-declarative"
@@ -489,92 +489,76 @@ class qhull(BaseProjectBuilder):
 
 
 
-# class rpy2(BaseProjectBuilder):
-    # url = "http://pypi.python.org/packages/source/r/rpy2/rpy2-2.2.4.tar.gz#md5=0192a3c05d8d97971e2bcf888944aff5"
-    # download_name  = "rpy2_src.tgz"
-    # archive_subdir = "rpy2*"
-
-    # def configure(self):
-        # # TODO: THIS IS PROBABLY VERSION SPECIFIC SO THERE NEEDS TO BE
-        # # BOTH RPY2 AND PYTHON VERSION CHECKS
-
-        # # Hack for MingW to be able to compile rpy2.
-        # # The problem is that PyTypoObject definitions have the tp_base attribute
-        # # initialiser hardcoded as a pointer to some other PyTypeObject instance
-        # # that is not const. This is not allowed by C standard.
-        # # The idea of this hack is to find all PyTypeObject definitions and
-        # # tp_base specification and hack the module init functions to fill
-        # # that at init runtime.
-        # c_dir     = pj(self.sourcedir, "rpy", "rinterface")
-        # c_sources = [ pj(c_dir, f) for f in os.listdir(c_dir) if f.endswith(".c") ]
-
-        # # FIRST OF ALL:
-        # # R doesn't come with Rinterface.h. We must download it.
-        # url = "http://svn.r-project.org/R/trunk/src/include/Rinterface.h"
-        # urllib.urlretrieve(url, pj(c_dir, "Rinterface.h"))
-
-        # # -- gather Python type definitions --
-        # poss_py_type_re  = re_compile(r"static PyTypeObject (\w+)\s*=\s*\{.*?\};", re.MULTILINE|re.DOTALL)
-        # py_type_re  = re_compile(r"static PyTypeObject (\w+)\s*=\s*\{(.*?)(&?\w*),\s*/\*tp_base\*/(.*?)\};", re.MULTILINE|re.DOTALL)
-        # py_types = []
-        # poss_py_types = []
-        # for src in c_sources:
-            # with open(src) as f:
-                # txt = f.read()
-            # res = py_type_re.findall(txt)
-            # py_types.extend(res)
-            # poss_py_types.extend(poss_py_type_re.findall(txt))
-            # # -- replace hard initialisation with NULL initialisation --
-            # txt = py_type_re.sub(r"static PyTypeObject \1 = {\2 0, /*tp_base*/\4};", txt)
-            # with open(src, "w") as f:
-                # f.write(txt)
-        # # Some blabla
-        # print "Found", len(poss_py_types), "candidate types, patched", len(py_types)
-        # if abs(len(poss_py_types) - len(py_types)) != 0:
-            # notpatched = set(poss_py_types) - set( k for k,X1,v,X2 in py_types )
-            # print "Couldn't patch:"
-            # for np in notpatched:
-                # print "\t==>", np
-            # raise Exception("Some files that should have been patched were not patched:  probably a regex error.")
-
-        # # -- Patch the module initialisers --
-        # # all PyObjectTypes belong to the rinterface module, except "GrDev_Type" which belong to rpy_device
-        # # so we patch init_rinterface and initrpy_device.
-        # init_rinterface_patch = initrpy_device_patch = "  /*Patched Section*/\n"
-        # for pytype, X1, tp_base, X2 in py_types:
-            # if pytype == "GrDev_Type":
-                # initrpy_device_patch += "  %s.tp_base = %s;\n"%(pytype, tp_base)
-            # else:
-                # init_rinterface_patch += "  %s.tp_base = %s;\n"%(pytype, tp_base)
-
-        # for modname, patch in [ ("_rinterface", init_rinterface_patch), ("rpy_device", initrpy_device_patch)]:
-            # txt = ""
-            # with open( pj(c_dir, modname+".c") ) as f:
-                # txt = f.read()
-            # txt = re.sub( r"(%s\(void\)[\n\#A-Za-z0-9]*)\{"%modname, r"\1{\n"+patch, txt, flags=re.MULTILINE)
-            # with open( pj(c_dir, modname+".c"), "w") as f:
-                # f.write(txt)
-
-        # # Next step is to patch the setup.py script.
-        # # But since it is sooooo complicated, we will simply copy a working setup.py
-        # print "Until there is a proper patching or until RPy2 becomes easy to compile on windows, coping the working setup.py"
-        # shutil.copyfile( pj(split(__file__)[0], "rpy2_setup.py"), pj(self.sourcedir,"setup.py"))
-        # return True
-
-    # def build(self):
-        # cmd = sys.executable + " setup.py build --compiler=mingw32"
-        # return subprocess.call(cmd) == 0
-
-    # def install(self):
-        # cmd = sys.executable + " setup.py install --install-lib=" + self.installdir
-        # return subprocess.call(cmd) == 0
-
 class rpy2(BaseProjectBuilder):
-    url = "https://bitbucket.org/lgautier/rpy2/get/f075a4291e9c.zip"
-    download_name  = "rpy2_src.zip"
-    archive_subdir = "lgautier-rpy2*"
+    url = "http://pypi.python.org/packages/source/r/rpy2/rpy2-2.2.4.tar.gz#md5=0192a3c05d8d97971e2bcf888944aff5"
+    download_name  = "rpy2_src.tgz"
+    archive_subdir = "rpy2*"
 
     def configure(self):
+        # TODO: THIS IS PROBABLY VERSION SPECIFIC SO THERE NEEDS TO BE
+        # BOTH RPY2 AND PYTHON VERSION CHECKS
+
+        # Hack for MingW to be able to compile rpy2.
+        # The problem is that PyTypoObject definitions have the tp_base attribute
+        # initialiser hardcoded as a pointer to some other PyTypeObject instance
+        # that is not const. This is not allowed by C standard.
+        # The idea of this hack is to find all PyTypeObject definitions and
+        # tp_base specification and hack the module init functions to fill
+        # that at init runtime.
+        c_dir     = pj(self.sourcedir, "rpy", "rinterface")
+        c_sources = [ pj(c_dir, f) for f in os.listdir(c_dir) if f.endswith(".c") ]
+
+        # FIRST OF ALL:
+        # R doesn't come with Rinterface.h. We must download it.
+        url = "http://svn.r-project.org/R/trunk/src/include/Rinterface.h"
+        urllib.urlretrieve(url, pj(c_dir, "Rinterface.h"))
+
+        # -- gather Python type definitions --
+        poss_py_type_re  = re_compile(r"static PyTypeObject (\w+)\s*=\s*\{.*?\};", re.MULTILINE|re.DOTALL)
+        py_type_re  = re_compile(r"static PyTypeObject (\w+)\s*=\s*\{(.*?)(&?\w*),\s*/\*tp_base\*/(.*?)\};", re.MULTILINE|re.DOTALL)
+        py_types = []
+        poss_py_types = []
+        for src in c_sources:
+            with open(src) as f:
+                txt = f.read()
+            res = py_type_re.findall(txt)
+            py_types.extend(res)
+            poss_py_types.extend(poss_py_type_re.findall(txt))
+            # -- replace hard initialisation with NULL initialisation --
+            txt = py_type_re.sub(r"static PyTypeObject \1 = {\2 0, /*tp_base*/\4};", txt)
+            with open(src, "w") as f:
+                f.write(txt)
+        # Some blabla
+        print "Found", len(poss_py_types), "candidate types, patched", len(py_types)
+        if abs(len(poss_py_types) - len(py_types)) != 0:
+            notpatched = set(poss_py_types) - set( k for k,X1,v,X2 in py_types )
+            print "Couldn't patch:"
+            for np in notpatched:
+                print "\t==>", np
+            raise Exception("Some files that should have been patched were not patched:  probably a regex error.")
+
+        # -- Patch the module initialisers --
+        # all PyObjectTypes belong to the rinterface module, except "GrDev_Type" which belong to rpy_device
+        # so we patch init_rinterface and initrpy_device.
+        init_rinterface_patch = initrpy_device_patch = "  /*Patched Section*/\n"
+        for pytype, X1, tp_base, X2 in py_types:
+            if pytype == "GrDev_Type":
+                initrpy_device_patch += "  %s.tp_base = %s;\n"%(pytype, tp_base)
+            else:
+                init_rinterface_patch += "  %s.tp_base = %s;\n"%(pytype, tp_base)
+
+        for modname, patch in [ ("_rinterface", init_rinterface_patch), ("rpy_device", initrpy_device_patch)]:
+            txt = ""
+            with open( pj(c_dir, modname+".c") ) as f:
+                txt = f.read()
+            txt = re.sub( r"(%s\(void\)[\n\#A-Za-z0-9]*)\{"%modname, r"\1{\n"+patch, txt, flags=re.MULTILINE)
+            with open( pj(c_dir, modname+".c"), "w") as f:
+                f.write(txt)
+
+        # Next step is to patch the setup.py script.
+        # But since it is sooooo complicated, we will simply copy a working setup.py
+        print "Until there is a proper patching or until RPy2 becomes easy to compile on windows, coping the working setup.py"
+        shutil.copyfile( pj(self.options["wdr"], split(__file__)[0], "rpy2_setup.py"), pj(self.sourcedir,"setup.py"))
         return True
 
     def build(self):
@@ -584,3 +568,20 @@ class rpy2(BaseProjectBuilder):
     def install(self):
         cmd = sys.executable + " setup.py install --install-lib=" + self.installdir
         return subprocess.call(cmd) == 0
+
+# class rpy2(BaseProjectBuilder):
+    # url = "https://bitbucket.org/lgautier/rpy2/get/f075a4291e9c.zip"
+    # download_name  = "rpy2_src.zip"
+    # archive_subdir = "lgautier-rpy2*"
+
+    # def configure(self):
+        # return True
+
+    # def build(self):
+        print os.environ["PATH"]
+        # cmd = sys.executable + " setup.py build --compiler=mingw32"
+        # return subprocess.call(cmd) == 0
+
+    # def install(self):
+        # cmd = sys.executable + " setup.py install --install-lib=" + self.installdir
+        # return subprocess.call(cmd) == 0
