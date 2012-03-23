@@ -2,9 +2,12 @@
 #
 #       openalea.deploy.dependency_builder
 #
-#       Copyright 2006-2011 INRIA - CIRAD - INRA
+#       Copyright 2006-2012 INRIA - CIRAD - INRA
 #
 #       File author(s): Daniel Barbeau
+#       File Contributors(s):   
+#                             - Yassin Refahi,
+#                             - Frederic Boudon,
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
@@ -63,25 +66,47 @@ import datetime
 import zipfile
 import tarfile
 import ctypes
-import ConfigParser #used by project builders
-from os.path import join as pj, splitext, getsize, exists, abspath, split
+import patch
+import ConfigParser #used by some project builders
+from os.path import join as pj, splitext, getsize, exists, abspath, split, dirname
 from collections import namedtuple, OrderedDict, defaultdict
 from re import compile as re_compile
 
+
+#################################
+# Some Utilities - Path Joining #
+#################################
+# Native Path Joining function:
 sj = os.pathsep.join
 
 def uj(*args):
+    """Unix-style path joining, useful when working with qmake."""
     return "/".join(args)
 
-verbose = False
 
+############################
+# Some Utilities - Globals #
+############################
 
-
-# Some utilities
+# Major and Minor python version numbers:
 pyver = sys.version_info[:2]
 
+# A file object to redirect output to NULL:
+NullOutput = open("NUL", "w")
+
+# A variable that stores the absolute path to this file:
+ModuleBaseDir = abspath(dirname(__file__))   
+
+class Later(object):
+    """ Just a way to be able to check if a process should be done later,
+    and not mark it as done or failed (the third guy in a tribool)"""
+    pass
+
+################################
+# Some Utilities - System Info #
+################################
 def is_64bits_host():
-    # extend this to be multiplatform.
+    # TODO : extend this to be multiplatform.
     # This is a hack to clearly identify if we are running
     # Python is a 64 bits Windows host. We don't use
     # platform.architecture because it returns "32" for
@@ -118,16 +143,10 @@ def get_python_dll():
         raise OSError("Couldn't determine python%d%d.dll path"%pyver)
     return pj(py_path, u"python%d%d.dll"%pyver)
 
-class Later(object):
-    """ Just a way to be able to check if a process should be done later,
-    and not mark it as done or failed (the third guy in a tribool)"""
-    pass
 
-class NullOutput(object):
-    """A class that replace sys.stdout and that prints nothing"""
-    def write(self, s):
-        pass
-
+###############################
+# Some Utilities - Networking #
+###############################
 # Some functions to strip away html tags from html documents.
 # from http://stackoverflow.com/questions/753052/strip-html-from-strings-in-python
 from HTMLParser import HTMLParser
@@ -242,7 +261,7 @@ def recursive_glob(dir_, patterns=None, strip_dir_=False, levels=-1):
 
 def recursive_glob_as_dict(dir_, patterns=None, strip_dir_=False,
                            strip_keys=False, prefix_key=None, dirs=False, levels=-1):
-    """Recursively globs files and returns a list of the glob files.
+    """Recursively globs files and returns a list of the globbed files.
     The globbing can use regexps or shell wildcards.
     """
     files     = recursive_glob(dir_, patterns, strip_dir_, levels)
@@ -316,6 +335,11 @@ def ascii_file_replace(fname, oldstr, newstr):
             f.write(txt)
 
 
+def apply_patch(patchfile):
+    p = patch.fromfile(patchfile)
+    p.apply()    
+            
+            
 ###############
 # METACLASSES #
 ###############
@@ -361,6 +385,15 @@ class MEggBuilders(MSingleton):
         return MEggBuilders.builders[item]
 
 
+def memoize(attr):
+    def deco_memoize(f):
+        def wrapper(self, *args, **kwargs):
+            if getattr(self, attr, None) is None:
+                v = f(self, *args, **kwargs)
+                setattr(self, attr, v)
+            return getattr(self, attr)
+        return wrapper
+    return deco_memoize
 
 
 #############################
@@ -368,19 +401,20 @@ class MEggBuilders(MSingleton):
 #############################
 class Compiler(object):
     __metaclass__ = MSingleton
-
+    
+    default_32_comp = "https://gforge.inria.fr/frs/download.php/29029/MinGW-5.1.4_2-win32.egg"
+    
     def set_options(self, options):
         self.options = options.copy()
     
     # Obtaining Compiler Info - We only want MINGW-family compiler
     def ensure_has_mingw_compiler(self):
         try:
-            subprocess.call("gcc --version")
+            subprocess.call("gcc --version", stdout=NullOutput)
         except WindowsError:
             print "No MingW compiler found, you can specify its path with -c"
             print "or install a default MingW compiler."
-            install = raw_input("Install a default MingW? (Y/N). :")
-            if install.lower() == "y":
+            if raw_input("Install a default MingW? (Y/N). :").lower() == "y":
                 self.install_compiler()
             else:
                 print "Cannot compile, continuing anyway..."
@@ -389,15 +423,13 @@ class Compiler(object):
         print "Will now install a default 32 bits MingW compiler to c:\mingw"
         print "Make sure you have to rights to do so and that the directory does NOT exist"
         if raw_input("Proceed? (Y/N):").lower() == "y":
-            archpath = pj(BE.working_path, "mingw.zip")
-            if download("https://gforge.inria.fr/frs/download.php/29029/MinGW-5.1.4_2-win32.egg",
-                     "mingw.zip",
-                     archpath):
-                if not unpack(archpath, "c:\mingw"):
+            ez_name  = "mingw.zip"
+            archpath = pj(BE.working_path, ez_name)
+            if download(default_32_comp, ez_name, archpath):
+                if not unpack(archpath, "c:\\mingw"):
                     print "Couldn't install MingW32, continuing anyway..."
-            
-                     
-
+    
+    @memoize("comp_bin_path")
     def get_compiler_bin_path(self):
         # TODO : do smart things according to self.options
         if self.options["compiler"]:
@@ -418,13 +450,53 @@ class Compiler(object):
             print e
             return r"c:\mingw\bin"
 
-    def is_tdm_compiler(self):
+    def version_gt(self, version):
+        return self.get_version() >= version
+            
+    @memoize("is_tdm")
+    def is_tdm(self):
         """Return True if we are using a compiler from tdm-gcc.tdragon.net/"""
         pop = subprocess.Popen( pj(self.get_compiler_bin_path(), "gcc --version"),
                                            stdout=subprocess.PIPE)
-        time.sleep(1) #give enough time for executable to load before it asks for license agreement.
+        time.sleep(1)
         output = pop.stdout.read()
         return "(tdm"  in output
+    
+    @memoize("version")
+    def get_version(self):
+        pop = subprocess.Popen( pj(self.get_compiler_bin_path(), "gcc --version"),
+                                           stdout=subprocess.PIPE)
+        time.sleep(1)
+        output = pop.stdout.read()
+        reg = re_compile(r"(\d\.\d.\d)")        
+        return reg.search(output).group(1)
+            
+    @memoize("default_target")            
+    def get_default_target(self):
+        prog = "int main(){return sizeof(void*);}"
+        src  =  pj(BE.working_path, "comp_target_test.cpp")
+        exe  =  pj(BE.working_path, "comp_target_test.exe")
+        cmd  = "gcc %s -o %s"%(src,exe)
+        with open(src, "w") as f:
+            f.write(prog)
+        subprocess.call(cmd, stdout=NullOutput, stderr=NullOutput)
+        ret = subprocess.call(exe)
+        return 64 if ret==8 else 32
+    
+    @memoize("is_cross_compiler")                
+    def can_cross_compile(self):
+        flag = "-m"+("32" if self.get_default_target() == 64 else "64")
+        prog = "int main(){return sizeof(void*);}"
+        src  =  pj(BE.working_path, "comp_cross_test.cpp")
+        exe  =  pj(BE.working_path, "comp_cross_test.exe")
+        cmd  = "gcc %s %s -o %s"%(src,flag,exe)
+        with open(src, "w") as f:
+            f.write(prog)
+        ret = subprocess.call(cmd, stdout=NullOutput, stderr=NullOutput) == 0
+        return ret
+        
+
+
 # Shortcut:
 Comp = Compiler()
     
@@ -432,6 +504,8 @@ Comp = Compiler()
     
 class BuildEnvironment(object):
     __metaclass__ = MSingleton
+    
+    default_cmake = "http://www.cmake.org/files/v2.8/cmake-2.8.7-win32-x86.zip"
 
     def __init__(self):
         self.options = {}
@@ -440,9 +514,10 @@ class BuildEnvironment(object):
         self.options = {}
         self.working_path    = None
         self.proc_file_path  = None
+        self.original_path   = os.environ["PATH"]
         self.original_stdout = sys.stdout
         self.original_stderr = sys.stderr
-        self.null_stdout     = NullOutput()
+        self.null_stdout     = NullOutput
 
     def set_options(self, options):
         self.options = options.copy()
@@ -457,20 +532,19 @@ class BuildEnvironment(object):
         recursive_copy( split(__file__)[0], self.working_path, "qmake_main.cpp.sub", levels=1)
         self.__fix_environment()
         self.__fix_sys_path()
-
-        if self.options["bits"] == 64:
-            if not is_64bits_host():
-                print "Building for Win64 can only be done on a 64 bits host."
-                print "Indeed, we cannot cross compile from 32bits host as "
-                print "generated 64bits executables are used during compilation."
-                raise Exception("Could not continue compilation for 64 bits release")
-            if not is_64bits_python():
-                print "Building for Win64 can only be done using 64 bits Python."
-                print "Indeed, some linking is done with the Python in use."
-                raise Exception("Could not continue compilation for 64 bits release")
-            # if not Comp.is_tdm_compiler():
-                # print "Building for Win64 can currently only be done using TDM-GCC compilers."
-                # raise Exception("Could not continue compilation for 64 bits release")
+       
+        if is_64bits_python():
+            print "Doing a 64 bits compilation because we are using a 64 bits Python."
+            if not Comp.get_default_target() == 64:
+                print "Compiler is not a 64 bits compiler. Can it cross-compile?"
+                if not Comp.can_cross_compile():
+                    print "Cannot cross compile."
+                    raise Exception("No compiler found for Windows 64 bits")        
+        else:
+            print "Doing a 32 bits compilation because we are using a 32 bits Python."
+            if not Comp.get_default_target() == 32:
+                print "Compiler is not a 32 bits compiler"
+                raise Exception("No compiler found for Windows 64 bits")
 
     # -- context manager protocol --
     def __enter__(self):
@@ -497,8 +571,10 @@ class BuildEnvironment(object):
         for buildercls in self.proj_builders + self.egg_builders:            
             builder = buildercls()
             if builder.has_pending and builder.enabled:
-                if (only is None) or (builder.name == only):
+                if builder.name == only:
                     builder.process_me()
+                else:
+                    builder.process_me(skip_skippable = only is not None)
 
     def task_is_done(self, name, task):
         """ Marks that the `task` step has been accomplished for `proj`.
@@ -559,13 +635,25 @@ class BuildEnvironment(object):
                 self.get_egg_path()]
         for pth in pths:
             makedirs(pth)
-
+            
     def __fix_environment(self):
         # TODO : Clean env so that we do not propagate preexisting installations in subprocesses
         # give priority to OUR compiler!
-        os.environ["PATH"] = sj([Comp.get_compiler_bin_path(), os.environ["PATH"]])
+        self.__overwrite_path()
         self.ensure_python_lib()
+        self.ensure_has_cmake()
+        Comp.ensure_has_mingw_compiler()
+        self.__overwrite_path()
 
+    def __overwrite_path(self):
+        path = sj([Comp.get_compiler_bin_path(), 
+                   self.get_cmake_bin_path(),
+                   self.original_path])
+        if path.endswith("\""):
+            print "Removing trailing PATH quotes as mingw32-make doesn't like them"
+            path = path.replace("\"", "")                   
+        os.environ["PATH"] = path 
+        
     def __fix_sys_path(self):
         """Clean sys.path for this process so that we don't import
         existing eggs or site-installed thingys."""
@@ -598,6 +686,59 @@ class BuildEnvironment(object):
                 raise Exception("Can't create %s, %s not found: Python link will fail"%(dst,src))
         else:
             print "Python lib is ok"
+
+    # Some CMAKE related methods.
+    @memoize("cmake_pth")        
+    def get_cmake_bin_path(self):
+        if self.options["cmake"]:
+            return self.options["cmake"]
+        pths = os.environ["PATH"].split(";")
+        pths = [ "c:\\Program Files (x86)\\cmake*\\bin\\",
+                 "c:\\Program Files\\cmake*\\bin\\",
+                 "c:\\CMake*\\bin\\"]
+        
+        matches = []
+        for p in pths:
+            matches += glob.glob( pj(p, "cmake.exe") )
+        if len(matches ) == 0:
+            return None
+        else:
+            matches.sort()        
+            return dirname(matches[-1])
+            
+    def ensure_has_cmake(self):
+        try: 
+            subprocess.call("cmake --version", stdout=NullOutput)
+        except WindowsError:
+            print "Couldn't find CMake in your path. Searching standard dirs"
+            cmake_pth = self.get_cmake_bin_path()
+            if not cmake_pth:
+                print "Couldn't find CMake anywhere..."
+                if raw_input("Install one? (Y/N): ").lower() == "y":
+                    return self.install_cmake()
+                else:
+                    print "Some packages may not compile, continuing anyway..."
+                    return False
+            else:
+                print "Found it :", cmake_pth
+        return True
+
+    def install_cmake(self):
+        print "Will now install a CMake to c:\\CMake*"
+        print "Make sure you have to rights to do so and that the directory does NOT exist"
+        if raw_input("Proceed? (Y/N):").lower() == "y":
+            ez_name  = "cmake.zip"
+            archpath = pj(BE.working_path, ez_name)
+            if download(self.default_cmake, ez_name, archpath):
+                if not unpack(archpath, "c:\\"):
+                    print "Couldn't install CMake, continuing anyway..."
+                    return False
+        self.cmake_pth = None
+        self.locate_cmake()
+        return True
+   
+        
+
 #a shorthand:
 BE=BuildEnvironment()
 
@@ -698,18 +839,22 @@ class BaseBuilder(object):
                 return True
         return False
 
-    def process_me(self):
-        self.env.make_silent( not self.__has_pending_verbose_tasks() )
+    def process_me(self, skip_skippable=False):
+        self.env.make_silent( not self.__has_pending_verbose_tasks() or \
+                              skip_skippable )
 
-        proc_str  = "PROCESSING " + self.name
-        print "\n",proc_str
-        print "="*len(proc_str)
         # forced_tasks is a string containing self.all_tasks keys.
         # if a process is in forced_tasks it gets forced.
         forced_tasks = self.options.get(self.name, "")
+        
+        proc_str  = "Processing " + self.name
+        print "\n",proc_str
+        print "="*len(proc_str)
         print "forced tasks are:", forced_tasks
 
         for task, task_func, skippable in self.pending:
+            if skippable and skip_skippable:
+                continue
             nice_func = task_func.strip("_")
             print "\t-->performing %s for %s"%(nice_func, self.name)
             success = getattr(self, task_func)()
@@ -717,6 +862,10 @@ class BaseBuilder(object):
                 print "\t-->%s for %s we be done later"%(nice_func, self.name)
             elif success == False:
                 print "\t-->%s for %s failed"%(nice_func, self.name)
+                if skip_skippable:
+                    print "-o %s was specified, ignoring error on package %s"% \
+                         (self.options.get("only"), self.name)   
+                    continue
                 sys.exit(-1)
             else:
                 self.env.task_is_done(self.name, task)
@@ -760,13 +909,6 @@ class BaseProjectBuilder(BaseBuilder):
         self.installdir = pj( self.env.get_install_path(), splitext(self.download_name)[0] )
 
     def download_source(self):
-        def download_reporter(bk, bksize, bytes):
-            if bytes == 0:
-                raise urllib2.URLError("Url doesn't point to an existing resource.")
-            progress= float(bk)/(bytes/bksize) * 100
-            sys.stdout.write(("Dl %s to %s: %.1f %%"%(self.url, self.download_name, progress))+"\r")
-            sys.stdout.flush()
-
         # a proj with a none url implicitely means
         # the sources are already here because some
         # other proj installed it.
@@ -775,39 +917,6 @@ class BaseProjectBuilder(BaseBuilder):
         
         return download(self.url, self.download_name, self.archname)
         
-        # get the size of the ressource we're about to download
-        remote_sz = float("inf")
-        try:
-            remote    = urllib.urlopen(self.url)
-            # the content type shouldn' be text/*,
-            # but application/*. text/* == error
-            if remote.info().getheaders("Content-Type")[0].startswith("application"):
-                remote_sz = int(remote.info().getheaders("Content-Length")[0])
-            elif remote.info().getheaders("Content-Type")[0].startswith("text/html"):
-                raise IOError( strip_tags(remote.read()) )
-            else:
-                raise IOError( remote.read() )
-        except IOError:
-            traceback.print_exc()
-            return False
-        finally:
-            remote.close()
-
-        ret = True
-        try:
-            #raises os.error if self.archname doesn't exist
-            local_sz = getsize(self.archname)
-            # download is incomplete, raise error to download
-            if local_sz<remote_sz :
-                raise os.error
-        except os.error:
-            try:
-                urllib.urlretrieve(self.url, self.archname, download_reporter)
-            except:
-                traceback.print_exc()
-                ret = False
-        return ret
-
     def unpack_source(self, arch=None):
         # a proj with a none url implicitely means
         # the sources are already here because some
@@ -819,21 +928,6 @@ class BaseProjectBuilder(BaseBuilder):
         arch = arch or self.archname
         return unpack(arch, self.sourcedir)
         
-        base, ext = splitext( arch )
-        print "unpacking", arch
-        # TODO : verify that there is no absolute path inside zip.
-        if ext == ".zip":
-            zipf = zipfile.ZipFile( arch, "r" )
-            zipf.extractall( path=self.sourcedir )
-        elif ext == ".tgz":
-            tarf = tarfile.open( arch, "r:gz")
-            tarf.extractall( path=self.sourcedir )
-        elif ext == ".tar":
-            tarf = tarfile.open( arch, "r")
-            tarf.extractall( path=self.sourcedir )
-        print "done"
-        return True
-
     def fix_source_dir(self):
         try:
             print "fixing sourcedir", self.sourcedir,
@@ -920,10 +1014,10 @@ class BaseEggBuilder(BaseBuilder):
     # The egg depends on the os and processor type (allows correct egg naming)
     arch_dependent = True
     # Task management:
-    all_tasks       = OrderedDict([("c",("_configure_script",True)),
-                                   ("e",("_eggify",True)),
-                                   ("u",("_upload_egg",True))
-                                  ])
+    all_tasks      = OrderedDict([("c",("_configure_script",True)),
+                                  ("e",("_eggify",True)),
+                                  ("u",("_upload_egg",True))
+                                 ])
     # Only execute these tasks:
     supported_tasks = "".join(all_tasks.keys())
 
@@ -1168,9 +1262,9 @@ def parse_arguments():
 
     parser.add_argument("--python", "-p", default=None, help="fully qualified python executable to use for the compilation")
     parser.add_argument("--compiler", "-c", default=None, help="path to compiler binaries")
+    parser.add_argument("--cmake", default=None, help="path to compiler binaries")
     parser.add_argument("--only", "-o", default=None, help="Only process this project/egg")
     parser.add_argument("--jobs", "-j", default=1, type=int, help="number of jobs during compilation")
-    parser.add_argument("--bits", default=64 if is_64bits_python() else 32, type=int, choices=[32, 64], help="32 or 64 bits build")
     parser.add_argument("--login",  default=None, help="login to connect to GForge")
     parser.add_argument("--passwd", default=None, help="password to connect to GForge")
     parser.add_argument("--release", action="store_const", const=True, default=False, help="upload eggs to openalea repository or vplants (if False - for testing).")
@@ -1206,7 +1300,7 @@ def main():
     # set some env variables for subprocesses
     os.environ["MAKE_FLAGS"] = "-j"+str(args.jobs)
 
-    if args.python is not None:
+    if args.python is not None: #use another Python to compile, this is weird, maybe useless.
         python = args.python
         del args.python #or else we will nevert start!
         arg_str = reduce( lambda x,y: x + (" --"+y[0]+"="+str(y[1]) if y[1] else ""), args._get_kwargs(), pj(os.getcwd(), __file__) )
@@ -1218,7 +1312,6 @@ def main():
         options = vars(args)
         env = BuildEnvironment()
         env.set_options(options)
-        Comp.ensure_has_mingw_compiler()
         with env:
             env.build()
 
