@@ -526,11 +526,20 @@ class cgal(BaseProjectBuilder):
     def configure(self):
         compiler = Comp.get_compiler_bin_path()
         boost_ = boost()
-        return subprocess.call('cmake.exe -G"MinGW Makefiles" -DCMAKE_INSTALL_PREFIX="'+self.installdir+'" -DCMAKE_CXX_COMPILER:FILEPATH="'+compiler+'\\g++.exe" -DBOOST_ROOT="'+boost_.installdir+'". ') == 0
-
-    # def build(self):  
-        # return subprocess.call("make") == 0
         
+        db_quote = lambda x: '"'+x+'"'
+        
+        options = " ".join(['-DCMAKE_INSTALL_PREFIX='+db_quote(self.installdir),
+                            '-DCMAKE_CXX_COMPILER:FILEPATH='+db_quote(pj(compiler,'g++.exe')),
+                            '-DBOOST_ROOT='+db_quote(boost_.installdir),
+                            '-DGMP_INCLUDE_DIR='+db_quote( pj(compiler, "..", "include") ),
+                            '-DMPFR_INCLUDE_DIR='+db_quote( pj(compiler, "..", "include") ),
+                            '-DZLIB_INCLUDE_DIR='+db_quote(pj(compiler, "..", "include")),
+                            '-DZLIB_LIBRARY='+db_quote(pj(compiler,"..", "lib", "libz.a")),
+                            ])
+        options=options.replace("\\", "/") #avoid "escape sequence" errors with cmake
+        return subprocess.call('cmake.exe -G"MinGW Makefiles" '+options+' . ') == 0
+                            
         
     
 class rpy2(BaseProjectBuilder):
