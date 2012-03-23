@@ -592,7 +592,7 @@ def main():
                                 if processInstaller(mask, args.runtime) )
 
                                 
-    # -- if args.srcDir contains "ONLINE_EGGS", this means that we will look for eggs on PYPI and GForge.
+    # -- if args.fetch_online is True, this means that we will look for eggs on PYPI and GForge.
     #   - if args.private_packages is True, we add private gforge packages.
     #   - TODO! Be smart and don't download if already here!
     if args.fetch_online:
