@@ -414,7 +414,7 @@ class boost(BaseProjectBuilder):
     def build(self):
         # it is possible to bootstrap boost if no bjam.exe is found:
         if not exists( pj(self.sourcedir, "bjam.exe") ):
-            if subprocess.call("bootstrap.bat") != 0:
+            if subprocess.call("bootstrap.bat mingw") != 0:
                 return False
             else:
                 # The Bootstrapper top-level script ignores that gcc
@@ -434,7 +434,7 @@ class boost(BaseProjectBuilder):
         paths = self.installdir, pj(sys.prefix, "include"), pj(sys.prefix,"libs")
         cmd = "bjam --debug-configuration --prefix=%s --without-test --layout=system"
         cmd += " variant=release link=shared threading=multi runtime-link=shared toolset=gcc"
-        cmd += " include=%s library-path=%s install"%paths
+        cmd += " include=%s library-path=%s install"
         cmd %= paths
         return subprocess.call(cmd) == 0
 
