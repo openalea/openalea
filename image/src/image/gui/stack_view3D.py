@@ -115,6 +115,33 @@ def img2polydata(image, list_remove=[], sc=None, verbose=False):
 	return polydata
 	
 
+def export_vtk(img, filename="default.vtk", list_remove=[], dictionnary=None, verbose=False):
+	"""
+	paramètres :
+	img : SpatialImage ou SpatialImageAnalysis
+	filename : le nom de la sortie
+	list_remove : une liste des cellules à enlever lors de l'affichage
+	dictionnary : dictionnaire cells->scalar
+	lut : disponibles dans colormaps
+	verbose : pour afficher ou non les progressions
+	
+	ATTENTION, SUR CERTAINES MACHINES LE FICHIER VTK A DES VIRGULES POUR DEFINIR LES DOUBLE, ALORS QUE LES SOFTS ONT BESOIN DE POINTS
+	
+	"""
+	#management of file format
+	if isinstance(img,SpatialImageAnalysis):
+		p=img2polydata(img.image, list_remove=list_remove,sc=dictionnary, verbose=verbose)
+	elif isinstance(img,SpatialImage):
+		p=img2polydata(img, list_remove=list_remove, verbose=verbose)
+	else:
+		print "for now this file format is not managed by export_vtk)"
+		return
+	p.update()
+	w = tvtk.PolyDataWriter()
+	w.input=p.output
+	w.file_name=filename
+	w.write()
+
 def rootSpI(img, list_remove=[], verbose=False):
 	"""
 	case where the data is a spatialimage
@@ -160,11 +187,14 @@ def display3D(img, list_remove=[], dictionnary=None, lut=black_and_white, verbos
 	lut : disponibles dans colormaps
 	verbose : pour afficher ou non les progressions
 	ex : 
-	im1 = imread('../../../test/segmentation.inr.gz')
-	im1a=SpatialImageAnalysis(im1)	
+	im1 = imread('/home/vince/softs/vplants/vplants/trunk/vtissue/imaging/mars_alt/test/data/segmentation/imgSeg.inr.gz')
+	im1a=SpatialImageAnalysis(im1)
 	dictionnary=dict(zip(im1a.labels(), im1a.volume()))
-	display3D(im1,range(100), dictionnary, rainbow_full)
-	
+	labs=im1a.labels()
+	L1=im1a.L1()[1]
+	filtre=[i for i in labs if i not in L1]
+	display3D(im1, verbose=True)
+
 	fonction maitre en deux parties :
 	la première partie gère le format de l'objet donné en paramètre	
 	la seconde partie gère l'affichage
