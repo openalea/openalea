@@ -23,7 +23,8 @@ import sys
 import numpy as np
 from scipy import ndimage
 import math
-from openalea.image.all import imread, SpatialImage
+from openalea.image.serial.basics import imread
+from openalea.image.spatial_image import SpatialImage
 from openalea.image.algo.analysis import SpatialImageAnalysis
 #compatibility
 try:
@@ -38,7 +39,7 @@ except:
 
 from colormaps import black_and_white, rainbow_full, rainbow_green2red, rainbow_red2blue
 
-def img2polydata(image, list_remove=[], sc=None):
+def img2polydata(image, list_remove=[], sc=None, verbose=False):
 	"""
 	Convert a |SpatialImage| to a PolyData object with cells surface
 	
@@ -49,23 +50,31 @@ def img2polydata(image, list_remove=[], sc=None):
 	
 	"""
 	
-	labels = list(np.unique(image))
+	labels_provi = list(np.unique(image))
+	#ici on filtre déjà les listes
+	labels= [i for i in labels_provi if i not in list_remove]
 	
 	try:      labels.remove(0)
 	except:   pass
 	try:      labels.remove(1)
 	except:   pass
 	
-	print image.shape
+	#print image.shape
 	
 	xyz = {}
+	if verbose:print "on récupère les bounding box"
 	bbox = ndimage.find_objects(image)
-	print labels
+	#print labels
 	for label in xrange(2,max(labels)+1):
 		if not label in labels: continue
-		#print label
+		if verbose:print "% until cells are built", label/float(max(labels))*100
 		slices = bbox[label-1]
 		label_image = (image[slices] == label)
+		#here we could add a laplacian function to only have the external shape
+		mask = ndimage.laplace(label_image)
+		label_image[mask!=0] = 0
+		mask = ndimage.laplace(label_image)
+		label_image[mask==0]=0
 		# compute the indices of voxel with adequate label
 		a = np.array(label_image.nonzero()).T
 		a+=[slices[0].start, slices[1].start, slices[2].start ]
@@ -82,7 +91,10 @@ def img2polydata(image, list_remove=[], sc=None):
 	polydata = tvtk.AppendPolyData()
 	polys = {}
 	filtre=[i for i in xyz.keys() if i not in list_remove]
+	k=0.0
 	for c in filtre:
+		if verbose: print "% until polydata is built", k/float(len(filtre))*100
+		k+=1.
 		p=xyz[c]
 		p=p.astype(np.float)
 		pd = tvtk.PolyData(points=xyz[c].astype(np.float))
@@ -103,28 +115,28 @@ def img2polydata(image, list_remove=[], sc=None):
 	return polydata
 	
 
-def rootSpI(img, list_remove=[]):
+def rootSpI(img, list_remove=[], verbose=False):
 	"""
 	case where the data is a spatialimage
 	"""
 	#cells are positionned inside a structure, the polydata, and assigned a scalar value
-	polydata = img2polydata(img, list_remove=[])
+	polydata = img2polydata(img, list_remove=list_remove, verbose=verbose)
 	m = tvtk.PolyDataMapper(input=polydata.output)
 	#definition of the scalar range (default : min to max of the scalar value)
 	m.scalar_range=np.min(img), np.max(img)
 	#actor that manage different views if memory is short
 	a = tvtk.QuadricLODActor(mapper=m)
-	a.property.point_size=4
+	a.property.point_size=8
 	#scalebar
 	sc=tvtk.ScalarBarActor(orientation='vertical',lookup_table=m.lookup_table)
 	return a, sc, m
 	
-def rootSpIA(img, list_remove=[], sc=None):
+def rootSpIA(img, list_remove=[], sc=None, verbose=False):
 	"""
 	case where the data is a spatialimageanalysis
 	"""	
 	#cells are positionned inside a structure, the polydata, and assigned a scalar value
-	polydata = img2polydata(img.image, list_remove, sc)
+	polydata = img2polydata(img.image, list_remove=list_remove, sc=sc, verbose=verbose)
 	m = tvtk.PolyDataMapper(input=polydata.output)
 	#definition of the scalar range (default : min to max of the scalar value)
 	if sc:
@@ -132,20 +144,21 @@ def rootSpIA(img, list_remove=[], sc=None):
 		m.scalar_range=np.min(ran), np.max(ran)
 	#actor that manage different views if memory is short
 	a = tvtk.QuadricLODActor(mapper=m)
-	a.property.point_size=4
+	a.property.point_size=8
 	#scalebar
 	sc=tvtk.ScalarBarActor(orientation='vertical',lookup_table=m.lookup_table)
 	return a, sc, m
 	
 
 
-def display3D(img, list_remove=[], dictionnary=None, lut=black_and_white):
+def display3D(img, list_remove=[], dictionnary=None, lut=black_and_white, verbose=False):
 	"""
 	paramètres :
 	img : SpatialImage ou SpatialImageAnalysis
 	list_remove : une liste des cellules à enlever lors de l'affichage
 	dictionnary : dictionnaire cells->scalar
 	lut : disponibles dans colormaps
+	verbose : pour afficher ou non les progressions
 	ex : 
 	im1 = imread('../../../test/segmentation.inr.gz')
 	im1a=SpatialImageAnalysis(im1)	
@@ -158,10 +171,10 @@ def display3D(img, list_remove=[], dictionnary=None, lut=black_and_white):
 	
 	"""
 	#management of file format
-	if type(img)==type(SpatialImage(np.zeros((0,0,0)))):
-		a, sc, m=rootSpI(img)
-	elif type(img)==type(SpatialImageAnalysis(np.zeros((0,0,0)))):
-		a, sc, m=rootSpIA(img, list_remove,dictionnary)
+	if isinstance(img,SpatialImageAnalysis):
+		a, sc, m=rootSpIA(img, list_remove=list_remove,sc=dictionnary, verbose=verbose)
+	elif isinstance(img,SpatialImage):
+		a, sc, m=rootSpI(img, list_remove=list_remove, verbose=verbose)
 	else:
 		print "for now this file format is not managed by display3D)"
 		return
@@ -178,10 +191,8 @@ if __name__ == '__main__':
 	im1 = imread('../../../test/segmentation.inr.gz')
 	im1a=SpatialImageAnalysis(im1)
 	dictionnary=dict(zip(im1a.labels(), im1a.volume()))
-	display3D(im1,range(100), dictionnary, rainbow_full)
+	labs=im1a.labels()
+	L1=im1a.L1()[1]
+	filtre=[i for i in labs if i not in L1]
+	display3D(im1,filtre, dictionnary, rainbow_full)
 	
-	
-
-
-
-#j'en suis à devoir choisir si sc sera un dico ou une liste, je pense partir sur le dico
