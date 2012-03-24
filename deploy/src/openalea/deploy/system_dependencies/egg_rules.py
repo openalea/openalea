@@ -42,7 +42,7 @@ class egg_mingw(BaseEggBuilder):
     py_dependent   = False
     arch_dependent = True
     def script_substitutions(self):
-        cpath = Comp.get_compiler_bin_path()
+        cpath = Compiler.get_bin_path()
         mingwbase = pj(cpath,os.pardir)
         subd  = os.listdir( mingwbase )
         subd.remove("EGG-INFO")

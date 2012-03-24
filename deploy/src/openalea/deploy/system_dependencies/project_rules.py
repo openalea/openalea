@@ -28,7 +28,7 @@ class mingwrt(BaseProjectBuilder):
     archive_subdir = None
     def __init__(self, *args, **kwargs):
         BaseProjectBuilder.__init__(self, *args, **kwargs)
-        self.sourcedir = pj(Comp.get_compiler_bin_path(), os.pardir)
+        self.sourcedir = pj(Compiler.get_bin_path(), os.pardir)
         self.install_dll_dir = pj(self.installdir, "dll")
 
     def install(self):
@@ -38,7 +38,8 @@ class mingwrt(BaseProjectBuilder):
 
 
 class qt4(BaseProjectBuilder):
-    url = "http://download.qt.nokia.com/qt/source/qt-everywhere-opensource-src-4.8.0.zip"
+    version = "4.8.0"
+    url = "http://download.qt.nokia.com/qt/source/qt-everywhere-opensource-src-"+version+".zip"
     download_name  = "qt4_src.zip"
     archive_subdir = "qt-every*"
 
@@ -58,29 +59,34 @@ class qt4(BaseProjectBuilder):
                            and attr.endswith("_dir")]
 
     def new_env_vars(self):
-        if Comp.version_gt("4.6.0"):
+        if Compiler.version_gt("4.6.0"):
             return [ ("QMAKESPEC","win32-g++-4.6") ]
         else:
             return [ ("QMAKESPEC","win32-g++") ]
 
     def configure(self):
-        # we must delete syncqt[.bat] files in the bin directory if they exist.
+        # we must rename syncqt[.bat] files in the bin directory if they exist.
         syncqtfiles = recursive_glob( "bin", "syncqt*")
         for sqt in syncqtfiles:
             os.rename(sqt, sqt+"_no_use")
+            
+        # we must patch the sources in some cases
+        if self.version == "4.8.0" :#and Compiler.version_gt("4.7.0"):
+            apply_patch(  pj(ModuleBaseDir,"qt-4.8.0.patch") )
+            
         # build the configure command line
         common = " -release -opensource -shared -nomake demos -nomake examples -mmx -sse2 -3dnow"
-        common += " -declarative -webkit -no-s60 -no-cetest"
-        cmd = "configure.exe -platform %(QMAKESPEC)s"%dict(self.new_env_vars()) + common
-        if Comp.version_gt("4.6.0"):
+        common += " -declarative -webkit -no-s60 -no-cetest"        
+        cmd = "configure.exe" + common
+        if Compiler.version_gt("4.6.0"):
             # TDM doesn't ship with DirectX headers. Cannot use Phonon
             # Actually this is useless as configure.exe will check himself.
             cmd += " -no-phonon" #  + " -no-declarative"
         # PIPE is required or else pop.communicate won't do anything!
         pop = subprocess.Popen(cmd, stdin=subprocess.PIPE)
-        #give enough time for executable to load before it asks for license agreement.
+        # give enough time for executable to load before it asks for license agreement.
         time.sleep(2)
-        #accepts license agreement, also waits for configure to finish
+        # accepts license agreement, also waits for configure to finish
         pop.communicate("y\r")
         return pop.returncode == 0
 
@@ -110,12 +116,13 @@ class qt4(BaseProjectBuilder):
         recursive_copy( pj(self.sourcedir, "mkspecs"), self.install_mks_dir, Pattern.qtmkspec )
         # copy translations
         recursive_copy( pj(self.sourcedir, "translations"), self.install_tra_dir, Pattern.qttransl )
+        self.make_qt_conf()
         return True
 
     def extra_paths(self):
         return pj(self.install_bin_dir, "bin"), self.install_dll_dir
 
-    def patch(self, where=None):
+    def make_qt_conf(self, where=None):
         """ Patch qt *.exes and *.dlls so that they do not contain hard coded paths anymore. """
         config = ConfigParser.RawConfigParser()
         sec = "Paths"
@@ -249,7 +256,7 @@ class pyqt4(BaseProjectBuilder) :
                       # " -S configure.py --help")
         # return False
         qt4_ = qt4()
-        qt4_.patch(where=pj(self.sourcedir.replace("\\", "/"),"release"))
+        qt4_.make_qt_conf(where=pj(self.sourcedir.replace("\\", "/"),"release"))
         return subprocess.call(sys.executable + \
                       " -S configure.py --confirm-license -w -b %s -d %s -v %s"%self.inst_paths) == 0
 
@@ -524,7 +531,7 @@ class cgal(BaseProjectBuilder):
         self.install_lib_dir = pj(self.installdir, "lib")
     
     def configure(self):
-        compiler = Comp.get_compiler_bin_path()
+        compiler = Compiler.get_bin_path()
         boost_ = boost()
         
         db_quote = lambda x: '"'+x+'"'
@@ -546,15 +553,20 @@ class rpy2(BaseProjectBuilder):
     url = "https://bitbucket.org/lgautier/rpy2/get/f075a4291e9c.zip"
     download_name  = "rpy2_src.zip"
     archive_subdir = "lgautier-rpy2*"
+    
+    cmd_options = [ ("rhome", None, "Path to R.exe") ]
 
-    def configure(self):    
+    @option_to_sys_path("rhome")
+    def configure(self):
         apply_patch( pj(ModuleBaseDir,"rpy2.patch") )
         return True
-
+        
+    @option_to_sys_path("rhome")
     def build(self):
         cmd = sys.executable + " setup.py build --compiler=mingw32"
         return subprocess.call(cmd) == 0
-
+        
+    @option_to_sys_path("rhome")
     def install(self):
         cmd = sys.executable + " setup.py install --install-lib=" + self.installdir
         return subprocess.call(cmd) == 0

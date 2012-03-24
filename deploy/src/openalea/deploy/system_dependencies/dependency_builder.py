@@ -399,7 +399,7 @@ def memoize(attr):
 #############################
 # A micro build environment #
 #############################
-class Compiler(object):
+class Compiler_(object):
     __metaclass__ = MSingleton
     
     default_32_comp = "https://gforge.inria.fr/frs/download.php/29029/MinGW-5.1.4_2-win32.egg"
@@ -408,18 +408,18 @@ class Compiler(object):
         self.options = options.copy()
     
     # Obtaining Compiler Info - We only want MINGW-family compiler
-    def ensure_has_mingw_compiler(self):
+    def ensure_has_mingw(self):
         try:
             subprocess.call("gcc --version", stdout=NullOutput)
         except WindowsError:
             print "No MingW compiler found, you can specify its path with -c"
             print "or install a default MingW compiler."
             if raw_input("Install a default MingW? (Y/N). :").lower() == "y":
-                self.install_compiler()
+                self.install()
             else:
                 print "Cannot compile, continuing anyway..."
                     
-    def install_compiler(self):
+    def install(self):
         print "Will now install a default 32 bits MingW compiler to c:\mingw"
         print "Make sure you have to rights to do so and that the directory does NOT exist"
         if raw_input("Proceed? (Y/N):").lower() == "y":
@@ -430,10 +430,10 @@ class Compiler(object):
                     print "Couldn't install MingW32, continuing anyway..."
     
     @memoize("comp_bin_path")
-    def get_compiler_bin_path(self):
+    def get_bin_path(self):
         # TODO : do smart things according to self.options
         if self.options["compiler"]:
-            return self.options["compiler"]
+            v =  self.options["compiler"]
 
         # -- try to find it in eggs --
         try:
@@ -444,11 +444,13 @@ class Compiler(object):
             # this works in virtualenvs
             for f in env["mingw"]:
                 if f.location.lower().startswith(base):
-                    return pj(f.location, "bin")
+                    v = pj(f.location, "bin")
             raise Exception("Mingw not found")
         except Exception, e:
-            print e
-            return r"c:\mingw\bin"
+            v = r"c:\mingw\bin"
+        
+        print "Using MingW path:", v
+        return v
 
     def version_gt(self, version):
         return self.get_version() >= version
@@ -456,7 +458,7 @@ class Compiler(object):
     @memoize("is_tdm")
     def is_tdm(self):
         """Return True if we are using a compiler from tdm-gcc.tdragon.net/"""
-        pop = subprocess.Popen( pj(self.get_compiler_bin_path(), "gcc --version"),
+        pop = subprocess.Popen( pj(self.get_bin_path(), "gcc --version"),
                                            stdout=subprocess.PIPE)
         time.sleep(1)
         output = pop.stdout.read()
@@ -464,7 +466,7 @@ class Compiler(object):
     
     @memoize("version")
     def get_version(self):
-        pop = subprocess.Popen( pj(self.get_compiler_bin_path(), "gcc --version"),
+        pop = subprocess.Popen( pj(self.get_bin_path(), "gcc --version"),
                                            stdout=subprocess.PIPE)
         time.sleep(1)
         output = pop.stdout.read()
@@ -498,7 +500,7 @@ class Compiler(object):
 
 
 # Shortcut:
-Comp = Compiler()
+Compiler = Compiler_()
     
     
     
@@ -521,7 +523,7 @@ class BuildEnvironment(object):
 
     def set_options(self, options):
         self.options = options.copy()
-        Comp.set_options(options)
+        Compiler.set_options(options)
         self.init()
 
     def init(self):
@@ -535,14 +537,14 @@ class BuildEnvironment(object):
        
         if is_64bits_python():
             print "Doing a 64 bits compilation because we are using a 64 bits Python."
-            if not Comp.get_default_target() == 64:
+            if not Compiler.get_default_target() == 64:
                 print "Compiler is not a 64 bits compiler. Can it cross-compile?"
-                if not Comp.can_cross_compile():
+                if not Compiler.can_cross_compile():
                     print "Cannot cross compile."
                     raise Exception("No compiler found for Windows 64 bits")        
         else:
             print "Doing a 32 bits compilation because we are using a 32 bits Python."
-            if not Comp.get_default_target() == 32:
+            if not Compiler.get_default_target() == 32:
                 print "Compiler is not a 32 bits compiler"
                 raise Exception("No compiler found for Windows 64 bits")
 
@@ -642,13 +644,13 @@ class BuildEnvironment(object):
         self.__overwrite_path()
         self.ensure_python_lib()
         self.ensure_has_cmake()
-        Comp.ensure_has_mingw_compiler()
+        Compiler.ensure_has_mingw()
         self.__overwrite_path()
 
     def __overwrite_path(self):
-        path = sj([Comp.get_compiler_bin_path(), 
-                   self.get_cmake_bin_path(),
-                   self.original_path])
+        path = sj([Compiler.get_bin_path(), 
+                   self.get_cmake_bin_path()])
+                   #self.original_path])
         if path.endswith("\""):
             print "Removing trailing PATH quotes as mingw32-make doesn't like them"
             path = path.replace("\"", "")                   
@@ -786,7 +788,16 @@ def with_original_sys_path(f):
         return ret
     return func
 
-
+def option_to_sys_path(option):
+    def func_decorator(f):
+        def wrapper(self, *args, **kwargs):
+            prev_pth = os.environ["PATH"]
+            os.environ["PATH"] = sj([self.options[option], prev_pth])
+            ret = f(self, *args, **kwargs)
+            os.environ["PATH"] = prev_pth
+            return ret
+        return wrapper
+    return func_decorator
 
 
 ########################
@@ -802,6 +813,9 @@ class BaseBuilder(object):
     silent_tasks    = ""
     #if is false, won't be processed.
     enabled         = True
+    #if not None, it is then a list of triplets specifying additionnal
+    #command line options that are needed for this package.
+    cmd_options = None
 
     def __init__(self):
         self.env = BE
@@ -889,13 +903,13 @@ class BaseProjectBuilder(BaseBuilder):
     all_tasks       = OrderedDict([ ("d",("download_source",True)),
                                     ("u",("unpack_source",True)),
                                     ("f",("fix_source_dir",False)),
+                                    ("n",("_new_env_vars",False)),
                                     ("c",("_configure",True)),
                                     ("b",("_build",True)),
                                     ("i",("_install",True)),
                                     ("p",("_patch", True)), #where should you be?
                                     ("x",("_extend_sys_path",False)),
                                     ("y",("_extend_python_path",False)),
-                                    ("n",("_new_env_vars",False)),
                                     ])
     # swallow stdout for these tasks:
     silent_tasks    = "fxy"
@@ -1247,19 +1261,24 @@ def parse_arguments():
                                      formatter_class=argparse.RawDescriptionHelpFormatter,)
     parser.add_argument("--wdr", default=abspath(os.curdir), help="Under which directory we will create our working dir",
                         type=abspath)
+                        
+    pkg_options = []
 
-    for proj in MProjectBuilders.builders.iterkeys():
-        name = proj
+    for name, builder in MProjectBuilders.builders.iteritems():
         parser.add_argument("--"+name, default="",
                             help="Force actions on %s"%name, dest=name,
                             metavar="PROJ_ACTIONS")
+        if builder.cmd_options:
+            pkg_options += builder.cmd_options
 
-    for egg in MEggBuilders.builders.iterkeys():
-        name = egg
+    for name, builder in MEggBuilders.builders.iteritems():
         parser.add_argument("--"+name, default="",
                             help="Force actions on %s"%name, dest=name,
                             metavar="EGG_ACTIONS")
-
+        if builder.cmd_options:
+            pkg_options += builder.cmd_options
+                            
+        
     parser.add_argument("--python", "-p", default=None, help="fully qualified python executable to use for the compilation")
     parser.add_argument("--compiler", "-c", default=None, help="path to compiler binaries")
     parser.add_argument("--cmake", default=None, help="path to compiler binaries")
@@ -1269,6 +1288,9 @@ def parse_arguments():
     parser.add_argument("--passwd", default=None, help="password to connect to GForge")
     parser.add_argument("--release", action="store_const", const=True, default=False, help="upload eggs to openalea repository or vplants (if False - for testing).")
     parser.add_argument("--verbose", action="store_const", const=True, default=False, help="Well try to say more things.")
+    
+    for name, default, help in pkg_options:
+        parser.add_argument("--"+name, default=default, help=help)
     return parser.parse_args()
 
 def main():
