@@ -23,6 +23,8 @@ from pixmap_view import *
 from slide_viewer import *
 from palette import *
 from point_selection import *
+from colormaps import *
+from stack_view3D import *
 
 # not these:
 #from scalable_view import *
