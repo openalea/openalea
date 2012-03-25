@@ -1,2 +1,2 @@
-deploygui.xpm usr/share/pixmaps
-deploygui.desktop usr/share/applications
+debian/deploygui.xpm usr/share/pixmaps
+debian/deploygui.desktop usr/share/applications

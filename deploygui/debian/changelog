@@ -1,3 +1,21 @@
+openalea-deploygui (1.0.1~ppa3) oneiric; urgency=low
+
+  * Fix icon 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 23 Mar 2012 16:52:28 +0100
+
+openalea-deploygui (1.0.1~ppa1) oneiric; urgency=low
+
+  * Release 1.
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 23 Mar 2012 14:10:56 +0100
+
+openalea-deploygui (1.0.1~ppa2) precise; urgency=low
+
+  * Add desktop and icon files 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 23 Mar 2012 13:41:18 +0100
+
 openalea-deploygui (1.0.1~ppa1) precise; urgency=low
 
   * Release 1.0 
