@@ -2,8 +2,12 @@
 Automatic Ubuntu release
 
 define a list of packages with their revision
-dch --distribution precise -v 1.0.0~ppa1
+dch --distribution precise -v 1.0.1~ppa1
 
+:Exemple:
+    
+    >>> import ubuntu_release as ur
+    >>> ur.openalea(distribution='precise', my_path='openalea1.0', dry_run=False)
 """
 import os
 from collections import OrderedDict
@@ -15,7 +19,8 @@ from path import path
 ##########################################################################
 
 # version 1.0.0~ppa1
-cmd_dch = "dch --distribution %s -v %s"
+VERSION = '1.0.1~ppa1'
+cmd_dch = "dch -b --distribution %s -v %s"
 cmd_debuild = "debuild -S -k1CF03DFF"
 # name openalea, vplants, alinea
 cmd_dput = 'dput ppa:christophe-pradal/%s '
@@ -43,7 +48,7 @@ openalea_meta
     #openalea_dev
 
     pkgs = filter(None, pkgs.split('\n'))
-    pkgs = OrderedDict.fromkeys(pkgs,"1.0.0~ppa1")
+    pkgs = OrderedDict.fromkeys(pkgs,VERSION)
     return pkgs
 
 def openalea_name():
@@ -88,17 +93,17 @@ container
 newmtg
 WeberPenn
 tree_matching2
-flowerdemo
 phyllotaxis_analysis
 vplants_meta
 vplants_dev
 aml2py
 """
+    #TODO: flowerdemo
 
     pkgs = filter(None, pkgs.split('\n'))
-    pkgs = OrderedDict.fromkeys(pkgs,"1.0.0~ppa1")
+    pkgs = OrderedDict.fromkeys(pkgs,VERSION)
     pkgs['PlantGL']="2.16.0~ppa1"
-    pkgs['lpy']="1.12.0~ppa1"
+    pkgs['lpy']="2.1.0~ppa1"
     pkgs['container']="2.2.0~ppa1"
     return pkgs
 
@@ -124,9 +129,8 @@ treematching2
 phyllotaxis
 aml2py
 vplants
-vplants-dev
 """
-
+    # TODO: vplants_dev, flowerdemo
     pkgs_name = filter(None, pkgs_name.split('\n'))
     return pkgs_name
 
