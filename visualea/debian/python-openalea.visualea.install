@@ -1,2 +1,2 @@
-openalea_icon.xpm usr/share/pixmaps
-visualea.desktop usr/share/applications
+debian/openalea_icon.xpm usr/share/pixmaps
+debian/visualea.desktop usr/share/applications
