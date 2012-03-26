@@ -410,8 +410,11 @@ class Compiler_(object):
     # Obtaining Compiler Info - We only want MINGW-family compiler
     def ensure_has_mingw(self):
         try:
-            subprocess.call("gcc --version", stdout=NullOutput)
-        except WindowsError:
+            compiler = os.path.join(self.get_bin_path(),"gcc.exe")
+            
+            subprocess.call(compiler+" --version", stdout=NullOutput)
+        except WindowsError, e:
+            print e
             print "No MingW compiler found, you can specify its path with -c"
             print "or install a default MingW compiler."
             if raw_input("Install a default MingW? (Y/N). :").lower() == "y":
@@ -434,6 +437,8 @@ class Compiler_(object):
         # TODO : do smart things according to self.options
         if self.options["compiler"]:
             v =  self.options["compiler"]
+            if os.path.exists(v): 
+                return v
 
         # -- try to find it in eggs --
         try:
