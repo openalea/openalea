@@ -50,7 +50,7 @@ class Openalea(QtGui.QApplication):
         if __debug__:
             logger.set_global_logger_level(logger.DEBUG)
         else:
-            logger.set_global_logger_level(logger.WARNING)
+            logger.set_global_logger_level(logger.DEBUG)
         # -- show the splash screen --
         self.splash = show_splash_screen()
         # -- main window --
