@@ -30,14 +30,15 @@ def wall(mask_img,label_id):
     dil = ndimage.binary_dilation(img)
     contact = dil - img
     return mask_img[contact]
-    
+
 def contact_surface(mask_img,label_id):
     img = wall(mask_img,label_id)
     return set(np.unique(img))
 
 def real_indices(slices, resolutions):
     return [ (s.start*r, s.stop*r) for s,r in zip(slices,resolutions)]
-    
+
+
 def hollow_out_cells(mat):
     """
     Laplacian filter used to dectect and return an Spatial Image containing only cell walls.
@@ -53,7 +54,8 @@ def hollow_out_cells(mat):
     mat[np.where(mat==1)]=0
     print 'Done !!'
     return mat
-    
+
+
 def cells_walls_detection(mat, hollowed_out=False):
     """
     :INPUT:
@@ -68,18 +70,19 @@ def cells_walls_detection(mat, hollowed_out=False):
     print 'Done !!'
     return list(x),list(y),list(z)
 
+
 def extraction_vertex(mat,display=False,display_edges=False,remove_borders=False):
     """
     Calculates cell's vertices positions according to the rule: a vertex is the point where you can find 4 differents cells (in 3D!!)
     For the surface, the outer 'cell' #1 is considered as a cell.
-    
+
     :INPUTS:
         .mat: Spatial Image containing cells (segmented image). Can be a full spatial image or an extracted surface.
         .display: boolean defining if the function should open an mlab window to represent the cells and the vertex (red cubes)
         .remove_borders: boolean defining if the function sould try to remove cells at the border of the stack before representation.
-    
+
     :OUTPUT:
-        .Bary_vrtx: 
+        .Bary_vrtx:
             *keys = the 4 cells ids associated with the vertex position(values);
             *values = 3D coordinates of the vertex in the Spatial Image;
     """
@@ -94,7 +97,7 @@ def extraction_vertex(mat,display=False,display_edges=False,remove_borders=False
             print n,'/',dim
         i,j,k=x[n],y[n],z[n]
         sub=mat[(i-1):(i+2),(j-1):(j+2),(k-1):(k+2)] # we generate a sub-matrix...
-        sub=tuple(np.unique(sub)) 
+        sub=tuple(np.unique(sub))
         # -- Now we detect voxels defining cells' vertices.
         if (len(sub)==4): # ...in which we search for 4 different labels
             if Vvox_c.has_key(sub):
@@ -133,11 +136,57 @@ def extraction_vertex(mat,display=False,display_edges=False,remove_borders=False
         mlab.points3d(Bary_vrtx_x,Bary_vrtx_y,Bary_vrtx_z,s,mode="cube",scale_mode='none',scale_factor=2,color=(1,0,0),opacity=0.6)
         if display_edges:
             mlab.points3d(Evox_c[0],Evox_c[1],Evox_c[2],s,mode="cube",scale_mode='none',scale_factor=1,color=(0,0,0),opacity=0.3)
-        x,y,z=cells_walls_detection(mat)        
+        x,y,z=cells_walls_detection(mat)
         mlab.points3d(x,y,z,mat[x,y,z],mode="point",scale_mode='none',scale_factor=0.3,colormap='prism')
         mlab.show()
 
     return Bary_vrtx
+
+
+def geometric_median(x,y,z,numIter=50):
+    """
+    Compute the geometric medians of cells according to the coordinates of their voxels.
+    The geometric medians coordinates will be expressed in the Spatial Image reference system (not in real world metrics).
+    We use the Weiszfeld's algorithm (http://en.wikipedia.org/wiki/Geometric_median).
+    :INPUT:
+        - `x,y,z` 3 lists of coordinates
+        - `numIter` limit the length of the search for global optimum
+    :OUTPUT:
+        - `median` geometric median of the coordinates, np.array((x,y,z))
+    """
+    X = np.array((x,y,z))
+    ## Initialising 'median' to the centroid by creating a starting 'median': the geometric mean (i.e. the first candidate median)
+    y = ((np.mean(x),np.mean(y),np.mean(z)))
+    convergence=False #boolean testing the convergence toward a global optimum
+    dist=[] #list recording the distance evolution
+
+    # Minimizing the sum of the squares of the distances between each points in 'X' (cells walls voxels) and the median.
+    i=0
+    while ( (not convergence) and (i < numIter) ):
+        num_x, num_y, num_z = 0.0, 0.0, 0.0
+        denum=0.0
+        m=X.shape[1]
+        d=0
+        for j in range(0,m):
+            div = math.sqrt( (X[0,j]-y[0])**2 + (X[1,j]-y[1])**2 + (X[2,j]-y[2])**2 )
+            num_x += X[0,j] / div
+            num_y += X[1,j] / div
+            num_z += X[2,j] / div
+            denum += 1./div
+            d+=div**2 #distance (to the median) to miminize
+        dist.append(d) #update of the distance evolution
+        median = [num_x/denum, num_y/denum, num_z/denum] #update to the new value of the median
+        if i>3:
+            convergence=(abs(dist[i]-dist[i-2])<0.1) #we test the convergence over three steps for stability
+            #~ print abs(dist[i]-dist[i-2]), convergence
+        i+=1
+
+    if i==numIter:
+        print "The Weiszfeld's algoritm did not converged after",numIter,"iterations for cell #",c,"!!!!!!!!!"
+        #When convergence or iterations limit is reached we assume that we found the median.
+
+	return medians
+
 
 
 class SpatialImageAnalysis(object):
@@ -159,8 +208,8 @@ class SpatialImageAnalysis(object):
         self._bbox = None
         self._kernels = None
         self._neighbors = None
-    
-    
+
+
     def labels(self):
         """
         Return the list of labels used.
@@ -180,7 +229,7 @@ class SpatialImageAnalysis(object):
         [1,2,3,4,5,6,7]
         """
         return self._labels
-        
+
     def __labels(self):
         """ Compute the actual list of labels """
         return np.unique(self.image)
@@ -209,7 +258,7 @@ class SpatialImageAnalysis(object):
 
     def center_of_mass(self, labels=None, real=True):
         """
-            Return the center of mass of the labels. 
+            Return the center of mass of the labels.
             Note that if input image is 2D, it is reshaped as a 3D image with last dimension as one.
             Thus center of mass always return a 3D vectors.
 
@@ -248,12 +297,12 @@ class SpatialImageAnalysis(object):
         """
         if labels is None:
             labels = self.labels()
-            
-        # img_as_float = self.image.astype(np.float)        
+
+        # img_as_float = self.image.astype(np.float)
         # center = ndimage.center_of_mass(img_as_float, img_as_float, index=labels)
 
         center = ndimage.center_of_mass(self.image, self.image, index=labels)
-        
+
         if real is True:
             center = np.multiply(center,self.image.resolution)
             return center.tolist()
@@ -294,7 +343,7 @@ class SpatialImageAnalysis(object):
         """
         if labels is None:
             labels  = self.labels()
-        
+
         volume = ndimage.sum(np.ones_like(self.image), self.image, index=labels)
 
         if real is True:
@@ -329,33 +378,33 @@ class SpatialImageAnalysis(object):
         [(slice(0, 3), slice(2, 4), slice(0, 1)), (slice(0, 3), slice(0, 2), slice(0, 1))]
 
         >>> analysis.boundingbox()
-        [(slice(0, 4), slice(0, 6), slice(0, 1)), 
-        (slice(0, 3), slice(0, 2), slice(0, 1)), 
-        (slice(1, 3), slice(4, 6), slice(0, 1)), 
-        (slice(3, 4), slice(3, 4), slice(0, 1)), 
-        (slice(1, 2), slice(2, 3), slice(0, 1)), 
-        (slice(1, 2), slice(1, 2), slice(0, 1)), 
+        [(slice(0, 4), slice(0, 6), slice(0, 1)),
+        (slice(0, 3), slice(0, 2), slice(0, 1)),
+        (slice(1, 3), slice(4, 6), slice(0, 1)),
+        (slice(3, 4), slice(3, 4), slice(0, 1)),
+        (slice(1, 2), slice(2, 3), slice(0, 1)),
+        (slice(1, 2), slice(1, 2), slice(0, 1)),
         (slice(0, 3), slice(2, 4), slice(0, 1))]
-        """        
+        """
         if self._bbox is None:
             self._bbox = ndimage.find_objects(self.image)
         if labels is None:
             if real: return [real_indices(bbox,self.image.resolution) for bbox in self._bbox]
             else :   return self._bbox
-        
+
         # bbox of object labelled 1 to n are stored into self._bbox. To access i-th element, we have to use i-1 index
         if isinstance (labels, list):
             bboxes = [self._bbox[i-1] for i in labels]
             if real : return [real_indices(bbox,self.image.resolution) for bbox in bboxes]
             else : return bboxes
-            
-        else : 
+
+        else :
             try:
                 if real:  return real_indices(self._bbox[labels-1],self.image.resolution)
                 else : return self._bbox[labels-1]
             except:
                 return None
-        
+
     def neighbors(self,labels=None):
         """
         Return the list of neighbors of a label.
@@ -393,43 +442,42 @@ class SpatialImageAnalysis(object):
         else:
             return self._neighbors_from_list_with_mask(labels)
 
-    def _neighbors_with_mask(self,labels):
+    def _neighbors_with_mask(self,label):
         if not self._neighbors is None:
-            return { labels:self._neighbors[labels] }
-        
-        slices = self.boundingbox(labels)
-        
+            return { label:self._neighbors[label] }
+
+        slices = self.boundingbox(label)
+
         ex_slices = dilation(slices)
         mask_img = self.image[ex_slices]
-        return list(contact_surface(mask_img,labels))
+        return list(contact_surface(mask_img,label))
 
-        
-    def _neighbors_from_list_with_mask(self,labels):        
+    def _neighbors_from_list_with_mask(self,labels):
         if not self._neighbors is None:
             return dict([(i,self._neighbors[i]) for i in labels])
-            
+
         edges = {}
         for label in labels:
-            
+
             slices = self.boundingbox(label)
-            
+
             if slices is None: continue
-            
+
             ex_slices = dilation(slices)
             mask_img = self.image[ex_slices]
-            
+
             neigh = list(contact_surface(mask_img,label))
-            
+
             edges[label]=neigh
-        
+
         return edges
-        
+
     def _all_neighbors(self):
         if not self._neighbors is None:
             return self._neighbors
-        
-        edges = {} # store src, target    
-        
+
+        edges = {} # store src, target
+
         slice_label = self.boundingbox()
         for label, slices in enumerate(slice_label):
             # label_id = label +1 because the label_id begin at 1
@@ -445,13 +493,13 @@ class SpatialImageAnalysis(object):
             neigh = list(contact_surface(mask_img,label_id))
 
             edges[label_id]=neigh
-        
+
         self._neighbors = edges
         return edges
 
 
     def neighbor_kernels(self):
-        if self._kernels is None:        
+        if self._kernels is None:
             X1kernel = np.zeros((3,3,3),np.bool)
             X1kernel[:,1,1] = True
             X1kernel[0,1,1] = False
@@ -473,10 +521,41 @@ class SpatialImageAnalysis(object):
             self._kernels = (X1kernel,X2kernel,Y1kernel,Y2kernel,Z1kernel,Z2kernel)
         return self._kernels
 
+
     def get_voxel_face_surface(self):
         a = self.image.resolution
         return np.array([a[1] * a[2],a[2] * a[0],a[0] * a[1] ])
-        
+
+
+    def wall_coordinates(self, label_1, label_2):
+        """
+        Return the voxels coordinates defining the contact wall between two labels.
+
+        :Parameters:
+            - `label_1` cell id #1.
+            - `label_2` cell id #2.
+
+        :Return:
+            -`x,y,z` 3 lists of voxels coordinates.
+        """
+        # -- We first make sure that labels are neighbors:
+        if label_2 not in self.neighbors(label_1).values():
+            print "You got it wrong dude,",label_1 ,"and", label_2,"are not neighbors!!"
+
+        dilated_bbox = dilation( analysis1.boundingbox(label_1) )
+        dilated_bbox_img = analysis1.image[dilated_bbox]
+
+        mask_img_1 = (dilated_bbox_img == label_1)
+        mask_img_2 = (dilated_bbox_img == label_2)
+
+        struct = ndimage.generate_binary_structure(3, 1)
+
+        dil_1 = ndimage.binary_dilation(mask_img_1, structure=struct)
+        dil_2 = ndimage.binary_dilation(mask_img_2, structure=struct)
+        x,y,z = np.where( ( (dil_1 & mask_img_2) | (dil_2 & mask_img_1) ) == 1 )
+
+        return x+dilated_bbox[0].start,y+dilated_bbox[1].start,z+dilated_bbox[2].start
+
     def cell_wall_surface( self, label_id, neighbors, real = True):
         """
         Return the surface of contact between a label and its neighbors.
@@ -498,11 +577,11 @@ class SpatialImageAnalysis(object):
         >>> analysis.cell_wall_surface(7,[2,5])
         {(2, 7): 1.0, (5, 7): 2.0}
         """
-        
+
         resolution = self.get_voxel_face_surface()
         dilated_bbox =  dilation(self.boundingbox(label_id))
         dilated_bbox_img = self.image[dilated_bbox]
-        
+
         mask_img = (dilated_bbox_img == label_id)
 
         xyz_kernels = self.neighbor_kernels()
@@ -510,8 +589,8 @@ class SpatialImageAnalysis(object):
         unique_neighbor = not isinstance(neighbors,list)
         if unique_neighbor:
             neighbors = [neighbors]
-        
-        wall = {}        
+
+        wall = {}
         for a in xrange(6):
             dil = ndimage.binary_dilation(mask_img, structure=xyz_kernels[a])
             frontier = dilated_bbox_img[dil-mask_img]
@@ -525,7 +604,8 @@ class SpatialImageAnalysis(object):
 
         if unique_neighbor: return wall.itervalues().next()
         else : return wall
-        
+
+
     def wall_surfaces(self, neighbors = None, real = True):
         """
         Return the surface of contact between all neighbor labels.
@@ -544,7 +624,7 @@ class SpatialImageAnalysis(object):
 
         >>> analysis.all_wall_surfaces({ 1 : [2, 3], 2 : [6] })
        {(1, 2): 5.0, (1, 3): 4.0, (2, 6): 2.0 }
-        
+
         >>> analysis.all_wall_surfaces()
         {(1, 2): 5.0, (1, 3): 4.0, (1, 4): 2.0, (1, 5): 1.0, (1, 6): 1.0, (1, 7): 2.0, (2, 6): 2.0, (2, 7): 1.0, (3, 7): 2, (4, 7): 1, (5, 6): 1.0, (5, 7): 2.0 }
         """
@@ -558,31 +638,31 @@ class SpatialImageAnalysis(object):
                 for i,j in lsurfaces.iterkeys():
                     surfaces[(i,j)] = surfaces.get((i,j),0.0) + lsurfaces[(i,j)]
         return surfaces
-    
+
     def L1(self, background = 1):
         return self.neighbors(background)
-        
+
     def border_cells(self):
         borders = set()
         for l in [np.unique(self.image[0,:,:]),np.unique(self.image[-1,:,:]),np.unique(self.image[:,0,:]),np.unique(self.image[:,-1,:])]:
             borders.update(l)
-        if self.image.shape[2] != 1 : 
+        if self.image.shape[2] != 1 :
             borders.update(np.unique(self.image[:,:,0]))
             borders.update(np.unique(self.image[:,:,-1]))
         return list(borders)
-        
+
     def inertia_axis(self, labels = None, center_of_mass = None, real = True):
         unique_label = False
         if labels is None : labels = self.labels()
-        elif not isinstance(labels,list) : 
+        elif not isinstance(labels,list) :
             labels = [labels]
             unique_label = True
-        
+
         is2d = (self.image.shape[2] <= 1)
         # results
         inertia_eig_vec = []
         inertia_eig_val = []
-        
+
         # if center of mass is not specified
         if center_of_mass is None:
             center_of_mass = self.center_of_mass(labels)
@@ -593,28 +673,28 @@ class SpatialImageAnalysis(object):
             for i,slice in enumerate(slices):
                 center[i] = center[i] - slice.start
             label_image = (self.image[slices] == label)
-            
+
             # compute the indices of voxel with adequate label
             x,y,z = label_image.nonzero()
-            
+
             # difference with the center
             x = x - center[0]
             y = y - center[1]
-            
+
             if is2d : coord = np.array([x,y])
-            else: 
+            else:
                 z = z - center[2]
                 coord = np.array([x,y,z])
-            
-            # compute P.P^T            
+
+            # compute P.P^T
             cov = np.dot(coord,coord.T)
-            
-            
+
+
             # Find the eigen values and vectors.
             eig_val, eig_vec = np.linalg.eig(cov)
-            
+
             inertia_eig_vec.append(eig_vec)
-            
+
             if real:
                 if self.image.shape[2] > 1:
                     for i in xrange(3):
@@ -622,14 +702,14 @@ class SpatialImageAnalysis(object):
                 else:
                     for i in xrange(2):
                         eig_val[i] *= np.linalg.norm(np.multiply(eig_vec[i],self.image.resolution[:2]))
-                    
+
             inertia_eig_val.append(eig_val)
-        
+
         if unique_label :
             return inertia_eig_vec[0], inertia_eig_val[0]
         else:
             return inertia_eig_vec, inertia_eig_val
-        
+
 def extract_L1(image):
     """
     Return the list of all cell labels in the layer 1.
