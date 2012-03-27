@@ -60,6 +60,7 @@ image
 numpy
 pylab
 """.split()
+#openalea_meta
 
 
 
