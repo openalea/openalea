@@ -575,13 +575,27 @@ class BuildEnvironment(object):
     def build(self):
         only = self.options.get("only")
         self.__init_builders()
+        # We do NOT restrict the loop to the builders in the "only"
+        # list because we still want to process unskippable actions
+        # of the other builders because they can extend os.env["PATH"]
+        # or sys.path.
         for buildercls in self.proj_builders + self.egg_builders:            
             builder = buildercls()
             if builder.has_pending and builder.enabled:
-                if builder.name == only:
-                    builder.process_me()
-                else:
-                    builder.process_me(skip_skippable = only is not None)
+
+                if not builder.process_me(only):
+                    if self.options["keep_going"]:
+                        continue
+                    else:
+                        return False
+                # however we do stop as soon as there are no more "only" builders
+                # to process because we don't need to do the remaining unskippable
+                # actions of the not "only" builders
+                if only and builder.name in only:
+                    only.remove(builder.name)                
+                    if not len(only):
+                        return True                    
+        return True
 
     def task_is_done(self, name, task):
         """ Marks that the `task` step has been accomplished for `proj`.
@@ -785,6 +799,7 @@ def in_dir(directory):
     return dir_changer
 
 def with_original_sys_path(f):
+    """Calls the decorated function with the original PATH environment variable"""
     def func(*args,**kwargs):
         cursyspath = sys.path[:]
         sys.path = BaseEggBuilder.__oldsyspath__[:]
@@ -794,16 +809,50 @@ def with_original_sys_path(f):
     return func
 
 def option_to_sys_path(option):
+    """If optionnal argument "option" was provided on the command line
+    it will be prepended to the PATH just for the call this function decorates. 
+    After the call, the original environment will be restored."""
     def func_decorator(f):
         def wrapper(self, *args, **kwargs):
-            prev_pth = os.environ["PATH"]
-            os.environ["PATH"] = sj([self.options[option], prev_pth])
-            ret = f(self, *args, **kwargs)
-            os.environ["PATH"] = prev_pth
+            opt_pth = self.options.get(option)
+            if opt_pth:
+                prev_pth = os.environ["PATH"]
+                os.environ["PATH"] = sj([opt_pth, prev_pth])
+                ret = f(self, *args, **kwargs)
+                os.environ["PATH"] = prev_pth
+            else:
+                print "option_to_sys_path:", option, "not provided"
+                ret = f(self, *args, **kwargs)
             return ret
         return wrapper
     return func_decorator
 
+def option_to_python_path(option):
+    """If optionnal argument "option" was provided on the command line
+    it will be appended to the PYTHONPATH and sys.path vars just for the
+    call this function decorates. After the call, the original environment
+    will be restored."""
+    def func_decorator(f):
+        def wrapper(self, *args, **kwargs):
+            opt_pth = self.options.get(option)
+            if opt_pth:
+                # save original values
+                prev_pth = sys.path[:]
+                prev_py_pth = os.environ.get("PYTHONPATH", "")
+                # modify environment
+                sys.path += opt_pth.split(";")
+                os.environ["PYTHONPATH"] = sj([opt_pth, prev_py_pth])
+                # call the function
+                ret = f(self, *args, **kwargs)
+                # restore original values
+                sys.path = prev_pth
+                os.environ["PYTHONPATH"] = prev_py_pth
+            else:
+                print "option_to_python_path:", option, "not provided"
+                ret = f(self, *args, **kwargs)
+            return ret
+        return wrapper
+    return func_decorator
 
 ########################
 # Builder Base classes #
@@ -858,9 +907,10 @@ class BaseBuilder(object):
                 return True
         return False
 
-    def process_me(self, skip_skippable=False):
+    def process_me(self, only):
+        should_process = only is None or self.name in only
         self.env.make_silent( not self.__has_pending_verbose_tasks() or \
-                              skip_skippable )
+                              not should_process )
 
         # forced_tasks is a string containing self.all_tasks keys.
         # if a process is in forced_tasks it gets forced.
@@ -872,8 +922,10 @@ class BaseBuilder(object):
         print "forced tasks are:", forced_tasks
 
         for task, task_func, skippable in self.pending:
-            if skippable and skip_skippable:
+            if skippable and not should_process:
                 continue
+            # doing unskippable actions like extending python or env PATH.                
+            # or we should_process is True
             nice_func = task_func.strip("_")
             print "\t-->performing %s for %s"%(nice_func, self.name)
             success = getattr(self, task_func)()
@@ -881,15 +933,16 @@ class BaseBuilder(object):
                 print "\t-->%s for %s we be done later"%(nice_func, self.name)
             elif success == False:
                 print "\t-->%s for %s failed"%(nice_func, self.name)
-                if skip_skippable:
+                if not should_process: 
                     print "-o %s was specified, ignoring error on package %s"% \
                          (self.options.get("only"), self.name)   
                     continue
-                sys.exit(-1)
+                return False
             else:
                 self.env.task_is_done(self.name, task)
 
         self.env.make_silent(False)
+        return True
 
 
 
@@ -1244,6 +1297,13 @@ class InstalledPackageEggBuilder(BaseEggBuilder):
 #################################
 # -- MAIN LOOP AND RELATIVES -- #
 #################################
+def valid_builder(arg):
+    if arg in MProjectBuilders.builders.keys() or \
+       arg in MEggBuilders.builders.keys() :
+        return arg
+    else:
+        raise argparse.ArgumentError()
+        
 def build_epilog():
     epilog = "PROJ_ACTIONS are a concatenation of flags specifying what actions will be done:\n"
     for proc, (funcname, skippable) in BaseProjectBuilder.all_tasks.iteritems():
@@ -1264,38 +1324,42 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description="Build and package binary Openalea dependencies",
                                      epilog=build_epilog(),
                                      formatter_class=argparse.RawDescriptionHelpFormatter,)
-    parser.add_argument("--wdr", default=abspath(os.curdir), help="Under which directory we will create our working dir",
-                        type=abspath)
-                        
-    pkg_options = []
+    g = parser.add_argument_group("General options")
+    g.add_argument("--wdr", default=abspath(os.curdir), help="Under which directory we will create our working dir",
+                        type=abspath)                                                    
+    g.add_argument("--keep-going", "-k", action="store_const", const=True, default=False, help="keep going on errors")
+    g.add_argument("--python", "-p", default=None, help="fully qualified python executable to use for the compilation")
+    g.add_argument("--compiler", "-c", default=None, help="path to compiler binaries")
+    g.add_argument("--cmake", default=None, help="path to cmake binaries")
+    g.add_argument("--only", "-o", default=None, action="append", type=valid_builder, help="Only process these project/eggs")
+    g.add_argument("--jobs", "-j", default=1, type=int, help="number of jobs during compilation")
+    g.add_argument("--login",  default=None, help="login to connect to GForge")
+    g.add_argument("--passwd", default=None, help="password to connect to GForge")
+    g.add_argument("--release", action="store_const", const=True, default=False, help="upload eggs to openalea repository or vplants (if False - for testing).")
+    g.add_argument("--verbose", action="store_const", const=True, default=False, help="Well try to say more things.")
+    
+    pkg_options = {}
 
+    g = parser.add_argument_group("Options controlling project builder actions to force")
     for name, builder in MProjectBuilders.builders.iteritems():
-        parser.add_argument("--"+name, default="",
+        g.add_argument("--"+name, default="",
                             help="Force actions on %s"%name, dest=name,
                             metavar="PROJ_ACTIONS")
         if builder.cmd_options:
-            pkg_options += builder.cmd_options
+            pkg_options.setdefault(name,list()).extend(builder.cmd_options)
 
+    g = parser.add_argument_group("Options controlling egg builder actions to force")
     for name, builder in MEggBuilders.builders.iteritems():
-        parser.add_argument("--"+name, default="",
+        g.add_argument("--"+name, default="",
                             help="Force actions on %s"%name, dest=name,
                             metavar="EGG_ACTIONS")
         if builder.cmd_options:
-            pkg_options += builder.cmd_options
-                            
-        
-    parser.add_argument("--python", "-p", default=None, help="fully qualified python executable to use for the compilation")
-    parser.add_argument("--compiler", "-c", default=None, help="path to compiler binaries")
-    parser.add_argument("--cmake", default=None, help="path to compiler binaries")
-    parser.add_argument("--only", "-o", default=None, help="Only process this project/egg")
-    parser.add_argument("--jobs", "-j", default=1, type=int, help="number of jobs during compilation")
-    parser.add_argument("--login",  default=None, help="login to connect to GForge")
-    parser.add_argument("--passwd", default=None, help="password to connect to GForge")
-    parser.add_argument("--release", action="store_const", const=True, default=False, help="upload eggs to openalea repository or vplants (if False - for testing).")
-    parser.add_argument("--verbose", action="store_const", const=True, default=False, help="Well try to say more things.")
+            pkg_options.setdefault(name,list()).extend(builder.cmd_options)  
     
-    for name, default, help in pkg_options:
-        parser.add_argument("--"+name, default=default, help=help)
+    for bname, opt_list in pkg_options.iteritems():
+        g = parser.add_argument_group("Options for " + bname + " builder")
+        for opt_name, default, help in opt_list:
+            g.add_argument("--"+opt_name, default=default, help=help)
     return parser.parse_args()
 
 def main():
@@ -1324,6 +1388,7 @@ def main():
         egg_rules  = eval(compile(f.read(), egg_rules_file, "exec"), globals())
 
     args = parse_arguments()
+
     # set some env variables for subprocesses
     os.environ["MAKE_FLAGS"] = "-j"+str(args.jobs)
 
@@ -1334,17 +1399,18 @@ def main():
         # cannot use subprocess, spawn or exec : if we run a 32 python on a 64 bits machine
         # and ask to use a 64 bits python, WoW (which is executing the 32 bits process)
         # will fail to run the 64 bits Python as a subprocess
-        os.system(python + " " + arg_str)
+        return os.system(python + " " + arg_str)
     else:
         options = vars(args)
         env = BuildEnvironment()
         env.set_options(options)
+        ret = False
         with env:
-            env.build()
-
+            ret = env.build()
+        return ret
 
 
 
 
 if __name__ ==  "__main__":
-    main()
+    sys.exit( main() == False )

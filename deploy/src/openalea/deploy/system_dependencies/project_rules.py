@@ -120,7 +120,7 @@ class qt4(BaseProjectBuilder):
         return True
 
     def extra_paths(self):
-        return pj(self.install_bin_dir, "bin"), self.install_dll_dir
+        return pj(self.sourcedir, "bin"),
 
     def make_qt_conf(self, where=None):
         """ Patch qt *.exes and *.dlls so that they do not contain hard coded paths anymore. """
@@ -180,12 +180,19 @@ class sip(BaseProjectBuilder):
                " -S configure.py --platform=win32-g++ -b %s -d %s -e %s -v %s"%self.inst_paths) == 0
 
     def extra_paths(self):
-        return self.install_bin_dir
+        return self.sourcedir, pj(self.sourcedir, "sipgen")
 
     def extra_python_paths(self):
-        return self.install_site_dir
+        return self.sourcedir, pj(self.sourcedir, "siplib")
 
-    def patch(self):
+    def install(self):
+        ret = BaseProjectBuilder.install(self)
+        
+        if not ret:
+            return False
+    
+        # Patching sipconfig.py so that itself
+        # paths point to the qt4 egg path we are building.
         # Feel free to do better
         header = """
 import re
@@ -226,7 +233,7 @@ if 'qt4-dev' in env:
         txt = re.sub(r"(\s*'sip_mod_dir':\s*)'[A-Z]:\\\\.*'",     r"\1qt", txt)
 
         shutil.copyfile( "sipconfig.py", "sipconfig.py.old" )
-        with open("sipconfig.py", "w") as f:
+        with open( pj(self.install_site_dir,"sipconfig.py"), "w") as f:
             f.write(txt)
 
         return True
@@ -237,6 +244,9 @@ class pyqt4(BaseProjectBuilder) :
     url = "http://www.riverbankcomputing.co.uk/static/Downloads/PyQt4/PyQt-win-gpl-4.9.1.zip"
     download_name  = "pyqt4_src.zip"
     archive_subdir = "PyQt*"
+    
+    cmd_options = [ ("siphome", None, "Path to sip.exe"),
+                    ("sipsite", None, "Path(s) to sip modules (';' seperated)") ]
 
     def __init__(self, *args, **kwargs):
         BaseProjectBuilder.__init__(self, *args, **kwargs)
@@ -247,8 +257,10 @@ class pyqt4(BaseProjectBuilder) :
         self.install_bin_dir  = qt4_.install_bin_dir
         self.install_site_dir = pj(self.installdir,"site")
         self.install_sip_dir  = pj(self.installdir,"sip")
-        self.inst_paths = self.install_bin_dir, self.install_site_dir, self.install_sip_dir
+        self.inst_paths       = self.install_bin_dir, self.install_site_dir, self.install_sip_dir
 
+    @option_to_python_path("sipsite")
+    @option_to_sys_path("siphome")
     def configure(self):
         # The -S flag is needed or else configure.py
         # sees any existing sip installation and can fail.
@@ -256,7 +268,9 @@ class pyqt4(BaseProjectBuilder) :
                       # " -S configure.py --help")
         # return False
         qt4_ = qt4()
-        qt4_.make_qt_conf(where=pj(self.sourcedir.replace("\\", "/"),"release"))
+        #qtconf_dir = pj(self.sourcedir.replace("\\", "/"),"release")
+        #makedirs( qtconf_dir )
+        #qt4_.make_qt_conf(where=qtconf_dir)
         return subprocess.call(sys.executable + \
                       " -S configure.py --confirm-license -w -b %s -d %s -v %s"%self.inst_paths) == 0
 
