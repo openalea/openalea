@@ -47,14 +47,15 @@ def hollow_out_cells(mat):
     :INPUT:
         .mat: Spatial Image containing cells (segmented image)
     :OUTPUT:
-        .mat: Spatial Image containing hollowed out cells (cells walls from full segmented image)
+        .m: Spatial Image containing hollowed out cells (cells walls from full segmented image)
     """
     print 'Hollowing out cells...'
     b=nd.laplace(mat)
-    mat[b==0]=0
-    mat[np.where(mat==1)]=0
+    m=mat.copy()
+    m[b==0]=0
+    m[np.where(m==1)]=0
     print 'Done !!'
-    return mat
+    return m
 
 
 def cells_walls_detection(mat, hollowed_out=False):
@@ -72,7 +73,7 @@ def cells_walls_detection(mat, hollowed_out=False):
     return list(x),list(y),list(z)
 
 
-def extraction_vertex(mat,display=False,display_edges=False,remove_borders=False):
+def cell_vertex_extraction(mat,display=False,display_edges=False,remove_borders=False):
     """
     Calculates cell's vertices positions according to the rule: a vertex is the point where you can find 4 differents cells (in 3D!!)
     For the surface, the outer 'cell' #1 is considered as a cell.
