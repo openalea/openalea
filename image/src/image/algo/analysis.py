@@ -19,6 +19,7 @@ __revision__ = " $Id$ "
 
 import numpy as np
 from scipy import ndimage
+import math
 
 from openalea.image.spatial_image import SpatialImage
 
@@ -143,23 +144,24 @@ def extraction_vertex(mat,display=False,display_edges=False,remove_borders=False
     return Bary_vrtx
 
 
-def geometric_median(x,y,z,numIter=50):
+def geometric_median(X,numIter=50):
     """
     Compute the geometric medians of cells according to the coordinates of their voxels.
     The geometric medians coordinates will be expressed in the Spatial Image reference system (not in real world metrics).
-    We use the Weiszfeld's algorithm (http://en.wikipedia.org/wiki/Geometric_median).
-    :INPUT:
-        - `x,y,z` 3 lists of coordinates
+    We use the Weiszfeld's algorithm (http://en.wikipedia.org/wiki/Geometric_median)
+
+    :Parameters:
+        - `X` voxels coordinate (3xN matrix)
         - `numIter` limit the length of the search for global optimum
-    :OUTPUT:
-        - `median` geometric median of the coordinates, np.array((x,y,z))
+    
+    :Return:
+        - np.array((x,y,z)): geometric median of the coordinates;
     """
-    X = np.array((x,y,z))
-    ## Initialising 'median' to the centroid by creating a starting 'median': the geometric mean (i.e. the first candidate median)
-    y = ((np.mean(x),np.mean(y),np.mean(z)))
+    # Initialising 'median' to the centroid
+    y =(( np.mean(X[0]),np.mean(X[1]),np.mean(X[2]) ))
     convergence=False #boolean testing the convergence toward a global optimum
     dist=[] #list recording the distance evolution
-
+    
     # Minimizing the sum of the squares of the distances between each points in 'X' (cells walls voxels) and the median.
     i=0
     while ( (not convergence) and (i < numIter) ):
@@ -174,19 +176,33 @@ def geometric_median(x,y,z,numIter=50):
             num_z += X[2,j] / div
             denum += 1./div
             d+=div**2 #distance (to the median) to miminize
-        dist.append(d) #update of the distance evolution
-        median = [num_x/denum, num_y/denum, num_z/denum] #update to the new value of the median
+        dist.append(d) #update of the distance évolution
+        y = [num_x/denum, num_y/denum, num_z/denum] #update to the new value of the median
         if i>3:
             convergence=(abs(dist[i]-dist[i-2])<0.1) #we test the convergence over three steps for stability
             #~ print abs(dist[i]-dist[i-2]), convergence
         i+=1
-
     if i==numIter:
         print "The Weiszfeld's algoritm did not converged after",numIter,"iterations for cell #",c,"!!!!!!!!!"
-        #When convergence or iterations limit is reached we assume that we found the median.
+    #When convergence or iterations limit is reached we assume that we found the median.
 
-	return medians
+    return np.array(y)
 
+
+def OLS_wall(xyz):
+    """
+    Compute OLS (Ordinary Least Square) fitting of a plane in a 3D space.
+    
+    :Parameters:
+        - `xyz` voxels coordinate (3xN or Nx3 matrix)
+    """
+    import numpy.linalg as ln
+    if xyz.shape()[0]==3: #if the matrix is 3xN, we convert it to a Nx3 matrix.
+        xyz=xyz.transpose()
+    
+    ols_fit=ln.lstsq( xyz[:,0:2], xyz[:,2] )
+        
+    return ols_fit
 
 
 class SpatialImageAnalysis(object):
@@ -438,7 +454,7 @@ class SpatialImageAnalysis(object):
         if labels is None:
             return self._all_neighbors()
         elif not isinstance (labels , list):
-            return dict([(labels,self._neighbors_with_mask(labels))])
+            return self._neighbors_with_mask(labels)
         else:
             return self._neighbors_from_list_with_mask(labels)
 
@@ -536,14 +552,14 @@ class SpatialImageAnalysis(object):
             - `label_2` cell id #2.
 
         :Return:
-            -`x,y,z` 3 lists of voxels coordinates.
+            -`coord` a dictionnary of *keys= (labels_1,label_2); *values= xyz 3xN array.
         """
         # -- We first make sure that labels are neighbors:
-        if label_2 not in self.neighbors(label_1).values():
+        if label_2 not in self.neighbors(label_1):
             print "You got it wrong dude,",label_1 ,"and", label_2,"are not neighbors!!"
 
-        dilated_bbox = dilation( analysis1.boundingbox(label_1) )
-        dilated_bbox_img = analysis1.image[dilated_bbox]
+        dilated_bbox = dilation( self.boundingbox(label_1) )
+        dilated_bbox_img = self.image[dilated_bbox]
 
         mask_img_1 = (dilated_bbox_img == label_1)
         mask_img_2 = (dilated_bbox_img == label_2)
@@ -553,8 +569,38 @@ class SpatialImageAnalysis(object):
         dil_1 = ndimage.binary_dilation(mask_img_1, structure=struct)
         dil_2 = ndimage.binary_dilation(mask_img_2, structure=struct)
         x,y,z = np.where( ( (dil_1 & mask_img_2) | (dil_2 & mask_img_1) ) == 1 )
+        
+        coord={}
+        coord[min(label_1,label_2),max(label_1,label_2)]=np.array((x+dilated_bbox[0].start,y+dilated_bbox[1].start,z+dilated_bbox[2].start))
 
-        return x+dilated_bbox[0].start,y+dilated_bbox[1].start,z+dilated_bbox[2].start
+        return coord
+
+
+    def all_wall_coordinates(self, label_1):
+        """
+        Return the voxels coordinates defining the contact wall between two labels, the given one and its neighbors.
+
+        :Parameters:
+            - `label_1` cell id #1.
+
+        :Return:
+            -`coord` a dictionnary of *keys= (labels_1,neighbors); *values= xyz 3xN array.
+        """
+        coord={}
+        dilated_bbox = dilation( self.boundingbox(label_1) )
+        dilated_bbox_img = self.image[dilated_bbox]
+
+        mask_img_1 = (dilated_bbox_img == label_1)
+        struct = ndimage.generate_binary_structure(3, 1)
+        dil_1 = ndimage.binary_dilation(mask_img_1, structure=struct)
+        for label_2 in self.neighbors(label_1):
+            mask_img_2 = (dilated_bbox_img == label_2)
+            dil_2 = ndimage.binary_dilation(mask_img_2, structure=struct)
+            x,y,z = np.where( ( (dil_1 & mask_img_2) | (dil_2 & mask_img_1) ) == 1 )
+            coord[min(label_1,label_2),max(label_1,label_2)]=np.array((x+dilated_bbox[0].start,y+dilated_bbox[1].start,z+dilated_bbox[2].start))
+        
+        return coord
+
 
     def cell_wall_surface( self, label_id, neighbors, real = True):
         """
