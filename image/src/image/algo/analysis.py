@@ -543,7 +543,7 @@ class SpatialImageAnalysis(object):
         return np.array([a[1] * a[2],a[2] * a[0],a[0] * a[1] ])
 
 
-    def wall_coordinates(self, label_1, label_2):
+    def wall_voxels(self, label_1, label_2):
         """
         Return the voxels coordinates defining the contact wall between two labels.
 
@@ -576,7 +576,7 @@ class SpatialImageAnalysis(object):
         return coord
 
 
-    def all_wall_coordinates(self, label_1):
+    def all_wall_voxels(self, label_1):
         """
         Return the voxels coordinates defining the contact wall between two labels, the given one and its neighbors.
 
