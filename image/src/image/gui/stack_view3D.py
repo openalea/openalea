@@ -142,12 +142,12 @@ def export_vtk(img, filename="default.vtk", list_remove=[], dictionnary=None, ve
 	w.file_name=filename
 	w.write()
 
-def rootSpI(img, list_remove=[], verbose=False):
+def rootSpI(img, list_remove=[],sc=None, verbose=False):
 	"""
 	case where the data is a spatialimage
 	"""
 	#cells are positionned inside a structure, the polydata, and assigned a scalar value
-	polydata = img2polydata(img, list_remove=list_remove, verbose=verbose)
+	polydata = img2polydata(img, list_remove=list_remove, sc=sc, verbose=verbose)
 	m = tvtk.PolyDataMapper(input=polydata.output)
 	#definition of the scalar range (default : min to max of the scalar value)
 	m.scalar_range=np.min(img), np.max(img)
@@ -204,7 +204,7 @@ def display3D(img, list_remove=[], dictionnary=None, lut=black_and_white, verbos
 	if isinstance(img,SpatialImageAnalysis):
 		a, sc, m=rootSpIA(img, list_remove=list_remove,sc=dictionnary, verbose=verbose)
 	elif isinstance(img,SpatialImage):
-		a, sc, m=rootSpI(img, list_remove=list_remove, verbose=verbose)
+		a, sc, m=rootSpI(img, list_remove=list_remove,sc=dictionnary, verbose=verbose)
 	else:
 		print "for now this file format is not managed by display3D)"
 		return
