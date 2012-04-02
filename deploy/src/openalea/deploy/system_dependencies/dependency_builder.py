@@ -994,8 +994,10 @@ class BaseProjectBuilder(BaseBuilder):
         # the sources are already here because some
         # other proj installed it.
         if self.url is None:
+            print 'No url'
             return True
         if exists(self.sourcedir):
+            print 'already unpacked in '+repr(self.sourcedir)
             return True
         arch = arch or self.archname
         return unpack(arch, self.sourcedir)

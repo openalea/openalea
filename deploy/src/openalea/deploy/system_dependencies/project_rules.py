@@ -435,6 +435,7 @@ class boost(BaseProjectBuilder):
     def build(self):
         # it is possible to bootstrap boost if no bjam.exe is found:
         if not exists( pj(self.sourcedir, "bjam.exe") ):
+            print "Call bootstrap.bat"
             if subprocess.call("bootstrap.bat mingw") != 0:
                 return False
             else:
@@ -457,6 +458,7 @@ class boost(BaseProjectBuilder):
         cmd += " variant=release link=shared threading=multi runtime-link=shared toolset=gcc"
         cmd += " include=%s library-path=%s install"
         cmd %= paths
+        print cmd
         return subprocess.call(cmd) == 0
 
     def install(self):
@@ -559,7 +561,9 @@ class cgal(BaseProjectBuilder):
                             '-DZLIB_LIBRARY='+db_quote(pj(compiler,"..", "lib", "libz.a")),
                             ])
         options=options.replace("\\", "/") #avoid "escape sequence" errors with cmake
-        return subprocess.call('cmake.exe -G"MinGW Makefiles" '+options+' . ') == 0
+        cmd = 'cmake.exe -G"MinGW Makefiles" '+options+' . '
+        print cmd
+        return subprocess.call(cmd) == 0
                             
         
     
