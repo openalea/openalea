@@ -438,7 +438,7 @@ class SpatialImageAnalysis(object):
         >>> analysis = SpatialImageAnalysis(a)
 
         >>> analysis.neighbors(7)
-        { 7:[1, 2, 3, 4, 5]}
+        [1, 2, 3, 4, 5]
 
         >>> analysis.neighbors([7,2])
         {7: [1, 2, 3, 4, 5], 2: [1, 6, 7] }
@@ -461,7 +461,7 @@ class SpatialImageAnalysis(object):
 
     def _neighbors_with_mask(self,label):
         if not self._neighbors is None:
-            return { label:self._neighbors[label] }
+            return self._neighbors[label] 
 
         slices = self.boundingbox(label)
 

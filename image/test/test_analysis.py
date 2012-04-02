@@ -1,4 +1,6 @@
-from openalea.image.all import *
+from openalea.image.spatial_image import *
+from openalea.image.algo.all import *
+from openalea.image.serial.all import *
 from numpy import mean
 from time import time
 
@@ -44,7 +46,7 @@ def test_on_simple_array():
 
     
     res = analysis.neighbors(7)
-    assert res == { 7:[1, 2, 3, 4, 5]}
+    assert res == [1, 2, 3, 4, 5]
 
     res = analysis.neighbors([7,2])
     assert res == { 7: [1, 2, 3, 4, 5], 2: [1, 6, 7] }

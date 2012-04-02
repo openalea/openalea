@@ -65,6 +65,7 @@ def graph_from_image(image,
         neigborhood = analysis.neighbors(labels)
     else:
         filter_label = True
+        if isinstance(labels,int) : labels = [labels]
         neigborhood = analysis.neighbors(labels)
     labelset = set(labels)
     
@@ -81,8 +82,7 @@ def graph_from_image(image,
         barycenters = analysis.center_of_mass(labels,real=default_real_property)
         add_vertex_property_from_label_and_value(graph,'barycenter',labels,barycenters,mlabel2vertex=label2vertex)
 
-    #~ background_neighbors = set(analysis.neighbors(background)[background])
-    background_neighbors = set(analysis.neighbors(background)) # Modified by Jonathan 03.28.12
+    background_neighbors = set(analysis.neighbors(background))
     background_neighbors.intersection_update(labelset)
     if 'L1' in default_properties :         
         add_vertex_property_from_label_and_value(graph,'L1',labels,[(l in background_neighbors) for l in labels],mlabel2vertex=label2vertex)
