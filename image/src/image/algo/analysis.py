@@ -18,7 +18,7 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 import numpy as np
-from scipy import ndimage
+import scipy.ndimage as nd
 import math
 
 from openalea.image.spatial_image import SpatialImage
@@ -28,7 +28,7 @@ def dilation(slices):
 
 def wall(mask_img,label_id):
     img = (mask_img == label_id)
-    dil = ndimage.binary_dilation(img)
+    dil = nd.binary_dilation(img)
     contact = dil - img
     return mask_img[contact]
 
@@ -73,7 +73,7 @@ def cells_walls_coords(mat, hollowed_out=False):
     return list(x),list(y),list(z)
 
 
-def cell_vertex_extraction(mat,display=False,display_edges=False,remove_borders=False):
+def cell_vertex_extraction(mat,verbose=False):
     """
     Calculates cell's vertices positions according to the rule: a vertex is the point where you can find 4 differents cells (in 3D!!)
     For the surface, the outer 'cell' #1 is considered as a cell.
@@ -95,7 +95,7 @@ def cell_vertex_extraction(mat,display=False,display_edges=False,remove_borders=
     Evox_c={}
     dim=len(x)
     for n in xrange(dim):
-        if n%20000==0:
+        if verbose and n%20000==0:
             print n,'/',dim
         i,j,k=x[n],y[n],z[n]
         sub=mat[(i-1):(i+2),(j-1):(j+2),(k-1):(k+2)] # we generate a sub-matrix...
@@ -123,9 +123,9 @@ def dictionaries(Bary_vrtx):
     - Bary_vrtx: dict *keys=the 4 cells ids at the vertex position ; *values=3D coordinates of the vertex in the Spatial Image.
     
     :OUPTUTS:
-    - vrtx2cell: dict *keys=vertex id ; *values=ids of the 4 associated cells
-    - cell2vrtx: dict *keys=cell id ; *values=ids of the vertex defining the cell
-    - vrtx2bary: dict *keys=vertex id ; *values=3D coordinates of the vertex in the Spatial Image
+    - cell2vrtx: dict *keys=cell id ; *values= NEW ids of the vertex defining the cell
+    - vrtx2bary: dict *keys=vertex NEW id ; *values= 3D coordinates of the vertex in the Spatial Image
+    - vrtx2cell: dict *keys=vertex NEW id ; *values= ids of the 4 associated cells
     """
     print 'Creates vrtx2cell(vertex and its cells) , cell2vrtx(cell and its vertices) dictionaries'
     vrtx2cell={} #associated cells to each vertex;
@@ -142,7 +142,7 @@ def dictionaries(Bary_vrtx):
                 cell2vrtx[j]=[n] #if false, create a new one and give the value of the associated vertex
     #~ del(cell2vrtx[1]) #cell #1 doesn't really exist...
     print 'Done !!'
-    return vrtx2cell, cell2vrtx, vrtx2bary
+    return cell2vrtx, vrtx2bary, vrtx2cell
 
 
 def geometric_median(X,numIter=50):
@@ -316,9 +316,9 @@ class SpatialImageAnalysis(object):
             labels = self.labels()
 
         # img_as_float = self.image.astype(np.float)
-        # center = ndimage.center_of_mass(img_as_float, img_as_float, index=labels)
+        # center = nd.center_of_mass(img_as_float, img_as_float, index=labels)
 
-        center = ndimage.center_of_mass(self.image, self.image, index=labels)
+        center = nd.center_of_mass(self.image, self.image, index=labels)
 
         if real is True:
             center = np.multiply(center,self.image.resolution)
@@ -361,7 +361,7 @@ class SpatialImageAnalysis(object):
         if labels is None:
             labels  = self.labels()
 
-        volume = ndimage.sum(np.ones_like(self.image), self.image, index=labels)
+        volume = nd.sum(np.ones_like(self.image), self.image, index=labels)
 
         if real is True:
             if self.image.ndim == 2:
@@ -404,7 +404,7 @@ class SpatialImageAnalysis(object):
         (slice(0, 3), slice(2, 4), slice(0, 1))]
         """
         if self._bbox is None:
-            self._bbox = ndimage.find_objects(self.image)
+            self._bbox = nd.find_objects(self.image)
         if labels is None:
             if real: return [real_indices(bbox,self.image.resolution) for bbox in self._bbox]
             else :   return self._bbox
@@ -565,10 +565,10 @@ class SpatialImageAnalysis(object):
         mask_img_1 = (dilated_bbox_img == label_1)
         mask_img_2 = (dilated_bbox_img == label_2)
 
-        struct = ndimage.generate_binary_structure(3, 1)
+        struct = nd.generate_binary_structure(3, 1)
 
-        dil_1 = ndimage.binary_dilation(mask_img_1, structure=struct)
-        dil_2 = ndimage.binary_dilation(mask_img_2, structure=struct)
+        dil_1 = nd.binary_dilation(mask_img_1, structure=struct)
+        dil_2 = nd.binary_dilation(mask_img_2, structure=struct)
         x,y,z = np.where( ( (dil_1 & mask_img_2) | (dil_2 & mask_img_1) ) == 1 )
         
         coord={}
@@ -592,15 +592,15 @@ class SpatialImageAnalysis(object):
         dilated_bbox_img = self.image[dilated_bbox]
 
         mask_img_1 = (dilated_bbox_img == label_1)
-        struct = ndimage.generate_binary_structure(3, 1)
-        dil_1 = ndimage.binary_dilation(mask_img_1, structure=struct)
+        struct = nd.generate_binary_structure(3, 1)
+        dil_1 = nd.binary_dilation(mask_img_1, structure=struct)
         neighbors=self.neighbors(label_1)
         len_neighbors=len(neighbors)
         for n,label_2 in enumerate(neighbors):
             if verbose and n%2==0:
                 print n,'/',len_neighbors
             mask_img_2 = (dilated_bbox_img == label_2)
-            dil_2 = ndimage.binary_dilation(mask_img_2, structure=struct)
+            dil_2 = nd.binary_dilation(mask_img_2, structure=struct)
             x,y,z = np.where( ( (dil_1 & mask_img_2) | (dil_2 & mask_img_1) ) == 1 )
             coord[min(label_1,label_2),max(label_1,label_2)]=np.array((x+dilated_bbox[0].start,y+dilated_bbox[1].start,z+dilated_bbox[2].start))
         
@@ -646,7 +646,7 @@ class SpatialImageAnalysis(object):
 
         wall = {}
         for a in xrange(6):
-            dil = ndimage.binary_dilation(mask_img, structure=xyz_kernels[a])
+            dil = nd.binary_dilation(mask_img, structure=xyz_kernels[a])
             frontier = dilated_bbox_img[dil-mask_img]
 
             for n in neighbors:
@@ -913,7 +913,7 @@ def extract_L1(image):
     # L1 = []
     # im = np.zeros_like(image)
     # im[image!=1]=1
-    # ero = ndimage.binary_erosion(im)
+    # ero = nd.binary_erosion(im)
     # mask = im - ero
     # res = np.where(mask==1,image,0)
     # for cell in xrange(1,image.max()+1):
