@@ -58,7 +58,7 @@ def hollow_out_cells(mat):
     return m
 
 
-def cells_walls_detection(mat, hollowed_out=False):
+def cells_walls_coords(mat, hollowed_out=False):
     """
     :INPUT:
         .mat: Spatial Image containing cells (segmented image)
@@ -88,7 +88,7 @@ def cell_vertex_extraction(mat,display=False,display_edges=False,remove_borders=
             *keys = the 4 cells ids associated with the vertex position(values);
             *values = 3D coordinates of the vertex in the Spatial Image;
     """
-    x,y,z=cells_walls_detection(mat)
+    x,y,z=cells_walls_coords(mat)
     ## Compute vertices positions by findind the voxel belonging to each vertex.
     print 'Compute cell vertex positions...'
     Vvox_c={}
@@ -106,43 +106,43 @@ def cell_vertex_extraction(mat,display=False,display_edges=False,remove_borders=
                 Vvox_c[sub]=np.vstack((Vvox_c[sub],np.array((i,j,k)).T)) # we group voxels defining the same vertex by the IDs of the 4 cells.
             else:
                 Vvox_c[sub]=np.ndarray((0,3))
-        # -- If asked, we detect voxels defining cells' edges (an edge is where you can find4 differents cells -in 3D!!-).
-        if display_edges:
-            if (len(sub)==3):# ...in which we search for 3 different labels
-                if Evox_c.has_key(sub):
-                    Evox_c[sub]=np.vstack((Evox_c[sub],np.array((i,j,k)).T))
-                else:
-                    Evox_c[sub]=np.ndarray((0,3))
     ## Compute the barycenter of the voxels associated to each vertex (correspondig to the 3 cells detected previously).
     Bary_vrtx={}
     for i in Vvox_c.keys():
         Bary_vrtx[i]=np.mean(Vvox_c[i],0)
     print 'Done !!'
 
-    if display:
-        Vvox_x,Vvox_y,Vvox_z=[],[],[]
-        Bary_vrtx_x,Bary_vrtx_y,Bary_vrtx_z=[],[],[]
-        for i in Vvox_c.keys():
-            if len(Vvox_c[i]) != 0:
-                Vvox_x+=list(Vvox_c[i][:,0])
-                Vvox_y+=list(Vvox_c[i][:,1])
-                Vvox_z+=list(Vvox_c[i][:,2])
-                Bary_vrtx_x.append(np.mean(Vvox_c[i][:,0]))
-                Bary_vrtx_y.append(np.mean(Vvox_c[i][:,1]))
-                Bary_vrtx_z.append(np.mean(Vvox_c[i][:,2]))
-        print 'Generating mlab representation of the surface. Red cube indicate the location of the vertices.'
-        around=np.vectorize(np.around)
-        intv=np.vectorize(int)
-        s=mat[intv(around(Bary_vrtx_x)),intv(around(Bary_vrtx_y)),intv(around(Bary_vrtx_z))]
-        mlab.figure(size=(800, 800))
-        mlab.points3d(Bary_vrtx_x,Bary_vrtx_y,Bary_vrtx_z,s,mode="cube",scale_mode='none',scale_factor=2,color=(1,0,0),opacity=0.6)
-        if display_edges:
-            mlab.points3d(Evox_c[0],Evox_c[1],Evox_c[2],s,mode="cube",scale_mode='none',scale_factor=1,color=(0,0,0),opacity=0.3)
-        x,y,z=cells_walls_detection(mat)
-        mlab.points3d(x,y,z,mat[x,y,z],mode="point",scale_mode='none',scale_factor=0.3,colormap='prism')
-        mlab.show()
-
     return Bary_vrtx
+
+
+def dictionaries(Bary_vrtx):
+    """
+    Creates vrtx2cell, cell2vrtx & vrtx2bary dictionaries.
+    
+    :INPUT:
+    - Bary_vrtx: dict *keys=the 4 cells ids at the vertex position ; *values=3D coordinates of the vertex in the Spatial Image.
+    
+    :OUPTUTS:
+    - vrtx2cell: dict *keys=vertex id ; *values=ids of the 4 associated cells
+    - cell2vrtx: dict *keys=cell id ; *values=ids of the vertex defining the cell
+    - vrtx2bary: dict *keys=vertex id ; *values=3D coordinates of the vertex in the Spatial Image
+    """
+    print 'Creates vrtx2cell(vertex and its cells) , cell2vrtx(cell and its vertices) dictionaries'
+    vrtx2cell={} #associated cells to each vertex;
+    cell2vrtx={} #associated vertex to each cells;
+    vrtx2bary={}
+    for n,i in enumerate(Bary_vrtx.keys()):
+        vrtx2cell[n]=list(i)
+        vrtx2bary[n]=list(Bary_vrtx[i])
+        for j in list(i):
+            #check if cell j is already in the dict
+            if cell2vrtx.has_key(j): 
+                cell2vrtx[j]=cell2vrtx[j]+[n] #if true, keep the previous entry (vertex)and give the value of the associated vertex
+            else:
+                cell2vrtx[j]=[n] #if false, create a new one and give the value of the associated vertex
+    #~ del(cell2vrtx[1]) #cell #1 doesn't really exist...
+    print 'Done !!'
+    return vrtx2cell, cell2vrtx, vrtx2bary
 
 
 def geometric_median(X,numIter=50):
@@ -577,7 +577,7 @@ class SpatialImageAnalysis(object):
         return coord
 
 
-    def all_wall_voxels(self, label_1):
+    def all_wall_voxels(self, label_1, verbose=False):
         """
         Return the voxels coordinates defining the contact wall between two labels, the given one and its neighbors.
 
@@ -594,12 +594,19 @@ class SpatialImageAnalysis(object):
         mask_img_1 = (dilated_bbox_img == label_1)
         struct = ndimage.generate_binary_structure(3, 1)
         dil_1 = ndimage.binary_dilation(mask_img_1, structure=struct)
-        for label_2 in self.neighbors(label_1):
+        neighbors=self.neighbors(label_1)
+        len_neighbors=len(neighbors)
+        for n,label_2 in enumerate(neighbors):
+            if verbose and n%2==0:
+                print n,'/',len_neighbors
             mask_img_2 = (dilated_bbox_img == label_2)
             dil_2 = ndimage.binary_dilation(mask_img_2, structure=struct)
             x,y,z = np.where( ( (dil_1 & mask_img_2) | (dil_2 & mask_img_1) ) == 1 )
             coord[min(label_1,label_2),max(label_1,label_2)]=np.array((x+dilated_bbox[0].start,y+dilated_bbox[1].start,z+dilated_bbox[2].start))
         
+        if coord.has_key(0): #We could also add the test 'if label_2 !=0:' after the for loop (but if self.neighbors(label_1) is large it could slow down th function).
+            coord.pop(0)
+            
         return coord
 
 
@@ -756,6 +763,141 @@ class SpatialImageAnalysis(object):
             return inertia_eig_vec[0], inertia_eig_val[0]
         else:
             return inertia_eig_vec, inertia_eig_val
+
+
+    def remove_margins_cells(self,save="",display=False,verbose=False):
+        """
+        Function removing the cell's at the magins, because most probably cut during stack aquisition
+        Load a Spatial Image and return a Spatial image without cell's at the magins of the stack.
+        
+        :INPUTS:
+            .save: text (if present) indicating under which name to save the Spatial Image containing the cells of the first layer;
+            .display: boolean indicating if we should display the previously computed image;
+        
+        :OUPUT:
+            .mat: Spatial Image containing cells belonging to the fisrt Layer (L1)
+        """
+        
+        if verbose: print "Removing the cell's at the magins..."
+        border_cells=self.border_cells()
+        border_cells.remove(1)
+        len_border_cells=len(border_cells)
+        for n,c in enumerate(border_cells):
+            if verbose and n%20==0:
+                print n,'/',len_border_cells
+            xyz=np.where( (self.image[self.boundingbox(c)]) == c )
+            self.image[tuple((xyz[0]+self.boundingbox(c)[0].start,xyz[1]+self.boundingbox(c)[1].start,xyz[2]+self.boundingbox(c)[2].start))]=0
+
+        if save!="":
+            imsave(self.image,save)
+
+        if display:
+            from vplants.tissue_analysis.growth_analysis import visu_spatial_image
+            visu_spatial_image(self.image)
+        
+        if verbose: print 'Done !!'
+
+
+    def curvature( self, labels=None, rank=1 ):
+        """
+        """
+        import Scientific 
+        from Scientific.Functions.LeastSquares import leastSquaresFit
+        
+        # -- We start by taking out the border cells (we could keep them and to prevent the computation of the curvature for neighbours of margin cells)
+        if self.border_cells() != [0, 1]:
+            self.remove_margins_cells(verbose=True)
+        
+        L1=self.L1()
+        L1.remove(0)
+        if labels==None:
+            labels=L1
+            
+        #~ medians = {}
+        #~ for k in L1:
+            #~ medians[k] = geometric_median(walls(k))
+
+        if isinstance(labels,int):
+            wall=self.wall_voxels(1,labels).values()
+            z,errors=leastSquaresFit(second_order_surface, [1,1,1,1,1,1], wall[0][0:2])
+            return z,errors
+ 
+        if isinstance(labels,list):
+            for i in labels:
+                if i not in L1:
+                    print "Cell #",i, "doesn't belong to the L1, its curvature won't be computed"
+                    labels.remove(i)
+
+        if len(labels)>1:
+            walls = self.all_wall_voxels(1,verbose=True)
+            z,errors={},{}
+            for k in labels:
+                z[k],errors[k]=leastSquaresFit(second_order_surface,[1,1,1,1,1,1],wall[[1,k]][0:2])
+        
+        return z,errors
+    
+    
+    #~ def gaussian_curvature(self):
+        #~ """
+        #~ Compute the gaussian curvature.
+        #~ In differential geometry, the Gaussian curvature or Gauss curvature of a point on a surface is the product of the principal curvatures, κ1 and κ2, of the given point. 
+        #~ It is an intrinsic measure of curvature, i.e., its value depends only on how distances are measured on the surface, not on the way it is isometrically embedded in space.
+        #~ 
+        #~ A second-order polynomial allows a single bend in the surface. Likewise, a third-order polynomial allows two bends and so forth.
+        #~ """
+        #~ # -- We start by taking out the border cells (we could keep them and to prevent the computation of the curvature for neighbours of margin cells)
+        #~ if self.border_cells() != [0, 1]:
+            #~ self.remove_margins_cells()
+        #~ 
+        #~ walls = self.all_wall_voxels(1)
+        #~ L1 = self.L1
+        #~ L1.remove(0)
+        #~ medians = {}
+        #~ for k in L1:
+            #~ medians[k] = geometric_median(walls(k))
+        #~ 
+        #~ # -- Now that we have the geometric medians of the external wall for every cell we can compute the curvature.
+        #~ for k in L1:
+            #~ neighbors = self.neighbors(k)
+            #~ if 0 not in neighbors: # if 0 is in the neighbors list of the cell 'k' then she's at the margins of the sampled tissue and we don't have informations for all its neighbors.
+                #~ for i in neighbors:
+                    #~ if i in L1:
+                        #~ neighbors_1,neighbors_2=list(set(self.neighbors(i)),set(neighbors))
+                        #~ 
+#~ 
+#~ k=6
+#~ n=analysis1.neighbors(k)
+#~ L1=analysis1.L1()
+#~ for i in n:
+    #~ if i in L1:
+        #~ print i,':',set(analysis1.neighbors(i))
+        #~ set(n)
+        #~ l=list(set(analysis1.neighbors(i))&set(n))
+        #~ l.remove(1)
+        #~ for j in l:
+            #~ if j not in L1:
+                #~ l.remove(j)
+        #~ print l
+#~ 
+#~ from openalea.image.all import display3D
+#~ l= set(analysis1.labels()) - set( analysis1.neighbors(k)) 
+#~ l.discard(k)
+#~ ll=analysis1.neighbors(k)
+#~ ll.append(k)
+#~ tmp={}
+#~ for m in ll:
+    #~ tmp[m]=m
+#~ 
+#~ display3D(t1,list(l),tmp,lut=rainbow_full,verbose=True)
+
+def second_order_surface(params,data):
+    """
+    A second order analytic surface of the form z = a1.x^2 + a2.xy + a3.y^2 + a4.x + a5.y + a6
+    """
+    a1,a2,a3,a4,a5,a6=params
+    x,y=data
+    return (a1*x*x + a2*x*y + a3*y*y + a4*x + a5*y + a6)
+
 
 def extract_L1(image):
     """
