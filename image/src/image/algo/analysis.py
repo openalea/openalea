@@ -671,10 +671,10 @@ class SpatialImageAnalysis(object):
         >>> from openalea.image.algo.analysis import SpatialImageAnalysis
         >>> analysis = SpatialImageAnalysis(a)
 
-        >>> analysis.all_wall_surfaces({ 1 : [2, 3], 2 : [6] })
+        >>> analysis.wall_surfaces({ 1 : [2, 3], 2 : [6] })
        {(1, 2): 5.0, (1, 3): 4.0, (2, 6): 2.0 }
 
-        >>> analysis.all_wall_surfaces()
+        >>> analysis.wall_surfaces()
         {(1, 2): 5.0, (1, 3): 4.0, (1, 4): 2.0, (1, 5): 1.0, (1, 6): 1.0, (1, 7): 2.0, (2, 6): 2.0, (2, 7): 1.0, (3, 7): 2, (4, 7): 1, (5, 6): 1.0, (5, 7): 2.0 }
         """
         if neighbors is None : neighbors = self._all_neighbors()
@@ -793,107 +793,56 @@ class SpatialImageAnalysis(object):
             visu_spatial_image(self.image)
         
         if verbose: print 'Done !!'
-
-
-    def curvature( self, labels=None, rank=1 ):
-        """
-        """
-        import Scientific 
-        from Scientific.Functions.LeastSquares import leastSquaresFit
         
-        # -- We start by taking out the border cells (we could keep them and to prevent the computation of the curvature for neighbours of margin cells)
-        if self.border_cells() != [0, 1]:
-            self.remove_margins_cells(verbose=True)
-        
-        L1=self.L1()
-        L1.remove(0)
-        if labels==None:
-            labels=L1
-            
-        #~ medians = {}
-        #~ for k in L1:
-            #~ medians[k] = geometric_median(walls(k))
+        self.__init__(self.image)
 
-        if isinstance(labels,int):
-            wall=self.wall_voxels(1,labels).values()
-            z,errors=leastSquaresFit(second_order_surface, [1,1,1,1,1,1], wall[0][0:2])
-            return z,errors
- 
-        if isinstance(labels,list):
-            for i in labels:
-                if i not in L1:
-                    print "Cell #",i, "doesn't belong to the L1, its curvature won't be computed"
-                    labels.remove(i)
 
-        if len(labels)>1:
-            walls = self.all_wall_voxels(1,verbose=True)
-            z,errors={},{}
-            for k in labels:
-                z[k],errors[k]=leastSquaresFit(second_order_surface,[1,1,1,1,1,1],wall[[1,k]][0:2])
-        
-        return z,errors
-    
-    
-    #~ def gaussian_curvature(self):
+    #~ def curvature( self, labels=None, rank=1 ):
         #~ """
-        #~ Compute the gaussian curvature.
-        #~ In differential geometry, the Gaussian curvature or Gauss curvature of a point on a surface is the product of the principal curvatures, κ1 and κ2, of the given point. 
-        #~ It is an intrinsic measure of curvature, i.e., its value depends only on how distances are measured on the surface, not on the way it is isometrically embedded in space.
+        #~ """
+        #~ import Scientific 
+        #~ from Scientific.Functions.LeastSquares import leastSquaresFit
         #~ 
-        #~ A second-order polynomial allows a single bend in the surface. Likewise, a third-order polynomial allows two bends and so forth.
-        #~ """
         #~ # -- We start by taking out the border cells (we could keep them and to prevent the computation of the curvature for neighbours of margin cells)
         #~ if self.border_cells() != [0, 1]:
-            #~ self.remove_margins_cells()
+            #~ self.remove_margins_cells(verbose=True)
         #~ 
-        #~ walls = self.all_wall_voxels(1)
-        #~ L1 = self.L1
+        #~ L1=self.L1()
         #~ L1.remove(0)
+        #~ if labels==None:
+            #~ labels=L1
+            #~ 
         #~ medians = {}
         #~ for k in L1:
             #~ medians[k] = geometric_median(walls(k))
+#~ 
+        #~ if isinstance(labels,int):
+            #~ wall=self.wall_voxels(1,labels).values()
+            #~ z,errors=leastSquaresFit(second_order_surface, [1,1,1,1,1,1], wall[0][0:2])
+            #~ return z,errors
+ #~ 
+        #~ if isinstance(labels,list):
+            #~ for i in labels:
+                #~ if i not in L1:
+                    #~ print "Cell #",i, "doesn't belong to the L1, its curvature won't be computed"
+                    #~ labels.remove(i)
+#~ 
+        #~ if len(labels)>1:
+            #~ walls = self.all_wall_voxels(1,verbose=True)
+            #~ z,errors={},{}
+            #~ for k in labels:
+                #~ z[k],errors[k]=leastSquaresFit(second_order_surface,[1,1,1,1,1,1],wall[[1,k]][0:2])
         #~ 
-        #~ # -- Now that we have the geometric medians of the external wall for every cell we can compute the curvature.
-        #~ for k in L1:
-            #~ neighbors = self.neighbors(k)
-            #~ if 0 not in neighbors: # if 0 is in the neighbors list of the cell 'k' then she's at the margins of the sampled tissue and we don't have informations for all its neighbors.
-                #~ for i in neighbors:
-                    #~ if i in L1:
-                        #~ neighbors_1,neighbors_2=list(set(self.neighbors(i)),set(neighbors))
-                        #~ 
-#~ 
-#~ k=6
-#~ n=analysis1.neighbors(k)
-#~ L1=analysis1.L1()
-#~ for i in n:
-    #~ if i in L1:
-        #~ print i,':',set(analysis1.neighbors(i))
-        #~ set(n)
-        #~ l=list(set(analysis1.neighbors(i))&set(n))
-        #~ l.remove(1)
-        #~ for j in l:
-            #~ if j not in L1:
-                #~ l.remove(j)
-        #~ print l
-#~ 
-#~ from openalea.image.all import display3D
-#~ l= set(analysis1.labels()) - set( analysis1.neighbors(k)) 
-#~ l.discard(k)
-#~ ll=analysis1.neighbors(k)
-#~ ll.append(k)
-#~ tmp={}
-#~ for m in ll:
-    #~ tmp[m]=m
-#~ 
-#~ display3D(t1,list(l),tmp,lut=rainbow_full,verbose=True)
+        #~ return z,errors
 
-def second_order_surface(params,data):
-    """
-    A second order analytic surface of the form z = a1.x^2 + a2.xy + a3.y^2 + a4.x + a5.y + a6
-    """
-    a1,a2,a3,a4,a5,a6=params
-    x,y=data
-    return (a1*x*x + a2*x*y + a3*y*y + a4*x + a5*y + a6)
+
+#~ def second_order_surface(params,data):
+    #~ """
+    #~ A second order analytic surface of the form z = a1.x^2 + a2.xy + a3.y^2 + a4.x + a5.y + a6
+    #~ """
+    #~ a1,a2,a3,a4,a5,a6=params
+    #~ x,y=data
+    #~ return (a1*x*x + a2*x*y + a3*y*y + a4*x + a5*y + a6)
 
 
 def extract_L1(image):
