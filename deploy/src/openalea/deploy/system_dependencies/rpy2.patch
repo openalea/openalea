@@ -1,4 +1,4 @@
---- ../setup.py	Sun Mar 04 15:23:48 2012
+--- ./setup.py	Sun Mar 04 15:23:48 2012
 +++ ./setup.py	Fri Mar 23 17:16:33 2012
 @@ -1,5 +1,5 @@
  
@@ -135,3 +135,33 @@
  def getRinterface_ext():
      #r_libs = [os.path.join(RHOME, 'lib'), os.path.join(RHOME, 'modules')]
      r_libs = []
+
+
+--- ./rpy/rinterface/__init__.py	Wed Apr 04 18:11:30 2012
++++ ./rpy/rinterface/__init__.py	Wed Apr 04 22:39:41 2012
+@@ -42,7 +42,9 @@
+         R_HOME = R_HOME[1]
+     else:
+         R_HOME = R_HOME[0]
+-        R_HOME = R_HOME.strip()
++        # the environment variable can contain underscores or quotes
++        # which aren't stripped by os.path.join.
++        R_HOME = R_HOME.strip(' "')
+ 
+ os.environ['R_HOME'] = R_HOME
+ 
+@@ -67,9 +69,13 @@
+     R_DLL_DIRS = ('bin', 'lib')
+     # Try dirs from R_DLL_DIRS
+     for r_dir in R_DLL_DIRS:
+-        Rlib = os.path.join(R_HOME, r_dir, _win_bindir, 'R.dll')
++        Rlib_base = os.path.join(R_HOME, r_dir, _win_bindir)
++        Rlib = os.path.join(Rlib_base, 'R.dll')
+         if not os.path.exists(Rlib):
+             continue
++        # if R_HOME is not on %PATH% LoadLibrary will fail
++        if Rlib_base not in os.environ['PATH']:
++            os.environ['PATH'] += ';' + Rlib_base
+         win32api.LoadLibrary( Rlib )
+         _win_ok = True
+         break

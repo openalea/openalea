@@ -211,7 +211,6 @@ class egg_ann(BaseEggBuilder):
     arch_dependent = True  
     def script_substitutions(self):
         ann_ = ann()
-        #ann_.fix_source_dir()
         ann_path = ann_.sourcedir
         
         return dict( 
@@ -236,13 +235,23 @@ class egg_ann(BaseEggBuilder):
     # py_dependent   = False
     # arch_dependent = True  
    
-# class egg_rpy2(BaseEggBuilder): 
-    # license = "rpy2 license"
-    # authors = "RPy2 Contributors"
-    # description = "Windows gcc libs and includes of rpy2"
-    # py_dependent   = True
-    # arch_dependent = True 
+class egg_rpy2(BaseEggBuilder): 
+    license = "AGPLv3.0 (except rpy2.rinterface: LGPL)"
+    authors = "Laurent Gautier"
+    description = "Unofficial Windows gcc libs and includes of rpy2"
+    py_dependent   = True
+    arch_dependent = True
     
+    def script_substitutions(self):
+        from setuptools import find_packages
+        rpy2_ = rpy2()
+        return dict(URL          = "http://rpy.sourceforge.net",
+                    PACKAGES     = find_packages(rpy2_.installdir,"rpy2"),
+                    PACKAGE_DIRS = { "": rpy2_.installdir },
+                    VERSION      = rpy2_.version+".rev"+rpy2_.revision,
+                    PACKAGE_DATA = {'' : [Pattern.pyext]},
+                    ) 
+
     
 ############################################################
 # The following egg builders require that you have the     #
@@ -306,8 +315,8 @@ class egg_pylsm(InstalledPackageEggBuilder):
         for p in pth.split("\\"):
             if ".egg" in p:
                 version = p.split("-")[1]+"_1" # we have a patched version
-        return dict( VERSION = version )
-
+        return dict( VERSION = version )        
+        
 # class egg_pylibtiff(InstalledPackageEggBuilder):
     # license = "BSD License."
     # authors = "Pearu Peterson & friends."

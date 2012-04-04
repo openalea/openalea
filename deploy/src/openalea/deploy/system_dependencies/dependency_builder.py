@@ -102,6 +102,17 @@ class Later(object):
     and not mark it as done or failed (the third guy in a tribool)"""
     pass
 
+def rgetattr(c, attrs):
+    """Like getattr, except that you can provide sub attributes:
+    
+    >>> rgetattr(obj, "attr.subattr")
+    """
+    attrs = attrs.split(".")
+    value = c
+    while len(attrs):
+        value = getattr(value, attrs.pop(0))        
+    return value
+    
 ################################
 # Some Utilities - System Info #
 ################################
@@ -788,7 +799,7 @@ def in_dir(directory):
         """Encapsulate f in a structure that changes to getattr(self,directory),
         calls f and moves back to BuildEnvironment.get_working_path()"""
         def wrapper(self, *args, **kwargs):
-            d_ = getattr(self, directory)
+            d_ = rgetattr(self, directory)
             print "changing to", d_, "for", f.__name__
             os.chdir(d_)
             ret = f(self, *args, **kwargs)
@@ -1107,46 +1118,42 @@ class BaseEggBuilder(BaseBuilder):
         self.use_cfg_login  = False
         makedirs(self.eggdir)
 
-        self.default_substitutions = dict( NAME      = self.egg_name(),
-                                           VERSION   = "1.0",
-                                           THIS_YEAR = datetime.date.today().year,
-                                           SETUP_AUTHORS = "Openalea Team",
-                                           CODE_AUTHOR   = self.authors,
-                                           DESCRIPTION   = self.description,
-                                           URL           = "",
-                                           LICENSE       = self.license,
+        self.default_substitutions = dict( NAME             = self.egg_name(),
+                                       VERSION              = "1.0",
+                                       THIS_YEAR            = datetime.date.today().year,
+                                       SETUP_AUTHORS        = "Openalea Team",
+                                       CODE_AUTHOR          = self.authors,
+                                       DESCRIPTION          = self.description,
+                                       URL                  = "",
+                                       LICENSE              = self.license,
 
-                                           ZIP_SAFE       = False,
-                                           PYTHON_MODS    = None,
-                                           PACKAGES       = None,
-                                           PACKAGE_DIRS   = None,
-                                           PACKAGE_DATA   = {},
-                                           DATA_FILES     = None,
+                                       ZIP_SAFE             = False,
+                                       PYTHON_MODS          = None,
+                                       PACKAGES             = None,
+                                       PACKAGE_DIRS         = None,
+                                       PACKAGE_DATA         = {},
+                                       DATA_FILES           = None,
 
-                                           INSTALL_REQUIRES = None,
+                                       INSTALL_REQUIRES     = None,
 
-                                           BIN_DIRS = None,
-                                           LIB_DIRS = None,
-                                           INC_DIRS = None,
-                                           )
+                                       BIN_DIRS = None,
+                                       LIB_DIRS = None,
+                                       INC_DIRS = None,
+                                       )
     @classmethod
     def egg_name(cls):
         return cls.__name__.strip("egg_")
 
+    @try_except
     def _configure_script(self):
-        try:
-            with open( self.setup_in_name, "r") as input, \
-                 open( self.setup_out_name, "w") as output:
-                conf = self.default_substitutions.copy()
-                conf.update(self.script_substitutions())
-                conf = dict( (k,repr(v)) for k,v in conf.iteritems() )
-                template = TemplateStr(input.read())
-                output.write(template.substitute(conf))
-        except Exception, e:
-            traceback.print_exc()
-            return False
-        else:
-            return True
+        with open( self.setup_in_name, "r") as input, \
+             open( self.setup_out_name, "w") as output:
+            conf = self.default_substitutions.copy()
+            conf.update(self.script_substitutions())
+            conf = dict( (k,repr(v)) for k,v in conf.iteritems() )
+            template = TemplateStr(input.read())
+            output.write(template.substitute(conf))
+        return True
 
     @in_dir("eggdir")
     @try_except
@@ -1180,7 +1187,7 @@ class BaseEggBuilder(BaseBuilder):
         return {}
 
     def eggify(self):
-        #ret0 =  subprocess.call(sys.executable + " setup.py egg_info --egg-base=%s"%self.eggdir ) == 0
+        #ret0 = subprocess.call(sys.executable + " setup.py egg_info --egg-base=%s"%self.eggdir ) == 0
         return subprocess.call(sys.executable + " setup.py bdist_egg") == 0
 
     def upload_egg(self):

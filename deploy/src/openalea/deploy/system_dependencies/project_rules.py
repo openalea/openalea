@@ -568,7 +568,9 @@ class cgal(BaseProjectBuilder):
         
     
 class rpy2(BaseProjectBuilder):
-    url = "https://bitbucket.org/lgautier/rpy2/get/f075a4291e9c.zip"
+    version = "2.3"
+    revision = "f075a4291e9c"
+    url = "https://bitbucket.org/lgautier/rpy2/get/"+revision+".zip"
     download_name  = "rpy2_src.zip"
     archive_subdir = "lgautier-rpy2*"
     
