@@ -40,109 +40,104 @@ def real_indices(slices, resolutions):
     return [ (s.start*r, s.stop*r) for s,r in zip(slices,resolutions)]
 
 
-def hollow_out_cells(mat):
+def hollow_out_cells(image):
     """
     Laplacian filter used to dectect and return an Spatial Image containing only cell walls.
     (The Laplacian of an image highlights regions of rapid intensity change.)
     :INPUT:
-        .mat: Spatial Image containing cells (segmented image)
+        .image: Spatial Image containing cells (segmented image)
     :OUTPUT:
         .m: Spatial Image containing hollowed out cells (cells walls from full segmented image)
     """
     print 'Hollowing out cells...'
-    b=nd.laplace(mat)
-    m=mat.copy()
+    b=nd.laplace(image)
+    m=image.copy()
     m[b==0]=0
     m[np.where(m==1)]=0
     print 'Done !!'
     return m
 
 
-def cells_walls_coords(mat, hollowed_out=False):
+def cells_walls_coords(image, hollowed_out=False):
     """
     :INPUT:
-        .mat: Spatial Image containing cells (segmented image)
+        .image: Spatial Image containing cells (segmented image)
     :OUTPUT:
         .x,y,z: coordinates of the cells' boundaries (walls)
     """
     if not hollowed_out:
-        mat=hollow_out_cells(mat)
+        image=hollow_out_cells(image)
     print 'Extracting cell walls coordinates...'
-    x,y,z=np.where(mat!=0)
+    x,y,z=np.where(image!=0)
     print 'Done !!'
     return list(x),list(y),list(z)
 
 
-def cell_vertex_extraction(mat,verbose=False):
+def cell_vertex_extraction(image,verbose=False):
     """
     Calculates cell's vertices positions according to the rule: a vertex is the point where you can find 4 differents cells (in 3D!!)
     For the surface, the outer 'cell' #1 is considered as a cell.
 
     :INPUTS:
-        .mat: Spatial Image containing cells (segmented image). Can be a full spatial image or an extracted surface.
-        .display: boolean defining if the function should open an mlab window to represent the cells and the vertex (red cubes)
-        .remove_borders: boolean defining if the function sould try to remove cells at the border of the stack before representation.
+        .image: Spatial Image containing cells (segmented image). Can be a full spatial image or an extracted surface.
 
     :OUTPUT:
-        .Bary_vrtx:
+        .barycentric_vtx:
             *keys = the 4 cells ids associated with the vertex position(values);
             *values = 3D coordinates of the vertex in the Spatial Image;
     """
-    x,y,z=cells_walls_coords(mat)
+    x,y,z=cells_walls_coords(image)
     ## Compute vertices positions by findind the voxel belonging to each vertex.
-    print 'Compute cell vertex positions...'
-    Vvox_c={}
-    Evox_c={}
+    if verbose: print 'Compute cell vertex positions...'
+    vertex_voxel={}
     dim=len(x)
     for n in xrange(dim):
         if verbose and n%20000==0:
             print n,'/',dim
         i,j,k=x[n],y[n],z[n]
-        sub=mat[(i-1):(i+2),(j-1):(j+2),(k-1):(k+2)] # we generate a sub-matrix...
-        sub=tuple(np.unique(sub))
+        sub_image=image[(i-1):(i+2),(j-1):(j+2),(k-1):(k+2)] # we generate a sub_image-matrix...
+        sub_image=tuple(np.unique(sub_image))
         # -- Now we detect voxels defining cells' vertices.
-        if (len(sub)==4): # ...in which we search for 4 different labels
-            if Vvox_c.has_key(sub):
-                Vvox_c[sub]=np.vstack((Vvox_c[sub],np.array((i,j,k)).T)) # we group voxels defining the same vertex by the IDs of the 4 cells.
+        if (len(sub_image)==4): # ...in which we search for 4 different labels
+            if vertex_voxel.has_key(sub_image):
+                vertex_voxel[sub_image]=np.vstack((vertex_voxel[sub_image],np.array((i,j,k)).T)) # we group voxels defining the same vertex by the IDs of the 4 cells.
             else:
-                Vvox_c[sub]=np.ndarray((0,3))
+                vertex_voxel[sub_image]=np.ndarray((0,3))
     ## Compute the barycenter of the voxels associated to each vertex (correspondig to the 3 cells detected previously).
-    Bary_vrtx={}
-    for i in Vvox_c.keys():
-        Bary_vrtx[i]=np.mean(Vvox_c[i],0)
-    print 'Done !!'
+    barycentric_vtx={}
+    for i in vertex_voxel.keys():
+        barycentric_vtx[i]=np.mean(vertex_voxel[i],0)
+    if verbose: print 'Done !!'
 
-    return Bary_vrtx
+    return barycentric_vtx
 
 
-def dictionaries(Bary_vrtx):
+def cell2vertex_relations(cells2coords):
     """
-    Creates vrtx2cell, cell2vrtx & vrtx2bary dictionaries.
+    Creates vtx2cells, cell2vtx & vtx2coords dictionaries.
     
     :INPUT:
-    - Bary_vrtx: dict *keys=the 4 cells ids at the vertex position ; *values=3D coordinates of the vertex in the Spatial Image.
+    - cells2coords: dict *keys=the 4 cells ids at the vertex position ; *values=3D coordinates of the vertex in the Spatial Image.
     
     :OUPTUTS:
-    - cell2vrtx: dict *keys=cell id ; *values= NEW ids of the vertex defining the cell
-    - vrtx2bary: dict *keys=vertex NEW id ; *values= 3D coordinates of the vertex in the Spatial Image
-    - vrtx2cell: dict *keys=vertex NEW id ; *values= ids of the 4 associated cells
+    - cell2vtx: dict *keys=cell id ; *values= NEW ids of the vertex defining the cell
+    - vtx2coords: dict *keys=vertex NEW id ; *values= 3D coordinates of the vertex in the Spatial Image
+    - vtx2cells: dict *keys=vertex NEW id ; *values= ids of the 4 associated cells
     """
-    print 'Creates vrtx2cell(vertex and its cells) , cell2vrtx(cell and its vertices) dictionaries'
-    vrtx2cell={} #associated cells to each vertex;
-    cell2vrtx={} #associated vertex to each cells;
-    vrtx2bary={}
-    for n,i in enumerate(Bary_vrtx.keys()):
-        vrtx2cell[n]=list(i)
-        vrtx2bary[n]=list(Bary_vrtx[i])
+    vtx2cells={} #associated cells to each vertex;
+    cell2vtx={} #associated vertex to each cells;
+    vtx2coords={}
+    for n,i in enumerate(cells2coords.keys()):
+        vtx2cells[n]=list(i)
+        vtx2coords[n]=list(cells2coords[i])
         for j in list(i):
             #check if cell j is already in the dict
-            if cell2vrtx.has_key(j): 
-                cell2vrtx[j]=cell2vrtx[j]+[n] #if true, keep the previous entry (vertex)and give the value of the associated vertex
+            if cell2vtx.has_key(j): 
+                cell2vtx[j]=cell2vtx[j]+[n] #if true, keep the previous entry (vertex)and give the value of the associated vertex
             else:
-                cell2vrtx[j]=[n] #if false, create a new one and give the value of the associated vertex
-    #~ del(cell2vrtx[1]) #cell #1 doesn't really exist...
-    print 'Done !!'
-    return cell2vrtx, vrtx2bary, vrtx2cell
+                cell2vtx[j]=[n] #if false, create a new one and give the value of the associated vertex
+    #~ del(cell2vtx[1]) #cell #1 doesn't really exist...
+    return cell2vtx, vtx2coords, vtx2cells
 
 
 def geometric_median(X,numIter=50):
@@ -767,15 +762,17 @@ class SpatialImageAnalysis(object):
 
     def remove_margins_cells(self,save="",display=False,verbose=False):
         """
-        Function removing the cell's at the magins, because most probably cut during stack aquisition
-        Load a Spatial Image and return a Spatial image without cell's at the magins of the stack.
+        !!!!WARNING!!!!
+        This function modify the SpatialImage on self.image
+        !!!!WARNING!!!!
+        Function removing the cell's at the magins, because most probably cut during stack aquisition.
         
         :INPUTS:
             .save: text (if present) indicating under which name to save the Spatial Image containing the cells of the first layer;
             .display: boolean indicating if we should display the previously computed image;
         
         :OUPUT:
-            .mat: Spatial Image containing cells belonging to the fisrt Layer (L1)
+            Spatial Image without the cell's at the magins.
         """
         
         if verbose: print "Removing the cell's at the magins..."
