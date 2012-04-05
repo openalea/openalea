@@ -75,7 +75,7 @@ def set_lsb_env(name, vars):
 
             # On Mac, we set the /etc/profile file (there is not .bashrc file)	
             if "darwin" in sys.platform.lower():
-                filename =  '/etc/bashrc'
+                filename = os.path.join(os.path.expanduser('~'), ".profile")
             else:
                 filename = os.path.join(os.path.expanduser('~'), ".bashrc")
             filehandle = open(filename, 'r')
