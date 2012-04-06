@@ -85,7 +85,6 @@ class egg_qt4(BaseEggBuilder):
                        "PyQt4.uic": pj(pyqt4_.install_site_dir, "PyQt4", "uic")}
         
         from PyQt4 import Qt
-        
         return dict( 
                     VERSION  = Qt.QT_VERSION_STR,
                     PACKAGES = ["PyQt4", "PyQt4.uic"],
@@ -94,7 +93,7 @@ class egg_qt4(BaseEggBuilder):
                     
                     LIB_DIRS         = lib_dirs,
                     DATA_FILES       = qscis+sip_mods,
-                    INSTALL_REQUIRES = [egg_mingw_rt.__eggname__]
+                    INSTALL_REQUIRES = [egg_mingw_rt.egg_name()]
                     )  
                     
 class egg_qt4_dev(BaseEggBuilder):
@@ -129,11 +128,11 @@ class egg_qt4_dev(BaseEggBuilder):
         from PyQt4 import Qt
         
         return dict( 
-                    VERSION  = Qt.QT_VERSION_STR,                   
+                    VERSION          = Qt.QT_VERSION_STR,                   
                     BIN_DIRS         = bin_dirs,
                     INC_DIRS         = inc_dirs,
                     DATA_FILES       = libs+sips+srcs+tra+mks+plu,
-                    INSTALL_REQUIRES = [egg_qt4.__eggname__]
+                    INSTALL_REQUIRES = [egg_qt4.egg_name()]
                     )  
                     
 class egg_pyqglviewer(BaseEggBuilder):
@@ -171,7 +170,7 @@ class egg_pyqglviewer(BaseEggBuilder):
                     INC_DIRS     = inc_dirs,
                     
                     DATA_FILES   = data_files,
-                    INSTALL_REQUIRES = [egg_qt4.__eggname__]
+                    INSTALL_REQUIRES = [egg_qt4.egg_name()]
                     )  
                     
 class egg_boost(BaseEggBuilder):
@@ -200,7 +199,7 @@ class egg_boost(BaseEggBuilder):
                     VERSION          = version,                 
                     LIB_DIRS         = lib_dirs,
                     INC_DIRS         = inc_dirs,
-                    INSTALL_REQUIRES = [egg_mingw_rt.__eggname__]
+                    INSTALL_REQUIRES = [egg_mingw_rt.egg_name()]
                     )  
 
 class egg_ann(BaseEggBuilder): 
@@ -271,7 +270,7 @@ class egg_numpy(InstalledPackageEggBuilder):
         
 class egg_scipy(InstalledPackageEggBuilder):
     license = "Scipy License"
-    authors = "(c) Entought"
+    authors = "(c) Enthought"
     description = "Scipy packaged as an egg"  
     py_dependent   = True
     arch_dependent = True        
