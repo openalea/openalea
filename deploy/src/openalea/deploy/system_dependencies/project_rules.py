@@ -38,8 +38,9 @@ class mingwrt(BaseProjectBuilder):
 
 
 class qt4(BaseProjectBuilder):
-    version = "4.8.0"
-    url = "http://download.qt.nokia.com/qt/source/qt-everywhere-opensource-src-"+version+".zip"
+    version = "4.7.4"
+    #version = "4.8.0"
+    url = "http://get.qt.nokia.com/qt/source/qt-everywhere-opensource-src-"+version+".zip"
     download_name  = "qt4_src.zip"
     archive_subdir = "qt-every*"
 
@@ -120,7 +121,7 @@ class qt4(BaseProjectBuilder):
         return True
 
     def extra_paths(self):
-        return pj(self.sourcedir, "bin"),
+        return self.install_bin_dir, self.install_dll_dir#pj(self.sourcedir, "bin"),
 
     def make_qt_conf(self, where=None):
         """ Patch qt *.exes and *.dlls so that they do not contain hard coded paths anymore. """
@@ -154,10 +155,12 @@ class qt4(BaseProjectBuilder):
 
 
 class sip(BaseProjectBuilder):
-    url = "http://www.riverbankcomputing.co.uk/static/Downloads/sip4/sip-4.13.2.zip"
+    url = "http://www.riverbankcomputing.com/hg/sip/archive/0869eb93c773.zip" #downloading from the mercurial tag
+    #url = "http://www.riverbankcomputing.co.uk/static/Downloads/sip4/sip-4.13.2.zip"
     download_name  = "sip_src.zip"
     archive_subdir = "sip*"
-    regexp         = re_compile(r"\s*'\w*':\s*'C:\\\\.*\\\\.*'")
+    
+    required_tools = [bisonflex]
 
     def __init__(self, *args, **kwargs):
         BaseProjectBuilder.__init__(self, *args, **kwargs)
@@ -173,11 +176,34 @@ class sip(BaseProjectBuilder):
         self.inst_paths = self.install_bin_dir, self.install_site_dir, self.install_inc_dir, \
                           self.install_sip_dir
 
+    @option_to_sys_path("bisonflex_path")
     def configure(self):
-        # The -S flag is needed or else configure.py
-        # sees any existing sip installation and can fail.
-        return subprocess.call(sys.executable + \
-               " -S configure.py --platform=win32-g++ -b %s -d %s -e %s -v %s"%self.inst_paths) == 0
+        if exists(pj(self.sourcedir,"configure.py") ):
+            print "it's alive!"
+            # The -S flag is needed or else configure.py
+            # sees any existing sip installation and can fail.
+            return subprocess.call(sys.executable + \
+                   " -S configure.py --platform=win32-g++ -b %s -d %s -e %s -v %s"%self.inst_paths) == 0
+        else:
+            #if configure.py doesn't exist then we might
+            #be using a zipball retreived directly from
+            #sip's mercurial repository. This type of source
+            #needs a step before actually calling configure.py
+            if exists("build.py"):
+                print "Will try to build sip from mercurial source zipball"
+                try:
+                    #We neeeed bison and flex
+                    subprocess.call("bison.exe")
+                except:
+                    print "Could not find bison flex, use --bisonflex"
+                    return False
+                apply_patch( pj(ModuleBaseDir,"sip_build.patch") )
+                subprocess.call(sys.executable + " -S build.py prepare")
+                return self.configure()
+            else:
+                #we don't have a clue of what type of source we're in
+                #so dying cleanly can seem like a good option:
+                return False
 
     def extra_paths(self):
         return self.sourcedir, pj(self.sourcedir, "sipgen")
@@ -185,13 +211,8 @@ class sip(BaseProjectBuilder):
     def extra_python_paths(self):
         return self.sourcedir, pj(self.sourcedir, "siplib")
 
-    def install(self):
-        ret = BaseProjectBuilder.install(self)
-        
-        if not ret:
-            return False
-    
-        # Patching sipconfig.py so that itself
+    def patch(self):
+        # Patching sipconfig.py so that its
         # paths point to the qt4 egg path we are building.
         # Feel free to do better
         header = """
@@ -241,7 +262,8 @@ if 'qt4-dev' in env:
 
 
 class pyqt4(BaseProjectBuilder) :
-    url = "http://www.riverbankcomputing.co.uk/static/Downloads/PyQt4/PyQt-win-gpl-4.9.1.zip"
+    url = "http://pypi.python.jp/PyQt/PyQt-win-gpl-4.8.6.zip#md5=734bb1b8e6016866f4450211fc4770d9"
+    #url = "http://www.riverbankcomputing.co.uk/static/Downloads/PyQt4/PyQt-win-gpl-4.9.1.zip"
     download_name  = "pyqt4_src.zip"
     archive_subdir = "PyQt*"
     
@@ -517,8 +539,8 @@ class qhull(BaseProjectBuilder):
     url = "http://www.qhull.org/download/qhull-2011.2.zip"
     download_name  = "qhull_src.zip"
     archive_subdir = "qhull*"
-
     enabled = False
+
     def __init__(self, *args, **kwargs):
         BaseProjectBuilder.__init__(self, *args, **kwargs)
         self.install_inc_dir = pj(self.installdir, "include")
@@ -539,6 +561,7 @@ class cgal(BaseProjectBuilder):
     url = "https://gforge.inria.fr/frs/download.php/30390/CGAL-4.0.zip"
     download_name  = "cgal_src.zip"
     archive_subdir = "cgal*"
+    required_tools = [cmake]
 
     enabled = True
     def __init__(self, *args, **kwargs):
@@ -559,6 +582,7 @@ class cgal(BaseProjectBuilder):
                             '-DMPFR_INCLUDE_DIR='+db_quote( pj(compiler, "..", "include") ),
                             '-DZLIB_INCLUDE_DIR='+db_quote(pj(compiler, "..", "include")),
                             '-DZLIB_LIBRARY='+db_quote(pj(compiler,"..", "lib", "libz.a")),
+                            '-DOPENGL_LIBRARIES='+db_quote(pj(compiler,"..", "lib", "libglu32.a")),
                             ])
         options=options.replace("\\", "/") #avoid "escape sequence" errors with cmake
         cmd = 'cmake.exe -G"MinGW Makefiles" '+options+' . '

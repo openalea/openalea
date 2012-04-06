@@ -27,11 +27,12 @@ class egg_mingw_rt(BaseEggBuilder):
     description = "Mingw Development (compiler, linker, libs, includes)"
     py_dependent   = False
     arch_dependent = True
+    version        = "5.1.4_4b"
     def script_substitutions(self):
         mgw = mingwrt()
         libdirs = {"bin":mgw.install_dll_dir}
         return dict( 
-                    VERSION  = "5.1.4_3",
+                    VERSION  = self.version,
                     LIB_DIRS = libdirs,
                     )                
 
@@ -58,7 +59,7 @@ class egg_mingw(BaseEggBuilder):
         incdirs = {"include": pj(mingwbase, "include")}
             
         return dict( 
-                    VERSION  = "5.1.4_3",
+                    VERSION  = egg_mingw.versions,
                     BIN_DIRS = bindirs,
                     INC_DIRS = incdirs,
                     DATA_FILES   = data,
@@ -310,7 +311,7 @@ class egg_pylsm(InstalledPackageEggBuilder):
     
     def script_substitutions_2(self):
         pth = self.package.__path__[0]
-        version = "UNKNOWN"
+        version = "0.1-r34"
         for p in pth.split("\\"):
             if ".egg" in p:
                 version = p.split("-")[1]+"_1" # we have a patched version

@@ -45,7 +45,7 @@ setup(
     packages = find_packages('src'),
     package_dir = { '' : 'src', },
     include_package_data = True,
-    zip_safe = True,
+    zip_safe = False,
 
     entry_points = {
               "distutils.setup_keywords": [

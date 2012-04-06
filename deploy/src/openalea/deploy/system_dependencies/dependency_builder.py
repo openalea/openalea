@@ -57,6 +57,7 @@ import urllib
 import subprocess
 import glob
 import time
+import threading
 import pprint
 import fnmatch
 import re
@@ -190,7 +191,12 @@ def download(url, easy_name, arch_path):
         # the content type shouldn' be text/*,
         # but application/*. text/* == error
         if remote.info().getheaders("Content-Type")[0].startswith("application"):
-            remote_sz = int(remote.info().getheaders("Content-Length")[0])
+            c_len = remote.info().getheaders("Content-Length")
+            if len(c_len):
+                remote_sz = int(remote.info().getheaders("Content-Length")[0])
+            else:
+                print "Unknown content length, cannot determine if download can be skipped..."
+                remote_sz = float("inf")
         elif remote.info().getheaders("Content-Type")[0].startswith("text/html"):
             raise IOError( strip_tags(remote.read()) )
         else:
@@ -395,6 +401,13 @@ class MEggBuilders(MSingleton):
     def get(cls, item):
         return MEggBuilders.builders[item]
 
+class MTool(MSingleton):
+    def __init__(cls, name, bases, dic):
+        MSingleton.__init__(cls, name, bases, dic)
+        if name != "Tool":
+            cls.cmd_options = cls.cmd_options or []
+            cls.cmd_options.insert(0, (name, None, "Path to "+ (cls.exe or name+".exe") ) )
+            cls.arch_name   = name+"."+cls.arch_name_ext
 
 def memoize(attr):
     def deco_memoize(f):
@@ -410,6 +423,133 @@ def memoize(attr):
 #############################
 # A micro build environment #
 #############################
+class Tool(object):
+    __metaclass__ = MTool
+    
+    # URL at which we can download
+    # a release of the tool.
+    url = None
+    
+    # extension of the downloaded archive.
+    # the extension determines the unpacker to use.
+    arch_name_ext = None
+    
+    # a glob pattern to move into subdirectories
+    archive_subdir = None
+    
+    # Executable that can be called to test for availability
+    exe = None
+    
+    # Places to look for the exe by default.
+    default_paths = None
+    
+    # if not None, it is then a list of triplets specifying additionnal
+    # command line options that are needed for this package.
+    # the MTool metaclass will automatically add a self.name+"_path" 
+    # command line to this list.
+    cmd_options = None
+    
+    @property
+    def name(self):
+        return self.__class__.__name__
+        
+    @property
+    def options(self):
+        return BE.options
+    
+    @memoize("path")
+    def get_path(self):
+        #NOTE:
+        #The BuildEnvironment class cleans the PATH.
+        #no need to look into that variable.
+        def pth_test(pth):
+            exe_path = pj(pth, self.exe)
+            if exists(exe_path):
+                # see if we can actually call it
+                try:            
+                    subprocess.call(exe_path, stdout=NullOutput)
+                except WindowsError:
+                    print "Calling", exe_path, "failed: bad path"
+                    return False
+                else:
+                    return True
+            return False
+        
+        # First look at the user provided command line option.
+        pth = self.options[self.name]
+        if pth is not None:
+            if pth_test(pth):
+                return pth
+        
+        # Look in default_paths:
+        if self.default_paths is None or not len(self.default_paths):
+            print "No default paths given, skipping"
+        else:
+            for pth in self.default_paths:
+                matches = glob.glob( pth )
+                if len(matches):
+                    matches.sort()        
+                    pth = dirname(matches[-1]) # -1 is supposed toget highest version
+                    if pth_test(pth):
+                        return pth
+
+        # Is it installed locally?
+        wp = BE.get_working_path()
+        archpath = pj(wp, self.arch_name)
+        toolpath = pj(wp, self.name)
+
+        if self.archive_subdir is not None:
+            pth = glob.glob(pj(toolpath,self.archive_subdir))[0]
+        else:
+            pth = toolpath                
+        if pth is not None:
+            if pth_test(pth):
+                return pth
+                        
+        # Haven't found it yet, let's install it in wdr
+        if self.url is None:
+            print "No url to download tool from, skipping"
+            return None
+        if not self.__prompt_user():
+            print "User refused download"
+            return None
+        
+        print "Will now install %s to %s"%(self.name, wp)
+        if not download(self.url, self.arch_name, archpath):
+            print "Couldn't download", self.name
+            return None
+        if not unpack(archpath, toolpath):
+            print "Couldn't unpack", self.name
+            return None
+            
+        return pth if pth_test(pth) else None
+                
+    def __prompt_user(self):
+        """Prompt the user for download, wait 5 seconds and download if no input"""
+        do_dl = True
+        delay = 5
+        def ask_user_if_download():    
+            try:
+                do_dl = raw_input("Locally install " + self.name + "? (y/n): ").lower() == "y"
+                threading.current_thread()._Thread__stop()
+            except EOFError, e:
+                do_dl = True
+                threading.current_thread()._Thread__stop()
+
+        prompt = "Locally install %s (%s seconds)? (y/n, default:y): \r"
+        thInput = threading.Thread(target=ask_user_if_download)
+        while delay > 0 and do_dl is False:
+            if not thInput.is_alive():
+                thInput.start()
+            sys.stdout.write(prompt%(self.name, delay))
+            sys.stdout.flush()
+            delay -= 1
+            time.sleep(1)
+        thInput._Thread__stop()
+        return do_dl
+        
+
+
 class Compiler_(object):
     __metaclass__ = MSingleton
     
@@ -521,9 +661,7 @@ Compiler = Compiler_()
     
     
 class BuildEnvironment(object):
-    __metaclass__ = MSingleton
-    
-    default_cmake = "http://www.cmake.org/files/v2.8/cmake-2.8.7-win32-x86.zip"
+    __metaclass__ = MSingleton    
 
     def __init__(self):
         self.options = {}
@@ -536,10 +674,12 @@ class BuildEnvironment(object):
         self.original_stdout = sys.stdout
         self.original_stderr = sys.stderr
         self.null_stdout     = NullOutput
+        self.tools = []
 
     def set_options(self, options):
         self.options = options.copy()
         Compiler.set_options(options)
+        self.tools = options["tools"][:]
         self.init()
 
     def init(self):
@@ -673,17 +813,23 @@ class BuildEnvironment(object):
         # give priority to OUR compiler!
         self.__overwrite_path()
         self.ensure_python_lib()
-        self.ensure_has_cmake()
-        Compiler.ensure_has_mingw()
         self.__overwrite_path()
 
     def __overwrite_path(self):
-        path = sj([Compiler.get_bin_path(), 
-                   self.get_cmake_bin_path()])
-                   #self.original_path])
+        tool_paths = []
+        for tool in self.tools:
+            tool = tool()
+            print "Looking for %s path"%tool.name
+            pth = tool.get_path()
+            if pth:
+                print "\tGot it:", pth
+                tool_paths.append(pth)       
+        path = sj(tool_paths + [Compiler.get_bin_path()])
+        
         if path.endswith("\""):
             print "Removing trailing PATH quotes as mingw32-make doesn't like them"
             path = path.replace("\"", "")                   
+        print path
         os.environ["PATH"] = path 
         
     def __fix_sys_path(self):
@@ -717,59 +863,7 @@ class BuildEnvironment(object):
             else:
                 raise Exception("Can't create %s, %s not found: Python link will fail"%(dst,src))
         else:
-            print "Python lib is ok"
-
-    # Some CMAKE related methods.
-    @memoize("cmake_pth")        
-    def get_cmake_bin_path(self):
-        if self.options["cmake"]:
-            return self.options["cmake"]
-        pths = os.environ["PATH"].split(";")
-        pths = [ "c:\\Program Files (x86)\\cmake*\\bin\\",
-                 "c:\\Program Files\\cmake*\\bin\\",
-                 "c:\\CMake*\\bin\\"]
-        
-        matches = []
-        for p in pths:
-            matches += glob.glob( pj(p, "cmake.exe") )
-        if len(matches ) == 0:
-            return None
-        else:
-            matches.sort()        
-            return dirname(matches[-1])
-            
-    def ensure_has_cmake(self):
-        try: 
-            subprocess.call("cmake --version", stdout=NullOutput)
-        except WindowsError:
-            print "Couldn't find CMake in your path. Searching standard dirs"
-            cmake_pth = self.get_cmake_bin_path()
-            if not cmake_pth:
-                print "Couldn't find CMake anywhere..."
-                if raw_input("Install one? (Y/N): ").lower() == "y":
-                    return self.install_cmake()
-                else:
-                    print "Some packages may not compile, continuing anyway..."
-                    return False
-            else:
-                print "Found it :", cmake_pth
-        return True
-
-    def install_cmake(self):
-        print "Will now install a CMake to c:\\CMake*"
-        print "Make sure you have to rights to do so and that the directory does NOT exist"
-        if raw_input("Proceed? (Y/N):").lower() == "y":
-            ez_name  = "cmake.zip"
-            archpath = pj(BE.working_path, ez_name)
-            if download(self.default_cmake, ez_name, archpath):
-                if not unpack(archpath, "c:\\"):
-                    print "Couldn't install CMake, continuing anyway..."
-                    return False
-        self.cmake_pth = None
-        self.locate_cmake()
-        return True
-   
-        
+            print "Python lib is ok"        
 
 #a shorthand:
 BE=BuildEnvironment()
@@ -881,6 +975,8 @@ class BaseBuilder(object):
     #if not None, it is then a list of triplets specifying additionnal
     #command line options that are needed for this package.
     cmd_options = None
+    # list of tools that are required by this builder
+    required_tools = None
 
     def __init__(self):
         self.env = BE
@@ -1222,7 +1318,7 @@ class Pattern:
     # -- Qtities --
     qtstalib = "*.a,*.prl,*.pri,*.pfa,*.pfb,*.qpf,*.ttf,README"
     qtsrc    = "*.pro,*.pri,*.rc,*.def,*.h,*.hxx"
-    qtinc    = re_compile(r"^Q[0-9A-Z]\w|.*\.h")
+    qtinc    = re_compile(r"^Q[0-9A-Z]\w|.*\.h|^Qt\w")
     qtmkspec = "*"
     qttransl = "*.qm"
 
@@ -1293,10 +1389,26 @@ class InstalledPackageEggBuilder(BaseEggBuilder):
     def script_substitutions_2(self):
         raise NotImplementedError
 
+        
+        
+##########################
+# Some Tools definitions #
+##########################
+class cmake(Tool):
+    url            = "http://www.cmake.org/files/v2.8/cmake-2.8.7-win32-x86.zip"
+    arch_name_ext  = "zip"
+    archive_subdir = r"cmake*\bin"
+    exe            = "cmake.exe"
+    default_paths  = [ "c:\\Program Files (x86)\\cmake*\\bin\\",
+                       "c:\\Program Files\\cmake*\\bin\\",
+                       "c:\\CMake*\\bin\\"]
 
 
-
-
+class bisonflex(Tool):
+    url            = "https://gforge.inria.fr/frs/download.php/27628/bisonflex-2.4.1_2.5.35-win32.egg"
+    arch_name_ext  = "zip"
+    archive_subdir = "bin"
+    exe            = "bison.exe"
 
 
 
@@ -1339,7 +1451,7 @@ def parse_arguments():
     g.add_argument("--keep-going", "-k", action="store_const", const=True, default=False, help="keep going on errors")
     g.add_argument("--python", "-p", default=None, help="fully qualified python executable to use for the compilation")
     g.add_argument("--compiler", "-c", default=None, help="path to compiler binaries")
-    g.add_argument("--cmake", default=None, help="path to cmake binaries")
+#    g.add_argument("--cmake", default=None, help="path to cmake binaries")
     g.add_argument("--only", "-o", default=None, action="append", type=valid_builder, help="Only process these project/eggs")
     g.add_argument("--jobs", "-j", default=1, type=int, help="number of jobs during compilation")
     g.add_argument("--login",  default=None, help="login to connect to GForge")
@@ -1348,34 +1460,51 @@ def parse_arguments():
     g.add_argument("--verbose", action="store_const", const=True, default=False, help="Well try to say more things.")
     
     pkg_options = {}
+    tools = set()
 
     g = parser.add_argument_group("Options controlling project builder actions to force")
     for name, builder in MProjectBuilders.builders.iteritems():
+        if not builder.enabled:
+            continue    
         g.add_argument("--"+name, default="",
                             help="Force actions on %s"%name, dest=name,
                             metavar="PROJ_ACTIONS")
         if builder.cmd_options:
             pkg_options.setdefault(name,list()).extend(builder.cmd_options)
+        if builder.required_tools:
+            tools |= set(builder.required_tools)
 
     g = parser.add_argument_group("Options controlling egg builder actions to force")
     for name, builder in MEggBuilders.builders.iteritems():
+        if not builder.enabled:
+            continue
         g.add_argument("--"+name, default="",
                             help="Force actions on %s"%name, dest=name,
                             metavar="EGG_ACTIONS")
         if builder.cmd_options:
             pkg_options.setdefault(name,list()).extend(builder.cmd_options)  
-    
+        if builder.required_tools:
+            tools |= set(builder.required_tools)
+            
     for bname, opt_list in pkg_options.iteritems():
         g = parser.add_argument_group("Options for " + bname + " builder")
         for opt_name, default, help in opt_list:
             g.add_argument("--"+opt_name, default=default, help=help)
-    return parser.parse_args()
+          
+    tools = sorted(tools, cmp=lambda x,y: cmp(x.name, y.name))
+    for tool in tools:
+        g = parser.add_argument_group("Options for " + tool().name + " tool")
+        if tool.cmd_options is not None:
+            for opt_name, default, help in tool.cmd_options:
+                g.add_argument("--"+opt_name, default=default, help=help)
+                
+    return parser.parse_args(), tools
 
 def main():
     #default building rules
     proj_rules_file = pj(split(__file__)[0],"project_rules.py")
     egg_rules_file  = pj(split(__file__)[0],"egg_rules.py")
-    # if any rules are given as arguments parse those first
+    # if any rules are given as arguments, parse those first
     # or else the parse_arguments function won't build the
     # parser correctly
     if "--prules" in sys.argv:
@@ -1396,7 +1525,7 @@ def main():
     with open(egg_rules_file) as f:
         egg_rules  = eval(compile(f.read(), egg_rules_file, "exec"), globals())
 
-    args = parse_arguments()
+    args, tools = parse_arguments()
 
     # set some env variables for subprocesses
     os.environ["MAKE_FLAGS"] = "-j"+str(args.jobs)
@@ -1411,6 +1540,7 @@ def main():
         return os.system(python + " " + arg_str)
     else:
         options = vars(args)
+        options["tools"] = tools
         env = BuildEnvironment()
         env.set_options(options)
         ret = False
@@ -1419,7 +1549,7 @@ def main():
         return ret
 
 
-
+    
 
 if __name__ ==  "__main__":
     sys.exit( main() == False )
