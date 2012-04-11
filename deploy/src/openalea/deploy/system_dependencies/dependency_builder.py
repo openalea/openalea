@@ -526,17 +526,17 @@ class Tool(object):
                 return pth
 
         # Look in default_paths:
-        # 1) - Expand PyExecPaths and OriginalSystemPaths placeholders
-        if Tool.PyExecPaths in self.default_paths:
-            self.default_paths.remove(Tool.PyExecPaths)
-            self.default_paths.extend(get_python_scripts_dirs())
-        if Tool.OriginalSystemPaths in self.default_paths:
-            self.default_paths.remove(Tool.OriginalSystemPaths)
-            self.default_paths.extend(BE.original_path.split(os.pathsep))
-        # 2) - Do the lookup (might be possible to speed things up later on)
         if self.default_paths is None or not len(self.default_paths):
             print "\tNo default paths given, skipping"
         else:
+            # 1) - Expand PyExecPaths and OriginalSystemPaths placeholders
+            if Tool.PyExecPaths in self.default_paths:
+                self.default_paths.remove(Tool.PyExecPaths)
+                self.default_paths.extend(get_python_scripts_dirs())
+            if Tool.OriginalSystemPaths in self.default_paths:
+                self.default_paths.remove(Tool.OriginalSystemPaths)
+                self.default_paths.extend(BE.original_path.split(os.pathsep))
+            # 2) - Do the lookup (might be possible to speed things up later on)
             for pth in self.default_paths:
                 matches = glob.glob( pth )
                 if len(matches):
@@ -738,7 +738,7 @@ class BuildEnvironment(object):
         self.options = options.copy()
         Compiler.set_options(options)
         self.tools = options["tools"][:]
-        self.init
+        self.init()
 
     def set_metabuilders(self, metabuilders):
         self.metabuilders = metabuilders[:]
@@ -768,6 +768,7 @@ class BuildEnvironment(object):
     # -- context manager protocol --
     def __enter__(self):
         try:
+            print self.proc_file_path
             with open(self.proc_file_path, "rb") as f:
                 txt  = f.read()
                 self.done_tasks = eval(txt)
@@ -1492,7 +1493,7 @@ def build_epilog(metabuilders, dep_build_end=True):
     epilog = ""
     for mbuilder in metabuilders:
         m_name = mbuilder.ez_name
-        epilog = "%s_ACTIONS are a concatenation of flags specifying what actions will be done:\n"%m_name
+        epilog = "%s_ACTIONS are a concatenation of flags specifying what actions will be done:\n"%m_name.upper()
         for proc, (funcname, skippable) in mbuilder.bases[0].all_tasks.iteritems():
             if skippable:
                 epilog += "\t%s : %s\n"%(proc, funcname.strip("_"))
