@@ -5,7 +5,7 @@
 #       Copyright 2006-2012 INRIA - CIRAD - INRA
 #
 #       File author(s): Daniel Barbeau
-#       File Contributors(s):   
+#       File Contributors(s):
 #                             - Yassin Refahi,
 #                             - Frederic Boudon,
 #
@@ -69,7 +69,7 @@ import tarfile
 import ctypes
 import patch
 import ConfigParser #used by some project builders
-from os.path import join as pj, splitext, getsize, exists, abspath, split, dirname
+from os.path import join as pj, splitext, getsize, exists, abspath, split, dirname, realpath
 from collections import namedtuple, OrderedDict, defaultdict
 from re import compile as re_compile
 
@@ -96,7 +96,7 @@ pyver = sys.version_info[:2]
 NullOutput = open("NUL", "w")
 
 # A variable that stores the absolute path to this file:
-ModuleBaseDir = abspath(dirname(__file__))   
+ModuleBaseDir = abspath(dirname(__file__))
 
 class Later(object):
     """ Just a way to be able to check if a process should be done later,
@@ -105,15 +105,15 @@ class Later(object):
 
 def rgetattr(c, attrs):
     """Like getattr, except that you can provide sub attributes:
-    
+
     >>> rgetattr(obj, "attr.subattr")
     """
     attrs = attrs.split(".")
     value = c
     while len(attrs):
-        value = getattr(value, attrs.pop(0))        
+        value = getattr(value, attrs.pop(0))
     return value
-    
+
 ################################
 # Some Utilities - System Info #
 ################################
@@ -155,6 +155,18 @@ def get_python_dll():
         raise OSError("Couldn't determine python%d%d.dll path"%pyver)
     return pj(py_path, u"python%d%d.dll"%pyver)
 
+def get_python_scripts_dirs():
+    dirs = set()
+    prev = None
+    for pth in sorted(sys.path):
+        pth = [part.lower() for part in pth.split(os.sep)]
+        try:
+            idx = pth.index("lib")
+        except:
+            continue
+        else:
+            dirs.add( pj(*pth[:idx]+["scripts"]).replace(":", ":"+os.sep) )
+    return dirs
 
 ###############################
 # Some Utilities - Networking #
@@ -175,6 +187,15 @@ def strip_tags(html):
     s.feed(html)
     return s.get_data()
 
+def into_subdir(base, pattern):
+    if pattern is not None:
+        pths = glob.glob(pj(base,pattern))
+        if len(pths):
+            return pths[0]
+        else:
+            return None
+    else:
+        return base
 
 def download(url, easy_name, arch_path):
     def download_reporter(bk, bksize, bytes):
@@ -354,9 +375,9 @@ def ascii_file_replace(fname, oldstr, newstr):
 
 def apply_patch(patchfile):
     p = patch.fromfile(patchfile)
-    p.apply()    
-            
-            
+    p.apply()
+
+
 ###############
 # METACLASSES #
 ###############
@@ -379,35 +400,35 @@ class MSingleton(type):
             cls.instance=type.__call__(cls, *args, **kw)
         return cls.instance
 
-class MProjectBuilders(MSingleton):
-    """ A Project Builder registry and MSingleton Metaclass."""
-    builders = OrderedDict()
-    def __init__(cls, name, bases, dic):
-        MSingleton.__init__(cls, name, bases, dic)
-        if name != "BaseProjectBuilder":
-            MProjectBuilders.builders[name] = cls
-    @classmethod
-    def get(cls, item):
-        return MProjectBuilders.builders[item]
+def create_metabuilder(mname):
+    class innerclass(MSingleton):
+        """A %s registry and MSingleton Metaclass."""%mname
+        ez_name = mname.lower()
+        bases   = []
+        builders = OrderedDict()
+        def __init__(cls, name, bases, dic):
+            MSingleton.__init__(cls, name, bases, dic)
+            if object in bases:
+                innerclass.bases.append(cls)
+            else:
+                innerclass.builders[name] = cls
+        @classmethod
+        def get(cls, item):
+            return innerclass.builders[item]
+    innerclass.__name__ = "M%s"%mname
+    return innerclass
 
-class MEggBuilders(MSingleton):
-    """ An Egg Builder registry and MSingleton Metaclass."""
-    builders = OrderedDict()
-    def __init__(cls, name, bases, dic):
-        MSingleton.__init__(cls, name, bases, dic)
-        if name not in ["BaseEggBuilder", "InstalledPackageEggBuilder"]:
-            MEggBuilders.builders[name] = cls
-    @classmethod
-    def get(cls, item):
-        return MEggBuilders.builders[item]
+MProject = create_metabuilder("Project")
+MEgg     = create_metabuilder("Egg")
 
 class MTool(MSingleton):
     def __init__(cls, name, bases, dic):
         MSingleton.__init__(cls, name, bases, dic)
-        if name != "Tool":
+        if object not in bases:
             cls.cmd_options = cls.cmd_options or []
             cls.cmd_options.insert(0, (name, None, "Path to "+ (cls.exe or name+".exe") ) )
-            cls.arch_name   = name+"."+cls.arch_name_ext
+            if cls.installable:
+                cls.arch_name   = name+"."+cls.arch_name_ext
 
 def memoize(attr):
     def deco_memoize(f):
@@ -425,146 +446,181 @@ def memoize(attr):
 #############################
 class Tool(object):
     __metaclass__ = MTool
-    
+
+    class PyExecPaths(object):
+        """Include this symbol in the default_paths
+        list to add the python "scripts" folder to
+        the search list"""
+        pass
+
+    class OriginalSystemPaths(object):
+        """Include this symbol in the paths listes in %PATH%
+        to the search list"""
+        pass
+
+    # If this is not true, there will be no attempt
+    # to install the tool if it hasn't been found
+    installable = True
+
     # URL at which we can download
     # a release of the tool.
     url = None
-    
+
     # extension of the downloaded archive.
     # the extension determines the unpacker to use.
     arch_name_ext = None
-    
+
     # a glob pattern to move into subdirectories
     archive_subdir = None
-    
+
     # Executable that can be called to test for availability
     exe = None
-    
+
     # Places to look for the exe by default.
     default_paths = None
-    
+
     # if not None, it is then a list of triplets specifying additionnal
     # command line options that are needed for this package.
-    # the MTool metaclass will automatically add a self.name+"_path" 
+    # the MTool metaclass will automatically add a self.name+"_path"
     # command line to this list.
     cmd_options = None
-    
+
     @property
     def name(self):
         return self.__class__.__name__
-        
+
     @property
     def options(self):
         return BE.options
-    
+
     @memoize("path")
-    def get_path(self):
+    def get_path(self, no_install=False):
+        print "Looking for %s path"%self.name
+        pth = self._get_path(no_install)
+        if pth:
+            print "\tGot it:", pth
+        return pth
+
+    def _get_path(self, no_install=False):
         #NOTE:
         #The BuildEnvironment class cleans the PATH.
         #no need to look into that variable.
+
         def pth_test(pth):
             exe_path = pj(pth, self.exe)
             if exists(exe_path):
                 # see if we can actually call it
-                try:            
-                    subprocess.call(exe_path, stdout=NullOutput)
-                except WindowsError:
-                    print "Calling", exe_path, "failed: bad path"
+                try:
+                    subprocess.call(exe_path, stdout=NullOutput, stderr=NullOutput)
+                except OSError:
+                    print "\tCalling", exe_path, "failed: bad path"
                     return False
                 else:
                     return True
             return False
-        
+
         # First look at the user provided command line option.
         pth = self.options[self.name]
         if pth is not None:
             if pth_test(pth):
                 return pth
-        
+
         # Look in default_paths:
+        # 1) - Expand PyExecPaths and OriginalSystemPaths placeholders
+        if Tool.PyExecPaths in self.default_paths:
+            self.default_paths.remove(Tool.PyExecPaths)
+            self.default_paths.extend(get_python_scripts_dirs())
+        if Tool.OriginalSystemPaths in self.default_paths:
+            self.default_paths.remove(Tool.OriginalSystemPaths)
+            self.default_paths.extend(BE.original_path.split(os.pathsep))
+        # 2) - Do the lookup (might be possible to speed things up later on)
         if self.default_paths is None or not len(self.default_paths):
-            print "No default paths given, skipping"
+            print "\tNo default paths given, skipping"
         else:
             for pth in self.default_paths:
                 matches = glob.glob( pth )
                 if len(matches):
-                    matches.sort()        
-                    pth = dirname(matches[-1]) # -1 is supposed toget highest version
+                    matches.sort()
+                    pth = matches[-1] # -1 is supposed toget highest version
                     if pth_test(pth):
                         return pth
+
+        if not self.installable or no_install:
+            return False
 
         # Is it installed locally?
         wp = BE.get_working_path()
         archpath = pj(wp, self.arch_name)
         toolpath = pj(wp, self.name)
 
-        if self.archive_subdir is not None:
-            pth = glob.glob(pj(toolpath,self.archive_subdir))[0]
-        else:
-            pth = toolpath                
+        pth = into_subdir(toolpath, self.archive_subdir)
         if pth is not None:
             if pth_test(pth):
                 return pth
-                        
+
         # Haven't found it yet, let's install it in wdr
         if self.url is None:
-            print "No url to download tool from, skipping"
+            print "\tNo url to download tool from, skipping"
             return None
         if not self.__prompt_user():
-            print "User refused download"
+            print "\tUser refused download"
             return None
-        
-        print "Will now install %s to %s"%(self.name, wp)
+
+        print "\tWill now install %s to %s"%(self.name, wp)
         if not download(self.url, self.arch_name, archpath):
-            print "Couldn't download", self.name
+            print "\tCouldn't download", self.name
             return None
         if not unpack(archpath, toolpath):
-            print "Couldn't unpack", self.name
+            print "\tCouldn't unpack", self.name
             return None
-            
+
+        pth = into_subdir(toolpath, self.archive_subdir)
         return pth if pth_test(pth) else None
-                
+
     def __prompt_user(self):
         """Prompt the user for download, wait 5 seconds and download if no input"""
-        do_dl = True
-        delay = 5
-        def ask_user_if_download():    
+        do_dl = None
+        delay = 5000
+        def ask_user_if_download():
             try:
-                do_dl = raw_input("Locally install " + self.name + "? (y/n): ").lower() == "y"
-                threading.current_thread()._Thread__stop()
-            except EOFError, e:
+                do_dl = raw_input().lower() == "y"
+            except:
                 do_dl = True
-                threading.current_thread()._Thread__stop()
 
-        prompt = "Locally install %s (%s seconds)? (y/n, default:y): \r"
-        thInput = threading.Thread(target=ask_user_if_download)
-        while delay > 0 and do_dl is False:
-            if not thInput.is_alive():
-                thInput.start()
+        prompt = "\tLocally install %s (%s seconds)? (y/n, default:y): \r"
+        def print_prompt():
             sys.stdout.write(prompt%(self.name, delay))
             sys.stdout.flush()
+
+        thInput = threading.Thread(target=ask_user_if_download)
+        thInput.start()
+        while delay > 0 and do_dl is None:
+            if delay%1000==0:
+                print_prompt()
             delay -= 1
-            time.sleep(1)
+            time.sleep(1/1000)
         thInput._Thread__stop()
+        if do_dl is None:
+            do_dl = True
         return do_dl
-        
+
 
 
 class Compiler_(object):
     __metaclass__ = MSingleton
-    
+
     default_32_comp = "https://gforge.inria.fr/frs/download.php/29029/MinGW-5.1.4_2-win32.egg"
-    
+
     def set_options(self, options):
         self.options = options.copy()
-    
+
     # Obtaining Compiler Info - We only want MINGW-family compiler
     def ensure_has_mingw(self):
         try:
             compiler = os.path.join(self.get_bin_path(),"gcc.exe")
-            
+
             subprocess.call(compiler+" --version", stdout=NullOutput)
-        except WindowsError, e:
+        except OSError, e:
             print e
             print "No MingW compiler found, you can specify its path with -c"
             print "or install a default MingW compiler."
@@ -572,7 +628,7 @@ class Compiler_(object):
                 self.install()
             else:
                 print "Cannot compile, continuing anyway..."
-                    
+
     def install(self):
         print "Will now install a default 32 bits MingW compiler to c:\mingw"
         print "Make sure you have to rights to do so and that the directory does NOT exist"
@@ -582,13 +638,13 @@ class Compiler_(object):
             if download(default_32_comp, ez_name, archpath):
                 if not unpack(archpath, "c:\\mingw"):
                     print "Couldn't install MingW32, continuing anyway..."
-    
+
     @memoize("comp_bin_path")
     def get_bin_path(self):
         # TODO : do smart things according to self.options
         if self.options["compiler"]:
             v =  self.options["compiler"]
-            if os.path.exists(v): 
+            if os.path.exists(v):
                 return v
 
         # -- try to find it in eggs --
@@ -604,13 +660,13 @@ class Compiler_(object):
             raise Exception("Mingw not found")
         except Exception, e:
             v = r"c:\mingw\bin"
-        
+
         print "Using MingW path:", v
         return v
 
     def version_gt(self, version):
         return self.get_version() >= version
-            
+
     @memoize("is_tdm")
     def is_tdm(self):
         """Return True if we are using a compiler from tdm-gcc.tdragon.net/"""
@@ -619,17 +675,17 @@ class Compiler_(object):
         time.sleep(1)
         output = pop.stdout.read()
         return "(tdm"  in output
-    
+
     @memoize("version")
     def get_version(self):
         pop = subprocess.Popen( pj(self.get_bin_path(), "gcc --version"),
                                            stdout=subprocess.PIPE)
         time.sleep(1)
         output = pop.stdout.read()
-        reg = re_compile(r"(\d\.\d.\d)")        
+        reg = re_compile(r"(\d\.\d.\d)")
         return reg.search(output).group(1)
-            
-    @memoize("default_target")            
+
+    @memoize("default_target")
     def get_default_target(self):
         prog = "int main(){return sizeof(void*);}"
         src  =  pj(BE.working_path, "comp_target_test.cpp")
@@ -640,8 +696,8 @@ class Compiler_(object):
         subprocess.call(cmd, stdout=NullOutput, stderr=NullOutput)
         ret = subprocess.call(exe)
         return 64 if ret==8 else 32
-    
-    @memoize("is_cross_compiler")                
+
+    @memoize("is_cross_compiler")
     def can_cross_compile(self):
         flag = "-m"+("32" if self.get_default_target() == 64 else "64")
         prog = "int main(){return sizeof(void*);}"
@@ -652,21 +708,21 @@ class Compiler_(object):
             f.write(prog)
         ret = subprocess.call(cmd, stdout=NullOutput, stderr=NullOutput) == 0
         return ret
-        
+
 
 
 # Shortcut:
 Compiler = Compiler_()
-    
-    
-    
+
+
+
 class BuildEnvironment(object):
-    __metaclass__ = MSingleton    
+    __metaclass__ = MSingleton
 
     def __init__(self):
         self.options = {}
-        self.proj_builders = None
-        self.egg_builders  = None
+        # self.proj_builders = None
+        # self.egg_builders  = None
         self.options = {}
         self.working_path    = None
         self.proc_file_path  = None
@@ -675,12 +731,17 @@ class BuildEnvironment(object):
         self.original_stderr = sys.stderr
         self.null_stdout     = NullOutput
         self.tools = []
+        self.metabuilders = []
+        self.done_tasks = {}
 
     def set_options(self, options):
         self.options = options.copy()
         Compiler.set_options(options)
         self.tools = options["tools"][:]
-        self.init()
+        self.init
+
+    def set_metabuilders(self, metabuilders):
+        self.metabuilders = metabuilders[:]
 
     def init(self):
         self.working_path = pj( self.options.get("wdr"), self.get_platform_string() )
@@ -690,14 +751,14 @@ class BuildEnvironment(object):
         recursive_copy( split(__file__)[0], self.working_path, "qmake_main.cpp.sub", levels=1)
         self.__fix_environment()
         self.__fix_sys_path()
-       
+
         if is_64bits_python():
             print "Doing a 64 bits compilation because we are using a 64 bits Python."
             if not Compiler.get_default_target() == 64:
                 print "Compiler is not a 64 bits compiler. Can it cross-compile?"
                 if not Compiler.can_cross_compile():
                     print "Cannot cross compile."
-                    raise Exception("No compiler found for Windows 64 bits")        
+                    raise Exception("No compiler found for Windows 64 bits")
         else:
             print "Doing a 32 bits compilation because we are using a 32 bits Python."
             if not Compiler.get_default_target() == 32:
@@ -719,18 +780,18 @@ class BuildEnvironment(object):
             pprint.pprint(self.done_tasks, f)
 
     # -- Project building --
-    def __init_builders(self):
-        self.proj_builders = list(MProjectBuilders.builders.itervalues())
-        self.egg_builders  = list(MEggBuilders.builders.itervalues())
+    # def __init_builders(self):
+        # self.proj_builders = list(MProject.builders.itervalues())
+        # self.egg_builders  = list(MEgg.builders.itervalues())
 
     def build(self):
         only = self.options.get("only")
-        self.__init_builders()
+        #self.__init_builders()
         # We do NOT restrict the loop to the builders in the "only"
         # list because we still want to process unskippable actions
         # of the other builders because they can extend os.env["PATH"]
         # or sys.path.
-        for buildercls in self.proj_builders + self.egg_builders:            
+        for buildercls in ( cls for meta in self.metabuilders for cls in meta.builders.itervalues() ):
             builder = buildercls()
             if builder.has_pending and builder.enabled:
 
@@ -743,9 +804,9 @@ class BuildEnvironment(object):
                 # to process because we don't need to do the remaining unskippable
                 # actions of the not "only" builders
                 if only and builder.name in only:
-                    only.remove(builder.name)                
+                    only.remove(builder.name)
                     if not len(only):
-                        return True                    
+                        return True
         return True
 
     def task_is_done(self, name, task):
@@ -807,7 +868,7 @@ class BuildEnvironment(object):
                 self.get_egg_path()]
         for pth in pths:
             makedirs(pth)
-            
+
     def __fix_environment(self):
         # TODO : Clean env so that we do not propagate preexisting installations in subprocesses
         # give priority to OUR compiler!
@@ -819,23 +880,20 @@ class BuildEnvironment(object):
         tool_paths = []
         for tool in self.tools:
             tool = tool()
-            print "Looking for %s path"%tool.name
             pth = tool.get_path()
             if pth:
-                print "\tGot it:", pth
-                tool_paths.append(pth)       
+                tool_paths.append(pth)
         path = sj(tool_paths + [Compiler.get_bin_path()])
-        
+
         if path.endswith("\""):
             print "Removing trailing PATH quotes as mingw32-make doesn't like them"
-            path = path.replace("\"", "")                   
-        print path
-        os.environ["PATH"] = path 
-        
+            path = path.replace("\"", "")
+        os.environ["PATH"] = path
+
     def __fix_sys_path(self):
         """Clean sys.path for this process so that we don't import
         existing eggs or site-installed thingys."""
-        our_egg_names = [name.strip("egg_") for name in MEggBuilders.builders.iterkeys()]
+        our_egg_names = [name.strip("egg_") for name in MEgg.builders.iterkeys()]
         for pth in sys.path[:] :
             pth_p = pth.lower()
             for egg_name in our_egg_names:
@@ -863,7 +921,7 @@ class BuildEnvironment(object):
             else:
                 raise Exception("Can't create %s, %s not found: Python link will fail"%(dst,src))
         else:
-            print "Python lib is ok"        
+            print "Python lib is ok"
 
 #a shorthand:
 BE=BuildEnvironment()
@@ -915,7 +973,7 @@ def with_original_sys_path(f):
 
 def option_to_sys_path(option):
     """If optionnal argument "option" was provided on the command line
-    it will be prepended to the PATH just for the call this function decorates. 
+    it will be prepended to the PATH just for the call this function decorates.
     After the call, the original environment will be restored."""
     def func_decorator(f):
         def wrapper(self, *args, **kwargs):
@@ -1000,7 +1058,11 @@ class BaseBuilder(object):
         tasks = []
         name  = self.name
         for task in self.supported_tasks:
-            task_func, skippable = self.all_tasks[task]
+            task_func, skippable = self.all_tasks.get(task, (None, None))
+            if task_func == skippable == None:
+            # This happens with the --no-upload option
+            # that removes tasks from all_tasks
+                continue
             done   = self.env.is_task_done(name, task)
             forced = self.env.is_task_forced(name, task)
             skip = done and not forced and skippable
@@ -1022,7 +1084,7 @@ class BaseBuilder(object):
         # forced_tasks is a string containing self.all_tasks keys.
         # if a process is in forced_tasks it gets forced.
         forced_tasks = self.options.get(self.name, "")
-        
+
         proc_str  = "Processing " + self.name
         print "\n",proc_str
         print "="*len(proc_str)
@@ -1031,7 +1093,7 @@ class BaseBuilder(object):
         for task, task_func, skippable in self.pending:
             if skippable and not should_process:
                 continue
-            # doing unskippable actions like extending python or env PATH.                
+            # doing unskippable actions like extending python or env PATH.
             # or we should_process is True
             nice_func = task_func.strip("_")
             print "\t-->performing %s for %s"%(nice_func, self.name)
@@ -1040,9 +1102,9 @@ class BaseBuilder(object):
                 print "\t-->%s for %s we be done later"%(nice_func, self.name)
             elif success == False:
                 print "\t-->%s for %s failed"%(nice_func, self.name)
-                if not should_process: 
+                if not should_process:
                     print "-o %s was specified, ignoring error on package %s"% \
-                         (self.options.get("only"), self.name)   
+                         (self.options.get("only"), self.name)
                     continue
                 return False
             else:
@@ -1053,8 +1115,8 @@ class BaseBuilder(object):
 
 
 
-class BaseProjectBuilder(BaseBuilder):
-    __metaclass__ = MProjectBuilders
+class BaseProjectBuilder(BaseBuilder, object):
+    __metaclass__ = MProject
 
     # The URL to fetch the sources from
     # A None url implies the download has already done by someone else
@@ -1093,9 +1155,9 @@ class BaseProjectBuilder(BaseBuilder):
         # other proj installed it.
         if self.url is None:
             return True
-        
+
         return download(self.url, self.download_name, self.archname)
-        
+
     def unpack_source(self, arch=None):
         # a proj with a none url implicitely means
         # the sources are already here because some
@@ -1108,12 +1170,13 @@ class BaseProjectBuilder(BaseBuilder):
             return True
         arch = arch or self.archname
         return unpack(arch, self.sourcedir)
-        
+
     def fix_source_dir(self):
         try:
             print "fixing sourcedir", self.sourcedir,
-            if self.archive_subdir is not None:
-                self.sourcedir = glob.glob(pj(self.sourcedir,self.archive_subdir))[0]
+            self.sourcedir = into_subdir(self.sourcedir, self.archive_subdir)
+            if self.sourcedir is None:
+                raise Exception("Subdir should exist but doesn't, archive has probably not been unpacked")
             print self.sourcedir
         except:
             traceback.print_exc()
@@ -1187,8 +1250,8 @@ class BaseProjectBuilder(BaseBuilder):
 class TemplateStr(string.Template):
     delimiter = "@"
 
-class BaseEggBuilder(BaseBuilder):
-    __metaclass__  = MEggBuilders
+class BaseEggBuilder(BaseBuilder, object):
+    __metaclass__  = MEgg
     __oldsyspath__ = sys.path[:]
     # The egg depends on the Python version (allows correct egg naming)
     py_dependent   = True
@@ -1317,7 +1380,7 @@ class Pattern:
 
     # -- Qtities --
     qtstalib = "*.a,*.prl,*.pri,*.pfa,*.pfb,*.qpf,*.ttf,README"
-    qtsrc    = "*.pro,*.pri,*.rc,*.def,*.h,*.hxx"
+    qtsrc    = "*"#.pro,*.pri,*.rc,*.def,*.h,*.hxx"
     qtinc    = re_compile(r"^Q[0-9A-Z]\w|.*\.h|^Qt\w")
     qtmkspec = "*"
     qttransl = "*.qm"
@@ -1329,7 +1392,7 @@ class Pattern:
 # need to compile them (no linkage from us to them)        #
 # or that they come as .exes and not eggs already          #
 ############################################################
-class InstalledPackageEggBuilder(BaseEggBuilder):
+class InstalledPackageEggBuilder(BaseEggBuilder, object):
     __packagename__ = None
     def __init__(self):
         BaseEggBuilder.__init__(self)
@@ -1346,7 +1409,7 @@ class InstalledPackageEggBuilder(BaseEggBuilder):
     @property
     def module(self):
         if self.__modulename__:
-            return __import__(".".join([self.packagename,self.__modulename__]), 
+            return __import__(".".join([self.packagename,self.__modulename__]),
                               fromlist=[self.__modulename__])
     @property
     def packagename(self):
@@ -1389,8 +1452,8 @@ class InstalledPackageEggBuilder(BaseEggBuilder):
     def script_substitutions_2(self):
         raise NotImplementedError
 
-        
-        
+
+
 ##########################
 # Some Tools definitions #
 ##########################
@@ -1419,85 +1482,105 @@ class bisonflex(Tool):
 # -- MAIN LOOP AND RELATIVES -- #
 #################################
 def valid_builder(arg):
-    if arg in MProjectBuilders.builders.keys() or \
-       arg in MEggBuilders.builders.keys() :
+    if arg in MProject.builders.keys() or \
+       arg in MEgg.builders.keys() :
         return arg
     else:
         raise argparse.ArgumentError()
-        
-def build_epilog():
-    epilog = "PROJ_ACTIONS are a concatenation of flags specifying what actions will be done:\n"
-    for proc, (funcname, skippable) in BaseProjectBuilder.all_tasks.iteritems():
-        if skippable:
-            epilog += "\t%s : %s\n"%(proc, funcname.strip("_"))
-    epilog += "\n"
-    epilog += "EGG_ACTIONS are a concatenation of flags specifying what actions will be done:\n"
-    for proc, (funcname, skippable) in BaseEggBuilder.all_tasks.iteritems():
-        if skippable:
-            epilog += "\t%s : %s\n"%(proc, funcname.strip("_"))
 
-    epilog += "\nBy default, building rules will be read from project_rules.py and egg_rules.py_dependent\n"
-    epilog += "You can specify your own by using --prules <filename> and --erules <filename> .\n"
+def build_epilog(metabuilders, dep_build_end=True):
+    epilog = ""
+    for mbuilder in metabuilders:
+        m_name = mbuilder.ez_name
+        epilog = "%s_ACTIONS are a concatenation of flags specifying what actions will be done:\n"%m_name
+        for proc, (funcname, skippable) in mbuilder.bases[0].all_tasks.iteritems():
+            if skippable:
+                epilog += "\t%s : %s\n"%(proc, funcname.strip("_"))
+        epilog += "\n"
+
+    # epilog += "EGG_ACTIONS are a concatenation of flags specifying what actions will be done:\n"
+    # for proc, (funcname, skippable) in BaseEggBuilder.all_tasks.iteritems():
+        # if skippable:
+            # epilog += "\t%s : %s\n"%(proc, funcname.strip("_"))
+
+    if dep_build_end:
+        epilog += "\nBy default, building rules will be read from project_rules.py and egg_rules.py_dependent\n"
+        epilog += "You can specify your own by using --prules <filename> and --erules <filename> .\n"
 
     return epilog
 
-def parse_arguments():
-    parser = argparse.ArgumentParser(description="Build and package binary Openalea dependencies",
-                                     epilog=build_epilog(),
-                                     formatter_class=argparse.RawDescriptionHelpFormatter,)
+def options_common(parser):
     g = parser.add_argument_group("General options")
-    g.add_argument("--wdr", default=abspath(os.curdir), help="Under which directory we will create our working dir",
-                        type=abspath)                                                    
-    g.add_argument("--keep-going", "-k", action="store_const", const=True, default=False, help="keep going on errors")
-    g.add_argument("--python", "-p", default=None, help="fully qualified python executable to use for the compilation")
-    g.add_argument("--compiler", "-c", default=None, help="path to compiler binaries")
-#    g.add_argument("--cmake", default=None, help="path to cmake binaries")
-    g.add_argument("--only", "-o", default=None, action="append", type=valid_builder, help="Only process these project/eggs")
-    g.add_argument("--jobs", "-j", default=1, type=int, help="number of jobs during compilation")
+    g.add_argument("--keep-going", "-k", action="store_const", const=True, default=False,
+                   help="keep going on errors")
+    g.add_argument("--verbose", action="store_const", const=True, default=False,
+                   help="Well try to say more things.")
+    return parser
+
+def options_dep_build(parser):
+    g = parser.add_argument_group("Dependency builder options")
+    g.add_argument("--wdr", default=abspath(os.curdir), type=abspath,
+                        help="Under which directory we will create our working dir")
+    g.add_argument("--python", "-p", default=None,
+                   help="fully qualified python executable to use for the compilation")
+    g.add_argument("--compiler", "-c", default=None,
+                   help="path to compiler binaries")
+    g.add_argument("--only", "-o", default=None, action="append", type=valid_builder,
+                   help="Only process these project/eggs")
+    g.add_argument("--jobs", "-j", default=1, type=int,
+                   help="number of jobs during compilation")
+    g.add_argument("--no-upload", "-n", action="store_const", const=True, default=False,
+                   help="Do not upload eggs to forge")
+    g.add_argument("--release", action="store_const", const=True, default=False,
+                   help="upload eggs to openalea repository or vplants (if False - for testing).")
+    return parser
+
+def options_gforge(parser):
+    g = parser.add_argument_group("GForge options")
     g.add_argument("--login",  default=None, help="login to connect to GForge")
     g.add_argument("--passwd", default=None, help="password to connect to GForge")
-    g.add_argument("--release", action="store_const", const=True, default=False, help="upload eggs to openalea repository or vplants (if False - for testing).")
-    g.add_argument("--verbose", action="store_const", const=True, default=False, help="Well try to say more things.")
-    
+    return parser
+
+def options_metabuilders(parser, metabuilders):
     pkg_options = {}
     tools = set()
 
-    g = parser.add_argument_group("Options controlling project builder actions to force")
-    for name, builder in MProjectBuilders.builders.iteritems():
-        if not builder.enabled:
-            continue    
-        g.add_argument("--"+name, default="",
-                            help="Force actions on %s"%name, dest=name,
-                            metavar="PROJ_ACTIONS")
-        if builder.cmd_options:
-            pkg_options.setdefault(name,list()).extend(builder.cmd_options)
-        if builder.required_tools:
-            tools |= set(builder.required_tools)
+    for mbuilder in metabuilders:
+        m_name = mbuilder.ez_name
+        g = parser.add_argument_group("Options controlling %s builder actions to force"%m_name)
+        for name, builder in mbuilder.builders.iteritems():
+            if not builder.enabled:
+                continue
+            g.add_argument("--"+name, default="",
+                                help="Force actions on %s"%name, dest=name,
+                                metavar="%s_ACTIONS"%m_name.upper())
+            if builder.cmd_options:
+                pkg_options.setdefault(name,list()).extend(builder.cmd_options)
+            if builder.required_tools:
+                tools |= set(builder.required_tools)
 
-    g = parser.add_argument_group("Options controlling egg builder actions to force")
-    for name, builder in MEggBuilders.builders.iteritems():
-        if not builder.enabled:
-            continue
-        g.add_argument("--"+name, default="",
-                            help="Force actions on %s"%name, dest=name,
-                            metavar="EGG_ACTIONS")
-        if builder.cmd_options:
-            pkg_options.setdefault(name,list()).extend(builder.cmd_options)  
-        if builder.required_tools:
-            tools |= set(builder.required_tools)
-            
+
     for bname, opt_list in pkg_options.iteritems():
         g = parser.add_argument_group("Options for " + bname + " builder")
         for opt_name, default, help in opt_list:
             g.add_argument("--"+opt_name, default=default, help=help)
-          
+
     tools = sorted(tools, cmp=lambda x,y: cmp(x.name, y.name))
     for tool in tools:
         g = parser.add_argument_group("Options for " + tool().name + " tool")
         if tool.cmd_options is not None:
             for opt_name, default, help in tool.cmd_options:
                 g.add_argument("--"+opt_name, default=default, help=help)
-                
+    return parser, tools
+
+def parse_arguments(metabuilders):
+    parser = argparse.ArgumentParser(description="Build and package binary Openalea dependencies",
+                                     epilog=build_epilog(metabuilders),
+                                     formatter_class=argparse.RawDescriptionHelpFormatter,)
+
+    parser, tools = options_metabuilders(options_gforge(options_dep_build(options_common(parser))),
+                                         metabuilders)
+
     return parser.parse_args(), tools
 
 def main():
@@ -1525,10 +1608,13 @@ def main():
     with open(egg_rules_file) as f:
         egg_rules  = eval(compile(f.read(), egg_rules_file, "exec"), globals())
 
-    args, tools = parse_arguments()
+    metabuilders=[MProject,MEgg]
+    args, tools = parse_arguments( metabuilders )
 
     # set some env variables for subprocesses
     os.environ["MAKE_FLAGS"] = "-j"+str(args.jobs)
+    if args.no_upload:
+        del BaseEggBuilder.all_tasks["u"]
 
     if args.python is not None: #use another Python to compile, this is weird, maybe useless.
         python = args.python
@@ -1543,13 +1629,14 @@ def main():
         options["tools"] = tools
         env = BuildEnvironment()
         env.set_options(options)
+        env.set_metabuilders(metabuilders)
         ret = False
         with env:
             ret = env.build()
         return ret
 
 
-    
+
 
 if __name__ ==  "__main__":
     sys.exit( main() == False )
