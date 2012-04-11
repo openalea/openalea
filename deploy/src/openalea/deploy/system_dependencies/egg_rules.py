@@ -27,7 +27,7 @@ class egg_mingw_rt(BaseEggBuilder):
     description = "Mingw Development (compiler, linker, libs, includes)"
     py_dependent   = False
     arch_dependent = True
-    version        = "5.1.4_4b"
+    version        = "5.1.4_4"
     def script_substitutions(self):
         mgw = mingwrt()
         libdirs = {"bin":mgw.install_dll_dir}
@@ -59,7 +59,7 @@ class egg_mingw(BaseEggBuilder):
         incdirs = {"include": pj(mingwbase, "include")}
             
         return dict( 
-                    VERSION  = egg_mingw.versions,
+                    VERSION  = egg_mingw_rt.version,
                     BIN_DIRS = bindirs,
                     INC_DIRS = incdirs,
                     DATA_FILES   = data,

@@ -121,7 +121,7 @@ class qt4(BaseProjectBuilder):
         return True
 
     def extra_paths(self):
-        return self.install_bin_dir, self.install_dll_dir#pj(self.sourcedir, "bin"),
+        return pj(self.sourcedir, "bin")
 
     def make_qt_conf(self, where=None):
         """ Patch qt *.exes and *.dlls so that they do not contain hard coded paths anymore. """
@@ -212,6 +212,7 @@ class sip(BaseProjectBuilder):
         return self.sourcedir, pj(self.sourcedir, "siplib")
 
     def patch(self):
+        return True
         # Patching sipconfig.py so that its
         # paths point to the qt4 egg path we are building.
         # Feel free to do better
@@ -303,6 +304,7 @@ class pyqt4(BaseProjectBuilder) :
         return self.install_site_dir
 
     def patch(self):
+        return True
         header = """
 import sipconfig
 from sipconfig import pj as pj
@@ -582,7 +584,7 @@ class cgal(BaseProjectBuilder):
                             '-DMPFR_INCLUDE_DIR='+db_quote( pj(compiler, "..", "include") ),
                             '-DZLIB_INCLUDE_DIR='+db_quote(pj(compiler, "..", "include")),
                             '-DZLIB_LIBRARY='+db_quote(pj(compiler,"..", "lib", "libz.a")),
-                            '-DOPENGL_LIBRARIES='+db_quote(pj(compiler,"..", "lib", "libglu32.a")),
+                            #'-DOPENGL_LIBRARIES='+db_quote(pj(compiler,"..", "lib", "libglu32.a")),
                             ])
         options=options.replace("\\", "/") #avoid "escape sequence" errors with cmake
         cmd = 'cmake.exe -G"MinGW Makefiles" '+options+' . '
