@@ -642,7 +642,7 @@ class Compiler_(object):
     @memoize("comp_bin_path")
     def get_bin_path(self):
         # TODO : do smart things according to self.options
-        if self.options["compiler"]:
+        if self.options.get("compiler"):
             v =  self.options["compiler"]
             if os.path.exists(v):
                 return v
@@ -744,7 +744,7 @@ class BuildEnvironment(object):
         self.metabuilders = metabuilders[:]
 
     def init(self):
-        self.working_path = pj( self.options.get("wdr"), self.get_platform_string() )
+        self.working_path = pj( self.options.get("wdr","."), self.get_platform_string() )
         self.proc_file_path = pj(self.working_path,"proc_flags.pk")
         self.create_working_directories()
         recursive_copy( split(__file__)[0], self.working_path, "setup.py.in", levels=1)

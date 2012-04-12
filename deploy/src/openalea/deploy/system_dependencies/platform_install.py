@@ -191,7 +191,7 @@ def get_dependencies(package):
                 else:
                     currentPkgChilds = None
             else:
-                if currentPkg != package and currentPkg not in dep_tree:
+                if currentPkg != package:
                     pkgList.add(currentPkg)
                     if len(ancestors) >= 1:
                         currentPkg = ancestors.pop()
@@ -261,7 +261,7 @@ class EggPackageAPI(BaseEggPackageAPI):
                      "boostpython-dev" : "boost",
                      "cgal" :  NA,
                      "cgal-dev" : NA,
-                     "compilers-dev" : "mingw==5.1.4_4",
+                     "compilers-dev" : "mingw==5.1.4_4b",
                      "flex-dev" : "bisonflex==2.4.1_2.5.35",
                      "glut" : NA,
                      "glut-dev" : NA,
@@ -275,8 +275,8 @@ class EggPackageAPI(BaseEggPackageAPI):
                      "pyqscintilla" : "qt4",
                      "qhull" : "qhull",
                      "qhull-dev" : "qhull",
-                     "readline": "mingw_rt==5.1.4_4",
-                     "readline-dev": "mingw==5.1.4_4",
+                     "readline": "mingw_rt==5.1.4_4b",
+                     "readline-dev": "mingw==5.1.4_4b",
                      "rpy2" : "rpy2",
                      "setuptools" : NA,
                      "sip4-dev" : "qt4_dev",
@@ -446,9 +446,21 @@ class BaseDepBuilder(BaseBuilder, object):
         
         to_inst = [] if self.options["no_rt"] else rt
         to_inst += [] if self.options["no_dev"] else dev
-
-        print "Will now install", to_inst
         
+        try:
+            to_inst.remove("openalea")
+        except:
+            pass
+        try:
+            to_inst.remove("vplants")
+        except:
+            pass
+        try:
+            to_inst.remove("alinea")
+        except:
+            pass            
+        print "Will now install", to_inst
+
         pf.install_packages(*to_inst)
         return True
         
