@@ -1,3 +1,20 @@
+# -*- python -*-
+#
+#       openalea.deploy.platform_install
+#
+#       Copyright 2006-2012 INRIA - CIRAD - INRA
+#
+#       File author(s): Daniel Barbeau
+#       File Contributors(s):
+#                             - your name here
+#
+#       Distributed under the Cecill-C License.
+#       See accompanying file LICENSE.txt or copy at
+#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
+#
+#       OpenAlea WebSite : http://openalea.gforge.inria.fr
+#
+###############################################################################
 
 from dependency_builder import MSingleton, Tool, BaseBuilder, BuildEnvironment
 from dependency_builder import create_metabuilder, build_epilog
