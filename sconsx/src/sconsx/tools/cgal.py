@@ -68,7 +68,7 @@ class CGAL:
                   self._default['include'] = 'C:' + os.sep
                   self._default['libpath'] = 'C:' + os.sep
                
-            self._default['libs'] = 'CGAL'
+            self._default['libs'] = ['CGAL']
 
       elif isinstance(platform, Posix):
          if exists('/usr/lib/libCGAL.so') :

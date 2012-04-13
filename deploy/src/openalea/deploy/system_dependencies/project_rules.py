@@ -564,8 +564,8 @@ class cgal(BaseProjectBuilder):
     download_name  = "cgal_src.zip"
     archive_subdir = "cgal*"
     required_tools = [cmake]
-
     enabled = True
+    version = "4.0"
     def __init__(self, *args, **kwargs):
         BaseProjectBuilder.__init__(self, *args, **kwargs)
         self.install_inc_dir = pj(self.installdir, "include")

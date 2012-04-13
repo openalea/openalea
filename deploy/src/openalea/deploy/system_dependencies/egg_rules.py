@@ -215,10 +215,29 @@ class egg_ann(BaseEggBuilder):
         
         return dict( 
                     VERSION          = ann_.version,                 
-                    LIB_DIRS         = {'lib' : os.path.join(ann_path,'lib') },
-                    INC_DIRS         = {'include' : os.path.join(ann_path,'include') },
-                    BIN_DIRS         = {'bin' : os.path.join(ann_path,'include') },
-                    DATA_FILES       = [('doc' , [os.path.join(ann_path,'doc','ANNmanual.pdf')] )]
+                    LIB_DIRS         = {'lib' : pj(ann_path,'lib') },
+                    INC_DIRS         = {'include' : pj(ann_path,'include') },
+                    BIN_DIRS         = {'bin' : pj(ann_path,'bin') },
+                    DATA_FILES       = [('doc' , [pj(ann_path,'doc','ANNmanual.pdf')] )]
+                    ) 
+
+class egg_cgal(BaseEggBuilder): 
+    license = "GNU Lesser Public License"
+    authors = "CGAL, Computational Geometry Algorithms Library, http://www.cgal.org"
+    description = "Windows gcc libs and includes of CGAL"
+    py_dependent   = False
+    arch_dependent = True  
+    def script_substitutions(self):
+        cgal_ = cgal()
+        cgal_path = cgal_.sourcedir
+        
+        return dict( 
+                    VERSION          = cgal_.version,
+                    URL              = "http://www.cgal.org",
+                    LIB_DIRS         = {'lib' : pj(cgal_path,'lib') },
+                    INC_DIRS         = {'include' : pj(cgal_path,'include') },
+                    BIN_DIRS         = {'bin' : pj(cgal_path,'bin') },
+                    #DATA_FILES       = [('doc' , glob.glob(pj(cgal_path,'doc_html','*')) )]
                     ) 
 
 # class egg_gnuplot(BaseEggBuilder): 
