@@ -20,6 +20,7 @@ import argparse
 from collections import OrderedDict
 import glob
 from os.path import exists, join as pj, basename, abspath, split, dirname, splitext
+from openalea.deploy.system_dependencies.dependency_builder import is_64bits_python
 import os
 import platform
 import shutil
@@ -166,7 +167,6 @@ def prepare_working_dir(instDir, no_del=False):
 import traceback
 def find_installer_files(tpp_eggDir, srcDir, pyMaj, pyMin, arch, dependencies):
 
-    arch = "win32" if arch == "x86" else "win64"
     
     def globInstaller(pk, mask):
         dir_ = srcDir
@@ -224,7 +224,6 @@ def get_project_eggs(arch, globs, outDir, srcDir):
     # so simply encoding the os in the glob is a bad idea. What we do is:
     # [glob for project_prefix*python_version.egg] + [glob for project_prefix*python_version*os.egg]
     # The egg globs at this stage have the project_prefix*python_version*.egg form.   
-    arch = "win32" if arch == "x86" else "64"         
     
     files = []
     for g in globs:
@@ -512,7 +511,7 @@ def _parse_dict_string(d_str):
 
 def _parse_unicode_abspath(path):
     return abspath(unicode(path, encoding=local_enc))
-    
+
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Create InnoSetup installers for Windows, for Openalea, VPlants and Alinea",
                                      epilog = epilog(),
@@ -535,7 +534,7 @@ def parse_arguments():
     
     parser.add_argument("--devel", "-d", action="store_const", const=False, default=True, help="Build Development Toolkit or Runtime (default=runtime)", dest="runtime")
     parser.add_argument("--fetch-online", "-f", action="store_const", const=True, default=False, help="Download eggs from online repositories and use them.")
-    default = platform.machine()
+    default = "win32" if not is_64bits_python() else "win64"  
     parser.add_argument("--arch", "-a", default=default, help="Build installer for this arch (default=%s)"%default, choices=["x86", "x86_64"])
     parser.add_argument("--setup", "-m", default={}, help="Additinnal values to complete InnoSetup conf file. (example :%s) "%str({'LicenseFile':'c:\\pthtolicensefile'}), 
                         type=_parse_dict_string)
@@ -602,6 +601,11 @@ def main():
         if args.private_packages:
             add_private_gforge_repositories(args.login, args.passwd)
         for egg, info in dependencies.iteritems():
+            gb = glob.glob( pj(dldir, "*"+egg+"*") )
+            if len(gb): # yep, this is fragile
+                print "%s egg already downloaded!"%egg, gb[0]
+                info[1] = gb[0]
+                continue
             if bt(info[0], EGG) or bt(info[0], ZIPDIST) or bt(info[0], EXEDIST):
                 info[1] = download_egg(egg, dldir)
                 print "Online egg %s downloaded to %s"%(egg, info[1])
