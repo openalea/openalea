@@ -20,6 +20,7 @@ __revision__ = " $Id$ "
 import numpy as np
 import scipy.ndimage as nd
 import math
+import copy
 
 from openalea.image.spatial_image import SpatialImage
 
@@ -73,7 +74,7 @@ def cells_walls_coords(image, hollowed_out=False):
     return list(x),list(y),list(z)
 
 
-def cell_vertex_extraction(image,verbose=False):
+def cell_vertex_extraction(image, verbose=False):
     """
     Calculates cell's vertices positions according to the rule: a vertex is the point where you can find 4 differents cells (in 3D!!)
     For the surface, the outer 'cell' #1 is considered as a cell.
@@ -86,27 +87,27 @@ def cell_vertex_extraction(image,verbose=False):
             *keys = the 4 cells ids associated with the vertex position(values);
             *values = 3D coordinates of the vertex in the Spatial Image;
     """
-    x,y,z=cells_walls_coords(image)
+    x, y, z = cells_walls_coords(image)
     ## Compute vertices positions by findind the voxel belonging to each vertex.
     if verbose: print 'Compute cell vertex positions...'
-    vertex_voxel={}
-    dim=len(x)
+    vertex_voxel = {}
+    dim = len(x)
     for n in xrange(dim):
-        if verbose and n%20000==0:
+        if verbose and n%20000 == 0:
             print n,'/',dim
-        i,j,k=x[n],y[n],z[n]
-        sub_image=image[(i-1):(i+2),(j-1):(j+2),(k-1):(k+2)] # we generate a sub_image-matrix...
-        sub_image=tuple(np.unique(sub_image))
+        i, j, k = x[n], y[n], z[n]
+        sub_image = image[(i-1):(i+2),(j-1):(j+2),(k-1):(k+2)] # we generate a sub_image-matrix...
+        sub_image = tuple(np.unique(sub_image))
         # -- Now we detect voxels defining cells' vertices.
-        if (len(sub_image)==4): # ...in which we search for 4 different labels
+        if ( len(sub_image) == 4 ): # ...in which we search for 4 different labels
             if vertex_voxel.has_key(sub_image):
-                vertex_voxel[sub_image]=np.vstack((vertex_voxel[sub_image],np.array((i,j,k)).T)) # we group voxels defining the same vertex by the IDs of the 4 cells.
+                vertex_voxel[sub_image] = np.vstack( (vertex_voxel[sub_image], np.array((i,j,k)).T) ) # we group voxels defining the same vertex by the IDs of the 4 cells.
             else:
-                vertex_voxel[sub_image]=np.ndarray((0,3))
+                vertex_voxel[sub_image] = np.ndarray((0,3))
     ## Compute the barycenter of the voxels associated to each vertex (correspondig to the 3 cells detected previously).
-    barycentric_vtx={}
+    barycentric_vtx = {}
     for i in vertex_voxel.keys():
-        barycentric_vtx[i]=np.mean(vertex_voxel[i],0)
+        barycentric_vtx[i] = np.mean(vertex_voxel[i],0)
     if verbose: print 'Done !!'
 
     return barycentric_vtx
@@ -114,7 +115,7 @@ def cell_vertex_extraction(image,verbose=False):
 
 def cell2vertex_relations(cells2coords):
     """
-    Creates vtx2cells, cell2vtx & vtx2coords dictionaries.
+    Creates cell2vtx, vtx2coords & vtx2cells dictionaries.
     
     :INPUT:
     - cells2coords: dict *keys=the 4 cells ids at the vertex position ; *values=3D coordinates of the vertex in the Spatial Image.
@@ -124,23 +125,23 @@ def cell2vertex_relations(cells2coords):
     - vtx2coords: dict *keys=vertex NEW id ; *values= 3D coordinates of the vertex in the Spatial Image
     - vtx2cells: dict *keys=vertex NEW id ; *values= ids of the 4 associated cells
     """
-    vtx2cells={} #associated cells to each vertex;
-    cell2vtx={} #associated vertex to each cells;
-    vtx2coords={}
-    for n,i in enumerate(cells2coords.keys()):
-        vtx2cells[n]=list(i)
-        vtx2coords[n]=list(cells2coords[i])
+    vtx2cells = {} #associated cells to each vertex;
+    cell2vtx = {} #associated vertex to each cells;
+    vtx2coords = {}
+    for n, i in enumerate(cells2coords.keys()):
+        vtx2cells[n] = list(i)
+        vtx2coords[n] = list(cells2coords[i])
         for j in list(i):
             #check if cell j is already in the dict
             if cell2vtx.has_key(j): 
-                cell2vtx[j]=cell2vtx[j]+[n] #if true, keep the previous entry (vertex)and give the value of the associated vertex
+                cell2vtx[j] = cell2vtx[j]+[n] #if true, keep the previous entry (vertex)and give the value of the associated vertex
             else:
-                cell2vtx[j]=[n] #if false, create a new one and give the value of the associated vertex
+                cell2vtx[j] = [n] #if false, create a new one and give the value of the associated vertex
     #~ del(cell2vtx[1]) #cell #1 doesn't really exist...
     return cell2vtx, vtx2coords, vtx2cells
 
 
-def geometric_median(X,numIter=50):
+def geometric_median(X, numIter = 50):
     """
     Compute the geometric medians of cells according to the coordinates of their voxels.
     The geometric medians coordinates will be expressed in the Spatial Image reference system (not in real world metrics).
@@ -162,23 +163,23 @@ def geometric_median(X,numIter=50):
     i=0
     while ( (not convergence) and (i < numIter) ):
         num_x, num_y, num_z = 0.0, 0.0, 0.0
-        denum=0.0
-        m=X.shape[1]
-        d=0
+        denum = 0.0
+        m = X.shape[1]
+        d = 0
         for j in range(0,m):
             div = math.sqrt( (X[0,j]-y[0])**2 + (X[1,j]-y[1])**2 + (X[2,j]-y[2])**2 )
             num_x += X[0,j] / div
             num_y += X[1,j] / div
             num_z += X[2,j] / div
             denum += 1./div
-            d+=div**2 #distance (to the median) to miminize
+            d += div**2 #distance (to the median) to miminize
         dist.append(d) #update of the distance évolution
         y = [num_x/denum, num_y/denum, num_z/denum] #update to the new value of the median
-        if i>3:
+        if i > 3:
             convergence=(abs(dist[i]-dist[i-2])<0.1) #we test the convergence over three steps for stability
             #~ print abs(dist[i]-dist[i-2]), convergence
-        i+=1
-    if i==numIter:
+        i += 1
+    if i == numIter:
         print "The Weiszfeld's algoritm did not converged after",numIter,"iterations for cell #",c,"!!!!!!!!!"
     #When convergence or iterations limit is reached we assume that we found the median.
 
@@ -193,10 +194,10 @@ def OLS_wall(xyz):
         - `xyz` voxels coordinate (3xN or Nx3 matrix)
     """
     import numpy.linalg as ln
-    if xyz.shape()[0]==3: #if the matrix is 3xN, we convert it to a Nx3 matrix.
-        xyz=xyz.transpose()
+    if xyz.shape()[0] == 3: #if the matrix is 3xN, we convert it to a Nx3 matrix.
+        xyz = xyz.transpose()
     
-    ols_fit=ln.lstsq( xyz[:,0:2], xyz[:,2] )
+    ols_fit = ln.lstsq( xyz[:,0:2], xyz[:,2] )
         
     return ols_fit
 
@@ -580,28 +581,37 @@ class SpatialImageAnalysis(object):
             - `label_1` cell id #1.
 
         :Return:
-            -`coord` a dictionnary of *keys= (labels_1,neighbors); *values= xyz 3xN array.
+            -`coord` a dictionnary of *keys= [min(labels_1,neighbors[n]), max(labels_1,neighbors[n])]; *values= xyz 3xN array.
         """
         coord={}
+        
         dilated_bbox = dilation( self.boundingbox(label_1) )
         dilated_bbox_img = self.image[dilated_bbox]
 
         mask_img_1 = (dilated_bbox_img == label_1)
         struct = nd.generate_binary_structure(3, 1)
         dil_1 = nd.binary_dilation(mask_img_1, structure=struct)
+
         neighbors=self.neighbors(label_1)
+        if 0 in neighbors: neighbors.remove(0)
         len_neighbors=len(neighbors)
+        if verbose: print 'Extracting cell walls coordinates between',label_1,'and its neighbors:',neighbors
         for n,label_2 in enumerate(neighbors):
-            if verbose and n%2==0:
-                print n,'/',len_neighbors
-            mask_img_2 = (dilated_bbox_img == label_2)
-            dil_2 = nd.binary_dilation(mask_img_2, structure=struct)
-            x,y,z = np.where( ( (dil_1 & mask_img_2) | (dil_2 & mask_img_1) ) == 1 )
-            coord[min(label_1,label_2),max(label_1,label_2)]=np.array((x+dilated_bbox[0].start,y+dilated_bbox[1].start,z+dilated_bbox[2].start))
-        
-        if coord.has_key(0): #We could also add the test 'if label_2 !=0:' after the for loop (but if self.neighbors(label_1) is large it could slow down th function).
-            coord.pop(0)
-            
+            if verbose and (label_1!=1) and n%2==0: print n,'/',len_neighbors
+            if label_1 == 1:
+                dilated_bbox_2 = dilation( self.boundingbox(label_2) )
+                #~ dilated_bbox_img_2 = self.image[dilated_bbox_2]
+                #~ mask_img_2 = (dilated_bbox_img_2 == label_2)
+                #~ dil_2 = nd.binary_dilation(mask_img_2, structure=struct)
+                #~ x,y,z = np.where( ( (dil_1[dilated_bbox_2] & mask_img_2) | (dil_2 & mask_img_1[dilated_bbox_2]) ) == 1 )
+                x,y,z = np.where( self.image[dilated_bbox_2]*dil_1[dilated_bbox_2] == label_2 )
+                coord[1,label_2]=np.array((x+dilated_bbox_2[0].start,y+dilated_bbox_2[1].start,z+dilated_bbox_2[2].start))
+            else:
+                mask_img_2 = (dilated_bbox_img == label_2)
+                dil_2 = nd.binary_dilation(mask_img_2, structure=struct)
+                x,y,z = np.where( ( (dil_1 & mask_img_2) | (dil_2 & mask_img_1) ) == 1 )
+                coord[min(label_1,label_2),max(label_1,label_2)]=np.array((x+dilated_bbox[0].start,y+dilated_bbox[1].start,z+dilated_bbox[2].start))
+
         return coord
 
 
@@ -797,52 +807,172 @@ class SpatialImageAnalysis(object):
         self.__init__(self.image)
 
 
-    #~ def curvature( self, labels=None, rank=1 ):
-        #~ """
-        #~ """
-        #~ import Scientific 
-        #~ from Scientific.Functions.LeastSquares import leastSquaresFit
-        #~ 
-        #~ # -- We start by taking out the border cells (we could keep them and to prevent the computation of the curvature for neighbours of margin cells)
-        #~ if self.border_cells() != [0, 1]:
-            #~ self.remove_margins_cells(verbose=True)
-        #~ 
-        #~ L1=self.L1()
-        #~ L1.remove(0)
-        #~ if labels==None:
-            #~ labels=L1
-            #~ 
-        #~ medians = {}
-        #~ for k in L1:
-            #~ medians[k] = geometric_median(walls(k))
-#~ 
-        #~ if isinstance(labels,int):
-            #~ wall=self.wall_voxels(1,labels).values()
-            #~ z,errors=leastSquaresFit(second_order_surface, [1,1,1,1,1,1], wall[0][0:2])
-            #~ return z,errors
- #~ 
-        #~ if isinstance(labels,list):
-            #~ for i in labels:
-                #~ if i not in L1:
-                    #~ print "Cell #",i, "doesn't belong to the L1, its curvature won't be computed"
-                    #~ labels.remove(i)
-#~ 
-        #~ if len(labels)>1:
-            #~ walls = self.all_wall_voxels(1,verbose=True)
-            #~ z,errors={},{}
-            #~ for k in labels:
-                #~ z[k],errors[k]=leastSquaresFit(second_order_surface,[1,1,1,1,1,1],wall[[1,k]][0:2])
-        #~ 
-        #~ return z,errors
+    def __curvature_parameters(func):
+        def wrapped_function(self, vids = None, verbose = False):
+            """
+            """
+            # -- We start by taking out the border cells (we could keep them and to prevent the computation of the curvature for neighbours of margin cells)
+            if self.border_cells() != [0, 1]:
+                self.remove_margins_cells()
+            
+            L1 = copy.deepcopy( self.L1() )
+            if 0 in L1: L1.remove(0)
+
+            if vids == None:
+                vids = L1
+            
+            if isinstance(vids,list):
+                tmp = copy.deepcopy(vids)
+                for k in tmp:
+                    if k not in L1:
+                        print "Cell",k,"is not in the L1. We won't compute it's curvature."
+                        vids.remove(k)
+
+            if isinstance(vids,int) and (vids not in L1):
+                print "Cell",k,"is not in the L1. We won't compute it's curvature."
+                return 0
+            
+            l={}
+            if isinstance(vids,int):
+                # for single id, compute single result
+                l[vids] = func(self, self.neighborhood_surface_walls(vids, L1) )
+                return l
+            if isinstance(vids,list):
+                # for set of ids, we compute a dictionary of resulting values.
+                all_walls = self.all_wall_voxels(1,verbose)
+                for n,vid in enumerate(vids):
+                    if verbose and n%2 == 0: print n,'/',len(vids)
+                    l[vid] = func(self, self.neighborhood_surface_walls(vid, L1, all_walls) )
+                return l        
+        return  wrapped_function
 
 
-#~ def second_order_surface(params,data):
-    #~ """
-    #~ A second order analytic surface of the form z = a1.x^2 + a2.xy + a3.y^2 + a4.x + a5.y + a6
-    #~ """
-    #~ a1,a2,a3,a4,a5,a6=params
-    #~ x,y=data
-    #~ return (a1*x*x + a2*x*y + a3*y*y + a4*x + a5*y + a6)
+    @__curvature_parameters
+    def gaussian_curvature( self, walls ):
+        """
+        Gaussian curvature as the product of principal curvatures 'k1*k2' from quadratic plane fitted by nonlinear least square method.
+        """
+        params = quadratic_plane_fit( walls )[0]
+        k1, k2 = principal_curvatures( params )
+        return k1*k2
+
+
+    @__curvature_parameters
+    def mean_curvature( self, walls ):
+        """
+        Mean curvature as the half sum of principal curvatures '1/2*(k1+k2)' from quadratic plane fitted by nonlinear least square method.
+        """
+        params = quadratic_plane_fit( walls )[0]
+        k1, k2 = principal_curvatures( params )
+        return 0.5*(k1+k2)
+
+
+    def neighborhood_surface_walls(self, vid, L1 = None, all_walls = None, verbose = False):
+        """
+        """
+        
+        if L1 == None:
+            L1 = copy.deepcopy( self.L1() )
+            if 0 in L1: L1.remove(0)
+        
+        if all_walls == None:
+            all_walls = self.all_wall_voxels(1,verbose)
+
+        walls = []
+        walls.append(all_walls[1,vid])
+        for k in self.neighbors(vid):
+            if k in L1:
+                walls.append( all_walls[1,k] )
+
+        return walls
+    
+
+def second_order_surface(params,data):
+    """
+    A second order analytic surface of the form z = a1.x^2 + a2.xy + a3.y^2 + a4.x + a5.y + a6
+    """
+    a1,a2,a3,a4,a5,a6=params
+    x,y=data
+    return (a1*x**2 + a2*x*y + a3*y**2 + a4*x + a5*y + a6)
+
+
+def quadratic_plane_fit( walls ):
+    """
+    Use non-linear least squares to fit a function, f, to data. The algorithm uses the Levenburg-Marquardt algorithm.
+    The function to be fitted will be called with two parameters:
+        - the first is a tuple containing all fit parameters, 
+        - the second is the first element of a data point. The return value must be a number.
+    """
+    import Scientific 
+    from Scientific.Functions.LeastSquares import leastSquaresFit
+    
+    x,y,z=[],[],[]
+    for i in xrange(len(walls)):
+        x.extend(list(walls[i][0]))
+        y.extend(list(walls[i][1]))
+        z.extend(list(walls[i][2]))
+        
+    # --The first element specifies the independent variables of the model. 
+    # --The second element of each data point tuple is the number that the return value of the model function is supposed to match
+    wall=[tuple(( tuple((x[i],y[i])), z[i] )) for i in xrange(len(x))]
+    
+    optimal_parameter_values, chi_squared=leastSquaresFit(second_order_surface, [0,0,0,0,0,1], wall, max_iterations=None)
+    
+    return optimal_parameter_values, chi_squared
+
+
+def quadratic_plane_fit2( walls ):
+    """
+    Use non-linear least squares to fit a function, f, to data.
+    Assumes ydata = f(xdata, *params) + eps
+    The algorithm uses the Levenburg-Marquardt algorithm through leastsq.
+    """
+    import scipy 
+    from scipy.optimize import curve_fit
+    
+    x,y,z=[],[],[]
+    for i in xrange(len(walls)):
+        x.extend(list(walls[i][0]))
+        y.extend(list(walls[i][1]))
+        z.extend(list(walls[i][2]))
+    
+    optimal_parameter_values, covariance=curve_fit(second_order_surface,[x,y],z)
+    
+    return optimal_parameter_values, covariance
+
+
+def principal_curvatures(params):
+    """
+    Compute principal curvature k1 and k2 from a second order analytic surface of the form z = a1.x^2 + a2.xy + a3.y^2 + a4.x + a5.y + a6.
+    """
+    # -- We first recover the parameters:
+    a1,a2,a3,a4,a5,a6=params
+    
+    # -- Then we define the parameters E, F and G for the first fundamental form:
+    E=1+a4**2
+    F=a4*a5
+    G=1+a5**2
+    
+    # -- Then we define the parameters e, f and g for the second fundamental form:    
+    e=(2*a1)/float(math.sqrt(E*G-F**2))
+    f=(a2)/float(math.sqrt(E*G-F**2))
+    g=(2*a3)/float(math.sqrt(E*G-F**2))
+    
+    # -- We now have to find the roots of the equation : (Fg - Gf) x**2 + (Eg - Ge) x + (Ef - Fe) = 0
+    a = (F*g - G*f)
+    b = (E*g - G*e)
+    c = (E*f - F*e)
+    discriminant = b**2 - 4*a*c
+    if discriminant > 0:
+        x_1 = ( -b-math.sqrt(discriminant) )/float(2*a)
+        x_2 = ( -b+math.sqrt(discriminant) )/float(2*a)
+    elif discriminant == 0:
+        x_1 = x_2 = (-b)/float(2*a)
+    else:
+        print "No real solutions..."
+        return 0,0
+        
+    return (e+f*x_1)/float(E+F*x_1),(e+f*x_2)/float(E+F*x_2)
 
 
 def extract_L1(image):
