@@ -1220,7 +1220,7 @@ def quadratic_plane_fit2( walls ):
     return optimal_parameter_values, covariance
 
 
-def principal_curvatures(params):
+def principal_curvatures(params, return_roots = False):
     """
     Compute principal curvature k1 and k2 from a second order analytic surface of the form z = a1.x^2 + a2.xy + a3.y^2 + a4.x + a5.y + a6.
     """
@@ -1252,7 +1252,10 @@ def principal_curvatures(params):
         warnings.warn("No real solutions...")
         return 0,0
         
-    return (e+f*x_1)/float(E+F*x_1),(e+f*x_2)/float(E+F*x_2)
+    if return_roots:
+        return (e+f*x_1)/float(E+F*x_1), (e+f*x_2)/float(E+F*x_2), x_1, x_2
+    else:
+        return (e+f*x_1)/float(E+F*x_1), (e+f*x_2)/float(E+F*x_2)
 
 
 def extract_L1(image):
