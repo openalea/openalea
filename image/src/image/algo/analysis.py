@@ -202,6 +202,26 @@ def OLS_wall(xyz):
     return ols_fit
 
 
+def euclidean_sphere(size):
+    """
+    Generate a euclidean sphere for binary morphological operations
+
+    :Parameters:
+        - `size` (int) - the shape of the euclidean sphere = 2*size + 1.
+
+    :Returns:
+        - Euclidean sphere which may be used for binary morphological operations, with shape equal to 2*size + 1.
+    """
+    n = int(2*size + 1)
+    sphere = np.zeros((n,n,n),np.bool)
+    for x in range(n):
+        for y in range(n):
+            for z in range(n):
+                if (x-size)**2+(y-size)**2+(z-size)**2<=size**2:
+                    sphere[x,y,z]=True
+    return sphere
+
+
 class SpatialImageAnalysis(object):
     """
     This object can extract a number of geometric estimator from a SpatialImage,
@@ -217,10 +237,14 @@ class SpatialImageAnalysis(object):
         else:
             self.image = image
         # variables for caching information
-        self._labels = self.__labels()
+        self._labels = None # self.__labels()
         self._bbox = None
         self._kernels = None
         self._neighbors = None
+        self._L1 = None # self.__L1() # Jonathan : 04.16.2012
+        self._first_voxel_layer = None # Jonathan : 04.17.2012
+        self.quadratic_parameters = {} # Jonathan : 04.18.2012
+        self.principal_curvatures = {} # Jonathan : 04.18.2012
 
 
     def labels(self):
@@ -241,6 +265,7 @@ class SpatialImageAnalysis(object):
         >>> analysis.labels()
         [1,2,3,4,5,6,7]
         """
+        if self._labels is None : self._labels = self.__labels()
         return self._labels
 
     def __labels(self):
@@ -698,8 +723,39 @@ class SpatialImageAnalysis(object):
                     surfaces[(i,j)] = surfaces.get((i,j),0.0) + lsurfaces[(i,j)]
         return surfaces
 
-    def L1(self, background = 1):
+
+    def __L1(self, background = 1):
         return self.neighbors(background)
+
+    def L1(self, background = 1):
+        if self._L1 is None : self._L1 = self.__L1(background)
+        if 0 in self._L1: self._L1.remove(0)
+        return self._L1
+
+
+    def __first_voxel_layer(self, background = 1, remove_margins_cells = True, keep_background = True):
+        """
+        Extract the first layer of voxels at the surface of the biological object.
+        """
+        if remove_margins_cells:
+            self.remove_margins_cells()
+        
+        mask_img_1 = (self.image == 1)
+        struct = nd.generate_binary_structure(3, 1)
+        dil_1 = nd.binary_dilation(mask_img_1, structure=struct)
+        
+        layer = dil_1 - mask_img_1
+        
+        if keep_background:
+            return self.image * layer + mask_img_1
+        else:
+            return self.image * layer
+
+    def first_voxel_layer(self, background = 1, remove_margins_cells = True, keep_background = False):
+        if self._first_voxel_layer is None :
+            self._first_voxel_layer = self.__first_voxel_layer(background, remove_margins_cells, keep_background)
+        return self._first_voxel_layer
+
 
     def border_cells(self):
         borders = set()
@@ -709,6 +765,7 @@ class SpatialImageAnalysis(object):
             borders.update(np.unique(self.image[:,:,0]))
             borders.update(np.unique(self.image[:,:,-1]))
         return list(borders)
+
 
     def inertia_axis(self, labels = None, center_of_mass = None, real = True):
         unique_label = False
@@ -770,7 +827,7 @@ class SpatialImageAnalysis(object):
             return inertia_eig_vec, inertia_eig_val
 
 
-    def remove_margins_cells(self,save="",display=False,verbose=False):
+    def remove_margins_cells(self, save = "", display = False, verbose = False):
         """
         !!!!WARNING!!!!
         This function modify the SpatialImage on self.image
@@ -786,16 +843,16 @@ class SpatialImageAnalysis(object):
         """
         
         if verbose: print "Removing the cell's at the magins..."
-        border_cells=self.border_cells()
+        
+        border_cells = self.border_cells()
         border_cells.remove(1)
-        len_border_cells=len(border_cells)
+        len_border_cells = len(border_cells)
         for n,c in enumerate(border_cells):
-            if verbose and n%20==0:
-                print n,'/',len_border_cells
-            xyz=np.where( (self.image[self.boundingbox(c)]) == c )
+            if verbose and n%20 == 0: print n,'/',len_border_cells
+            xyz = np.where( (self.image[self.boundingbox(c)]) == c )
             self.image[tuple((xyz[0]+self.boundingbox(c)[0].start,xyz[1]+self.boundingbox(c)[1].start,xyz[2]+self.boundingbox(c)[2].start))]=0
 
-        if save!="":
+        if save != "":
             imsave(self.image,save)
 
         if display:
@@ -807,84 +864,309 @@ class SpatialImageAnalysis(object):
         self.__init__(self.image)
 
 
-    def __curvature_parameters(func):
-        def wrapped_function(self, vids = None, verbose = False):
+    def mask_intersection(self, vid, geometric_mask):
+        """
+        Create the intersection between a geometric_mask and de first layer of voxel of the image.
+        Used for curvature computation.
+        """
+        x_max, y_max, z_max = self.first_voxel_layer().shape
+        x_size, y_size, z_size = geometric_mask.shape
+        if (x_size >= x_max) or (y_size >= y_max) or (z_size >= z_max):
+            if verbose: print 'the size of the geometrical object is too big !!!'
+            return None
+
+        from openalea.image.all import geometric_median
+        x, y, z = np.where(self.first_voxel_layer() == vid)
+        median = geometric_median( np.array([list(x),list(y),list(z)]) )
+        
+        def integer(x):
+            return int(x)
+
+        integers=np.vectorize(integer)
+        median = integers(median)
+        
+        x_bar, y_bar, z_bar = integers(np.round(np.array(geometric_mask.shape)/2.))
+        # -- We create the mask (with extended border so the geometrical mask can be applied even if it's center is close from the margins of the image)
+        mask = np.zeros( tuple([x_max+x_size, y_max+y_size, z_max+z_size]) )
+        # -- We create the extended version of the image
+        image = copy.copy(mask)
+        image[ x_bar:x_max+x_bar,y_bar:y_max+y_bar,z_bar:z_max+z_bar ] = self.first_voxel_layer()
+        # -- We now add the geometric_mask to the mask
+        mask[median[0]:median[0]+x_size,median[1]:median[1]+y_size,median[2]:median[2]+z_size] = geometric_mask
+        # -- We now applay the geometric_mask to the image
+        image = image * mask
+        image[image==1] = 0
+        
+        return  image[ x_bar:x_max+x_bar,y_bar:y_max+y_bar,z_bar:z_max+z_bar ]
+
+
+    def __curvature_parameters2(func):
+        def wrapped_function(self, vids = None, sphere_size = 50, verbose = False):
             """
             """
             # -- We start by taking out the border cells (we could keep them and to prevent the computation of the curvature for neighbours of margin cells)
             if self.border_cells() != [0, 1]:
-                self.remove_margins_cells()
-            
-            L1 = copy.deepcopy( self.L1() )
-            if 0 in L1: L1.remove(0)
+                self.remove_margins_cells(verbose = verbose)
 
-            if vids == None:
-                vids = L1
-            
-            if isinstance(vids,list):
-                tmp = copy.deepcopy(vids)
-                for k in tmp:
-                    if k not in L1:
-                        print "Cell",k,"is not in the L1. We won't compute it's curvature."
-                        vids.remove(k)
-
-            if isinstance(vids,int) and (vids not in L1):
-                print "Cell",k,"is not in the L1. We won't compute it's curvature."
-                return 0
-            
-            l={}
+            # -- If 'vids' is an integer... 
             if isinstance(vids,int):
-                # for single id, compute single result
-                l[vids] = func(self, self.neighborhood_surface_walls(vids, L1) )
-                return l
+                if (vids not in self.L1()): # - ...but not in the L1 list, there is nothing to do!
+                    print "Cell",vids,"is not in the L1. We won't compute it's curvature."
+                    return 0
+                else: # - ... and in the L1 list, we make it iterable.
+                    vids=[vids]
+
+            # -- If 'vids' is a list, we make sure to keep only its 'vid' present in the L1 list!
             if isinstance(vids,list):
-                # for set of ids, we compute a dictionary of resulting values.
-                all_walls = self.all_wall_voxels(1,verbose)
-                for n,vid in enumerate(vids):
-                    if verbose and n%2 == 0: print n,'/',len(vids)
-                    l[vid] = func(self, self.neighborhood_surface_walls(vid, L1, all_walls) )
-                return l        
-        return  wrapped_function
+                tmp = copy.deepcopy(vids) # Ensure to scan all the elements of 'vids'
+                for vid in tmp:
+                    if vid not in self.L1():
+                        if verbose: print "Cell",vid,"is not in the L1. We won't compute it's curvature."
+                        vids.remove(vid)
+                if len(vids) == 0: # if there is no element left in the 'vids' list, there is nothing to do!
+                    print 'None of the cells you provided bellonged to the L1.'
+                    return 0
+
+            # -- If 'vids' is `None`, we apply the function to all L1 cells:
+            if vids == None:
+                vids = self.L1()
+
+            sphere = euclidean_sphere(sphere_size)
+
+            #~ if create_route_for_fitting:
+                #~ create_route_for_fitting(vids) # Sort vids in a ways its you have a neighbors with estimated parameters for the quadratic plane.
+
+            # -- Now we can compute the curvature by applying the function 'gaussian_curvature' OR 'mean_curvature'.
+            curvature={}
+            if verbose: print 'Computing curvature :'
+            for n,vid in enumerate(vids):
+                if verbose: print n,'/',len(vids)
+                if self.quadratic_parameters.has_key(vid): # if we already know the parameters of the quadratic plane, no need to search for the external wall.
+                    if self.principal_curvatures.has_key(vid):
+                        k1, k2 = self.principal_curvatures[vid]
+                    else:
+                        k1, k2 = principal_curvatures(self.quadratic_parameters[vid])
+                        self.principal_curvatures[vid] = [k1, k2]
+                else:
+                    masked_im = self.mask_intersection(vid,sphere)
+                    x, y, z = np.where( masked_im != 0 )
+                    params = quadratic_plane_fit(x,y,z)[0]
+                    self.quadratic_parameters[vid] = params
+                    k1, k2 = principal_curvatures(params)
+                    self.principal_curvatures[vid] = [k1, k2]
+                curvature[vid] = func( k1,k2 )
+            
+            return curvature
+        return wrapped_function
 
 
-    @__curvature_parameters
-    def gaussian_curvature( self, walls ):
+    @__curvature_parameters2
+    def gaussian_curvature2( k1, k2 ):
         """
-        Gaussian curvature as the product of principal curvatures 'k1*k2' from quadratic plane fitted by nonlinear least square method.
+        Gaussian curvature is the product of principal curvatures 'k1*k2'.
+        Here it comes from the first and second fundamental form of a quadratic plane fitted by nonlinear least square method.
         """
-        params = quadratic_plane_fit( walls )[0]
-        k1, k2 = principal_curvatures( params )
         return k1*k2
 
-
-    @__curvature_parameters
-    def mean_curvature( self, walls ):
+    @__curvature_parameters2
+    def mean_curvature2( k1, k2 ):
         """
-        Mean curvature as the half sum of principal curvatures '1/2*(k1+k2)' from quadratic plane fitted by nonlinear least square method.
+        Gaussian curvature is the product of principal curvatures ''1/2*(k1+k2)'.
+        Here it comes from the first and second fundamental form of a quadratic plane fitted by nonlinear least square method.
         """
-        params = quadratic_plane_fit( walls )[0]
-        k1, k2 = principal_curvatures( params )
         return 0.5*(k1+k2)
 
 
-    def neighborhood_surface_walls(self, vid, L1 = None, all_walls = None, verbose = False):
-        """
-        """
-        
-        if L1 == None:
-            L1 = copy.deepcopy( self.L1() )
-            if 0 in L1: L1.remove(0)
-        
-        if all_walls == None:
-            all_walls = self.all_wall_voxels(1,verbose)
+    #~ def __curvature_parameters(func):
+        #~ def wrapped_function(self, vids = None, init_fitting_from_neighbors = False, verbose = False):
+            #~ """
+            #~ """
+            #~ # -- We start by taking out the border cells (we could keep them and to prevent the computation of the curvature for neighbours of margin cells)
+            #~ if self.border_cells() != [0, 1]:
+                #~ self.remove_margins_cells(verbose = verbose)
+#~ 
+            #~ # -- If 'vids' is an integer but not in the L1 list, there is nothing to do!
+            #~ if isinstance(vids,int) and (vids not in self.L1()):
+                #~ if verbose: print "Cell",vids,"is not in the L1. We won't compute it's curvature."
+                #~ return 0
+#~ 
+            #~ # -- If 'vids' is a list, we make sure to keep only its 'vid' present in the L1 list!
+            #~ if isinstance(vids,list):
+                #~ tmp = copy.deepcopy(vids) # Ensure to scan all the elements of 'vids'
+                #~ for vid in tmp:
+                    #~ if vid not in self.L1():
+                        #~ if verbose: print "Cell",vid,"is not in the L1. We won't compute it's curvature."
+                        #~ vids.remove(vid)
+                #~ if len(vids) == 0: # if there is no element left in the 'vids' list, there is nothing to do!
+                    #~ print 'None of the cells you provided bellonged to the L1.'
+                    #~ return 0
+#~ 
+            #~ # -- If 'vids' is `None`, we apply the function to all L1 cells:
+            #~ if vids == None:
+                #~ vids = self.L1()
+#~ 
+            #~ # -- Now we can compute the curvature by applying the function 'gaussian_curvature' OR 'mean_curvature'.
+            #~ curvature={}
+            #~ # - For a single vertex id, compute a single result
+            #~ if isinstance(vids,int): 
+                #~ if self.quadratic_parameters.has_key(vids): # if we already know the parameters of the quadratic plane, no need to search for the external wall.
+                    #~ curvature[vids] = func( self, vids, None )
+                #~ else:
+                    #~ curvature[vids] = func( self, vids, self.neighborhood_surface_walls(vids) )
+                #~ return curvature
+#~ 
+            #~ # - For a list of ids, we compute the dictionary of resulting values.
+            #~ if isinstance(vids,list):
+                #~ try :
+                    #~ sum([self.quadratic_parameters.has_key(vid) for vid in vids]) != 0
+                #~ except:    
+                    #~ all_walls = self.all_wall_voxels(1,verbose)
+                    #~ if init_fitting_from_neighbors :
+                        #~ route = self.brute_route_by_neighbors(vids)
+                        #~ if route != 0: # if route == 0 : not a connected region, therfore we can't use the information from the neighbors for the fitting.
+                            #~ medians={}
+                            #~ for n,vid in enumerate(route):
+                                #~ if verbose and n%2 == 0: print n,'/',len(vids)
+                                #~ medians[vid] = geometric_median(all_walls[((1,vid))])
+                                #~ xA, yA, zA = medians[vid]
+                                #~ min_dist = 0
+                                #~ dist_1 = float('inf')
+                                #~ common_list = list( set(medians.keys())&set(self.neighbors(vid)) )
+                                #~ if n != 0:
+                                    #~ for k in common_list:
+                                        #~ xB, yB, zB = medians[k]
+                                        #~ dist_2 = math.sqrt((xA-xB)**2+(yA-yB)**2+(zA-zB)**2)
+                                        #~ if dist_2 < dist_1:
+                                            #~ min_dist = k
+                                    #~ curvature[vid] = func( self, vid, self.neighborhood_surface_walls(vid, all_walls), self.quadratic_parameters[min_dist] if min_dist != 0 else None )
+                                #~ else:
+                                    #~ curvature[vid] = func( self, vid, self.neighborhood_surface_walls(vid, all_walls), None )
+                    #~ else:
+                        #~ for n,vid in enumerate(vids):
+                            #~ if verbose and n%2 == 0: print n,'/',len(vids)
+                            #~ curvature[vid] = func( self, vid, self.neighborhood_surface_walls(vid, all_walls), None )
+                #~ else:
+                    #~ for n,vid in enumerate(vids):
+                        #~ if verbose and n%20 == 0: print n,'/',len(vids)
+                        #~ if self.quadratic_parameters.has_key(vid): # if we already know the parameters of the quadratic plane, no need to search for the external wall.
+                            #~ curvature[vid] = func( self, vid, None )
+                        #~ else:
+                            #~ curvature[vid] = func( self, vid, self.neighborhood_surface_walls(vid, all_walls), None )
+                    #~ 
+                #~ return curvature        
+        #~ return wrapped_function
+#~ 
+#~ 
+    #~ @__curvature_parameters
+    #~ def gaussian_curvature( self, vid, walls, fit_init = None ):
+        #~ """
+        #~ Gaussian curvature as the product of principal curvatures 'k1*k2' from quadratic plane fitted by nonlinear least square method.
+        #~ """
+#~ 
+        #~ if (walls == None): # Special case from '__curvature_parameters' where "self.quadratic_parameters.has_key(vid)".
+            #~ if self.principal_curvatures.has_key(vid):
+                #~ k1, k2 = self.principal_curvatures[vid]
+                #~ return k1*k2
+            #~ else:
+                #~ k1, k2 = principal_curvatures( params )
+                #~ self.principal_curvatures[vid] = [k1,k2]
+                #~ return k1*k2
+        #~ else:
+            #~ params = quadratic_plane_fit( walls, fit_init )[0]
+            #~ self.quadratic_parameters[vid] = params
+            #~ k1, k2 = principal_curvatures( params )
+            #~ self.principal_curvatures[vid] = [k1,k2]
+            #~ return k1*k2
+#~ 
+#~ 
+    #~ @__curvature_parameters
+    #~ def mean_curvature( self, vid, walls, fit_init = None ):
+        #~ """
+        #~ Mean curvature as the half sum of principal curvatures '1/2*(k1+k2)' from quadratic plane fitted by nonlinear least square method.
+        #~ """
+        #~ if (walls == None): # -- Special case from '__curvature_parameters' where "self.quadratic_parameters.has_key(vid)".
+            #~ if self.principal_curvatures.has_key(vid):
+                #~ k1, k2 = self.principal_curvatures[vid]
+                #~ return 0.5*(k1+k2)
+            #~ else:
+                #~ k1, k2 = principal_curvatures( params )
+                #~ self.principal_curvatures[vid] = [k1,k2]
+                #~ return 0.5*(k1+k2)
+        #~ else:
+            #~ params = quadratic_plane_fit( walls, fit_init )[0]
+            #~ self.quadratic_parameters[vid] = params
+            #~ k1, k2 = principal_curvatures( params )
+            #~ self.principal_curvatures[vid] = [k1,k2]
+            #~ return 0.5*(k1+k2)
 
-        walls = []
-        walls.append(all_walls[1,vid])
-        for k in self.neighbors(vid):
-            if k in L1:
-                walls.append( all_walls[1,k] )
 
-        return walls
+    #~ def neighborhood_surface_walls(self, vid, all_walls = None, verbose = False):
+        #~ """
+        #~ """
+        #~ if all_walls == None:
+            #~ all_walls = self.all_wall_voxels(1,verbose)
+#~ 
+        #~ walls = []
+        #~ walls.append(all_walls[1,vid])
+        #~ L1 = self.L1()
+        #~ for k in self.neighbors(vid):
+            #~ if k in L1:
+                #~ walls.append( all_walls[1,k] )
+#~ 
+        #~ return walls
+#~ 
+#~ 
+    #~ def brute_route_by_neighbors(self, id2list, starting_point = None, verbose = False):
+        #~ """
+        #~ Function returning a list of vids. It define a sequence of labels allowing to travel in a neighbors-like manner.
+        #~ 
+        #~ If return 0: the id2list do not define a connected region.
+        #~ """
+        #~ if verbose: print 'Creating a route by neighbors...'
+        #~ remaining_labels = copy.deepcopy(id2list)
+        #~ if 0 in remaining_labels: remaining_labels.remove(0)
+        #~ if 1 in remaining_labels: remaining_labels.remove(1)
+#~ 
+        #~ if starting_point == None:
+            #~ starting_point = remaining_labels[0]
+#~ 
+        #~ if starting_point in remaining_labels:
+            #~ remaining_labels.remove(starting_point)
+        #~ else:
+            #~ print 'The starting point you provided is not in the L1!'
+            #~ return 0
+#~ 
+        #~ max_iter = len(remaining_labels)
+        #~ 
+        #~ all_neighbors=self.neighbors()
+        #~ 
+        #~ route=[]
+        #~ route.extend([starting_point])
+        #~ nb_iter = 0
+        #~ while len(remaining_labels) != 0 :
+            #~ neighbors = all_neighbors[starting_point]
+            #~ neighbors = list( set(remaining_labels)&set(neighbors) )
+            #~ route.extend(neighbors)
+            #~ remaining_labels = list( set(remaining_labels)-set(neighbors) )
+            #~ for k in neighbors:
+                #~ n = list( set(remaining_labels)&set(all_neighbors[k]) )
+                #~ route.extend(n)
+                #~ remaining_labels = list( set(remaining_labels)-set(n) )
+            #~ 
+            #~ back = 1
+            #~ starting_point = route[len(route)-back]
+            #~ while (len( set(remaining_labels)&set(all_neighbors[starting_point]) ) == 0) & (len(remaining_labels) != 0):
+                #~ back +=1
+                #~ starting_point = route[len(route)-back]
+#~ 
+            #~ nb_iter += 1
+            #~ if nb_iter >= max_iter:
+                #~ print 'There might be a problem: you maxed-up the number of iterations (',max_iter,').'
+                #~ print 'remaining_labels',remaining_labels
+                #~ print 'Computed route so far:', route
+                #~ return 0
+#~ 
+        #~ return route
     
 
 def second_order_surface(params,data):
@@ -896,7 +1178,7 @@ def second_order_surface(params,data):
     return (a1*x**2 + a2*x*y + a3*y**2 + a4*x + a5*y + a6)
 
 
-def quadratic_plane_fit( walls ):
+def quadratic_plane_fit( x, y, z, fit_init = [0,0,0,0,0,1] ):
     """
     Use non-linear least squares to fit a function, f, to data. The algorithm uses the Levenburg-Marquardt algorithm.
     The function to be fitted will be called with two parameters:
@@ -905,18 +1187,15 @@ def quadratic_plane_fit( walls ):
     """
     import Scientific 
     from Scientific.Functions.LeastSquares import leastSquaresFit
-    
-    x,y,z=[],[],[]
-    for i in xrange(len(walls)):
-        x.extend(list(walls[i][0]))
-        y.extend(list(walls[i][1]))
-        z.extend(list(walls[i][2]))
-        
+
+    if fit_init == None:
+        fit_init = [0,0,0,0,0,1]
+
     # --The first element specifies the independent variables of the model. 
     # --The second element of each data point tuple is the number that the return value of the model function is supposed to match
     wall=[tuple(( tuple((x[i],y[i])), z[i] )) for i in xrange(len(x))]
     
-    optimal_parameter_values, chi_squared=leastSquaresFit(second_order_surface, [0,0,0,0,0,1], wall, max_iterations=None)
+    optimal_parameter_values, chi_squared=leastSquaresFit(second_order_surface, fit_init, wall, max_iterations=None)
     
     return optimal_parameter_values, chi_squared
 
@@ -969,7 +1248,8 @@ def principal_curvatures(params):
     elif discriminant == 0:
         x_1 = x_2 = (-b)/float(2*a)
     else:
-        print "No real solutions..."
+        import warnings
+        warnings.warn("No real solutions...")
         return 0,0
         
     return (e+f*x_1)/float(E+F*x_1),(e+f*x_2)/float(E+F*x_2)
