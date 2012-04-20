@@ -46,14 +46,11 @@ def pyreduce(func, seq):
 
 
 
-def pyapply(func, seq):
+def pyapply(func, seq, one_argument=False):
     """ apply(func, seq)"""
 
-    try:
-        seq = list(seq)
-
-    except TypeError:
-        seq = list([seq])
+    if one_argument:
+        seq = [seq]
 
     if func is not None:
         return apply(func, seq)
