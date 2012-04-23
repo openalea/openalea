@@ -17,10 +17,12 @@ def install():
     
     winexe = sys.executable
     winexe = winexe.replace('python.exe', 'pythonw.exe')
+    
+    prefix = base_dir.lower().split("lib")[0]
         
     create_win_shortcut(name = 'Visualea',
                         target = winexe,
-                        arguments = '"'+pj(sys.prefix, 'Scripts', 'visualea-script.pyw')+'"',
+                        arguments = '"'+pj(prefix, 'Scripts', 'visualea-script.pyw')+'"',
                         startin = "", 
                         icon = pj(share_dir, 'openalea_icon.ico'),
                         description = "Visual programming",
@@ -28,7 +30,7 @@ def install():
 
     create_win_shortcut(name = 'Python Shell',
                         target = winexe,
-                        arguments = '"'+pj(sys.prefix, 'Scripts', 'aleashell-script.pyw')+'"',
+                        arguments = '"'+pj(prefix, 'Scripts', 'aleashell-script.pyw')+'"',
                         startin = "", 
                         icon = "",
                         description = "Python Shell",
