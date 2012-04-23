@@ -3,7 +3,7 @@ APPNAME="VPlants"
 APPVERSION="1.0"
 setup = {"LicenseFile":pj(__path__,"LICENSE.TXT"), "WizardSmallImageFile":pj(__path__,"vplogo.bmp")}  
 
-eggGlobs = "*\\dist\\VPlants*.egg|*\\dist\\OpenAlea*.egg"
+eggGlobs = "*\\dist\\VPlants*.egg|*\\dist\\OpenAlea*.egg|tissue\\*\\dist\\VPlants*.egg|*\\dist\\c*.egg"
 
 # package -> (installerFlags, installationOrder)
 thirdPartyPackages = [   ("python", (NOT_INSTALLABLE|RUNTIME|DEVELOP,)), #always tested
@@ -33,10 +33,15 @@ begin
     Result:=False;
     incr := (100 - WizardForm.ProgressGauge.Position)/high(Eggs)/2;
     for i:=0 to high(Eggs) do begin
-        s := Eggs[i];
+        s := ExtractFileName(Eggs[i]);
         WizardForm.StatusLabel.Caption:='Uncompressing '+s;
         WizardForm.Update();
         ExtractTemporaryFile(s);
+        try        
+            InstallEgg( MyTempDir()+s, '-N');
+        except
+            Exit;
+        end;
         WizardForm.ProgressGauge.Position := WizardForm.ProgressGauge.Position + incr;
     end;
     """

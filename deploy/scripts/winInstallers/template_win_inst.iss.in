@@ -8,6 +8,7 @@ DefaultDirName=None
 DefaultGroupName=$APPNAME
 OutputBaseFilename=$APPNAME-$APPVERSION$INSTTYPE-Installer-Py$PYTHONMAJOR.$PYTHONMINOR
 ;SetupIconFile=..\..\visualea\share\openalea_icon.ico
+PrivilegesRequired=admin
 
 Uninstallable=no
 Compression=lzma/max
@@ -64,13 +65,13 @@ begin
    if FileExists(GetPythonDirectory()+'\Scripts\alea_install.exe') then
       begin
       Result := Exec(GetPythonDirectory()+'\Scripts\alea_install.exe',
-	                 arg+ ' ' + egg, '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+	                 '--prefix '+ GetPythonDirectory() + ' ' + arg+ ' ' + egg, '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
       (*MsgBox('Used alea_install', mbInformation, MB_OK);*)
       end
    else
         begin
       Result := Exec(GetPythonDirectory()+'\Scripts\easy_install.exe',
-                     arg+ ' ' + egg, '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+                     '--prefix '+ GetPythonDirectory() + ' ' + arg+ ' ' + egg, '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
       (*MsgBox('Used easy_install', mbInformation, MB_OK);*)
       end                     ;
 end;
@@ -209,7 +210,7 @@ begin
     DetectEnvironmentPage := CreateOutputMsgPage(wpLicense,
                           'Information', '$APPNAME Installer will try to detect your environment.',
                           '$APPNAME requires Python and several extensions.'+#13 +
-                          'This installer will install the required softs.');
+                          'This installer will install the required softs. Please wait...');
     DetectEnvironmentPage.onActivate := @DetectEnv;
 end;
 

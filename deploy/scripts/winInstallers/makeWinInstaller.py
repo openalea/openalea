@@ -281,7 +281,7 @@ def generate_pascal_test_install_code(dependencies):
             if bt(mask, NOT_INSTALLABLE):
                 template = StrictTemplate(python_package_test_template)
                 final += template.substitute(PACKAGE=pk,
-                                             PACKAGE_TEST=info[2])
+                                             PACKAGE_TEST=basename(info[2]) )
             else:            
                 #"ti" stands for "test and install"
                 if bt(mask, MSI): template = python_package_ti_template_msi
@@ -387,7 +387,7 @@ begin
     Result:=False;
     incr := (100 - WizardForm.ProgressGauge.Position)/high(Eggs);
     for i:=0 to high(Eggs) do begin
-        s := Eggs[i];
+        s := ExtractFileName(Eggs[i]);
         WizardForm.StatusLabel.Caption:='Uncompressing '+s;
         WizardForm.Update();
         ExtractTemporaryFile(s);
@@ -601,6 +601,8 @@ def main():
         if args.private_packages:
             add_private_gforge_repositories(args.login, args.passwd)
         for egg, info in dependencies.iteritems():
+            if not bt(info[0], EGG):
+                continue
             gb = glob.glob( pj(dldir, "*"+egg+"*") )
             if len(gb): # yep, this is fragile
                 print "%s egg already downloaded!"%egg, gb[0]

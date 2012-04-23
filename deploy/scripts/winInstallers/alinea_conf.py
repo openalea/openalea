@@ -3,7 +3,7 @@ APPNAME="Alinea"
 APPVERSION="1.0"
 setup = {"LicenseFile":pj(__path__,"LICENSE.TXT")}  
 
-eggGlobs = "Alinea*.egg"
+eggGlobs = "*\\dist\\Alinea*.egg"
 
 # package -> (installerFlags, installationOrder)
 thirdPartyPackages = [   ("python"  ,    (NOT_INSTALLABLE|RUNTIME|DEVELOP,          )), #always tested
