@@ -27,6 +27,7 @@ import sys
 import shutil
 from distutils.errors import *
 import stat
+import glob
 
 from os.path import join as pj
 from setuptools import Command
@@ -1392,3 +1393,8 @@ class clean(old_clean):
                 print 'Failed to launch sconc -c'
         else:
             print 'No SConstruct found. Skipping "scons -c" command.'
+
+        if self.all:
+            for egginfo in glob.glob( pj("src", "*.egg-info") ):
+                print "removing", egginfo
+                shutil.rmtree(egginfo)
