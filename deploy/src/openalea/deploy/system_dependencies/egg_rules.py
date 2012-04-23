@@ -86,10 +86,11 @@ class egg_qt4(BaseEggBuilder):
                        "PyQt4.uic": pj(pyqt4_.install_site_dir, "PyQt4", "uic")}
         
         from PyQt4 import Qt
+        from setuptools import find_packages
         return dict( 
                     VERSION  = Qt.QT_VERSION_STR,
-                    PACKAGES = ["PyQt4", "PyQt4.uic"],
-                    PACKAGE_DIRS = package_dir,
+                    PACKAGES = find_packages(pyqt4_.install_site_dir, "PyQt4"),# ["PyQt4", "PyQt4.uic"],
+                    PACKAGE_DIRS = {"":pyqt4_.install_site_dir}, #package_dir,
                     PACKAGE_DATA = {'' : [Pattern.pyext]},
                     
                     LIB_DIRS         = lib_dirs,
