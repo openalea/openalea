@@ -10,11 +10,11 @@
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
 #
-###############################################################################
+#############################################################################
 
-##############################################################
-# THIS MODULE IS DEPRECATED, USE PLATFORM_INSTALL.PY INSTEAD #
-##############################################################
+############################################################
+# THIS MODULE IS DEPRECATED, USE DEPLOY_SYSTEM2.PY INSTEAD #
+############################################################
 
 import platform, types, warnings, collections, subprocess, abc
 
