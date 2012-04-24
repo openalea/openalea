@@ -19,6 +19,7 @@
 from dependency_builder import MSingleton, Tool, BaseBuilder, BuildEnvironment
 from dependency_builder import create_metabuilder, build_epilog
 from dependency_builder import options_metabuilders, options_common, options_gforge
+from dependency_builder import exe_ext
 from collections import deque, OrderedDict
 import argparse
 import platform
@@ -34,8 +35,9 @@ class MPlatformAPI(MSingleton):
     def __init__(cls, name, bases, dic):
         MSingleton.__init__(cls, name, bases, dic)
         if object not in bases:
-            print "adding", cls
+            #print "adding", cls
             MPlatformAPI.apis[name.lower()] = cls
+
     @classmethod
     def get(cls, item=None):
         if item is None:
@@ -43,6 +45,7 @@ class MPlatformAPI(MSingleton):
         item = cls.intersect_and_solve(item, cls.apis.keys(), sep="_")
         item = item or "EggPackageAPI".lower()
         return MPlatformAPI.apis[item]
+
     @classmethod
     def get_platform_name(cls):
         """Creates a string out of the current platform with names seperated by whitespaces:
@@ -58,6 +61,7 @@ class MPlatformAPI(MSingleton):
         else:
             warnings.warn("Currently unhandled system : " + system + ". Implement me please.")
         return _platform        
+
     @classmethod
     def intersect_platform_names(cls, requestedPlatformNames, availablePlatformNames):
        """Find intersection between platformName and packageList subdictionnary keys.
@@ -67,6 +71,7 @@ class MPlatformAPI(MSingleton):
        requestedPlatformNames = set(requestedPlatformNames)
        availablePlatformNames = set(availablePlatformNames)
        return requestedPlatformNames&availablePlatformNames, requestedPlatformNames-availablePlatformNames
+
     @classmethod
     def intersect_and_solve(cls, platform, candidates, conflictSolve=lambda x: x[0], sep=" "):
         """ Given a platform name from BaseOsFactory.get_platform() or similar, and
@@ -101,18 +106,50 @@ class MPlatformAPI(MSingleton):
         if isinstance(maxIntersectionDistrib, list):
             maxIntersectionDistrib = conflictSolve(maxIntersectionDistrib)
         return maxIntersectionDistrib
+
+    @classmethod
+    def install_packages(cls, *packages):
+        # we build a chain of responsability
+        first = cls.get()
+        c_o_r = [first]
+        c_o_r += [api_cls for api_cls in cls.apis.itervalues() \
+                  if api_cls!=first and not issubclass(api_cls, NativePackageAPI)]
         
+        action_men = OrderedDict()
         
+        to_inst = packages[:]
+        while( len(to_inst) and len(c_o_r)):
+            api = c_o_r.pop(0)()
+            handled, to_inst = api.decanonify(*to_inst)
+            action_men[api] = handled
+
+        print "The", packages, "will be installed:"
+        for api, handled in action_men.iteritems():
+            print "\t - using", api.__class__.__name__, "for", handled
+
+        if len(to_inst):
+            print "Will NOT install", to_inst, "(couldn't find any way to install it)"
+
+        for api, handled in action_men.iteritems():
+            print "Using", api.__class__.__name__
+            if api.install_packages(*handled) == False:
+                return False
+        return True
         
-class FromEgg(object):
-    """Use this in a packagemap:
-    {"bison":FromEgg} means that for this particular
-    dependency we will try to install it with an egg."""    
-    pass        
+class Egg(object):
+    def __init__(self, spec):
+        self.spec = spec
+    def __str__(self):
+        return self.spec        
+    def __repr__(self):
+        return repr(self.spec)
+    def __hash__(self):
+        return hash(self.spec)
+
 class NA(object):
     """Use this in a packagemap:
     {"glut":NA} means that for this particular
-    dependency we will not install anything."""    
+    dependency will be delegated to another PlatformAPI."""    
     pass
 
     
@@ -122,6 +159,8 @@ class PlatformAPI(object):
         
     packagemap = None
     
+    handled_decanofied_types = set([str])
+
     def __init__(self):
         # A map to translate from canonical name
         # to distribution name.
@@ -134,50 +173,49 @@ class PlatformAPI(object):
         raise NotImplementedError
         
     def decanonify( self, *packages ):
-        return dict( (pkg,self.packagemap[pkg]) for pkg in packages \
-                      if self.packagemap[pkg] != NA)
+        handled = []
+        not_handled = []
+        for pkg in packages:
+            deca = self.packagemap[pkg]
+            if type(deca) in self.handled_decanofied_types:
+                handled.append(deca)
+            else:
+                not_handled.append(pkg)
+        return handled, not_handled
         
 
 class BaseEggPackageAPI(PlatformAPI, object):
+    handled_decanofied_types = set([Egg])
     def install_packages(self, *packages):
         inst = openalea_deploy().get_path()
         if inst:
-            inst = pj(inst, "alea_install.exe -g")
+            inst = pj(inst, "alea_install%s -g"%exe_ext)
         else:
             inst = setuptools().get_path()
             if inst:
-                inst = pj(inst, "easy_install.exe")
+                inst = pj(inst, "easy_install%s"%exe_ext)
             else:
                 return False
-        deca = self.decanonify(*packages)
-        pkgs = set( pkg for cano, pkg in deca.iteritems() )        
-        for pkg in pkgs:
-            cmd = inst + " " + pkg
+        for pkg in packages:
+            cmd = inst + " " + str(pkg)
             print cmd
-            if subprocess.call(cmd):
+            if subprocess.call(cmd, shell=True):
                 return False
-        
+        return True
+
 class NativePackageAPI(PlatformAPI, object):
     """This API uses the distributions installation
     system (yum, apt-get), and can delegate to EggPackageAPI"""
 
-
     # shell command to install a package
     install_cmd = None
     
-    def install_packages(self, *packages):
-        deca = self.decanonify(*packages)
-        eggs = []
-        pkgs = []
-        for (pkg, dec) in deca.iteritems():
-            append_to = eggs if dec==FromEgg else pkgs
-            append_to.append(pkg)
-        
-        if subprocess.call( self.install_cmd + " " + " ".join(pkgs) ):
+    def install_packages(self, *packages): 
+        cmd = self.install_cmd + " " + " ".join(packages)
+        print cmd
+        if subprocess.call( cmd, shell=True ):
             return False
-        
-        return EggPackageAPI().install_packages(*eggs)
-        
+        return True        
 
         
 def get_dependencies(package):
@@ -269,37 +307,37 @@ __canonical_dependencies = {
 class EggPackageAPI(BaseEggPackageAPI):
     def __init__(self):
         BaseEggPackageAPI.__init__(self)
-        self.update({"ann-dev" : "ann",
-                     "bison-dev" : "bisonflex==2.4.1_2.5.35",
-                     "boost-dev" : "boost",
-                     "boostmath" : "boost",
-                     "boostmath-dev" : "boost",
-                     "boostpython" : "boost",
-                     "boostpython-dev" : "boost",
-                     "cgal" :  "cgal",
-                     "cgal-dev" : "cgal",
-                     "compilers-dev" : "mingw==5.1.4_4b",
-                     "flex-dev" : "bisonflex==2.4.1_2.5.35",
+        self.update({"ann-dev" : Egg("ann"),
+                     "bison-dev" : Egg("bisonflex==2.4.1_2.5.35"),
+                     "boost-dev" : Egg("boost"),
+                     "boostmath" : Egg("boost"),
+                     "boostmath-dev" : Egg("boost"),
+                     "boostpython" : Egg("boost"),
+                     "boostpython-dev" : Egg("boost"),
+                     "cgal" :  Egg("cgal"),
+                     "cgal-dev" : Egg("cgal"),
+                     "compilers-dev" : Egg("mingw==5.1.4_4b"),
+                     "flex-dev" : Egg("bisonflex==2.4.1_2.5.35"),
                      "glut" : NA,
                      "glut-dev" : NA,
-                     "matplotlib" : "matplotlib",
-                     "nose-dev" : "nose",
-                     "numpy" : "numpy",
-                     "pil" : "PIL",
-                     "pyopengl":"pyopengl",
-                     "pyqt4" : "qt4",
-                     "pyqt4-dev" : "qt4_dev",
-                     "pyqscintilla" : "qt4",
-                     "qhull" : "qhull",
-                     "qhull-dev" : "qhull",
-                     "readline": "mingw_rt==5.1.4_4b",
-                     "readline-dev": "mingw==5.1.4_4b",
-                     "rpy2" : "rpy2",
+                     "matplotlib" : Egg("matplotlib"),
+                     "nose-dev" : Egg("nose"),
+                     "numpy" : Egg("numpy"),
+                     "pil" : Egg("PIL"),
+                     "pyopengl": Egg("pyopengl"),
+                     "pyqt4" : Egg("qt4"),
+                     "pyqt4-dev" : Egg("qt4_dev"),
+                     "pyqscintilla" : Egg("qt4"),
+                     "qhull" : Egg("qhull"),
+                     "qhull-dev" : Egg("qhull"),
+                     "readline": Egg("mingw_rt==5.1.4_4b"),
+                     "readline-dev": Egg("mingw==5.1.4_4b"),
+                     "rpy2" : Egg("rpy2"),
                      "setuptools" : NA,
-                     "sip4-dev" : "qt4_dev",
-                     "scipy" : "scipy",
-                     "scons-dev" :  "scons",
-                     "soappy" : "soappy",
+                     "sip4-dev" : Egg("qt4_dev"),
+                     "scipy" : Egg("scipy"),
+                     "scons-dev" : Egg("scons"),
+                     "soappy" : Egg("soappy"),
                      "svn-dev" : NA,
              })
         
@@ -388,7 +426,8 @@ class Fedora(NativePackageAPI):
     
     def __init__(self):
         NativePackageAPI.__init__(self)
-        self.update({"bison-dev" : "bison-devel",
+        self.update({"ann-dev": NA,
+                     "bison-dev" : "bison-devel",
                      "boostmath" : "boost-math",
                      "boostmath-dev" : "boost-devel",
                      "boostpython" : "boost-python",
@@ -408,7 +447,7 @@ class Fedora(NativePackageAPI):
                      "pyqt4-dev" : "PyQt4-devel",
                      "pyqscintilla" : "qscintilla-python",
                      "qhull" : "qhull",
-                     "qhull-dev" : "qhull-devel qhull-dev",
+                     "qhull-dev" : "qhull-devel qhull-dev", #probably to handle ancient naming
                      "readline": "readline",
                      "readline-dev": "readline-devel readline",
                      "rpy2" : "rpy",
@@ -420,6 +459,11 @@ class Fedora(NativePackageAPI):
                      "svn-dev" : "subversion",
              })
              
+class Fedora_16(Fedora):
+    def __init__(self):
+        Fedora.__init__(self)
+        self.update({"ann-dev": "ann-devel"})
+
              
 #################################################
 # ----------- Main and Friends ---------------- #
@@ -431,13 +475,13 @@ MDeploy = create_metabuilder("deploy")
 
 class setuptools(Tool):
     installable    = False
-    exe            = "easy_install.exe"
-    default_paths  = [ Tool.PyExecPaths ]
+    exe            = "easy_install"+exe_ext
+    default_paths  = [ Tool.PyExecPaths, "/usr/bin" ]
 
 class openalea_deploy(Tool):
     installable    = False
-    exe            = "alea_install.exe"
-    default_paths  = [ Tool.PyExecPaths ]
+    exe            = "alea_install"+exe_ext
+    default_paths  = [ Tool.PyExecPaths, "/usr/bin" ]
 
 class BaseDepBuilder(BaseBuilder, object):
     __metaclass__  = MDeploy
@@ -450,7 +494,6 @@ class BaseDepBuilder(BaseBuilder, object):
     required_tools = [setuptools, openalea_deploy]
     
     def _install(self):
-        pf = MPlatformAPI.get()()
         pkg = self.options["package"]
         dependencies = get_dependencies(pkg)
         
@@ -476,10 +519,9 @@ class BaseDepBuilder(BaseBuilder, object):
             to_inst.remove("alinea")
         except:
             pass            
-        print "Will now install", to_inst
+        print "Will install dependencies for", MPlatformAPI.get_platform_name()
 
-        pf.install_packages(*to_inst)
-        return True
+        return MPlatformAPI.install_packages(*to_inst)
         
 class DepBuilder(BaseDepBuilder):
     pass
@@ -512,6 +554,7 @@ def main():
 
     options = vars(args)
     options["tools"] = tools
+    options["pass_path"]=True
     env = BuildEnvironment()
     env.set_options(options)
     env.set_metabuilders(metabuilders)

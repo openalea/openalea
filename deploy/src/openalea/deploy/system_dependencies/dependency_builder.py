@@ -88,6 +88,7 @@ def uj(*args):
 ############################
 # Some Utilities - Globals #
 ############################
+exe_ext = ".exe" if "win32" in sys.platform else ""
 
 # Major and Minor python version numbers:
 pyver = sys.version_info[:2]
@@ -642,6 +643,8 @@ class Compiler_(object):
     @memoize("comp_bin_path")
     def get_bin_path(self):
         # TODO : do smart things according to self.options
+        if "win32" not in BE.get_platform_string():
+            return "/usr/bin"
         if self.options.get("compiler"):
             v =  self.options["compiler"]
             if os.path.exists(v):
@@ -693,7 +696,7 @@ class Compiler_(object):
         cmd  = "gcc %s -o %s"%(src,exe)
         with open(src, "w") as f:
             f.write(prog)
-        subprocess.call(cmd, stdout=NullOutput, stderr=NullOutput)
+        subprocess.call(cmd, stdout=NullOutput, stderr=NullOutput, shell=True)
         ret = subprocess.call(exe)
         return 64 if ret==8 else 32
 
@@ -878,6 +881,8 @@ class BuildEnvironment(object):
         self.__overwrite_path()
 
     def __overwrite_path(self):
+        if self.options["pass_path"]:
+            return 
         tool_paths = []
         for tool in self.tools:
             tool = tool()
@@ -905,6 +910,9 @@ class BuildEnvironment(object):
     def ensure_python_lib(self):
         """Checks that libpythonXY.a exists.
         On Win64 python only ships with pythonXY.lib (MSVC)"""
+        if "win32" not in self.get_platform_string():
+            return
+
         dst = pj(sys.prefix, "libs", "libpython%d%d.a"%pyver)
         dstdef = pj(sys.prefix, "python%d%d.def"%pyver)
         src = get_python_dll()
@@ -1513,9 +1521,11 @@ def build_epilog(metabuilders, dep_build_end=True):
 def options_common(parser):
     g = parser.add_argument_group("General options")
     g.add_argument("--keep-going", "-k", action="store_const", const=True, default=False,
-                   help="keep going on errors")
+                   help="Keep going on errors")
     g.add_argument("--verbose", action="store_const", const=True, default=False,
                    help="Well try to say more things.")
+    g.add_argument("--pass-path", action="store_const", const=True, default=False,
+                   help="Pass current PATH to the system instead of clearing it")
     return parser
 
 def options_dep_build(parser):
@@ -1523,23 +1533,23 @@ def options_dep_build(parser):
     g.add_argument("--wdr", default=abspath(os.curdir), type=abspath,
                         help="Under which directory we will create our working dir")
     g.add_argument("--python", "-p", default=None,
-                   help="fully qualified python executable to use for the compilation")
+                   help="Fully qualified python executable to use for the compilation")
     g.add_argument("--compiler", "-c", default=None,
-                   help="path to compiler binaries")
+                   help="Path to compiler binaries")
     g.add_argument("--only", "-o", default=None, action="append", type=valid_builder,
                    help="Only process these project/eggs")
     g.add_argument("--jobs", "-j", default=1, type=int,
-                   help="number of jobs during compilation")
+                   help="Number of jobs during compilation")
     g.add_argument("--no-upload", "-n", action="store_const", const=True, default=False,
                    help="Do not upload eggs to forge")
     g.add_argument("--release", action="store_const", const=True, default=False,
-                   help="upload eggs to openalea repository or vplants (if False - for testing).")
+                   help="Upload eggs to openalea repository or vplants (if False - for testing).")
     return parser
 
 def options_gforge(parser):
     g = parser.add_argument_group("GForge options")
-    g.add_argument("--login",  default=None, help="login to connect to GForge")
-    g.add_argument("--passwd", default=None, help="password to connect to GForge")
+    g.add_argument("--login",  default=None, help="Login to connect to GForge")
+    g.add_argument("--passwd", default=None, help="Password to connect to GForge")
     return parser
 
 def options_metabuilders(parser, metabuilders):

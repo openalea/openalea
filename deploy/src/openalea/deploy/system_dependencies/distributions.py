@@ -11,6 +11,11 @@
 #           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
 #
 ###############################################################################
+
+##############################################################
+# THIS MODULE IS DEPRECATED, USE PLATFORM_INSTALL.PY INSTEAD #
+##############################################################
+
 import dependency
 
 

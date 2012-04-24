@@ -14,6 +14,10 @@
 #
 ###############################################################################
 
+##############################################################
+# THIS MODULE IS DEPRECATED, USE PLATFORM_INSTALL.PY INSTEAD #
+##############################################################
+
 __license__ = "Cecill-C"
 __revision__ = " $Id$"
 
@@ -72,7 +76,11 @@ for the one it is running on.
 
 def main():
 
-
+    print """
+##############################################################
+# THIS MODULE IS DEPRECATED, USE PLATFORM_INSTALL.PY INSTEAD #
+##############################################################
+"""
     if len(sys.argv)==1:
         print usage%( reduce( lambda x, y: x+" "+y, distributions.canonical_dependencies.iterkeys() ), )
         sys.exit(-1)
