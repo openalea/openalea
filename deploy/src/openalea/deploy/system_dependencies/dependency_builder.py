@@ -643,7 +643,7 @@ class Compiler_(object):
     @memoize("comp_bin_path")
     def get_bin_path(self):
         # TODO : do smart things according to self.options
-        if "win32" not in BE.get_platform_string():
+        if "win32" not in sys.platform:
             return "/usr/bin"
         if self.options.get("compiler"):
             v =  self.options["compiler"]
@@ -880,16 +880,17 @@ class BuildEnvironment(object):
         self.ensure_python_lib()
         self.__overwrite_path()
 
-    def __overwrite_path(self):
-        if self.options["pass_path"]:
-            return 
+    def __overwrite_path(self):        
         tool_paths = []
         for tool in self.tools:
             tool = tool()
             pth = tool.get_path()
             if pth:
                 tool_paths.append(pth)
+                
         path = sj(tool_paths + [Compiler.get_bin_path()])
+        if self.options["pass_path"]:
+            path = sj( [self.original_path, path] )
 
         if path.endswith("\""):
             print "Removing trailing PATH quotes as mingw32-make doesn't like them"
