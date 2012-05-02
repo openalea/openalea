@@ -112,7 +112,7 @@ package_lists = {
 # SVN Functions #
 #################  
 def has_svn(paths = []):    
-    paths = os.environ["PATH"].split(os.pathsep)
+    paths = paths+os.environ["PATH"].split(os.pathsep)
     for p in paths:
         subfiles = [f.lower() for f in os.listdir(p)]
         if svn_exec in subfiles:
@@ -376,6 +376,7 @@ def parse_arguments():
 
 def main():
     import sys
+    import getpass
     global not_dry_run
     global dr_call
     global dr_popen
@@ -383,13 +384,21 @@ def main():
     args = parse_arguments()
     os.environ["PATH"] += os.pathsep.join( [os.environ["PATH"], args.svndir] )
     
+    # OK, so this is used nowhere but somehow, it works... how did this happen?
+    # Subversion probably cached my own login and password, and uses that to log in...
+    if args.project != "openalea" : #then svn operations need password
+        if args.login != None:
+            if args.passwd is None:
+                args.passwd = getpass.getpass("GForge password please: ")
+
     if not args.not_dry_run:
         print "Doing a dry run. Check that the command lines are correct then rerun with the --not-dry-run flag\n"
         not_dry_run = False
         dr_call  = dry_call
         dr_popen = dry_popen
+    
         
-    if not has_svn():
+    if not has_svn([args.svndir]):
         print "svn command in not available"
 
     if not args.working_copy and (args.update or args.export_srcs):
