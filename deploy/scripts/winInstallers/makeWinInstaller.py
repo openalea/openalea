@@ -20,25 +20,23 @@ import argparse
 from collections import OrderedDict
 import glob
 from os.path import exists, join as pj, basename, abspath, split, dirname, splitext
-from openalea.deploy.system_dependencies.dependency_builder import is_64bits_python
 import os
 import platform
 import shutil
 import string
 import sys
 import types
+import subprocess
 
-from setuptools.package_index import PackageIndex
-from setuptools.command.easy_install import parse_requirement_arg
-from openalea.deploy.gforge_util import add_private_gforge_repositories
-from openalea.deploy.util import get_repo_list
-from distutils import log
+
+from openalea.misc.gforge_upload import Uploader
+from openalea.deploy.system_dependencies.dependency_builder import is_64bits_python
+from openalea.deploy.system_dependencies.dependency_builder import BE, download_egg
+from openalea.deploy.system_dependencies.dependency_builder import options_common, options_gforge
 
 import locale
 unused, local_enc = locale.getdefaultlocale()
 
-pi = PackageIndex(search_path=[])
-pi.add_find_links(get_repo_list())
 
 err = sys.stderr.write
 
@@ -51,6 +49,7 @@ EGG     = 2**0
 EXE     = 2**1
 ZIPDIST = 2**2
 EXEDIST = 2**3
+TARDIST = 2**12
 MSI     = 2**4
 # Does the egg depend on python version?
 PY_DEP  = 2**5
@@ -66,6 +65,7 @@ ARCH    = 2**10
 # A flag that marks the thing as an innosetup component
 COMPONENT = 2**11
 
+print "TARDIST", TARDIST
 
 # -- Installer and dependency packages description are declared here but are actually defined in the
 # -- conf file.
@@ -86,6 +86,7 @@ installerExtensions = { 0:"",
                         EXE:".exe",
                         EXEDIST:".exe",
                         ZIPDIST:".zip",
+                        TARDIST:".tar.gz",
                         MSI:".msi",
                         }
 
@@ -174,16 +175,19 @@ def find_installer_files(tpp_eggDir, srcDir, pyMaj, pyMin, arch, dependencies):
         if bt(mask, PY_DEP):
             identifier+=pyMaj+"."+pyMin+"*"
         if bt(mask, MSI): identifier+=".msi"
+        elif bt(mask, EXE): identifier+=".exe"
         elif bt(mask, EXEDIST): 
             identifier+=".exe"
             dir_ = tpp_eggDir
         elif bt(mask, ZIPDIST): 
             identifier+=".zip"
+            dir_ = tpp_eggDir        
+        elif bt(mask, TARDIST): 
+            identifier+=".tar.gz"
             dir_ = tpp_eggDir
         elif bt(mask, EGG): 
             identifier+=".egg"
-            dir_ = tpp_eggDir
-        elif bt(mask, EXE): identifier+=".exe"
+            dir_ = tpp_eggDir        
         else:
             raise Exception("Unknown installer type: " + pk +":"+str(mask))
             
@@ -287,6 +291,7 @@ def generate_pascal_test_install_code(dependencies):
                 if bt(mask, MSI): template = python_package_ti_template_msi
                 elif bt(mask, EXEDIST): template = python_package_ti_template_zipdist
                 elif bt(mask, ZIPDIST): template = python_package_ti_template_zipdist
+                elif bt(mask, TARDIST): template = python_package_ti_template_zipdist
                 elif bt(mask, EGG): template = python_package_ti_template_egg
                 elif bt(mask, EXE): template = python_package_ti_template_exe
                 else: raise Exception("Unknown installer type: " + pk +":"+str(mask))
@@ -301,6 +306,7 @@ def generate_pascal_test_install_code(dependencies):
                 if bt(mask, MSI): template = python_package_install_template_msi
                 elif bt(mask, EXEDIST): template = python_package_install_template_zipdist
                 elif bt(mask, ZIPDIST): template = python_package_install_template_zipdist
+                elif bt(mask, TARDIST): template = python_package_install_template_zipdist
                 elif bt(mask, EGG): template = python_package_install_template_egg
                 elif bt(mask, EXE): template = python_package_install_template_exe
                 else: raise Exception("Unknown installer type: " + pk +":"+str(mask))
@@ -469,11 +475,24 @@ def processInstaller(mask, runtimeMode):
         return True
     return False                                   
    
-def download_egg(eggname, dir_):
-    print "Downloading %s"%eggname
-    return pi.download(eggname, dir_)
-    
    
+def upload(installer, project, login, passwd, repository):
+        parser = argparse.ArgumentParser()
+        # here we need to have the destination names in agreement with prototype of Uploader class
+        parser.add_argument("--project", default=repository)
+        parser.add_argument("--package", default="FullInstall")
+        parser.add_argument("--release", default=project)
+        parser.add_argument("--login",   default=login)
+        parser.add_argument("--password", default=passwd)
+        parser.add_argument("--mode",    default="add")
+        parser.add_argument("--dry-run",  default=False)
+        parser.add_argument("--glob",     default=installer)
+        parser.add_argument("--non-interactive", action="store_true", default=True)
+
+        opts = parser.parse_args("")
+        upld = Uploader(opts)
+        return upld.run()
+        
 ######################
 # MAIN AND RELATIVE  #
 ######################
@@ -540,13 +559,19 @@ def parse_arguments():
                         type=_parse_dict_string)
     
     parser.add_argument("--confFile", "-c", default=None, help="Configuration file for to build with", type=abspath)
+    
+    
        
-    parser.add_argument("--private-packages", "-g", action="store_const", const=True, default=False, help="Use private packages from gforge.")
-    parser.add_argument("--login",  default=None, help="login to connect to GForge")
-    parser.add_argument("--passwd", default=None, help="password to connect to GForge")
        
     parser.add_argument("project", default="openalea", help="Which project to build installer for", choices=["openalea", "vplants", "alinea"])
     
+    parser = options_common(parser)
+    parser = options_gforge(parser)
+    parser.add_argument("--upload", "-u", action="store_const", const=True, default=False, 
+                        help="Upload result to gforge ")     
+    parser.add_argument("--release", "-r", action="store_const", const=True, default=False, 
+                        help="If 'upload' is specified, uploads to openalea repository instead of private vplants.") 
+                        
     return parser.parse_args()
 
 
@@ -590,16 +615,17 @@ def main():
     dependencies = OrderedDict( (pk, [mask, None, None]) for pk, (mask,) in thirdPartyPackages  \
                                 if processInstaller(mask, args.runtime) )
 
+    # Configure BE for gforge operations
+    BE.set_options( vars(args) )
                                 
     # -- if args.fetch_online is True, this means that we will look for eggs on PYPI and GForge.
-    #   - if args.private_packages is True, we add private gforge packages.
+    #   - if args.gforge is True, we add private gforge packages.
     #   - TODO! Be smart and don't download if already here!
     if args.fetch_online:
-        log.set_verbosity(1)
         dldir = pj(args.outDir, "dl_eggs")
         prepare_working_dir(dldir, no_del=True)
-        if args.private_packages:
-            add_private_gforge_repositories(args.login, args.passwd)
+        # if args.gforge:
+            # add_private_gforge_repositories(args.login, args.passwd)
         for egg, info in dependencies.iteritems():
             if not bt(info[0], EGG):
                 continue
@@ -630,8 +656,21 @@ def main():
     proj_egg_pths = get_project_eggs(args.arch, args.eggGlobs, args.outDir, args.srcDir)
     gen = configure_inno_setup(appname, appversion, dependencies, args, funcs, proj_egg_pths)
     print "Done, please check the generated file:", gen
-
     
+    print "Now compiling",    
+    if subprocess.call("iscc.exe "+gen, shell=True, env=os.environ):
+        return False
+    
+    if args.upload:
+        print "Uploading the installer ",
+        if args.release:
+            print "to openalea"
+            upload( pj(args.outDir,"Output", appname+"*-Installer-*"), args.project, args.login, args.passwd, "openalea")
+        else:
+            print "to vplants"
+            upload( pj(args.outDir,"Output", appname+"*-Installer-*"), args.project, args.login, args.passwd, "vplants")
+    
+
     
 if __name__ == "__main__":
     main()

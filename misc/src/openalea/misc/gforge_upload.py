@@ -96,6 +96,7 @@ class Uploader(object):
         self.info()
         rc_userid, rc_passwd = find_login_passwd()
         self.login = self.login or rc_userid
+        self.password = self.password or rc_passwd
 
         self.server.login(self.login, self.password)
         if server.session is None:

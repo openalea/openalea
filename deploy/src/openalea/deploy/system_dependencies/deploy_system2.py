@@ -16,16 +16,17 @@
 #
 ###############################################################################
 
-from dependency_builder import MSingleton, Tool, BaseBuilder, BuildEnvironment
+from dependency_builder import MSingleton, Tool, BaseBuilder, BuildEnvironment, BE
 from dependency_builder import create_metabuilder, build_epilog
 from dependency_builder import options_metabuilders, options_common, options_gforge
-from dependency_builder import exe_ext
+from dependency_builder import exe_ext, makedirs, download, download_egg, setuptools, openalea_deploy
 from collections import deque, OrderedDict
 import argparse
 import platform
 import subprocess
 import sys
-from os.path import join as pj
+import urlparse
+from os.path import join as pj, isdir
 
 
 
@@ -113,7 +114,8 @@ class MPlatformAPI(MSingleton):
         first = cls.get()
         c_o_r = [first]
         c_o_r += [api_cls for api_cls in cls.apis.itervalues() \
-                  if api_cls!=first and not issubclass(api_cls, NativePackageAPI)]
+                  if api_cls!=first and \
+                  not issubclass(api_cls, NativePackageAPI)] #because this should be "first"
         
         action_men = OrderedDict()
         
@@ -123,15 +125,25 @@ class MPlatformAPI(MSingleton):
             handled, to_inst = api.decanonify(*to_inst)
             action_men[api] = handled
 
-        print "The", packages, "will be installed:"
+        print "The packages will be installed:"
         for api, handled in action_men.iteritems():
-            print "\t - using", api.__class__.__name__, "for", handled
+            print "\t - using", api.__class__.__name__, "for"
+            for h in handled:
+                print "\t\t", h
 
         if len(to_inst):
-            print "Will NOT install", to_inst, "(couldn't find any way to install it)"
+            print "Will NOT install these (couldn't find any way to install them) :"
+            for p in to_inst:
+                print "\t", p
+                
+        if not BE.options.get("yes_to_all") and raw_input("Do you want to proceed? (y/n):").lower() != "y":
+            return False
 
         for api, handled in action_men.iteritems():
-            print "Using", api.__class__.__name__
+            apiName = api.__class__.__name__
+            print "Using", apiName
+            if not BE.options.get("yes_to_all") and BE.options.get("confirm_each") and raw_input("Install the %s group? (y/n):"%apiName).lower()=="n":
+                continue
             if api.install_packages(*handled) == False:
                 return False
         return True
@@ -145,6 +157,28 @@ class Egg(object):
         return repr(self.spec)
     def __hash__(self):
         return hash(self.spec)
+    def __eq__(self, other):
+        return self.spec.__eq__(other.spec)    
+    def __ne__(self, other):
+        return self.spec.__ne__(other.spec)
+        
+class WinInst(object): #for exes and msi
+    def __init__(self, url, ez_name=None):
+        self.url = url
+        self.ez_name = ez_name or urlparse.urlsplit(url).path.split("/")[-1]
+    def __str__(self):        
+        if BE.verbose:
+            return self.url+ " => " + self.ez_name
+        else:
+            return self.ez_name
+    def __repr__(self):
+        return "WinInst(" + repr(self.url) + ", " + repr(self.ez_name) + ")"
+    def __hash__(self):
+        return hash(self.ez_name)
+    def __eq__(self, other):
+        return self.ez_name.__eq__(other.ez_name)    
+    def __ne__(self, other):
+        return self.spec.__ne__(other.ez_name)
 
 class NA(object):
     """Use this in a packagemap:
@@ -164,7 +198,9 @@ class PlatformAPI(object):
     def __init__(self):
         # A map to translate from canonical name
         # to distribution name.
-        self.packagemap = {}
+        deps = [ dep for deps in get_canonical_dependency_tree().itervalues() for dep in deps \
+                 if dep not in ("openalea", "vplants", "alinea") ]
+        self.packagemap = dict.fromkeys( deps, NA )       
 
     def update(self, other):
         self.packagemap.update(other)    
@@ -173,15 +209,15 @@ class PlatformAPI(object):
         raise NotImplementedError
         
     def decanonify( self, *packages ):
-        handled = []
-        not_handled = []
+        handled = set()#[]
+        not_handled = set()#[]
         for pkg in packages:
             deca = self.packagemap[pkg]
             if type(deca) in self.handled_decanofied_types:
-                handled.append(deca)
+                handled.add(deca)
             else:
-                not_handled.append(pkg)
-        return handled, not_handled
+                not_handled.add(pkg)
+        return list(handled), list(not_handled)
         
 
 class BaseEggPackageAPI(PlatformAPI, object):
@@ -189,19 +225,32 @@ class BaseEggPackageAPI(PlatformAPI, object):
     def install_packages(self, *packages):
         inst = openalea_deploy().get_path()
         if inst:
-            inst = pj(inst, "alea_install%s -g"%exe_ext)
+            if BE.options.get("gforge"):
+                inst = pj(inst, "alea_install%s -g"%exe_ext)
+            else:
+                inst = pj(inst, "alea_install%s "%exe_ext)
         else:
             inst = setuptools().get_path()
             if inst:
                 inst = pj(inst, "easy_install%s"%exe_ext)
             else:
                 return False
+        tempdir = BE.options.get("dldir")
+        if not isdir(tempdir):
+            makedirs(tempdir)        
         for pkg in packages:
-            cmd = inst + " " + str(pkg)
-            print cmd
+            # first download:
+            if not download_egg(pkg.spec, tempdir):
+                return False
+            if BE.options.get("dl_only"):
+                print "skipping installation"
+                continue
+            cmd = inst + " -i "+ tempdir + " -N " + pkg.spec
+            print cmd            
             if subprocess.call(cmd, shell=True):
                 return False
         return True
+        
 
 class NativePackageAPI(PlatformAPI, object):
     """This API uses the distributions installation
@@ -217,6 +266,34 @@ class NativePackageAPI(PlatformAPI, object):
             return False
         return True        
 
+
+class BaseWindowsPackageAPI(NativePackageAPI):
+    handled_decanofied_types = set([WinInst])
+    
+    def install_packages(self, *packages):
+        tempdir = BE.options.get("dldir")
+        if not isdir(tempdir):
+            makedirs(tempdir)
+        for pkg in packages:
+            assert isinstance(pkg, WinInst)
+            # First we download to pkg_pth, then we install
+            pkg_pth = pj(tempdir, pkg.ez_name)
+            if not download(pkg.url, pkg.ez_name, pkg_pth):
+                return False
+            if BE.options.get("dl_only"):
+                print "skipping installation"
+                continue
+            name, ext = pkg.ez_name.lower().split(".")
+            if ext == "exe":
+                if subprocess.call(pkg_pth, shell=True):
+                    return False
+            elif ext == "msi":
+                if subprocess.call("msiexec /i "+pkg_pth):
+                    return False
+            else:
+                print "trying to install %s but found no way to do so."%pkg_pth
+        return True   
+           
         
 def get_dependencies(package):
         dep_tree = get_canonical_dependency_tree()
@@ -268,7 +345,7 @@ def get_canonical_dependency_tree():
 # -- our dependency tree --
 __canonical_dependencies = {
     "openalea" : ["pyqt4", "numpy", "scipy", "matplotlib", 
-                  "pyqscintilla", "setuptools", "pil", "soappy"],
+                  "pyqscintilla", "setuptools", "pil", "soappy", "pylsm", "pylibtiff"],
     "vplants"  : [  "ann-dev",
                     "bison-dev",
                     "boostmath",
@@ -282,6 +359,7 @@ __canonical_dependencies = {
                     "glut",
                     "glut-dev",
                     "nose-dev",
+                    "networkx",
                     "openalea",
                     "pyopengl",
                     "pyqt4",
@@ -298,7 +376,8 @@ __canonical_dependencies = {
     "alinea"   : ["vplants", "openalea"]
 }
 
-
+if "win32" in sys.platform:
+    __canonical_dependencies["openalea"].append("pywin32")
 
 
 #################################################
@@ -321,9 +400,11 @@ class EggPackageAPI(BaseEggPackageAPI):
                      "glut" : NA,
                      "glut-dev" : NA,
                      "matplotlib" : Egg("matplotlib"),
+                     "networkx" : Egg("networkx"),
                      "nose-dev" : Egg("nose"),
                      "numpy" : Egg("numpy"),
                      "pil" : Egg("PIL"),
+                     "pylsm" : Egg("pylsm"),
                      "pyopengl": Egg("pyopengl"),
                      "pyqt4" : Egg("qt4"),
                      "pyqt4-dev" : Egg("qt4_dev"),
@@ -340,6 +421,8 @@ class EggPackageAPI(BaseEggPackageAPI):
                      "soappy" : Egg("soappy"),
                      "svn-dev" : NA,
              })
+             
+
         
 class Ubuntu(NativePackageAPI):
     install_cmd = "apt-get install"
@@ -464,6 +547,23 @@ class Fedora_16(Fedora):
         Fedora.__init__(self)
         self.update({"ann-dev": "ann-devel"})
 
+
+class Windows(BaseWindowsPackageAPI):
+    def __init__(self):
+        BaseWindowsPackageAPI.__init__(self)
+        self.update({
+                     "python" : WinInst("http://python.org/ftp/python/2.7.2/python-2.7.2.msi"),
+                     "pywin32" : WinInst("http://freefr.dl.sourceforge.net/project/pywin32/pywin32/Build%20217/pywin32-217.win32-py2.7.exe"),
+                     "matplotlib" : WinInst("http://freefr.dl.sourceforge.net/project/matplotlib/matplotlib/matplotlib-1.1.0/matplotlib-1.1.0.win32-py2.7.exe"),
+                     "numpy" : WinInst("http://freefr.dl.sourceforge.net/project/numpy/NumPy/1.6.1/numpy-1.6.1-win32-superpack-python2.7.exe"),
+                     "pil" : WinInst("http://effbot.org/media/downloads/PIL-1.1.7.win32-py2.7.exe"),
+                     "pyopengl": WinInst("http://pypi.python.org/packages/any/P/PyOpenGL/PyOpenGL-3.0.1.win32.exe#md5=513cc194af65af4c5a640cf9a1bd8462"),
+                     "setuptools" : WinInst("http://pypi.python.org/packages/2.7/s/setuptools/setuptools-0.6c11.win32-py2.7.exe#md5=57e1e64f6b7c7f1d2eddfc9746bbaf20"),
+                     "scipy" : WinInst("http://freefr.dl.sourceforge.net/project/scipy/scipy/0.10.1/scipy-0.10.1-win32-superpack-python2.7.exe"),
+                     "svn-dev" : WinInst("http://freefr.dl.sourceforge.net/project/win32svn/1.6.9/Setup-Subversion-1.6.9.msi")
+             })
+
+
              
 #################################################
 # ----------- Main and Friends ---------------- #
@@ -472,16 +572,6 @@ class Fedora_16(Fedora):
 # infrastructure.
 
 MDeploy = create_metabuilder("deploy")
-
-class setuptools(Tool):
-    installable    = False
-    exe            = "easy_install"+exe_ext
-    default_paths  = [ Tool.PyExecPaths, "/usr/bin" ]
-
-class openalea_deploy(Tool):
-    installable    = False
-    exe            = "alea_install"+exe_ext
-    default_paths  = [ Tool.PyExecPaths, "/usr/bin" ]
 
 class BaseDepBuilder(BaseBuilder, object):
     __metaclass__  = MDeploy
@@ -529,12 +619,20 @@ class DepBuilder(BaseDepBuilder):
         
 def options_installer(parser):
     g = parser.add_argument_group("System deploy options")
-    g.add_argument("--no-rt",  action="store_const", default=False, const=True, 
+    g.add_argument("--confirm-each", action="store_true", 
+                   help="User must confirm each group of packages to install. default=False")
+    g.add_argument("--dldir" , default="system_deploy2_temp",
+                   help="Directory where downloads will be stored, if any.")
+    g.add_argument("--no-rt",  action="store_true", 
                    help="Do not install runtime dependencies.")
-    g.add_argument("--no-dev",  action="store_const", default=False, const=True, 
+    g.add_argument("--no-dev",  action="store_true",
                    help="Do not install development dependencies.")
+    g.add_argument("--dl-only", "-x", action="store_true", 
+                   help="Download dependencies but do not install them.")
+    g.add_argument("--yes-to-all", "-y", action="store_true",
+                   help="Download dependencies but do not install them.")
     g.add_argument("package", default="openalea", choices=["openalea", "vplants", "alinea"], 
-                   help="Do not install development dependencies.")
+                   help="The package to install dependencies for.")
     return parser
     
 def parse_arguments(metabuilders):

@@ -73,7 +73,6 @@ from os.path import join as pj, splitext, getsize, exists, abspath, split, dirna
 from collections import namedtuple, OrderedDict, defaultdict
 from re import compile as re_compile
 
-
 #################################
 # Some Utilities - Path Joining #
 #################################
@@ -203,7 +202,10 @@ def download(url, easy_name, arch_path):
         if bytes == 0:
             raise urllib2.URLError("Url doesn't point to an existing resource.")
         progress= float(bk)/(bytes/bksize) * 100
-        sys.stdout.write(("Dl %s to %s: %.1f %%"%(url, easy_name, progress))+"\r")
+        presentation_url = url[:]
+        if len(presentation_url) >= 100:
+            presentation_url = url[:25]+"[...]"+url[-25:]
+        sys.stdout.write(("Dl %s to %s: %.1f %%"%(presentation_url, easy_name, progress))+"\r")
         sys.stdout.flush()
 
     # get the size of the ressource we're about to download
@@ -260,6 +262,33 @@ def unpack(arch, where):
         tarf.extractall( path=where )
     print "done"
     return True
+
+#####################
+# Playing with eggs #  
+#####################
+try:
+    from setuptools.package_index import PackageIndex
+    from openalea.deploy.gforge_util import add_private_gforge_repositories
+    from openalea.deploy.util import get_repo_list
+    from distutils import log
+
+    pi = PackageIndex(search_path=[])
+    pi.add_find_links(get_repo_list())
+    can_egg_download = True
+except:
+    can_egg_download = False
+    
+def download_egg(eggname, dir_):
+    """Download an egg to a specific place"""
+    if can_egg_download:
+        print "Downloading %s"%eggname
+        if BE.options.get("gforge"):
+            add_private_gforge_repositories(BE.options.get("login"), BE.options.get("passwd"))
+        log.set_verbosity(1)
+        return pi.download(eggname, dir_)
+    else:
+        print "Oups: Egg download in not available cause setuptools (or distribute) is not installed"
+        return False
 
 ##################################
 # File list digging and mangling #
@@ -496,9 +525,11 @@ class Tool(object):
 
     @memoize("path")
     def get_path(self, no_install=False):
-        print "Looking for %s path"%self.name
+        verbose = BE.verbose
+        if verbose:
+            print "Looking for %s path"%self.name
         pth = self._get_path(no_install)
-        if pth:
+        if pth and verbose:
             print "\tGot it:", pth
         return pth
 
@@ -667,7 +698,8 @@ class Compiler_(object):
         except Exception, e:
             v = r"c:\mingw\bin"
 
-        print "Using MingW path:", v
+        if BE.verbose:
+            print "Using MingW path:", v
         return v
 
     def version_gt(self, version):
@@ -742,9 +774,13 @@ class BuildEnvironment(object):
 
     def set_options(self, options):
         self.options = options.copy()
-        Compiler.set_options(options)
-        self.tools = options["tools"][:]
+        Compiler.set_options(options)        
+        self.tools = options.get("tools",[])[:]
         self.init()
+        
+    @property
+    def verbose(self):
+        return self.options.get("verbose")
 
     def set_metabuilders(self, metabuilders):
         self.metabuilders = metabuilders[:]
@@ -759,14 +795,14 @@ class BuildEnvironment(object):
         self.__fix_sys_path()
 
         if is_64bits_python():
-            print "Doing a 64 bits compilation because we are using a 64 bits Python."
+            if self.verbose: print "Doing a 64 bits compilation because we are using a 64 bits Python."
             if not Compiler.get_default_target() == 64:
                 print "Compiler is not a 64 bits compiler. Can it cross-compile?"
                 if not Compiler.can_cross_compile():
                     print "Cannot cross compile."
                     raise Exception("No compiler found for Windows 64 bits")
         else:
-            print "Doing a 32 bits compilation because we are using a 32 bits Python."
+            if self.verbose: print "Doing a 32 bits compilation because we are using a 32 bits Python."
             if not Compiler.get_default_target() == 32:
                 print "Compiler is not a 32 bits compiler"
                 raise Exception("No compiler found for Windows 64 bits")
@@ -1487,8 +1523,16 @@ class bisonflex(Tool):
     exe            = "bison.exe"
 
 
+class setuptools(Tool):
+    installable    = False
+    exe            = "easy_install"+exe_ext
+    default_paths  = [ Tool.PyExecPaths, "/usr/bin" ]
 
-
+    
+class openalea_deploy(Tool):
+    installable    = False
+    exe            = "alea_install"+exe_ext
+    default_paths  = [ Tool.PyExecPaths, "/usr/bin" ]
 
 
 #################################
@@ -1552,6 +1596,7 @@ def options_dep_build(parser):
 
 def options_gforge(parser):
     g = parser.add_argument_group("GForge options")
+    g.add_argument("--gforge",  action="store_const", const=True, default=False, help="Use the GForge")
     g.add_argument("--login",  default=None, help="Login to connect to GForge")
     g.add_argument("--passwd", default=None, help="Password to connect to GForge")
     return parser
