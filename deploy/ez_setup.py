@@ -91,8 +91,13 @@ def use_setuptools(
         import setuptools; setuptools.bootstrap_install_from = egg
     try:
         import pkg_resources
-    except ImportError:
-        return do_download()       
+        import setuptools
+        if setuptools.__version__ != version:
+            raise Exception
+        return 
+    except:
+        return do_download()        
+        
     try:
         pkg_resources.require("setuptools>="+version); return
     except pkg_resources.VersionConflict, e:
