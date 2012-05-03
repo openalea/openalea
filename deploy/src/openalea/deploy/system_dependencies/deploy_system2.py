@@ -198,8 +198,7 @@ class PlatformAPI(object):
     def __init__(self):
         # A map to translate from canonical name
         # to distribution name.
-        deps = [ dep for deps in get_canonical_dependency_tree().itervalues() for dep in deps \
-                 if dep not in ("openalea", "vplants", "alinea") ]
+        deps = get_all_deps()
         self.packagemap = dict.fromkeys( deps, NA )       
 
     def update(self, other):
@@ -338,6 +337,10 @@ def get_dependencies(package):
         
     
 # --------------------------------------------------------------------------- #
+def get_all_deps():
+    return [ dep for deps in get_canonical_dependency_tree().itervalues() for dep in deps \
+            if dep not in ("openalea", "vplants", "alinea") ]
+            
 def get_canonical_dependency_tree():
     """Returns a copy of the dependency tree"""
     return __canonical_dependencies.copy()
@@ -422,8 +425,6 @@ class EggPackageAPI(BaseEggPackageAPI):
                      "svn-dev" : NA,
              })
              
-
-        
 class Ubuntu(NativePackageAPI):
     install_cmd = "apt-get install"
 
@@ -583,9 +584,13 @@ class BaseDepBuilder(BaseBuilder, object):
     
     required_tools = [setuptools, openalea_deploy]
     
-    def _install(self):
+    def _install(self):    
         pkg = self.options["package"]
+        all_pkgs = get_all_deps()
         dependencies = get_dependencies(pkg)
+        for to_skip in self.options["skip_inst"]:
+            assert to_skip in all_pkgs
+            dependencies.remove(to_skip)
         
         #split dependencies into dev and rt
         rt  = []
@@ -630,7 +635,9 @@ def options_installer(parser):
     g.add_argument("--dl-only", "-x", action="store_true", 
                    help="Download dependencies but do not install them.")
     g.add_argument("--yes-to-all", "-y", action="store_true",
-                   help="Download dependencies but do not install them.")
+                   help="Download dependencies but do not install them.")    
+    g.add_argument("--skip-inst", default="",
+                   help="name of packages to download but not to install (comma seperated).")
     g.add_argument("package", default="openalea", choices=["openalea", "vplants", "alinea"], 
                    help="The package to install dependencies for.")
     return parser
@@ -650,6 +657,7 @@ def main():
     metabuilders = [MDeploy]
     args, tools = parse_arguments(metabuilders)
 
+    args.skip_inst = args.skip_inst.split(",")
     options = vars(args)
     options["tools"] = tools
     options["pass_path"]=True
