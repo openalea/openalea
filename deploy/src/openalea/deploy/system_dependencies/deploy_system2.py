@@ -347,6 +347,7 @@ def get_canonical_dependency_tree():
 
 # -- our dependency tree --
 __canonical_dependencies = {
+    "soappy" : ["fpconst", "wstools"], 
     "openalea" : ["pyqt4", "numpy", "scipy", "matplotlib", 
                   "pyqscintilla", "setuptools", "pil", "soappy", "pylsm", "pylibtiff"],
     "vplants"  : [  "ann-dev",
@@ -400,6 +401,7 @@ class EggPackageAPI(BaseEggPackageAPI):
                      "cgal-dev" : Egg("cgal"),
                      "compilers-dev" : Egg("mingw==5.1.4_4b"),
                      "flex-dev" : Egg("bisonflex==2.4.1_2.5.35"),
+                     "fpconst" : Egg("fpconst==0.7.2"),
                      "glut" : NA,
                      "glut-dev" : NA,
                      "matplotlib" : Egg("matplotlib"),
@@ -423,6 +425,7 @@ class EggPackageAPI(BaseEggPackageAPI):
                      "scons-dev" : Egg("scons"),
                      "soappy" : Egg("soappy"),
                      "svn-dev" : NA,
+                     "wstools" : Egg("wstools==0.3"),
              })
              
 class Ubuntu(NativePackageAPI):

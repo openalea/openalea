@@ -22,6 +22,8 @@ thirdPartyPackages = [  ("python", (MSI|RUNTIME|DEVELOP,)),
                         ("pil", (EXE|PY_DEP|RUNTIME|TEST_ME,)),
                         ("pylsm", (TARDIST|RUNTIME|TEST_ME,)),
                         ("soappy", (TARDIST|RUNTIME,)),
+                        ("wstools", (TARDIST|RUNTIME,)),
+                        ("fpconst", (TARDIST|RUNTIME,)),
                         ("nose", (TARDIST|DEVELOP,)),
                         #("pylibtiff", (EGG|PY_DEP|ARCH|RUNTIME|TEST_ME,)),
                          ]
