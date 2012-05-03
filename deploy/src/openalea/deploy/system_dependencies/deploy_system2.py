@@ -589,6 +589,7 @@ class BaseDepBuilder(BaseBuilder, object):
         all_pkgs = get_all_deps()
         dependencies = get_dependencies(pkg)
         for to_skip in self.options["skip_inst"]:
+            print "removing", to_skip, "from dependencies"
             assert to_skip in all_pkgs
             dependencies.remove(to_skip)
         
