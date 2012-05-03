@@ -26,7 +26,7 @@ import platform
 import subprocess
 import sys
 import urlparse
-from os.path import join as pj, isdir
+from os.path import join as pj, isdir, splitext
 
 
 
@@ -283,7 +283,7 @@ class BaseWindowsPackageAPI(NativePackageAPI):
             if BE.options.get("dl_only"):
                 print "skipping installation"
                 continue
-            name, ext = pkg.ez_name.lower().split(".")
+            name, ext = splitext(pkg.ez_name.lower())
             if ext == "exe":
                 if subprocess.call(pkg_pth, shell=True):
                     return False
