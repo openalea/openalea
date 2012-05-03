@@ -284,10 +284,10 @@ class BaseWindowsPackageAPI(NativePackageAPI):
                 print "skipping installation"
                 continue
             name, ext = splitext(pkg.ez_name.lower())
-            if ext == "exe":
+            if ext == ".exe":
                 if subprocess.call(pkg_pth, shell=True):
                     return False
-            elif ext == "msi":
+            elif ext == ".msi":
                 if subprocess.call("msiexec /i "+pkg_pth):
                     return False
             else:
