@@ -244,7 +244,7 @@ class BaseEggPackageAPI(PlatformAPI, object):
             if BE.options.get("dl_only"):
                 print "skipping installation"
                 continue
-            cmd = inst + " -i "+ tempdir + " -N " + pkg.spec
+            cmd = inst + " -i "+ tempdir + " " + pkg.spec
             print cmd            
             if subprocess.call(cmd, shell=True):
                 return False
