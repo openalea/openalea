@@ -19,6 +19,7 @@ thirdPartyPackages = [   ("python", (NOT_INSTALLABLE|RUNTIME|DEVELOP,)), #always
                          ("pyqglviewer", (EGG|ARCH|PY_DEP|RUNTIME|DEVELOP|TEST_ME,)),
                          ("qt4_dev", (EGG|ARCH|DEVELOP|TEST_ME,)),
                          ("mingw", (EGG|ARCH|DEVELOP,)),                       
+                         ("networkx", (EGG|PY_DEP|RUNTIME|DEVELOP|TEST_ME,)),                       
                          ]                         
                          
 

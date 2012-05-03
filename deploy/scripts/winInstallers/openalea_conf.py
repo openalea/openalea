@@ -20,7 +20,9 @@ thirdPartyPackages = [  ("python", (MSI|RUNTIME|DEVELOP,)),
                         ("scipy", (EXE|PY_DEP|ARCH|RUNTIME|TEST_ME,)),
                         ("matplotlib", (EXE|PY_DEP|ARCH|RUNTIME|TEST_ME,)),                         
                         ("pil", (EXE|PY_DEP|RUNTIME|TEST_ME,)),
-                        ("pylsm", (EGG|PY_DEP|RUNTIME|TEST_ME,)),
+                        ("pylsm", (TARDIST|RUNTIME|TEST_ME,)),
+                        ("soappy", (TARDIST|RUNTIME,)),
+                        ("nose", (TARDIST|DEVELOP,)),
                         #("pylibtiff", (EGG|PY_DEP|ARCH|RUNTIME|TEST_ME,)),
                          ]
                          
