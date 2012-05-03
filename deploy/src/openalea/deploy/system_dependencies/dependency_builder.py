@@ -612,6 +612,9 @@ class Compiler_(object):
 
     default_32_comp = "https://gforge.inria.fr/frs/download.php/29029/MinGW-5.1.4_2-win32.egg"
 
+    def __init__(self):
+        self.options={}
+    
     def set_options(self, options):
         self.options = options.copy()
 
