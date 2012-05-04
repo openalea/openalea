@@ -1103,6 +1103,9 @@ class BaseBuilder(object):
             self.__find_pending_tasks()
         return len(self.pending) != 0
 
+    def get_task_restriction(self):
+        raise NotImplementedError
+        
     def __find_pending_tasks(self):
         tasks = []
         name  = self.name
@@ -1113,7 +1116,13 @@ class BaseBuilder(object):
             # that removes tasks from all_tasks
                 continue
             done   = self.env.is_task_done(name, task)
-            forced = self.env.is_task_forced(name, task)
+            
+            forced = False
+            restriction = self.get_task_restriction()
+            if restriction != None:
+                forced = task in restriction
+            else:
+                forced = self.env.is_task_forced(name, task)
             skip = done and not forced and skippable
             if not skip:
                 tasks.append((task, task_func, skippable))
@@ -1137,9 +1146,9 @@ class BaseBuilder(object):
         proc_str  = "Processing " + self.name
         print "\n",proc_str
         print "="*len(proc_str)
-        print "forced tasks are:", forced_tasks
+        print "forced tasks are:", forced_tasks        
 
-        for task, task_func, skippable in self.pending:
+        for task, task_func, skippable in self.pending:        
             if skippable and not should_process:
                 continue
             # doing unskippable actions like extending python or env PATH.
@@ -1198,6 +1207,9 @@ class BaseProjectBuilder(BaseBuilder, object):
         self.sourcedir = pj( self.env.get_src_path(), splitext(self.download_name)[0] )
         self.installdir = pj( self.env.get_install_path(), splitext(self.download_name)[0] )
 
+    def get_task_restriction(self):
+        return self.options.get("only_action_projs")
+        
     def download_source(self):
         # a proj with a none url implicitely means
         # the sources are already here because some
@@ -1309,7 +1321,8 @@ class BaseEggBuilder(BaseBuilder, object):
     # Task management:
     all_tasks      = OrderedDict([("c",("_configure_script",True)),
                                   ("e",("_eggify",True)),
-                                  ("u",("_upload_egg",True))
+                                  ("u",("_upload_egg",True)),
+                                  ("g",("_copy_egg_in_dir",True)),
                                  ])
     # Only execute these tasks:
     supported_tasks = "".join(all_tasks.keys())
@@ -1352,6 +1365,17 @@ class BaseEggBuilder(BaseBuilder, object):
     def egg_name(cls):
         return cls.__name__.strip("egg_")
 
+    def get_task_restriction(self):
+        return self.options.get("only_action_eggs")
+    
+    def _glob_egg(self):
+        eggs = glob.glob( pj(self.eggdir, "dist", "*.egg") )
+        if len(eggs) == 0:
+            raise Exception("No egg found for "+self.egg_name())
+        elif len(eggs) > 1:
+            raise Exception("Found multiple eggs for "+self.egg_name()+reduce(lambda x,y:x+"\t->%s\n"%y, eggs, "\n"))
+        return eggs[0]    
+        
     @try_except
     def _configure_script(self):
         with open( self.setup_in_name, "r") as input, \
@@ -1368,7 +1392,7 @@ class BaseEggBuilder(BaseBuilder, object):
     def _eggify(self):
         ret     = self.eggify()
         # -- fix file name --
-        eggname = glob.glob( pj(self.eggdir, "dist", "*.egg") )[0]
+        eggname = self._glob_egg()
         dir_, filename = split(eggname)
         pyver   = "-py"+sys.winver
         archver = "-"+sys.platform
@@ -1390,6 +1414,23 @@ class BaseEggBuilder(BaseBuilder, object):
                 return Later
             return ret
         return self.upload_egg()
+        
+    @in_dir("eggdir")
+    @try_except
+    def _copy_egg_in_dir(self):
+        dest_dir = self.options.get("dest_egg_dir")
+        if not dest_dir:
+            print "Will not place egg in a directory"
+            return True
+
+        eggname  = self._glob_egg()
+        destname = pj(dest_dir, split(eggname)[1])
+        if exists(destname):
+            print "removing", destname
+            os.remove(destname)
+        print "copying", eggname, "to", destname
+        shutil.copyfile(eggname, destname)
+        return True
 
     def script_substitutions(self):
         return {}
@@ -1585,13 +1626,19 @@ def options_dep_build(parser):
     g.add_argument("--compiler", "-c", default=None,
                    help="Path to compiler binaries")
     g.add_argument("--only", "-o", default=None, action="append", type=valid_builder,
-                   help="Only process these project/eggs")
+                   help="Only process these project/eggs")    
+    g.add_argument("--only-action-projs", default=None, metavar="PROJECT_ACTIONS",
+                   help="For all projects to be processed, only do this action")
+    g.add_argument("--only-action-eggs", default=None, metavar="EGG_ACTIONS",
+                   help="For all eggs to be processed, only do this action")
     g.add_argument("--jobs", "-j", default=1, type=int,
                    help="Number of jobs during compilation")
     g.add_argument("--no-upload", "-n", action="store_const", const=True, default=False,
                    help="Do not upload eggs to forge")
     g.add_argument("--release", action="store_const", const=True, default=False,
-                   help="Upload eggs to openalea repository or vplants (if False - for testing).")
+                   help="Upload eggs to openalea repository or vplants (if False - for testing).")    
+    g.add_argument("--dest-egg-dir", default=None, type=abspath,
+                   help="Put generated eggs in a directory.")
     return parser
 
 def options_gforge(parser):
@@ -1675,7 +1722,7 @@ def main():
     os.environ["MAKE_FLAGS"] = "-j"+str(args.jobs)
     if args.no_upload:
         del BaseEggBuilder.all_tasks["u"]
-
+        
     if args.python is not None: #use another Python to compile, this is weird, maybe useless.
         python = args.python
         del args.python #or else we will nevert start!
