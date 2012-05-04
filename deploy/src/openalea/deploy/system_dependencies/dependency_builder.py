@@ -1549,7 +1549,7 @@ def build_epilog(metabuilders, dep_build_end=True):
     epilog = ""
     for mbuilder in metabuilders:
         m_name = mbuilder.ez_name
-        epilog = "%s_ACTIONS are a concatenation of flags specifying what actions will be done:\n"%m_name.upper()
+        epilog += "%s_ACTIONS are a concatenation of flags specifying what actions will be done:\n"%m_name.upper()
         for proc, (funcname, skippable) in mbuilder.bases[0].all_tasks.iteritems():
             if skippable:
                 epilog += "\t%s : %s\n"%(proc, funcname.strip("_"))
