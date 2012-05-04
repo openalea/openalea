@@ -121,14 +121,14 @@ def hsv (rgb_col) :
 
 def color_map(val, minval=0, maxval=1, coul1=80, coul2=20):
     """todo"""
-    map = colormap.ColorMap()
+    cmap = colormap.ColorMap(minval=minval, maxval=maxval)
 
     if val is None:
-        return lambda x: map(x, minval, maxval, coul1, coul2)
+        return lambda x: cmap(x, minval, maxval, coul1, coul2)
     elif callable(val):
-        return lambda x: map(val(x), minval, maxval, coul1, coul2)
+        return lambda x: cmap(val(x), minval, maxval, coul1, coul2)
     else:
-        return map(val, minval, maxval, coul1, coul2),
+        return cmap(val, minval, maxval, coul1, coul2),
 
 
 def rgb_color_map(value, minval=0, maxval=1, hue1=0,
