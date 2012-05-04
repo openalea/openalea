@@ -360,6 +360,7 @@ def get_canonical_dependency_tree():
 
 # -- our dependency tree --
 __canonical_dependencies = {
+    "rpy2"   : ["r"],
     "soappy" : ["fpconst", "wstools"], 
     "openalea" : ["pyqt4", "numpy", "scipy", "matplotlib", 
                   "pyqscintilla", "setuptools", "pil", "soappy", "pylsm", "pylibtiff"],
@@ -375,6 +376,7 @@ __canonical_dependencies = {
                     "flex-dev",
                     "glut",
                     "glut-dev",
+                    "gnuplot",
                     "nose-dev",
                     "networkx",
                     "openalea",
@@ -417,6 +419,7 @@ class EggPackageAPI(BaseEggPackageAPI):
                      "fpconst" : Egg("fpconst==0.7.2"),
                      "glut" : NA,
                      "glut-dev" : NA,
+                     "gnuplot" : Egg("gnuplot"),
                      "matplotlib" : Egg("matplotlib"),
                      "networkx" : Egg("networkx"),
                      "nose-dev" : Egg("nose"),
@@ -575,6 +578,7 @@ class Windows(BaseWindowsPackageAPI):
                      "numpy" : WinInst("http://freefr.dl.sourceforge.net/project/numpy/NumPy/1.6.1/numpy-1.6.1-win32-superpack-python2.7.exe"),
                      "pil" : WinInst("http://effbot.org/media/downloads/PIL-1.1.7.win32-py2.7.exe"),
                      "pyopengl": WinInst("http://pypi.python.org/packages/any/P/PyOpenGL/PyOpenGL-3.0.1.win32.exe#md5=513cc194af65af4c5a640cf9a1bd8462"),
+                     "r": WinInst("http://mirror.ibcp.fr/pub/CRAN/bin/windows/base/old/2.14.2/R-2.14.2-win.exe"),
                      "setuptools" : WinInst("http://pypi.python.org/packages/2.7/s/setuptools/setuptools-0.6c11.win32-py2.7.exe#md5=57e1e64f6b7c7f1d2eddfc9746bbaf20"),
                      "scipy" : WinInst("http://freefr.dl.sourceforge.net/project/scipy/scipy/0.10.1/scipy-0.10.1-win32-superpack-python2.7.exe"),
                      "svn-dev" : WinInst("http://freefr.dl.sourceforge.net/project/win32svn/1.6.9/Setup-Subversion-1.6.9.msi")
