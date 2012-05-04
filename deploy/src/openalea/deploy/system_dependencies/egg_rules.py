@@ -79,22 +79,23 @@ class egg_qt4(BaseEggBuilder):
         # dlls are the union of qt dlls and plugins directories (which is actually the same!)
         # qscis apis are recursive from qt4 (need to list all files)        
         qscis    = recursive_glob_as_dict(pysci_.qsci_dir, Pattern.sciapi, strip_keys=True, prefix_key="qsci").items()
+        extra_pyqt4_mods = recursive_glob_as_dict(pj(pyqt4_.install_site_dir,"PyQt4"), Pattern.pyall, strip_keys=True, prefix_key="PyQt4").items()
+        print "laaaaaaaaaaaaaaaajfdshfsdosfdo", extra_pyqt4_mods
         sip_mods = recursive_glob_as_dict(sip_.install_site_dir, Pattern.pyall, strip_keys=True, levels=1).items()
 
         lib_dirs    = {"PyQt4": qt4_.install_dll_dir}
-        package_dir = {"PyQt4": pj(pyqt4_.install_site_dir, "PyQt4"),
-                       "PyQt4.uic": pj(pyqt4_.install_site_dir, "PyQt4", "uic")}
+        package_dir = {"PyQt4": pj(pyqt4_.install_site_dir, "PyQt4")}
         
         from PyQt4 import Qt
         from setuptools import find_packages
         return dict( 
                     VERSION  = Qt.QT_VERSION_STR,
-                    PACKAGES = find_packages(pyqt4_.install_site_dir, "PyQt4"),# ["PyQt4", "PyQt4.uic"],
-                    PACKAGE_DIRS = {"":pyqt4_.install_site_dir}, #package_dir,
+                    PACKAGES = find_packages(pyqt4_.install_site_dir, "PyQt4"),
+                    PACKAGE_DIRS = package_dir,
                     PACKAGE_DATA = {'' : [Pattern.pyext]},
                     
                     LIB_DIRS         = lib_dirs,
-                    DATA_FILES       = qscis+sip_mods,
+                    DATA_FILES       = qscis+sip_mods+extra_pyqt4_mods,
                     INSTALL_REQUIRES = [egg_mingw_rt.egg_name()]
                     )  
                     
@@ -267,7 +268,7 @@ class egg_rpy2(BaseEggBuilder):
         rpy2_ = rpy2()
         return dict(URL          = "http://rpy.sourceforge.net",
                     PACKAGES     = find_packages(rpy2_.installdir,"rpy2"),
-                    PACKAGE_DIRS = { "": rpy2_.installdir },
+                    PACKAGE_DIRS = { "rpy2": pj(rpy2_.installdir, "rpy2") },
                     VERSION      = rpy2_.version+".rev"+rpy2_.revision,
                     PACKAGE_DATA = {'' : [Pattern.pyext]},
                     ) 
