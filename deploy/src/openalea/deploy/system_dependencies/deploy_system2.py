@@ -147,8 +147,11 @@ class MPlatformAPI(MSingleton):
             if api.install_packages(*handled) == False:
                 return False
         return True
+
+class DepSpec(object):
+    pass
         
-class Egg(object):
+class Egg(DepSpec):
     def __init__(self, spec):
         self.spec = spec
     def __str__(self):
@@ -162,7 +165,7 @@ class Egg(object):
     def __ne__(self, other):
         return self.spec.__ne__(other.spec)
         
-class WinInst(object): #for exes and msi
+class WinInst(DepSpec): #for exes and msi
     def __init__(self, url, ez_name=None):
         self.url = url
         self.ez_name = ez_name or urlparse.urlsplit(url).path.split("/")[-1]
@@ -209,13 +212,23 @@ class PlatformAPI(object):
         
     def decanonify( self, *packages ):
         handled = set()#[]
-        not_handled = set()#[]
+        not_handled = set
         for pkg in packages:
-            deca = self.packagemap[pkg]
-            if type(deca) in self.handled_decanofied_types:
-                handled.add(deca)
+            deca_list = self.packagemap[pkg]
+            #make everything a list
+            if isinstance(deca_list, str):
+                deca_list = deca_list.split(" ")
+            elif isinstance(deca_list, DepSpec):
+                deca_list = [deca_list]
+            elif isinstance(deca_list, list):
+                pass
             else:
-                not_handled.add(pkg)
+                raise Exception("Bad dependency type: %s is %s"%(pkg, str(deca_list)))
+            for deca in deca_list:
+                if type(deca) in self.handled_decanofied_types:
+                    handled.add(deca)
+                else:
+                    not_handled.add(pkg)
         return list(handled), list(not_handled)
         
 
@@ -411,7 +424,7 @@ class EggPackageAPI(BaseEggPackageAPI):
                      "pil" : Egg("PIL"),
                      "pylsm" : Egg("pylsm"),
                      "pyopengl": Egg("pyopengl"),
-                     "pyqt4" : Egg("qt4"),
+                     "pyqt4" : [Egg("qt4"), Egg("pyqglviewer")],
                      "pyqt4-dev" : Egg("qt4_dev"),
                      "pyqscintilla" : Egg("qt4"),
                      "qhull" : Egg("qhull"),
