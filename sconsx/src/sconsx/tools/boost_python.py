@@ -32,7 +32,7 @@ class Boost_Python(Boost):
     # -- reimplement this from boost_base.Boost --
     def get_default_flags(self):
         isPosix = isinstance(platform, Posix)
-        return '-ftemplate-depth-100' if isPosix else ''
+        return ' -ftemplate-depth-100 ' if isPosix else ''
 
     # -- reimplement this from boost_base.Boost --
     def get_default_defines(self):
