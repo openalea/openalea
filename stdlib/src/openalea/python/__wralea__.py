@@ -48,8 +48,9 @@ getitem = Factory( name="getitem",
 
                    inputs=[dict(name="obj", interface=None),
                            dict(name="key", interface='IInt', value=0),],
-                   nodemodule="operator",
-                   nodeclass="getitem",
+                   outputs = [dict(name='obj')],
+                   nodemodule="python",
+                   nodeclass="PyGetItem",
                    widgetmodule="python",
                    widgetclass="ListSelectorWidget",
                    )
