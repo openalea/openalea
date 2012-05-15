@@ -28,121 +28,121 @@ msg = "SpatialImage.resolution is deprecated, use SpatialImage.voxelsize"
 rezexc = exceptions.PendingDeprecationWarning(msg)
 
 class SpatialImage (np.ndarray) :
-	"""Associate meta data to np.ndarray
-	"""
-	def __new__ (cls, input_array, voxelsize = None,
-		     vdim = None, info = None, dtype = None, **kwargs) :
-		"""Instantiate a new |SpatialImage|
-		
-		if voxelsize is None, vdim will be used to infer space size and affect
-		a voxelsize of 1 in each direction of space
-		
-		.. warning :: `resolution` keyword is deprecated. Use `voxelsize` instead.
-		
-		:Parameters:
-		 - `cls` - internal python
-		 - `input_array` (array) - data to put in the image
-		 - `voxelsize` (tuple of float) - spatial extension in each direction
-		                                   of space
-		 - `vdim` (int) - size of data if vector data are used
-		 - `info` (dict of str|any) - metainfo
-		"""
-		#if the input_array is 2D we can reshape it to 3D.
-		if input_array.ndim == 2:
-			input_array = input_array.reshape( input_array.shape+(1,) )
-		
-		#initialize datas. For some obscure reason, we want the data
-		#to be F-Contiguous in the NUMPY sense. I mean, if this is not
-		#respected, we will have problems when communicating with
-		#C-Code... yeah, that makes so much sense (fortran-contiguous
-		#to be c-readable...).
-		dtype = dtype if dtype is not None else input_array.dtype
-		if input_array.flags.f_contiguous :
-			obj = np.asarray(input_array, dtype=dtype).view(cls)
-		else :
-			obj = np.asarray(input_array, dtype=dtype, order='F').view(cls)
-		
-		voxelsize = kwargs.get("resolution", voxelsize) #to manage transition
-		if voxelsize is None :
-			voxelsize = (1.,) * 3
-		else :
-			if len(voxelsize) != 3 :
-				raise ValueError("data dimension and voxelsize mismatch")
-		
-		obj.voxelsize = tuple(voxelsize)
-		obj.vdim = vdim if vdim else ( 1 if len(input_array.shape) == 3 else input_array.shape[3] )
-		
-		#set metadata
-		if info is None :
-			obj.info = {}
-		else :
-			obj.info = dict(info)
-		
-		#return
-		return obj
-	
-	def _get_resolution(self):
-		warnings.warn(rezexc)
-		return self.voxelsize
-	
-	def _set_resolution(self, val):
-		warnings.warn(rezexc)
-		self.voxelsize = val
-	
-	resolution = property(_get_resolution, _set_resolution)
-	
-	@property
-	def real_shape(self):
-		return np.multiply(self.shape[:3], self.voxelsize)
+    """Associate meta data to np.ndarray
+    """
+    def __new__ (cls, input_array, voxelsize = None,
+             vdim = None, info = None, dtype = None, **kwargs) :
+        """Instantiate a new |SpatialImage|
+        
+        if voxelsize is None, vdim will be used to infer space size and affect
+        a voxelsize of 1 in each direction of space
+        
+        .. warning :: `resolution` keyword is deprecated. Use `voxelsize` instead.
+        
+        :Parameters:
+         - `cls` - internal python
+         - `input_array` (array) - data to put in the image
+         - `voxelsize` (tuple of float) - spatial extension in each direction
+                                           of space
+         - `vdim` (int) - size of data if vector data are used
+         - `info` (dict of str|any) - metainfo
+        """
+        #if the input_array is 2D we can reshape it to 3D.
+        if input_array.ndim == 2:
+            input_array = input_array.reshape( input_array.shape+(1,) )
+        
+        #initialize datas. For some obscure reason, we want the data
+        #to be F-Contiguous in the NUMPY sense. I mean, if this is not
+        #respected, we will have problems when communicating with
+        #C-Code... yeah, that makes so much sense (fortran-contiguous
+        #to be c-readable...).
+        dtype = dtype if dtype is not None else input_array.dtype
+        if input_array.flags.f_contiguous :
+            obj = np.asarray(input_array, dtype=dtype).view(cls)
+        else :
+            obj = np.asarray(input_array, dtype=dtype, order='F').view(cls)
+        
+        voxelsize = kwargs.get("resolution", voxelsize) #to manage transition
+        if voxelsize is None :
+            voxelsize = (1.,) * 3
+        else :
+            if len(voxelsize) != 3 :
+                raise ValueError("data dimension and voxelsize mismatch")
+        
+        obj.voxelsize = tuple(voxelsize)
+        obj.vdim = vdim if vdim else ( 1 if len(input_array.shape) == 3 else input_array.shape[3] )
+        
+        #set metadata
+        if info is None :
+            obj.info = {}
+        else :
+            obj.info = dict(info)
+        
+        #return
+        return obj
+    
+    def _get_resolution(self):
+        warnings.warn(rezexc)
+        return self.voxelsize
+    
+    def _set_resolution(self, val):
+        warnings.warn(rezexc)
+        self.voxelsize = val
+    
+    resolution = property(_get_resolution, _set_resolution)
+    
+    @property
+    def real_shape(self):
+        return np.multiply(self.shape[:3], self.voxelsize)
 
-	def __array_finalize__ (self, obj) :
-		if obj is None :
-			return
+    def __array_finalize__ (self, obj) :
+        if obj is None :
+            return
 
-		#assert resolution
-		res = getattr(obj, 'voxelsize', None)
-		if res is None :#assert vdim == 1
-			res = (1.,) * len(obj.shape)
+        #assert resolution
+        res = getattr(obj, 'voxelsize', None)
+        if res is None :#assert vdim == 1
+            res = (1.,) * len(obj.shape)
 
-		self.voxelsize = tuple(res)
+        self.voxelsize = tuple(res)
 
-		#metadata
-		self.info = dict(getattr(obj, 'info', {}) )
+        #metadata
+        self.info = dict(getattr(obj, 'info', {}) )
 
-	def clone (self, data) :
-		"""Clone the current image metadata
-		on the given data.
+    def clone (self, data) :
+        """Clone the current image metadata
+        on the given data.
 
-		.. warning:: vdim is defined according to self.voxelsize and data.shape
+        .. warning:: vdim is defined according to self.voxelsize and data.shape
 
-		:Parameters:
-		 - `data` - (array)
+        :Parameters:
+         - `data` - (array)
 
-		:Returns Type: |SpatialImage|
-		"""
-		if len(data.shape) == len(self.voxelsize) :
-			vdim = 1
-		elif len(data.shape) - len(self.voxelsize) == 1 :
-			vdim =data.shape[-1]
-		else :
-			raise UserWarning("unable to handle such data dimension")
+        :Returns Type: |SpatialImage|
+        """
+        if len(data.shape) == len(self.voxelsize) :
+            vdim = 1
+        elif len(data.shape) - len(self.voxelsize) == 1 :
+            vdim =data.shape[-1]
+        else :
+            raise UserWarning("unable to handle such data dimension")
 
-		return SpatialImage(data,self.voxelsize,vdim,self.info)
+        return SpatialImage(data,self.voxelsize,vdim,self.info)
 
-	@classmethod
-	def valid_array(cls, array_like):
-		return isinstance(array_like, (np.ndarray, cls)) and \
-		    array_like.flags.f_contiguous
+    @classmethod
+    def valid_array(cls, array_like):
+        return isinstance(array_like, (np.ndarray, cls)) and \
+            array_like.flags.f_contiguous
 
 
 def empty_image_like(spatial_image):
-	array = np.zeros( spatial_image.shape, dtype=spatial_image.dtype )
-	return SpatialImage(array, spatial_image.voxelsize, vdim=1)
+    array = np.zeros( spatial_image.shape, dtype=spatial_image.dtype )
+    return SpatialImage(array, spatial_image.voxelsize, vdim=1)
 
 
 def null_vector_field_like(spatial_image):
-	array = np.zeros( list(spatial_image.shape)+[3], dtype=np.float32 )
-	return SpatialImage(array, spatial_image.voxelsize, vdim=3)
+    array = np.zeros( list(spatial_image.shape)+[3], dtype=np.float32 )
+    return SpatialImage(array, spatial_image.voxelsize, vdim=3)
 
 def random_vector_field_like(spatial_image, smooth=0, max_=1):
     if spatial_image.vdim == 1:

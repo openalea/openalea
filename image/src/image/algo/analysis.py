@@ -35,9 +35,11 @@ def wall(mask_img,label_id):
     contact = dil - img
     return mask_img[contact]
 
+
 def contact_surface(mask_img,label_id):
     img = wall(mask_img,label_id)
     return set(np.unique(img))
+
 
 def real_indices(slices, resolutions):
     return [ (s.start*r, s.stop*r) for s,r in zip(slices,resolutions)]
@@ -160,7 +162,7 @@ def geometric_median(X, numIter = 50):
     y =(( np.mean(X[0]),np.mean(X[1]),np.mean(X[2]) ))
     convergence=False #boolean testing the convergence toward a global optimum
     dist=[] #list recording the distance evolution
-    
+
     # Minimizing the sum of the squares of the distances between each points in 'X' (cells walls voxels) and the median.
     i=0
     while ( (not convergence) and (i < numIter) ):
@@ -182,7 +184,8 @@ def geometric_median(X, numIter = 50):
             #~ print abs(dist[i]-dist[i-2]), convergence
         i += 1
     if i == numIter:
-        print "The Weiszfeld's algoritm did not converged after",numIter,"iterations for cell #",c,"!!!!!!!!!"
+        import warnings
+        warnings.warn("The Weiszfeld's algoritm did not converged after"+str(numIter)+"iterations for cell #"+str(c)+"!!!!!!!!!")
     #When convergence or iterations limit is reached we assume that we found the median.
 
     return np.array(y)
@@ -204,24 +207,31 @@ def OLS_wall(xyz):
     return ols_fit
 
 
-def euclidean_sphere(size):
-    """
-    Generate a euclidean sphere for binary morphological operations
+def integer(x):
+    return int(x)
 
+
+def closest_from_A(A,pts2search):
+    """
+    Find -in 3D- the closest point from A in a list of points 'pts2search'.
+    Return the 3D coordinates of the closest point from A.
+    
     :Parameters:
-        - `size` (int) - the shape of the euclidean sphere = 2*size + 1.
-
-    :Returns:
-        - Euclidean sphere which may be used for binary morphological operations, with shape equal to 2*size + 1.
+        - 'A': 3D coordinates of the point of interest (xA, yA, zA);
+        - 'pts2search' : list of 3D coordinates
     """
-    n = int(2*size + 1)
-    sphere = np.zeros((n,n,n),np.bool)
-    for x in range(n):
-        for y in range(n):
-            for z in range(n):
-                if (x-size)**2+(y-size)**2+(z-size)**2<=size**2:
-                    sphere[x,y,z]=True
-    return sphere
+    import math
+    import copy
+    xA, yA, zA = A
+    min_dist = tuple()
+    dist_1 = float('inf')
+    for k in pts2search:
+        xB, yB, zB = k
+        dist_2 = math.sqrt((xA-xB)**2+(yA-yB)**2+(zA-zB)**2)
+        if dist_2 < dist_1:
+            pts_min_dist = k
+            dist_1 = copy.copy(dist_2)
+    return pts_min_dist
 
 
 class SpatialImageAnalysis(object):
@@ -251,6 +261,10 @@ class SpatialImageAnalysis(object):
         self.principal_curvatures_directions = {} # Jonathan : 05.04.2012
         self.principal_curvatures_origin = {} # Jonathan : 05.04.2012
         self.external_wall_geometric_median = {}
+        if image.info.has_key("filename"):
+            self.filename = image.info["filename"] # Jonathan : 14.05.2012
+        else:
+            self.filename = None
 
     def labels(self):
         """
@@ -583,7 +597,8 @@ class SpatialImageAnalysis(object):
         """
         # -- We first make sure that labels are neighbors:
         if label_2 not in self.neighbors(label_1):
-            print "You got it wrong dude,",label_1 ,"and", label_2,"are not neighbors!!"
+            import warnings
+            warnings.warn("You got it wrong dude,"+str(label_1)+"and"+str(label_2)+"are not neighbors!!")
 
         dilated_bbox = dilation( self.boundingbox(label_1) )
         dilated_bbox_img = self.image[dilated_bbox]
@@ -854,7 +869,8 @@ class SpatialImageAnalysis(object):
         if 1 in labels: labels.remove(1)
         if 0 in labels: labels.remove(0)
         if len(labels)==1:
-            print "Only one cell left in your image, we won't take it out !"
+            import warnings
+            warnings.warn("Only one cell left in your image, we won't take it out !")
             return self.__init__(self.image)
         
         border_cells = self.border_cells()
@@ -878,7 +894,7 @@ class SpatialImageAnalysis(object):
 
 
     def __principal_curvature_parameters_CGAL(func):
-        def wrapped_function(self, vids = None, radius = 40, verbose = False):
+        def wrapped_function(self, vids = None, radius = 60, verbose = False):
             """
             """
             # -- We start by taking out the border cells (we could keep them and to prevent the computation of the curvature for neighbours of margin cells)
@@ -888,7 +904,8 @@ class SpatialImageAnalysis(object):
             # -- If 'vids' is an integer... 
             if isinstance(vids,int):
                 if (vids not in self.L1()): # - ...but not in the L1 list, there is nothing to do!
-                    print "Cell",vids,"is not in the L1. We won't compute it's curvature."
+                    import warnings
+                    warnings.warn("Cell"+str(vids)+"is not in the L1. We won't compute it's curvature.")
                     return 0
                 else: # - ... and in the L1 list, we make it iterable.
                     vids=[vids]
@@ -898,10 +915,12 @@ class SpatialImageAnalysis(object):
                 tmp = copy.deepcopy(vids) # Ensure to scan all the elements of 'vids'
                 for vid in tmp:
                     if vid not in self.L1():
-                        if verbose: print "Cell",vid,"is not in the L1. We won't compute it's curvature."
+                        import warnings
+                        warnings.warn("Cell"+str(vids)+"is not in the L1. We won't compute it's curvature.")
                         vids.remove(vid)
                 if len(vids) == 0: # if there is no element left in the 'vids' list, there is nothing to do!
-                    print 'None of the cells you provided bellonged to the L1.'
+                    import warnings
+                    warnings.warn('None of the cells you provided bellonged to the L1.')
                     return 0
 
             # -- If 'vids' is `None`, we apply the function to all L1 cells:
@@ -994,7 +1013,8 @@ class SpatialImageAnalysis(object):
             # -- If 'vids' is an integer... 
             if isinstance(vids,int):
                 if (vids not in self.L1()): # - ...but not in the L1 list, there is nothing to do!
-                    print "Cell",vids,"is not in the L1. We won't compute it's curvature."
+                    import warnings
+                    warnings.warn("Cell"+str(vids)+"is not in the L1. We won't compute it's curvature.")
                     return 0
                 else: # - ... and in the L1 list, we make it iterable.
                     vids=[vids]
@@ -1002,7 +1022,8 @@ class SpatialImageAnalysis(object):
             try:
                 self.principal_curvatures
             except:
-                print 'Principal curvature not defined...'
+                import warnings
+                warnings.warn('Principal curvature not defined...')
                 self.compute_principal_curvatures(vids, verbose = True)
 
             curvature = {}
@@ -1078,6 +1099,67 @@ class SpatialImageAnalysis(object):
 
         obj.glyph.glyph_source.glyph_source.center = [0, 0, 0]
         obj2.glyph.glyph_source.glyph_source.center = [0, 0, 0]
+
+
+def save_analysis( analysis, filename = "" ):
+    """
+    Save an 'analysis' object, under the name 'name'. One can choose to keep only ceretains attributes.
+    :INPUTS:
+        - `filename`: name of the file to create WITHOUT extension. MUST BE A STRING !!
+        #~ - `attribute_to_keep`: is either 'None' (all attribute will be saved) or a list (only those attribute will be saved).
+    """
+    # -- We are paranoid and start by making sure the user provided a SpatialImageAnalysis object !
+    if not isinstance(analysis,SpatialImageAnalysis):
+        import warnings
+        warnings.warn(str(analysis)+" is not an object belonging to the class SpatialImageAnalysis. Saving process ABORTED.")
+        return None
+
+    #~ # -- We make sure the attribute to keep are correctly given
+    #~ if ( attribute_to_keep != None ) and ( not isinstance(attribute_to_keep, list) ):
+        #~ import warnings
+        #~ warnings.warn("You made a mistake when specifying the attribute to save.")
+        #~ return None
+
+    # If no file name is given, we create one based on the name of the SpatialImage (if possible).
+    if ( filename == "" ) and ( analysis.filename != None ):
+        filename = analysis.filename
+        if filename.endswith(".inr.gz"):
+            filename = filename[:-7]
+        if filename.endswith(".inr"):
+            filename = filename[:-4]
+        filename.join([filename+"_analysis"])
+    else:
+        import warnings
+        warnings.warn("The file name is missing, and there's no information about it in "+str(analysis)+". Saving process ABORTED.")
+        return None
+
+    # -- We make sure the file doesn't already exist !
+    from os.path import exists
+    if exists(filename):
+        import warnings
+        warnings.warn("The file "+filename+".pklz already exist. Saving process ABORTED.")
+        return None
+
+    # -- We save a binary compresed version of the file:
+    import gzip
+    import pickle
+    f = gzip.open( filename + ".pklz", 'wb')
+    pickle.dump( analysis, f )
+    f.close()
+    print "File " + filename + ".pklz succesfully created !!"
+
+
+def load_analysis( SpatialImageAnalysis, filename ):
+    """
+    Load a SpatialImageAnalysis from the file `filename`.
+    """
+    import gzip
+    import pickle
+    f = gzip.open( str(filename) , 'rb')
+    SpatialImageAnalysis = pickle.load( f )
+    f.close()
+    print "File " + str(filename) + ".pklz succesfully loaded !!"
+
 
 
     #~ def mask_intersection(self, vid, geometric_mask):
@@ -1171,8 +1253,8 @@ class SpatialImageAnalysis(object):
             #~ 
             #~ return curvature
         #~ return wrapped_function
-#~ 
-#~ 
+
+
     #~ @__curvature_parameters2
     #~ def gaussian_curvature2( k1, k2 ):
         #~ """
@@ -1180,7 +1262,8 @@ class SpatialImageAnalysis(object):
         #~ Here it comes from the first and second fundamental form of a quadratic plane fitted by nonlinear least square method.
         #~ """
         #~ return k1*k2
-#~ 
+
+
     #~ @__curvature_parameters2
     #~ def mean_curvature2( k1, k2 ):
         #~ """
@@ -1188,6 +1271,7 @@ class SpatialImageAnalysis(object):
         #~ Here it comes from the first and second fundamental form of a quadratic plane fitted by nonlinear least square method.
         #~ """
         #~ return 0.5*(k1+k2)
+
 
     #~ def neighborhood_surface_walls(self, vid, all_walls = None, verbose = False):
         #~ """
@@ -1203,8 +1287,8 @@ class SpatialImageAnalysis(object):
                 #~ walls.append( all_walls[1,k] )
 #~ 
         #~ return walls
-#~ 
-#~ 
+
+
     #~ def brute_route_by_neighbors(self, id2list, starting_point = None, verbose = False):
         #~ """
         #~ Function returning a list of vids. It define a sequence of labels allowing to travel in a neighbors-like manner.
@@ -1310,22 +1394,24 @@ class SpatialImageAnalysis(object):
             #~ 
             #~ return curvature
         #~ return wrapped_function
-#~ 
-#~ 
-    #~ @__curvature_parameters3
+
+
+#~ @__curvature_parameters3
     #~ def gaussian_curvature3( k1, k2 ):
         #~ """
         #~ Gaussian curvature is the product of principal curvatures 'k1*k2'.
         #~ Here it comes from the first and second fundamental form of a quadratic plane fitted by nonlinear least square method.
         #~ """
         #~ return k1*k2
-#~ 
+
+
     #~ @__curvature_parameters3
     #~ def mean_curvature3( k1, k2 ):
         #~ """
         #~ Gaussian curvature is the product of principal curvatures ''1/2*(k1+k2)'.
         #~ Here it comes from the first and second fundamental form of a quadratic plane fitted by nonlinear least square method.
         #~ """
+
 
     #~ def voxel_neighborhood(self, vid, radius = 40., origin = 'Mean'):
         #~ """
@@ -1373,32 +1459,6 @@ class SpatialImageAnalysis(object):
         #~ return x_pts, y_pts, z_pts
 
 
-def integer(x):
-    return int(x)
-
-def closest_from_A(A,pts2search):
-    """
-    Find -in 3D- the closest point from A in a list of points 'pts2search'.
-    Return the 3D coordinates of the closest point from A.
-    
-    :Parameters:
-        - 'A': 3D coordinates of the point of interest (xA, yA, zA);
-        - 'pts2search' : list of 3D coordinates
-    """
-    import math
-    import copy
-    xA, yA, zA = A
-    min_dist = tuple()
-    dist_1 = float('inf')
-    for k in pts2search:
-        xB, yB, zB = k
-        dist_2 = math.sqrt((xA-xB)**2+(yA-yB)**2+(zA-zB)**2)
-        if dist_2 < dist_1:
-            pts_min_dist = k
-            dist_1 = copy.copy(dist_2)
-    return pts_min_dist
-
-
 #~ def second_order_surface(params,data):
     #~ """
     #~ A second order analytic surface of the form z = a1.x^2 + a2.xy + a3.y^2 + a4.x + a5.y + a6
@@ -1406,8 +1466,8 @@ def closest_from_A(A,pts2search):
     #~ a1,a2,a3,a4,a5,a6=params
     #~ x,y=data
     #~ return (a1*x**2 + a2*x*y + a3*y**2 + a4*x + a5*y + a6)
-#~ 
-#~ 
+
+
 #~ def quadratic_plane_fit( x, y, z, fit_init = [0,0,0,0,0,1] ):
     #~ """
     #~ Use non-linear least squares to fit a function, f, to data. The algorithm uses the Levenburg-Marquardt algorithm.
@@ -1466,6 +1526,26 @@ def closest_from_A(A,pts2search):
         #~ return (e+f*x_1)/(E+F*x_1), (e+f*x_2)/(E+F*x_2), x_1, x_2
     #~ else:
         #~ return (e+f*x_1)/(E+F*x_1), (e+f*x_2)/(E+F*x_2)
+
+
+#~ def euclidean_sphere(size):
+    #~ """
+    #~ Generate a euclidean sphere for binary morphological operations
+#~ 
+    #~ :Parameters:
+        #~ - `size` (int) - the shape of the euclidean sphere = 2*size + 1.
+#~ 
+    #~ :Returns:
+        #~ - Euclidean sphere which may be used for binary morphological operations, with shape equal to 2*size + 1.
+    #~ """
+    #~ n = int(2*size + 1)
+    #~ sphere = np.zeros((n,n,n),np.bool)
+    #~ for x in range(n):
+        #~ for y in range(n):
+            #~ for z in range(n):
+                #~ if (x-size)**2+(y-size)**2+(z-size)**2<=size**2:
+                    #~ sphere[x,y,z]=True
+    #~ return sphere
 
 
 def extract_L1(image):
