@@ -22,7 +22,11 @@ __license__= "Cecill-C"
 __revision__=" $Id$ "
 
 from os.path import exists, splitext, split as psplit, expanduser as expusr
-import Image,ImageOps
+try:
+    import Image,ImageOps
+except ImportError:
+    from PIL import Image
+    from PIL import ImageOps
 import os, fnmatch
 #from pylab import imread as _imread, imsave as _imsave
 from scipy.misc import imsave as _imsave
