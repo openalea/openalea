@@ -50,6 +50,7 @@ setup(
 
             "wralea": [ 
                         "openalea.misc.test = openalea.misc_wralea_test",
+                        "openalea.misc= openalea.misc_wralea",
             ]
 
     }
