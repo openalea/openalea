@@ -114,15 +114,20 @@ class SharedDataBrowser(NodeWidget, QDialog):
             except:
                 self.widget_browser_packages.setText("Can not retrieve metainfo from %s." % self.package)
             else:
+                br_length = len('<br/>')
                 txt = "<p style=\"color:red\"><b>Package %s metadata</b></p>" % self.package
                 for line in metadata:
-                    try:
-                        val1, val2 = line.split(':')
-                    except:
-                        val1 = line
-                        val2 = 'not filled'
-                    if val1=='Home-page':
+                    values = line.split(':')
+                    if len(values) == 2:
+                        val1, val2 = values
+                    else:
+                        val1 = ''
+                        val2 = line
+                    if val1 == 'Home-page':
                         txt += '<b>%s</b>: <a href="%s">web documentation</a><br/>' % (val1.title(),val2)
+                    elif val1 == '':
+                        txt = txt[:-br_length]
+                        txt += ' %s<br/>' % val2
                     else:
                         txt += '<b>%s</b>: %s<br/>' % (val1 , val2)
         
