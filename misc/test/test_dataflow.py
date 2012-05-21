@@ -1,4 +1,5 @@
 from openalea.core.alea import *
+from openalea.core.path import path
 
 pm = PackageManager()
 pm.init(verbose=False)
@@ -6,6 +7,13 @@ pm.init(verbose=False)
 def test_shared_data_browser():
     res = run(('openalea.misc.test','shared_data_browser'),{},pm=pm)
     assert res == []
+    res = run(('openalea.misc','SharedDataBrowser'),inputs={'package': 'openalea.stat_tool', 'filename': 'meri1.his'},pm=pm)
+    assert path(res[0]).basename() == 'meri1.his'
+    res = run(('openalea.misc','SharedDataBrowser'),inputs={'package': 'vplants.sequence_analysis', 'filename': 'cafe_ortho1.seq'},pm=pm)
+    assert path(res[0]).basename() == 'cafe_ortho1.seq'
+    res = run(('openalea.misc','SharedDataBrowser'),inputs={'package': 'alinea.caribu', 'filename': 'filterT.can'},pm=pm)
+    assert path(res[0]).basename() == 'filterT.can'
+    
 
 #if __name__ == "__main__":
 #    test_demo_corsican()
