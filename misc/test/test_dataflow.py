@@ -13,7 +13,8 @@ def test_shared_data_browser():
     assert path(res[0]).basename() == 'cafe_ortho1.seq'
     res = run(('openalea.misc','SharedDataBrowser'),inputs={'package': 'alinea.caribu', 'filename': 'filterT.can'},pm=pm)
     assert path(res[0]).basename() == 'filterT.can'
-    
+    res = run(('openalea.misc','SharedDataBrowser'),inputs={'package': 'numpy', 'filename': 'something.something'},pm=pm)
+    assert res[0] == None
 
 #if __name__ == "__main__":
 #    test_demo_corsican()
