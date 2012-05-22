@@ -21,45 +21,65 @@ from os.path import join as pj
 __license__ = "Cecill-C"
 __revision__ = " $Id: gforge.py 2243 2010-02-08 17:08:47Z cokelaer $ "
 
-def get_shared_data_path(package_path, filename=None, share_path=pj('share','data')):
-    """Return a valid pathname pointing to shared-data directory
 
-    In a package, the shared data are expected to be found in `./share/data`.
+share_path = pj('share', 'data')
 
-    :param package_path: a list of paths as provided within an __init__ file
-        by the variable __path__
-    :param filename: an optional valid filename without any path that is expected
-        to be found in the directory __path__[0]/share/data
+def get_shared_data_path(package_path, filename=None, share_path=share_path):
+    """Return a valid pathname pointing to a shared-data directory or a shared-data file.
 
-    :return: a valid pathname if filename is not provided and a valid path to 
-        filename (including filename) otherwise. If no valid path is found, returns 
-        nothing and raise an exception.
+    :Parameters:
+        - `package_path` (str or list) - Can be either a string representing a package path or a list of package paths. (e.g. 
+        :py:class:`path`('/home/user/openalea/deploy/src/openalea/deploy') or [:py:class:`path`('/usr/lib/pymodules/python2.7/numpy')]).
+        If package_path is a list, then the first element of package_path is used.
+        - `filename` (str) - An optional valid filename without any path that is expected
+        to be found in :py:obj:`share_path`.
+        - `share_path` (str) - The path where the share data directory is expected to be found. 
+        The default value is :py:const:`.share_path`. Important: All users should keep this 
+        default value in order to ease the share of data between the different packages.
+
+    :Returns: 
+        a valid directory path if filename is not provided, and a valid file path to 
+        filename (including filename) otherwise. The directory or file is searched firstly into  
+        ':py:obj:`package_path`, then into ':py:obj:`package_path` parent directory, then
+        into ':py:obj:`package_path` parent parent directory, and so on, going up until the parent parent
+        directory of the last Python package found.  
+        If no valid path is found, returns None.
+        
+    :Returns Type:
+        str
        
-
-
-       >>> get_shared_data_path(['/home/user/mypackage'])
-       '/home/user/mypackage/share/data'
-       >>> get_shared_data_path(['/home/user/mypackage'], mypath='share/databases')
-       '/home/user/mypackage/share/databases'
+    :Examples: 
+    
+    >>> get_shared_data_path(['/home/user/mypackage'])
+    '/home/user/mypackage/share/data'
+    >>> get_shared_data_path('/home/user/mypackage', 'my_file.csv')
+    '/home/user/mypackage/share/data/my_file.csv'
+    >>> get_shared_data_path(['/home/user/mypackage'], share_path='share/databases')
+    '/home/user/mypackage/share/databases'
     """
-    from os.path import join, realpath, isdir
-    # in develop mode, we need to move in the tree directory one 
-    # more time than in install mode
-
-    ff = pj( package_path[0], '..', '..', share_path)
-    ff = realpath(ff)
-    if isdir(ff) is False:
-       ff = pj(package_path[0], '..', '..', '..', share_path)
-       ff = realpath(ff)
-       if isdir(ff) is False:
-           raise IOError('Could not find share/data directory make sure first argument is a valid path.')
-
-    if filename==None:
-        return ff
-    else:
-        from os.path import isfile
-        ff = pj(ff, filename)
-        if isfile(ff):
-            return realpath(ff)
+    from os.path import realpath, isdir, isfile
+    from openalea.core.path import path
+    
+    if isinstance(package_path, list):
+        if len(package_path) == 0:
+            return None
         else:
-            raise IOError("%s not found. Check the filename." % ff)
+            package_path = package_path[0]
+    package_path = path(package_path)
+    ff = pj(package_path, share_path)
+    ff = realpath(ff)
+    shared_data_path = None
+    if isdir(ff):
+        if filename is None:
+            shared_data_path = ff
+        else:
+            ff = pj(ff, filename)
+            ff = realpath(ff)
+            if isfile(ff):
+                shared_data_path = ff
+    if shared_data_path is None and isfile(pj(package_path, '__init__.py')):
+        shared_data_path = get_shared_data_path(package_path.parent, filename, share_path)
+        if shared_data_path is None:
+            shared_data_path = get_shared_data_path(package_path.parent.parent, filename, share_path)
+    
+    return shared_data_path
