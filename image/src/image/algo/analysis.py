@@ -178,6 +178,12 @@ def geometric_median(X, numIter = 50):
             denum += 1./div
             d += div**2 #distance (to the median) to miminize
         dist.append(d) #update of the distance évolution
+        
+        if denum == 0.:
+            import warnings
+            warnings.warn("Couldn't compute a geometric median, please check your data!")
+            return [0,0,0]
+        
         y = [num_x/denum, num_y/denum, num_z/denum] #update to the new value of the median
         if i > 3:
             convergence=(abs(dist[i]-dist[i-2])<0.1) #we test the convergence over three steps for stability
@@ -266,6 +272,7 @@ class SpatialImageAnalysis(object):
         else:
             self.filename = None
 
+
     def labels(self):
         """
         Return the list of labels used.
@@ -289,7 +296,10 @@ class SpatialImageAnalysis(object):
 
     def __labels(self):
         """ Compute the actual list of labels """
-        return np.unique(self.image)
+        labels = list(np.unique(self.image))
+        if 0 in labels: labels.remove(0)
+        if 1 in labels: labels.remove(1)
+        return labels
 
 
     def nb_labels(self):
@@ -367,7 +377,7 @@ class SpatialImageAnalysis(object):
             return center
 
 
-    def volume(self,labels=None,real=True):
+    def volume(self, labels = None, real = True):
         """
         Return the volume of the labels.
 
@@ -408,9 +418,12 @@ class SpatialImageAnalysis(object):
                 volume = np.multiply(volume,(self.image.resolution[0]*self.image.resolution[1]))
             elif self.image.ndim == 3:
                 volume = np.multiply(volume,(self.image.resolution[0]*self.image.resolution[1]*self.image.resolution[2]))
-            return volume.tolist()
-        else:
-            return volume
+            volume.tolist()
+        
+        volumes = dict([(labels[k],volume[k]) for k in xrange(len(labels))])
+        if volumes.has_key(0): volumes.pop(0)
+        if volumes.has_key(1): volumes.pop(1)
+        return volumes
 
 
     def boundingbox(self, labels = None, real = False):
@@ -461,6 +474,7 @@ class SpatialImageAnalysis(object):
                 else : return self._bbox[labels-1]
             except:
                 return None
+
 
     def neighbors(self,labels=None):
         """
@@ -847,12 +861,33 @@ class SpatialImageAnalysis(object):
             return inertia_eig_vec, inertia_eig_val
 
 
+    def remove_cell(self, vid, verbose = False):
+        """
+        !!!!WARNING!!!!
+        This function modify the SpatialImage on self.image
+        !!!!WARNING!!!!
+        Function removing cell which label == vid.
+        """
+        if vid not in self.labels():
+            import warnings
+            warning.warn("The cell "+str(vid)+" hasn't been found in the image.")
+            return
+
+        if verbose: print 'Trying to find your cell...'
+        xyz = np.where( (self.image[self.boundingbox(vid)]) == vid )
+        self.image[tuple((xyz[0]+self.boundingbox(vid)[0].start,xyz[1]+self.boundingbox(vid)[1].start,xyz[2]+self.boundingbox(vid)[2].start))]=0
+
+        if verbose: print 'Done !!'
+        
+        self.__init__(self.image)
+
+
     def remove_margins_cells(self, save = "", display = False, verbose = False):
         """
         !!!!WARNING!!!!
         This function modify the SpatialImage on self.image
         !!!!WARNING!!!!
-        Function removing the cell's at the margins, because most probably cut during stack aquisition.
+        Function removing cells at the margins, because most probably cut during stack aquisition.
         
         :INPUTS:
             .save: text (if present) indicating under which name to save the Spatial Image containing the cells of the first layer;
@@ -862,12 +897,12 @@ class SpatialImageAnalysis(object):
             Spatial Image without the cell's at the margins.
         """
         
-        if verbose: print "Removing the cell's at the margins of the stack..."
+        if verbose: print "Removing cells at the margins of the stack..."
         
         import copy
         labels = copy.copy(list(self.labels()))
-        if 1 in labels: labels.remove(1)
         if 0 in labels: labels.remove(0)
+        if 1 in labels: labels.remove(1)
         if len(labels)==1:
             import warnings
             warnings.warn("Only one cell left in your image, we won't take it out !")
@@ -905,7 +940,7 @@ class SpatialImageAnalysis(object):
             if isinstance(vids,int):
                 if (vids not in self.L1()): # - ...but not in the L1 list, there is nothing to do!
                     import warnings
-                    warnings.warn("Cell"+str(vids)+"is not in the L1. We won't compute it's curvature.")
+                    warnings.warn("Cell "+str(vids)+" is not in the L1. We won't compute it's curvature.")
                     return 0
                 else: # - ... and in the L1 list, we make it iterable.
                     vids=[vids]
@@ -916,7 +951,7 @@ class SpatialImageAnalysis(object):
                 for vid in tmp:
                     if vid not in self.L1():
                         import warnings
-                        warnings.warn("Cell"+str(vids)+"is not in the L1. We won't compute it's curvature.")
+                        warnings.warn("Cell "+str(vid)+" is not in the L1. We won't compute it's curvature.")
                         vids.remove(vid)
                 if len(vids) == 0: # if there is no element left in the 'vids' list, there is nothing to do!
                     import warnings
@@ -968,7 +1003,8 @@ class SpatialImageAnalysis(object):
     @__principal_curvature_parameters_CGAL
     def compute_principal_curvatures( self, vid, pts, adjacencies ):
         """
-        Function computing principal curvature using a CGAL c++ wrapped function: 'principal_curvatures'
+        Function computing principal curvature using a CGAL c++ wrapped function: 'principal_curvatures'.
+        It's only doable for cells of the first layer.
         """
         x_vid, y_vid, z_vid = np.where(self.first_voxel_layer() == vid)
 
@@ -1030,6 +1066,8 @@ class SpatialImageAnalysis(object):
             for vid in vids:
                 if not self.principal_curvatures.has_key(vid):
                     c = self.compute_principal_curvatures(vid)
+                else:
+                    c = self.principal_curvatures(vid)
                 if c != 0: # 'compute_principal_curvatures' return a 0 when one of the vids is not in the L1.
                     curvature[vid] = func( self, vid )
 
@@ -1548,24 +1586,24 @@ def load_analysis( SpatialImageAnalysis, filename ):
     #~ return sphere
 
 
-def extract_L1(image):
-    """
-    Return the list of all cell labels in the layer 1.
-
-    :Parameters:
-        - `image` (|SpatialImage|) - segmented image
-
-    :Returns:
-        - `L1` (list)
-    """
-    return SpatialImageAnalysis(image).L1()
-    # L1 = []
-    # im = np.zeros_like(image)
-    # im[image!=1]=1
-    # ero = nd.binary_erosion(im)
-    # mask = im - ero
-    # res = np.where(mask==1,image,0)
-    # for cell in xrange(1,image.max()+1):
-        # if cell in res:
-            # L1.append(cell)
-    # return L1
+#~ def extract_L1(image):
+    #~ """
+    #~ Return the list of all cell labels in the layer 1.
+#~ 
+    #~ :Parameters:
+        #~ - `image` (|SpatialImage|) - segmented image
+#~ 
+    #~ :Returns:
+        #~ - `L1` (list)
+    #~ """
+    #~ return SpatialImageAnalysis(image).L1()
+    #~ # L1 = []
+    #~ # im = np.zeros_like(image)
+    #~ # im[image!=1]=1
+    #~ # ero = nd.binary_erosion(im)
+    #~ # mask = im - ero
+    #~ # res = np.where(mask==1,image,0)
+    #~ # for cell in xrange(1,image.max()+1):
+        #~ # if cell in res:
+            #~ # L1.append(cell)
+    #~ # return L1

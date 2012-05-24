@@ -1,4 +1,4 @@
-from analysis import SpatialImageAnalysis
+from openalea.image.algo.analysis import SpatialImageAnalysis
 from openalea.image.spatial_image import SpatialImage
 from openalea.container import PropertyGraph
 
@@ -29,7 +29,8 @@ def graph_from_image(image,
                      background = 1, 
                      default_properties = default_properties,
                      default_real_property = True,
-                     bbox_as_real = False):
+                     bbox_as_real = False,
+                     remove_stack_margins_cells = True):
     """ 
         Construct a PropertyGraph from a SpatialImage (or equivalent) representing a segmented image.
 
@@ -55,9 +56,11 @@ def graph_from_image(image,
         >>> graph = graph_from_image(image)
 
     """
-    
+
     analysis = SpatialImageAnalysis(image)
-    
+    if remove_stack_margins_cells:
+        analysis.remove_margins_cells()
+
     if labels is None: 
         filter_label = False
         labels = list(analysis.labels())
@@ -66,17 +69,21 @@ def graph_from_image(image,
     else:
         filter_label = True
         if isinstance(labels,int) : labels = [labels]
+        # -- We don't want to have the "outer cell" (background) and "removed cells" (0) in the graph structure.
+        if 0 in labels: labels.remove(0)
+        if background in labels: labels.remove(background)
         neigborhood = analysis.neighbors(labels)
+
     labelset = set(labels)
-    
+
     graph, label2vertex, edges = generate_graph_topology(labels, neigborhood)
-    
+
     if 'boundingbox' in default_properties : 
         add_vertex_property_from_label_and_value(graph,'boundingbox',labels,analysis.boundingbox(labels,real=bbox_as_real),mlabel2vertex=label2vertex)
-    
+
     if 'volume' in default_properties : 
-        add_vertex_property_from_label_and_value(graph,'volume',labels,analysis.volume(labels,real=default_real_property),mlabel2vertex=label2vertex)
-    
+        add_vertex_property_from_dictionary(graph,'volume',analysis.volume(labels,real=default_real_property),mlabel2vertex=label2vertex)
+
     barycenters = None
     if 'barycenter' in default_properties :
         barycenters = analysis.center_of_mass(labels,real=default_real_property)
@@ -86,19 +93,18 @@ def graph_from_image(image,
     background_neighbors.intersection_update(labelset)
     if 'L1' in default_properties :         
         add_vertex_property_from_label_and_value(graph,'L1',labels,[(l in background_neighbors) for l in labels],mlabel2vertex=label2vertex)
-        
+
     if 'border' in default_properties : 
         border_cells = analysis.border_cells()
         try: border_cells.remove(background)
         except: pass
         border_cells = set(border_cells)
         add_vertex_property_from_label_and_value(graph,'border',labels,[(l in border_cells) for l in labels],mlabel2vertex=label2vertex)
-        
+
     if 'inertia_axis' in default_properties : 
         inertia_axis, inertia_values = analysis.inertia_axis(labels,barycenters)
         add_vertex_property_from_label_and_value(graph,'inertia_axis',labels,zip(inertia_axis,inertia_values),mlabel2vertex=label2vertex)
-        
-    
+
     if 'wall_surface' in default_properties : 
         filtered_edges = {}
         for source,targets in neigborhood.iteritems():
@@ -106,7 +112,7 @@ def graph_from_image(image,
                 filtered_edges[source] = [ target for target in targets if source < target and target in labelset ]
         wall_surfaces = analysis.wall_surfaces(filtered_edges,real=default_real_property)
         add_edge_property_from_label_property(graph,'wall_surface',wall_surfaces,mlabelpair2edge=edges)
-        
+
     if 'epidermis_surface' in default_properties :
         def not_background(indices):
             a,b = indices
@@ -118,7 +124,7 @@ def graph_from_image(image,
         epidermis_surfaces = analysis.cell_wall_surface(background,list(background_neighbors) ,real=default_real_property)
         epidermis_surfaces = dict([(not_background(indices),value) for indices,value in epidermis_surfaces.iteritems()])
         add_vertex_property_from_label_property(graph,'epidermis_surface',epidermis_surfaces,mlabel2vertex=label2vertex)
-    
+
     return graph       
 
 def label2vertex_map(graph):
@@ -152,6 +158,18 @@ def labelpair2edge_map(graph):
     mlabel2vertex = label2vertex_map(graph)
     return dict([((mlabel2vertex[graph.source(eid)],mlabel2vertex[graph.target(eid)]),eid) for eid in graph.edges()])
 
+
+def add_vertex_property_from_dictionary(graph, name, dictionary, mlabel2vertex = None):
+    """ 
+        Add a vertex property with name 'name' to the graph build from an image. 
+        The values of the property are given as by a dictionary where keys are vertex labels. 
+    """
+        
+    if mlabel2vertex is None:    
+        mlabel2vertex = label2vertex_map(graph)
+    
+    graph.add_vertex_property(name)
+    graph.vertex_property(name).update( dict([(mlabel2vertex[k], dictionary[k]) for k in dictionary]) )
 
 def add_vertex_property_from_label_and_value(graph, name, labels, property_values, mlabel2vertex = None):
     """ 
