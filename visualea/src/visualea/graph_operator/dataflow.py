@@ -177,7 +177,6 @@ class DataflowOperators(Base):
         scene.add_vertex(node, position=[position.x(), position.y()])
 
 
-
     def graph_copy(self):
         """ Copy Selection """
         master = self.master
@@ -221,7 +220,6 @@ class DataflowOperators(Base):
                                        master.get_graph(),
                                        modifiers,
                                        meta=True)
-
 
 
     def graph_close(self):

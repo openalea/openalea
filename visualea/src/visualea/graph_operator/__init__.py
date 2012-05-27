@@ -25,12 +25,14 @@ from openalea.core.compositenode import CompositeNodeFactory
 
 class GraphOperator(Observed):
 
+    # These are not filled by dataflowview itself to avoid recursive imports
+    # as dataflowview is imported in modules from this package.
     vertexType        = None
     annotationType    = None
     edgeType          = None
     globalInterpreter = None
 
-    def __init__(self, graph, graphScene=None, clipboard=None, siblings=None, interpreter=None):
+    def __init__(self, graph, graphScene=None, clipboard=None, siblings=None, interpreter=None, graphAdapter=None):
         Observed.__init__(self)
 
         do_imports()
@@ -47,6 +49,7 @@ class GraphOperator(Observed):
                 self.__availableNames[meth] = getattr(operator, meth)
 
         self.__graph        = graph
+        self.__adapter      = graphAdapter
         self.__scene        = graphScene
         self.__clipboard    = clipboard or CompositeNodeFactory("Clipboard")
         self.__siblings     = siblings or []
@@ -115,23 +118,10 @@ class GraphOperator(Observed):
             if self.get_graph() is None : return
             return func(*args, **kwargs)
 
-
         if argcount < 2:
             return wrappedGOPNoBool, argcount
         else:
             return wrappedGOPBool, argcount
-
-    ###########
-    # setters #
-    ###########
-    def set_vertex_item(self, vertexItem):
-        self.__vertexItem = weakref.ref(vertexItem)
-
-    def set_annotation_item(self, annotationItem):
-        self.__annotationItem = weakref.ref(annotationItem)
-
-    def set_port_item(self, portitem):
-        self.__portItem = weakref.ref(portitem)
 
     ###########
     # getters #
@@ -150,6 +140,7 @@ class GraphOperator(Observed):
         return PackageManager()
 
     def get_sensible_parent(self):
+        # TODO improve this:
         return QtGui.QApplication.topLevelWidgets()[0]
 
     def get_graph_scene(self):
@@ -161,6 +152,13 @@ class GraphOperator(Observed):
             return scene.get_graph()
         else:
             return self.__graph
+            
+    def get_graph_adapter(self):
+        scene = self.get_graph_scene()
+        if scene:
+            return scene.get_adapter()
+        else:
+            return self.__adapter          
 
     def get_vertex_item(self):
         return self.__vertexItem() if self.__vertexItem else None
@@ -171,7 +169,17 @@ class GraphOperator(Observed):
     def get_port_item(self):
         return self.__portItem() if self.__portItem else None
 
+    ###########
+    # setters #
+    ###########
+    def set_vertex_item(self, vertexItem):
+        self.__vertexItem = weakref.ref(vertexItem)
 
+    def set_annotation_item(self, annotationItem):
+        self.__annotationItem = weakref.ref(annotationItem)
+
+    def set_port_item(self, portitem):
+        self.__portItem = weakref.ref(portitem)
 
 
 

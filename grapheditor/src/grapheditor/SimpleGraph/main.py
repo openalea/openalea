@@ -1,23 +1,36 @@
 import sys
 
 from PyQt4 import QtGui
-from PyQt4 import QtCore
-from openalea.grapheditor.qtgraphview import View
-from openalea.grapheditor.baselisteners import StrategyError
+from openalea.grapheditor import qt
 from custom_graph_model import Graph
-import custom_graph_view
 
 
 #CUSTOMISING THE GRAPH VIEW FOR THIS PARTICULAR DEMO:
-def dropHandler(widget, event):
-    position = widget.mapToScene(event.pos())
-    position = [position.x(), position.y()]
-    widget.graph().new_vertex(position)
+class SimpleView( qt.View ):
+    def __init__(self, *args, **kwargs):
+        qt.View.__init__(self, *args, **kwargs)
+        self.set_default_drop_handler(self.dropHandler)
 
-View.set_default_drop_handler(dropHandler)
-View.set_event_handler("mouseDoubleClickEvent", dropHandler)
+    def dropHandler(self, event):
+        position = self.mapToScene(event.pos())
+        position = [position.x(), position.y()]
+        self.scene().new_vertex(position=position)
+    
+    mouseDoubleClickEvent = dropHandler
 
-
+class SimpleVertex(qt.DefaultGraphicalVertex):
+    def __init__(self, *args, **kwargs):
+        qt.DefaultGraphicalVertex.__init__(self, *args, **kwargs)
+        self.initialise(self.get_observed().get_ad_hoc_dict())
+    def get_view_data(self, key):
+        return self.get_observed().get_ad_hoc_dict().get_metadata(key)
+        
+SimpleGraph = qt.QtGraphStrategyMaker( graphView            = SimpleView,
+                                       vertexWidgetMap      = {"vertex":SimpleVertex},
+                                       edgeWidgetMap        = {"default":qt.DefaultGraphicalEdge,
+                                                               "floating-default":qt.DefaultGraphicalFloatingEdge},
+                                       graphViewInitialiser = None,
+                                       adapterType          = None )
 
 #THE APPLICATION'S MAIN WINDOW
 class MainWindow(QtGui.QMainWindow):
@@ -25,28 +38,17 @@ class MainWindow(QtGui.QMainWindow):
         """                """
         QtGui.QMainWindow.__init__(self, parent)
         self.__graph = Graph()
-        self.__graphView = View(self, self.__graph)
+        self.__graphView = SimpleGraph.create_view(self.__graph, parent=self)
         self.setCentralWidget(self.__graphView)
 
 
 #THE ENTRY POINT
 def main(args):
     app = QtGui.QApplication(args)
-
-    # Check Version
-    version = QtCore.QT_VERSION_STR
-    if(version < '4.5.1'):
-        mess = QtGui.QMessageBox.error(None,
-                                       "Error",
-                                       "Visualea need QT library >=4.5.1")
-        return
-
-
     QtGui.QApplication.processEvents()
     win = MainWindow()
     win.show()
     return app.exec_()
-
 
 
 if __name__ == "__main__":

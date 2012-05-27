@@ -158,3 +158,32 @@ class MetaDataDict(observer.Observed):
     def __str__(self):
         return self.__repr__()
 
+
+
+class HasAdHoc(object):
+    @classmethod
+    def extend_ad_hoc_slots(cls, name, _type, default, *args):
+        """
+        Describes which data and what type are expected to be found in the ad_hoc
+        dictionnary. Used by views.__ad_hoc_slots__ = {} Created at runtime
+        __ad_hoc_from_old_map__ = {}.
+        """
+        if( not hasattr(cls, "__ad_hoc_slots__")):
+            cls.__ad_hoc_slots__ = {}
+        else:
+            cls.__ad_hoc_slots__ = cls.__ad_hoc_slots__.copy() #inherit
+
+        cls.__ad_hoc_slots__[name] = (_type, default)
+        if len(args)>0:
+            if( not hasattr(cls, "__ad_hoc_from_old_map__")):
+                cls.__ad_hoc_from_old_map__={}
+            else:
+                cls.__ad_hoc_from_old_map__ = cls.__ad_hoc_from_old_map__.copy()
+            cls.__ad_hoc_from_old_map__[name] = args
+
+    def __init__(self):
+        self.__ad_hoc_dict = MetaDataDict(slots= {} if not hasattr(self,'__ad_hoc_slots__') else self.__ad_hoc_slots__)
+
+    def get_ad_hoc_dict(self):
+        return self.__ad_hoc_dict
+

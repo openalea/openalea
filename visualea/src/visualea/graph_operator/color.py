@@ -68,5 +68,5 @@ class ColorOperators(Base):
         if(scheduleASetColor):
             self.graph_set_selection_color()
 
-    vertex_set_color    = graph_set_selection_color
+    vertex_set_color      = graph_set_selection_color
     vertex_use_user_color = graph_use_user_color

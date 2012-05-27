@@ -26,116 +26,14 @@ import edgefactory
 from math import sqrt
 
 
-class ClientCustomisableWidget(object):
-    """ Base class for Qt widgets or graphicwidgets that adds the
-    possibility for subclasses to be set handlers from clients.
-    For example, two clients (AppA and AppB) may use your widget
-    but define different handlers for mouseMoveEvent. Furthermore
-    AppA can define a mouseMoveEventHandlerA for GraphTypeA and
-    mouseMoveEventHandlerB for GraphTypeB.
-
-    This is like installing EventFilters or subclassing the
-    desired class and reimplementing the event methods.
-    However, clients don't need to subclass any more
-    the class and that the monkey patching happens
-    on the class definition, not on the instance, sparing
-    some CPU.
-    """
-
-    ####################################
-    # ----Class members come first---- #
-    ####################################
-    #__Application_Integration_Keys__
-    __AIK__ = [
-        "mouseMoveEvent",
-        "mouseReleaseEvent",
-        "mousePressEvent",
-        "mouseDoubleClickEvent",
-        "keyReleaseEvent",
-        "keyPressEvent",
-        "contextMenuEvent"
-        ]
-
-    @classmethod
-    def set_event_handler(cls, key, handler, graphType):
-        """Let handler take care of the event named by key.
-
-        :Parameters:
-            - key (str) - The name of the event.
-            - handler (callable) - The handler to register with key.
-
-
-         The key can be any of %s
-           * \"mouseMoveEvent\"
-           * \"mouseReleaseEvent\"
-           * \"mousePressEvent\"
-           * \"mouseDoubleClickEvent\"
-           * \"keyReleaseEvent\"
-           * \"keyPressEvent\"
-           * \"contextMenuEvent\"
-
-
-        See the Qt documentation of those to know the expected signature
-        of the handler (usually : handlerName(QObject, event)).
-
-        """
-        if cls in [Vertex, Edge] :
-            raise Exception(str(cls)+".set_event_handler.\n" + \
-                                     "Don't use this on classes from qtgraphview " + \
-                                     "except qtgraphview.View")
-            return
-
-        if "__application_integration__" not in cls.__dict__:
-            cls.__application_integration__ = {}
-            cls.__originals__ = {}
-        emptyMap = dict(zip(cls.__AIK__,[None]*len(cls.__AIK__)))
-        if key in cls.__application_integration__.setdefault(graphType, emptyMap):
-            cls.__application_integration__[graphType][key]=handler
-            try : cls.__originals__[key] = getattr(cls, key)
-            except : pass
-
-    @classmethod
-    def static_init_handlers(cls, graphType):
-        """we bind application overloads if they exist
-        once and for all. As this happens after the
-        class is constructed, it overrides any method
-        called "name" with an application-specific method
-        to handle events."""
-        if (not hasattr(cls, "__application_integration__") or not
-            graphType in cls.__application_integration__): return
-        for name, hand in cls.__application_integration__[graphType].iteritems():
-            if "Event" in name and hand:
-                setattr(cls, name, types.MethodType(hand, None, cls))
-
-    @classmethod
-    def reset_event_handlers(cls):
-        if hasattr(cls, "__originals__"):
-            for name, hand in cls.__originals__.iteritems():
-                setattr(cls, name, types.MethodType(hand, None, cls))
-
 #------*************************************************------#
-class Element(baselisteners.GraphElementListenerBase, ClientCustomisableWidget):
+class Element(baselisteners.GraphElementListenerBase):
     """Base class for elements in a qtgraphview.View.
 
     Implements basic listeners calls for elements of a graph.
     A listener call is the method that is called after the main
     listening method (self.notify) dispatches the events. They
     are specified by interfaces.IGraphViewElement.
-
-    The class also implements a mecanism to easily override user
-    events from the client application. What does this mean? In this
-    framework, the graph editor starts as a simple graph listener. The
-    current module extends those listeners to be able to react to the
-    events and produce a QGraphicsView of the graph with graph-specific
-    interactions. The dataflowview module extends the current module
-    to handle dataflows. However these extensions are not client-specific.
-    There is nothing related for example specifically to Visualea.
-    by using Vertex.set_event_handler(key, handler), or even on
-    specialised elements like
-    dataflowview.vertex.GraphicalVertex.set_event_handler(key, handler),
-    one can bind a specific behaviour to the event named by \"key\". The
-    handler will be specific to the class set_event_handler was called on
-    (hopefully).
 
     :Listener calls:
      * position_changed(self,  (posx, posy))
@@ -728,7 +626,7 @@ def deprecate(methodName, newName=None):
     return deprecation_wrapper
 
 
-class View(QtGui.QGraphicsView, ClientCustomisableWidget, baselisteners.GraphViewBase):
+class View(QtGui.QGraphicsView, baselisteners.GraphViewBase):
     """A View implementing client customisation """
 
     class AcceptEvent(object):
@@ -790,11 +688,6 @@ class View(QtGui.QGraphicsView, ClientCustomisableWidget, baselisteners.GraphVie
 
     def set_default_drop_handler(self, handler):
         self.__defaultDropHandler = handler
-
-    def reset_item_event_handlers(self):
-        items = self.scene().get_items(Element)
-        for i in items:
-            i.reset_event_handlers()
 
     def wheelEvent(self, event):
         delta = -event.delta() / 2400.0 + 1.0
@@ -893,7 +786,6 @@ class View(QtGui.QGraphicsView, ClientCustomisableWidget, baselisteners.GraphVie
         """
         self.fitInView(self.scene().itemsBoundingRect(), QtCore.Qt.KeepAspectRatio)
 
-
     ######################
     # Deprecated methods #
     ######################
@@ -907,6 +799,8 @@ class View(QtGui.QGraphicsView, ClientCustomisableWidget, baselisteners.GraphVie
     select_added_elements = deprecate("select_added_elements")
     post_addition = deprecate("post_addition")
     notify = deprecate("notify")
+
+
 
 if __debug__:
     import interfaces

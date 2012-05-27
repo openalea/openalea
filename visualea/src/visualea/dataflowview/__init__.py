@@ -51,7 +51,7 @@ class DataflowView( qt.View ):
                           "openalea/data_instance":self.node_datapool_drop_handler}
         self.set_mime_handler_map(mimeFormatsMap)
 
-        # -- handle the toolbar --
+        # -- handle the vanishing toolbar --
         self.__noToolBar = kwargs.get("noToolBar", False)
 
         if not self.__noToolBar:
@@ -64,6 +64,8 @@ class DataflowView( qt.View ):
         self.deleteRequest.connect(self.on_delete_request)
 
     def setScene(self, scene):
+        # This is called by grapheditor.qtgraphview.set_canvas
+        # which is itself called by GraphicalGraph(...) after __init__.
         if scene is not None and not self.__noToolBar:
             scene.addItem(self.__annoToolBar)
         qt.View.setScene(self, scene)
@@ -75,10 +77,11 @@ class DataflowView( qt.View ):
         self.__siblings = sibs
 
     def get_graph_operator(self):
-        operator=GraphOperator(graph     = self.scene().get_graph(),
-                               graphScene= self.scene(),
-                               clipboard = self.__clipboard,
-                               siblings  = self.__siblings,
+        operator=GraphOperator(graph        = self.scene().get_graph(),
+                               graphAdapter = self.scene().get_adapter(),
+                               graphScene   = self.scene(),
+                               clipboard    = self.__clipboard,
+                               siblings     = self.__siblings,
                                )
         return operator
 
@@ -223,14 +226,14 @@ class DataflowView( qt.View ):
             # toolbar in the right place and reveals it.
             # If the pointer not over an annotation it is hidden unless it is over
             # the toolbar. --
-            items = self.items(e.pos())
+            items = self.items( e.pos() )
             annotations = [i for i in items if isinstance(i, anno.GraphicalAnnotation)]
             if len(annotations) > 0:
                 firstAnno = annotations[0]
                 self.__annoToolBar.wakeup()
                 self.__annoToolBar.set_annotation(firstAnno, self)
-            elif not self.__annoToolBar in items :
-                self.__annoToolBar.set_annotation(None)
+            # elif not self.__annoToolBar in items :
+            #     self.__annoToolBar.set_annotation(None)
 
         qt.View.mouseMoveEvent(self, e)
 

@@ -514,6 +514,9 @@ class MainWindow(QtGui.QMainWindow,
         """
         gwidget = None
         try:
+            # Since dataflowview.GraphicalGraph.__adapterType__ is dataflowview.adapter.GraphAdapter
+            # graph will automatically be wrapped by that class and gwidget will exclusevily 
+            # talk to the adapter instead of the original graph. This thing is twisted but works well.
             gwidget = dataflowview.GraphicalGraph.create_view(graph, parent=self)
             gwidget.set_clipboard(self.session.clipboard)
             gwidget.set_siblings(self.session.workspaces)

@@ -281,7 +281,6 @@ class CompositeNodeFactory(AbstractFactory):
 
             # Apply modifiers (if callable)
             for (key, func) in data_modifiers:
-
                 try:
                     if(callable(func)):
                         if(meta):

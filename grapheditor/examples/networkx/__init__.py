@@ -9,7 +9,7 @@ them.
 """
 
 import networkx as nx
-from openalea.grapheditor import Observed, GraphAdapterBase, basenotifiers
+from openalea.grapheditor.all import Observed, GraphAdapterBase
 
 class NXObservedGraph( GraphAdapterBase, Observed ):
     """An adapter to networkx.Graph"""
@@ -72,7 +72,7 @@ class NXObservedGraph( GraphAdapterBase, Observed ):
             if pos:
                 self.notify_listeners(("vertex_event",
                                        (vertex,
-                                        basenotifiers.get_vertex_notify_position_message(pos))))
+                                        ("metadata_changed", "position", pos))))
 
     def set_edge_data(self, edge_proxy, **kwargs):
         #nothing right now"
