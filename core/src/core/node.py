@@ -37,7 +37,7 @@ from weakref import ref, proxy
 import signature as sgn
 from observer import Observed, AbstractListener
 from actor import IActor
-from metadatadict import MetaDataDict
+from metadatadict import MetaDataDict, HasAdHoc
 from interface import TypeNameInterfaceMap
 # Exceptions
 class RecursionError (Exception):
@@ -50,78 +50,9 @@ class InstantiationError(Exception):
     pass
 
 
-# Utility functions
-def gen_port_list(size):
-    """ Generate a list of port description """
-    mylist = []
-    for i in range(size):
-        mylist.append(dict(name='t'+str(i), interface=None, value=i))
-    return mylist
-
-
-def initialise_standard_metadata():
-    """Declares the standard keys used by the Node structures. Called at the end of this file"""
-    #we declare what are the node model ad hoc data we require:
-    AbstractNode.extend_ad_hoc_slots("position", list, [0,0], "posx", "posy")
-    Node.extend_ad_hoc_slots("userColor", list, None, "user_color")
-    Node.extend_ad_hoc_slots("useUserColor", bool, True, "use_user_color", )
-    Annotation.extend_ad_hoc_slots("text", str, "", "txt")
-#    Annotation.extend_ad_hoc_slots("htmlText", str, None)
-    Annotation.extend_ad_hoc_slots("textColor", list, None)
-    Annotation.extend_ad_hoc_slots("rectP2", tuple, (-1,-1))
-    Annotation.extend_ad_hoc_slots("color", list, None)
-    Annotation.extend_ad_hoc_slots("visualStyle", int, None)
-    #we declare what are the node model ad hoc data we require:
-    AbstractPort.extend_ad_hoc_slots("hide" ,bool, False)
-    AbstractPort.extend_ad_hoc_slots("connectorPosition",list, [0,0])
-
-
 ########################
 # Node related classes #
 ########################
-class HasAdHoc(AbstractListener):
-    @classmethod
-    def extend_ad_hoc_slots(cls, name, _type, default, *args):
-        """
-        Describes which data and what type are expected to be found in the ad_hoc
-        dictionnary. Used by views.__ad_hoc_slots__ = {} Created at runtime
-        __ad_hoc_from_old_map__ = {}. Created at runtime have a look at
-        openalea.core.standard_meta_data.py
-        """
-        if( not hasattr(cls, "__ad_hoc_slots__")):
-            cls.__ad_hoc_slots__ = {}
-        else:
-            cls.__ad_hoc_slots__ = cls.__ad_hoc_slots__.copy() #inherit
-
-        cls.__ad_hoc_slots__[name] = (_type, default)
-        if len(args)>0:
-            if( not hasattr(cls, "__ad_hoc_from_old_map__")):
-                cls.__ad_hoc_from_old_map__={}
-            else:
-                cls.__ad_hoc_from_old_map__ = cls.__ad_hoc_from_old_map__.copy()
-            cls.__ad_hoc_from_old_map__[name] = args
-
-    def __init__(self):
-        AbstractListener.__init__(self)
-        self.__ad_hoc_dict = MetaDataDict(slots=self.__ad_hoc_slots__)
-        self.initialise(self.__ad_hoc_dict)
-#        self.set_ad_hoc_dict(, False)
-
-    def notify(self, sender, event):
-        if(sender == self.__ad_hoc_dict):
-            self.notify_listeners(event)
-
-    def set_ad_hoc_dict(self, d, useSlotDefault=True):
-        print "call to set_ad_hoc_dict hijacked"; return
-        self.__ad_hoc_dict = d
-        if hasattr(self, "__ad_hoc_slots__"):
-            d.set_slots(self.__ad_hoc_slots__, useSlotDefault)
-        self.initialise(d)
-
-    def get_ad_hoc_dict(self):
-        return self.__ad_hoc_dict
-
-
 class AbstractNode(Observed, HasAdHoc):
     """
     An AbstractNode is the atomic entity in a dataflow.
@@ -153,6 +84,8 @@ class AbstractNode(Observed, HasAdHoc):
         # -- the ugly back reference --
         # !! Christophe, don't look at this one.
         # proxy to higher level structure, aka CompositeNode.
+        # This is currently only used by the "wrap_method" node
+        # that needs to modify the topology of the graph.
         self._composite_node = None
 
         # The default layout
@@ -1494,5 +1427,31 @@ $NAME = Factory(name=$PNAME,
                                       WIDGETMODULE=repr(f.widgetmodule_name),
                                       WIDGETCLASS=repr(f.widgetclass_name), )
         return result
+
+# Utility functions
+def gen_port_list(size):
+    """ Generate a list of port description """
+    mylist = []
+    for i in range(size):
+        mylist.append(dict(name='t'+str(i), interface=None, value=i))
+    return mylist
+
+
+def initialise_standard_metadata():
+    """Declares the standard keys used by the Node structures. Called at the end of this file"""
+    #we declare what are the node model ad hoc data we require:
+    AbstractNode.extend_ad_hoc_slots("position", list, [0,0], "posx", "posy")
+    Node.extend_ad_hoc_slots("userColor", list, None, "user_color")
+    Node.extend_ad_hoc_slots("useUserColor", bool, True, "use_user_color", )
+    Annotation.extend_ad_hoc_slots("text", str, "", "txt")
+#    Annotation.extend_ad_hoc_slots("htmlText", str, None)
+    Annotation.extend_ad_hoc_slots("textColor", list, None)
+    Annotation.extend_ad_hoc_slots("rectP2", tuple, (-1,-1))
+    Annotation.extend_ad_hoc_slots("color", list, None)
+    Annotation.extend_ad_hoc_slots("visualStyle", int, None)
+    #we declare what are the node model ad hoc data we require:
+    AbstractPort.extend_ad_hoc_slots("hide" ,bool, False)
+    AbstractPort.extend_ad_hoc_slots("connectorPosition",list, [0,0])
+
 
 initialise_standard_metadata()
