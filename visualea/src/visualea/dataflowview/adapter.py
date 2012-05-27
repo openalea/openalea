@@ -24,13 +24,50 @@ import openalea.grapheditor.base as grapheditorbase
 
 class GraphAdapter(grapheditorbase.GraphAdapterBase):
     """An adapter to openalea.core.compositenode"""
+
+    @classmethod
+    def get_vertex_types(cls):
+        return ["annotation", "vertex"]
+
+    @classmethod
+    def get_edge_types(cls):
+        return ["default"]
+        
+        
     def __init__(self, graph):
         grapheditorbase.GraphAdapterBase.__init__(self, graph)
-
+    
+    #######################################
+    # methods specific to CompositeNodes. #
+    #######################################
+    def eval_as_expression(self):
+        return self.graph().eval_as_expression()
+    
+    def reset(self):
+        return self.graph().reset()
+        
+    def invalidate(self):
+        return self.graph().invalidate()
+        
+    def get_factory(self):
+        return self.graph().factory
+        
+    def to_factory(self, factory, itemIds, auto_io=True):
+        return self.graph().to_factory(factory, itemIds, auto_io)
+        
+    def compute_external_io(self, idList, newId):
+        return self.graph().compute_external_io(idList, newId)
+        
+    ########################################
+    # shortcut to access to methods of the #
+    # real graph that we don't implement   #
+    ########################################
     def __getattr__(self, name):
-        "shortcut to access to methods of the real graph that we don't implement"""
         return getattr( self.graph(), name )
-
+    
+    ###############
+    # Adapter API #
+    ###############
     def set_graph(self, graph):
         self.graph = weakref.ref(graph)
 
@@ -97,10 +134,4 @@ class GraphAdapter(grapheditorbase.GraphAdapterBase):
     def is_legal_connection(self, src, dst):
         pass
 
-    @classmethod
-    def get_vertex_types(cls):
-        return ["annotation", "vertex"]
 
-    @classmethod
-    def get_edge_types(cls):
-        return ["default"]

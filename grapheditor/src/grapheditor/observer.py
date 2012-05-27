@@ -40,7 +40,9 @@ class Observed(object):
        If the observed is currently notifying, the registration
        is delayed until it finishes."""
        if(not self.__isNotifying):
-           wr = weakref.ref(listener, self.__clean_dead_weakrefed_listener)
+           def weakref_cleaner(wr_listener):
+               self.listeners.discard(wr_listener)
+           wr = weakref.ref(listener, weakref_cleaner)
            self.listeners.add(wr)
        else:
            def push_listener_after():
@@ -60,9 +62,6 @@ class Observed(object):
            def discard_listener_after():
                self.unregister_listener(listener)
            self.__postNotifs.append(discard_listener_after)
-
-   def __clean_dead_weakrefed_listener(self, wr_listener):
-      self.listeners.discard(wr_listener)
 
    def transfer_listeners(self, newObs):
        """Takes all this observed's listeners, unregisters them
@@ -90,7 +89,7 @@ class Observed(object):
    def notify_listeners(self, event=None):
        """
        Send a notification to all listeners
-
+       
        :param event: an object to pass to the notify function
        """
 
@@ -101,11 +100,10 @@ class Observed(object):
        if(self.__exclusive):
            self.__exclusive.call_notify(self, event)
        else:
-           toDelete = []
-           for ref in self.listeners:
+           for ref in self.listeners.copy():
                obs = ref()
                if(obs is None):
-                   toDelete.append(ref)
+                   self.listeners.discard(ref)
                    continue
                if(not obs.is_notification_locked()):
                    try:
@@ -113,14 +111,9 @@ class Observed(object):
                    except Exception, e:
                        print "Warning :", str(self), "notification of", str(obs), "failed", e
                        traceback.print_exc()
-
-           for dead in toDelete:
-               self.listeners.discard(dead)
-
        self.__isNotifying = False
-       self.post_notification()
-
-   def post_notification(self):
+       
+       # process actions that were queued during notification.
        for action in self.__postNotifs:
            action()
        self.__postNotifs = []

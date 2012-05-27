@@ -18,7 +18,7 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 from openalea.core.observer import Observed, AbstractListener
-from openalea.core.metadatadict import MetaDataDict
+from openalea.core.metadatadict import MetaDataDict, HasAdHoc
 import weakref
 
 class Graph(Observed):
@@ -132,33 +132,12 @@ class Graph(Observed):
 
 
 
-class Vertex(Observed, AbstractListener):
-    #describes which data and what type
-    #are expected to be found in the ad_hoc
-    #dictionnary. Used by views.
-    __ad_hoc_slots__ = {}
-
-    @classmethod
-    def extend_ad_hoc_slots(cls, d):
-        cls.__ad_hoc_slots__.update(d)
-        
+class Vertex(Observed, HasAdHoc):
     def __init__(self):
         Observed.__init__(self)
-        AbstractListener.__init__(self)
-        self.set_ad_hoc_dict(MetaDataDict(self.__ad_hoc_slots__))
+        HasAdHoc.__init__(self)
         self.__connections = set()
         self.__id = 0
-
-    def notify(self, sender, event):
-        if(sender == self.__ad_hoc_dict):
-            self.notify_listeners(event)
-
-    def set_ad_hoc_dict(self, d):
-        self.__ad_hoc_dict = d
-        self.initialise(d)
-
-    def get_ad_hoc_dict(self):
-        return self.__ad_hoc_dict
 
     def add_connection(self, edge):
         self.__connections.add( weakref.ref(edge, self.discard_connection) )
@@ -175,11 +154,12 @@ class Vertex(Observed, AbstractListener):
     def get_id(self):
         return self.__id
 
+Vertex.extend_ad_hoc_slots("position", list, [0,0])
 
-
-class Edge(Observed):
+class Edge(Observed, HasAdHoc):
     def __init__(self, src, dst):
         Observed.__init__(self)
+        HasAdHoc.__init__(self)
         self.__id = 0
         self.src = weakref.ref(src)
         self.dst = weakref.ref(dst)

@@ -192,7 +192,7 @@ class GraphListenerBase(observer.AbstractListener):
 
     def initialise_from_model(self):
         g = self.get_graph()
-        if g is not None:
+        if g is not None and self.__strategyCls.initialise_graph_view:
             self.__strategyCls.initialise_graph_view(self, g)
 
     def clear(self):
@@ -450,7 +450,7 @@ class BlackBoxModel(object):
     wether the model is an Observed instance or just any random class.
 
     In the case it is an Observed instance, it calls the according methods of the model.
-    In any other case, the implementation do (almost) nothing.
+    In any other case, the implementation does (almost) nothing.
     """
     def __init__(self, owner, observed):
         self.owner = weakref.ref(owner)

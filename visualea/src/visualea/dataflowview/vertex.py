@@ -76,7 +76,7 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
                                                       self.default_corner_radius, True,
                                                       0, 0, 1, 1, parent)
         qtgraphview.Vertex.__init__(self, vertex, graph)
-
+        self.initialise(vertex.get_ad_hoc_dict())
         # ----- The colors -----
         self.__topColor    = self.default_top_color
         self.__bottomColor = self.default_bottom_color
@@ -615,6 +615,7 @@ class GraphicalPort(QtGui.QGraphicsEllipseItem, qtgraphview.Connector):
         qtgraphview.Connector.__init__(self, observed=port)
         self.__interfaceColor = None
         self.set_connection_modifiers(QtCore.Qt.NoModifier)
+        self.initialise(port.get_ad_hoc_dict())
         self.initialise_from_model()
 
     port = baselisteners.GraphElementListenerBase.get_observed

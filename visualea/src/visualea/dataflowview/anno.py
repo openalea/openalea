@@ -17,7 +17,7 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-from PyQt4 import QtGui, QtCore, QtSvg
+from PyQt4 import QtGui, QtCore
 from openalea.grapheditor import qtgraphview, baselisteners
 from openalea.grapheditor import qtutils
 from openalea.grapheditor.qtutils import *
@@ -68,6 +68,7 @@ class GraphicalAnnotation(qtutils.MemoRects, qtgraphview.Vertex):
         """ Create a nice annotation """
         qtutils.MemoRects.__init__(self, QtCore.QRectF())
         qtgraphview.Vertex.__init__(self, annotation, graphadapter)
+        self.initialise(annotation.get_ad_hoc_dict())
         self.__textItem = AleaQGraphicsEmitingTextItem(self.__def_string__, self)
         self.__textItem.geometryModified.connect(self.__onTextModified)
         self.__textItem.setTextInteractionFlags(QtCore.Qt.TextEditorInteraction)
