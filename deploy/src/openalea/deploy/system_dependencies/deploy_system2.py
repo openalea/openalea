@@ -16,7 +16,7 @@
 #
 ###############################################################################
 
-from dependency_builder import MSingleton, Tool, BaseBuilder, BuildEnvironment, BE
+from dependency_builder import MSingleton, BaseBuilder, BuildEnvironment, BE
 from dependency_builder import create_metabuilder, build_epilog
 from dependency_builder import options_metabuilders, options_common, options_gforge
 from dependency_builder import exe_ext, makedirs, download, download_egg, setuptools, openalea_deploy
@@ -117,6 +117,7 @@ class MPlatformAPI(MSingleton):
                   if api_cls!=first and \
                   not issubclass(api_cls, NativePackageAPI)] #because this should be "first"
         
+        print c_o_r
         action_men = OrderedDict()
         
         to_inst = packages[:]
@@ -189,6 +190,12 @@ class NA(object):
     dependency will be delegated to another PlatformAPI."""    
     pass
 
+class Ignore(object):
+    """Use this in a packagemap:
+    {"glut":Ignore} means that for this particular
+    dependency no error will be raised i.e. doesn't need to be installed."""    
+    pass
+
     
 class PlatformAPI(object):
     
@@ -212,7 +219,7 @@ class PlatformAPI(object):
         
     def decanonify( self, *packages ):
         handled = set()#[]
-        not_handled = set
+        not_handled = set()
         for pkg in packages:
             deca_list = self.packagemap[pkg]
             #make everything a list
@@ -222,10 +229,17 @@ class PlatformAPI(object):
                 deca_list = [deca_list]
             elif isinstance(deca_list, list):
                 pass
+            elif deca_list==Ignore:
+                print "Info: ignoring", pkg
+                continue
+            elif deca_list==NA:
+                print "Info: Delegating", pkg
+                not_handled.add(pkg)
+                continue
             else:
-                raise Exception("Bad dependency type: %s is %s"%(pkg, str(deca_list)))
+                raise Exception("Bad dependency type: %s is %s. The package must be added to this platform's package map."%(pkg, deca_list.__name__))
             for deca in deca_list:
-                if type(deca) in self.handled_decanofied_types:
+                if set([deca, type(deca)]) or set(self.handled_decanofied_types):
                     handled.add(deca)
                 else:
                     not_handled.add(pkg)
@@ -247,6 +261,10 @@ class BaseEggPackageAPI(PlatformAPI, object):
                 inst = pj(inst, "easy_install%s"%exe_ext)
             else:
                 return False
+                
+        if not BE.options.get("no_sudo_easy_install"):
+            inst = "sudo " + inst
+
         tempdir = BE.options.get("dldir")
         if not isdir(tempdir):
             makedirs(tempdir)        
@@ -445,7 +463,7 @@ class EggPackageAPI(BaseEggPackageAPI):
              })
              
 class Ubuntu(NativePackageAPI):
-    install_cmd = "apt-get install"
+    install_cmd = "sudo apt-get install"
 
     def __init__(self):
         NativePackageAPI.__init__(self)
@@ -462,6 +480,7 @@ class Ubuntu(NativePackageAPI):
                      "glut" : "freeglut3",
                      "glut-dev" : "freeglut3-dev",
                      "matplotlib" : "python-matplotlib",
+                     "networkx": "python-networkx",
                      "nose-dev" : "python-nose",
                      "numpy" : "python-numpy",
                      "pil" : "python-imaging",
@@ -480,6 +499,7 @@ class Ubuntu(NativePackageAPI):
                      "scons-dev" :  "scons",
                      "soappy" : "python-soappy",
                      "svn-dev" : "subversion",
+                     "wstools": Ignore,
              })
 
 class Ubuntu_Karmic(Ubuntu):
@@ -525,7 +545,7 @@ class Ubuntu_Oneiric(Ubuntu_Natty):
         })
 
 class Fedora(NativePackageAPI):
-    install_cmd = "yum install"
+    install_cmd = "sudo yum install"
     
     def __init__(self):
         NativePackageAPI.__init__(self)
@@ -539,9 +559,12 @@ class Fedora(NativePackageAPI):
                      "cgal-dev" : "CGAL-devel",
                      "compilers-dev" : "gcc-c++ gcc-gfortran",
                      "flex-dev" : "flex flex-static",
+                     "fpconst" : "python-fpconst",
                      "glut" : "freeglut",
                      "glut-dev" : "freeglut-devel",
+                     "gnuplot": "gnuplot",
                      "matplotlib" : "python-matplotlib",
+                     "networkx" : "python-networkx",
                      "nose-dev" : "python-nose",
                      "numpy" : "numpy",
                      "pil" : "python-imaging",
@@ -560,6 +583,7 @@ class Fedora(NativePackageAPI):
                      "scons-dev" :  "scons",
                      "soappy" : "SOAPpy",
                      "svn-dev" : "subversion",
+                     "wstools": Ignore
              })
              
 class Fedora_16(Fedora):
@@ -659,6 +683,8 @@ def options_installer(parser):
                    help="Download dependencies but do not install them.")    
     g.add_argument("--skip-inst", default="",
                    help="name of packages to download but not to install (comma seperated).")
+    g.add_argument("--no-sudo-easy-install", action="store_false",
+                   help="Don't use sudo to install with easy-install (use this with virtualenv).")
     g.add_argument("package", default="openalea", choices=["openalea", "vplants", "alinea"], 
                    help="The package to install dependencies for.")
     return parser
@@ -678,7 +704,7 @@ def main():
     metabuilders = [MDeploy]
     args, tools = parse_arguments(metabuilders)
 
-    args.skip_inst = args.skip_inst.split(",")
+    args.skip_inst = args.skip_inst.split(",") if args.skip_inst != "" else []
     options = vars(args)
     options["tools"] = tools
     options["pass_path"]=True

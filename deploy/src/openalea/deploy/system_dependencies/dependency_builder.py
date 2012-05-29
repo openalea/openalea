@@ -156,16 +156,27 @@ def get_python_dll():
     return pj(py_path, u"python%d%d.dll"%pyver)
 
 def get_python_scripts_dirs():
-    dirs = set()
-    prev = None
+    dirs = []
     for pth in sorted(sys.path):
-        pth = [part.lower() for part in pth.split(os.sep)]
+        pth = [part for part in pth.split(os.sep)]
         try:
-            idx = pth.index("lib")
+            pth_low = [part.lower() for part in pth]
+            idx = pth_low.index("lib")
         except:
             continue
         else:
-            dirs.add( pj(*pth[:idx]+["scripts"]).replace(":", ":"+os.sep) )
+            script_dir_name = "scripts" if sys.platform == "win32" else "bin"
+            script_path = pj(*pth[:idx]+[script_dir_name])
+            # sys.path contains absolute namesso the split operation above has to
+            # be compensated:
+            if sys.platform == "win32":
+                # restore "driveletter:\\" on windows
+                script_path = script_path.replace(":", ":"+os.sep)            
+            else:
+                # restore "/" on unixes
+                script_path = "/"+script_path
+            if script_path not in dirs:
+                dirs.append(script_path)
     return dirs
 
 ###############################
@@ -1104,7 +1115,7 @@ class BaseBuilder(object):
         return len(self.pending) != 0
 
     def get_task_restriction(self):
-        raise NotImplementedError
+        return None
         
     def __find_pending_tasks(self):
         tasks = []
@@ -1567,13 +1578,13 @@ class bisonflex(Tool):
 class setuptools(Tool):
     installable    = False
     exe            = "easy_install"+exe_ext
-    default_paths  = [ Tool.PyExecPaths, "/usr/bin" ]
+    default_paths  = [ Tool.PyExecPaths ]
 
     
 class openalea_deploy(Tool):
     installable    = False
     exe            = "alea_install"+exe_ext
-    default_paths  = [ Tool.PyExecPaths, "/usr/bin" ]
+    default_paths  = [ Tool.PyExecPaths  ]
 
 
 #################################
@@ -1628,9 +1639,9 @@ def options_dep_build(parser):
     g.add_argument("--only", "-o", default=None, action="append", type=valid_builder,
                    help="Only process these project/eggs")    
     g.add_argument("--only-action-projs", default=None, metavar="PROJECT_ACTIONS",
-                   help="For all projects to be processed, only do this action")
+                   help="For all projects to be processed, only do these action")
     g.add_argument("--only-action-eggs", default=None, metavar="EGG_ACTIONS",
-                   help="For all eggs to be processed, only do this action")
+                   help="For all eggs to be processed, only do these action")
     g.add_argument("--jobs", "-j", default=1, type=int,
                    help="Number of jobs during compilation")
     g.add_argument("--no-upload", "-n", action="store_const", const=True, default=False,
