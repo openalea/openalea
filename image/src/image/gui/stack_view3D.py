@@ -45,13 +45,14 @@ def img2polydata(image, list_remove=[], sc=None, verbose=False):
 
     : Parameters :
     list_remove : a list of cells to be removed from the tissue before putting it on screen
-    sc : if you give a paramter here, it will use it as scalar. you need to give a
+    sc : if you give a parameter here, it will use it as scalar. you need to give a
     cell->scalar dictionary
     """
 
     labels_provi = list(np.unique(image))
     #ici on filtre déjà les listes
-    labels= [i for i in labels_provi if i not in list_remove]
+    #~ labels= [i for i in labels_provi if i not in list_remove]
+    labels= labels_provi
 
     try:      labels.remove(0)
     except:   pass
@@ -99,19 +100,44 @@ def img2polydata(image, list_remove=[], sc=None, verbose=False):
         pd = tvtk.PolyData(points=xyz[c].astype(np.float))
         if sc:
             try:
-                pd.point_data.scalars = [sc[c] for i in xrange(len(xyz[c]))]
+                pd.point_data.scalars = [float(sc[c]) for i in xrange(len(xyz[c]))]
             except:
-                pd.point_data.scalars = [c for i in xrange(len(xyz[c]))]
+                pd.point_data.scalars = [float(0) for i in xrange(len(xyz[c]))]
         else:
-            pd.point_data.scalars = [c for i in xrange(len(xyz[c]))]
+            pd.point_data.scalars = [float(c) for i in xrange(len(xyz[c]))]
     
         f=tvtk.VertexGlyphFilter(input=pd)
         f2=tvtk.PointDataToCellData(input=f.output)
         polys[c]=f2.output
         polydata.add_input(polys[c])
         polydata.set_input_array_to_process(0,0,0,0,0)
-    
-    return polydata
+
+    labels_not_in_sc = list(set(list(np.unique(image)))-set(sc))
+    if 0 in labels_not_in_sc: labels_not_in_sc.remove(0)
+    if 1 in labels_not_in_sc: labels_not_in_sc.remove(1)
+    filtre=[i for i in xyz.keys() if i in list_remove or i in labels_not_in_sc]
+    if filtre!=[]:
+        polydata2 = tvtk.AppendPolyData()
+        polys2 = {}    
+        k=0.0
+        for c in filtre:
+            if verbose: print "% until polydata is built", k/float(len(filtre))*100
+            k+=1.
+            p=xyz[c]
+            p=p.astype(np.float)
+            pd = tvtk.PolyData(points=xyz[c].astype(np.float))
+            pd.point_data.scalars = [0. for i in xrange(len(xyz[c]))]
+            f=tvtk.VertexGlyphFilter(input=pd)
+            f2=tvtk.PointDataToCellData(input=f.output)
+            polys2[c]=f2.output
+            polydata2.add_input(polys2[c])
+            polydata2.set_input_array_to_process(0,0,0,0,0)
+    else:
+        polydata2=tvtk.AppendPolyData()
+        polys2 = {}
+        pd = tvtk.PolyData()
+        polydata2.add_input(pd)
+    return polydata, polydata2
 
 
 def export_vtk(img, filename="default.vtk", list_remove=[], dictionary=None, verbose=False):
@@ -129,40 +155,48 @@ def export_vtk(img, filename="default.vtk", list_remove=[], dictionary=None, ver
     """
     #management of file format
     if isinstance(img,SpatialImageAnalysis):
-        p=img2polydata(img.image, list_remove=list_remove,sc=dictionary, verbose=verbose)
+        p,p2=img2polydata(img.image, list_remove = list_remove, sc = dictionary, verbose = verbose)
     elif isinstance(img,SpatialImage):
-        p=img2polydata(img, list_remove=list_remove, verbose=verbose)
+        p,p2=img2polydata(img, list_remove = list_remove, sc = dictionary, verbose = verbose)
     else:
         print "for now this file format is not managed by export_vtk"
         return
     p.update()
+    p2.update()
     w = tvtk.PolyDataWriter()
     w.input=p.output
+    w.input=p2.output
     w.file_name=filename
     w.write()
 
 
-def rootSpI(img, list_remove=[],sc=None, verbose=False):
+def rootSpI(img, list_remove=[], sc=None, lut_range = False, verbose=False):
     """
     case where the data is a spatialimage
     """
-    if verbose:
-        print "You provided a SpatialImage."
+    if verbose: print "Type of image: SpatialImage."
     #cells are positionned inside a structure, the polydata, and assigned a scalar value
-    polydata = img2polydata(img, list_remove=list_remove, sc=sc, verbose=verbose)
+    polydata,polydata2 = img2polydata(img, list_remove=list_remove, sc=sc, verbose=verbose)
     m = tvtk.PolyDataMapper(input=polydata.output)
+    m2 = tvtk.PolyDataMapper(input=polydata2.output)
     #definition of the scalar range (default : min to max of the scalar value)
     if sc:
         ran=[sc[i] for i in sc.keys() if i not in list_remove]
-        m.scalar_range=np.min(ran), np.max(ran)
+        if lut_range != False:
+            print lut_range
+            m.scalar_range = lut_range[0],lut_range[1]
+        else:
+            m.scalar_range = np.min(ran), np.max(ran)
     else:
         m.scalar_range=np.min(img), np.max(img)
     #actor that manage different views if memory is short
     a = tvtk.QuadricLODActor(mapper=m)
     a.property.point_size=8
+    a2 = tvtk.QuadricLODActor(mapper=m2)
+    a2.property.point_size=8
     #scalebar
     sc=tvtk.ScalarBarActor(orientation='vertical',lookup_table=m.lookup_table)
-    return a, sc, m
+    return a, a2, sc, m, m2
 
 
 def rootSpIA(img, list_remove=[], sc=None, verbose=False):
@@ -170,7 +204,7 @@ def rootSpIA(img, list_remove=[], sc=None, verbose=False):
     case where the data is a spatialimageanalysis
     """ 
     if verbose:
-        print "You provided a SpatialImageAnalisys."
+        print "Type of image: SpatialImageAnalisys."
     #cells are positionned inside a structure, the polydata, and assigned a scalar value
     polydata = img2polydata(img.image, list_remove=list_remove, sc=sc, verbose=verbose)
     m = tvtk.PolyDataMapper(input=polydata.output)
@@ -186,7 +220,7 @@ def rootSpIA(img, list_remove=[], sc=None, verbose=False):
     return a, sc, m
 
 
-def display3D(img, list_remove=[], dictionary=None, lut=black_and_white, verbose=False):
+def display3D(img, list_remove=[], dictionary=None, lut=black_and_white, fixed_lut_range = False, verbose=False):
     """
     paramètres :
     img : SpatialImage ou SpatialImageAnalysis
@@ -209,17 +243,21 @@ def display3D(img, list_remove=[], dictionary=None, lut=black_and_white, verbose
     """
     #management of file format
     if isinstance(img,SpatialImageAnalysis):
-        a, sc, m = rootSpIA(img, list_remove=list_remove,sc=dictionary, verbose=verbose)
+        a, sc, m = rootSpIA(img, list_remove = list_remove, sc = dictionary, lut_range = fixed_lut_range, verbose=verbose)
     elif isinstance(img,SpatialImage):
-        a, sc, m = rootSpI(img, list_remove=list_remove,sc=dictionary, verbose=verbose)
+        a, a2, sc, m, m2 = rootSpI(img, list_remove = list_remove, sc = dictionary, lut_range = fixed_lut_range, verbose=verbose)
+        if verbose: print "Type of image: SpatialImage."
     else:
         print "for now this file format is not managed by display3D"
-        return
+        return None
     #choice of colormap
     m.lookup_table = lut(m.lookup_table)
+    from openalea.image.all import black_and_white
+    m2.lookup_table = black_and_white(m2.lookup_table)
     #switching on the viewer and loading the object and the scalarbar
     viewer = ivtk.viewer()
     viewer.scene.add_actor(a)
+    viewer.scene.add_actor(a2)
     viewer.scene.add_actor(sc)
     
 

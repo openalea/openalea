@@ -882,7 +882,7 @@ class SpatialImageAnalysis(object):
         self.__init__(self.image)
 
 
-    def remove_margins_cells(self, save = "", display = False, verbose = False):
+    def remove_margins_cells(self, save = "", verbose = False):
         """
         !!!!WARNING!!!!
         This function modify the SpatialImage on self.image
@@ -898,7 +898,8 @@ class SpatialImageAnalysis(object):
         """
         
         if verbose: print "Removing cells at the margins of the stack..."
-        
+
+        # -- We start by making sure that there is not only one cell in the image (appart from 0 and 1)
         import copy
         labels = copy.copy(list(self.labels()))
         if 0 in labels: labels.remove(0)
@@ -907,9 +908,11 @@ class SpatialImageAnalysis(object):
             import warnings
             warnings.warn("Only one cell left in your image, we won't take it out !")
             return self.__init__(self.image)
-        
+
+        # -- Then we recover the list of border cells and delete the from the image:
         border_cells = self.border_cells()
-        border_cells.remove(1)
+        if 0 in border_cells: border_cells.remove(0)
+        if 1 in border_cells: border_cells.remove(1)
         len_border_cells = len(border_cells)
         for n,c in enumerate(border_cells):
             if verbose and n%20 == 0: print n,'/',len_border_cells
@@ -918,10 +921,6 @@ class SpatialImageAnalysis(object):
 
         if save != "":
             imsave(self.image,save)
-
-        if display:
-            from vplants.tissue_analysis.growth_analysis import visu_spatial_image
-            visu_spatial_image(self.image)
         
         if verbose: print 'Done !!'
         
@@ -1067,7 +1066,7 @@ class SpatialImageAnalysis(object):
                 if not self.principal_curvatures.has_key(vid):
                     c = self.compute_principal_curvatures(vid)
                 else:
-                    c = self.principal_curvatures(vid)
+                    c = self.principal_curvatures[vid]
                 if c != 0: # 'compute_principal_curvatures' return a 0 when one of the vids is not in the L1.
                     curvature[vid] = func( self, vid )
 
