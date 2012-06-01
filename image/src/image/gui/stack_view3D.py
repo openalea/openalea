@@ -38,8 +38,78 @@ except:
     sys.exit(0)
 
 from colormaps import black_and_white, rainbow_full, rainbow_green2red, rainbow_red2blue
+import warnings
+#TODO : decorateurs
 
-def img2polydata(image, list_remove=[], sc=None, verbose=False):
+
+def img2polydata_simple(image, dictionnaire=None, verbose=True):
+    """
+    Convert a |SpatialImage| to a PolyData object with cells surface
+
+    : Parameters :
+    dictionnaire : cell->scalar dictionary
+    """
+
+    labels_provi = list(np.unique(image))
+    #ici on filtre déjà les listes
+    #~ labels= [i for i in labels_provi if i not in list_remove]
+    labels= labels_provi
+
+    try:      labels.remove(0)
+    except:   pass
+    try:      labels.remove(1)
+    except:   pass
+
+    #print image.shape
+
+    xyz = {}
+    if verbose:print "on récupère les bounding box"
+    bbox = ndimage.find_objects(image)
+    #print labels
+    for label in xrange(2,max(labels)+1):
+        if not label in labels: continue
+        if verbose:print "% until cells are built", label/float(max(labels))*100
+        slices = bbox[label-1]
+        label_image = (image[slices] == label)
+        #here we could add a laplacian function to only have the external shape
+        mask = ndimage.laplace(label_image)
+        label_image[mask!=0] = 0
+        mask = ndimage.laplace(label_image)
+        label_image[mask==0]=0
+        # compute the indices of voxel with adequate label
+        a = np.array(label_image.nonzero()).T
+        a+=[slices[0].start, slices[1].start, slices[2].start ]
+        #print a.shape
+        if a.shape[1] == 4:
+            #print a
+            pass
+        else:
+            xyz[label] = a
+
+    vx,vy,vz = image.resolution
+
+    polydata = tvtk.AppendPolyData()
+    polys = {}
+    filtre=[i for i in xyz.keys() if i in dictionnaire.keys()]
+    k=0.0
+    for c in filtre:
+        if verbose: print "% until first polydata is built", k/float(len(filtre))*100
+        k+=1.
+        p=xyz[c]
+        p=p.astype(np.float)
+        pd = tvtk.PolyData(points=xyz[c].astype(np.float))
+        pd.point_data.scalars = [float(dictionnaire[c]) for i in xrange(len(xyz[c]))]    
+        f=tvtk.VertexGlyphFilter(input=pd)
+        f2=tvtk.PointDataToCellData(input=f.output)
+        polys[c]=f2.output
+        polydata.add_input(polys[c])
+        polydata.set_input_array_to_process(0,0,0,0,0)
+
+    return polydata
+
+
+
+def img2polydata_complexe(image, list_remove=[], sc=None, verbose=False):
     """
     Convert a |SpatialImage| to a PolyData object with cells surface
 
@@ -93,7 +163,7 @@ def img2polydata(image, list_remove=[], sc=None, verbose=False):
     filtre=[i for i in xyz.keys() if i not in list_remove]
     k=0.0
     for c in filtre:
-        if verbose: print "% until polydata is built", k/float(len(filtre))*100
+        if verbose: print "% until first polydata is built", k/float(len(filtre))*100
         k+=1.
         p=xyz[c]
         p=p.astype(np.float)
@@ -112,7 +182,12 @@ def img2polydata(image, list_remove=[], sc=None, verbose=False):
         polydata.add_input(polys[c])
         polydata.set_input_array_to_process(0,0,0,0,0)
 
-    labels_not_in_sc = list(set(list(np.unique(image)))-set(sc))
+
+	try:
+		labels_not_in_sc = list(set(list(np.unique(image)))-set(sc))
+	except TypeError:
+		labels_not_in_sc=[]
+
     if 0 in labels_not_in_sc: labels_not_in_sc.remove(0)
     if 1 in labels_not_in_sc: labels_not_in_sc.remove(1)
     filtre=[i for i in xyz.keys() if i in list_remove or i in labels_not_in_sc]
@@ -121,7 +196,7 @@ def img2polydata(image, list_remove=[], sc=None, verbose=False):
         polys2 = {}    
         k=0.0
         for c in filtre:
-            if verbose: print "% until polydata is built", k/float(len(filtre))*100
+            if verbose: print "% until second polydata is built", k/float(len(filtre))*100
             k+=1.
             p=xyz[c]
             p=p.astype(np.float)
@@ -140,7 +215,7 @@ def img2polydata(image, list_remove=[], sc=None, verbose=False):
     return polydata, polydata2
 
 
-def export_vtk(img, filename="default.vtk", list_remove=[], dictionary=None, verbose=False):
+def export_vtk(img, filename="default", list_remove=[], dictionary=None, verbose=False):
     """
     paramètres :
     img : SpatialImage ou SpatialImageAnalysis
@@ -155,17 +230,48 @@ def export_vtk(img, filename="default.vtk", list_remove=[], dictionary=None, ver
     """
     #management of file format
     if isinstance(img,SpatialImageAnalysis):
-        p,p2=img2polydata(img.image, list_remove = list_remove, sc = dictionary, verbose = verbose)
+        p,p2=img2polydata_complexe(img.image, list_remove = list_remove, sc = dictionary, verbose = verbose)
     elif isinstance(img,SpatialImage):
-        p,p2=img2polydata(img, list_remove = list_remove, sc = dictionary, verbose = verbose)
+        p,p2=img2polydata_complexe(img, list_remove = list_remove, sc = dictionary, verbose = verbose)
     else:
-        print "for now this file format is not managed by export_vtk"
+        warnings.warn("for now this file format is not managed by export_vtk")
         return
     p.update()
     p2.update()
     w = tvtk.PolyDataWriter()
     w.input=p.output
+    #on enlève l'extension de filename si il y en a une
+    filename=filename.split(".")[0]
+    w.file_name=filename+"_1.vtk"
+    w.write()
     w.input=p2.output
+    w.file_name=filename+"_2.vtk"
+    w.write()
+
+
+def export_vtk_cut(img, filename="default.vtk", dictionary=None, verbose=False):
+    """
+    paramètres :
+    img : SpatialImage ou SpatialImageAnalysis
+    filename : le nom de la sortie
+    dictionary : dictionnaire cells->scalar
+    lut : disponibles dans colormaps
+    verbose : pour afficher ou non les progressions
+    
+    ATTENTION, SUR CERTAINES MACHINES LE FICHIER VTK A DES VIRGULES POUR DEFINIR LES DOUBLE, ALORS QUE LES SOFTS ONT BESOIN DE POINTS
+    
+    """
+    #management of file format
+    if isinstance(img,SpatialImageAnalysis):
+        p=img2polydata_simple(img.image, dictionnaire=dictionary,verbose = verbose)
+    elif isinstance(img,SpatialImage):
+        p=img2polydata_simple(img, dictionnaire=dictionary,verbose = verbose)
+    else:
+        warnings.warn("for now this file format is not managed by export_vtk")
+        return
+    p.update()
+    w = tvtk.PolyDataWriter()
+    w.input=p.output
     w.file_name=filename
     w.write()
 
@@ -176,7 +282,7 @@ def rootSpI(img, list_remove=[], sc=None, lut_range = False, verbose=False):
     """
     if verbose: print "Type of image: SpatialImage."
     #cells are positionned inside a structure, the polydata, and assigned a scalar value
-    polydata,polydata2 = img2polydata(img, list_remove=list_remove, sc=sc, verbose=verbose)
+    polydata,polydata2 = img2polydata_complexe(img, list_remove=list_remove, sc=sc, verbose=verbose)
     m = tvtk.PolyDataMapper(input=polydata.output)
     m2 = tvtk.PolyDataMapper(input=polydata2.output)
     #definition of the scalar range (default : min to max of the scalar value)
@@ -206,7 +312,7 @@ def rootSpIA(img, list_remove=[], sc=None, verbose=False):
     if verbose:
         print "Type of image: SpatialImageAnalisys."
     #cells are positionned inside a structure, the polydata, and assigned a scalar value
-    polydata = img2polydata(img.image, list_remove=list_remove, sc=sc, verbose=verbose)
+    polydata = img2polydata_complexe(img.image, list_remove=list_remove, sc=sc, verbose=verbose)
     m = tvtk.PolyDataMapper(input=polydata.output)
     #definition of the scalar range (default : min to max of the scalar value)
     if sc:
