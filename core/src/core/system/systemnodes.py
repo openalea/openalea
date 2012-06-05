@@ -512,3 +512,14 @@ class For(Node):
         return (value, )
 
 
+def get_data(pattern='*.*', pkg_name=None, as_paths=False):
+    """ Return all data that match the pattern """
+    from openalea.core.pkgmanager import PackageManager
+    pm = PackageManager()
+    result = pm.get_data(pattern, pkg_name, as_paths)
+    nodes = [x.instantiate() for x in result]
+    for node in nodes:
+        node.eval() 
+    names = [x.name for x in result]
+    filenames = [node.get_output(0) for node in nodes]
+    return dict(zip(names,filenames))

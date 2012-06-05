@@ -49,6 +49,7 @@ setup(
                    'openalea.csv = openalea.csv', 
                    'openalea.string = openalea.string',
                    'openalea.data = openalea.data',
+                   'openalea.datafile = openalea.datafile',
                    'openalea.file = openalea.file',
                    'openalea.functional = openalea.functional',
                    'openalea.math = openalea.math', 
