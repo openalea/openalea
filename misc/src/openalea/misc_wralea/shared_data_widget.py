@@ -2,182 +2,180 @@
 
 :author: Thomas Cokelaer
 """
-import sys
-from openalea.visualea.node_widget import NodeWidget
+import glob
+from os.path import join as pj
+from os.path import basename as bname
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-import os
+
+from openalea.core.observer import lock_notify
+from openalea.deploy.shared_data import get_shared_data_path
+from openalea.deploy.util import get_metadata
+from openalea.visualea.node_widget import NodeWidget
+
 
 class SharedDataBrowser(NodeWidget, QDialog):
-    """
-    This widget permits to select a shared data file located in a given Python package.
-    """
+    ''' This widget permits to select a shared data file located in a given Python 
+    package. The data file is searched in the shared directories. '''
     def __init__(self, node, parent):
 
         QDialog.__init__(self, parent)
         NodeWidget.__init__(self, node)
-                
-        self.package = ''
-        self.glob = '*'
-        self.shared_data_dirpath = None
-        self.data_filename = None
-        self.output_data_filepath = None
 
-        self.widget_layout()
+        self.gridlayout = QGridLayout(self)
+        self.gridlayout.setMargin(3)
+        self.gridlayout.setSpacing(5)
+
+        self.package_lineedit_label = QLabel('1. Set the package', self)
+        self.gridlayout.addWidget(self.package_lineedit_label, 0, 0)
+        
+        self.package_lineedit = QLineEdit(self)
+        self.gridlayout.addWidget(self.package_lineedit, 0, 1, 1, 3)
+        self.connect(self.package_lineedit, 
+                     SIGNAL("textChanged(QString)"), 
+                     self.package_changed)
+        
+        self.datadir_lineedit = QLineEdit(self)
+        self.datadir_lineedit.setReadOnly(True)
+        self.gridlayout.addWidget(self.datadir_lineedit, 1, 1, 1, 3)
+
+        self.metadata_textedit = QTextEdit('', self)
+        self.metadata_textedit.setReadOnly(True)
+        self.metadata_textedit.setTextInteractionFlags(Qt.TextBrowserInteraction)
+        self.gridlayout.addWidget(self.metadata_textedit, 2, 1, 1, 3)
+
+        self.glob_lineedit_label = QLabel('2.Filter the data: (e.g., *.dat)', self)
+        self.gridlayout.addWidget(self.glob_lineedit_label, 3, 0)
+
+        self.glob_lineedit = QLineEdit(self)
+        self.gridlayout.addWidget(self.glob_lineedit, 3, 1, 1, 2)
+        self.connect(self.glob_lineedit, 
+                     SIGNAL("textChanged(QString)"), 
+                     self.glob_changed)
+
+        self.filenames_combobox_label = QLabel('3. Select the data file:', self)
+        self.gridlayout.addWidget(self.filenames_combobox_label, 4, 0)
+
+        self.filenames_combobox = QComboBox(self)
+        self.connect(self.filenames_combobox,
+                     SIGNAL("activated(QString)"), 
+                     self.filename_changed)
+        self.gridlayout.addWidget(self.filenames_combobox, 4, 1, 1, 3)
+
+        self.setWindowTitle("SharedDatabrowser")
+        self.setGeometry(250, 200, 350, 550)
+        
+        self.updating = False
 
         self.notify(node, ("input_modified", 0))
-        self.notify(node, ("caption_modified",node.get_caption() ) )
-
-    def widget_layout(self):
-        layout = QGridLayout()
-        self.setLayout(layout)
-
-        # add label for package
-        self.widget_label_package = QLabel('1. Set the package')
-        layout.addWidget(self.widget_label_package, 0, 0 )
-        
-        # add QEdit for the package
-        self.widget_package = QLineEdit(self)
-        layout.addWidget(self.widget_package, 0, 1,1,3)
-        self.widget_package.setText(self.package)
-        self.connect(self.widget_package, SIGNAL("textChanged(QString)"), self.update_package)
-
-        # add textedit for package summary
-        self.widget_browser_packages = QTextEdit(self)
-        self.widget_browser_packages.setReadOnly(True)
-        self.widget_browser_packages.setTextInteractionFlags(Qt.TextBrowserInteraction)
-        self.widget_browser_packages.clear()
-        self.widget_browser_packages.append("")
-        layout.addWidget(self.widget_browser_packages, 1, 1 , 1, 3)
-
-        # add label to filter the filenames
-        self.widget_label_glob = QLabel('2.Filter the data: (e.g., *.dat)')
-        layout.addWidget(self.widget_label_glob, 2, 0 )
-
-        # add QEdit for the glob
-        self.widget_glob = QLineEdit(self)
-        layout.addWidget(self.widget_glob, 2, 1,1,2)
-        self.widget_glob.setText(self.glob)
-        self.connect(self.widget_glob, SIGNAL("textChanged(QString)"), self.update_glob)
-
-        # label for the data 
-        self.widget_label_data = QLabel('3. Select the data file:')
-        layout.addWidget(self.widget_label_data, 3, 0 )
-
-        # combobox for the data selection
-        self.widget_combo_data = QComboBox(self)
-        self.connect(self.widget_combo_data, SIGNAL("activated(QString)"), self.selection_data)
-        layout.addWidget(self.widget_combo_data,3,1, 1,3)
-
-        self.setWindowTitle("SharedData browser")
-        self.setGeometry(250, 200, 350, 550)
-
+        self.notify(node, ("caption_modified", node.get_caption()))
+    
 
     def notify(self, sender, event):
-        # Notification sent by node 
-        if event[0] == 'caption_modified' :
+        ''' Update the widgets according to the notification sent by the node ''' 
+        
+        if event[0] == 'caption_modified':
             self.window().setWindowTitle(event[1])
 
         if(event[0] != "input_modified"): return
 
-        # if inputs are modified and run is pressed, then we are here
-        if self.node.get_input(0)!=None:
-            self.package = self.node.get_input(0)
-            self.widget_package.setText(self.package)
-            
-        if self.node.get_input(1)!=None:
-            self.glob = self.node.get_input(1)
-            self.widget_glob.setText(self.glob)
+        self.update_input_package()
+        self.update_input_glob()
+        self.update_filenames_combobox()
         
-        if self.node.get_input(2)!=None:
-            self.data_filename = self.node.get_input(2)
-#            self.widget_data.setText(self.data_filename)
 
-        self.update_package(self.package)
-        self.update_glob(self.glob) #does also update_data
-        self.node._output = self.output_data_filepath
-
-
-    def update_package(self, package):
-        self.package = str(package)
-        from openalea.deploy.util import get_metadata
+    @lock_notify
+    def update_input_package(self):
+        ''' Update the input package text edit '''
+        package = self.node.get_input(0)
+        if self.updating or package is None: return
+        self.updating = True
+        self.package_lineedit.setText(package)
         try:
-            m = __import__(self.package, fromlist=[''])
-            from openalea.deploy.shared_data import get_shared_data_path
+            m = __import__(package, fromlist=[''])
+            datadir = get_shared_data_path(m.__path__)
         except:
-            self.widget_browser_packages.setText("Can not import %s." % self.package)
+            self.datadir_lineedit.clear()
         else:
-            try:
-                self.shared_data_dirpath = get_shared_data_path(m.__path__)
-                metadata = get_metadata(self.package)
-            except:
-                self.widget_browser_packages.setText("Can not retrieve metainfo from %s." % self.package)
-            else:
-                br_length = len('<br/>')
-                txt = "<p style=\"color:red\"><b>Package %s metadata</b></p>" % self.package
-                for line in metadata:
-                    values = line.split(':')
-                    if len(values) == 2:
-                        val1, val2 = values
-                    else:
-                        val1 = ''
-                        val2 = line
-                    if val1 == 'Home-page':
-                        txt += '<b>%s</b>: <a href="%s">web documentation</a><br/>' % (val1.title(),val2)
-                    elif val1 == '':
-                        txt = txt[:-br_length]
-                        txt += ' %s<br/>' % val2
-                    else:
-                        txt += '<b>%s</b>: %s<br/>' % (val1 , val2)
+            if datadir is not None:
+                self.datadir_lineedit.setText(datadir)
+        self._update_metadata_textedit(package)
+        self.updating = False
         
-                self.widget_browser_packages.setText(txt)
-    
-            self.update_data(self.data_filename)
-
-
-    def update_data(self, data):
-        self.output_data_filepath = None
-        self.data_filename = data
-        import glob
-        import os
-        filenames = []
+        
+    def _update_metadata_textedit(self, package):
+        ''' Update the text editor with the metadata '''
         try:
-            filenames = glob.glob(self.shared_data_dirpath +  os.sep + self.glob)
+            metadata = get_metadata(package)
         except:
-            pass
-        self.widget_combo_data.clear()
-        for i, elt in enumerate(filenames):
-            elt_name = str(elt)
-            self.widget_combo_data.addItem(os.path.basename(elt_name))
+            self.metadata_textedit.setText("Can not retrieve metainfo from %s." % package)
+        else:
+            br_length = len('<br/>')
+            txt = "<p style=\"color:red\"><b>Package %s metadata</b></p>" % package
+            for line in metadata:
+                values = line.split(':')
+                if len(values) == 2:
+                    val1, val2 = values
+                else:
+                    val1 = ''
+                    val2 = line
+                if val1 == 'Home-page':
+                    txt = '%s<b>%s</b>: <a href="%s">web documentation</a><br/>' % (txt, val1.title(), val2)
+                elif val1 == '':
+                    txt = txt[:-br_length]
+                    txt = '%s %s<br/>' % (txt, val2)
+                else:
+                    txt = '%s<b>%s</b>: %s<br/>' % (txt, val1 , val2)
+    
+            self.metadata_textedit.setText(txt)
         
-        if len(filenames) == 1:
-            self.output_data_filepath = os.path.join(self.shared_data_dirpath, os.sep, str(filenames[0]))
-            self.node._output = self.output_data_filepath
-            self.node.set_input(2, self.node._output)
+    
+    @lock_notify
+    def update_input_glob(self):
+        ''' Update the glob pattern text edit '''
+        globpattern = self.node.get_input(1)
+        if self.updating or globpattern is None: return
+        self.updating = True
+        self.glob_lineedit.setText(globpattern)
+        self.updating = False
+    
+        
+    @lock_notify
+    def update_filenames_combobox(self):
+        '''Update the combo box with the filenames '''
+        output_filepath = None
+        globpattern = str(self.glob_lineedit.text()) 
+        if self.updating: return
+        self.updating = True
+        self.filenames_combobox.clear()
+        datadir = self.datadir_lineedit.text()
+        if not datadir.isEmpty():
+            datadir = str(datadir)
+            filenames = glob.glob(pj(datadir, globpattern))
+            basenames = [bname(filename) for filename in filenames]
+            self.filenames_combobox.addItems(basenames)
+            input_filename = self.node.get_input(2)
+            if input_filename is not None and input_filename in basenames:
+                input_filename_index = self.filenames_combobox.findText(input_filename)
+                self.filenames_combobox.setCurrentIndex(input_filename_index)
+                output_filepath = pj(datadir, input_filename)
+        self.node.set_output(0, output_filepath)
+        self.updating = False
 
 
-    def selection_data(self, data):
-        self.data_filename = str(data)
-        import os
-        self.output_data_filepath = os.path.join(self.shared_data_dirpath,  self.data_filename)
-        self.node._output = self.output_data_filepath
+    def package_changed(self, package):
+        ''' Called on package change '''
+        self.node.set_input(0, str(package))
+        
+
+    def glob_changed(self, globpattern):
+        ''' Called on glob change '''
+        self.node.set_input(1, str(globpattern))
 
 
-    def update_glob(self, glob):
-        self.glob = str(glob)
-        self.widget_glob.setText(self.glob)
-        self.update_data(self.data_filename)
-
-
-
-
-
-
-
-
-
-
-
-
+    def filename_changed(self, filename):
+        ''' Called on filename change '''
+        self.node.set_input(2, str(filename))
+        
 
