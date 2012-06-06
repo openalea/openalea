@@ -36,7 +36,7 @@ class GetDataBrowser(NodeWidget, QDialog):
         self.glob_lineedit_label = QLabel('2.Filter the data: (e.g., *.dat)', self)
         self.gridlayout.addWidget(self.glob_lineedit_label, 2, 0)
 
-        self.glob_lineedit = QLineEdit(node.get_input_port('glob').get_default(), self)
+        self.glob_lineedit = QLineEdit(self)
         self.gridlayout.addWidget(self.glob_lineedit, 2, 1, 1, 2)
         self.connect(self.glob_lineedit, 
                      SIGNAL("textChanged(QString)"), 
@@ -57,7 +57,7 @@ class GetDataBrowser(NodeWidget, QDialog):
         self.filename2filepath_mapping = {}
         self.updating = False
 
-        self.notify(node, ("input_modified", 0))
+        self.notify(node, ("input_modified", 'all'))
         self.notify(node, ("caption_modified", node.get_caption()))
     
 
@@ -73,9 +73,15 @@ class GetDataBrowser(NodeWidget, QDialog):
                 self.update_filenames_combobox()
                 self.update_output_filepath()
             elif event[1] == 1:
+                self.update_input_glob()
                 self.update_filenames_combobox()
                 self.update_output_filepath()
             elif event[1] == 2:
+                self.update_output_filepath()
+            elif event[1] == 'all':
+                self.update_input_package()
+                self.update_input_glob()
+                self.update_filenames_combobox()
                 self.update_output_filepath()
         
 
