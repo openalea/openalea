@@ -1,7 +1,7 @@
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
-from openalea.core.pkgmanager import PackageManager
+from openalea.core.system import systemnodes
 from openalea.core.observer import lock_notify
 from openalea.deploy.util import get_metadata
 from openalea.visualea.node_widget import NodeWidget
@@ -140,16 +140,10 @@ class GetDataBrowser(NodeWidget, QDialog):
             __import__(package, fromlist=[''])
         except:
             pass
-        else:                    
-            pm = PackageManager()
-            data_factories = pm.get_data(globpattern, package)
-            nodes = [data_factory.instantiate() for data_factory in data_factories]
-            for node in nodes:
-                node.eval()
-            node_names = [data_factory.name for data_factory in data_factories]
-            file_paths = [node.get_output(0) for node in nodes]
-            self.filename2filepath_mapping.update(zip(node_names, file_paths))
-            self.filenames_combobox.addItems(node_names)
+        else:
+            data = systemnodes.get_data(globpattern, package)
+            self.filename2filepath_mapping.update(data)
+            self.filenames_combobox.addItems(self.filename2filepath_mapping.keys())
         self.updating = False
         
         

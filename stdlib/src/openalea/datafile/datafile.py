@@ -1,5 +1,5 @@
 from openalea.core import Node
-from openalea.core.pkgmanager import PackageManager
+from openalea.core.system import systemnodes
 
 class GetData(Node):
     """This node permits to find a shared data file located in a given Python package.
@@ -29,15 +29,8 @@ class GetData(Node):
     def __call__(self, inputs):
         package, glob, filename = inputs
         if package and filename:
-            pm = PackageManager()
-            data_factories = pm.get_data(glob, package)
-            nodes = [data_factory.instantiate() for data_factory in data_factories]
-            for node in nodes:
-                node.eval()
-            node_names = [data_factory.name for data_factory in data_factories]
-            file_paths = [node.get_output(0) for node in nodes]
-            zipped_names_paths = dict(zip(node_names, file_paths))
-            self._output = zipped_names_paths.get(filename)
+            data = systemnodes.get_data(glob, package)
+            self._output = data.get(filename)
             return (self._output,)
         else:
             return (self._output,)
