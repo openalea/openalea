@@ -320,6 +320,7 @@ class SpatialImageAnalysis(object):
         >>> analysis.nb_labels()
         7
         """
+        if self._labels is None : self._labels = self.__labels()
         return len(self._labels)
 
 
@@ -861,28 +862,50 @@ class SpatialImageAnalysis(object):
             return inertia_eig_vec, inertia_eig_val
 
 
-    def remove_cell(self, vid, verbose = False):
+    def remove_cells(self, vids, erase_value = 0, verbose = False):
         """
+        Use remove_cell to iterate over a list of cell to remove if there is more cells to keep than to remove.
+        If there is more cells to remove than to keep, we fill a "blank" image with those to keep.
         !!!!WARNING!!!!
         This function modify the SpatialImage on self.image
         !!!!WARNING!!!!
-        Function removing cell which label == vid.
         """
-        if vid not in self.labels():
-            import warnings
-            warning.warn("The cell "+str(vid)+" hasn't been found in the image.")
-            return
 
-        if verbose: print 'Trying to find your cell...'
-        xyz = np.where( (self.image[self.boundingbox(vid)]) == vid )
-        self.image[tuple((xyz[0]+self.boundingbox(vid)[0].start,xyz[1]+self.boundingbox(vid)[1].start,xyz[2]+self.boundingbox(vid)[2].start))]=0
+        if isinstance(vids,int):
+            vids= [vids]
 
-        if verbose: print 'Done !!'
-        
+        try:
+            isinstance(vids,list)
+        except TypeError:
+            return None
+
+        N=len(vids)
+        if 2*N < self.nb_labels():
+            if verbose: print "Removing", N, "cells."
+            for n, vid in enumerate(vids):
+                if verbose and n%5 == 0: print n,'/',N
+                xyz = np.where( (self.image[self.boundingbox(vid)]) == vid )
+                self.image[tuple((xyz[0]+self.boundingbox(vid)[0].start, xyz[1]+self.boundingbox(vid)[1].start, xyz[2]+self.boundingbox(vid)[2].start))]=erase_value
+
+        if 2*N >= self.nb_labels():
+            vids2keep = list( set(self.labels()) - set(vids) )
+            vids2keep.append(1)
+            N = len(vids2keep)
+            if verbose: print "Keeping", N, "cells."
+            import copy
+            image = copy.deepcopy(self.image)
+            self.image.fill(erase_value)
+            for n, vid in enumerate(vids2keep):
+                if verbose and n%5 == 0: print n, '/', N
+                xyz = np.where( (image[self.boundingbox(vid)]) == vid )
+                self.image[ tuple((xyz[0]+self.boundingbox(vid)[0].start, xyz[1]+self.boundingbox(vid)[1].start, xyz[2]+self.boundingbox(vid)[2].start)) ]=vid
+
         self.__init__(self.image)
 
+        if verbose: print 'Done !!'
 
-    def remove_margins_cells(self, save = "", verbose = False):
+
+    def remove_margins_cells(self, erase_value = 0, verbose = False):
         """
         !!!!WARNING!!!!
         This function modify the SpatialImage on self.image
@@ -913,14 +936,11 @@ class SpatialImageAnalysis(object):
         border_cells = self.border_cells()
         if 0 in border_cells: border_cells.remove(0)
         if 1 in border_cells: border_cells.remove(1)
-        len_border_cells = len(border_cells)
+        N = len(border_cells)
         for n,c in enumerate(border_cells):
-            if verbose and n%20 == 0: print n,'/',len_border_cells
+            if verbose and n%20 == 0: print n,'/',N
             xyz = np.where( (self.image[self.boundingbox(c)]) == c )
-            self.image[tuple((xyz[0]+self.boundingbox(c)[0].start,xyz[1]+self.boundingbox(c)[1].start,xyz[2]+self.boundingbox(c)[2].start))]=0
-
-        if save != "":
-            imsave(self.image,save)
+            self.image[tuple((xyz[0]+self.boundingbox(c)[0].start,xyz[1]+self.boundingbox(c)[1].start,xyz[2]+self.boundingbox(c)[2].start))]=erase_value
         
         if verbose: print 'Done !!'
         
@@ -989,7 +1009,6 @@ class SpatialImageAnalysis(object):
 
             # -- Now we can compute the principal curvatures informations
             from openalea.image.all import geometric_median
-            from openalea.plantgl.all import principal_curvatures
             if verbose: print 'Computing curvature :'
             for n,vid in enumerate(vids):
                 if (recalculate_all) or (not self.principal_curvatures.has_key(vid)):

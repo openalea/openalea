@@ -175,7 +175,6 @@ def img2polydata_complexe(image, list_remove=[], sc=None, verbose=False):
                 pd.point_data.scalars = [float(0) for i in xrange(len(xyz[c]))]
         else:
             pd.point_data.scalars = [float(c) for i in xrange(len(xyz[c]))]
-    
         f=tvtk.VertexGlyphFilter(input=pd)
         f2=tvtk.PointDataToCellData(input=f.output)
         polys[c]=f2.output
@@ -183,10 +182,10 @@ def img2polydata_complexe(image, list_remove=[], sc=None, verbose=False):
         polydata.set_input_array_to_process(0,0,0,0,0)
 
 
-	try:
-		labels_not_in_sc = list(set(list(np.unique(image)))-set(sc))
-	except TypeError:
-		labels_not_in_sc=[]
+    try:
+        labels_not_in_sc = list(set(list(np.unique(image)))-set(sc))
+    except TypeError:
+        labels_not_in_sc=[]
 
     if 0 in labels_not_in_sc: labels_not_in_sc.remove(0)
     if 1 in labels_not_in_sc: labels_not_in_sc.remove(1)
@@ -213,6 +212,102 @@ def img2polydata_complexe(image, list_remove=[], sc=None, verbose=False):
         pd = tvtk.PolyData()
         polydata2.add_input(pd)
     return polydata, polydata2
+
+
+def rootSpI(img, list_remove=[], sc=None, lut_range = False, verbose=False):
+    """
+    case where the data is a spatialimage
+    """
+    if verbose: print "Type of image: SpatialImage."
+    #cells are positionned inside a structure, the polydata, and assigned a scalar value
+    polydata,polydata2 = img2polydata_complexe(img, list_remove=list_remove, sc=sc, verbose=verbose)
+    m = tvtk.PolyDataMapper(input=polydata.output)
+    m2 = tvtk.PolyDataMapper(input=polydata2.output)
+    #definition of the scalar range (default : min to max of the scalar value)
+    if sc:
+        ran=[sc[i] for i in sc.keys() if i not in list_remove]
+        if lut_range != False:
+            print lut_range
+            m.scalar_range = lut_range[0],lut_range[1]
+        else:
+            m.scalar_range = np.min(ran), np.max(ran)
+    else:
+        m.scalar_range=np.min(img), np.max(img)
+    #actor that manage different views if memory is short
+    a = tvtk.QuadricLODActor(mapper=m)
+    a.property.point_size=8
+    a2 = tvtk.QuadricLODActor(mapper=m2)
+    a2.property.point_size=8
+    #scalebar
+    sc=tvtk.ScalarBarActor(orientation='vertical',lookup_table=m.lookup_table)
+    return a, a2, sc, m, m2
+
+
+#~ def rootSpIA(img, list_remove=[], sc=None, verbose=False):
+    #~ """
+    #~ case where the data is a spatialimageanalysis
+    #~ """ 
+    #~ if verbose:
+        #~ print "Type of image: SpatialImageAnalisys."
+    #~ #cells are positionned inside a structure, the polydata, and assigned a scalar value
+    #~ polydata = img2polydata_complexe(img.image, list_remove=list_remove, sc=sc, verbose=verbose)
+    #~ m = tvtk.PolyDataMapper(input=polydata.output)
+    #~ #definition of the scalar range (default : min to max of the scalar value)
+    #~ if sc:
+        #~ ran=[sc[i] for i in sc.keys() if i not in list_remove]
+        #~ m.scalar_range=np.min(ran), np.max(ran)
+    #~ #actor that manage different views if memory is short
+    #~ a = tvtk.QuadricLODActor(mapper=m)
+    #~ a.property.point_size=8
+    #~ #scalebar
+    #~ sc=tvtk.ScalarBarActor(orientation='vertical',lookup_table=m.lookup_table)
+    #~ return a, sc, m
+
+
+def display3D(img, list_remove=[], dictionary=None, lut=black_and_white, fixed_lut_range = False, cell_separation = True, verbose=False):
+    """
+    paramètres :
+    img : SpatialImage ou SpatialImageAnalysis
+    list_remove : une liste des cellules à enlever lors de l'affichage
+    dictionary : dictionnaire cells->scalar
+    lut : disponibles dans colormaps
+    verbose : pour afficher ou non les progressions
+    ex : 
+    im1 = imread('/home/vince/softs/vplants/vplants/trunk/vtissue/imaging/mars_alt/test/data/segmentation/imgSeg.inr.gz')
+    im1a=SpatialImageAnalysis(im1)
+    dictionary=dict(zip(im1a.labels(), im1a.volume()))
+    labs=im1a.labels()
+    L1=im1a.L1()[1]
+    filtre=[i for i in labs if i not in L1]
+    display3D(im1, verbose=True)
+
+    fonction maitre en deux parties :
+    la première partie gère le format de l'objet donné en paramètre 
+    la seconde partie gère l'affichage
+    """
+    import copy
+    #management of file format
+    if isinstance(img,SpatialImageAnalysis):
+        im = copy.deepcopy(img.image)
+    elif isinstance(img,SpatialImage):
+        im = copy.deepcopy(img)
+    else:
+        print "for now this file format is not managed by display3D"
+        return None
+        
+    if cell_separation:
+        img = compute_cell_separation(im)
+    
+    a, a2, sc, m, m2 = rootSpI(img, list_remove = list_remove, sc = dictionary, lut_range = fixed_lut_range, verbose=verbose)
+    #choice of colormap
+    m.lookup_table = lut(m.lookup_table)
+    from openalea.image.all import black_and_white
+    m2.lookup_table = black_and_white(m2.lookup_table)
+    #switching on the viewer and loading the object and the scalarbar
+    viewer = ivtk.viewer()
+    viewer.scene.add_actor(a)
+    viewer.scene.add_actor(a2)
+    viewer.scene.add_actor(sc)
 
 
 def export_vtk(img, filename="default", list_remove=[], dictionary=None, verbose=False):
@@ -276,96 +371,23 @@ def export_vtk_cut(img, filename="default.vtk", dictionary=None, verbose=False):
     w.write()
 
 
-def rootSpI(img, list_remove=[], sc=None, lut_range = False, verbose=False):
+def compute_cell_separation(mat):
     """
-    case where the data is a spatialimage
+    Function creating a space between cells for display.
+    Change the shared voxel between two cell to 0 so you can clearly see the seperations bewteen cells.
     """
-    if verbose: print "Type of image: SpatialImage."
-    #cells are positionned inside a structure, the polydata, and assigned a scalar value
-    polydata,polydata2 = img2polydata_complexe(img, list_remove=list_remove, sc=sc, verbose=verbose)
-    m = tvtk.PolyDataMapper(input=polydata.output)
-    m2 = tvtk.PolyDataMapper(input=polydata2.output)
-    #definition of the scalar range (default : min to max of the scalar value)
-    if sc:
-        ran=[sc[i] for i in sc.keys() if i not in list_remove]
-        if lut_range != False:
-            print lut_range
-            m.scalar_range = lut_range[0],lut_range[1]
-        else:
-            m.scalar_range = np.min(ran), np.max(ran)
-    else:
-        m.scalar_range=np.min(img), np.max(img)
-    #actor that manage different views if memory is short
-    a = tvtk.QuadricLODActor(mapper=m)
-    a.property.point_size=8
-    a2 = tvtk.QuadricLODActor(mapper=m2)
-    a2.property.point_size=8
-    #scalebar
-    sc=tvtk.ScalarBarActor(orientation='vertical',lookup_table=m.lookup_table)
-    return a, a2, sc, m, m2
-
-
-def rootSpIA(img, list_remove=[], sc=None, verbose=False):
-    """
-    case where the data is a spatialimageanalysis
-    """ 
-    if verbose:
-        print "Type of image: SpatialImageAnalisys."
-    #cells are positionned inside a structure, the polydata, and assigned a scalar value
-    polydata = img2polydata_complexe(img.image, list_remove=list_remove, sc=sc, verbose=verbose)
-    m = tvtk.PolyDataMapper(input=polydata.output)
-    #definition of the scalar range (default : min to max of the scalar value)
-    if sc:
-        ran=[sc[i] for i in sc.keys() if i not in list_remove]
-        m.scalar_range=np.min(ran), np.max(ran)
-    #actor that manage different views if memory is short
-    a = tvtk.QuadricLODActor(mapper=m)
-    a.property.point_size=8
-    #scalebar
-    sc=tvtk.ScalarBarActor(orientation='vertical',lookup_table=m.lookup_table)
-    return a, sc, m
-
-
-def display3D(img, list_remove=[], dictionary=None, lut=black_and_white, fixed_lut_range = False, verbose=False):
-    """
-    paramètres :
-    img : SpatialImage ou SpatialImageAnalysis
-    list_remove : une liste des cellules à enlever lors de l'affichage
-    dictionary : dictionnaire cells->scalar
-    lut : disponibles dans colormaps
-    verbose : pour afficher ou non les progressions
-    ex : 
-    im1 = imread('/home/vince/softs/vplants/vplants/trunk/vtissue/imaging/mars_alt/test/data/segmentation/imgSeg.inr.gz')
-    im1a=SpatialImageAnalysis(im1)
-    dictionary=dict(zip(im1a.labels(), im1a.volume()))
-    labs=im1a.labels()
-    L1=im1a.L1()[1]
-    filtre=[i for i in labs if i not in L1]
-    display3D(im1, verbose=True)
-
-    fonction maitre en deux parties :
-    la première partie gère le format de l'objet donné en paramètre 
-    la seconde partie gère l'affichage
-    """
-    #management of file format
-    if isinstance(img,SpatialImageAnalysis):
-        a, sc, m = rootSpIA(img, list_remove = list_remove, sc = dictionary, lut_range = fixed_lut_range, verbose=verbose)
-    elif isinstance(img,SpatialImage):
-        a, a2, sc, m, m2 = rootSpI(img, list_remove = list_remove, sc = dictionary, lut_range = fixed_lut_range, verbose=verbose)
-        if verbose: print "Type of image: SpatialImage."
-    else:
-        print "for now this file format is not managed by display3D"
-        return None
-    #choice of colormap
-    m.lookup_table = lut(m.lookup_table)
-    from openalea.image.all import black_and_white
-    m2.lookup_table = black_and_white(m2.lookup_table)
-    #switching on the viewer and loading the object and the scalarbar
-    viewer = ivtk.viewer()
-    viewer.scene.add_actor(a)
-    viewer.scene.add_actor(a2)
-    viewer.scene.add_actor(sc)
+    import scipy.ndimage as nd
+    import numpy as np
+    import copy
+    sep=nd.laplace(mat)
+    sep2=copy.copy(sep)
+    sep2[np.where(mat==1)]=0
+    sep2[np.where(sep==0)]=1
+    sep2[np.where(sep!=0)]=0
+    mat=mat*sep2
+    del sep2,sep
     
+    return mat
 
 
 if __name__ == '__main__':
