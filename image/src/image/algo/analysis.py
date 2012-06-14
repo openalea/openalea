@@ -19,10 +19,16 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-import numpy as np
-import scipy.ndimage as nd
+import warnings
 import math
 import copy
+from os.path import exists
+import gzip
+import pickle
+
+import numpy as np
+import numpy.linalg as ln
+import scipy.ndimage as nd
 
 from openalea.image.spatial_image import SpatialImage
 
@@ -180,7 +186,6 @@ def geometric_median(X, numIter = 50):
         dist.append(d) #update of the distance évolution
         
         if denum == 0.:
-            import warnings
             warnings.warn("Couldn't compute a geometric median, please check your data!")
             return [0,0,0]
         
@@ -190,7 +195,6 @@ def geometric_median(X, numIter = 50):
             #~ print abs(dist[i]-dist[i-2]), convergence
         i += 1
     if i == numIter:
-        import warnings
         warnings.warn("The Weiszfeld's algoritm did not converged after"+str(numIter)+"iterations for cell #"+str(c)+"!!!!!!!!!")
     #When convergence or iterations limit is reached we assume that we found the median.
 
@@ -204,7 +208,6 @@ def OLS_wall(xyz):
     :Parameters:
         - `xyz` voxels coordinate (3xN or Nx3 matrix)
     """
-    import numpy.linalg as ln
     if xyz.shape()[0] == 3: #if the matrix is 3xN, we convert it to a Nx3 matrix.
         xyz = xyz.transpose()
     
@@ -226,8 +229,6 @@ def closest_from_A(A,pts2search):
         - 'A': 3D coordinates of the point of interest (xA, yA, zA);
         - 'pts2search' : list of 3D coordinates
     """
-    import math
-    import copy
     xA, yA, zA = A
     min_dist = tuple()
     dist_1 = float('inf')
@@ -612,7 +613,6 @@ class SpatialImageAnalysis(object):
         """
         # -- We first make sure that labels are neighbors:
         if label_2 not in self.neighbors(label_1):
-            import warnings
             warnings.warn("You got it wrong dude,"+str(label_1)+"and"+str(label_2)+"are not neighbors!!")
 
         dilated_bbox = dilation( self.boundingbox(label_1) )
@@ -892,7 +892,6 @@ class SpatialImageAnalysis(object):
             vids2keep.append(1)
             N = len(vids2keep)
             if verbose: print "Keeping", N, "cells."
-            import copy
             image = copy.deepcopy(self.image)
             self.image.fill(erase_value)
             for n, vid in enumerate(vids2keep):
@@ -923,12 +922,10 @@ class SpatialImageAnalysis(object):
         if verbose: print "Removing cells at the margins of the stack..."
 
         # -- We start by making sure that there is not only one cell in the image (appart from 0 and 1)
-        import copy
         labels = copy.copy(list(self.labels()))
         if 0 in labels: labels.remove(0)
         if 1 in labels: labels.remove(1)
         if len(labels)==1:
-            import warnings
             warnings.warn("Only one cell left in your image, we won't take it out !")
             return self.__init__(self.image)
 
@@ -958,7 +955,6 @@ class SpatialImageAnalysis(object):
             # -- If 'vids' is an integer... 
             if isinstance(vids,int):
                 if (vids not in self.L1()): # - ...but not in the L1 list, there is nothing to do!
-                    import warnings
                     warnings.warn("Cell "+str(vids)+" is not in the L1. We won't compute it's curvature.")
                     return 0
                 else: # - ... and in the L1 list, we make it iterable.
@@ -969,11 +965,9 @@ class SpatialImageAnalysis(object):
                 tmp = copy.deepcopy(vids) # Ensure to scan all the elements of 'vids'
                 for vid in tmp:
                     if vid not in self.L1():
-                        import warnings
                         warnings.warn("Cell "+str(vid)+" is not in the L1. We won't compute it's curvature.")
                         vids.remove(vid)
                 if len(vids) == 0: # if there is no element left in the 'vids' list, there is nothing to do!
-                    import warnings
                     warnings.warn('None of the cells you provided bellonged to the L1.')
                     return 0
 
@@ -1008,7 +1002,7 @@ class SpatialImageAnalysis(object):
             adjacencies = k_closest_points_from_ann(pts,k=10)
 
             # -- Now we can compute the principal curvatures informations
-            from openalea.image.all import geometric_median
+            from openalea.image.algo.analysis import geometric_median
             if verbose: print 'Computing curvature :'
             for n,vid in enumerate(vids):
                 if (recalculate_all) or (not self.principal_curvatures.has_key(vid)):
@@ -1024,6 +1018,9 @@ class SpatialImageAnalysis(object):
         Function computing principal curvature using a CGAL c++ wrapped function: 'principal_curvatures'.
         It's only doable for cells of the first layer.
         """
+        from openalea.plantgl.all import (r_neighborhood,
+                                          principal_curvatures)
+
         x_vid, y_vid, z_vid = np.where(self.first_voxel_layer() == vid)
 
         if self.external_wall_geometric_median.has_key(vid):
@@ -1039,14 +1036,12 @@ class SpatialImageAnalysis(object):
         min_dist = closest_from_A(neighborhood_origin, pts_vid)
         id_min_dist = pts.index(min_dist)
 
-        from openalea.plantgl.all import r_neighborhood
         neigborids = r_neighborhood(id_min_dist, pts, adjacencies, self.used_radius_for_curvature)
 
         neigbor_pts=[]
         for i in neigborids:
             neigbor_pts.append(pts[i])
 
-        from openalea.plantgl.all import principal_curvatures
         pc = principal_curvatures(pts,id_min_dist,neigborids)
         k1 = pc[1][1]
         k2 = pc[2][1]
@@ -1067,7 +1062,6 @@ class SpatialImageAnalysis(object):
             # -- If 'vids' is an integer... 
             if isinstance(vids,int):
                 if (vids not in self.L1()): # - ...but not in the L1 list, there is nothing to do!
-                    import warnings
                     warnings.warn("Cell"+str(vids)+"is not in the L1. We won't compute it's curvature.")
                     return 0
                 else: # - ... and in the L1 list, we make it iterable.
@@ -1076,7 +1070,6 @@ class SpatialImageAnalysis(object):
             try:
                 self.principal_curvatures
             except:
-                import warnings
                 warnings.warn('Principal curvature not defined...')
                 self.compute_principal_curvatures(vids, verbose = True)
 
@@ -1127,6 +1120,8 @@ class SpatialImageAnalysis(object):
         """
         Display curvature cross
         """
+        from enthought.mayavi import mlab
+
         ori = self.principal_curvatures_origin
         dir = self.principal_curvatures_directions
         k1 = dict([tuple([a,self.principal_curvatures[a][0]]) for a in self.principal_curvatures])
@@ -1142,7 +1137,6 @@ class SpatialImageAnalysis(object):
         dir2Y=np.array([k2[a]*dir[a][1][1] for a in dir.keys()])
         dir2Z=np.array([k2[a]*dir[a][1][2] for a in dir.keys()])
 
-        from enthought.mayavi import mlab
         fig = mlab.figure(1, fgcolor=(1, 1, 1), bgcolor=(0, 0, 0), size=(800, 800))
         if shadow_layer:
             im = self.first_voxel_layer()
@@ -1166,7 +1160,6 @@ def save_analysis( analysis, filename = "" ):
     """
     # -- We are paranoid and start by making sure the user provided a SpatialImageAnalysis object !
     if not isinstance(analysis,SpatialImageAnalysis):
-        import warnings
         warnings.warn(str(analysis)+" is not an object belonging to the class SpatialImageAnalysis. Saving process ABORTED.")
         return None
 
@@ -1185,20 +1178,15 @@ def save_analysis( analysis, filename = "" ):
             filename = filename[:-4]
         filename.join([filename+"_analysis"])
     else:
-        import warnings
         warnings.warn("The file name is missing, and there's no information about it in "+str(analysis)+". Saving process ABORTED.")
         return None
 
     # -- We make sure the file doesn't already exist !
-    from os.path import exists
     if exists(filename):
-        import warnings
         warnings.warn("The file "+filename+".pklz already exist. Saving process ABORTED.")
         return None
 
     # -- We save a binary compresed version of the file:
-    import gzip
-    import pickle
     f = gzip.open( filename + ".pklz", 'wb')
     pickle.dump( analysis, f )
     f.close()
@@ -1209,8 +1197,6 @@ def load_analysis( SpatialImageAnalysis, filename ):
     """
     Load a SpatialImageAnalysis from the file `filename`.
     """
-    import gzip
-    import pickle
     f = gzip.open( str(filename) , 'rb')
     SpatialImageAnalysis = pickle.load( f )
     f.close()

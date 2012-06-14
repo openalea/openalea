@@ -17,26 +17,27 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id: interface.py 2245 2010-02-08 17:11:34Z cokelaer $"
 
-from openalea.image.all import bw,grayscale,SpatialImage
+from openalea.image.gui.palette import bw, grayscale
+from openalea.image.spatial_image import SpatialImage
 
 def apply_palette (data, palette) :
-	if data.dtype == bool :
-		data = data * 1
+    if data.dtype == bool :
+        data = data * 1
 
-	img = palette[data]
+    img = palette[data]
 
-	if isinstance(data,SpatialImage) :
-		img = SpatialImage(img,img.resolution,palette.shape[1],img.info)
+    if isinstance(data,SpatialImage) :
+        img = SpatialImage(img,img.resolution,palette.shape[1],img.info)
 
-	return img,
+    return img,
 
 def wra_grayscale (nb) :
-	return grayscale(nb),
+    return grayscale(nb),
 
 wra_grayscale.__doc__ = grayscale.__doc__
 
 def wra_bw () :
-	return bw(),
+    return bw(),
 
 wra_bw.__doc__ = bw.__doc__
 

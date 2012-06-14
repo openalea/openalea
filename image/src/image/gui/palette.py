@@ -61,72 +61,72 @@ representation (even though to be suitable for Qt it is actually ABGR for some r
 """
 
 def bw () :
-	"""Black and white palette
-	"""
-	return array([(0,0,0),(255,255,255)],uint8)
+    """Black and white palette
+    """
+    return array([(0,0,0),(255,255,255)],uint8)
 
 def grayscale (cmax, alpha = False) :
-	"""Grayscale values ranging from 0 to 255
+    """Grayscale values ranging from 0 to 255
 
-	:Parameters:
-	 - `cmax` (int) - data maximum value
+    :Parameters:
+        - `cmax` (int) - data maximum value
 
-	:Returns Type: list of (R,G,B,(A) )
-	"""
-	if cmax==0 : cmax = 255
-	pal = [(int(i * 255. / cmax),
-		int(i * 255. / cmax),
-		int(i * 255. / cmax),
-		    255) for i in xrange(cmax + 1)]
+    :Returns Type: list of (R,G,B,(A) )
+    """
+    if cmax==0 : cmax = 255
+    pal = [(int(i * 255. / cmax),
+        int(i * 255. / cmax),
+        int(i * 255. / cmax),
+        255) for i in xrange(cmax + 1)]
 
-	return array(pal,uint8)
+    return array(pal,uint8)
 
 def grayscale_alpha (cmax, alpha = False) :
-	"""Grayscale values ranging from 0 to 255
+    """Grayscale values ranging from 0 to 255
 
-	:Parameters:
-	 - `cmax` (int) - data maximum value
+    :Parameters:
+        - `cmax` (int) - data maximum value
 
-	:Returns Type: list of (R,G,B,(A) )
-	"""
-	if cmax==0 : cmax = 255
-	pal = [(int(i * 255. / cmax),
-		int(i * 255. / cmax),
-		int(i * 255. / cmax),
-		int(i * 255. / cmax) ) for i in xrange(cmax + 1)]
+    :Returns Type: list of (R,G,B,(A) )
+    """
+    if cmax==0 : cmax = 255
+    pal = [(int(i * 255. / cmax),
+            int(i * 255. / cmax),
+            int(i * 255. / cmax),
+            int(i * 255. / cmax) ) for i in xrange(cmax + 1)]
 
-	return array(pal,uint8)
+    return array(pal,uint8)
 
 def rainbow (cmax) :
-	"""Rainbow values ranging from red to blue and violet
+    """Rainbow values ranging from red to blue and violet
 
-	:Parameters:
-	 - `cmax` (int) - data maximum value
+    :Parameters:
+        - `cmax` (int) - data maximum value
 
-	:Returns Type: list of (R,G,B)
-	"""
-	if cmax==0 : cmax = 255
-	cmax = float(cmax)
-	pal = [tuple(int(v * 255) for v in hsv_to_rgb(i / cmax,1.,1.) ) + (255,) \
-	       for i in xrange(int(cmax + 1) )]
+    :Returns Type: list of (R,G,B)
+    """
+    if cmax==0 : cmax = 255
+    cmax = float(cmax)
+    pal = [tuple(int(v * 255) for v in hsv_to_rgb(i / cmax,1.,1.) ) + (255,) \
+            for i in xrange(int(cmax + 1) )]
 
-	return array(pal,uint8)
+    return array(pal,uint8)
 
 def bwrainbow (cmax, alpha = False) :
-	"""Black, White plus Rainbow values ranging from red to blue and violet
+    """Black, White plus Rainbow values ranging from red to blue and violet
 
-	:Parameters:
-	 - `cmax` (int) - data maximum value
+    :Parameters:
+        - `cmax` (int) - data maximum value
 
-	:Returns Type: list of int
-	"""
-	if cmax==0 : cmax = 255
-	cmax = float(cmax)
-	pal = [(255,255,255,0),(0,0,0,0)] \
-	      + [tuple(int(v * 255) for v in hsv_to_rgb(i / cmax,1.,1.) ) + (255,) \
-		 for i in xrange(int(cmax - 1) )]
+    :Returns Type: list of int
+    """
+    if cmax==0 : cmax = 255
+    cmax = float(cmax)
+    pal = [(255,255,255,0),(0,0,0,0)] \
+        + [tuple(int(v * 255) for v in hsv_to_rgb(i / cmax,1.,1.) ) + (255,) \
+        for i in xrange(int(cmax - 1) )]
 
-	return array(pal,uint8)
+    return array(pal,uint8)
 
 
 

@@ -29,7 +29,7 @@ from PyQt4.QtCore import Qt,SIGNAL
 from PyQt4.QtGui import (QImage,QPixmap,QTransform,QMatrix,
                          QLabel,QGraphicsView)
 from pixmap import to_img, to_pix
-from openalea.image.all import SpatialImage
+from openalea.image.spatial_image import SpatialImage
 
 class PixmapView (object) :
     """Base class for 2D views on spatial images

@@ -28,18 +28,18 @@ from openalea.image.serial.basics import load,save,imread, imsave
 from pylab import imsave
 
 def wra_load (filename, mmap_mode) :
-	return load(filename,mmap_mode),
+    return load(filename,mmap_mode),
 
 wra_load.__doc__ = load.__doc__
 
 def wra_save (filename, img) :
-	save(filename,img)
-	return img,
+    save(filename,img)
+    return img,
 
 wra_save.__doc__ = save.__doc__
 
 def wra_imread (filename) :
-	return imread(filename)
+    return imread(filename)
 
 wra_imread.__doc__ = imread.__doc__
 
