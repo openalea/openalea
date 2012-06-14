@@ -20,12 +20,16 @@ __revision__=" $Id$ "
 
 # import libraries
 import sys
-import numpy as np
-from scipy import ndimage
+import copy
 import math
+
+import numpy as np
+import scipy.ndimage as nd
+
 from openalea.image.serial.basics import imread
 from openalea.image.spatial_image import SpatialImage
 from openalea.image.algo.analysis import SpatialImageAnalysis
+
 #compatibility
 try:
     from tvtk.tools import ivtk
@@ -33,7 +37,7 @@ try:
 except ImportError:
     from enthought.tvtk.tools import ivtk
     from enthought.tvtk.api import tvtk
-except:
+else:
     print "import impossible dans stack_view3D"
     sys.exit(0)
 
@@ -64,7 +68,7 @@ def img2polydata_simple(image, dictionnaire=None, verbose=True):
 
     xyz = {}
     if verbose:print "on récupère les bounding box"
-    bbox = ndimage.find_objects(image)
+    bbox = nd.find_objects(image)
     #print labels
     for label in xrange(2,max(labels)+1):
         if not label in labels: continue
@@ -72,9 +76,9 @@ def img2polydata_simple(image, dictionnaire=None, verbose=True):
         slices = bbox[label-1]
         label_image = (image[slices] == label)
         #here we could add a laplacian function to only have the external shape
-        mask = ndimage.laplace(label_image)
+        mask = nd.laplace(label_image)
         label_image[mask!=0] = 0
-        mask = ndimage.laplace(label_image)
+        mask = nd.laplace(label_image)
         label_image[mask==0]=0
         # compute the indices of voxel with adequate label
         a = np.array(label_image.nonzero()).T
@@ -133,7 +137,7 @@ def img2polydata_complexe(image, list_remove=[], sc=None, verbose=False):
 
     xyz = {}
     if verbose:print "on récupère les bounding box"
-    bbox = ndimage.find_objects(image)
+    bbox = nd.find_objects(image)
     #print labels
     for label in xrange(2,max(labels)+1):
         if not label in labels: continue
@@ -141,9 +145,9 @@ def img2polydata_complexe(image, list_remove=[], sc=None, verbose=False):
         slices = bbox[label-1]
         label_image = (image[slices] == label)
         #here we could add a laplacian function to only have the external shape
-        mask = ndimage.laplace(label_image)
+        mask = nd.laplace(label_image)
         label_image[mask!=0] = 0
-        mask = ndimage.laplace(label_image)
+        mask = nd.laplace(label_image)
         label_image[mask==0]=0
         # compute the indices of voxel with adequate label
         a = np.array(label_image.nonzero()).T
@@ -205,9 +209,9 @@ def img2polydata_complexe(image, list_remove=[], sc=None, verbose=False):
             f2=tvtk.PointDataToCellData(input=f.output)
             polys2[c]=f2.output
             polydata2.add_input(polys2[c])
-            polydata2.set_input_array_to_process(0,0,0,0,0)
     else:
         polydata2=tvtk.AppendPolyData()
+        polydata2.set_input_array_to_process(0,0,0,0,0)
         polys2 = {}
         pd = tvtk.PolyData()
         polydata2.add_input(pd)
@@ -218,12 +222,12 @@ def rootSpI(img, list_remove=[], sc=None, lut_range = False, verbose=False):
     """
     case where the data is a spatialimage
     """
-    if verbose: print "Type of image: SpatialImage."
-    #cells are positionned inside a structure, the polydata, and assigned a scalar value
+    # -- cells are positionned inside a structure, the polydata, and assigned a scalar value.
     polydata,polydata2 = img2polydata_complexe(img, list_remove=list_remove, sc=sc, verbose=verbose)
     m = tvtk.PolyDataMapper(input=polydata.output)
     m2 = tvtk.PolyDataMapper(input=polydata2.output)
-    #definition of the scalar range (default : min to max of the scalar value)
+    
+    # -- definition of the scalar range (default : min to max of the scalar value).
     if sc:
         ran=[sc[i] for i in sc.keys() if i not in list_remove]
         if lut_range != False:
@@ -233,7 +237,8 @@ def rootSpI(img, list_remove=[], sc=None, lut_range = False, verbose=False):
             m.scalar_range = np.min(ran), np.max(ran)
     else:
         m.scalar_range=np.min(img), np.max(img)
-    #actor that manage different views if memory is short
+    
+    # -- actor that manage changes of view if memory is short.
     a = tvtk.QuadricLODActor(mapper=m)
     a.property.point_size=8
     a2 = tvtk.QuadricLODActor(mapper=m2)
@@ -264,7 +269,7 @@ def rootSpI(img, list_remove=[], sc=None, lut_range = False, verbose=False):
     #~ return a, sc, m
 
 
-def display3D(img, list_remove=[], dictionary=None, lut=black_and_white, fixed_lut_range = False, cell_separation = True, verbose=False):
+def display3D(img, list_remove=[], dictionary=None, lut=black_and_white, fixed_lut_range = False, cell_separation = False, verbose=False):
     """
     paramètres :
     img : SpatialImage ou SpatialImageAnalysis
@@ -285,29 +290,35 @@ def display3D(img, list_remove=[], dictionary=None, lut=black_and_white, fixed_l
     la première partie gère le format de l'objet donné en paramètre 
     la seconde partie gère l'affichage
     """
-    import copy
-    #management of file format
+    if cell_separation:
+        # -- Management of file format
+        if isinstance(img,SpatialImageAnalysis):
+            im = compute_cell_separation(img.image)
+        elif isinstance(img,SpatialImage):
+            im = compute_cell_separation(img)
+        else:
+            print "for now this file format is not managed by display3D"
+            return None
+
+    # -- Management of file format
     if isinstance(img,SpatialImageAnalysis):
-        im = copy.deepcopy(img.image)
+        a, a2, sc, m, m2 = rootSpI(img.image, list_remove = list_remove, sc = dictionary, lut_range = fixed_lut_range, verbose=verbose)
     elif isinstance(img,SpatialImage):
-        im = copy.deepcopy(img)
+        a, a2, sc, m, m2 = rootSpI(img, list_remove = list_remove, sc = dictionary, lut_range = fixed_lut_range, verbose=verbose)
     else:
         print "for now this file format is not managed by display3D"
         return None
-        
-    if cell_separation:
-        img = compute_cell_separation(im)
-    
-    a, a2, sc, m, m2 = rootSpI(img, list_remove = list_remove, sc = dictionary, lut_range = fixed_lut_range, verbose=verbose)
-    #choice of colormap
+
+    # -- choice of colormap
     m.lookup_table = lut(m.lookup_table)
     from openalea.image.all import black_and_white
     m2.lookup_table = black_and_white(m2.lookup_table)
-    #switching on the viewer and loading the object and the scalarbar
+    # -- switching on the viewer and loading the object and the scalarbar
     viewer = ivtk.viewer()
     viewer.scene.add_actor(a)
     viewer.scene.add_actor(a2)
-    viewer.scene.add_actor(sc)
+    if dictionary != None:
+        viewer.scene.add_actor(sc)
 
 
 def export_vtk(img, filename="default", list_remove=[], dictionary=None, verbose=False):
@@ -376,7 +387,7 @@ def compute_cell_separation(mat):
     Function creating a space between cells for display.
     Change the shared voxel between two cell to 0 so you can clearly see the seperations bewteen cells.
     """
-    import scipy.ndimage as nd
+    import scipy.nd as nd
     import numpy as np
     import copy
     sep=nd.laplace(mat)
