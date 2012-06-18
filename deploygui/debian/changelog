@@ -1,8 +1,38 @@
-openalea-deploygui (0.9.0-2~ppa2) lucid; urgency=low
+openalea-deploygui (1.0.1~ppa3) oneiric; urgency=low
+
+  * Fix icon 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 23 Mar 2012 16:52:28 +0100
+
+openalea-deploygui (1.0.1~ppa1) oneiric; urgency=low
+
+  * Release 1.
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 23 Mar 2012 14:10:56 +0100
+
+openalea-deploygui (1.0.1~ppa2) precise; urgency=low
+
+  * Add desktop and icon files 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 23 Mar 2012 13:41:18 +0100
+
+openalea-deploygui (1.0.1~ppa1) precise; urgency=low
+
+  * Release 1.0 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 23 Mar 2012 11:19:57 +0100
+
+openalea-deploygui (1.0.0b1~ppa2) oneiric; urgency=low
+
+  * Fix OpenAlea namespace 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Thu, 05 Jan 2012 17:27:35 +0100
+
+openalea-deploygui (1.0.0b1~ppa1) oneiric; urgency=low
 
   * final release
 
- -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 29 Oct 2010 20:38:11 +0200
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 02 Dec 2011 11:11:34 +0100
 
 openalea-deploygui (0.9.0-1ubuntu1ppa1) lucid; urgency=low
 
