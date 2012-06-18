@@ -2,7 +2,11 @@
 # This file has been generated at Sat Mar  6 21:17:54 2010
 
 from openalea.core import Factory
-from openalea.pylab import version, authors
+from openalea.deploy import get_metainfo
+
+
+version = get_metainfo('openalea.pylab', 'version')
+authors = get_metainfo('openalea.pylab', 'author')
 
 
 __name__ = 'openalea.pylab.patches'
