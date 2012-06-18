@@ -353,7 +353,10 @@ class DataFlow(PropertyGraph):
     def remove_vertex(self, vid):
         """todo"""
         for pid in list(self.ports(vid)):
-            self.remove_port(pid)
+            try:
+                self.remove_port(pid)
+            except:
+                pass
         PropertyGraph.remove_vertex(self, vid)
 
     remove_vertex.__doc__ = PropertyGraph.remove_vertex.__doc__

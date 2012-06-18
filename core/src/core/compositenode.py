@@ -31,7 +31,7 @@ from openalea.core.node import AbstractFactory, AbstractPort, Node
 from openalea.core.node import RecursionError
 from openalea.core.pkgmanager import PackageManager, UnknownPackageError
 from openalea.core.package import UnknownNodeError
-from openalea.core.dataflow import DataFlow, InvalidEdge
+from openalea.core.dataflow import DataFlow, InvalidEdge, PortError
 from openalea.core.settings import Settings
 from openalea.core.metadatadict import MetaDataDict
 import logger
@@ -909,9 +909,13 @@ class CompositeNode(Node, DataFlow):
 
     def remove_edge(self, eid):
         target = self.target(eid)
-        port = self.port(target)
+        try:
+            port = self.port(target)
+        except PortError:
+            port = None
         DataFlow.remove_edge(self, eid)
-        self.actor(port._vid).set_input_state(port._local_pid, "disconnected")
+        if port:
+            self.actor(port._vid).set_input_state(port._local_pid, "disconnected")
         self.notify_listeners(("edge_removed", ("default",eid) ))
 
 
@@ -953,9 +957,13 @@ class CompositeNode(Node, DataFlow):
         :param port_dst: destination input port number
         """
 
-        source_pid = self.out_port(src_id, port_src)
-        target_pid = self.in_port(dst_id, port_dst)
-        eid = DataFlow.connect(self, source_pid, target_pid)
+        try:
+            source_pid = self.out_port(src_id, port_src)
+            target_pid = self.in_port(dst_id, port_dst)
+            eid = DataFlow.connect(self, source_pid, target_pid)
+        except:
+            logger.error("Enable to create the edge %s %d %d %d %d"%( self.factory.name,  src_id, port_src, dst_id, port_dst))
+            return
 
         self.actor(dst_id).set_input_state(port_dst, "connected")
         self.notify_listeners(("connection_modified", ))
