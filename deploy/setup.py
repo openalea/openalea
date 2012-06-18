@@ -26,9 +26,6 @@ for key,value in metadata.iteritems():
 
 keywords = ['setuptools', 'shared lib']
 
-print project
-print package
-
 setup(
     # Metadata for PyPi
     name = name,

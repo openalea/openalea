@@ -91,11 +91,7 @@ def use_setuptools(
         import setuptools; setuptools.bootstrap_install_from = egg
     try:
         import pkg_resources
-        import setuptools
-        if setuptools.__version__ != version:
-            raise Exception
-        return 
-    except:
+    except ImportError:
         return do_download()        
         
     try:
