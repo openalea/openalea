@@ -18,19 +18,27 @@ __revision__ = " $Id$ "
 
 from openalea.core import Node, ITextStr
 
-from multiprocessing import Pool
+from multiprocessing import Pool, cpu_count
 import pickle
 
 def pymap(func, seq, N):
     """ map(func, seq) """
     
     #pickle.dumps(func)
+    if N <1:
+        N = cpu_count()
 
     p = Pool(N)
+    res = []
     if func and seq:
-        return ( p.map(func, seq), )
-    else:
-        return ( [], )
+        try:
+            res = p.map(func, seq)
+        except Exception as e:
+            pool.terminate()
+            pool.join()
+            raise e
+
+    return res, 
 
 
 def pyfilter(func, seq):
