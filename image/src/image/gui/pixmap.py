@@ -44,7 +44,7 @@ def to_img (img, scalar_type=None, lut=None, forceNativeLut=None) :
     # properly oriented it is up to the reading code to fix the orientation! --
 
     try:
-        import Image, ImageQt
+        from PIL import Image, ImageQt
     except ImportError:
         return None
     #print isinstance(img, SpatialImage)
