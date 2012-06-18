@@ -14,7 +14,7 @@ there are a few commands dedicated to multisetup (see --help).
 __license__ = "Cecill-C"
 __revision__ = " $Id$"
 
-import sys, os
+import sys, os, re
 from optparse import OptionParser
 from subprocess import call, PIPE, Popen
 
@@ -195,7 +195,32 @@ class Multisetup(object):
         to multisetup such as --help, --quiet, --keep-going so that the
         remaining commands are fully comptatible with setuptools.
         """
-
+        if self.commands[0]=='--update-version':
+            old_version = self.commands[1]
+            new_version = self.commands[2]            
+            ver_regexp = re.compile(r"version\s*=\s*%s"%old_version.replace(".",r"\."))
+            rel_regexp = re.compile(r"release\s*=\s*%s"%old_version[:old_version.rindex(".")].replace(".",r"\."))
+            for dir in self.packages:
+                txt = ""
+                try:
+                    with open( dir+os.sep+"metainfo.ini" ) as f:
+                        txt = f.read()
+                except IOError, e:
+                    print "Couldn't read "+dir+os.sep+"metainfo.ini", e 
+                    continue
+                    
+                txt, n = ver_regexp.subn("version = %s"%new_version, txt)
+                txt, n = rel_regexp.subn("release = %s"%new_version[:new_version.rindex(".")], txt)
+                if n :
+                    print "updating "+dir+os.sep+"metainfo.ini"
+                    try:
+                        with open( dir+os.sep+"metainfo.ini", "w" ) as f:
+                            f.write(txt)
+                    except Exception, e:
+                        print "Couldn't update "+dir+os.sep+"metainfo.ini", e                        
+                else:
+                    print "Couldn't update "+dir+os.sep+"metainfo.ini"
+            sys.exit(0)
         if '--quiet' in self.commands:
             self.verbose = False
             self.commands.remove('--quiet')

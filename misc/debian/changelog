@@ -1,8 +1,14 @@
-openalea-misc (0.9.0-2~ppa3) lucid; urgency=low
+openalea-misc (1.0.0b1~ppa2) oneiric; urgency=low
 
-  * Fix bug in email address 
+  * Fix openalea namespace 
 
- -- Christophe Pradal <christophe.pradal@cirad.fr>  Sat, 30 Oct 2010 01:20:55 +0200
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Thu, 05 Jan 2012 17:30:44 +0100
+
+openalea-misc (1.0.0b1~ppa1) oneiric; urgency=low
+
+  * Release 1.0 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 02 Dec 2011 11:08:39 +0100
 
 openalea-misc (0.9.0-2~ppa2) lucid; urgency=low
 

@@ -107,18 +107,19 @@ def out_of_date(original, derived):
 
 
 
-from PyQt4 import QtGui, QtCore
+from PyQt4 import QtCore, QtGui
 from openalea.visualea.dataflowview import GraphicalGraph
 # create the application only once!
-app = QtGui.QApplication([])
-class DataflowRenderer(QtGui.QWidget):
+app = QtGui.QApplication.instance() or QtGui.QApplication([])
+# start the package manager
+pm = PackageManager(verbose=False)
+pm.init()
+class DataflowRenderer(QtCore.QObject):
     def __init__(self, plot_path, package_name, node_name, 
-                 basename, tmpdir, destdir, parent=None):
-        QtGui.QWidget.__init__(self, parent)
+                 basename, tmpdir, destdir, options, parent=None):
+        QtCore.QObject.__init__(self, parent)
 
         # -- fetch the composite node --
-        pm = PackageManager(verbose=False)
-        pm.init()
         pkg = pm[package_name]
         factory = pkg.get_factory(node_name)
         node = factory.instantiate()
@@ -127,47 +128,53 @@ class DataflowRenderer(QtGui.QWidget):
         outpath = os.path.join(tmpdir, outname)
 
         self.filename = outpath 
-
+        self.width = float(options.get("width",400))
+        self.scale = options.get("scale")
+        self.scale = float(self.scale)/100. if self.scale is not None else None
+        
         # -- we create the view whose content we will 
         # render to file --
-        self.view = GraphicalGraph.create_view(node, parent=self, noToolBar=True)
+        #self.view  = GraphicalGraph.create_view(node, parent=self, noToolBar=True)
+        self.scene = GraphicalGraph.__sceneType__._make_scene(GraphicalGraph, node, parent=self)
+        self.scene.initialise_from_model()
         self.timerId = self.startTimer(0)
 
     def timerEvent(self, event):
         # -- compute the view rect --
-        rect = self.view.scene().sceneRect()
-        matrix = self.view.matrix()
-        rect = matrix.mapRect(rect)
+        rect    = self.scene.sceneRect()
+        scale   = self.scale or rect.width()/self.width
 
+        transfo = QtGui.QTransform.fromScale(scale, scale) 
+        rect    = transfo.mapRect(rect).toRect()
+        
         # -- our canvas filled with white --
-        self.pixmap = QtGui.QPixmap(rect.width(), rect.height())
-        self.pixmap.fill()
-    
-        painter = QtGui.QPainter(self.pixmap)
+        self.image = QtGui.QImage(rect.width(), rect.height(), QtGui.QImage.Format_RGB32)
+        self.image.fill(0xFFFFFFFF)
+        painter = QtGui.QPainter(self.image)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
-        self.view.scene().render(painter)
-        painter.end()
+        self.scene.render(painter)
 
-        self.pixmap.save(self.filename+'.png', "png")
-
-        QtCore.QCoreApplication.processEvents()
+        self.image.save(self.filename+'.png', "png")
         self.killTimer(self.timerId)
-        QtCore.QCoreApplication.exit()
+        QtGui.QApplication.exit()
 
-def run_code(plot_path, package_name, node_name, basename, tmpdir, destdir):
+def run_code(plot_path, package_name, node_name, basename, tmpdir, destdir, options):
     """
     Import a Python module from a path, and run the function given by
     name, if package_name is not None.
     """
-
-
-    wid = DataflowRenderer(plot_path, package_name, node_name, basename, tmpdir, destdir)
-    app.exec_()
+    try:
+        wid = DataflowRenderer(plot_path, package_name, node_name, basename, tmpdir, destdir, options)
+        app.exec_()
+    except:
+        import traceback, sys
+        traceback.print_exc()
+        sys.exit(-1)
     return 1
 
 
 
-def render_figures(plot_path, package_name, node_name, tmpdir, destdir):
+def render_figures(plot_path, package_name, node_name, tmpdir, destdir, options):
     """
     Run a pyplot script and save the low and high res PNGs and a PDF
     in outdir.
@@ -209,7 +216,7 @@ def render_figures(plot_path, package_name, node_name, tmpdir, destdir):
 
     # We didn't find the files, so build them
 
-    run_code(plot_path, package_name, node_name, basename, tmpdir, destdir)
+    run_code(plot_path, package_name, node_name, basename, tmpdir, destdir, options)
 
 
     return 1
@@ -252,7 +259,7 @@ def _plot_directive(plot_path, basedir, package_name, node_name, caption,
                         for line in caption.split('\n'))
 
     # Generate the figures, and return the number of them
-    num_figs = render_figures(plot_path, package_name, node_name, tmpdir, destdir)
+    num_figs = render_figures(plot_path, package_name, node_name, tmpdir, destdir, options)
 
     # Now start generating the lines of output
     lines = []
@@ -355,10 +362,9 @@ def setup(app):
     setup.config = app.config
     setup.confdir = app.confdir
 
-    options = {'alt': directives.unchanged,
-               'height': directives.length_or_unitless,
-               'width': directives.length_or_percentage_or_unitless,
-               'scale': directives.nonnegative_int,
+    options = {'alt': directives.unchanged,               
+               'scale': directives.percentage,
+               'width': directives.nonnegative_int,
                'align': align,
                'class': directives.class_option,
                'include-source': directives.flag,
