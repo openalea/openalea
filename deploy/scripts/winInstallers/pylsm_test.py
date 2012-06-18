@@ -1,7 +1,7 @@
 import sys
 
 try:
-    from PIL import Image
+    from pylsm import lsmreader
     sys.exit(0)
 except Exception, e:
     sys.exit(1)

@@ -14,7 +14,7 @@ the appropriate options to ``use_setuptools()``.
 This file can also be run as a script to install or upgrade setuptools.
 """
 import sys
-DEFAULT_VERSION = "0.6c9"
+DEFAULT_VERSION = "0.6c11"
 DEFAULT_URL     = "http://pypi.python.org/packages/%s/s/setuptools/" % sys.version[:3]
 
 md5_data = {
@@ -91,8 +91,13 @@ def use_setuptools(
         import setuptools; setuptools.bootstrap_install_from = egg
     try:
         import pkg_resources
-    except ImportError:
-        return do_download()       
+        import setuptools
+        if setuptools.__version__ != version:
+            raise Exception
+        return 
+    except:
+        return do_download()        
+        
     try:
         pkg_resources.require("setuptools>="+version); return
     except pkg_resources.VersionConflict, e:

@@ -1,0 +1,131 @@
+Only in .: ann_mgw.patch
+diff -abur ..\ann_1.1.2/ann2fig/Makefile ./ann2fig/Makefile
+--- ..\ann_1.1.2/ann2fig/Makefile	2012-03-22 15:37:56.852259200 +0100
++++ ./ann2fig/Makefile	2012-03-23 12:12:55.759431900 +0100
+@@ -47,7 +47,7 @@
+ #	ANN2FIG		name of executable
+ #-----------------------------------------------------------------------------
+ 
+-ANN2FIG = ann2fig
++ANN2FIG = ann2fig.exe
+ SOURCES = ann2fig.cpp
+ OBJECTS = $(SOURCES:.cpp=.o)
+ 
+@@ -62,7 +62,7 @@
+ 
+ $(BINDIR)/$(ANN2FIG): $(OBJECTS)
+ 	$(C++) $(OBJECTS) -o $(ANN2FIG) $(LDFLAGS) $(ANNLIBS) $(OTHERLIBS)
+-	mv $(ANN2FIG) $(BINDIR)
++	move $(ANN2FIG) "$(BINDIR)"
+ 
+ #-----------------------------------------------------------------------------
+ # configuration definitions
+diff -abur ..\ann_1.1.2/include/ANN/ANN.h ./include/ANN/ANN.h
+--- ..\ann_1.1.2/include/ANN/ANN.h	2012-03-22 15:37:56.985507200 +0100
++++ ./include/ANN/ANN.h	2012-03-23 12:16:09.801756400 +0100
+@@ -59,7 +59,7 @@
+ #ifndef ANN_H
+ #define ANN_H
+ 
+-#ifdef WIN32
++#if defined (_MSC_VER) // #ifdef WIN32
+   //----------------------------------------------------------------------
+   // For Microsoft Visual C++, externally accessible symbols must be
+   // explicitly indicated with DLL_API, which is somewhat like "extern."
+diff -abur ..\ann_1.1.2/Make-config ./Make-config
+--- ..\ann_1.1.2/Make-config	2012-03-22 15:37:57.078780800 +0100
++++ ./Make-config	2012-03-23 12:10:03.985677900 +0100
+@@ -76,6 +76,15 @@
+ 	"MAKELIB = ar ruv" \
+ 	"RANLIB = true"
+ 
++#					Win32 using g++
++win32-g++:
++	$(MAKE) targets \
++	"ANNLIB = libANN.a" \
++	"C++ = g++" \
++	"CFLAGS = -O3 -DANN_NO_RANDOM" \
++	"MAKELIB = ar ruv" \
++	"RANLIB = ranlib"
++
+ #					Mac OS X using g++
+ macosx-g++:
+ 	$(MAKE) targets \
+diff -abur ..\ann_1.1.2/Makefile ./Makefile
+--- ..\ann_1.1.2/Makefile	2012-03-22 15:37:57.105430400 +0100
++++ ./Makefile	2012-03-23 13:26:46.055555200 +0100
+@@ -42,6 +42,7 @@
+ default:
+ 	@echo "Enter one of the following:"
+ 	@echo "  make linux-g++            for Linux and g++"
++	@echo "  make win32-g++            for Win32 and g++ (mingw)." 
+ 	@echo "  make macosx-g++           for Mac OS X and g++"
+ 	@echo "  make sunos5               for Sun with SunOS 5.x"
+ 	@echo "  make sunos5-sl            for Sun with SunOS 5.x, make shared libs"
+@@ -62,6 +63,12 @@
+ 	cd sample ; $(MAKE) $@
+ 	cd ann2fig ; $(MAKE) $@
+ 
++win32-g++:
++	cd src && $(MAKE) $@
++	cd test && $(MAKE) $@
++	cd sample && $(MAKE) $@
++	cd ann2fig && $(MAKE) $@
++
+ #-----------------------------------------------------------------------------
+ # Remove .o files and core files
+ #-----------------------------------------------------------------------------
+diff -abur ..\ann_1.1.2/sample/Makefile ./sample/Makefile
+--- ..\ann_1.1.2/sample/Makefile	2012-03-22 15:37:57.411900800 +0100
++++ ./sample/Makefile	2012-03-23 12:12:21.159679900 +0100
+@@ -49,7 +49,7 @@
+ #		ANNSAMP		name of sample program
+ #-----------------------------------------------------------------------------
+ 
+-ANNSAMP = ann_sample
++ANNSAMP = ann_sample.exe
+ 
+ SAMPSOURCES = ann_sample.cpp
+ SAMPOBJECTS = $(SAMPSOURCES:.cpp=.o)
+@@ -65,7 +65,7 @@
+ 
+ $(BINDIR)/$(ANNSAMP): $(SAMPOBJECTS) $(LIBDIR)/$(ANNLIB)
+ 	$(C++) $(SAMPOBJECTS) -o $(ANNSAMP) $(LDFLAGS) $(ANNLIBS)
+-	mv $(ANNSAMP) $(BINDIR)
++	move $(ANNSAMP) "$(BINDIR)"
+ 
+ #-----------------------------------------------------------------------------
+ # configuration definitions
+diff -abur ..\ann_1.1.2/src/Makefile ./src/Makefile
+--- ..\ann_1.1.2/src/Makefile	2012-03-22 15:37:57.838294400 +0100
++++ ./src/Makefile	2012-03-23 12:08:25.766132800 +0100
+@@ -56,7 +56,7 @@
+ $(LIBDIR)/$(ANNLIB): $(OBJECTS)
+ 	$(MAKELIB) $(ANNLIB) $(OBJECTS)
+ 	$(RANLIB) $(ANNLIB)
+-	mv $(ANNLIB) $(LIBDIR)
++	move $(ANNLIB) "$(LIBDIR)"
+ 
+ #-----------------------------------------------------------------------------
+ # Make object files
+diff -abur ..\ann_1.1.2/test/Makefile ./test/Makefile
+--- ..\ann_1.1.2/test/Makefile	2012-03-22 15:37:57.958217600 +0100
++++ ./test/Makefile	2012-03-23 12:11:46.820302300 +0100
+@@ -51,7 +51,7 @@
+ #		ANNTEST		name of test program
+ #-----------------------------------------------------------------------------
+ 
+-ANNTEST = ann_test
++ANNTEST = ann_test.exe
+ 
+ HEADERS = rand.h
+ TESTSOURCES = ann_test.cpp rand.cpp
+@@ -68,7 +68,7 @@
+ 
+ $(BINDIR)/$(ANNTEST): $(TESTOBJECTS) $(LIBDIR)/$(ANNLIB)
+ 	$(C++) $(TESTOBJECTS) -o $(ANNTEST) $(LDFLAGS) $(ANNLIBS) $(OTHERLIBS)
+-	mv $(ANNTEST) $(BINDIR)
++	move $(ANNTEST) "$(BINDIR)"
+ 
+ #-----------------------------------------------------------------------------
+ # configuration definitions

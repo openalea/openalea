@@ -1,3 +1,27 @@
+openalea-deploy (1.0.1~ppa1) oneiric; urgency=low
+
+  * Release 1.0 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 23 Mar 2012 14:10:43 +0100
+
+openalea-deploy (1.0.1~ppa1) precise; urgency=low
+
+  * Release 1.0 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 23 Mar 2012 13:47:53 +0100
+
+openalea-deploy (1.0.0b1~ppa2) oneiric; urgency=low
+
+  * Fix openalea namespace
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Thu, 05 Jan 2012 17:21:45 +0100
+
+openalea-deploy (1.0.0b1~ppa1) oneiric; urgency=low
+
+  * beta version for release 1.0
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 02 Dec 2011 11:03:38 +0100
+
 openalea-deploy (0.9.0-2ubuntu1ppa1) lucid; urgency=low
 
   * final version for release 0.9.0

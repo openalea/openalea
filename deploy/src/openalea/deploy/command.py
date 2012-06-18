@@ -27,6 +27,7 @@ import sys
 import shutil
 from distutils.errors import *
 import stat
+import glob
 
 from os.path import join as pj
 from setuptools import Command
@@ -684,16 +685,18 @@ class alea_install(old_easy_install):
 
     user_options = []
     user_options.extend(old_easy_install.user_options)
-    user_options.append(('install-dyn-lib=',
-                          None,
-                          'Directory to install dynamic library.'))
+    user_options.extend([ ('install-dyn-lib=', None, 'Directory to install dynamic library.'),
+                          ('gforge-private',  "g" , "Use private gforge repository too (will search for authentication pydistutils.cfg or ask if not found)"),                        
+                          ])
+                        
+    boolean_options = old_easy_install.boolean_options + ["gforge-private"]
 
     def initialize_options(self):
         old_easy_install.initialize_options(self)
         self.install_dyn_lib = None
+        self.gforge_private  = False
 
-    def finalize_options(self):
-
+    def finalize_options(self):    
         # Add openalea package link
         repolist = get_repo_list()
         if (not self.find_links):
@@ -712,6 +715,11 @@ class alea_install(old_easy_install):
 
     def run(self):
         self.set_system()
+        
+        if self.gforge_private:
+            from openalea.deploy.gforge_util import add_private_gforge_repositories
+            add_private_gforge_repositories()
+            
         old_easy_install.run(self)
 
         # Activate the correct egg
@@ -1174,7 +1182,7 @@ class upload_sphinx(Command):
         ('project=', None, None),
         ('package=', None, None),
         ('release=', None,None),
-        ('stable=', 'r', "put the documentation in the unstable repository [default False]"),
+        ('stable=', 'r', "put the documentation in the stable repository [default False]"),
         ]
 
     def initialize_options(self):
@@ -1385,3 +1393,8 @@ class clean(old_clean):
                 print 'Failed to launch sconc -c'
         else:
             print 'No SConstruct found. Skipping "scons -c" command.'
+
+        if self.all:
+            for egginfo in glob.glob( pj("src", "*.egg-info") ):
+                print "removing", egginfo
+                shutil.rmtree(egginfo)

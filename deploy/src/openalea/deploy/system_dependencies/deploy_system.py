@@ -1,5 +1,28 @@
-import dependency
+# -*- python -*-
+#
+#       openalea.deploy.deploy_system
+#
+#       Copyright 2006-2011 INRIA - CIRAD - INRA
+#
+#       File author(s): Daniel Barbeau
+#
+#       Distributed under the Cecill-C License.
+#       See accompanying file LICENSE.txt or copy at
+#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
+#
+#       OpenAlea WebSite : http://openalea.gforge.inria.fr
+#
+#############################################################################
 
+############################################################
+# THIS MODULE IS DEPRECATED, USE DEPLOY_SYSTEM2.PY INSTEAD #
+############################################################
+
+__license__ = "Cecill-C"
+__revision__ = " $Id$"
+
+import distributions, dependency
+import sys
 
 def install_dependencies(software, osname=None, fake=False):
     if osname is None:
@@ -51,10 +74,13 @@ for the one it is running on.
 * dry_run can be True or False. Defaults to False
 """
 
-if __name__=="__main__":
-    import distributions, dependency
-    import sys
+def main():
 
+    print """
+############################################################
+# THIS MODULE IS DEPRECATED, USE DEPLOY_SYSTEM2.PY INSTEAD #
+############################################################
+"""
     if len(sys.argv)==1:
         print usage%( reduce( lambda x, y: x+" "+y, distributions.canonical_dependencies.iterkeys() ), )
         sys.exit(-1)
@@ -66,3 +92,7 @@ if __name__=="__main__":
     fake     = bool(args.get("dry_run", False))
 
     install_dependencies(software, osname, fake)
+
+    
+if __name__=="__main__":
+    main()

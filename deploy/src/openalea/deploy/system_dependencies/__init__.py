@@ -1,2 +1,2 @@
-from dependency import *
+
 

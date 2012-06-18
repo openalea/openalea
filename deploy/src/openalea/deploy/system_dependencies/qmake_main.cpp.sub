@@ -1,0 +1,48 @@
+
+// WorkingDirShiftPatch
+#include <qlist.h>
+#include <qdir.h>
+#include <qbytearray.h>
+#include <windows.h>
+
+int main(int argc, char **argv)
+{
+    QList<QByteArray> qtargs;
+
+    // If we find any files in arguments, convert to absolute
+    qtargs << QByteArray(argv[0]);
+    for( int x = 1; x < argc; x++) {
+        QString arg(argv[x]);
+        QFileInfo file(arg);
+        if (file.exists()) {
+            if (!file.isAbsolute()) file.makeAbsolute();                
+            qtargs << file.filePath().toAscii();
+        }
+        else {
+            qtargs << arg.toAscii();
+        }
+    }
+    
+    // Then rebuild a new argv out of qtargs
+    char ** new_args = new char*[qtargs.size()];
+    for (int x = 0; x < qtargs.size(); x++) {
+        new_args[x] = qtargs[x].data();
+    }
+    
+    // Remember where we left from
+    QString origin = QDir::currentPath();
+    
+    // Move to where qmake lives so that it finds mkspec, etc...
+    wchar_t buffer[MAX_PATH+2];
+    DWORD v = GetModuleFileName(0, buffer, MAX_PATH+1);
+    buffer[MAX_PATH+1] = 0;
+    
+    QFileInfo path( QString::fromWCharArray(buffer) );
+    QDir::setCurrent( path.path() );
+    int ret = QT_PREPEND_NAMESPACE(runQMake)(argc, new_args);
+
+    // Return to where we were
+    QDir::setCurrent(origin);
+    
+    return ret;
+}

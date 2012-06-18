@@ -45,7 +45,7 @@ setup(
     packages = find_packages('src'),
     package_dir = { '' : 'src', },
     include_package_data = True,
-    zip_safe = True,
+    zip_safe = False,
 
     entry_points = {
               "distutils.setup_keywords": [
@@ -88,6 +88,8 @@ setup(
                  "alea_config = openalea.deploy.alea_config:main",
                  "alea_clean = openalea.deploy.alea_update:clean_version",
                  "alea_update_all = openalea.deploy.alea_update:update_all",
+                 "alea_dependency_builder = openalea.deploy.system_dependencies.dependency_builder:main",
+                 "alea_system_deploy = openalea.deploy.system_dependencies.deploy_system2:main",
                  ],
 
               },

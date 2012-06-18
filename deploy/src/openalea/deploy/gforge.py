@@ -62,12 +62,10 @@ class GForgeProxy(object):
 
     def login(self, userid=None, passwd=None):
         """  Open a session """
-
-        if(userid is None):
-            userid = raw_input("Enter your GForge login:")
-
-        if(passwd is None):
-            passwd = getpass.getpass("Enter you GForge password:")
+        import gforge_util
+        rc_userid, rc_passwd = gforge_util.find_login_passwd()
+        userid = userid or rc_userid
+        passwd = passwd or rc_passwd       
 
         try:
             self.session = self.server.login(userid, passwd)
@@ -398,7 +396,7 @@ class GForgeProxy(object):
         @param release_id : a number or a name
         """
 
-        project_id, package_id, release_id = \
+        _project_id, _package_id, _release_id = \
             self.convert_to_id(project_id, package_id, release_id)
 
         name = os.path.basename(filename)
@@ -419,13 +417,14 @@ class GForgeProxy(object):
 
         try:
             
-            ret = self.server.addFile(self.session, project_id, package_id, release_id,
+            ret = self.server.addFile(self.session, _project_id, _package_id, _release_id,
                                  name, filestr, type, processor, release_time)
             print "Done."
             return ret
         
         except Exception, e:
-            print e, "Failed to upload file."
+            return self.add_big_file(project_id,package_id, release_id, 
+                filename, proc_type, file_type)
 
 
     def remove_package(self, project_id, package_id):
@@ -462,7 +461,7 @@ class GForgeProxy(object):
         
         import gforge_util
         gforge_util.gforge_login(self.userid, self.passwd)
-        print 'Trying to delete file %s',
+        print 'Trying to delete file %s'%file_id,
         gforge_util.delete_file(project_id, package_id, release_id, file_id)
         print 'Done.'
 
