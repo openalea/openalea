@@ -103,10 +103,10 @@ files_glob = Factory(name='glob',
                 category='File,IO',
                 nodemodule='files',
                 nodeclass='glob',
-                inputs=({'interface': IStr, 'name': 'pattern', 'value': '*'},),
+                inputs=({'interface': IDirStr, 'name': 'directory'}, {'interface': IStr, 'name': 'pattern', 'value': '*'},),
                 outputs=({'interface': ISequence, 'name': 'path_list'},),
-                widgetmodule=None,
-                widgetclass=None,
+                #widgetmodule='widget',
+                #widgetclass="ListSelectorWidget",
                )
 
 files_copy = Factory(name='copy',

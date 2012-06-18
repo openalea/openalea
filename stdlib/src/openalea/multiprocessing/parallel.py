@@ -24,7 +24,13 @@ import pickle
 def pymap(func, seq, N):
     """ map(func, seq) """
     
-    #pickle.dumps(func)
+    # try to pickle the function
+    print 'Try to pickle the function'
+    pickle.dumps(func)
+    print 'SUCCESS'
+    if N <1:
+        N = cpu_count()
+
     if N <1:
         N = cpu_count()
 

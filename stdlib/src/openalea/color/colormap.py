@@ -30,7 +30,7 @@ class ColorMap(object):
 
     """
 
-    def __init__(self, minval, maxval):
+    def __init__(self, minval=0., maxval=1.):
         self.minval = float(minval)
         self.maxval = float(maxval)
 

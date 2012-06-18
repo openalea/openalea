@@ -138,6 +138,20 @@ def py_flatten(obj=[]):
         return (nl,)
 
 
+class PyGetItem(Node):
+
+    def __call__(self, inputs):
+        """ Python __getitem__ method like obj[key] """
+        obj, key = inputs[0:2]
+        if isinstance(obj, dict):
+            if obj and (key not in obj):
+                key = obj.iterkeys().next()
+                # send an event to the node to set the 2nd inputs
+                self.set_input(1,key)
+            return obj[key],
+        else:
+            return obj[key],
+
 def extract(indexable, keys):
     """ Extract from indexable object indexed by keys"""
     outlist = []
@@ -289,7 +303,7 @@ class ListSelectorWidget(QtGui.QListWidget, NodeWidget):
         elif row >= 0:
             key = row
 
-        if(key):
+        if key is not None:
             self.node.set_input(1, key)
 
 
