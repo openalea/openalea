@@ -48,7 +48,7 @@ class Boost:
 
         isPosix = isinstance(platform, Posix)        
 
-        print "This build is running under:", platform
+
 
         # -- lets now look for decent flags --
         self._default['flags'] = self.get_default_flags()

@@ -58,10 +58,17 @@ class CGAL:
                self._default['include'] = conf.include_dir
                self._default['libpath'] = conf.lib_dir
             except ImportError, e:
-               self._default['include'] = 'C:' + os.sep
-               self._default['libpath'] = 'C:' + os.sep
+               try:
+                  import pkg_resources as pkg
+                  egg_env = pkg.Environment()
+                  mingw_base = egg_env["cgal"][0].location
+                  self._default['include'] = pj(mingw_base, "include")
+                  self._default['libpath'] = pj(mingw_base, "lib")
+               except Exception, e:
+                  self._default['include'] = 'C:' + os.sep
+                  self._default['libpath'] = 'C:' + os.sep
                
-            self._default['libs'] = 'CGAL'
+            self._default['libs'] = ['CGAL']
 
       elif isinstance(platform, Posix):
          if exists('/usr/lib/libCGAL.so') :

@@ -1,3 +1,15 @@
+openalea-sconsx (1.0.1~ppa1) precise; urgency=low
+
+  * Release 1. 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 23 Mar 2012 11:21:06 +0100
+
+openalea-sconsx (1.0.0b1~ppa1) oneiric; urgency=low
+
+  * Final release
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 02 Dec 2011 11:30:30 +0100
+
 openalea-sconsx (0.9.0-2~ppa2) lucid; urgency=low
 
   * Final release

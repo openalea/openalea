@@ -3,7 +3,7 @@ Maintainer: Christophe Pradal <christophe.pradal@cirad.fr>
 Section: python
 Priority: optional
 Build-Depends: python-setuptools (>= 0.6b3), debhelper (>= 7), python-support (>= 0.8.4), python-openalea.deploy
-Standards-Version: 3.8.4
+Standards-Version: 3.9.1
 
 Package: python-openalea.sconsx
 Architecture: all

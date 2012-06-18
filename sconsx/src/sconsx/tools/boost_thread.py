@@ -18,36 +18,30 @@
 """ Boost.Python configure environment. """
 
 __license__ = "Cecill-C"
-__revision__ = "$Id$"
+__revision__ = "$Id: boost_python.py 3049 2010-11-04 15:11:28Z dbarbeau $"
 
 import os, sys
 from openalea.sconsx.config import *
 from boost_base import Boost
 
-class Boost_Python(Boost):
-
-    def depends(self):
-        return Boost.depends(self)+['python']
+class Boost_Thread(Boost):
 
     # -- reimplement this from boost_base.Boost --
     def get_default_flags(self):
         isPosix = isinstance(platform, Posix)
         return ' -ftemplate-depth-100 ' if isPosix else ''
 
-    # -- reimplement this from boost_base.Boost --
-    def get_default_defines(self):
-        return 'BOOST_PYTHON_DYNAMIC_LIB'
 
     # -- reimplement this from boost_base.Boost --
     def configure(self, config):
-        if not config.conf.CheckCXXHeader('boost/python.hpp'):
-            print "Error: boost.python headers not found."
+        if not config.conf.CheckCXXHeader('boost/thread.hpp'):
+            print "Error: boost.thread headers not found."
             sys.exit(-1)
 
 
 def create(config):
     " Create boost tool "
-    boost = Boost_Python(config)
+    boost = Boost_Thread(config)
 
     deps= boost.depends()
     for lib in deps:
