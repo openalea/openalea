@@ -22,6 +22,7 @@ __revision__=" $Id$ "
 import sys
 import copy
 import math
+import vtk
 
 import numpy as np
 import scipy.ndimage as nd
@@ -269,7 +270,47 @@ def rootSpI(img, list_remove=[], sc=None, lut_range = False, verbose=False):
     #~ return a, sc, m
 
 
-def display3D(img, list_remove=[], dictionary=None, lut=black_and_white, fixed_lut_range = False, cell_separation = False, verbose=False):
+def create_labels(img, render):
+	liste=list(img.labels())
+	xmin = 0
+	xLength = 1000
+	xmax = xmin + xLength
+	ymin = 00
+	yLength = 1000
+	ymax = ymin + yLength
+	# Create labels for barycenters
+	m=tvtk.PolyData()
+	vertex = tvtk.Points()
+	provi1=tvtk.LongArray()
+	p=0
+	cell_barycentre=img.center_of_mass()
+	x,y,z=img.image.resolution
+	for c,toto in enumerate(liste):
+		vertex.insert_point(p, cell_barycentre[c][0]/x, cell_barycentre[c][1]/y,cell_barycentre[c][2]/z )
+		provi1.insert_value(p, toto)
+		p+=1
+
+	m.points=vertex
+	m.point_data.scalars=provi1
+	vtkLabels=m
+	#here the idea is to mask labels behind surfaces
+	visPts = tvtk.SelectVisiblePoints()
+	visPts.input=vtkLabels
+	visPts.renderer=render
+	visPts.selection_window=1
+	visPts.selection=(xmin, xmin+xLength, ymin, ymin+yLength)
+	# Create the mapper to display the point ids.  Specify the format to
+	# use for the labels.  Also create the associated actor.
+	ldm = tvtk.LabeledDataMapper()
+	# ldm.SetLabelFormat("%g")
+	ldm.input=visPts.output
+	ldm.label_mode='label_scalars'
+	vtk_labels = tvtk.Actor2D()
+	vtk_labels.mapper=ldm
+	return vtk_labels
+
+
+def display3D(img, list_remove=[], dictionary=None, lut=black_and_white, fixed_lut_range = False, cell_separation = False, verbose=False, labels=False):
     """
     paramètres :
     img : SpatialImage ou SpatialImageAnalysis
@@ -319,6 +360,10 @@ def display3D(img, list_remove=[], dictionary=None, lut=black_and_white, fixed_l
     viewer.scene.add_actor(a2)
     if dictionary != None:
         viewer.scene.add_actor(sc)
+    if labels:
+		if isinstance(img,SpatialImageAnalysis):
+			lab=create_labels(img, viewer.scene.renderer)
+			viewer.scene.add_actor(lab)
 
 
 def export_vtk(img, filename="default", list_remove=[], dictionary=None, verbose=False):
