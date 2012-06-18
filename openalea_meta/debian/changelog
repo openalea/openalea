@@ -1,3 +1,27 @@
+openalea (1.0.1~ppa1) precise; urgency=low
+
+  * Release 1. 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 23 Mar 2012 11:22:17 +0100
+
+openalea (1.0.0b1~ppa3) oneiric; urgency=low
+
+  * Fix openalea namespace
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Thu, 05 Jan 2012 17:33:44 +0100
+
+openalea (1.0.0b1~ppa2) oneiric; urgency=low
+
+  * Fix dependency problem with python-all-dev 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Mon, 05 Dec 2011 09:52:33 +0100
+
+openalea (1.0.0b1~ppa1) oneiric; urgency=low
+
+  * Final release
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Fri, 02 Dec 2011 11:53:53 +0100
+
 openalea (0.9.0-2~ppa7) lucid; urgency=low
 
   * Final release
