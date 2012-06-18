@@ -38,8 +38,8 @@ from pkg_resources import iter_entry_points
 
 from openalea.core.singleton import Singleton
 from openalea.core.observer import Observed
-from openalea.core.package import Package, UserPackage, PyPackageReader
-from openalea.core.package import PyPackageReaderWralea, PyPackageReaderVlab
+from openalea.core.package import (Package, UserPackage, PyPackageReader,
+PyPackageReaderWralea, PyPackageReaderVlab)
 from openalea.core.settings import get_userpkg_dir, Settings
 from openalea.core.pkgdict import PackageDict, is_protected, protected
 from openalea.core.category import PackageManagerCategory
@@ -49,8 +49,9 @@ from ConfigParser import NoSectionError,NoOptionError
 
 # Exceptions
 import time
-DEBUG = True
 DEBUG = False
+DEBUG = True
+SEARCH_OUTSIDE_ENTRY_POINTS = True
 
 class UnknowFileType(Exception):
     pass
@@ -183,6 +184,8 @@ class PackageManager(Observed):
 
         if self.user_wralea_path:
             return
+        if not SEARCH_OUTSIDE_ENTRY_POINTS:
+            return
 
         self.user_wralea_path = set()
         config = Settings()
@@ -262,8 +265,9 @@ class PackageManager(Observed):
 #            for p in l :
 #                self.add_wralea_path(p, self.sys_wralea_path)
 
-        self.add_wralea_path(os.path.dirname(__file__), self.sys_wralea_path)
-        self.add_wralea_path(get_userpkg_dir(), self.sys_wralea_path)
+        if SEARCH_OUTSIDE_ENTRY_POINTS:
+            self.add_wralea_path(os.path.dirname(__file__), self.sys_wralea_path)
+            self.add_wralea_path(get_userpkg_dir(), self.sys_wralea_path)
 
 
     def init(self, dirname=None, verbose=True):
@@ -329,7 +333,6 @@ class PackageManager(Observed):
         """
 
         if(not os.path.isdir(path)): return
-
 
         # Ensure to add a non existing path
         for p in container:
@@ -486,7 +489,7 @@ class PackageManager(Observed):
         p = path(directory).abspath()
         spec_name = '*specifications'
         # search for wralea.py
-        if(recursive):
+        if(recursive and SEARCH_OUTSIDE_ENTRY_POINTS):
             spec_files.update( p.walkfiles(spec_name) )
         else:
             spec_files.update( p.glob(spec_name) )
@@ -519,7 +522,7 @@ class PackageManager(Observed):
 
 
         # search for wralea.py
-        if(recursive):
+        if(recursive and SEARCH_OUTSIDE_ENTRY_POINTS):
             for f in p.walkfiles("*wralea*.py"):
                 wralea_files.add(str(f))
         else:
@@ -602,8 +605,13 @@ class PackageManager(Observed):
         files = set()
         directories = self.get_wralea_path()
         recursive = True
+        if not SEARCH_OUTSIDE_ENTRY_POINTS:
+            recursive = False 
 
-        files = set( f.abspath() for p in directories if path(p).isdir() for f in path(p).walkfiles('*wralea*.py'))
+        if recursive:
+            files = set( f.abspath() for p in directories if path(p).isdir() for f in path(p).walkfiles('*wralea*.py'))
+        else:
+            files = set( f.abspath() for p in directories if path(p).isdir() for f in path(p).glob('*wralea*.py'))
         return files
 
     def create_readers(self, wralea_files):
@@ -651,7 +659,11 @@ class PackageManager(Observed):
             print 'find_wralea_files takes %f seconds'%(t2-t1)
 
         for x in readerlist:
+            if DEBUG:
+                tn = time.clock()
             x.register_packages(self)
+            if DEBUG:
+                print 'register package ', x.get_pkg_name(), 'in ', time.clock() -tn
         if DEBUG:
             t3 = time.clock()
             print '-------------------'
