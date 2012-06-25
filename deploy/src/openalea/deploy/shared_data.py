@@ -73,23 +73,23 @@ def shared_data(package_path, filename=None, pattern=None, share_path=_share_pat
         else:
             package_path = package_path[0]
     package_path = path(package_path)
-    ff = pj(package_path, share_path)
-    ff = realpath(ff)
+    ff = package_path/share_path
+    ff = ff.realpath()
     shared_data_path = None
-    if isdir(ff):
+    if ff.isdir():
         if filename is None:
             shared_data_path = ff
             if pattern:
-                l = path(ff).glob(pattern)
+                l = ff.glob(pattern)
                 if l:
                     shared_data_path = l
         else:
-            ff = pj(ff, filename)
-            ff = realpath(ff)
-            if isfile(ff):
+            ff = ff/filename
+            ff = ff.realpath()
+            if ff.isfile():
                 shared_data_path = ff
 
-    if shared_data_path is None and isfile(pj(package_path, '__init__.py')):
+    if shared_data_path is None and (package_path/'__init__.py').isfile():
         shared_data_path = shared_data(package_path.parent, filename, pattern, share_path)
         if shared_data_path is None:
             shared_data_path = shared_data(package_path.parent.parent, filename, pattern, share_path)
