@@ -25,9 +25,9 @@ __license__ = "Cecill-C"
 __revision__ = " $Id: gforge.py 2243 2010-02-08 17:08:47Z cokelaer $ "
 
 
-share_path = pj('share', 'data')
+_share_path = pj('share', 'data')
 
-def get_shared_data_path(package_path, filename=None, share_path=share_path):
+def shared_data(package_path, filename=None, pattern=None, share_path=_share_path):
     """Return a valid pathname pointing to a shared-data directory or a shared-data file.
 
     :Parameters:
@@ -53,12 +53,15 @@ def get_shared_data_path(package_path, filename=None, share_path=share_path):
        
     :Examples: 
     
-    >>> get_shared_data_path(['/home/user/mypackage'])
+    >>> shared_data(['/home/user/mypackage'])
     '/home/user/mypackage/share/data'
-    >>> get_shared_data_path('/home/user/mypackage', 'my_file.csv')
+    >>> shared_data('/home/user/mypackage', 'my_file.csv')
     '/home/user/mypackage/share/data/my_file.csv'
-    >>> get_shared_data_path(['/home/user/mypackage'], share_path='share/databases')
+    >>> shared_data(['/home/user/mypackage'], share_path='share/databases')
     '/home/user/mypackage/share/databases'
+    >>> import mypackage
+    >>> shared_data(mypackage, pattern='*.mtg')
+    ['/home/user/mypackage/share/databases/mtg1.mtg', ...]
     """
     
     if isinstance(package_path, types.ModuleType):
@@ -76,14 +79,22 @@ def get_shared_data_path(package_path, filename=None, share_path=share_path):
     if isdir(ff):
         if filename is None:
             shared_data_path = ff
+            if pattern:
+                l = path(ff).glob(pattern)
+                if l:
+                    shared_data_path = l
         else:
             ff = pj(ff, filename)
             ff = realpath(ff)
             if isfile(ff):
                 shared_data_path = ff
+
     if shared_data_path is None and isfile(pj(package_path, '__init__.py')):
-        shared_data_path = get_shared_data_path(package_path.parent, filename, share_path)
+        shared_data_path = shared_data(package_path.parent, filename, pattern, share_path)
         if shared_data_path is None:
-            shared_data_path = get_shared_data_path(package_path.parent.parent, filename, share_path)
+            shared_data_path = shared_data(package_path.parent.parent, filename, pattern, share_path)
     
     return shared_data_path
+
+# Backward compatibility
+get_shared_data_path = shared_data
