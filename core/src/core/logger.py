@@ -153,7 +153,7 @@ if "PyQt4.QtCore" in sys.modules and "PyQt4.QtGui" in sys.modules:
     QT_LOGGING_MODEL_AVAILABLE=True
     defaultHandlerNames.append("qt") #log to a QStandardItemModel
 else:
-    print __name__+".QLogHandlerItemModel won't be available"
+    #print __name__+".QLogHandlerItemModel won't be available"
     QT_LOGGING_MODEL_AVAILABLE=False
 
 
