@@ -57,7 +57,7 @@ class PackageBuilder(object):
 
     project_name = dict(openalea='OpenAlea', vplants='VPlants', alinea='Alinea')
 
-    def __init__(self, name=None, project='openalea', dir = '.', release='0.1'):
+    def __init__(self, name=None, project='', dir = '.', release='0.1'):
         
         self.name = name # e.g. name = PlantGL
         self.package = name.lower() # e.g. name = plantgl
@@ -72,13 +72,13 @@ class PackageBuilder(object):
         self.metainfo = {'PACKAGE':self.package,
                         'PACKAGE_NAME':self.name,
                         'PROJECT':self.project,
-                        'PROJECT_NAME':self.project_name[self.project],
+                        'PROJECT_NAME':self.project_name[self.project] if self.project else '',
                         'RELEASE':self.release,
                 }
 
     def check_project(self):
         """Checks that the project is the official list of projects [openalea, vplants ,alinea]"""
-        if self.project not in self.project_name:
+        if self.project and self.project not in self.project_name:
             raise ValueError("wrong project name. should be in openalea/vplants/alinea")
 
     def check_name(self):
@@ -163,8 +163,9 @@ class PackageBuilder(object):
                ])
 
     def set_files(self):
-        self.files = [self.pkg_dir/"src"/self.project/'__init__.py',
-                      self.pkg_dir/"src"/self.project/self.package/'__init__.py'] 
+        self.files = [self.pkg_dir/"src"/self.project/self.package/'__init__.py'] 
+        if self.project:
+            self.files.append(self.pkg_dir/"src"/self.project/'__init__.py')
         self.files += self.legalfiles()
         self.files += self.wraleafiles()
         self.files += self.sconsfiles()
@@ -339,18 +340,18 @@ def main():
 
     :Examples:
 
-        python %prog --name MyPackage --project openalea --languages cpp
-        %prog --name MyPackage --project openalea --languages cpp fortran
+        python %prog --name MyPackage --languages cpp
+        %prog --name MyPackage [--languages cpp fortran] [--project openalea]
 
     """
 
     parser = OptionParser(usage=usage)
 
-    parser.add_option("--project", dest='project', default='openalea',  
+    parser.add_option("--project", dest='project', default='',  
         help="project name in [openalea, vplants, alinea]")
     parser.add_option("--languages", dest='languages', default=None,  
         help="languages separated by a space [cpp, c, fortran]")
-    parser.add_option("--release", dest='release', default='0.8', help="the package release")
+    parser.add_option("--release", dest='release', default='1.0', help="the package release")
     parser.add_option("--name", dest='name', default=None, 
                       help="The name of the package as it appear in the eggname: e.g., VisuAlea in OpenAlea.VisuAlea")
 

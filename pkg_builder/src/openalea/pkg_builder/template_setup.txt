@@ -61,7 +61,7 @@ else:
 
 # web sites where to find eggs
 dependency_links = ['http://openalea.gforge.inria.fr/pi']
-
+has_project = bool('$PROJECT')
 setup(
     name=name,
     version=version,
@@ -107,7 +107,7 @@ setup(
 
     # Declare scripts and wralea as entry_points (extensions) of your package 
     entry_points = { 
-        'wralea' : ['$PACKAGE = $PROJECT.${PACKAGE}_wralea'],
+        'wralea' : ['$PACKAGE = $PROJECT.${PACKAGE}_wralea' if has_project else '$PACKAGE = ${PACKAGE}_wralea' ],
         #'console_scripts': [
         #       'fake_script = openalea.fakepackage.amodule:console_script', ],
         # 'gui_scripts': [
