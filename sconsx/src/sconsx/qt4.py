@@ -140,7 +140,10 @@ class _Automoc:
                     print "scons: qt: '%s' seems to be a binary. Discarded." \
                         % str(obj)
                 continue
-            cpp = obj.sources[0]
+            try:
+                cpp = obj.sources[0]
+            except:
+                continue
             if not splitext(str(cpp))[1] in cxx_suffixes:
                 if debug:
                     print "scons: qt: '%s' is no cxx file. Discarded." \
