@@ -194,6 +194,19 @@ getattr_ = Factory( name="getattr",
 
 __all__.append('getattr_')
 
+setattr_ = Factory( name="setattr",
+                    description="Sets class attribute",
+                    category="Python",
+                    nodemodule="python",
+                    nodeclass="py_setattr",
+                    lazy = False,
+                    inputs=(dict(name="obj", interface=None),
+                            dict(name="member_name", interface=IStr),
+                            dict(name="value", interface=IStr)),
+                    outputs=(dict(name="obj"),),
+                    )
+
+__all__.append('getattr_')
 
 eval_ = Factory( name="eval",
                   description="Eval str as python expression",

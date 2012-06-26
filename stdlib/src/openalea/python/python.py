@@ -100,6 +100,9 @@ def py_getattr(items, member_name):
     """ getattr """
     return getattr(items, member_name)
 
+def py_setattr(obj, member_name, value_str):
+    setattr(obj, member_name, eval(value_str))
+    return obj,
 
 def py_eval(str):
     """ Python eval """
