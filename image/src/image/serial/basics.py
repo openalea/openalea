@@ -30,10 +30,15 @@ from scipy.misc import imsave as _imsave
 from struct import pack,unpack,calcsize
 from pickle import dumps,loads
 import numpy as np
-from inrimage import *
-from lsm import *
-from tif import *
 from openalea.image.spatial_image import SpatialImage
+
+#~ from inrimage import *
+from openalea.image.serial.inrimage import read_inrimage, write_inrimage
+#~ from lsm import *
+from openalea.image.serial.lsm import read_lsm
+#~ from tif import *
+from openalea.image.serial.tif import read_tif, write_tif
+
 
 __all__ = ["save", "load", "read_sequence", "imread", "imsave", "lazy_image_or_path"]
 
@@ -155,6 +160,7 @@ def load (file, mmap_mode=None, is_vectorial=False) :
     else :
         file.seek(0)
         return SpatialImage(np.load(file,mmap_mode))
+
 
 ##################################################
 # TODO : Read voxels size in xlm file if provided #
@@ -279,6 +285,7 @@ def imread (filename, dimension=3) :
         #newarr[:,:,0] = im_array[:,:]
         vdim     = 1 if( len(shape) < 3 ) else shape[2]
         return SpatialImage( im_array.reshape(newShape), None, vdim )
+
 
 def imsave(filename, img):
     """Save a |SpatialImage| to filename.

@@ -27,8 +27,9 @@ import warnings, exceptions
 msg = "SpatialImage.resolution is deprecated, use SpatialImage.voxelsize"
 rezexc = exceptions.PendingDeprecationWarning(msg)
 
-class SpatialImage (np.ndarray) :
-    """Associate meta data to np.ndarray
+class SpatialImage(np.ndarray) :
+    """
+    Associate meta data to np.ndarray
     """
     def __new__ (cls, input_array, voxelsize = None,
              vdim = None, info = None, dtype = None, **kwargs) :
@@ -48,8 +49,8 @@ class SpatialImage (np.ndarray) :
          - `info` (dict of str|any) - metainfo
         """
         #if the input_array is 2D we can reshape it to 3D.
-        if input_array.ndim == 2:
-            input_array = input_array.reshape( input_array.shape+(1,) )
+        #~ if input_array.ndim == 2: # Jonathan
+            #~ input_array = input_array.reshape( input_array.shape+(1,) ) # Jonathan
         
         #initialize datas. For some obscure reason, we want the data
         #to be F-Contiguous in the NUMPY sense. I mean, if this is not
@@ -64,14 +65,16 @@ class SpatialImage (np.ndarray) :
         
         voxelsize = kwargs.get("resolution", voxelsize) #to manage transition
         if voxelsize is None :
-            voxelsize = (1.,) * 3
+            #~ voxelsize = (1.,) * 3
+            voxelsize = (1.,) * input_array.ndim # Jonathan
         else :
-            if len(voxelsize) != 3 :
+            #~ if len(voxelsize) != 3 :
+            if len(voxelsize) != input_array.ndim : # Jonathan
                 raise ValueError("data dimension and voxelsize mismatch")
         
         obj.voxelsize = tuple(voxelsize)
-        obj.vdim = vdim if vdim else ( 1 if len(input_array.shape) == 3 else input_array.shape[3] )
-        
+        obj.vdim = vdim if vdim else 1 
+
         #set metadata
         if info is None :
             obj.info = {}
@@ -93,7 +96,8 @@ class SpatialImage (np.ndarray) :
     
     @property
     def real_shape(self):
-        return np.multiply(self.shape[:3], self.voxelsize)
+        #~ return np.multiply(self.shape[:3], self.voxelsize)
+        return np.multiply(self.shape, self.voxelsize)  # Jonathan
 
     def __array_finalize__ (self, obj) :
         if obj is None :
@@ -145,10 +149,11 @@ def null_vector_field_like(spatial_image):
     return SpatialImage(array, spatial_image.voxelsize, vdim=3)
 
 def random_vector_field_like(spatial_image, smooth=0, max_=1):
-    if spatial_image.vdim == 1:
-        shape = spatial_image.shape+(3,)
-    else:
-        shape = spatial_image.shape
+    #~ if spatial_image.vdim == 1:
+        #~ shape = spatial_image.shape+(3,)
+    #~ else:
+        #~ shape = spatial_image.shape
+    shape = spatial_image.shape # Jonathan
     array = np.random.uniform(-max_, max_, shape)
     if smooth:
         array = ndimage.gaussian_filter(array, smooth)
@@ -178,3 +183,13 @@ def checkerboard(nx=9, ny=8, nz=5, size=10, vs=(1.,1.,1.), dtype=np.uint8):
 
     return SpatialImage(array, vs, dtype=dtype)
 
+
+def is2D(image):
+    """
+    Test if the `image` (array) is in 2D or 3D.
+    Return True if 2D, False if not.
+    """
+    if len(image.shape) == 2 or image.shape[2] == 1:
+        return True
+    else:
+        return False

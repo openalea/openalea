@@ -29,7 +29,7 @@ import scipy.ndimage as nd
 
 from openalea.image.serial.basics import imread
 from openalea.image.spatial_image import SpatialImage
-from openalea.image.algo.analysis import SpatialImageAnalysis
+from openalea.image.algo.analysis import SpatialImageAnalysis3D
 
 #compatibility
 try:
@@ -38,9 +38,8 @@ try:
 except ImportError:
     from enthought.tvtk.tools import ivtk
     from enthought.tvtk.api import tvtk
-else:
-    print "import impossible dans stack_view3D"
-    sys.exit(0)
+    from enthought.mayavi.core import lut_manager
+
 
 from colormaps import black_and_white, rainbow_full, rainbow_green2red, rainbow_red2blue
 import warnings
@@ -271,69 +270,73 @@ def rootSpI(img, list_remove=[], sc=None, lut_range = False, verbose=False):
 
 
 def create_labels(img, render):
-	liste=list(img.labels())
-	xmin = 0
-	xLength = 1000
-	xmax = xmin + xLength
-	ymin = 00
-	yLength = 1000
-	ymax = ymin + yLength
-	# Create labels for barycenters
-	m=tvtk.PolyData()
-	vertex = tvtk.Points()
-	provi1=tvtk.LongArray()
-	p=0
-	cell_barycentre=img.center_of_mass()
-	x,y,z=img.image.resolution
-	for c,toto in enumerate(liste):
-		vertex.insert_point(p, cell_barycentre[c][0]/x, cell_barycentre[c][1]/y,cell_barycentre[c][2]/z )
-		provi1.insert_value(p, toto)
-		p+=1
+    liste=list(img.labels())
+    xmin = 0
+    xLength = 1000
+    xmax = xmin + xLength
+    ymin = 00
+    yLength = 1000
+    ymax = ymin + yLength
+    # Create labels for barycenters
+    m=tvtk.PolyData()
+    vertex = tvtk.Points()
+    provi1=tvtk.LongArray()
+    p=0
+    cell_barycentre=img.center_of_mass()
+    x,y,z=img.image.resolution
+    for c,toto in enumerate(liste):
+        vertex.insert_point(p, cell_barycentre[c][0]/x, cell_barycentre[c][1]/y,cell_barycentre[c][2]/z )
+        provi1.insert_value(p, toto)
+        p+=1
 
-	m.points=vertex
-	m.point_data.scalars=provi1
-	vtkLabels=m
-	#here the idea is to mask labels behind surfaces
-	visPts = tvtk.SelectVisiblePoints()
-	visPts.input=vtkLabels
-	visPts.renderer=render
-	visPts.selection_window=1
-	visPts.selection=(xmin, xmin+xLength, ymin, ymin+yLength)
-	# Create the mapper to display the point ids.  Specify the format to
-	# use for the labels.  Also create the associated actor.
-	ldm = tvtk.LabeledDataMapper()
-	# ldm.SetLabelFormat("%g")
-	ldm.input=visPts.output
-	ldm.label_mode='label_scalars'
-	vtk_labels = tvtk.Actor2D()
-	vtk_labels.mapper=ldm
-	return vtk_labels
+    m.points=vertex
+    m.point_data.scalars=provi1
+    vtkLabels=m
+    #here the idea is to mask labels behind surfaces
+    visPts = tvtk.SelectVisiblePoints()
+    visPts.input=vtkLabels
+    visPts.renderer=render
+    visPts.selection_window=1
+    visPts.selection=(xmin, xmin+xLength, ymin, ymin+yLength)
+    # Create the mapper to display the point ids.  Specify the format to
+    # use for the labels.  Also create the associated actor.
+    ldm = tvtk.LabeledDataMapper()
+    # ldm.SetLabelFormat("%g")
+    ldm.input=visPts.output
+    ldm.label_mode='label_scalars'
+    vtk_labels = tvtk.Actor2D()
+    vtk_labels.mapper=ldm
+    return vtk_labels
 
 
 def display3D(img, list_remove=[], dictionary=None, lut=black_and_white, fixed_lut_range = False, cell_separation = False, verbose=False, labels=False):
     """
     paramètres :
-    img : SpatialImage ou SpatialImageAnalysis
-    list_remove : une liste des cellules à enlever lors de l'affichage
-    dictionary : dictionnaire cells->scalar
-    lut : disponibles dans colormaps
-    verbose : pour afficher ou non les progressions
-    ex : 
-    im1 = imread('/home/vince/softs/vplants/vplants/trunk/vtissue/imaging/mars_alt/test/data/segmentation/imgSeg.inr.gz')
-    im1a=SpatialImageAnalysis(im1)
-    dictionary=dict(zip(im1a.labels(), im1a.volume()))
-    labs=im1a.labels()
-    L1=im1a.L1()[1]
-    filtre=[i for i in labs if i not in L1]
-    display3D(im1, verbose=True)
+        - img (SpatialImage ou SpatialImageAnalysis) : segmented tissu
+        - list_remove (list) : une liste des cellules à enlever lors de l'affichage
+        - dictionary (dict) : dictionnaire cells->scalar
+        - lut : -Look-Up Table- disponibles dans 'colormaps.py'
+        - fixed_lut_range (list) : list of 2 values defing the range (min, max) of the lut.
+        - cell_separation (bool) : if True add a "separation" between cells.
+        - verbose (bool) : pour afficher ou non les progressions
+        - labels (bool) : display labels of cell in 3D.
 
-    fonction maitre en deux parties :
-    la première partie gère le format de l'objet donné en paramètre 
-    la seconde partie gère l'affichage
+    Examples : 
+        im1 = imread('/home/vince/softs/vplants/vplants/trunk/vtissue/imaging/mars_alt/test/data/segmentation/imgSeg.inr.gz')
+        im1a=SpatialImageAnalysis(im1)
+        dictionary=dict(zip(im1a.labels(), im1a.volume()))
+        labs=im1a.labels()
+        L1=im1a.L1()[1]
+        filtre=[i for i in labs if i not in L1]
+        display3D(im1, verbose=True)
+
+    Fonction maitre en deux parties :
+        1. Gestion du format de l'objet donné en paramètre;
+        2. Gestion de l'affichage.
     """
     if cell_separation:
         # -- Management of file format
-        if isinstance(img,SpatialImageAnalysis):
+        if isinstance(img,SpatialImageAnalysis3D):
             im = compute_cell_separation(img.image)
         elif isinstance(img,SpatialImage):
             im = compute_cell_separation(img)
@@ -342,7 +345,9 @@ def display3D(img, list_remove=[], dictionary=None, lut=black_and_white, fixed_l
             return None
 
     # -- Management of file format
-    if isinstance(img,SpatialImageAnalysis):
+    if isinstance(img,SpatialImageAnalysis3D):
+        if list_remove == None:
+            list_remove = img._ignoredlabels
         a, a2, sc, m, m2 = rootSpI(img.image, list_remove = list_remove, sc = dictionary, lut_range = fixed_lut_range, verbose=verbose)
     elif isinstance(img,SpatialImage):
         a, a2, sc, m, m2 = rootSpI(img, list_remove = list_remove, sc = dictionary, lut_range = fixed_lut_range, verbose=verbose)
@@ -361,9 +366,9 @@ def display3D(img, list_remove=[], dictionary=None, lut=black_and_white, fixed_l
     if dictionary != None:
         viewer.scene.add_actor(sc)
     if labels:
-		if isinstance(img,SpatialImageAnalysis):
-			lab=create_labels(img, viewer.scene.renderer)
-			viewer.scene.add_actor(lab)
+        if isinstance(img,SpatialImageAnalysis3D):
+            lab=create_labels(img, viewer.scene.renderer)
+            viewer.scene.add_actor(lab)
 
 
 def export_vtk(img, filename="default", list_remove=[], dictionary=None, verbose=False):
@@ -380,7 +385,7 @@ def export_vtk(img, filename="default", list_remove=[], dictionary=None, verbose
     
     """
     #management of file format
-    if isinstance(img,SpatialImageAnalysis):
+    if isinstance(img,SpatialImageAnalysis3D):
         p,p2=img2polydata_complexe(img.image, list_remove = list_remove, sc = dictionary, verbose = verbose)
     elif isinstance(img,SpatialImage):
         p,p2=img2polydata_complexe(img, list_remove = list_remove, sc = dictionary, verbose = verbose)
@@ -413,7 +418,7 @@ def export_vtk_cut(img, filename="default.vtk", dictionary=None, verbose=False):
     
     """
     #management of file format
-    if isinstance(img,SpatialImageAnalysis):
+    if isinstance(img,SpatialImageAnalysis3D):
         p=img2polydata_simple(img.image, dictionnaire=dictionary,verbose = verbose)
     elif isinstance(img,SpatialImage):
         p=img2polydata_simple(img, dictionnaire=dictionary,verbose = verbose)

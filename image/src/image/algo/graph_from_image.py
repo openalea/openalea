@@ -1,8 +1,28 @@
-from openalea.image.algo.analysis import SpatialImageAnalysis
-from openalea.image.spatial_image import SpatialImage
+# -*- python -*-
+#
+#       OpenAlea.image.algo
+#
+#       Copyright 2012 INRIA - CIRAD - INRA
+#
+#       File author(s):  Jonathan Legrand <jonathan.legrand@ens-lyon.fr>
+#                        Frederic Boudon 
+#
+#       Distributed under the Cecill-C License.
+#       See accompanying file LICENSE.txt or copy at
+#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
+#
+#       OpenAlea WebSite: http://openalea.gforge.inria.fr
+#
+################################################################################
+"""This module helps to create PropertyGraph from SpatialImages."""
+
+from openalea.image.algo.analysis import SpatialImageAnalysis, AbstractSpatialImageAnalysis, DICT
+from openalea.image.spatial_image import  is2D
 from openalea.container import PropertyGraph
 
-default_properties = ['volume','barycenter','boundingbox','border','L1','epidermis_surface','wall_surface','inertia_axis']
+#~ default_properties2D = ['barycenter','boundingbox','border','L1','epidermis_surface','wall_surface','inertia_axis']
+default_properties2D = ['barycenter','boundingbox','border','L1','epidermis_surface','inertia_axis']
+default_properties3D = ['volume','barycenter','boundingbox','border','L1','epidermis_surface','wall_surface','inertia_axis']
 
 def generate_graph_topology(labels, neigborhood):
     graph = PropertyGraph()
@@ -24,13 +44,9 @@ def generate_graph_topology(labels, neigborhood):
     
     return graph, label2vertex, edges
 
-def graph_from_image(image, 
-                     labels = None, 
-                     background = 1, 
-                     default_properties = default_properties,
-                     default_real_property = True,
-                     bbox_as_real = False,
-                     remove_stack_margins_cells = True):
+def _graph_from_image(image, labels, background, default_properties, 
+                     default_real_property, bbox_as_real, 
+                     remove_stack_margins_cells):
     """ 
         Construct a PropertyGraph from a SpatialImage (or equivalent) representing a segmented image.
 
@@ -57,9 +73,16 @@ def graph_from_image(image,
 
     """
 
-    analysis = SpatialImageAnalysis(image)
-    if remove_stack_margins_cells:
-        analysis.remove_margins_cells()
+    if isinstance(image, AbstractSpatialImageAnalysis):
+        analysis = image
+        image = analysis.image
+    else:
+        try:
+            analysis = SpatialImageAnalysis(image, ignoredlabels = background, return_type = DICT)
+        except:
+            analysis = SpatialImageAnalysis(image, return_type = DICT)
+        if remove_stack_margins_cells:
+            analysis.add2ignoredlabels( analysis.cells_in_image_margins() )
 
     if labels is None: 
         filter_label = False
@@ -70,7 +93,7 @@ def graph_from_image(image,
         filter_label = True
         if isinstance(labels,int) : labels = [labels]
         # -- We don't want to have the "outer cell" (background) and "removed cells" (0) in the graph structure.
-        if 0 in labels: labels.remove(0)
+        # if 0 in labels: labels.remove(0)
         if background in labels: labels.remove(background)
         neigborhood = analysis.neighbors(labels)
 
@@ -81,7 +104,7 @@ def graph_from_image(image,
     if 'boundingbox' in default_properties : 
         add_vertex_property_from_label_and_value(graph,'boundingbox',labels,analysis.boundingbox(labels,real=bbox_as_real),mlabel2vertex=label2vertex)
 
-    if 'volume' in default_properties : 
+    if 'volume' in default_properties and analysis.is3D(): 
         add_vertex_property_from_dictionary(graph,'volume',analysis.volume(labels,real=default_real_property),mlabel2vertex=label2vertex)
 
     barycenters = None
@@ -95,7 +118,7 @@ def graph_from_image(image,
         add_vertex_property_from_label_and_value(graph,'L1',labels,[(l in background_neighbors) for l in labels],mlabel2vertex=label2vertex)
 
     if 'border' in default_properties : 
-        border_cells = analysis.border_cells()
+        border_cells = analysis.cells_in_image_margins()
         try: border_cells.remove(background)
         except: pass
         border_cells = set(border_cells)
@@ -126,6 +149,43 @@ def graph_from_image(image,
         add_vertex_property_from_label_property(graph,'epidermis_surface',epidermis_surfaces,mlabel2vertex=label2vertex)
 
     return graph       
+
+
+def graph_from_image2D(image, labels, background, default_properties, 
+                     default_real_property, bbox_as_real, 
+                     remove_stack_margins_cells):
+    return _graph_from_image(image, labels, background, default_properties,
+                            default_real_property, bbox_as_real, remove_stack_margins_cells)
+
+def graph_from_image3D(image, labels, background, default_properties, 
+                     default_real_property, bbox_as_real, 
+                     remove_stack_margins_cells):
+    return _graph_from_image(image, labels, background, default_properties,
+                            default_real_property, bbox_as_real, remove_stack_margins_cells)
+
+def graph_from_image(image, 
+                     labels = None, 
+                     background = 1, 
+                     default_properties = None,
+                     default_real_property = True,
+                     bbox_as_real = False,
+                     remove_stack_margins_cells = True):
+
+    if isinstance(image, AbstractSpatialImageAnalysis):
+        real_image = image.image
+    else:
+        real_image = image
+
+    if is2D(real_image):
+        if default_properties == None:
+            default_properties = default_properties2D
+        return graph_from_image2D(image, labels, background, default_properties,
+                            default_real_property, bbox_as_real, remove_stack_margins_cells)
+    else:
+        if default_properties == None:
+            default_properties = default_properties3D
+        return graph_from_image3D(image, labels, background, default_properties,
+                            default_real_property, bbox_as_real, remove_stack_margins_cells)
 
 def label2vertex_map(graph):
     """
