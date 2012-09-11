@@ -1,3 +1,9 @@
+openalea-deploy (1.0.1~ppa2) precise; urgency=low
+
+  * Switched to dh_python2 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Tue, 11 Sep 2012 15:37:17 +0200
+
 openalea-deploy (1.0.1~ppa1) oneiric; urgency=low
 
   * Release 1.0 
