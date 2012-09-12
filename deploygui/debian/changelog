@@ -1,3 +1,9 @@
+openalea-deploygui (1.0.1~ppa5) precise; urgency=low
+
+  *  Switch to dh_python2 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Wed, 12 Sep 2012 16:23:43 +0200
+
 openalea-deploygui (1.0.1~ppa4) precise; urgency=low
 
   * Switch to dh_python2 
