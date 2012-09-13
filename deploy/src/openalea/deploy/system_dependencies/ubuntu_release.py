@@ -19,7 +19,7 @@ from path import path
 ##########################################################################
 
 # version 1.0.0~ppa1
-VERSION = '1.0.1~ppa1'
+VERSION = '1.0.1~ppa7'
 cmd_dch = "dch -b --distribution %s -v %s"
 cmd_debuild = "debuild -S -k1CF03DFF"
 # name openalea, vplants, alinea
@@ -102,9 +102,53 @@ aml2py
 
     pkgs = filter(None, pkgs.split('\n'))
     pkgs = OrderedDict.fromkeys(pkgs,VERSION)
-    pkgs['PlantGL']="2.16.0~ppa1"
-    pkgs['lpy']="2.1.0~ppa1"
-    pkgs['container']="2.2.0~ppa1"
+    pkgs['PlantGL']="2.16.1~ppa3"
+    pkgs['lpy']="2.1.0~ppa3"
+    pkgs['container']="2.2.0~ppa2"
+    return pkgs
+
+#############################
+# create tissue packages
+def tissue_deps_pkgs():
+    pkgs = """
+pglviewer
+svgdraw
+mechanics
+physics
+"""
+    pkgs = filter(None, pkgs.split('\n'))
+    pkgs = OrderedDict.fromkeys(pkgs,VERSION)
+    return pkgs
+
+def tissue_pkgs():
+    pkgs = """
+celltissue
+genepattern
+growth
+tissueedit
+tissueshape
+tissueview
+vmanalysis
+tissue_meta
+"""
+    pkgs = filter(None, pkgs.split('\n'))
+    pkgs = OrderedDict.fromkeys(pkgs,VERSION)
+    return pkgs
+
+def alinea_pkgs():
+    pkgs = """
+caribu
+adel
+graphtal
+leafOptical
+nema
+pyratp
+topvine
+alinea_meta
+"""
+    pkgs = filter(None, pkgs.split('\n'))
+    pkgs = OrderedDict.fromkeys(pkgs,VERSION)
+    pkgs['caribu']="6.0.3~ppa1"
     return pkgs
 
 def vplants_name():
@@ -205,6 +249,64 @@ def vplants(distribution='precise',my_path='.', dry_run=True):
     names = vplants_name()
     my_dput(names, dist='vplants', my_path=my_path, dry_run=dry_run)
 
-def alinea(distribution='precise'):
-    pass
+def tissue(distribution='precise',my_path='.', dry_run=True):
+    td_pkgs = tissue_deps_pkgs()
+    my_dch(td_pkgs, my_path=my_path, distribution=distribution, dry_run=dry_run)
 
+    pkgs = tissue_pkgs()
+    tissue_path = path(my_path)/'tissue'
+    my_dch(pkgs, my_path=tissue_path, distribution=distribution, dry_run=dry_run)
+
+
+    my_debuild(td_pkgs, my_path=my_path, dry_run=dry_run)
+    my_debuild(pkgs, my_path=tissue_path, dry_run=dry_run)
+
+    names = list(td_pkgs)
+    my_dput(names, dist='vplants', my_path=my_path, dry_run=dry_run)
+
+    tissue_names = list(pkgs)
+    tissue_names[names.index('tissue_meta')]='tissue'
+    my_dput(tissue_names, dist='vplants', my_path=tissue_path, dry_run=dry_run)
+
+def alinea(distribution='precise',my_path='.', dry_run=True):
+    pkgs = alinea_pkgs()
+    my_dch(pkgs, my_path=my_path, distribution=distribution, dry_run=dry_run)
+    my_debuild(pkgs, my_path=my_path, dry_run=dry_run)
+    names = list(pkgs)
+    names[names.index('alinea_meta')]='alinea'
+    names[names.index('leafOptical')]='leafoptical'
+    my_dput(names, dist='alinea', my_path=my_path, dry_run=dry_run)
+
+"""
+import ubuntu_release as ur
+
+distribution='precise'
+my_path='.'
+dry_run=True
+
+vp_pkgs = ur.vplants_pkgs()
+VERSION = '1.0.1~ppa2'
+ur.my_debuild(vp_pkgs, my_path=my_path, dry_run=dry_run)
+names = ur.vplants_name()
+ur.my_dput(names, dist='vplants', my_path=my_path, dry_run=dry_run)
+"""
+
+"""
+import ubuntu_release as ur
+distribution='precise'
+my_path='release1.0/openalea'
+dry_run=True
+pkgs = '''
+misc
+deploygui
+visualea
+numpy
+'''
+VERSION = '1.0.1~ppa2'
+oa_pkgs = filter(None, pkgs.split('\n'))
+oa_pkgs = OrderedDict.fromkeys(oa_pkgs,VERSION)
+oa_pkgs['deploygui']='1.0.1~ppa5'
+oa_pkgs['visualea']='1.0.1~ppa4'
+ur.my_dch(oa_pkgs, my_path=my_path, distribution=distribution, dry_run=dry_run)
+
+"""
