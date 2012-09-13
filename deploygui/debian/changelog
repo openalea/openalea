@@ -1,3 +1,9 @@
+openalea-deploygui (1.0.1~ppa6) precise; urgency=low
+
+  * Upload the same package but with a newer version
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Thu, 13 Sep 2012 13:56:26 +0200
+
 openalea-deploygui (1.0.1~ppa5) precise; urgency=low
 
   *  Switch to dh_python2 
