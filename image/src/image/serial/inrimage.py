@@ -195,12 +195,12 @@ def write_inrimage_to_stream(stream, img):
     #   info["TYPE"] = "float"
     #   info["PIXSIZE"] = "128 bits"
     else :
-        "unable to write that type of datas : %s" % str(img.dtype)
+        msg = "unable to write that type of datas : %s" % str(img.dtype)
         raise UserWarning(msg)
 
-        #mandatory else an error occurs when reading image
-        info['#GEOMETRY']='CARTESIAN'
-        info['CPU']='decm'
+    #mandatory else an error occurs when reading image
+    info['#GEOMETRY']='CARTESIAN'
+    info['CPU']='decm'
 
     #write header
     header = "#INRIMAGE-4#{\n"
