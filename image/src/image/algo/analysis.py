@@ -6,7 +6,7 @@
 #
 #       File author(s): Eric MOSCARDI <eric.moscardi@sophia.inria.fr>
 #                       Jonathan LEGRAND <jonathan.legrand@ens-lyon.fr>
-#                       Frederic BOUDON
+#                       Frederic BOUDON <frederic.boudon@cirad.fr>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
@@ -165,9 +165,9 @@ def cells_vertices_relations(cells2coord):
     vtx2cells = {} #associated cells to each vertex;
     cell2vertices = {} #associated vertex to each cells;
     vtx2coord = {}
-    for n, i in enumerate(cells2coords.keys()):
+    for n, i in enumerate(cells2coord.keys()):
         vtx2cells[n] = list(i)
-        vtx2coord[n] = list(cells2coords[i])
+        vtx2coord[n] = list(cells2coord[i])
         for j in list(i):
             #check if cell j is already in the dict
             if cell2vertices.has_key(j): 
@@ -361,7 +361,7 @@ class AbstractSpatialImageAnalysis(object):
         """ Compute the actual list of labels """
         labels = set(np.unique(self.image))-self._ignoredlabels
         integers = np.vectorize(lambda x : int(x))
-        return integers(list(labels))
+        return integers(list(labels)).tolist()
 
     def nb_labels(self):
         """
@@ -428,13 +428,11 @@ class AbstractSpatialImageAnalysis(object):
         # img_as_float = self.image.astype(np.float)
         # center = nd.center_of_mass(img_as_float, img_as_float, index=labels)
 
-        center = nd.center_of_mass(self.image, self.image, index=labels)
+        center = np.array(nd.center_of_mass(self.image, self.image, index=labels))
 
         if real is True:
             center = np.multiply(center,self.image.resolution)
-            return self.convert_return(center, labels)
-        else:
-            return self.convert_return(center, labels)
+        return self.convert_return(center, labels)
 
 
     def boundingbox(self, labels = None, real = False):
@@ -582,25 +580,41 @@ class AbstractSpatialImageAnalysis(object):
 
     def neighbor_kernels(self):
         if self._kernels is None:
-            X1kernel = np.zeros((3,3,3),np.bool)
-            X1kernel[:,1,1] = True
-            X1kernel[0,1,1] = False
-            X2kernel = np.zeros((3,3,3),np.bool)
-            X2kernel[:,1,1] = True
-            X2kernel[2,1,1] = False
-            Y1kernel = np.zeros((3,3,3),np.bool)
-            Y1kernel[1,:,1] = True
-            Y1kernel[1,0,1] = False
-            Y2kernel = np.zeros((3,3,3),np.bool)
-            Y2kernel[1,:,1] = True
-            Y2kernel[1,2,1] = False
-            Z1kernel = np.zeros((3,3,3),np.bool)
-            Z1kernel[1,1,:] = True
-            Z1kernel[1,1,0] = False
-            Z2kernel = np.zeros((3,3,3),np.bool)
-            Z2kernel[1,1,:] = True
-            Z2kernel[1,1,2] = False
-            self._kernels = (X1kernel,X2kernel,Y1kernel,Y2kernel,Z1kernel,Z2kernel)
+            if self.is3D():
+                X1kernel = np.zeros((3,3,3),np.bool)
+                X1kernel[:,1,1] = True
+                X1kernel[0,1,1] = False
+                X2kernel = np.zeros((3,3,3),np.bool)
+                X2kernel[:,1,1] = True
+                X2kernel[2,1,1] = False
+                Y1kernel = np.zeros((3,3,3),np.bool)
+                Y1kernel[1,:,1] = True
+                Y1kernel[1,0,1] = False
+                Y2kernel = np.zeros((3,3,3),np.bool)
+                Y2kernel[1,:,1] = True
+                Y2kernel[1,2,1] = False
+                Z1kernel = np.zeros((3,3,3),np.bool)
+                Z1kernel[1,1,:] = True
+                Z1kernel[1,1,0] = False
+                Z2kernel = np.zeros((3,3,3),np.bool)
+                Z2kernel[1,1,:] = True
+                Z2kernel[1,1,2] = False
+                self._kernels = (X1kernel,X2kernel,Y1kernel,Y2kernel,Z1kernel,Z2kernel)
+            else:
+                X1kernel = np.zeros((3,3),np.bool)
+                X1kernel[:,1] = True
+                X1kernel[0,1] = False
+                X2kernel = np.zeros((3,3),np.bool)
+                X2kernel[:,1] = True
+                X2kernel[2,1] = False
+                Y1kernel = np.zeros((3,3),np.bool)
+                Y1kernel[1,:] = True
+                Y1kernel[1,0] = False
+                Y2kernel = np.zeros((3,3),np.bool)
+                Y2kernel[1,:] = True
+                Y2kernel[1,2] = False
+                self._kernels = (X1kernel,X2kernel,Y1kernel,Y2kernel)
+                
         return self._kernels
 
 
@@ -609,7 +623,7 @@ class AbstractSpatialImageAnalysis(object):
         if len(a)==3:
             return np.array([a[1] * a[2],a[2] * a[0],a[0] * a[1] ])
         if len(a)==2:
-            return np.array([a[1] * a[2],a[2] * a[0],a[0] * a[1] ])
+            return np.array([a[0],a[1]])
 
 
     def wall_voxels(self, label_1, label_2):
@@ -722,7 +736,7 @@ class AbstractSpatialImageAnalysis(object):
             neighbors = [neighbors]
 
         wall = {}
-        for a in xrange(6):
+        for a in xrange(len(xyz_kernels)):
             dil = nd.binary_dilation(mask_img, structure=xyz_kernels[a])
             frontier = dilated_bbox_img[dil-mask_img]
 
@@ -835,7 +849,7 @@ class AbstractSpatialImageAnalysis(object):
         N=len(vids)
         if verbose: print "Removing", N, "cells."
         for n, vid in enumerate(vids):
-            if verbose and n%10 == 0: print n,'/',N
+            if verbose and n%20 == 0: print n,'/',N
             xyz = np.where( (self.image[self.boundingbox(vid)]) == vid )
             self.image[tuple((xyz[0]+self.boundingbox(vid)[0].start, xyz[1]+self.boundingbox(vid)[1].start, xyz[2]+self.boundingbox(vid)[2].start))]=erase_value
 
@@ -926,7 +940,9 @@ class SpatialImageAnalysis2D (AbstractSpatialImageAnalysis):
             center_of_mass = self.center_of_mass(labels)
         for i,label in enumerate(labels):
             slices = self.boundingbox(label)
-            if isinstance(center_of_mass, dict):
+            if len(labels) == 1:
+                center = center_of_mass
+            elif isinstance(center_of_mass, dict):
                 center = center_of_mass[label]
             else:
                 center = center_of_mass[i]
@@ -987,6 +1003,7 @@ class SpatialImageAnalysis3D(AbstractSpatialImageAnalysis):
         self.principal_curvatures_normal = {}
         self.principal_curvatures_directions = {}
         self.principal_curvatures_origin = {}
+        self.curvatures_tensor = {}
         self.external_wall_geometric_median = {}
 
     def is3D(self): return True
@@ -1060,7 +1077,9 @@ class SpatialImageAnalysis3D(AbstractSpatialImageAnalysis):
             center_of_mass = self.center_of_mass(labels)
         for i,label in enumerate(labels):
             slices = self.boundingbox(label)
-            if isinstance(center_of_mass, dict):
+            if len(labels) == 1:
+                center = center_of_mass
+            elif isinstance(center_of_mass, dict):
                 center = center_of_mass[label]
             else:
                 center = center_of_mass[i]
@@ -1216,7 +1235,9 @@ class SpatialImageAnalysis3D(AbstractSpatialImageAnalysis):
         self.principal_curvatures_normal[vid] = pc[3]
         self.principal_curvatures_directions[vid] = [pc[1][0], pc[2][0]]
         self.principal_curvatures_origin[vid] = pc[0]
-
+        R = np.array( [pc[1][0], pc[2][0], pc[0]] ).T
+        D = [ [k1,0,0], [0,k2,0], [0,0,0] ]
+        self.curvatures_tensor[vid] = np.dot(np.dot(R,D),R.T)
 
     def __curvature_parameters_CGAL(func):
         def wrapped_function(self, vids = None, verbose = False):

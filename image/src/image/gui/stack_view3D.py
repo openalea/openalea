@@ -230,7 +230,7 @@ def rootSpI(img, list_remove=[], sc=None, lut_range = False, verbose=False):
     # -- definition of the scalar range (default : min to max of the scalar value).
     if sc:
         ran=[sc[i] for i in sc.keys() if i not in list_remove]
-        if lut_range != False:
+        if (lut_range != None) and (lut_range != False):
             print lut_range
             m.scalar_range = lut_range[0],lut_range[1]
         else:
@@ -244,7 +244,8 @@ def rootSpI(img, list_remove=[], sc=None, lut_range = False, verbose=False):
     a2 = tvtk.QuadricLODActor(mapper=m2)
     a2.property.point_size=8
     #scalebar
-    sc=tvtk.ScalarBarActor(orientation='vertical',lookup_table=m.lookup_table)
+    if lut_range != None:
+        sc=tvtk.ScalarBarActor(orientation='vertical',lookup_table=m.lookup_table)
     return a, a2, sc, m, m2
 
 
@@ -309,14 +310,14 @@ def create_labels(img, render):
     return vtk_labels
 
 
-def display3D(img, list_remove=[], dictionary=None, lut=black_and_white, fixed_lut_range = False, cell_separation = False, verbose=False, labels=False):
+def display3D(img, list_remove=[], dictionary=None, lut=black_and_white, lut_range = False, cell_separation = False, verbose=False, labels=False):
     """
     paramètres :
         - img (SpatialImage ou SpatialImageAnalysis) : segmented tissu
         - list_remove (list) : une liste des cellules à enlever lors de l'affichage
         - dictionary (dict) : dictionnaire cells->scalar
         - lut : -Look-Up Table- disponibles dans 'colormaps.py'
-        - fixed_lut_range (list) : list of 2 values defing the range (min, max) of the lut.
+        - lut_range (list) : list of 2 values defing the range (min, max) of the lut.
         - cell_separation (bool) : if True add a "separation" between cells.
         - verbose (bool) : pour afficher ou non les progressions
         - labels (bool) : display labels of cell in 3D.
@@ -348,9 +349,9 @@ def display3D(img, list_remove=[], dictionary=None, lut=black_and_white, fixed_l
     if isinstance(img,SpatialImageAnalysis3D):
         if list_remove == None:
             list_remove = img._ignoredlabels
-        a, a2, sc, m, m2 = rootSpI(img.image, list_remove = list_remove, sc = dictionary, lut_range = fixed_lut_range, verbose=verbose)
+        a, a2, sc, m, m2 = rootSpI(img.image, list_remove = list_remove, sc = dictionary, lut_range = lut_range, verbose=verbose)
     elif isinstance(img,SpatialImage):
-        a, a2, sc, m, m2 = rootSpI(img, list_remove = list_remove, sc = dictionary, lut_range = fixed_lut_range, verbose=verbose)
+        a, a2, sc, m, m2 = rootSpI(img, list_remove = list_remove, sc = dictionary, lut_range = lut_range, verbose=verbose)
     else:
         print "for now this file format is not managed by display3D"
         return None
@@ -363,7 +364,7 @@ def display3D(img, list_remove=[], dictionary=None, lut=black_and_white, fixed_l
     viewer = ivtk.viewer()
     viewer.scene.add_actor(a)
     viewer.scene.add_actor(a2)
-    if dictionary != None:
+    if dictionary != None and lut_range != None:
         viewer.scene.add_actor(sc)
     if labels:
         if isinstance(img,SpatialImageAnalysis3D):

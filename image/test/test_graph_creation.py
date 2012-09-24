@@ -34,21 +34,21 @@ def test_graph_from_simple_image(visual = False):
                   [2, 2, 1, 7, 3, 3],
                   [1, 1, 1, 4, 1, 1]])
     borders = SpatialImageAnalysis(im).cells_in_image_margins()
-    print borders
-    print np.unique(im)
+    #~ print borders
+    #~ print np.unique(im)
     graph = graph_from_image(im, remove_stack_margins_cells = False)
     
-    print list(graph.vertices())
-    print map(graph.edge_vertices,graph.edges())
-    print list(graph.vertex_property_names())
-    print list(graph.edge_property_names())
-    for propname in graph.vertex_property_names():
-        print propname
-        print graph.vertex_property(propname)
+    #~ print list(graph.vertices())
+    #~ print map(graph.edge_vertices,graph.edges())
+    #~ print list(graph.vertex_property_names())
+    #~ print list(graph.edge_property_names())
+    #~ for propname in graph.vertex_property_names():
+        #~ print propname
+        #~ print graph.vertex_property(propname)
 
-    for propname in graph.edge_property_names():
-        print propname
-        print [(i,graph.edge_vertices(i),j) for i,j in graph.edge_property(propname).iteritems()]
+    #~ for propname in graph.edge_property_names():
+        #~ print propname
+        #~ print [(i,graph.edge_vertices(i),j) for i,j in graph.edge_property(propname).iteritems()]
     if visual :
         Viewer.display(graph2pglscene(graph,graph.vertex_property('barycenter'),graph.vertex_property('border')))
 

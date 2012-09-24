@@ -127,11 +127,3 @@ def rainbow_blue2green(lut, begin=0.66, end=0.33):
     lut.saturation_range=[1.,1.]
     return lut
 
-
-
-
-
-
-
-
-
