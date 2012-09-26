@@ -292,6 +292,7 @@ def function(factory):
 
 
 def _outputs(node):
+    #return node.outputs
     return [node.output(i) for i in range(node.get_nb_output())]
 
 def main():
