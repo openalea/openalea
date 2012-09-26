@@ -760,6 +760,10 @@ class Node(AbstractNode):
 
         self.continuous_eval.notify_listeners(("node_modified", self))
 
+#X     @property
+#X     def outputs(self):
+#X         return [self.output(i) for i in range(self.get_nb_output())]
+
     def to_script (self):
         """Script translation of this node.
         """
