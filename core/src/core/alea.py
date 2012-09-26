@@ -123,7 +123,7 @@ def run_and_display(component, inputs, gui=False, pm=None):
 
         try:
             node.eval()
-            print node.outputs
+            print _outputs(node)
         except Exception, error:
             print "Error while executing component : ", error
             print "Try with -g flag"
@@ -143,10 +143,10 @@ def run(component, inputs, pm=None, vtx_id=-1):
 
     if vtx_id < 0:
         node.eval()
-        return node.outputs
+        return _outputs(node)
     else:
         node.eval_as_expression(vtx_id)
-        return node.node(vtx_id).outputs
+        return _outputs(node.node(vtx_id))
 
 def query(component, pm=None):
     """ show help of component """
@@ -289,6 +289,10 @@ def function(factory):
         return tuple(node.output(i) for i in range(nb_output))
     
     return f
+
+
+def _outputs(node):
+    return [node.output(i) for i in range(node.get_nb_output())]
 
 def main():
     """ Parse options """
