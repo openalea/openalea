@@ -51,7 +51,7 @@ class CGAL:
             cgalroot = os.environ['CGALROOT']
             self._default['include'] = [pj(cgalroot,'include'), pj(cgalroot,'include','CGAL','config','msvc')]
             self._default['libpath'] = pj(cgalroot,'lib')
-            self._default['libs'] = 'CGAL-vc80-mt'            
+            self._default['libs'] = 'CGAL-vc100-mt-4.0'            
          except:
             try:
                import openalea.config as conf

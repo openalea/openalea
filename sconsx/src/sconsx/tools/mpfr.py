@@ -6,7 +6,7 @@
 #
 #       Copyright 2006-2009 INRIA - CIRAD - INRA  
 #
-#       File author(s): Christophe Pradal <christophe.prada@cirad.fr>
+#       File author(s): Frederic Boudon
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
@@ -15,18 +15,18 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 #--------------------------------------------------------------------------------
-""" GMP configure environment. """
 
+__doc__ = """ MPFR configure environment. """
 __license__ = "Cecill-C"
-__revision__ = "$Id$"
+__revision__ = "$Id: mpfr.py 12233 2012-06-19 04:54:14Z pradal $"
 
 import os, sys
 from openalea.sconsx.config import *
 from os.path import join as pj
 
-class GMP:
+class MPFR:
    def __init__(self, config):
-      self.name = 'gmp'
+      self.name = 'mpfr'
       self.config = config
       self._default = {}
 
@@ -46,7 +46,7 @@ class GMP:
             cgalroot = os.environ['CGALROOT']
             self._default['include'] = pj(cgalroot,'auxiliary','gmp','include')
             self._default['libpath'] = pj(cgalroot,'auxiliary','gmp','lib')
-            self._default['libs'] = 'libgmp-10'            
+            self._default['libs'] = 'libmpfr-4'            
          except:
             try:
                import openalea.config as conf
@@ -63,12 +63,12 @@ class GMP:
                   self._default['include'] = 'C:' + os.sep
                   self._default['libpath'] = 'C:' + os.sep
                
-            self._default['libs'] = 'gmp'
+            self._default['libs'] = 'mpfr'
 
       elif isinstance(platform, Posix):
          self._default['include'] = '/usr/include'
          self._default['libpath'] = '/usr/lib'
-         self._default['libs'] = 'gmp'
+         self._default['libs'] = 'mpfr'
          self._default['flags'] = ''
          self._default['defines'] = ''
 
@@ -77,67 +77,72 @@ class GMP:
 
       self.default()
 
-      opts.AddVariables(PathVariable('gmp_includes', 
-                     'GMP include files', 
+      opts.AddVariables(PathVariable('mpfr_includes', 
+                     'MPFR include files', 
                      self._default['include']),
 
-         PathVariable('gmp_libpath', 
-                     'GMP libraries path', 
+         PathVariable('mpfr_libpath', 
+                     'MPFR libraries path', 
                      self._default['libpath']),
 
-         ('gmp_libs', 
-           'GMP libraries', 
+         ('mpfr_libs', 
+           'MPFR libraries', 
            self._default['libs']),
            
-         ('gmp_flags', 
-           'GMP compiler flags', 
+         ('mpfr_flags', 
+           'MPFR compiler flags', 
            self._default['flags']),
 
-         ('gmp_defines', 
-           'GMP defines', 
+         ('mpfr_defines', 
+           'MPFR defines', 
            self._default['defines']),
 
-         BoolVariable('WITH_GMP', 
-           'Specify whether you want to compile your project with GMP', True)
+         BoolVariable('WITH_MPFR', 
+           'Specify whether you want to compile your project with MPFR', True)
      )
 
 
    def update(self, env):
       """ Update the environment with specific flags """
-      if env['WITH_GMP'] :
-        gmp_inc = env['gmp_includes']
-        # if type(gmp_inc) == str:
-          # gmp_inc = gmp_inc.split()
-        #gmp_inc = gmp_inc[0]
-        if not os.path.exists(os.path.join(gmp_inc,'gmp.h')):
+      if env['WITH_MPFR'] :
+        mpfr_inc = env['mpfr_includes']
+        # if type(mpfr_inc) == str:
+          # mpfr_inc = mpfr_inc.split()
+        # mpfr_inc = mpfr_inc[0]
+        if not os.path.exists(os.path.join(mpfr_inc,'mpfr.h')):
           import warnings
-          warnings.warn("Error: GMP headers not found. GMP disabled ...")
-          env['WITH_GMP'] = False      
-      if env['WITH_GMP']:
-        env.AppendUnique(CPPPATH=[env['gmp_includes']])
-        env.AppendUnique(LIBPATH=[env['gmp_libpath']])
-        env.Append(CPPDEFINES='$gmp_defines')
-        env.Append(CPPDEFINES='WITH_GMP')
-        env.Append(CPPFLAGS='$gmp_flags')
+          warnings.warn("Error: MPFR headers not found. MPFR disabled ...")
+          env['WITH_MPFR'] = False      
+      if env['WITH_MPFR']:
+        env.AppendUnique(CPPPATH=[env['mpfr_includes']])
+        env.AppendUnique(LIBPATH=[env['mpfr_libpath']])
+        env.Append(CPPDEFINES='$mpfr_defines')
+        #env.Append(CPPDEFINES='WITH_MPFR')
+        env.Append(CPPFLAGS='$mpfr_flags')
 
-        env.AppendUnique(LIBS=env['gmp_libs'])
+        env.AppendUnique(LIBS=env['mpfr_libs'])
 
 
    def configure(self, config):
-      if not config.conf.CheckCXXHeader('gmp.h'):
-        print "Error: GMP headers not found."
+      if not config.conf.CheckCXXHeader('mpfr.h'):
+        print "Error: MPFR headers not found."
         exit()
         
          
 
 
 def create(config):
-   " Create gmp tool "
-   gmp = GMP(config)
-
-   deps= gmp.depends()
-   for lib in deps:
-      config.add_tool(lib)
-
-   return gmp
+   " Create mpfr tool "
+   
+   try:
+        tool = MPFR(config)
+        
+        deps= tool.depends()
+        for lib in deps:
+                config.add_tool(lib)
+        
+        return tool
+   except:
+       print "Error creating MPFR Tool"
+       raise Exception("Error in Tool Creation")
 
