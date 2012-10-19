@@ -31,6 +31,12 @@ import scipy.ndimage as nd
 
 from openalea.image.spatial_image import SpatialImage
 
+try:
+    from openalea.plantgl.all import (r_neighborhood, principal_curvatures)
+except:
+    pass
+
+
 def dilation(slices):
     """
     Function dilating slices: extend the boundingbox of one voxel.
@@ -288,6 +294,11 @@ class AbstractSpatialImageAnalysis(object):
         if verbose: print 'Updating labels list...'
         self._labels = self.__labels()
 
+    def ignoredlabels(self):
+        """"
+        Function returning the ignoredlabels.
+        """
+        return self._ignoredlabels
 
     def save(self, filename = ""):
         """
@@ -1114,7 +1125,7 @@ class SpatialImageAnalysis3D(AbstractSpatialImageAnalysis):
         if unique_label :
             return inertia_eig_vec[0], inertia_eig_val[0]
         else:
-            return inertia_eig_vec, inertia_eig_val
+            return self.convert_return(inertia_eig_vec,labels), self.convert_return(inertia_eig_val,labels)
 
 
     def cells_in_image_margins(self):
@@ -1203,8 +1214,6 @@ class SpatialImageAnalysis3D(AbstractSpatialImageAnalysis):
         Function computing principal curvature using a CGAL c++ wrapped function: 'principal_curvatures'.
         It's only doable for cells of the first layer.
         """
-        from openalea.plantgl.all import (r_neighborhood,
-                                          principal_curvatures)
 
         x_vid, y_vid, z_vid = np.where(self.first_voxel_layer() == vid)
 
@@ -1531,6 +1540,17 @@ def read_id_list( filename, sep='\n' ):
     
     return list_cell
 
+
+def save_id_list(id_list, filename, sep='\n' ):
+    """
+    Read a *.txt file containing a list of ids separated by `sep`.
+    """
+    f = open(filename, 'w')
+    for k in id_list:
+        f.write(str(k))
+        f.write(sep)
+
+    f.close()
 
     #~ def display_curvature_cross(self, shadow_layer=False):
         #~ """
