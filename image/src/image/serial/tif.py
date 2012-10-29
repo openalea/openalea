@@ -55,7 +55,7 @@ def read_tif(filename,channel=0):
         i+=1
         tif.ReadDirectory()
     tif.SetDirectory(0)
-    _data = np.zeros((i,)+tif.read_image().shape,dtype='uint16')
+    _data = np.zeros((i,)+tif.read_image().shape,dtype=tif.read_image().dtype)
     for ii,i in enumerate(tif.iter_images()):
         _data[ii] = i
 
