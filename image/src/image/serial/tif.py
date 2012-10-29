@@ -30,6 +30,7 @@ __all__ = []
 
 try:
     import decimal
+    import libtiff
     from libtiff import TIFFfile
     from libtiff.tiff_image import TIFFimage, TIFFentry
     from libtiff import tif_lzw
@@ -48,14 +49,24 @@ def read_tif(filename,channel=0):
     """
 
     # TIF reader
-    tif = TIFFfile(filename)
-    arr = tif.get_tiff_array()
-    _data = arr[:].T
+    tif = libtiff.TIFF.open(filename)
+    i = 1
+    while not tif.LastDirectory():
+        i+=1
+        tif.ReadDirectory()
+    tif.SetDirectory(0)
+    _data = np.zeros((i,)+tif.read_image().shape,dtype='uint16')
+    for ii,i in enumerate(tif.iter_images()):
+        _data[ii] = i
 
+#    tif = TIFFfile(filename)
+#    arr = tif.get_tiff_array()
+#    _data = arr[:].T
+    _data = _data.transpose(2, 1, 0)
     nx, ny, nz = _data.shape
 
     # -- prepare metadata dictionnary --
-    info_str = tif.get_info()
+    info_str = tif.info()
     info_dict = dict( filter( lambda x: len(x)==2,
                               (inf.split(':') for inf in info_str.split("\n"))
                               ) )
@@ -130,7 +141,7 @@ def read_tif(filename,channel=0):
     tif.close()
     # -- dtypes are not really stored in a compatible way (">u2" instead of uint16)
     # but we can convert those --
-    dt = np.dtype(arr.dtype.name)
+    dt = np.dtype(_data.dtype.name)
     # -- Return a SpatialImage please! --
     im = SpatialImage(_data, dtype=dt)
     im.resolution = _vx,_vy,_vz
