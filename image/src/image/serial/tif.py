@@ -50,23 +50,28 @@ def read_tif(filename,channel=0):
 
     # TIF reader
     tif = libtiff.TIFF.open(filename)
-    i = 1
-    while not tif.LastDirectory():
-        i+=1
-        tif.ReadDirectory()
-    tif.SetDirectory(0)
-    _data = np.zeros((i,)+tif.read_image().shape,dtype=tif.read_image().dtype)
-    for ii,i in enumerate(tif.iter_images()):
-        _data[ii] = i
+    
+    if tif.GetField('ImageDescription'):
+        tif = TIFFfile(filename)
+        arr = tif.get_tiff_array()
+        _data = arr[:].T
+        info_str = tif.get_info()
+    else:
+        i = 1
+        while not tif.LastDirectory():
+            i+=1
+            tif.ReadDirectory()
+        tif.SetDirectory(0)
+        _data = np.zeros((i,)+tif.read_image().shape,dtype=tif.read_image().dtype)
+        for ii,i in enumerate(tif.iter_images()):
+            _data[ii] = i
+        _data = _data.transpose(2, 1, 0)
+        info_str = tif.info()
 
-#    tif = TIFFfile(filename)
-#    arr = tif.get_tiff_array()
-#    _data = arr[:].T
-    _data = _data.transpose(2, 1, 0)
     nx, ny, nz = _data.shape
 
     # -- prepare metadata dictionnary --
-    info_str = tif.info()
+    
     info_dict = dict( filter( lambda x: len(x)==2,
                               (inf.split(':') for inf in info_str.split("\n"))
                               ) )
@@ -169,9 +174,9 @@ def write_tif(filename, obj):
     image = TIFFimage(obj)
     vsx, vsy, vsz = obj.resolution
 
-    extra_info = {#"XResolution": [ mantissa(1./vsx) ],
-                  #"YResolution": [ mantissa(1./vsy) ],
-                  #"spacing": vsz, # : no way to save the spacing (no specific tag)
+    extra_info = {"XResolution": vsx,
+                  "YResolution": vsy,
+                  #"ZResolution": str(vsz), # : no way to save the spacing (no specific tag)
                   }
     print extra_info
     return pylibtiff_write_file(image, filename, info=extra_info)
