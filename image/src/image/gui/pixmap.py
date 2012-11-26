@@ -43,10 +43,10 @@ def to_img (img, scalar_type=None, lut=None, forceNativeLut=None) :
     # explicitly asked by the user view GUI or what. If the image is not
     # properly oriented it is up to the reading code to fix the orientation! --
 
-    try:
-        from PIL import Image, ImageQt
-    except ImportError:
-        return None
+#    try:
+#        from PIL import Image, ImageQt
+#    except ImportError:
+#        return None
     #print isinstance(img, SpatialImage)
     if isinstance(img, SpatialImage):
         nb_dim = len(img.shape)
