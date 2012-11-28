@@ -19,7 +19,7 @@
 __license__ = "CeCILL V2"
 __revision__ = " $Id$"
 
-
+from openalea.core import qt
 import os, sys
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import QTextEdit, QTextCursor
@@ -29,13 +29,20 @@ from streamredirection import *
 def get_shell_class():
     """ Return the shell class to instantiate """
 
-    # Test QScintilla
     try:
-        from scishell import SciShell
-        return SciShell
-    
+        # Test IPython
+        from ipyshell import IPyShell
+        return IPyShell
+
     except ImportError:
-        return PyCutExt
+    
+        # Test QScintilla
+        try:
+            from scishell import SciShell
+            return SciShell
+        
+        except ImportError:
+            return PyCutExt
     
 
             
@@ -84,7 +91,7 @@ class PyCutExt(QTextEdit,GraphicalStreamRedirection):
 
         
         # last line + last incomplete lines
-        self.line    = QtCore.QString()
+        self.line    = str()
         self.lines   = []
         # the cursor position in the last line
         self.point   = 0
@@ -228,7 +235,7 @@ class PyCutExt(QTextEdit,GraphicalStreamRedirection):
         Simulate a user: lines is a sequence of strings, (Python statements).
         """
         for line in lines:
-            self.line = QtCore.QString(line.rstrip())
+            self.line = str(line.rstrip())
             self.write(self.line)
             self.write('\n')
             self.__run()
@@ -243,7 +250,7 @@ class PyCutExt(QTextEdit,GraphicalStreamRedirection):
         (3) the interpreter fails, finds errors and writes them to sys.stderr
         """
         self.pointer = 0
-        self.history.append(QtCore.QString(self.line))
+        self.history.append(str(self.line))
         try:
             self.lines.append(str(self.line))
         except Exception,e:
@@ -503,14 +510,19 @@ class SyntaxColor:
 def main():        
     # Test the widget independently.
     from code import InteractiveInterpreter as Interpreter
+    from openalea.visualea.ipyinterpreter import IPyInterpreter
     a = QtGui.QApplication(sys.argv)
 
     # Restore default signal handler for CTRL+C
     import signal; signal.signal(signal.SIGINT, signal.SIG_DFL)
 
     interpreter = Interpreter()
+    ipyinterpreter = IPyInterpreter(gui="qt4")
     shellclass = get_shell_class()
-    aw = shellclass(interpreter)
+    if str(get_shell_class()) == str("IPyShell"):
+        aw = shellclass(ipyinterpreter)
+    else:
+        aw = shellclass(interpreter)
 
     # static resize
     aw.resize(600,400)

@@ -19,13 +19,12 @@
 __license__ = "CeCILL v2"
 __revision__ = " $Id$ "
 
-
+from openalea.core import qt
 from PyQt4 import QtCore, QtGui, QtSvg
 from PyQt4.QtCore import SIGNAL
 
 import ui_mainwindow
 from openalea.visualea.shell import get_shell_class
-
 
 from openalea.core import cli, logger
 from openalea.core.pkgmanager import PackageManager
@@ -54,6 +53,10 @@ from graph_operator import GraphOperator
 from graph_operator.vertex import VertexOperators
 
 import traceback
+
+from IPython.inprocess.ipkernel import InProcessKernel
+from IPython.frontend.qt.console.rich_ipython_widget import RichIPythonWidget
+from IPython.frontend.qt.inprocess_kernelmanager import QtInProcessKernelManager
 
 class MainWindow(QtGui.QMainWindow,
                  ui_mainwindow.Ui_MainWindow,
@@ -84,13 +87,19 @@ class MainWindow(QtGui.QMainWindow,
         self.splitter.addWidget(self.lowerpane)
 
         # python interpreter
-        interpreter = Interpreter()
+        try:
+            from openalea.visualea.ipyinterpreter import IPyInterpreter
+            interpreter = IPyInterpreter()
+        except ImportError:
+            interpreter = Interpreter()
+            
         # interpreter init defered after session init
         shellclass = get_shell_class()
         self.interpreterWidget = shellclass(interpreter,
                                             cli.get_welcome_msg())
+
         GraphOperator.globalInterpreter = interpreter
-        self.lowerpane.addTab(self.interpreterWidget, "Python Shell")
+        self.lowerpane.addTab(self.interpreterWidget, "IPython Shell")
 
         if logger.QT_LOGGING_MODEL_AVAILABLE:
             # openalea logger

@@ -21,8 +21,6 @@ __license__ = "CeCILL V2"
 __revision__ = " $Id$"
 
 
-
-
 from PyQt4 import QtCore, QtGui, Qsci
 
 
@@ -210,8 +208,8 @@ class CodeWidget(Qsci.QsciScintilla):
 class CodeWidgetFindReplace(QtGui.QWidget):
 
     # -- signals forwarded from internal widget --
-    textSearchRequest  = QtCore.pyqtSignal(QtCore.QString, bool, bool)
-    textReplaceRequest = QtCore.pyqtSignal(QtCore.QString, QtCore.QString, bool)
+    textSearchRequest  = QtCore.pyqtSignal(str, bool, bool)
+    textReplaceRequest = QtCore.pyqtSignal(str, str, bool)
     resultClearRequest = QtCore.pyqtSignal()
 
 
@@ -270,7 +268,7 @@ class CodeWidgetFindReplace(QtGui.QWidget):
 class CodeWidgetPreferences(QtGui.QWidget):
 
     # -- signals forwarded from internal widgets --
-    languageChanged   = QtCore.pyqtSignal(QtCore.QString)
+    languageChanged   = QtCore.pyqtSignal(str)
     lineNumberToggled = QtCore.pyqtSignal(bool)
     foldingToggled    = QtCore.pyqtSignal(bool)
 
@@ -290,7 +288,7 @@ class CodeWidgetPreferences(QtGui.QWidget):
         self.showFoldingCheckBox = QtGui.QCheckBox("Show folding")
 
         # --- signal bindings ---
-        self.languageCombo.currentIndexChanged[QtCore.QString].connect(self.languageChanged)
+        self.languageCombo.currentIndexChanged[str].connect(self.languageChanged)
         self.showLineCheckBox.toggled.connect(self.lineNumberToggled)
         self.showFoldingCheckBox.toggled.connect(self.foldingToggled)
 

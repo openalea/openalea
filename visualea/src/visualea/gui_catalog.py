@@ -21,7 +21,6 @@
 __license__ = "CeCILL V2"
 __revision__ = " $Id$"
 
-
 from PyQt4 import QtCore, QtGui
 from openalea.core.interface import * #IGNORE:W0614,W0401
 from openalea.core.observer import lock_notify
@@ -230,7 +229,7 @@ class IStrWidget(IInterfaceWidget, QtGui.QWidget):
 
         self.too_long = False # Validity Flag
         self.notify(None, None)
-        self.connect(self.subwidget, QtCore.SIGNAL("textChanged(QString)"), self.valueChanged)
+        self.connect(self.subwidget, QtCore.SIGNAL("textChanged(str)"), self.valueChanged)
 
 
     @lock_notify
@@ -833,7 +832,7 @@ class IEnumStrWidget(IInterfaceWidget, QtGui.QWidget):
         self.notify(None, None)
 
         self.connect(self.subwidget,
-                     QtCore.SIGNAL("currentIndexChanged(QString)"),
+                     QtCore.SIGNAL("currentIndexChanged(str)"),
                      self.valueChanged)
 
 
@@ -952,7 +951,7 @@ class ITupleWidget(IInterfaceWidget, QtGui.QWidget):
         self.hboxlayout.addWidget(self.subwidget)
 
         self.notify(None, None)
-        self.connect(self.subwidget, QtCore.SIGNAL("textChanged(QString)"), self.valueChanged)
+        self.connect(self.subwidget, QtCore.SIGNAL("textChanged(str)"), self.valueChanged)
 
 
     @lock_notify

@@ -1,16 +1,16 @@
 # -*- python -*-
 #
-#       OpenAlea.Visualea: OpenAlea graphical user interface
+# OpenAlea.Visualea: OpenAlea graphical user interface
 #
-#       Copyright 2006-2009 INRIA - CIRAD - INRA
+# Copyright 2006-2009 INRIA - CIRAD - INRA
 #
-#       File author(s): Daniel Barbeau <daniel.barbeau@sophia.inria.fr>
+# File author(s): Daniel Barbeau <daniel.barbeau@sophia.inria.fr>
 #
-#       Distributed under the Cecill-C License.
-#       See accompanying file LICENSE.txt or copy at
-#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
+# Distributed under the Cecill-C License.
+# See accompanying file LICENSE.txt or copy at
+# http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
 #
-#       OpenAlea WebSite : http://openalea.gforge.inria.fr
+# OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
 
@@ -45,29 +45,29 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
                                   ):
     # --- PAINTING STUFF ---
     # Color Definition
-    default_pen_color                = QtGui.QColor(QtCore.Qt.darkGray)
-    default_pen_selected_color       = QtGui.QColor(QtCore.Qt.lightGray)
-    default_pen_error_color          = QtGui.QColor(QtCore.Qt.red)
+    default_pen_color = QtGui.QColor(QtCore.Qt.darkGray)
+    default_pen_selected_color = QtGui.QColor(QtCore.Qt.lightGray)
+    default_pen_error_color = QtGui.QColor(QtCore.Qt.red)
 
-    default_top_color                = QtGui.QColor(200, 200, 200, 255)
-    default_bottom_color             = QtGui.QColor(140, 140, 255, 255)
-    default_error_color              = QtGui.QColor(255, 0, 0, 255)
-    default_user_application_color   = QtGui.QColor(255, 144, 0, 200)
-    default_unlazy_color             = QtGui.QColor(200,  255, 160, 255)
+    default_top_color = QtGui.QColor(200, 200, 200, 255)
+    default_bottom_color = QtGui.QColor(140, 140, 255, 255)
+    default_error_color = QtGui.QColor(255, 0, 0, 255)
+    default_user_application_color = QtGui.QColor(255, 144, 0, 200)
+    default_unlazy_color = QtGui.QColor(200, 255, 160, 255)
 
     #gradient stops
     startPos = 0.0
-    endPos   = 1.0
+    endPos = 1.0
 
     #Shape definition
-    portSpacing      = 5.0
-    outMargins       = 5.0
-    delayMargins     = 7.0
-    evalColor        = QtGui.QColor(255, 0, 0, 200)
+    portSpacing = 5.0
+    outMargins = 5.0
+    delayMargins = 7.0
+    evalColor = QtGui.QColor(255, 0, 0, 200)
 
     default_corner_radius = 1.2
-    default_margin        = 3.0
-    pen_width             = 1.0
+    default_margin = 3.0
+    pen_width = 1.0
 
     maxTipLength = 400
 
@@ -76,26 +76,26 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
                                                       self.default_corner_radius, True,
                                                       0, 0, 1, 1, parent)
         qtgraphview.Vertex.__init__(self, vertex, graph)
-        self.initialise(vertex.get_ad_hoc_dict())
+
         # ----- The colors -----
-        self.__topColor    = self.default_top_color
+        self.__topColor = self.default_top_color
         self.__bottomColor = self.default_bottom_color
-        self.__penColor    = self.default_pen_color
+        self.__penColor = self.default_pen_color
 
         # ----- Layout of the item -----
         ph = GraphicalPort.HEIGHT
         self.vLayout = qtutils.VerticalLayout(margins=(self.outMargins, self.outMargins,
                                                        0., 0.),
                                               center=True)
-        #  in ports
+        # in ports
         self.inPortLayout = qtutils.HorizontalLayout(parent=self.vLayout,
                                                      innerMargins=(self.portSpacing,0.),
                                                      center=True,
                                                      mins=(ph, ph))
-        #  Caption
+        # Caption
         self._caption = QtGui.QGraphicsSimpleTextItem(self)
         self.vLayout.addItem(self._caption)
-        #  out ports
+        # out ports
         self.outPortLayout = qtutils.HorizontalLayout(parent=self.vLayout,
                                                       innerMargins=(self.portSpacing,0.),
                                                       center=True,
@@ -138,7 +138,7 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
 
     def initialise_from_model(self):
         vertex = self.vertex()
-        mdict  = vertex.get_ad_hoc_dict()
+        mdict = vertex.get_ad_hoc_dict()
 
         #position/color...
         mdict.simulate_full_data_change(self, vertex)
@@ -196,15 +196,15 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
             self._delayText.setText(str(self.vertex().delay))
 
     def update_colors(self):
-        self.__topColor    = self.default_top_color
+        self.__topColor = self.default_top_color
         self.__bottomColor = self.default_bottom_color
-        self.__penColor    = self.default_pen_color
+        self.__penColor = self.default_pen_color
 
         if not self.get_view_data("useUserColor"):
             if self.vertex().raise_exception:
-                self.__topColor    = self.default_error_color
+                self.__topColor = self.default_error_color
                 self.__bottomColor = self.__topColor.darker()
-                self.__penColor    = self.default_pen_error_color
+                self.__penColor = self.default_pen_error_color
             elif self.vertex().user_application:
                 self.__topColor = self.default_user_application_color
                 self.__bottomColor = self.__topColor.darker()
@@ -230,7 +230,7 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
 
     def set_graphical_caption(self, caption):
         """Sets the name displayed in the vertex widget, doesn't change
-        the vertex data"""
+the vertex data"""
         if caption == "" or caption == None:
             caption = " "
         if len(caption)>20 :
@@ -312,12 +312,12 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
         qtgraphview.Vertex.notify(self, sender, event)
 
     #######################################
-    # Methods to add/remove model ports   #
+    # Methods to add/remove model ports #
     # They automatically do the according #
-    # operation in the GUI.               #
+    # operation in the GUI. #
     #######################################
     def add_port(self, modelPort):
-        if isinstance(modelPort, InputPort)    : l=self.inPortLayout
+        if isinstance(modelPort, InputPort) : l=self.inPortLayout
         elif isinstance(modelPort, OutputPort) : l=self.outPortLayout
         if modelPort not in l:
             gp = GraphicalPort(self, modelPort)
@@ -327,7 +327,7 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
                 self.refresh_geometry()
 
     def remove_port(self, modelPort):
-        if isinstance(modelPort, InputPort)    : l=self.inPortLayout
+        if isinstance(modelPort, InputPort) : l=self.inPortLayout
         elif isinstance(modelPort, OutputPort) : l=self.outPortLayout
         for gp in l._items[:]:
             if gp.port() == modelPort:
@@ -391,7 +391,7 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
     ################
     def itemChange(self, change, value):
         if change == QtGui.QGraphicsItem.ItemSelectedChange:
-            selected = value.toBool()
+            selected = bool(value)
             pen = self.pen()
             brush = self.brush()
             gradient = brush.gradient()
@@ -453,17 +453,17 @@ class GraphicalVertex(ObserverOnlyGraphicalVertex):
         menu = qtutils.AleaQMenu(widget)
         items = self.scene().get_selected_items(GraphicalVertex)
 
-        menu.addAction(operator("Run",             menu, "vertex_run"))
-        menu.addAction(operator("Open Widget",     menu, "vertex_open"))
+        menu.addAction(operator("Run", menu, "vertex_run"))
+        menu.addAction(operator("Open Widget", menu, "vertex_open"))
         if isinstance(self.vertex(), compositenode.CompositeNode):
             menu.addAction(operator("Inspect composite node", menu, "vertex_composite_inspect"))
         menu.addSeparator()
-        menu.addAction(operator("Delete",          menu, "vertex_remove"))
-        menu.addAction(operator("Reset",           menu, "vertex_reset"))
-        menu.addAction(operator("Replace By",      menu, "vertex_replace"))
-        menu.addAction(operator("Reload",          menu, "vertex_reload"))
+        menu.addAction(operator("Delete", menu, "vertex_remove"))
+        menu.addAction(operator("Reset", menu, "vertex_reset"))
+        menu.addAction(operator("Replace By", menu, "vertex_replace"))
+        menu.addAction(operator("Reload", menu, "vertex_reload"))
         menu.addSeparator()
-        menu.addAction(operator("Caption",         menu, "vertex_set_caption"))
+        menu.addAction(operator("Caption", menu, "vertex_set_caption"))
         menu.addAction(operator("Show/Hide ports", menu, "vertex_show_hide_ports"))
         menu.addSeparator()
 
@@ -489,12 +489,12 @@ class GraphicalVertex(ObserverOnlyGraphicalVertex):
         alignMenu.setDisabled(True)
         if len(items)>1:
             alignMenu.setDisabled(False)
-            alignMenu.addAction(operator("Align horizontally", menu,  "graph_align_selection_horizontal"))
-            alignMenu.addAction(operator("Align left", menu,  "graph_align_selection_left"))
-            alignMenu.addAction(operator("Align right", menu,  "graph_align_selection_right"))
-            alignMenu.addAction(operator("Align centered", menu,  "graph_align_selection_mean"))
-            alignMenu.addAction(operator("Distribute horizontally", menu,  "graph_distribute_selection_horizontally"))
-            alignMenu.addAction(operator("Distribute vertically", menu,  "graph_distribute_selection_vertically"))
+            alignMenu.addAction(operator("Align horizontally", menu, "graph_align_selection_horizontal"))
+            alignMenu.addAction(operator("Align left", menu, "graph_align_selection_left"))
+            alignMenu.addAction(operator("Align right", menu, "graph_align_selection_right"))
+            alignMenu.addAction(operator("Align centered", menu, "graph_align_selection_mean"))
+            alignMenu.addAction(operator("Distribute horizontally", menu, "graph_distribute_selection_horizontally"))
+            alignMenu.addAction(operator("Distribute vertically", menu, "graph_distribute_selection_vertically"))
 
         #The colouring
         colorMenu = menu.addMenu("Color...")
@@ -587,7 +587,7 @@ class HiddenPort (QtGui.QGraphicsItem):
         return self.size()
 
     def boundingRect(self):
-        pos  = QtCore.QPointF(0,0)
+        pos = QtCore.QPointF(0,0)
         size = self.size()
         return QtCore.QRectF(pos, size)
 
@@ -605,24 +605,23 @@ class HiddenPort (QtGui.QGraphicsItem):
 class GraphicalPort(QtGui.QGraphicsEllipseItem, qtgraphview.Connector):
     """ A vertex port """
     MAX_TIPLEN = 400
-    WIDTH      = 7.0
-    HEIGHT     = 7.0
+    WIDTH = 7.0
+    HEIGHT = 7.0
 
     def __init__(self, parent, port):
         """
-        """
+"""
         QtGui.QGraphicsEllipseItem.__init__(self, 0, 0, self.WIDTH, self.HEIGHT, parent)
         qtgraphview.Connector.__init__(self, observed=port)
         self.__interfaceColor = None
         self.set_connection_modifiers(QtCore.Qt.NoModifier)
-        self.initialise(port.get_ad_hoc_dict())
         self.initialise_from_model()
 
     port = baselisteners.GraphElementListenerBase.get_observed
 
     def initialise_from_model(self):
         port = self.port()
-        mdict  = port.get_ad_hoc_dict()
+        mdict = port.get_ad_hoc_dict()
         #graphical data init.
         mdict.simulate_full_data_change(self, port)
         interface = port.get_interface()
@@ -692,7 +691,7 @@ class GraphicalPort(QtGui.QGraphicsEllipseItem, qtgraphview.Connector):
             menu = qtutils.AleaQMenu(operator.get_sensible_parent())
             menu.addAction(operator("Send to pool", menu, "port_send_to_pool"))
             menu.addAction(operator("Send to console", menu, "port_send_to_console"))
-            menu.addAction(operator("Print",        menu, "port_print_value"))
+            menu.addAction(operator("Print", menu, "port_print_value"))
             menu.show()
             menu.move(event.screenPos())
             event.accept()

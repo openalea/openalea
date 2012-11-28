@@ -26,6 +26,7 @@ __revision__ = " $Id$ "
 import os
 from weakref import ref
 
+from openalea.core import qt
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import QAbstractItemModel,QModelIndex, QVariant
 from PyQt4.QtCore import QAbstractListModel
@@ -44,8 +45,9 @@ from openalea.visualea.node_widget import SignalSlotListener
 from openalea.visualea.code_editor import get_editor
 from openalea.visualea.util import grab_icon
 
-import images_rc
+from . import images_rc
 
+from openalea.core.compat import to_qvariant
 
 # Utilities function
 
@@ -58,16 +60,16 @@ def get_icon(item):
     if(not icon_dict):
         # dict to do a switch
         icon_dict = {
-            PseudoGroup : QVariant(QtGui.QPixmap(":/icons/category.png")),
-            CompositeNodeFactory : QVariant(QtGui.QPixmap(":/icons/diagram.png")),
-            NodeFactory : QVariant(QtGui.QPixmap(":/icons/node.png")),
-            DataFactory : QVariant(QtGui.QPixmap(":/icons/data.png")),
-            UserPackage : QVariant(QtGui.QPixmap(":/icons/usrpkg.png")),
-            Package :  QVariant(QtGui.QPixmap(":/icons/pkg.png")),
+            PseudoGroup : to_qvariant(QtGui.QPixmap(":/icons/category.png")),
+            CompositeNodeFactory : to_qvariant(QtGui.QPixmap(":/icons/diagram.png")),
+            NodeFactory : to_qvariant(QtGui.QPixmap(":/icons/node.png")),
+            DataFactory : to_qvariant(QtGui.QPixmap(":/icons/data.png")),
+            UserPackage : to_qvariant(QtGui.QPixmap(":/icons/usrpkg.png")),
+            Package :  to_qvariant(QtGui.QPixmap(":/icons/pkg.png")),
             }
 
     # Get icon from dictionary
-    if(icon_dict.has_key(type(item))):
+    if(type(item) in icon_dict):
         return icon_dict[type(item)]
 
     elif(isinstance(item, PseudoPackage)):
@@ -80,15 +82,15 @@ def get_icon(item):
                 icon = os.path.join(item.item.path, icon)
                 pix = QtGui.QPixmap(icon)
                 if(not pix.isNull()):
-                    return QVariant(pix)
+                    return to_qvariant(pix)
 
             # Standard icon
             return icon_dict[type(item.item)]
 
-        return QVariant(QtGui.QPixmap(":/icons/pseudopkg.png"))
+        return to_qvariant(QtGui.QPixmap(":/icons/pseudopkg.png"))
 
     else:
-        return QVariant()
+        return to_qvariant()
 
 
 # Qt4 Models/View classes
@@ -132,7 +134,7 @@ class PkgModel (QAbstractItemModel) :
     def data(self, index, role):
 
         if not index.isValid():
-            return QtCore.QVariant()
+            return to_qvariant()
 
         item = index.internalPointer()
 
@@ -146,18 +148,18 @@ class PkgModel (QAbstractItemModel) :
                 if(l) : lenstr = " ( %i )"%(l,)
             except: pass
 
-            return QtCore.QVariant(str(item.get_id()) + lenstr)
+            return to_qvariant(str(item.get_id()) + lenstr)
 
         # Tool Tip
         elif( role == QtCore.Qt.ToolTipRole ):
-            return QtCore.QVariant(str(item.get_tip()))
+            return to_qvariant(str(item.get_tip()))
 
         # Icon
         elif(role == QtCore.Qt.DecorationRole):
             return get_icon(item)
 
         else:
-            return QtCore.QVariant()
+            return to_qvariant()
 
 
     def flags(self, index):
@@ -170,7 +172,7 @@ class PkgModel (QAbstractItemModel) :
 
 
     def headerData(self, section, orientation, role):
-        return QtCore.QVariant()
+        return to_qvariant()
 
 
     def get_full_name (self, item) :
@@ -220,7 +222,7 @@ class PkgModel (QAbstractItemModel) :
         parentItem = self.parent_map[id(childItem)]
 
         # Test if it is the root
-        if (not self.parent_map.has_key(id(parentItem)) ):
+        if (id(parentItem) not in self.parent_map ):
             return QtCore.QModelIndex()
 
         else:
@@ -283,27 +285,27 @@ class DataPoolModel (QAbstractListModel) :
     def data(self, index, role):
 
         if (not index.isValid()):
-            return QVariant()
+            return to_qvariant()
 
-        if (index.row() >= len(self.datapool.keys())):
-            return QVariant()
+        if (index.row() >= len(list(self.datapool.keys()))):
+            return to_qvariant()
 
         if (role == QtCore.Qt.DisplayRole):
-            l = self.datapool.keys()
+            l = list(self.datapool.keys())
             l.sort()
             name = l[index.row()]
             #classname = self.datapool[name].__class__
             value = repr(self.datapool[name])
             if(len(value) > 30) : value = value[:30] + "..."
-            return QVariant("%s ( %s )"%(name, value))
+            return to_qvariant("%s ( %s )"%(name, value))
 
         # Icon
         elif( role == QtCore.Qt.DecorationRole ):
-            return QVariant(QtGui.QPixmap(":/icons/ccmime.png"))
+            return to_qvariant(QtGui.QPixmap(":/icons/ccmime.png"))
 
         # Tool Tip
         elif( role == QtCore.Qt.ToolTipRole ):
-            l = self.datapool.keys()
+            l = list(self.datapool.keys())
             l.sort()
             name = l[index.row()]
 
@@ -325,10 +327,10 @@ class DataPoolModel (QAbstractListModel) :
             if(temp) : tips.append(temp)
             tipstr = '\n'.join(tips)
 
-            return QtCore.QVariant(str(tipstr))
+            return to_qvariant(str(tipstr))
 
         else:
-            return QVariant()
+            return to_qvariant()
 
 
     def flags(self, index):
@@ -341,11 +343,11 @@ class DataPoolModel (QAbstractListModel) :
 
 
     def headerData(self, section, orientation, role):
-        return QtCore.QVariant()
+        return to_qvariant()
 
 
     def rowCount(self, parent):
-        return len(self.datapool.keys())
+        return len(list(self.datapool.keys()))
 
 
 
@@ -377,29 +379,29 @@ class SearchModel (QAbstractListModel) :
     def data(self, index, role):
 
         if (not index.isValid()):
-            return QVariant()
+            return to_qvariant()
 
         if (index.row() >= len(self.searchresult)):
-            return QVariant()
+            return to_qvariant()
 
         item = self.searchresult[index.row()]
 
         if (role == QtCore.Qt.DisplayRole):
             if(index.column() == 1):
-                return QVariant(str(item.package.get_id()))
-            return QVariant(str(item.name+ " ("+item.package.name+")"))
+                return to_qvariant(str(item.package.get_id()))
+            return to_qvariant(str(item.name+ " ("+item.package.name+")"))
 
         # Icon
         elif( role == QtCore.Qt.DecorationRole ):
-            if(index.column()>0) : return QVariant()
+            if(index.column()>0) : return to_qvariant()
             return get_icon(item)
 
         # Tool Tip
         elif( role == QtCore.Qt.ToolTipRole ):
-            return QtCore.QVariant(str(item.get_tip()))
+            return to_qvariant(str(item.get_tip()))
 
         else:
-            return QVariant()
+            return to_qvariant()
 
 
     def flags(self, index):
@@ -412,7 +414,7 @@ class SearchModel (QAbstractListModel) :
 
 
     def headerData(self, section, orientation, role):
-        return QtCore.QVariant()
+        return to_qvariant()
 
 
     def rowCount(self, parent):
@@ -484,8 +486,8 @@ class NodeFactoryView(object):
 
         (pkg_id, factory_id, mimetype) = self.get_item_info(item)
 
-        dataStream << QtCore.QString(pkg_id) << QtCore.QString(factory_id)
-
+        dataStream.writeString(pkg_id)
+        dataStream.writeString(factory_id)
         mimeData = QtCore.QMimeData()
 
         mimeData.setData(mimetype, itemData)
@@ -514,7 +516,7 @@ class NodeFactoryView(object):
 
             return (pkg_id, factory_id, obj.mimetype)
 
-        return ("","", "openalea/notype")
+        return ("0","0", "openalea/notype")
 
 
     def contextMenuEvent(self, event):
@@ -743,7 +745,7 @@ class NodeFactoryView(object):
             return
 
 
-        dialog = NewPackage(pman.keys(), parent = self, metainfo=pkg.metainfo)
+        dialog = NewPackage(list(pman.keys()), parent = self, metainfo=pkg.metainfo)
         ret = dialog.exec_()
 
         if(ret>0):
@@ -882,8 +884,8 @@ Do you want to continue?""",
 
             try:
                 obj.package[obj.name].clean_files()
-            except Exception, e:
-                print e
+            except Exception as e:
+                print(e)
 
             del(obj.package[obj.name])
             obj.package.write()
@@ -1008,11 +1010,11 @@ class DataPoolListView(QtGui.QListView, SignalSlotListener):
         dataStream = QtCore.QDataStream(itemData, QtCore.QIODevice.WriteOnly)
         pixmap = QtGui.QPixmap(":/icons/ccmime.png")
 
-        l = self.model().datapool.keys()
+        l = list(self.model().datapool.keys())
         l.sort()
         name = l[item.row()]
 
-        dataStream << QtCore.QString(name)
+        dataStream.writeString(name)
 
         mimeData = QtCore.QMimeData()
         mimeData.setData("openalea/data_instance", itemData)
@@ -1050,15 +1052,9 @@ class DataPoolListView(QtGui.QListView, SignalSlotListener):
 
         datapool = model.datapool
 
-        l = self.model().datapool.keys()
+        l = list(self.model().datapool.keys())
         l.sort()
         name = l[item.row()]
 
         del(datapool[name])
-
-
-
-
-
-
 

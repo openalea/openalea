@@ -115,7 +115,7 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
             Qt.Key_End : self.__QScintillaLineEnd,
             }
 
-        self.connect(self, QtCore.SIGNAL('userListActivated(int, const QString)'),
+        self.connect(self, QtCore.SIGNAL('userListActivated(int, const str)'),
                      self.__completionListSelected)
 
         self.setFocus()
@@ -247,7 +247,7 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
         else:
             if len(self.history) == self.maxHistoryEntries:
                 del self.history[0]
-            self.history.append(QtCore.QString(cmd))
+            self.history.append(str(cmd))
             self.histidx = -1
 
         if(cmd.endswith('?')):
@@ -279,7 +279,7 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
     def __insertTextAtEnd(self, s):
         """
         Private method to insert some text at the end of the command line.
-        @param s text to be inserted (string or QString)
+        @param s text to be inserted (string)
         """
         line, col = self.__getEndPos()
         self.setCursorPosition(line, col)
@@ -550,7 +550,7 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
         if self.histidx < len(self.history):
             cmd = self.history[self.histidx]
         else:
-            cmd = QtCore.QString()
+            cmd = str()
             self.incrementalSearchString = ""
             self.incrementalSearchActive = False
 
@@ -565,7 +565,7 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
         """
         Private method used to search the history.
         
-        @param txt text to match at the beginning (string or QString)
+        @param txt text to match at the beginning (string)
         @param startIdx index to start search from (integer)
         @return index of 
         """
@@ -583,7 +583,7 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
         """
         Private method used to reverse search the history.
         
-        @param txt text to match at the beginning (string or QString)
+        @param txt text to match at the beginning (string)
         @param startIdx index to start search from (integer)
         @return index of 
         """
@@ -656,7 +656,7 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
         
         if len(completions) > 1:
             completions.sort()
-            comps = QtCore.QStringList()
+            comps = list()
             for comp in completions:
                 comps.append(comp)
             self.showUserList(1, comps)
@@ -674,7 +674,7 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
         Private slot to handle the selection from the completion list.
         
         @param id the ID of the user list (should be 1) (integer)
-        @param txt the selected text (QString)
+        @param txt the selected text (str)
         """
 
          # Remove already written characters

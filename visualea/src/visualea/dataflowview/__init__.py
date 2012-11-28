@@ -157,8 +157,8 @@ class DataflowView( qt.View ):
             # -- retreive the data from the event mimeData --
             pieceData = event.mimeData().data(format)
             dataStream = QtCore.QDataStream(pieceData, QtCore.QIODevice.ReadOnly)
-            package_id = QtCore.QString()
-            factory_id = QtCore.QString()
+            package_id = str()
+            factory_id = str()
             dataStream >> package_id >> factory_id
 
             # -- find node factory --
@@ -183,9 +183,8 @@ class DataflowView( qt.View ):
             # -- retreive the data from the event mimeData --
             pieceData = event.mimeData().data("openalea/data_instance")
             dataStream = QtCore.QDataStream(pieceData, QtCore.QIODevice.ReadOnly)
-            data_key = QtCore.QString()
-            dataStream >> data_key
-            data_key = str(data_key)
+            data_key = str()
+            data_key = str(data_key + dataStream)
 
             # -- find node factory --
             pkgmanager = PackageManager()

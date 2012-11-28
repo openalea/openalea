@@ -23,6 +23,7 @@ __revision__ = "$Id$"
 
 
 import sys
+from openalea.core import qt
 from PyQt4 import QtGui
 from PyQt4 import QtCore
 
@@ -117,9 +118,9 @@ def show_splash_screen():
     pix = QtGui.QPixmap(":/icons/splash.png")
     splash = QtGui.QSplashScreen(pix, QtCore.Qt.WindowStaysOnTopHint)
     splash.show()
-    message = QtCore.QString( metainfo.get_copyright() +
-                              "Version : %s\n"%(metainfo.get_version(),) +
-                              "Loading modules...")
+    message = "" + metainfo.get_copyright() +\
+              "Version : %s\n"%(metainfo.get_version(),) +\
+              "Loading modules..."
     splash.showMessage(message, QtCore.Qt.AlignCenter|QtCore.Qt.AlignBottom)
     # -- make sure qt really display the message before importing the modules.--
     QtGui.QApplication.processEvents()
