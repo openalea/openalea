@@ -21,6 +21,7 @@ __revision__=" $Id: $ "
 
 import numpy as np
 from scipy import ndimage
+import copy as cp
 
 # -- deprecation messages --
 import warnings, exceptions
@@ -99,6 +100,12 @@ class SpatialImage(np.ndarray) :
     def real_shape(self):
         #~ return np.multiply(self.shape[:3], self.voxelsize)
         return np.multiply(self.shape, self.voxelsize)  # Jonathan
+
+    def invert_z_axis( self ):
+        """
+        invert allong 'Z' axis
+        """
+        self = self[:,:,::-1]
 
     def __array_finalize__ (self, obj) :
         if obj is None :

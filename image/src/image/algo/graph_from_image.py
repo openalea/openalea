@@ -173,6 +173,8 @@ def graph_from_image(image,
 
     if isinstance(image, AbstractSpatialImageAnalysis):
         real_image = image.image
+        if labels is None:
+            labels = image.labels()
     else:
         real_image = image
 

@@ -26,7 +26,6 @@ import gzip
 import pickle
 
 import numpy as np
-import numpy.linalg as ln
 import scipy.ndimage as nd
 
 from openalea.image.spatial_image import SpatialImage
@@ -34,6 +33,7 @@ from openalea.image.spatial_image import SpatialImage
 try:
     from openalea.plantgl.all import (r_neighborhood, principal_curvatures)
 except:
+    warnings.warn("You will not be able to use some functionnalities of SpatialImageAnalysis because you fail loading some of them!")
     pass
 
 
@@ -42,6 +42,7 @@ def dilation(slices):
     Function dilating slices: extend the boundingbox of one voxel.
     """
     return [ slice(max(0,s.start-1), s.stop+1) for s in slices ]
+
 
 def wall(mask_img, label_id):
     """
@@ -332,19 +333,29 @@ class AbstractSpatialImageAnalysis(object):
         print "File " + filename + " succesfully created !!"
 
 
-    def convert_return(self, values, labels = None):
+    def convert_return(self, values, labels = None, overide_return_type = None):
         """
         This function convert outputs of analysis functions.
         """
+        tmp_save_type = copy.copy(self.return_type)
+        if not overide_return_type is None:
+            self.return_type = overide_return_type
         # -- In case of unique label, just return the result for this label
-        #~ if not labels is None and isinstance(labels,int): return values[0]
-        if not labels is None and isinstance(labels,int): return values
+        if not labels is None and isinstance(labels,int): 
+            self.return_type = copy.copy(tmp_save_type)
+            return values
         # -- return a numpy array
-        elif self.return_type == NPLIST: return values
+        elif self.return_type == NPLIST:
+            self.return_type = copy.copy(tmp_save_type)
+            return values
         # -- return a standard python list
-        elif self.return_type == LIST: return values.tolist()
+        elif self.return_type == LIST:
+            self.return_type = copy.copy(tmp_save_type)
+            return values.tolist()
         # -- return a dictionary 
-        else: return dict(zip(labels,values))
+        else:
+            self.return_type = copy.copy(tmp_save_type)
+            return dict(zip(labels,values))
 
 
     def labels(self):
@@ -398,32 +409,30 @@ class AbstractSpatialImageAnalysis(object):
 
     def center_of_mass(self, labels=None, real=True):
         """
-            Return the center of mass of the labels.
-
+        Return the center of mass of the labels.
+        
         :Parameters:
-         - `labels` (int) - single label number or a sequence of
-            label numbers of the objects to be measured.
+         - `labels` (int) - single label number or a sequence of label numbers of the objects to be measured.
             If labels is None, all labels are used.
-
          - `real` (bool) - If real = True, center of mass is in real-world units else in voxels.
-
+        
         :Examples:
-
+        
         >>> import numpy as np
         >>> a = np.array([[1, 2, 7, 7, 1, 1],
                           [1, 6, 5, 7, 3, 3],
                           [2, 2, 1, 7, 3, 3],
                           [1, 1, 1, 4, 1, 1]])
-
+        
         >>> from openalea.image.algo.analysis import SpatialImageAnalysis
         >>> analysis = SpatialImageAnalysis(a)
-
+        
         >>> analysis.center_of_mass(7)
         [0.75, 2.75, 0.0]
-
+        
         >>> analysis.center_of_mass([7,2])
         [[0.75, 2.75, 0.0], [1.3333333333333333, 0.66666666666666663, 0.0]]
-
+        
         >>> analysis.center_of_mass()
         [[1.8, 2.2999999999999998, 0.0],
          [1.3333333333333333, 0.66666666666666663, 0.0],
@@ -475,18 +484,20 @@ class AbstractSpatialImageAnalysis(object):
         (slice(1, 2), slice(2, 3), slice(0, 1)),
         (slice(1, 2), slice(1, 2), slice(0, 1)),
         (slice(0, 3), slice(2, 4), slice(0, 1))]
-        """
+        """        
         if self._bbox is None:
             self._bbox = nd.find_objects(self.image)
+        
         if labels is None:
-            if real: return [real_indices(bbox,self.image.resolution) for bbox in self._bbox]
-            else :   return self._bbox
-
+            labels = self.labels()
+            #~ if real: return [real_indices(bbox,self.image.resolution) for bbox in self._bbox]
+            #~ else :   return self._bbox
+        
         # bbox of object labelled 1 to n are stored into self._bbox. To access i-th element, we have to use i-1 index
         if isinstance (labels, list):
             bboxes = [self._bbox[i-1] for i in labels]
-            if real : return [real_indices(bbox,self.image.resolution) for bbox in bboxes]
-            else : return bboxes
+            if real : return self.convert_return([real_indices(bbox,self.image.resolution) for bbox in bboxes],labels)
+            else : return self.convert_return(bboxes,labels)
 
         else :
             try:
@@ -642,43 +653,45 @@ class AbstractSpatialImageAnalysis(object):
         Return the voxels coordinates defining the contact wall between two labels.
 
         :Parameters:
-            - `label_1` cell id #1.
-            - `label_2` cell id #2.
+        - `label_1` (int) - cell id #1.
+        - `label_2` (int) - cell id #2.
 
         :Return:
-            -`coord` a dictionnary of *keys= (labels_1,label_2); *values= xyz 3xN array.
+        -`coord` (dict) - *keys= (min(label_1,label_2),max(label_1,label_2)); *values= xyz 3xN array.
         """
+        
         # -- We first make sure that labels are neighbors:
         if label_2 not in self.neighbors(label_1):
             warnings.warn("You got it wrong dude,"+str(label_1)+"and"+str(label_2)+"are not neighbors!!")
-
+        
         dilated_bbox = dilation( self.boundingbox(label_1) )
         dilated_bbox_img = self.image[dilated_bbox]
-
+        
         mask_img_1 = (dilated_bbox_img == label_1)
         mask_img_2 = (dilated_bbox_img == label_2)
-
+        
         struct = nd.generate_binary_structure(3, 1)
-
+        
         dil_1 = nd.binary_dilation(mask_img_1, structure=struct)
         dil_2 = nd.binary_dilation(mask_img_2, structure=struct)
         x,y,z = np.where( ( (dil_1 & mask_img_2) | (dil_2 & mask_img_1) ) == 1 )
         
         coord={}
         coord[min(label_1,label_2),max(label_1,label_2)]=np.array((x+dilated_bbox[0].start,y+dilated_bbox[1].start,z+dilated_bbox[2].start))
-
+        
         return coord
 
 
-    def all_wall_voxels(self, label_1, verbose = False):
+    def walls_voxels(self, label_1, verbose = False):
         """
-        Return the voxels coordinates defining the contact wall between two labels, the given one and its neighbors.
+        Return the voxels coordinates of all walls from one cell. 
+        There must be a contact defined between two labels, the given one and its neighbors.
 
         :Parameters:
-            - `label_1` cell id #1.
+            - `label_1` (int) - cell id #1.
 
         :Return:
-            -`coord` a dictionnary of *keys= [min(labels_1,neighbors[n]), max(labels_1,neighbors[n])]; *values= xyz 3xN array.
+            -`coord` (dict) - *keys= [min(labels_1,neighbors[n]), max(labels_1,neighbors[n])]; *values= xyz 3xN array.
         """
         coord={}
         
@@ -796,15 +809,10 @@ class AbstractSpatialImageAnalysis(object):
         return surfaces 
 
 
-    #~ def __L1(self, background = 1):
-        #~ return self.neighbors(background)
     def __layer1(self, background = 1):
         return list( set(self.neighbors(background))-self._ignoredlabels )
 
-    #~ def L1(self, background = 1):
-        #~ if self._L1 is None : self._L1 = self.__L1(background)
-        #~ if 0 in self._L1: self._L1.remove(0)
-        #~ return self._L1
+
     def layer1(self, background = 1):
         """
         Extract a list of labels corresponding to a layer of cell.
@@ -812,7 +820,9 @@ class AbstractSpatialImageAnalysis(object):
         """
         if self._layer1 is None :
             self._layer1 = self.__layer1(background)
-        return self._layer1
+        
+        integers = np.vectorize(lambda x : int(x))
+        return list(integers(self._layer1))
 
 
     def __first_voxel_layer(self, background = 1, keep_background = True):
@@ -831,6 +841,7 @@ class AbstractSpatialImageAnalysis(object):
         else:
             return self.image * layer
 
+
     def first_voxel_layer(self, background = 1, keep_background = False):
         """
         Function extracting the first layer of voxels detectable from the outer surface.
@@ -838,6 +849,46 @@ class AbstractSpatialImageAnalysis(object):
         if self._first_voxel_layer is None :
             self._first_voxel_layer = self.__first_voxel_layer(background, keep_background)
         return self._first_voxel_layer
+
+
+    def inertia_axis_normal_to_surface(self, labels=None, center_of_mass=None, inertia_axis=None, real=False, verbose=True):
+        """
+        Find the inertia axis defining the "Z" orientation of the cell.
+        We define it to be the one correlated to the normal vector to the surface.
+        
+        :Parameters:
+         - `labels` (int) - single label number or a sequence of label numbers of the objects to be measured.
+            If labels is None, all labels are used.
+         - `real` (bool) - If real = True, center of mass is in real-world units else in voxels.
+        """
+        
+        # -- If 'labels' is `None`, we apply the function to all L1 cells:
+        if labels == None:
+            labels = self.layer1()
+        
+        # -- If 'inertia_axis' is `None`, we compute them:
+        if inertia_axis == None:
+            inertia_axis, inertia_length = self.inertia_axis(labels, real=real)
+
+        surface_normal_axis=[]
+        for n_cell, cell in enumerate(labels):
+            if verbose: print n_cell,'/',len(labels)
+            try:
+                normal = self.principal_curvatures_normal[cell]
+            except:
+                self.compute_principal_curvatures( cell, radius=30, fitting_degree=1, monge_degree=2, background=1, verbose=False)
+                normal = self.principal_curvatures_normal[cell]
+            max_corr = 0
+            n_corr = 3
+            for n_vect,inertia_vect in enumerate(inertia_axis[cell]):
+                corr = vector_correlation(normal, inertia_vect)
+                if abs(corr)>max_corr:
+                    max_corr=copy.copy(abs(corr))
+                    n_corr=copy.copy(n_vect)
+            
+            surface_normal_axis.append(n_corr)
+        
+        return self.convert_return(surface_normal_axis, labels)
 
 
     def remove_cells(self, vids, erase_value = 0, verbose = True):
@@ -851,6 +902,9 @@ class AbstractSpatialImageAnalysis(object):
 
         if isinstance(vids,int):
             vids= [vids]
+        
+        if (len(vids)!=1) and (1 in vids) :
+            vids.remove(1)
 
         try:
             isinstance(vids,list)
@@ -987,7 +1041,7 @@ class SpatialImageAnalysis2D (AbstractSpatialImageAnalysis):
         if unique_label :
             return inertia_eig_vec[0], inertia_eig_val[0]
         else:
-            return inertia_eig_vec, inertia_eig_val
+            return self.convert_return(inertia_eig_vec,labels), self.convert_return(inertia_eig_val,labels)
 
 
 
@@ -1097,6 +1151,7 @@ class SpatialImageAnalysis3D(AbstractSpatialImageAnalysis):
             # project center into the slices sub_image coordinate
             for i,slice in enumerate(slices):
                 center[i] = center[i] - slice.start
+            
             label_image = (self.image[slices] == label)
 
             # compute the indices of voxel with adequate label
@@ -1311,6 +1366,76 @@ class SpatialImageAnalysis3D(AbstractSpatialImageAnalysis):
         Where k1 is the max value of principal curvature and k2 the min value.
         """
         return float(self.principal_curvatures[vid][0] - self.principal_curvatures[vid][1])/float(self.principal_curvatures[vid][0] + self.principal_curvatures[vid][1])
+
+
+    def cell_shape_anisotropy(self, vids=None, external=False, as_2D=False, return_inertia_tensors=False, real=False):
+        """
+        Compute anisotropy from inertia axis length. 
+        
+        :Parameters:
+         - vids (list): list of ids.
+         - external (bool): if True, use only the first layer of voxel to compute inertia axis and shape anisotropy.
+         - as_2D (bool): if True, use only the two longest inertia axis to compute shape anisotropy.
+        """
+        if vids is None:
+            vids = self.layer1()
+        
+        if external:
+            as_2D = True
+        
+        anisotropy = []
+        inertia_tensor = {}
+        inertia_bary = {}
+        
+        if as_2D and not external:
+            dict_to_remove = self.inertia_axis_normal_to_surface(vids, real=real, verbose=True)
+            for vid in vids:
+                eig_vec, eig_val = self.inertia_axis(vid, real=real)
+                eig_val.pop(dict_to_remove[vid])
+                anisotropy.append( (max(eig_val)-min(eig_val)) / (max(eig_val)+min(eig_val)) )
+        
+        if external:
+            first_voxel_layer = self.first_voxel_layer(keep_background=True)
+            center_of_mass = dict(zip(vids, np.array(nd.center_of_mass(first_voxel_layer, first_voxel_layer, index=vids)) ))
+            bbox_slices = nd.find_objects(first_voxel_layer)
+            bbox = dict(zip(xrange(1,len(bbox_slices)+1), bbox_slices))
+            for i,label in enumerate(vids):
+                if len(vids) == 1:
+                    center = center_of_mass
+                elif isinstance(center_of_mass, dict):
+                    center = center_of_mass[label]
+                else:
+                    center = center_of_mass[i]
+                # project center into the slices sub_image coordinate
+                slices = bbox[label]
+                for i,slice in enumerate(slices):
+                    center[i] = center[i] - slice.start
+                
+                label_image = (self.image[slices] == label)
+                
+                # compute the indices of voxel with adequate label
+                x,y,z = label_image.nonzero()
+                
+                # difference with the center
+                x = x - center[0]
+                y = y - center[1]
+                z = z - center[2]
+                coord = np.array([x,y,z])
+                
+                # compute P.P^T
+                cov = np.dot(coord,coord.T)
+                
+                # Find the eigen values and vectors.
+                #~ eig_val, eig_vec = np.linalg.eig(cov)
+                u, eig_val, v = np.linalg.svd(cov) # sorted eigen values
+                anisotropy.append( (eig_val[0]-eig_val[1]) / (eig_val[0]+eig_val[1]) )
+                if return_inertia_tensors:
+                    inertia_tensor[label] = cov
+            
+        if return_inertia_tensors:
+            return self.convert_return(anisotropy, vids), inertia_tensor, center_of_mass
+        else:
+            return self.convert_return(anisotropy, vids)
 
 
     def moment_invariants(self, vids = None, order = [], verbose = True):
@@ -1552,39 +1677,6 @@ def save_id_list(id_list, filename, sep='\n' ):
 
     f.close()
 
-    #~ def display_curvature_cross(self, shadow_layer=False):
-        #~ """
-        #~ Display curvature cross
-        #~ """
-        #~ from enthought.mayavi import mlab
-#~ 
-        #~ origin = self.principal_curvatures_origin
-        #~ directions = self.principal_curvatures_directions
-        #~ k1 = dict([tuple([a,self.principal_curvatures[a][0]]) for a in self.principal_curvatures])
-        #~ k2 = dict([tuple([a,self.principal_curvatures[a][1]]) for a in self.principal_curvatures])
-#~ 
-        #~ oriX=np.array([origin[a][0] for a in origin.keys()])
-        #~ oriY=np.array([origin[a][1] for a in origin.keys()])
-        #~ oriZ=np.array([origin[a][2] for a in origin.keys()])
-        #~ dir1X=np.array([k1[a]*directions[a][0][0] for a in directions.keys()])
-        #~ dir1Y=np.array([k1[a]*directions[a][0][1] for a in directions.keys()])
-        #~ dir1Z=np.array([k1[a]*directions[a][0][2] for a in directions.keys()])
-        #~ dir2X=np.array([k2[a]*directions[a][1][0] for a in directions.keys()])
-        #~ dir2Y=np.array([k2[a]*directions[a][1][1] for a in directions.keys()])
-        #~ dir2Z=np.array([k2[a]*directions[a][1][2] for a in directions.keys()])
-#~ 
-        #~ fig = mlab.figure(1, fgcolor=(1, 1, 1), bgcolor=(0, 0, 0), size=(800, 800))
-        #~ if shadow_layer:
-            #~ im = self.first_voxel_layer()
-            #~ im[im==1] = 0
-            #~ x_all,y_all,z_all = np.where(im != 0)
-            #~ pts = mlab.points3d( x_all, y_all, z_all, mode = 'point', color = tuple([1.,1.,1.], figure = fig))
-#~ 
-        #~ obj = mlab.quiver3d(oriX, oriY, oriZ, dir1X, dir1Y, dir1Z, mode = '2ddash', line_width=3, figure = fig )
-        #~ obj2 = mlab.quiver3d(oriX, oriY, oriZ, dir2X, dir2Y, dir2Z, mode = '2ddash',line_width=3, figure = fig )
-#~ 
-        #~ obj.glyph.glyph_source.glyph_source.center = [0, 0, 0]
-        #~ obj2.glyph.glyph_source.glyph_source.center = [0, 0, 0]
 
 
     #~ def mask_intersection(self, vid, geometric_mask):
@@ -1702,7 +1794,7 @@ def save_id_list(id_list, filename, sep='\n' ):
         #~ """
         #~ """
         #~ if all_walls == None:
-            #~ all_walls = self.all_wall_voxels(1,verbose)
+            #~ all_walls = self.walls_voxels(1,verbose)
 #~ 
         #~ walls = []
         #~ walls.append(all_walls[1,vid])
@@ -1953,45 +2045,4 @@ def save_id_list(id_list, filename, sep='\n' ):
         #~ return (e+f*x_1)/(E+F*x_1), (e+f*x_2)/(E+F*x_2)
 
 
-#~ def euclidean_sphere(size):
-    #~ """
-    #~ Generate a euclidean sphere for binary morphological operations
-#~ 
-    #~ :Parameters:
-        #~ - `size` (int) - the shape of the euclidean sphere = 2*size + 1.
-#~ 
-    #~ :Returns:
-        #~ - Euclidean sphere which may be used for binary morphological operations, with shape equal to 2*size + 1.
-    #~ """
-    #~ n = int(2*size + 1)
-    #~ sphere = np.zeros((n,n,n),np.bool)
-    #~ for x in range(n):
-        #~ for y in range(n):
-            #~ for z in range(n):
-                #~ if (x-size)**2+(y-size)**2+(z-size)**2<=size**2:
-                    #~ sphere[x,y,z]=True
-    #~ return sphere
-
-
-#~ def extract_L1(image):
-    #~ """
-    #~ Return the list of all cell labels in the layer 1.
-#~ 
-    #~ :Parameters:
-        #~ - `image` (|SpatialImage|) - segmented image
-#~ 
-    #~ :Returns:
-        #~ - `L1` (list)
-    #~ """
-    #~ return SpatialImageAnalysis(image).L1()
-    #~ # L1 = []
-    #~ # im = np.zeros_like(image)
-    #~ # im[image!=1]=1
-    #~ # ero = nd.binary_erosion(im)
-    #~ # mask = im - ero
-    #~ # res = np.where(mask==1,image,0)
-    #~ # for cell in xrange(1,image.max()+1):
-        #~ # if cell in res:
-            #~ # L1.append(cell)
-    #~ # return L1
 
