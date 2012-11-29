@@ -28,6 +28,12 @@ import pickle
 import numpy as np
 import scipy.ndimage as nd
 
+try:
+    from sklearn.decomposition import PCA
+except:
+    warnings.warn("You will not be able to use some functionnalities of SpatialImageAnalysis because you fail loading some libraries!")
+    pass
+
 from openalea.image.spatial_image import SpatialImage
 
 try:
@@ -818,11 +824,11 @@ class AbstractSpatialImageAnalysis(object):
         Extract a list of labels corresponding to a layer of cell.
         It start from the cell in contact with the outer surface to the inner parts of the segemented tissu.
         """
-        if self._layer1 is None :
-            self._layer1 = self.__layer1(background)
-        
         integers = np.vectorize(lambda x : int(x))
-        return list(integers(self._layer1))
+        if self._layer1 is None :
+            self._layer1 = list(integers(self.__layer1(background)))
+        
+        return self._layer1
 
 
     def __first_voxel_layer(self, background = 1, keep_background = True):
@@ -1368,7 +1374,7 @@ class SpatialImageAnalysis3D(AbstractSpatialImageAnalysis):
         return float(self.principal_curvatures[vid][0] - self.principal_curvatures[vid][1])/float(self.principal_curvatures[vid][0] + self.principal_curvatures[vid][1])
 
 
-    def cell_shape_anisotropy(self, vids=None, external=False, as_2D=False, return_inertia_tensors=False, real=False):
+    def cell_shape_anisotropy(self, vids=None, external=False, proj_2D=False, return_inertia_tensors=False, real=False, verbose = False):
         """
         Compute anisotropy from inertia axis length. 
         
@@ -1380,60 +1386,49 @@ class SpatialImageAnalysis3D(AbstractSpatialImageAnalysis):
         if vids is None:
             vids = self.layer1()
         
-        if external:
-            as_2D = True
+        N = len(vids)
+        
+        if proj_2D:
+            external = True
         
         anisotropy = []
         inertia_tensor = {}
         inertia_bary = {}
         
-        if as_2D and not external:
-            dict_to_remove = self.inertia_axis_normal_to_surface(vids, real=real, verbose=True)
-            for vid in vids:
-                eig_vec, eig_val = self.inertia_axis(vid, real=real)
-                eig_val.pop(dict_to_remove[vid])
-                anisotropy.append( (max(eig_val)-min(eig_val)) / (max(eig_val)+min(eig_val)) )
-        
         if external:
             first_voxel_layer = self.first_voxel_layer(keep_background=True)
-            center_of_mass = dict(zip(vids, np.array(nd.center_of_mass(first_voxel_layer, first_voxel_layer, index=vids)) ))
             bbox_slices = nd.find_objects(first_voxel_layer)
             bbox = dict(zip(xrange(1,len(bbox_slices)+1), bbox_slices))
-            for i,label in enumerate(vids):
-                if len(vids) == 1:
-                    center = center_of_mass
-                elif isinstance(center_of_mass, dict):
-                    center = center_of_mass[label]
-                else:
-                    center = center_of_mass[i]
+            for n,label in enumerate(vids):
+                if verbose :
+                    print "Cell",label,", ",n,'/',N
                 # project center into the slices sub_image coordinate
-                slices = bbox[label]
-                for i,slice in enumerate(slices):
-                    center[i] = center[i] - slice.start
-                
-                label_image = (self.image[slices] == label)
-                
+                label_image = (first_voxel_layer[bbox[label]] == label)
                 # compute the indices of voxel with adequate label
-                x,y,z = label_image.nonzero()
-                
-                # difference with the center
-                x = x - center[0]
-                y = y - center[1]
-                z = z - center[2]
-                coord = np.array([x,y,z])
-                
+                coord = np.array(label_image.nonzero()).T
+                # difference with the center of mass
+                mean = np.mean(coord,axis=0)
+                coord = coord - mean
+                if proj_2D:
+                    U, S, V = np.linalg.svd(coord, full_matrices=False)
+                    coord = np.dot(coord, V[:2,:].T)
                 # compute P.P^T
                 cov = np.dot(coord,coord.T)
-                
                 # Find the eigen values and vectors.
-                #~ eig_val, eig_vec = np.linalg.eig(cov)
                 u, eig_val, v = np.linalg.svd(cov) # sorted eigen values
                 anisotropy.append( (eig_val[0]-eig_val[1]) / (eig_val[0]+eig_val[1]) )
                 if return_inertia_tensors:
-                    inertia_tensor[label] = cov
+                    if proj_2D:
+                        print 'TO CHECK!'
+                        # - Getting back in 3D:.
+                        inertia_tensor[label] = np.dot(cov, V) + mean
+                    else:
+                        inertia_tensor[label] = u
+            if return_inertia_tensors:
+                inertia_bary[label] = nd.center_of_mass(first_voxel_layer,first_voxel_layer,index=vids)
             
         if return_inertia_tensors:
-            return self.convert_return(anisotropy, vids), inertia_tensor, center_of_mass
+            return self.convert_return(anisotropy, vids), inertia_tensor, inertia_bary
         else:
             return self.convert_return(anisotropy, vids)
 
