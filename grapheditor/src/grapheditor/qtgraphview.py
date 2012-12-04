@@ -405,7 +405,7 @@ class Edge(Element):
                 pass
 
         elif (change == QtGui.QGraphicsItem.ItemSelectedChange):
-            if(value.toBool()):
+            if(bool(value)):
                 color = QtCore.Qt.blue
             else:
                 color = QtCore.Qt.black

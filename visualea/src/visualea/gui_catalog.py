@@ -229,7 +229,7 @@ class IStrWidget(IInterfaceWidget, QtGui.QWidget):
 
         self.too_long = False # Validity Flag
         self.notify(None, None)
-        self.connect(self.subwidget, QtCore.SIGNAL("textChanged(str)"), self.valueChanged)
+        self.connect(self.subwidget, QtCore.SIGNAL("textChanged()"), self.valueChanged)
 
 
     @lock_notify
@@ -832,7 +832,7 @@ class IEnumStrWidget(IInterfaceWidget, QtGui.QWidget):
         self.notify(None, None)
 
         self.connect(self.subwidget,
-                     QtCore.SIGNAL("currentIndexChanged(str)"),
+                     QtCore.SIGNAL("currentIndexChanged(int)"),
                      self.valueChanged)
 
 
@@ -951,7 +951,7 @@ class ITupleWidget(IInterfaceWidget, QtGui.QWidget):
         self.hboxlayout.addWidget(self.subwidget)
 
         self.notify(None, None)
-        self.connect(self.subwidget, QtCore.SIGNAL("textChanged(str)"), self.valueChanged)
+        self.connect(self.subwidget, QtCore.SIGNAL("textChanged()"), self.valueChanged)
 
 
     @lock_notify
