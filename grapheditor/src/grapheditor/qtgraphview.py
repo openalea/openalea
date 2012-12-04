@@ -274,7 +274,7 @@ class Vertex(Element):
 
         elif change == qtutils.ItemPositionHasChanged:
             self.deaf(True)
-            point = value.toPointF()
+            point = QtCore.QPointF(value)
             self.store_view_data(position=[point.x(), point.y()])
             self.deaf(False)
             self.notify_position_change()

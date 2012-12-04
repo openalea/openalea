@@ -58,7 +58,8 @@ class DT_Interpreter(SingletonFactory):
     __icon_rc__          = ":icons/interpreter.png"
 
     def build_raw_instance(self):
-        from code import InteractiveInterpreter as Interpreter
+        from openalea.visualea.ipyinterpreter import IPyInterpreter as Interpreter
+        # from code import InteractiveInterpreter as Interpreter
         self.interpretermodel = Interpreter()
         return self.interpretermodel
 

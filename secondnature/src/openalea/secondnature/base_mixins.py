@@ -19,7 +19,7 @@ __revision__ = " $Id$ "
 
 from openalea.core.logger import get_logger
 
-loffer = get_logger(__name__)
+logger = get_logger(__name__)
 
 class HasName(object):
     # -- PROPERTIES --

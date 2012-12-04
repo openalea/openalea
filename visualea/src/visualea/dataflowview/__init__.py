@@ -23,6 +23,7 @@ import anno
 import adapter
 
 from PyQt4 import QtGui, QtCore
+from openalea.core.compat import to_qvariant
 from openalea.visualea.graph_operator import GraphOperator
 from openalea.core import compositenode, node
 from openalea.core.pkgmanager import PackageManager # for drag and drop
@@ -157,10 +158,9 @@ class DataflowView( qt.View ):
             # -- retreive the data from the event mimeData --
             pieceData = event.mimeData().data(format)
             dataStream = QtCore.QDataStream(pieceData, QtCore.QIODevice.ReadOnly)
-            package_id = str()
-            factory_id = str()
-            dataStream >> package_id >> factory_id
-
+            package_id = str(dataStream.readString())
+            factory_id = str(dataStream.readString())  
+            
             # -- find node factory --
             pkgmanager = PackageManager()
             pkg = pkgmanager[str(package_id)]
