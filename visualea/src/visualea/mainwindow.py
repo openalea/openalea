@@ -54,10 +54,6 @@ from graph_operator.vertex import VertexOperators
 
 import traceback
 
-from IPython.inprocess.ipkernel import InProcessKernel
-from IPython.frontend.qt.console.rich_ipython_widget import RichIPythonWidget
-from IPython.frontend.qt.inprocess_kernelmanager import QtInProcessKernelManager
-
 class MainWindow(QtGui.QMainWindow,
                  ui_mainwindow.Ui_MainWindow,
                  SignalSlotListener) :
@@ -67,7 +63,6 @@ class MainWindow(QtGui.QMainWindow,
         @param session : user session
         @param parent : parent window
         """
-
         QtGui.QMainWindow.__init__(self, parent)
         SignalSlotListener.__init__(self)
         ui_mainwindow.Ui_MainWindow.__init__(self)
@@ -106,7 +101,6 @@ class MainWindow(QtGui.QMainWindow,
             model = logger.LoggerOffice().get_handler("qt")
             view = LoggerView(parent=self.lowerpane, model=model)
             self.lowerpane.addTab(view, "Logging")
-
 
         # search list view
         self.search_model = SearchModel()

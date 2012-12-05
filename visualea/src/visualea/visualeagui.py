@@ -23,10 +23,7 @@ __revision__ = "$Id$"
 
 
 import sys
-from openalea.core import qt
-from PyQt4 import QtGui
-from PyQt4 import QtCore
-
+from openalea.core.qt import *
 from openalea.core import logger
 from openalea.visualea.mainwindow import MainWindow
 from openalea.core.session import Session
