@@ -270,7 +270,7 @@ class MainWindow(QtGui.QMainWindow):
         in the central window."""
 
         proj       = self.__projMan.get_active_project()
-        layoutName = self._layoutMode.itemText(index)
+        layoutName = str(self._layoutMode.itemText(index))
         if layoutName is None or layoutName == "":
             return
 
@@ -281,8 +281,6 @@ class MainWindow(QtGui.QMainWindow):
                 self.__centralStack.addWidget(data)
             self.__centralStack.setCurrentWidget(data)
         else:
-            # convert from QString to python str
-            layoutName = str(layoutName)
             # layoutNames encodes the application
             # name and the layout name:
             # they are seperated by a period.

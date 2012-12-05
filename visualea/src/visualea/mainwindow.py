@@ -19,7 +19,6 @@
 __license__ = "CeCILL v2"
 __revision__ = " $Id$ "
 
-from openalea.core import qt
 from PyQt4 import QtCore, QtGui, QtSvg
 from PyQt4.QtCore import SIGNAL
 

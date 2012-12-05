@@ -19,11 +19,8 @@
 __license__ = "CeCILL V2"
 __revision__ = " $Id$"
 
-from openalea.core import qt
+from openalea.core.qt import *
 import os, sys
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtGui import QTextEdit, QTextCursor
-from PyQt4.QtCore import Qt
 from streamredirection import *
 
 def get_shell_class():
@@ -47,7 +44,7 @@ def get_shell_class():
 
             
 
-class PyCutExt(QTextEdit,GraphicalStreamRedirection):
+class PyCutExt(PyQt4.QtGui.QTextEdit,GraphicalStreamRedirection):
 
     """
     PyCute is a Python shell for PyQt.
@@ -74,7 +71,7 @@ class PyCutExt(QTextEdit,GraphicalStreamRedirection):
         exit the interpreter by Ctrl-D.
         """
 
-        QTextEdit.__init__(self, parent)
+        PyQt4.QtGui.QTextEdit.__init__(self, parent)
         GraphicalStreamRedirection.__init__(self)
         
         self.interpreter = interpreter
@@ -85,7 +82,7 @@ class PyCutExt(QTextEdit,GraphicalStreamRedirection):
 
         # to exit the main interpreter by a Ctrl-D if PyCute has no parent
         if parent is None:
-            self.eofKey = Qt.Key_D
+            self.eofKey = PyQt4.QtCore.Qt.Key_D
         else:
             self.eofKey = None
 
@@ -105,8 +102,8 @@ class PyCutExt(QTextEdit,GraphicalStreamRedirection):
         self.cursor_pos   = 0
 
         # user interface setup
-        #self.setTextFormat(Qt.PlainText)
-        self.setLineWrapMode(QTextEdit.NoWrap)
+        #self.setTextFormat(PyQt4.QtCore.Qt.PlainText)
+        self.setLineWrapMode(PyQt4.QtGui.QTextEdit.NoWrap)
         #self.setCaption('Python Shell')
 
 #         # font
@@ -154,7 +151,7 @@ class PyCutExt(QTextEdit,GraphicalStreamRedirection):
         return self.interpreter
         
 
-    def moveCursor(self, operation, mode=QTextCursor.MoveAnchor):
+    def moveCursor(self, operation, mode=PyQt4.QtGui.QTextCursor.MoveAnchor):
         """
         Convenience function to move the cursor
         This function will be present in PyQT4.2
@@ -189,7 +186,7 @@ class PyCutExt(QTextEdit,GraphicalStreamRedirection):
         """
         self.reading = 1
         self.__clearLine()
-        self.moveCursor(QTextCursor.End)
+        self.moveCursor(PyQt4.QtGui.QTextCursor.End)
         while self.reading:
             qApp.processOneEvent()
         if self.line.length() == 0:
@@ -203,11 +200,11 @@ class PyCutExt(QTextEdit,GraphicalStreamRedirection):
         Simulate stdin, stdout, and stderr.
         """
         # The output of self.append(text) contains to many newline characters,
-        # so work around QTextEdit's policy for handling newline characters.
+        # so work around PyQt4.QtGui.QTextEdit's policy for handling newline characters.
 
         cursor = self.textCursor()
 
-        cursor.movePosition(QTextCursor.End)
+        cursor.movePosition(PyQt4.QtGui.QTextCursor.End)
 
         pos1 = cursor.position()
         cursor.insertText(text)
@@ -217,9 +214,9 @@ class PyCutExt(QTextEdit,GraphicalStreamRedirection):
         self.ensureCursorVisible ()
 
         # Set the format
-        cursor.setPosition(pos1, QTextCursor.KeepAnchor)
+        cursor.setPosition(pos1, PyQt4.QtGui.QTextCursor.KeepAnchor)
         format = cursor.charFormat()
-        format.setForeground( QtGui.QBrush(QtGui.QColor(0,0,0)))
+        format.setForeground( PyQt4.QtGui.QBrush(PyQt4.QtGui.QColor(0,0,0)))
         cursor.setCharFormat(format)
 
 
@@ -295,53 +292,53 @@ class PyCutExt(QTextEdit,GraphicalStreamRedirection):
         text  = e.text()
         key   = e.key()
 
-        if key == Qt.Key_Backspace:
+        if key == PyQt4.QtCore.Qt.Key_Backspace:
             if self.point:
                 cursor = self.textCursor()
-                cursor.movePosition(QTextCursor.PreviousCharacter, QTextCursor.KeepAnchor)
+                cursor.movePosition(PyQt4.QtGui.QTextCursor.PreviousCharacter, PyQt4.QtGui.QTextCursor.KeepAnchor)
                 cursor.removeSelectedText()
                 self.color_line()
             
                 self.point -= 1 
                 self.line.remove(self.point, 1)
 
-        elif key == Qt.Key_Delete:
+        elif key == PyQt4.QtCore.Qt.Key_Delete:
             cursor = self.textCursor()
-            cursor.movePosition(QTextCursor.NextCharacter, QTextCursor.KeepAnchor)
+            cursor.movePosition(PyQt4.QtGui.QTextCursor.NextCharacter, PyQt4.QtGui.QTextCursor.KeepAnchor)
             cursor.removeSelectedText()
             self.color_line()
                         
             self.line.remove(self.point, 1)
             
-        elif key == Qt.Key_Return or key == Qt.Key_Enter:
+        elif key == PyQt4.QtCore.Qt.Key_Return or key == PyQt4.QtCore.Qt.Key_Enter:
             self.write('\n')
             if self.reading:
                 self.reading = 0
             else:
                 self.__run()
                 
-        elif key == Qt.Key_Tab:
+        elif key == PyQt4.QtCore.Qt.Key_Tab:
             self.__insertText(text)
-        elif key == Qt.Key_Left:
+        elif key == PyQt4.QtCore.Qt.Key_Left:
             if self.point : 
-                self.moveCursor(QTextCursor.Left)
+                self.moveCursor(PyQt4.QtGui.QTextCursor.Left)
                 self.point -= 1 
-        elif key == Qt.Key_Right:
+        elif key == PyQt4.QtCore.Qt.Key_Right:
             if self.point < self.line.length():
-                self.moveCursor(QTextCursor.Right)
+                self.moveCursor(PyQt4.QtGui.QTextCursor.Right)
                 self.point += 1 
 
-        elif key == Qt.Key_Home:
+        elif key == PyQt4.QtCore.Qt.Key_Home:
             cursor = self.textCursor ()
             cursor.setPosition(self.cursor_pos)
             self.setTextCursor (cursor)
             self.point = 0 
 
-        elif key == Qt.Key_End:
-            self.moveCursor(QTextCursor.EndOfLine)
+        elif key == PyQt4.QtCore.Qt.Key_End:
+            self.moveCursor(PyQt4.QtGui.QTextCursor.EndOfLine)
             self.point = self.line.length() 
 
-        elif key == Qt.Key_Up:
+        elif key == PyQt4.QtCore.Qt.Key_Up:
 
             if len(self.history):
                 if self.pointer == 0:
@@ -349,7 +346,7 @@ class PyCutExt(QTextEdit,GraphicalStreamRedirection):
                 self.pointer -= 1
                 self.__recall()
                 
-        elif key == Qt.Key_Down:
+        elif key == PyQt4.QtCore.Qt.Key_Down:
             if len(self.history):
                 self.pointer += 1
                 if self.pointer == len(self.history):
@@ -369,7 +366,7 @@ class PyCutExt(QTextEdit,GraphicalStreamRedirection):
         Display the current item from the command history.
         """
         cursor = self.textCursor ()
-        cursor.select( QtGui.QTextCursor.LineUnderCursor )
+        cursor.select( PyQt4.QtGui.QTextCursor.LineUnderCursor )
         cursor.removeSelectedText()
 
         if self.more:
@@ -388,14 +385,14 @@ class PyCutExt(QTextEdit,GraphicalStreamRedirection):
 #         """
 #         if next and self.more:
 #             return 0
-#         return QTextEdit.focusNextPrevChild(self, next)
+#         return PyQt4.QtGui.QTextEdit.focusNextPrevChild(self, next)
 
     def mousePressEvent(self, e):
         """
         Keep the cursor after the last prompt.
         """
-        if e.button() == Qt.LeftButton:
-            self.moveCursor(QTextCursor.End)
+        if e.button() == PyQt4.QtCore.Qt.LeftButton:
+            self.moveCursor(PyQt4.QtGui.QTextCursor.End)
             
 
     def contentsContextMenuEvent(self,ev):
@@ -409,18 +406,18 @@ class PyCutExt(QTextEdit,GraphicalStreamRedirection):
         """ Color the current line """
         
         cursor = self.textCursor()
-        cursor.movePosition(QTextCursor.StartOfLine)
+        cursor.movePosition(PyQt4.QtGui.QTextCursor.StartOfLine)
 
         newpos = cursor.position()
         pos = -1
         
         while(newpos != pos):
-            cursor.movePosition(QTextCursor.NextWord)
+            cursor.movePosition(PyQt4.QtGui.QTextCursor.NextWord)
 
             pos = newpos
             newpos = cursor.position()
 
-            cursor.select(QTextCursor.WordUnderCursor)
+            cursor.select(PyQt4.QtGui.QTextCursor.WordUnderCursor)
             word = str(cursor.selectedText ().toAscii())
 
             if(not word) : continue
@@ -428,7 +425,7 @@ class PyCutExt(QTextEdit,GraphicalStreamRedirection):
             (R,G,B) = self.colorizer.get_color(word)
             
             format = cursor.charFormat()
-            format.setForeground( QtGui.QBrush(QtGui.QColor(R,G,B)))
+            format.setForeground( PyQt4.QtGui.QBrush(PyQt4.QtGui.QColor(R,G,B)))
             cursor.setCharFormat(format)
 
 
@@ -439,7 +436,7 @@ class PyCutExt(QTextEdit,GraphicalStreamRedirection):
 
     def dragMoveEvent(self, event):
         if (event.mimeData().hasFormat("text/plain")):
-            event.setDropAction(QtCore.Qt.MoveAction)
+            event.setDropAction(PyQt4.QtCore.Qt.MoveAction)
             event.accept()
         else:
             event.ignore()
@@ -452,7 +449,7 @@ class PyCutExt(QTextEdit,GraphicalStreamRedirection):
             self.__insertTextAtEnd(line)
             self.setFocus()
             
-            event.setDropAction(QtCore.Qt.MoveAction)
+            event.setDropAction(PyQt4.QtCore.Qt.MoveAction)
             event.accept()
 
 
@@ -461,7 +458,7 @@ class PyCutExt(QTextEdit,GraphicalStreamRedirection):
 
     def customEvent(self,event):
         GraphicalStreamRedirection.customEvent(self,event)
-        QTextEdit.customEvent(self,event)
+        PyQt4.QtGui.QTextEdit.customEvent(self,event)
             
 
 
@@ -511,7 +508,7 @@ def main():
     # Test the widget independently.
     from code import InteractiveInterpreter as Interpreter
     from openalea.visualea.ipyinterpreter import IPyInterpreter
-    a = QtGui.QApplication(sys.argv)
+    a = PyQt4.QtGui.QApplication(sys.argv)
 
     # Restore default signal handler for CTRL+C
     import signal; signal.signal(signal.SIGINT, signal.SIG_DFL)

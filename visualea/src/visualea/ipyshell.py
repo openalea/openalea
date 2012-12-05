@@ -1,9 +1,4 @@
 import os, sys
-from openalea.core import qt
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtCore import Qt
-
-from PyQt4.Qsci import QsciLexerPython, QsciAPIs
 from streamredirection import *
 
 # from ipyinterpreter import IPyInterpreter
