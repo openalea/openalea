@@ -19,7 +19,6 @@ This module should be fully compatible with:
 
 import os
 
-    
 #===============================================================================
 # QVariant conversion utilities
 #===============================================================================
@@ -43,4 +42,3 @@ def to_qvariant(pyobj=None):
     else:
         # PyQt API #2
         return pyobj
-
