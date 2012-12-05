@@ -115,7 +115,7 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
             Qt.Key_End : self.__QScintillaLineEnd,
             }
 
-        self.connect(self, QtCore.SIGNAL('userListActivated(int, const str)'),
+        self.connect(self, QtCore.SIGNAL('userListActivated(int)'),
                      self.__completionListSelected)
 
         self.setFocus()

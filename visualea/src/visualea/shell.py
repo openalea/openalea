@@ -28,11 +28,12 @@ def get_shell_class():
 
     try:
         # Test IPython
+        from IPython.frontend.qt.console.rich_ipython_widget import RichIPythonWidget
+        from IPython.frontend.qt.inprocess_kernelmanager import QtInProcessKernelManager
         from ipyshell import IPyShell
         return IPyShell
 
     except ImportError:
-    
         # Test QScintilla
         try:
             from scishell import SciShell

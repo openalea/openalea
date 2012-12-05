@@ -2,5 +2,8 @@
 
 The goal is to have the same version of QString and QVariant in all OpenAlea
 """
-
-from IPython.external.qt import *
+try:
+    from IPython.external.qt import *
+except ImportError:
+    from PyQt4 import QtCore, QtGui
+    

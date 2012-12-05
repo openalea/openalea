@@ -81,9 +81,13 @@ class MainWindow(QtGui.QMainWindow,
         self.splitter.addWidget(self.lowerpane)
 
         # python interpreter
+        ipy = False
         try:
+            from IPython.frontend.qt.console.rich_ipython_widget import RichIPythonWidget
+            from IPython.frontend.qt.inprocess_kernelmanager import QtInProcessKernelManager
             from openalea.visualea.ipyinterpreter import IPyInterpreter
             interpreter = IPyInterpreter()
+            ipy = True
         except ImportError:
             interpreter = Interpreter()
             
@@ -93,7 +97,10 @@ class MainWindow(QtGui.QMainWindow,
                                             cli.get_welcome_msg())
 
         GraphOperator.globalInterpreter = interpreter
-        self.lowerpane.addTab(self.interpreterWidget, "IPython Shell")
+        if ipy:
+            self.lowerpane.addTab(self.interpreterWidget, "IPython Shell")
+        else:
+            self.lowerpane.addTab(self.interpreterWidget, "Python Shell")
 
         if logger.QT_LOGGING_MODEL_AVAILABLE:
             # openalea logger
