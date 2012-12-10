@@ -819,14 +819,19 @@ class AbstractSpatialImageAnalysis(object):
         return list( set(self.neighbors(background))-self._ignoredlabels )
 
 
-    def layer1(self, background = 1):
+    def layer1(self, background = 1, filter_by_surface = True, minimal_external_surface=10):
         """
         Extract a list of labels corresponding to a layer of cell.
         It start from the cell in contact with the outer surface to the inner parts of the segemented tissu.
         """
         integers = np.vectorize(lambda x : int(x))
         if self._layer1 is None :
-            self._layer1 = list(integers(self.__layer1(background)))
+            cell_list = list(integers(self.__layer1(background)))
+            if filter_by_surface:
+                vids_surface = (self.cell_wall_surface(1,cell_list,real=False))
+                self._layer1 = [vid for vid in cell_list if vids_surface[(1,vid)]>minimal_external_surface]
+            else:
+                self._layer1 = list(integers(self.__layer1(background)))
         
         return self._layer1
 
@@ -1262,7 +1267,7 @@ class SpatialImageAnalysis3D(AbstractSpatialImageAnalysis):
             from openalea.image.algo.analysis import geometric_median
             if verbose: print 'Computing curvature :'
             for n,vid in enumerate(vids):
-                if (recalculate_all) or (not self.principal_curvatures.has_key(vid)):
+                if (recalculate_all) or (not self.principal_curvatures.has_key(vid)) :
                     if verbose: print n,'/',len(vids)
                     func( self, vid, pts, adjacencies, fitting_degree, monge_degree )
 
@@ -1277,7 +1282,7 @@ class SpatialImageAnalysis3D(AbstractSpatialImageAnalysis):
         """
 
         x_vid, y_vid, z_vid = np.where(self.first_voxel_layer() == vid)
-
+        
         if self.external_wall_geometric_median.has_key(vid):
             neighborhood_origin = self.external_wall_geometric_median[vid]
         else:
@@ -1310,7 +1315,7 @@ class SpatialImageAnalysis3D(AbstractSpatialImageAnalysis):
         self.curvatures_tensor[vid] = np.dot(np.dot(R,D),R.T)
 
     def __curvature_parameters_CGAL(func):
-        def wrapped_function(self, vids = None, verbose = False):
+        def wrapped_function(self, vids = None, radius=60, verbose = False):
             """
             """
             # -- If 'vids' is `None`, we apply the function to all L1 cells:
@@ -1334,7 +1339,7 @@ class SpatialImageAnalysis3D(AbstractSpatialImageAnalysis):
             curvature = {}
             for vid in vids:
                 if not self.principal_curvatures.has_key(vid):
-                    c = self.compute_principal_curvatures(vid)
+                    c = self.compute_principal_curvatures(vid, radius = radius)
                 else:
                     c = self.principal_curvatures[vid]
                 if c != 0: # 'compute_principal_curvatures' return a 0 when one of the vids is not in the L1.
@@ -1614,7 +1619,7 @@ def geometric_median(X, numIter = 50):
         dist.append(d) #update of the distance evolution
         
         if denum == 0.:
-            warnings.warn("Couldn't compute a geometric median, please check your data!")
+            warnings.warn( "Couldn't compute a geometric median, please check your data!" )
             return [0,0,0]
         
         y = [num_x/denum, num_y/denum, num_z/denum] #update to the new value of the median
@@ -1623,7 +1628,8 @@ def geometric_median(X, numIter = 50):
             #~ print abs(dist[i]-dist[i-2]), convergence
         i += 1
     if i == numIter:
-        warnings.warn("The Weiszfeld's algoritm did not converged after"+str(numIter)+"iterations for cell #"+str(c)+"!!!!!!!!!")
+        warnings.warn( "The Weiszfeld's algoritm did not converged after"+str(numIter)+"iterations !!!!!!!!!" )
+        warnings.warn( "Remaining distance: "+str(abs(dist[i]-dist[i-2])) )
     #When convergence or iterations limit is reached we assume that we found the median.
 
     return np.array(y)

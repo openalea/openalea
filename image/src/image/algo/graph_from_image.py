@@ -126,7 +126,8 @@ def _graph_from_image(image, labels, background, default_properties,
 
     if 'inertia_axis' in default_properties : 
         inertia_axis, inertia_values = analysis.inertia_axis(labels,barycenters)
-        add_vertex_property_from_label_and_value(graph,'inertia_axis',labels,zip(inertia_axis,inertia_values),mlabel2vertex=label2vertex)
+        add_vertex_property_from_dictionary(graph,'inertia_axis',inertia_axis,mlabel2vertex=label2vertex)
+        add_vertex_property_from_dictionary(graph,'inertia_values',inertia_values,mlabel2vertex=label2vertex)
 
     if 'wall_surface' in default_properties : 
         filtered_edges = {}
