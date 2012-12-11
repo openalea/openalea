@@ -1,3 +1,9 @@
+openalea-deploygui (1.0.1~ppa8) quantal; urgency=low
+
+  * Port to Quantal 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Mon, 10 Dec 2012 15:17:33 +0100
+
 openalea-deploygui (1.0.1~ppa6) precise; urgency=low
 
   * Upload the same package but with a newer version

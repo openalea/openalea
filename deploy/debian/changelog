@@ -1,3 +1,9 @@
+openalea-deploy (1.0.1~ppa8) quantal; urgency=low
+
+  * Port to Quantal 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Mon, 10 Dec 2012 15:16:48 +0100
+
 openalea-deploy (1.0.1~ppa2) precise; urgency=low
 
   * Switched to dh_python2 
