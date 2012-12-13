@@ -1,9 +1,9 @@
 import sys
 
-from . import qt
-from ..editor.text_editor import PythonCodeEditor as Editor
-from ..shell.shell import ShellWidget
-from ..shell.interpreter import Interpreter
+import qt
+from openalea.oalab.editor.text_editor import PythonCodeEditor as Editor
+from openalea.oalab.shell.shell import ShellWidget
+from openalea.oalab.shell.interpreter import Interpreter
 
 
 class MainWindow(qt.QMainWindow):
@@ -12,7 +12,6 @@ class MainWindow(qt.QMainWindow):
         
         # central widget => Editor
         self.centralWidget = Editor()
-        self.centralWidget.setTitle("Code Editor")
         self.setCentralWidget(self.centralWidget)
         
         # interpreter
