@@ -1337,7 +1337,8 @@ class SpatialImageAnalysis3D(AbstractSpatialImageAnalysis):
                 self.compute_principal_curvatures(vids, verbose = True)
 
             curvature = {}
-            for vid in vids:
+            for n,vid in enumerate(vids):
+                if verbose: print n,'/',len(vids)
                 if not self.principal_curvatures.has_key(vid):
                     c = self.compute_principal_curvatures(vid, radius = radius)
                 else:
@@ -1584,7 +1585,7 @@ def vector_correlation(vect1,vect2):
     return np.round(np.dot(vect1,vect2),3)
 
 
-def geometric_median(X, numIter = 50):
+def geometric_median(X, numIter = 100):
     """
     Compute the geometric medians of cells according to the coordinates of their voxels.
     The geometric medians coordinates will be expressed in the Spatial Image reference system (not in real world metrics).
@@ -1629,7 +1630,8 @@ def geometric_median(X, numIter = 50):
         i += 1
     if i == numIter:
         warnings.warn( "The Weiszfeld's algoritm did not converged after"+str(numIter)+"iterations !!!!!!!!!" )
-        warnings.warn( "Remaining distance: "+str(abs(dist[i]-dist[i-2])) )
+        warnings.warn( "Remaining distance: "+str(abs(dist[i-1]-dist[i-3])) )
+        pass
     #When convergence or iterations limit is reached we assume that we found the median.
 
     return np.array(y)

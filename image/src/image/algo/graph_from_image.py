@@ -110,7 +110,7 @@ def _graph_from_image(image, labels, background, default_properties,
     barycenters = None
     if 'barycenter' in default_properties :
         barycenters = analysis.center_of_mass(labels,real=default_real_property)
-        add_vertex_property_from_label_and_value(graph,'barycenter',labels,barycenters,mlabel2vertex=label2vertex)
+        add_vertex_property_from_dictionary(graph,'barycenter',barycenters,mlabel2vertex=label2vertex)
 
     background_neighbors = set(analysis.neighbors(background))
     background_neighbors.intersection_update(labelset)
