@@ -971,7 +971,10 @@ class AbstractSpatialImageAnalysis(object):
         
         if verbose: print 'Done !!'
         
-        self.__init__(self.image)
+        ignoredlabels = copy.copy(self._ignoredlabels)
+        ignoredlabels.update([erase_value])
+        return_type = copy.copy(self.return_type)
+        self.__init__(self.image, ignoredlabels, return_type)
 
 
 class SpatialImageAnalysis2D (AbstractSpatialImageAnalysis):
