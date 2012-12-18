@@ -91,32 +91,42 @@ class MainWindow(qt.QMainWindow):
         status.showMessage("OALab is ready!", 10000)    
         
     def open(self, fname = None):
-        # TODO
         try:
             fname = qt.QFileDialog.getOpenFileName(self, 'Open file', self.current_path, "Python or L-Py File (*.py *.lpy);;Any file(*.*)")
             f = open(fname, 'r')
-            data = f.read() #.rstrip("\n\r")
-            # self.current_path = f.filePath()
+            data = f.read()
+            # TODO
+            # self.current_path = f.filePath() ????
             f.close()
-            # strdata = str(data)
             self.centralWidget.set_text(data)
         except:
             pass
         
     def save(self):
         # TODO
+        
+        # /!\ The save function delete "\n"...
+        # Why?
+        # encode("iso-8859-1","ignore") don't know what to do with "\n" and so ignore it
+        
+        
         fname = qt.QFileDialog.getSaveFileName(self, 'Save file', self.current_path, "Python File(*.py)")
         code = self.centralWidget.get_full_text() # type(code) = unicode
-        # writeList = []
-        # for line in code.rstrip("\n\r"):
-            # writeList.append("%s" %line.encode("iso-8859-1","ignore")) #\u240D
-        # f.writelines(writeList)
-        # strcode = code.encode("utf8","ignore")
         code_enc = code.encode("iso-8859-1","ignore")
         
+        # writeList = []
+        # for l in code:
+            # print l
+            # if l == '\n':
+                # writeList.append("\u240D")
+                # print "-eol-"
+            # else:
+                # writeList.append("%s" %l.encode("iso-8859-1","ignore")) #\n <==> \u240D
+                # print "-"
+
         f = open(fname, "w")
-        # f.writelines("%s" %strcode)
         f.writelines(code_enc)
+        # f.writelines(writeList)
         f.close()
 
     def close(self):
