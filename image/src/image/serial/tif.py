@@ -38,7 +38,6 @@ try:
     import os, os.path, sys, time
     __all__ += ["read_tif", "write_tif","mantissa"]
 except ImportError, e :
-    print 'Unable to import libtiff', e
     pass
 
 def read_tif(filename,channel=0):
