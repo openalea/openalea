@@ -670,7 +670,10 @@ class GraphicalPort(QtGui.QGraphicsEllipseItem, qtgraphview.Connector):
             data = node.get_output(self.port().get_id())
         elif isinstance(self.port(), InputPort):
             data = node.get_input(self.port().get_id())
-        s = str(data)
+        try:
+            s = str(data)
+        except:
+            s = ''
         if(len(s) > self.MAX_TIPLEN):
             s = "String too long..."
             self.setToolTip(s)
