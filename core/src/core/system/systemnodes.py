@@ -350,12 +350,14 @@ class AccuFloat(Node):
 
 class LambdaVar(Node):
     """ Return a lambda variable """
-    cpt = 0
-
+    #cpt = 0
+    
     def __init__(self, *args):
         Node.__init__(self, *args)
-        self.set_caption("X" + str(LambdaVar.cpt))
-        LambdaVar.cpt += 1
+        print 'args ', args
+        self.set_caption("X")
+        #self.set_caption("X" + str(LambdaVar.cpt))
+        #LambdaVar.cpt = 1
 
     def __call__(self, inputs):
         return SubDataflow(None, None, 0, 0)

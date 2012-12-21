@@ -172,7 +172,7 @@ class TestClass:
 
         # create a compositenode with 2 in and 1 out
         # the compositenode does an addition
-        sg = CompositeNode(inputs=(dict(name="in1", interface=None, value=None),\
+        sg = CompositeNode(inputs=(dict(name="in1", interface=None, value=None),
                                   dict(name="in2", interface=None, value=None)),
                           outputs=(dict(name="out", interface=None), ), )
         addid = sg.add_node(self.plus_node)
@@ -352,3 +352,5 @@ class TestClass:
         sg()
         res = sg.get_output(0)
         assert ''.join(eval(res)) == "toto"
+
+
