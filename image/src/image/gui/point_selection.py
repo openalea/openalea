@@ -305,7 +305,7 @@ class PointSelection (QMainWindow) :
 #X         fname = str(filename)
 #X         f = open(fname,'w')
 #X         f.write('# version = 2\n')
-        np.savetxt(f,np.array(pts),fmt='%d')
+        np.savetxt(filename,np.array(pts),fmt='%d')
 #X         f.close()
 
     def get_points(self):
