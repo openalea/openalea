@@ -1,3 +1,21 @@
+openalea-misc (1.0.1~ppa8) quantal; urgency=low
+
+  * Port to Quantal 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Mon, 10 Dec 2012 15:17:13 +0100
+
+openalea-misc (1.0.1~ppa2) precise; urgency=low
+
+  * Switch to dh_python2 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Wed, 12 Sep 2012 16:23:00 +0200
+
+openalea-misc (1.0.0b1~ppa3) precise; urgency=low
+
+  * Switch to dh_python2 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Tue, 11 Sep 2012 15:42:55 +0200
+
 openalea-misc (1.0.0b1~ppa2) oneiric; urgency=low
 
   * Fix openalea namespace 

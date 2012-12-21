@@ -36,7 +36,7 @@ __all__ = []
 
 ###################################################
 #
-#		image basics
+#        image basics
 #
 ###################################################
 image = Factory(name = "img",
@@ -88,7 +88,7 @@ __all__.append("lena")
 
 ###################################################
 #
-#		palette
+#        palette
 #
 ###################################################
 apply_palette = Factory(name = "apply_palette",
@@ -127,14 +127,14 @@ __all__.append("grayscale")
 
 #########################################
 #
-#	spatial image
+#    spatial image
 #
 #########################################
 spatial_image = Factory( name= "spatial_image",
                          description= "create a SpatialImage from a numpy array",
-				category = "image",
-				nodemodule = "spatial_image",
-				nodeclass = "image",
+                category = "image",
+                nodemodule = "spatial_image",
+                nodeclass = "image",
                                 inputs=(dict(name="array", interface="ISequence",),
                                         dict(name="resolution", interface="ITuple",),
                                         dict(name="vectorDim", interface="IInt",),
@@ -146,48 +146,48 @@ spatial_image = Factory( name= "spatial_image",
 __all__.append('spatial_image')
 
 empty_image = Factory( name= "empty_image_like",
-                         description= "create a SpatialImage from a numpy array",
-				category = "image",
-				nodemodule = "spatial_image",
-				nodeclass = "empty_image_like",
-                                inputs=(dict(name="image", interface="IImage",),
-                                        ),
-                         outputs=(dict(name="image", interface="IImage"),),
-                         )
+                       description= "create a SpatialImage from a numpy array",
+                       category = "image",
+                       nodemodule = "spatial_image",
+                       nodeclass = "empty_image_like",
+                       inputs=(dict(name="image", interface="IImage",),
+                       ),
+                       outputs=(dict(name="image", interface="IImage"),),
+                       )
 
 __all__.append('empty_image')
 
 
 resolution = Factory( name= "resolution",
-				description= "extract resolution from spatial image",
-				category = "image",
-				nodemodule = "spatial_image",
-				nodeclass = "resolution",
-				inputs=(dict(name="img", interface="IImage",),),
-				outputs=(dict(name="res", interface = ISequence),),
-			)
+                description= "extract resolution from spatial image",
+                category = "image",
+                nodemodule = "spatial_image",
+                nodeclass = "resolution",
+                inputs=(dict(name="img", interface="IImage",),),
+                outputs=(dict(name="res", interface = ISequence),),
+            )
 
 __all__.append('resolution')
 
 info = Factory( name= "info",
-				description= "extract info from spatial image",
-				category = "image",
-				nodemodule = "spatial_image",
-				nodeclass = "info",
-				inputs=(dict(name="img", interface="IImage",),),
-				outputs=(dict(name="info", interface=IDict),),
-			)
+                description= "extract info from spatial image",
+                category = "image",
+                nodemodule = "spatial_image",
+                nodeclass = "info",
+                inputs=(dict(name="img", interface="IImage",),),
+                outputs=(dict(name="info", interface=IDict),),
+            )
 
 __all__.append('info')
 
 
 null_vector_field_like = Factory( name= "null_vector_field_like",
                          description= "create a SpatialImage from a numpy array",
-				category = "image",
-				nodemodule = "spatial_image",
-				nodeclass = "null_vector_field_like",
-                                inputs=(dict(name="image", interface="IImage",),
-                                        ),
+                         category = "image",
+                         nodemodule = "spatial_image",
+                         nodeclass = "null_vector_field_like",
+                         inputs=(dict(name="image", interface="IImage",),
+                         ),
                          outputs=(dict(name="image", interface="IImage"),),
                          )
 

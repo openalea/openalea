@@ -2,12 +2,13 @@
 __revision__ = "$Id$"
 
 # Install setuptools if necessary
+"""
 try:
     from ez_setup import use_setuptools
     use_setuptools()
 except:
     pass
-
+"""
 
 from setuptools import setup, find_packages
 from os.path import join as pj

@@ -2,14 +2,11 @@ Source: openalea-pkgbuilder
 Maintainer: Christophe Pradal <christophe.pradal@cirad.fr>
 Section: python
 Priority: optional
-Build-Depends: python-setuptools (>= 0.6b3), debhelper (>= 7), python-support (>= 0.8.4), python-openalea.deploy (>= 0.9)
-Standards-Version: 3.9.1
-XS-Python-Version: current
+Build-Depends: python-all (>= 2.6.6-3~), python-setuptools, debhelper (>= 7), python-openalea.deploy (> 0.9)
 
 Package: python-openalea.pkgbuilder
 Architecture: all
-Depends: ${misc:Depends}, ${python:Depends},  python-openalea.deploy (>= 0.9), python-sphinx
-XB-Python-Version: ${python:Versions}
+Depends: ${misc:Depends}, ${python:Depends},  python-openalea.deploy (> 0.9), python-sphinx
 Provides: ${python:Provides}
 Description: Creates a layout for openalea packages .
 

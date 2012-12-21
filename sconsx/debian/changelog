@@ -1,3 +1,15 @@
+openalea-sconsx (1.0.1~ppa8) quantal; urgency=low
+
+  *  Port to Quantal 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Mon, 10 Dec 2012 15:17:57 +0100
+
+openalea-sconsx (1.0.1~ppa2) precise; urgency=low
+
+  * Switch to dh_python2 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Tue, 11 Sep 2012 15:43:43 +0200
+
 openalea-sconsx (1.0.1~ppa1) precise; urgency=low
 
   * Release 1. 

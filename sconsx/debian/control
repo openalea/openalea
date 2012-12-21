@@ -2,13 +2,11 @@ Source: openalea-sconsx
 Maintainer: Christophe Pradal <christophe.pradal@cirad.fr>
 Section: python
 Priority: optional
-Build-Depends: python-setuptools (>= 0.6b3), debhelper (>= 7), python-support (>= 0.8.4), python-openalea.deploy
-Standards-Version: 3.9.1
+Build-Depends: python-all (>= 2.6.6-3~), python-setuptools, debhelper (>= 7), python-openalea.deploy
 
 Package: python-openalea.sconsx
 Architecture: all
 Depends: ${misc:Depends}, ${python:Depends}, scons
-XB-Python-Version: ${python:Versions}
 Provides: ${python:Provides}
 Description: Scons Extension to build multi-platform packages for OpenAlea
  .

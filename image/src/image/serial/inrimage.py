@@ -166,7 +166,7 @@ def write_inrimage_to_stream(stream, img):
         info["XDIM"],info["YDIM"],info["ZDIM"] = ("%d" % val for val in img.shape)
         info["VDIM"] = "1"
     else:
-            info["XDIM"],info["YDIM"],info["ZDIM"],info["VDIM"] = ("%d" % val for val in img.shape)
+        info["XDIM"],info["YDIM"],info["ZDIM"],info["VDIM"] = ("%d" % val for val in img.shape)
 
     #image resolution
     res = getattr(img,"resolution",(1,1,1) )

@@ -20,3 +20,4 @@ __revision__=" $Id: $ "
 from openalea.image.spatial_image import SpatialImage
 from openalea.image.gui.slide_viewer import SlideViewer, display
 from openalea.image.gui.palette import palette_factory
+

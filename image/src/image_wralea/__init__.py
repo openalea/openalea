@@ -20,5 +20,4 @@ This module import functions to manipulate images
 __license__= "Cecill-C"
 __revision__ = " $Id: __init__.py 2245 2010-02-08 17:11:34Z cokelaer $ "
 
-from image_interface import IImage
-from image_interface_widget import IImageWidget
+

@@ -57,4 +57,17 @@ matrix_voxels_to_real = Factory(name='voxels2real',
 
 __all__.append("matrix_voxels_to_real")
 
+read_matrix = Factory(name='read_matrix',
+                                authors='Daniel Barbeau',
+                                category='vtissue',
+                                nodemodule='matrix',
+                                nodeclass='read_matrix',
+                                inputs=({'interface': "IFileStr", 'name': 'file', 'desc':"a file containing a matrix"},),
+                                outputs=({'interface': None, 'name': 'The read matrix'},),
+                                widgetmodule=None,
+                                widgetclass=None,
+                                )
+
+__all__.append("read_matrix")
+
 

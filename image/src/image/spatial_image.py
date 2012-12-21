@@ -129,7 +129,7 @@ class SpatialImage(np.ndarray) :
 
         :Parameters:
          - `data` - (array)
-
+	
         :Returns Type: |SpatialImage|
         """
         if len(data.shape) == len(self.voxelsize) :
@@ -201,3 +201,4 @@ def is2D(image):
         return True
     else:
         return False
+
