@@ -31,9 +31,6 @@ def pymap(func, seq, N):
     if N <1:
         N = cpu_count()
 
-    if N <1:
-        N = cpu_count()
-
     p = Pool(N)
     res = []
     if func and seq:
