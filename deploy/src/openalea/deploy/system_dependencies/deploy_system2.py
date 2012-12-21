@@ -502,6 +502,7 @@ class Ubuntu(NativePackageAPI):
                      "wstools": Ignore,
              })
 
+
 class Ubuntu_Karmic(Ubuntu):
     def __init__(self):
         Ubuntu.__init__(self)
@@ -542,6 +543,22 @@ class Ubuntu_Oneiric(Ubuntu_Natty):
                      "boostpython-dev" : "libboost-python-dev",
                      "boostpython" : "libboost-python1.46.1",
                      "cgal" :  "libcgal7",
+        })
+
+class Ubuntu_Precise(Ubuntu_Oneiric):
+    def __init__(self):
+        Ubuntu_Oneiric.__init__(self)
+
+
+class Ubuntu_Quantal(Ubuntu_Precise):
+    def __init__(self):
+        Ubuntu_Precise.__init__(self)
+        self.update({
+                     "boostmath" : "libboost-math1.49.0",
+                     "boostmath-dev" : "libboost-math-dev",
+                     "boostpython" : "libboost-python1.49.0",
+                     "boostpython-dev" : "libboost-python1.49-dev",
+                     "cgal" :  "libcgal9"
         })
 
 class Fedora(NativePackageAPI):
