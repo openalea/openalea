@@ -59,6 +59,7 @@ pkg_builder
 image
 numpy
 pylab
+openalea_meta
 """.split()
 #openalea_meta
 
@@ -69,14 +70,6 @@ def main():
     args = sys.argv[1:]
     if  len(args) == 1 and args[0] in ['-h', '--help']:
         Multisetup.help()
-    elif args[0]=='--update-version':
-        for dir in dirs:
-            old_version = args[1]
-            new_version = args[2]
-            cmd  = "sed  -i -e 's/%s/%s/ ' %s/metainfo.ini" % (old_version, new_version, dir)
-            print cmd
-            os.system(cmd)
-
     else:
         if 'develop -u' in args:
             dirs.reverse()
