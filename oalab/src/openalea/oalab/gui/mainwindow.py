@@ -5,6 +5,7 @@
 #---------------------------------------------
 
 import sys
+import os
 
 import qt
 from openalea.oalab.editor.text_editor import PythonCodeEditor as Editor
@@ -16,6 +17,7 @@ class MainWindow(qt.QMainWindow):
         super(qt.QMainWindow, self).__init__(parent)
 
         self.current_path = None
+        self.current_file_name = None
         
         self.set_text_editor()
         self.set_shell()
@@ -51,11 +53,13 @@ class MainWindow(qt.QMainWindow):
         # Create button
         self.actionOpen = qt.QAction(self)
         self.actionSave = qt.QAction(self)
+        self.actionSaveAs = qt.QAction(self)
         self.actionClose = qt.QAction(self)
         self.actionRun = qt.QAction(self)
         # Set title of buttons
         self.actionOpen.setText(qt.QApplication.translate("MainWindow", "Open", None, qt.QApplication.UnicodeUTF8))
         self.actionSave.setText(qt.QApplication.translate("MainWindow", "Save", None, qt.QApplication.UnicodeUTF8))
+        self.actionSave.setText(qt.QApplication.translate("MainWindow", "SaveAs", None, qt.QApplication.UnicodeUTF8))
         self.actionClose.setText(qt.QApplication.translate("MainWindow", "Close", None, qt.QApplication.UnicodeUTF8))
         self.actionRun.setText(qt.QApplication.translate("MainWindow", "Run", None, qt.QApplication.UnicodeUTF8))
         # Shortcuts
@@ -69,15 +73,18 @@ class MainWindow(qt.QMainWindow):
         # Set names
         self.actionOpen.setObjectName("actionOpen")
         self.actionSave.setObjectName("actionSave")
+        self.actionSave.setObjectName("actionSaveAs")
         self.actionClose.setObjectName("actionClose")
         self.actionRun.setObjectName("actionRun")
         # connect actions to buttons
         qt.QObject.connect(self.actionOpen, qt.SIGNAL('triggered(bool)'),self.open)
-        qt.QObject.connect(self.actionSave, qt.SIGNAL('triggered(bool)'),self.save)     
+        qt.QObject.connect(self.actionSave, qt.SIGNAL('triggered(bool)'),self.save)
+        qt.QObject.connect(self.actionSaveAs, qt.SIGNAL('triggered(bool)'),self.saveas)         
         qt.QObject.connect(self.actionClose, qt.SIGNAL('triggered(bool)'),self.close) 
         qt.QObject.connect(self.actionRun, qt.SIGNAL('triggered(bool)'),self.run)     
         self.CodeBar.addAction(self.actionOpen)
         self.CodeBar.addAction(self.actionSave)
+        self.CodeBar.addAction(self.actionSaveAs)
         self.CodeBar.addAction(self.actionClose)        
         self.CodeBar.addAction(self.actionRun)
    
@@ -100,39 +107,53 @@ class MainWindow(qt.QMainWindow):
             f = open(fname, 'r')
             data = f.read()
             # TODO
-            # self.current_path = f.filePath() ????
+            fnamesplit = os.path.split(fname)
+            self.current_path = fnamesplit[0]
+            self.current_file_name = fnamesplit[1]
             f.close()
             try:
                 self.centralWidget.set_text(data.decode("utf8"))
             except:
                 self.centralWidget.set_text(data)
-            self.edit_status_bar(("File %s opened.") %fname)    
+            self.edit_status_bar(("File '%s' opened.") %self.current_file_name)    
         except:
             self.edit_status_bar("No file opened...")
-            pass
-        
+    
     def save(self):
-        # Read the text in the text editor
-        fname = qt.QFileDialog.getSaveFileName(self, 'Save file', self.current_path, "Python File(*.py)")
-        code = self.centralWidget.get_full_text() # type(code) = unicode
-        
-        # Encode in utf8
-        # /!\ 
-        # encode("iso-8859-1","ignore") don't know what to do with "\n" and so ignore it
-        # encode("utf8","ignore") works well but the read function need decode("utf8")
-        code_enc = code.encode("utf8","ignore") #utf8 or iso-8859-1, ignore or replace
-        
-        # Write text in the file
-        f = open(fname, "w")
-        f.writelines(code_enc)
-        f.close()
-        
-        self.edit_status_bar(("File %s saved.") % fname)  
+        # To Do
+        self.saveas()
+        # if(self.current_path==None):
+            # self.saveas()
+        # else:
+            # ...
+    
+    def saveas(self):
+        try:
+            # Read the text in the text editor
+            fname = qt.QFileDialog.getSaveFileName(self, 'Save file', self.current_path, "Python File(*.py)")
+            code = self.centralWidget.get_full_text() # type(code) = unicode
+            
+            # Encode in utf8
+            # /!\ 
+            # encode("iso-8859-1","ignore") don't know what to do with "\n" and so ignore it
+            # encode("utf8","ignore") works well but the read function need decode("utf8")
+            code_enc = code.encode("utf8","ignore") #utf8 or iso-8859-1, ignore or replace
+            
+            # Write text in the file
+            f = open(fname, "w")
+            f.writelines(code_enc)
+            f.close()
+            
+            self.edit_status_bar(("File '%s' saved.") % self.current_file_name)  
+        except:
+            self.edit_status_bar("No file saved...")  
 
     def close(self):
         # TODO
-        self.edit_status_bar("File closed.")
-        pass
+        try:
+            self.edit_status_bar(("File '%s' closed.") % self.current_file_name)
+        except:
+            self.edit_status_bar("No file closed...")
         
     def run(self):
         code = self.centralWidget.get_full_text()
