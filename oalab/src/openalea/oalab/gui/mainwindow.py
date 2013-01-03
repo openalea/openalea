@@ -90,6 +90,10 @@ class MainWindow(qt.QMainWindow):
         status.addPermanentWidget(self.sizeLabel)     
         status.showMessage("OALab is ready!", 10000)    
         
+    def edit_status_bar(self, message, time=10000):   
+        status = self.statusBar()
+        status.showMessage(message, time) 
+        
     def open(self, fname = None):
         try:
             fname = qt.QFileDialog.getOpenFileName(self, 'Open file', self.current_path, "Python or L-Py File (*.py *.lpy);;Any file(*.*)")
@@ -98,45 +102,43 @@ class MainWindow(qt.QMainWindow):
             # TODO
             # self.current_path = f.filePath() ????
             f.close()
-            self.centralWidget.set_text(data)
+            try:
+                self.centralWidget.set_text(data.decode("utf8"))
+            except:
+                self.centralWidget.set_text(data)
+            self.edit_status_bar(("File %s opened.") %fname)    
         except:
+            self.edit_status_bar("No file opened...")
             pass
         
     def save(self):
-        # TODO
-        
-        # /!\ The save function delete "\n"...
-        # Why?
-        # encode("iso-8859-1","ignore") don't know what to do with "\n" and so ignore it
-        
-        
+        # Read the text in the text editor
         fname = qt.QFileDialog.getSaveFileName(self, 'Save file', self.current_path, "Python File(*.py)")
         code = self.centralWidget.get_full_text() # type(code) = unicode
-        code_enc = code.encode("iso-8859-1","ignore")
         
-        # writeList = []
-        # for l in code:
-            # print l
-            # if l == '\n':
-                # writeList.append("\u240D")
-                # print "-eol-"
-            # else:
-                # writeList.append("%s" %l.encode("iso-8859-1","ignore")) #\n <==> \u240D
-                # print "-"
-
+        # Encode in utf8
+        # /!\ 
+        # encode("iso-8859-1","ignore") don't know what to do with "\n" and so ignore it
+        # encode("utf8","ignore") works well but the read function need decode("utf8")
+        code_enc = code.encode("utf8","ignore") #utf8 or iso-8859-1, ignore or replace
+        
+        # Write text in the file
         f = open(fname, "w")
         f.writelines(code_enc)
-        # f.writelines(writeList)
         f.close()
+        
+        self.edit_status_bar(("File %s saved.") % fname)  
 
     def close(self):
         # TODO
+        self.edit_status_bar("File closed.")
         pass
         
     def run(self):
         code = self.centralWidget.get_full_text()
         interp = self.get_interpreter()
         interp.runsource(code)
+        self.edit_status_bar("Code runned.")
 
     def get_interpreter(self):
         return self.interpreter
