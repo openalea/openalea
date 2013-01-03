@@ -18,11 +18,11 @@ if EDITOR == "SPYDER":
     class PythonCodeEditor(CodeEditor):
         def __init__(self, parent=None):
             super(PythonCodeEditor, self).__init__()
-            self.rehighlight()
             
         def get_full_text(self):
-            self.rehighlight()
             return self.get_text('sof', 'eof')
+
+        # def set_language(self, language)    
     '''
     ----QPlainTextEdit----
     doc.qt.digia.com: QPlainText uses very much the same technology and concepts as QTextEdit,
