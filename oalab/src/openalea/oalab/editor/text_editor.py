@@ -11,18 +11,23 @@ EDITOR = "LPY"
 EDITOR = "SPYDER"
 
 PythonCodeEditor = None
-    
+
 
 if EDITOR == "SPYDER":
     from spyderlib.widgets.sourcecode.codeeditor import CodeEditor      
     class PythonCodeEditor(CodeEditor):
         def __init__(self, parent=None):
             super(PythonCodeEditor, self).__init__()
+            # self.LANGUAGES = {('lpy'): (LPySH,'#', PythonCFM)}
             
         def get_full_text(self):
             return self.get_text('sof', 'eof')
+            
+        def clear_all(self):
+            self.set_text('')
 
         # def set_language(self, language)    
+
     '''
     ----QPlainTextEdit----
     doc.qt.digia.com: QPlainText uses very much the same technology and concepts as QTextEdit,

@@ -19,6 +19,7 @@ class MainWindow(qt.QMainWindow):
         self.current_path = None
         self.current_file_name = None
         self.current_extension = None
+        self.current_path_and_fname = None
         
         self.set_text_editor()
         self.set_shell()
@@ -83,11 +84,13 @@ class MainWindow(qt.QMainWindow):
         # Set names
         self.actionOpen.setObjectName("actionOpen")
         self.actionSave.setObjectName("actionSave")
+        self.actionSaveAs.setObjectName("actionSaveAs")
         self.actionClose.setObjectName("actionClose")
         self.actionRun.setObjectName("actionRun")
         # connect actions to buttons
         qt.QObject.connect(self.actionOpen, qt.SIGNAL('triggered(bool)'),self.open)
-        qt.QObject.connect(self.actionSave, qt.SIGNAL('triggered(bool)'),self.save)     
+        qt.QObject.connect(self.actionSave, qt.SIGNAL('triggered(bool)'),self.save) 
+        qt.QObject.connect(self.actionSaveAs, qt.SIGNAL('triggered(bool)'),self.saveas)         
         qt.QObject.connect(self.actionClose, qt.SIGNAL('triggered(bool)'),self.close) 
         qt.QObject.connect(self.actionRun, qt.SIGNAL('triggered(bool)'),self.run)     
         self.CodeBar.addAction(self.actionOpen)
@@ -243,12 +246,13 @@ class MainWindow(qt.QMainWindow):
             # TODO
             fnamesplit = os.path.split(fname)
             fnamesplitext = os.path.splitext(fname)
+            self.current_path_and_fname = fname
             self.current_path = fnamesplit[0]
             self.current_file_name = fnamesplit[1]
             self.current_extension = fnamesplitext[1][1:]
             f.close()
             try:
-                self.centralWidget.set_text(data.decode("utf8"))
+                self.centralWidget.set_text(data.decode("utf8"))#.decode("utf8")
             except:
                 self.centralWidget.set_text(data)
             self.edit_status_bar(("File '%s' opened.") %self.current_file_name)
@@ -258,38 +262,49 @@ class MainWindow(qt.QMainWindow):
             self.edit_status_bar("No file opened...")
     
     def save(self):
-        # To Do
-        self.saveas()
-        # if(self.current_path==None):
-            # self.saveas()
-        # else:
-            # ...
+        if(self.current_file_name==None):
+            self.edit_status_bar("Save as...")
+            self.saveas()
+        else:
+            try:
+                code = self.centralWidget.get_full_text() # type(code) = unicode
+
+                fname = self.current_path_and_fname
+                # Encode in utf8
+                # /!\ 
+                # encode("iso-8859-1","ignore") don't know what to do with "\n" and so ignore it
+                # encode("utf8","ignore") works well but the read function need decode("utf8")
+                code_enc = code.encode("utf8","ignore") #utf8 or iso-8859-1, ignore or replace
+                
+                # Write text in the file
+                f = open(fname, "w")
+                f.writelines(code_enc)
+                f.close()
+                
+                self.edit_status_bar(("File '%s' saved.") % self.current_file_name) 
+            except:
+                self.edit_status_bar("File not saved...") 
     
     def saveas(self):
         try:
-            # Read the text in the text editor
             fname = qt.QFileDialog.getSaveFileName(self, 'Save file', self.current_path, "Python File(*.py)")
-            code = self.centralWidget.get_full_text() # type(code) = unicode
+            code = self.centralWidget.get_full_text()
+            code_enc = code.encode("utf8","ignore") 
             
-            # Encode in utf8
-            # /!\ 
-            # encode("iso-8859-1","ignore") don't know what to do with "\n" and so ignore it
-            # encode("utf8","ignore") works well but the read function need decode("utf8")
-            code_enc = code.encode("utf8","ignore") #utf8 or iso-8859-1, ignore or replace
-            
-            # Write text in the file
             f = open(fname, "w")
             f.writelines(code_enc)
             f.close()
             
             self.edit_status_bar(("File '%s' saved.") % self.current_file_name)  
         except:
-            self.edit_status_bar("No file saved...")  
+            self.edit_status_bar("File not saved...")  
 
     def close(self):
-        # TODO
         try:
+            self.centralWidget.clear_all()
             self.edit_status_bar(("File '%s' closed.") % self.current_file_name)
+            self.current_file_name = None
+            self.current_extension = None
         except:
             self.edit_status_bar("No file closed...")
         
@@ -307,7 +322,7 @@ def main():
     app = qt.QApplication(sys.argv)
     app.setStyle('windows')
     MainW = MainWindow()
-    MainW.resize(1000, 800)
+    MainW.resize(1000, 750)
     MainW.show()
     app.exec_()
 
