@@ -45,4 +45,4 @@ class ShellWidget(RichIPythonWidget,GraphicalStreamRedirection):
         
 
     def write(self, s):
-        self.interpreter.shell.write("\n" + s)
+        self.interpreter.shell.write(s)
