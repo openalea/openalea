@@ -26,6 +26,9 @@ if EDITOR == "SPYDER":
         def clear_all(self):
             self.set_text('')
 
+        def new_tab(self):
+            pass
+            
         # def set_language(self, language)    
 
     '''
