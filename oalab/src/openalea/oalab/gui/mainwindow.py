@@ -41,7 +41,7 @@ class MainWindow(qt.QMainWindow):
         
         # window title and icon
         self.setWindowTitle("Open Alea Virtual Laboratory")
-        self.setWindowIcon(qt.QIcon("./resources/openalea_icon2.png"))    
+        self.setWindowIcon(qt.QIcon("./resources/openalea_icon2.png"))
     
     def set_text_editor_container(self):
         self.textEditorContainer = qt.QTabWidget()
