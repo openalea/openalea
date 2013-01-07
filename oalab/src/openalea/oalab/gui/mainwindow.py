@@ -23,11 +23,17 @@ class MainWindow(qt.QMainWindow):
     def __init__(self, parent=None):
         super(qt.QMainWindow, self).__init__(parent)
       
+        # project
         self.projectManager = ProjectManager()
         self.projectManager.new_project()
         
-        self.set_text_editor()
+        # editor
+        self.set_text_editor_container()
+
+        # shell
         self.set_shell()
+        
+        # bars and buttons
         self.set_top_buttons()
         self.set_status_bar()
         self.set_menu_bar()
@@ -35,19 +41,27 @@ class MainWindow(qt.QMainWindow):
         
         # window title and icon
         self.setWindowTitle("Open Alea Virtual Laboratory")
-        self.setWindowIcon(qt.QIcon("./resources/openalea_icon2.png"))
+        self.setWindowIcon(qt.QIcon("./resources/openalea_icon2.png"))    
     
-    def set_text_editor(self):
+    def set_text_editor_container(self):
+        self.textEditorContainer = qt.QTabWidget()
+        self.textEditorContainer.setTabsClosable(True)
+        self.new_text_editor()
+        self.setCentralWidget(self.textEditorContainer)
+        
+    def new_text_editor(self, name="NewFile"):
         # central widget => Editor
-        self.centralWidget = Editor()
-        self.setCentralWidget(self.centralWidget)
+        self.editorWidget = Editor()
+        self.editorWidget.setup_editor()
+        self.textEditorContainer.addTab(self.editorWidget, name)
+        self.textEditorContainer.setCurrentWidget(self.editorWidget)
         self.set_language()
         
     def set_language(self, language='py'):
         if self.projectManager.current_extension != None:
-            self.centralWidget.set_language(self.projectManager.current_extension)
+            self.editorWidget.set_language(self.projectManager.current_extension)
         else:
-            self.centralWidget.set_language(language)
+            self.editorWidget.set_language(language)
     
     def set_shell(self):
         # dock widget => Shell IPython
@@ -63,14 +77,11 @@ class MainWindow(qt.QMainWindow):
     def set_top_buttons(self):
         # set top buttons
         self.CodeBar = qt.QToolBar(self)
-        
-        # self.CodeBar.setWindowTitle(qt.QApplication.translate("MainWindow", "Code Bar", None, qt.QApplication.UnicodeUTF8))
         self.CodeBar.setToolButtonStyle(qt.Qt.ToolButtonTextUnderIcon)
-        
-        # self.CodeBar.setObjectName(_fromUtf8("CodeBar"))
         self.addToolBar(qt.Qt.TopToolBarArea, self.CodeBar)
         
         # Create button
+        self.actionNew = qt.QAction(self)
         self.actionOpen = qt.QAction(self)
         self.actionSave = qt.QAction(self)
         self.actionSaveAs = qt.QAction(self)
@@ -78,6 +89,7 @@ class MainWindow(qt.QMainWindow):
         self.actionRun = qt.QAction(self)
        
         # Set title of buttons
+        self.actionNew.setText(qt.QApplication.translate("MainWindow", "New", None, qt.QApplication.UnicodeUTF8))
         self.actionOpen.setText(qt.QApplication.translate("MainWindow", "Open", None, qt.QApplication.UnicodeUTF8))
         self.actionSave.setText(qt.QApplication.translate("MainWindow", "Save", None, qt.QApplication.UnicodeUTF8))
         self.actionSaveAs.setText(qt.QApplication.translate("MainWindow", "Save As", None, qt.QApplication.UnicodeUTF8))
@@ -85,10 +97,14 @@ class MainWindow(qt.QMainWindow):
         self.actionRun.setText(qt.QApplication.translate("MainWindow", "Run", None, qt.QApplication.UnicodeUTF8))
        
         # Shortcuts
+        self.actionNew.setShortcut(qt.QApplication.translate("MainWindow", "Ctrl+N", None, qt.QApplication.UnicodeUTF8))
         self.actionOpen.setShortcut(qt.QApplication.translate("MainWindow", "Ctrl+O", None, qt.QApplication.UnicodeUTF8))
         self.actionSave.setShortcut(qt.QApplication.translate("MainWindow", "Ctrl+S", None, qt.QApplication.UnicodeUTF8))
         self.actionClose.setShortcut(qt.QApplication.translate("MainWindow", "Ctrl+W", None, qt.QApplication.UnicodeUTF8))
         self.actionRun.setShortcut(qt.QApplication.translate("MainWindow", "Ctrl+R", None, qt.QApplication.UnicodeUTF8))
+        icon0 = qt.QIcon()
+        icon0.addPixmap(qt.QPixmap("./resources/filenew.png"), qt.QIcon.Normal, qt.QIcon.Off)
+        self.actionNew.setIcon(icon0)
         icon1 = qt.QIcon()
         icon1.addPixmap(qt.QPixmap("./resources/fileopen.png"), qt.QIcon.Normal, qt.QIcon.Off)
         self.actionOpen.setIcon(icon1)
@@ -104,6 +120,7 @@ class MainWindow(qt.QMainWindow):
         self.actionClose.setIcon(icon4)
         
         # Set names
+        self.actionNew.setObjectName("actionNew")
         self.actionOpen.setObjectName("actionOpen")
         self.actionSave.setObjectName("actionSave")
         self.actionSaveAs.setObjectName("actionSaveAs")
@@ -111,11 +128,14 @@ class MainWindow(qt.QMainWindow):
         self.actionRun.setObjectName("actionRun")
         
         # connect actions to buttons
+        qt.QObject.connect(self.actionNew, qt.SIGNAL('triggered(bool)'),self.new)
         qt.QObject.connect(self.actionOpen, qt.SIGNAL('triggered(bool)'),self.open)
         qt.QObject.connect(self.actionSave, qt.SIGNAL('triggered(bool)'),self.save) 
         qt.QObject.connect(self.actionSaveAs, qt.SIGNAL('triggered(bool)'),self.saveas)         
         qt.QObject.connect(self.actionClose, qt.SIGNAL('triggered(bool)'),self.close) 
-        qt.QObject.connect(self.actionRun, qt.SIGNAL('triggered(bool)'),self.run)     
+        qt.QObject.connect(self.textEditorContainer, qt.SIGNAL('tabCloseRequested(int)'),self.close)# Auto-close (red cross)
+        qt.QObject.connect(self.actionRun, qt.SIGNAL('triggered(bool)'),self.run)
+        self.CodeBar.addAction(self.actionNew)
         self.CodeBar.addAction(self.actionOpen)
         self.CodeBar.addAction(self.actionSave)
         self.CodeBar.addAction(self.actionClose)        
@@ -199,6 +219,7 @@ class MainWindow(qt.QMainWindow):
         # self.menuImport.addAction(self.actionImportCpfgFile)
         # self.menuFile.addAction(self.actionNew)
         self.menuFile.addSeparator()
+        self.menuFile.addAction(self.actionNew)
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionSave)
         self.menuFile.addAction(self.actionSaveAs)
@@ -255,12 +276,16 @@ class MainWindow(qt.QMainWindow):
         self.menubar.addAction(self.menuEdit.menuAction())
         self.menubar.addAction(self.menuView.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
-
-        
+    
     def edit_status_bar(self, message, time=10000):   
         status = self.statusBar()
         status.showMessage(message, time) 
-        
+    
+    def new(self):
+        # TODO
+        self.new_text_editor()
+        # pass
+    
     def open(self, fname = None):
         try:
             fname = qt.QFileDialog.getOpenFileName(self, 'Open file', self.projectManager.current_path, "Python or L-Py File (*.py *.lpy);;Any file(*.*)")
@@ -274,10 +299,12 @@ class MainWindow(qt.QMainWindow):
             self.projectManager.current_file_name = fnamesplit[1]
             self.projectManager.current_extension = fnamesplitext[1][1:]
             f.close()
+            self.new_text_editor(name=self.projectManager.current_file_name)
+            # self.textEditorContainer.setTabText(self.textEditorContainer.currentIndex(), self.projectManager.current_file_name)
             try:
-                self.centralWidget.set_text(data.decode("utf8"))#.decode("utf8")
+                self.editorWidget.set_text(data.decode("utf8"))#.decode("utf8")
             except:
-                self.centralWidget.set_text(data)
+                self.editorWidget.set_text(data)
             self.edit_status_bar(("File '%s' opened.") %self.projectManager.current_file_name)
             
             self.set_language()
@@ -285,12 +312,12 @@ class MainWindow(qt.QMainWindow):
             self.edit_status_bar("No file opened...")
     
     def save(self):
-        if(self.projectManager.current_file_name==None):
+        if(self.textEditorContainer.tabText(self.textEditorContainer.currentIndex())=="NewFile"):
             self.edit_status_bar("Save as...")
             self.saveas()
         else:
             try:
-                code = self.centralWidget.get_full_text() # type(code) = unicode
+                code = self.editorWidget.get_full_text() # type(code) = unicode
 
                 fname = self.projectManager.current_path_and_fname
                 # Encode in utf8
@@ -304,35 +331,40 @@ class MainWindow(qt.QMainWindow):
                 f.writelines(code_enc)
                 f.close()
                 
-                self.edit_status_bar(("File '%s' saved.") % self.projectManager.current_file_name) 
+                self.edit_status_bar(("File '%s' saved.") % self.projectManager.current_file_name)
+                self.textEditorContainer.setTabText(self.textEditorContainer.currentIndex(), self.projectManager.current_file_name)
             except:
                 self.edit_status_bar("File not saved...") 
     
     def saveas(self):
         try:
             fname = qt.QFileDialog.getSaveFileName(self, 'Save file', self.projectManager.current_path, "Python File(*.py)")
-            code = self.centralWidget.get_full_text()
+            code = self.editorWidget.get_full_text()
             code_enc = code.encode("utf8","ignore") 
             
             f = open(fname, "w")
             f.writelines(code_enc)
             f.close()
             
-            self.edit_status_bar(("File '%s' saved.") % self.projectManager.current_file_name)  
+            self.edit_status_bar(("File '%s' saved.") % self.projectManager.current_file_name)
+            self.textEditorContainer.setTabText(self.textEditorContainer.currentIndex(), self.projectManager.current_file_name)
         except:
             self.edit_status_bar("File not saved...")  
 
     def close(self):
         try:
-            self.centralWidget.clear_all()
+            widg = self.textEditorContainer.currentWidget()
+            del widg
+            # self.editorWidget.clear_all()
             self.edit_status_bar(("File '%s' closed.") % self.projectManager.current_file_name)
             self.projectManager.current_file_name = None
             self.projectManager.current_extension = None
+            self.textEditorContainer.removeTab(self.textEditorContainer.currentIndex())
         except:
             self.edit_status_bar("No file closed...")
         
     def run(self):
-        code = self.centralWidget.get_full_text()
+        code = self.textEditorContainer.currentWidget().get_full_text()
         interp = self.get_interpreter()
         interp.runsource(code)
         self.edit_status_bar("Code runned.")

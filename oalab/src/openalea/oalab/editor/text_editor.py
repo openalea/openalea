@@ -12,8 +12,8 @@ EDITOR = "SPYDER"
 
 PythonCodeEditor = None
 
-
 if EDITOR == "SPYDER":
+    # from spyderlib.widgets.editor import EditorStack
     from spyderlib.widgets.sourcecode.codeeditor import CodeEditor      
     class PythonCodeEditor(CodeEditor):
         def __init__(self, parent=None):
