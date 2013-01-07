@@ -45,6 +45,13 @@ class MainWindow(qt.QMainWindow):
     
     def set_text_editor_container(self):
         self.textEditorContainer = qt.QTabWidget()
+        
+        self.textEditorContainer.max_ID = 0
+        self.textEditorContainer.current_file_name = [None]
+        self.textEditorContainer.current_extension = [None]
+        self.textEditorContainer.current_path_and_fname = [None]
+        self.textEditorContainer.current_path = [None]
+        
         self.textEditorContainer.setTabsClosable(True)
         self.new_text_editor()
         self.setCentralWidget(self.textEditorContainer)
@@ -52,16 +59,25 @@ class MainWindow(qt.QMainWindow):
     def new_text_editor(self, name="NewFile"):
         # central widget => Editor
         self.editorWidget = Editor()
-        self.editorWidget.setup_editor()
+        self.editorWidget.setup_editor() #C:\Spyder\spyder-2.1.11\spyderlib\widgets\sourcecode\codeeditor.py l.669
         self.textEditorContainer.addTab(self.editorWidget, name)
         self.textEditorContainer.setCurrentWidget(self.editorWidget)
+        self.textEditorContainer.max_ID += 1
+        max_ID = self.textEditorContainer.max_ID
+        self.textEditorContainer.current_file_name.append(None)
+        self.textEditorContainer.current_extension.append(None)
+        self.textEditorContainer.current_path_and_fname.append(None)
+        self.textEditorContainer.current_path.append(None)
+        self.textEditorContainer.currentWidget().ID = max_ID
         self.set_language()
         
     def set_language(self, language='py'):
-        if self.projectManager.current_extension != None:
-            self.editorWidget.set_language(self.projectManager.current_extension)
+        id = self.textEditorContainer.currentWidget().ID
+
+        if self.textEditorContainer.current_extension[id] != None:
+            self.textEditorContainer.currentWidget().set_language(self.textEditorContainer.current_extension[id])
         else:
-            self.editorWidget.set_language(language)
+            self.textEditorContainer.currentWidget().set_language(language)
     
     def set_shell(self):
         # dock widget => Shell IPython
@@ -84,6 +100,7 @@ class MainWindow(qt.QMainWindow):
         self.actionNew = qt.QAction(self)
         self.actionOpen = qt.QAction(self)
         self.actionSave = qt.QAction(self)
+        self.actionSaveAll = qt.QAction(self)
         self.actionSaveAs = qt.QAction(self)
         self.actionClose = qt.QAction(self)
         self.actionRun = qt.QAction(self)
@@ -92,6 +109,7 @@ class MainWindow(qt.QMainWindow):
         self.actionNew.setText(qt.QApplication.translate("MainWindow", "New", None, qt.QApplication.UnicodeUTF8))
         self.actionOpen.setText(qt.QApplication.translate("MainWindow", "Open", None, qt.QApplication.UnicodeUTF8))
         self.actionSave.setText(qt.QApplication.translate("MainWindow", "Save", None, qt.QApplication.UnicodeUTF8))
+        self.actionSaveAll.setText(qt.QApplication.translate("MainWindow", "Save All", None, qt.QApplication.UnicodeUTF8))
         self.actionSaveAs.setText(qt.QApplication.translate("MainWindow", "Save As", None, qt.QApplication.UnicodeUTF8))
         self.actionClose.setText(qt.QApplication.translate("MainWindow", "Close", None, qt.QApplication.UnicodeUTF8))
         self.actionRun.setText(qt.QApplication.translate("MainWindow", "Run", None, qt.QApplication.UnicodeUTF8))
@@ -112,6 +130,9 @@ class MainWindow(qt.QMainWindow):
         icon2.addPixmap(qt.QPixmap("./resources/filesave.png"), qt.QIcon.Normal, qt.QIcon.Off)
         self.actionSave.setIcon(icon2)
         self.actionSaveAs.setIcon(icon2)
+        icon2_1 = qt.QIcon()
+        icon2_1.addPixmap(qt.QPixmap("./resources/filesaveall.png"), qt.QIcon.Normal, qt.QIcon.Off)
+        self.actionSaveAll.setIcon(icon2_1)
         icon3 = qt.QIcon()
         icon3.addPixmap(qt.QPixmap("./resources/run.png"), qt.QIcon.Normal, qt.QIcon.Off)
         self.actionRun.setIcon(icon3)
@@ -123,6 +144,7 @@ class MainWindow(qt.QMainWindow):
         self.actionNew.setObjectName("actionNew")
         self.actionOpen.setObjectName("actionOpen")
         self.actionSave.setObjectName("actionSave")
+        self.actionSaveAll.setObjectName("actionSaveAll")
         self.actionSaveAs.setObjectName("actionSaveAs")
         self.actionClose.setObjectName("actionClose")
         self.actionRun.setObjectName("actionRun")
@@ -131,13 +153,15 @@ class MainWindow(qt.QMainWindow):
         qt.QObject.connect(self.actionNew, qt.SIGNAL('triggered(bool)'),self.new)
         qt.QObject.connect(self.actionOpen, qt.SIGNAL('triggered(bool)'),self.open)
         qt.QObject.connect(self.actionSave, qt.SIGNAL('triggered(bool)'),self.save) 
+        qt.QObject.connect(self.actionSaveAll, qt.SIGNAL('triggered(bool)'),self.saveall)
         qt.QObject.connect(self.actionSaveAs, qt.SIGNAL('triggered(bool)'),self.saveas)         
         qt.QObject.connect(self.actionClose, qt.SIGNAL('triggered(bool)'),self.close) 
-        qt.QObject.connect(self.textEditorContainer, qt.SIGNAL('tabCloseRequested(int)'),self.close)# Auto-close (red cross)
+        qt.QObject.connect(self.textEditorContainer, qt.SIGNAL('tabCloseRequested(int)'),self.autoclose)# Auto-close (red cross)
         qt.QObject.connect(self.actionRun, qt.SIGNAL('triggered(bool)'),self.run)
         self.CodeBar.addAction(self.actionNew)
         self.CodeBar.addAction(self.actionOpen)
         self.CodeBar.addAction(self.actionSave)
+        self.CodeBar.addAction(self.actionSaveAll)
         self.CodeBar.addAction(self.actionClose)        
         self.CodeBar.addAction(self.actionRun)
    
@@ -284,32 +308,44 @@ class MainWindow(qt.QMainWindow):
     def new(self):
         # TODO
         self.new_text_editor()
-        # pass
     
-    def open(self, fname = None):
+    def open(self, fname=None):
         try:
-            fname = qt.QFileDialog.getOpenFileName(self, 'Open file', self.projectManager.current_path, "Python or L-Py File (*.py *.lpy);;Any file(*.*)")
+            try:
+                old_id = self.textEditorContainer.currentWidget().ID
+                fname = qt.QFileDialog.getOpenFileName(self, 'Open file', self.textEditorContainer.current_path[old_id], "Python or L-Py File (*.py *.lpy);;Any file(*.*)")
+            except:
+                fname = qt.QFileDialog.getOpenFileName(self, 'Open file', "/home", "Python or L-Py File (*.py *.lpy);;Any file(*.*)")
             f = open(fname, 'r')
             data = f.read()
             # TODO
             fnamesplit = os.path.split(fname)
             fnamesplitext = os.path.splitext(fname)
-            self.projectManager.current_path_and_fname = fname
-            self.projectManager.current_path = fnamesplit[0]
-            self.projectManager.current_file_name = fnamesplit[1]
-            self.projectManager.current_extension = fnamesplitext[1][1:]
             f.close()
-            self.new_text_editor(name=self.projectManager.current_file_name)
-            # self.textEditorContainer.setTabText(self.textEditorContainer.currentIndex(), self.projectManager.current_file_name)
+            self.new_text_editor(name=fnamesplit[1])
+            id = self.textEditorContainer.currentWidget().ID
+            self.textEditorContainer.current_file_name[id] = fnamesplit[1]
+            self.textEditorContainer.current_path_and_fname[id] = fname
+            self.textEditorContainer.current_path[id] = fnamesplit[0]
+            self.textEditorContainer.current_extension[id] = fnamesplitext[1][1:]
             try:
-                self.editorWidget.set_text(data.decode("utf8"))#.decode("utf8")
+                self.textEditorContainer.currentWidget().set_text(data.decode("utf8"))#.decode("utf8")#ISO-8859-1
             except:
-                self.editorWidget.set_text(data)
-            self.edit_status_bar(("File '%s' opened.") %self.projectManager.current_file_name)
+                self.textEditorContainer.currentWidget().set_text(data)
+            self.edit_status_bar(("File '%s' opened.") %self.textEditorContainer.current_file_name[id])
             
             self.set_language()
         except:
             self.edit_status_bar("No file opened...")
+    
+    def saveall(self):
+        try:
+            for _i in range(self.textEditorContainer.count()):
+                self.textEditorContainer.setCurrentIndex(_i)
+                self.save()
+            self.edit_status_bar("All files saved")
+        except:
+            self.edit_status_bar("All files not saved...")
     
     def save(self):
         if(self.textEditorContainer.tabText(self.textEditorContainer.currentIndex())=="NewFile"):
@@ -317,9 +353,9 @@ class MainWindow(qt.QMainWindow):
             self.saveas()
         else:
             try:
-                code = self.editorWidget.get_full_text() # type(code) = unicode
-
-                fname = self.projectManager.current_path_and_fname
+                code = self.textEditorContainer.currentWidget().get_full_text() # type(code) = unicode
+                id = self.textEditorContainer.currentWidget().ID
+                fname = self.textEditorContainer.current_path_and_fname[id]
                 # Encode in utf8
                 # /!\ 
                 # encode("iso-8859-1","ignore") don't know what to do with "\n" and so ignore it
@@ -331,37 +367,52 @@ class MainWindow(qt.QMainWindow):
                 f.writelines(code_enc)
                 f.close()
                 
-                self.edit_status_bar(("File '%s' saved.") % self.projectManager.current_file_name)
-                self.textEditorContainer.setTabText(self.textEditorContainer.currentIndex(), self.projectManager.current_file_name)
+                fname_without_ext = self.textEditorContainer.current_file_name[id]
+                self.edit_status_bar(("File '%s' saved.") %fname_without_ext )
+                self.textEditorContainer.setTabText(self.textEditorContainer.currentIndex(), fname_without_ext)
             except:
                 self.edit_status_bar("File not saved...") 
     
     def saveas(self):
         try:
-            fname = qt.QFileDialog.getSaveFileName(self, 'Save file', self.projectManager.current_path, "Python File(*.py)")
-            code = self.editorWidget.get_full_text()
+            id = self.textEditorContainer.currentWidget().ID
+            fname = qt.QFileDialog.getSaveFileName(self, 'Save file', self.textEditorContainer.current_path[id], "Python File(*.py)")
+            code = self.textEditorContainer.currentWidget().get_full_text()
             code_enc = code.encode("utf8","ignore") 
             
             f = open(fname, "w")
             f.writelines(code_enc)
             f.close()
             
-            self.edit_status_bar(("File '%s' saved.") % self.projectManager.current_file_name)
-            self.textEditorContainer.setTabText(self.textEditorContainer.currentIndex(), self.projectManager.current_file_name)
+            fnamesplit = os.path.split(fname)
+            fnamesplitext = os.path.splitext(fname)
+            self.textEditorContainer.current_file_name[id] = fnamesplit[1]
+            self.textEditorContainer.current_path_and_fname[id] = fname
+            self.textEditorContainer.current_path[id] = fnamesplit[0]
+            self.textEditorContainer.current_extension[id] = fnamesplitext[1][1:]
+            
+            fname_without_ext = self.textEditorContainer.current_file_name[id]
+            self.edit_status_bar(("File '%s' saved.") % fname_without_ext)
+            self.textEditorContainer.setTabText(self.textEditorContainer.currentIndex(), fname_without_ext)
         except:
             self.edit_status_bar("File not saved...")  
 
     def close(self):
         try:
-            widg = self.textEditorContainer.currentWidget()
-            del widg
-            # self.editorWidget.clear_all()
-            self.edit_status_bar(("File '%s' closed.") % self.projectManager.current_file_name)
-            self.projectManager.current_file_name = None
-            self.projectManager.current_extension = None
+            id = self.textEditorContainer.currentWidget().ID
             self.textEditorContainer.removeTab(self.textEditorContainer.currentIndex())
+            self.edit_status_bar(("File '%s' closed.") % self.textEditorContainer.current_file_name[id])
         except:
             self.edit_status_bar("No file closed...")
+            
+    def autoclose(self, n_tab):
+        try:
+            self.textEditorContainer.setCurrentIndex(n_tab)
+            id = self.textEditorContainer.currentWidget().ID
+            self.textEditorContainer.removeTab(self.textEditorContainer.currentIndex())
+            self.edit_status_bar(("File '%s' closed.") % self.textEditorContainer.current_file_name[id])
+        except:
+            self.edit_status_bar("No file closed...")        
         
     def run(self):
         code = self.textEditorContainer.currentWidget().get_full_text()
