@@ -15,6 +15,8 @@ except AttributeError:
     _fromUtf8 = lambda s: s
     
 from openalea.oalab.editor.text_editor import PythonCodeEditor as Editor
+from openalea.oalab.editor.text_editor import LPyCodeEditor as LPyEditor
+from openalea.oalab.editor.text_editor import SelectEditor
 from openalea.oalab.shell.shell import ShellWidget
 from openalea.oalab.shell.interpreter import Interpreter
 from openalea.oalab.gui.project import ProjectManager
@@ -22,6 +24,8 @@ from openalea.oalab.gui.project import ProjectManager
 class MainWindow(qt.QMainWindow):
     def __init__(self, parent=None):
         super(qt.QMainWindow, self).__init__(parent)
+        # -- show the splash screen --
+        self.splash = show_splash_screen()
         # project
         self.projectManager = ProjectManager()
         self.projectManager.new_project()
@@ -34,12 +38,14 @@ class MainWindow(qt.QMainWindow):
         self.set_permanent_actions()
         self.set_permanent_top_buttons()
         self.set_permanent_menu_bar()
-        self.set_local_actions()
-        self.set_local_top_buttons()
-        self.set_local_menu_bar()
+        # self.set_local_actions()
+        # self.set_local_top_buttons()
+        # self.set_local_menu_bar()
         # window title and icon
         self.setWindowTitle("Open Alea Virtual Laboratory")
         self.setWindowIcon(qt.QIcon("./resources/openalea_icon2.png"))
+        
+        self.splash.finish(self)
     
     #----------------------------------------
     # Setup Editor
@@ -52,19 +58,36 @@ class MainWindow(qt.QMainWindow):
         self.textEditorContainer.current_path_and_fname = [None]
         self.textEditorContainer.current_path = [None]
         self.textEditorContainer.setTabsClosable(True)
-        self.new_text_editor()
+        self.new()
         self.setCentralWidget(self.textEditorContainer)
-        
-    def new_text_editor(self, name="NewFile"):
+               
+    def new_text_editor(self, name="NewFile", type="py"):
         # central widget => Editor
-        self.editorWidget = Editor()
-        self.textEditorContainer.addTab(self.editorWidget, name)
-        self.textEditorContainer.setCurrentWidget(self.editorWidget)
-        self.setup_new_tab()
-        try:
-            self.set_local_actions()
-        except:
-            pass
+        if(self.textEditorContainer.tabText(self.textEditorContainer.currentIndex())=="Select your editor type"):
+            self.textEditorContainer.removeTab(self.textEditorContainer.currentIndex())
+        if type=='py':
+            self.editorWidget = Editor(parent=self)
+            self.textEditorContainer.addTab(self.editorWidget, name)
+            self.textEditorContainer.setCurrentWidget(self.editorWidget)
+            self.setup_new_tab()
+            try:
+                self.set_local_actions()
+            except:
+                pass
+        elif type=='lpy':
+            self.editorWidget = LPyEditor()
+            self.textEditorContainer.addTab(self.editorWidget, name)
+            self.textEditorContainer.setCurrentWidget(self.editorWidget)
+            self.setup_new_tab()
+            try:
+                self.set_local_actions()
+            except:
+                pass
+    
+    def show_select_editor(self, name="Select your editor type"):
+        self.widget = SelectEditor(parent=self)
+        self.textEditorContainer.addTab(self.widget, name)
+        self.textEditorContainer.setCurrentWidget(self.widget)
     
     def setup_new_tab(self):
         self.textEditorContainer.max_ID += 1
@@ -244,8 +267,7 @@ class MainWindow(qt.QMainWindow):
     # Actions on files
     #----------------------------------------
     def new(self):
-        # TODO
-        self.new_text_editor()
+        self.show_select_editor()
     
     def open(self, fname=None):
         try:
@@ -260,7 +282,7 @@ class MainWindow(qt.QMainWindow):
             fnamesplit = os.path.split(fname)
             fnamesplitext = os.path.splitext(fname)
             f.close()
-            self.new_text_editor(name=fnamesplit[1])
+            self.new_text_editor(name=fnamesplit[1], type=fnamesplitext[1][1:])
             id = self.textEditorContainer.currentWidget().ID
             self.textEditorContainer.current_file_name[id] = fnamesplit[1]
             self.textEditorContainer.current_path_and_fname[id] = fname
@@ -353,6 +375,23 @@ class MainWindow(qt.QMainWindow):
             self.edit_status_bar("No file closed...")        
     
 
+    
+def show_splash_screen():
+    """Show a small splash screen to make people wait for OpenAleaLab to startup"""
+    # import metainfo
+    pix = qt.QPixmap("./resources/splash.png")
+    splash = qt.QSplashScreen(pix, qt.Qt.WindowStaysOnTopHint)
+    splash.show()
+    # message = "" + metainfo.get_copyright() +\
+              # "Version : %s\n"%(metainfo.get_version(),) +\
+              # "Loading modules..."
+    message = "Loading..."
+    splash.showMessage(message, qt.Qt.AlignCenter|qt.Qt.AlignBottom)
+    # -- make sure qt really display the message before importing the modules.--
+    qt.QApplication.processEvents()
+    return splash
+
+    
 def main():
     app = qt.QApplication(sys.argv)
     app.setStyle('windows')

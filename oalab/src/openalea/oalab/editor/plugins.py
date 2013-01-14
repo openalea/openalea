@@ -6,6 +6,10 @@ class EditorOALab(WrapperOALab):
     def __init__(self):
         pass
         
+class WorkFlowEditorOALab(EditorOALab):
+    def __init__(self):
+        pass
+        
 class TextEditorOALab(EditorOALab):
     def __init__(self):
         super(TextEditorOALab, self).__init__()
@@ -19,11 +23,11 @@ class TextEditorOALab(EditorOALab):
         # Create qt actions
         pass
         
-    def set_buttons(self):
+    def set_buttons(self, a, b):
         # Create qt btns and connect actions
         pass    
 
-    def set_menu(self):
+    def set_menu(self, a, b):
         # Create qt menu and connect actions
         pass    
     
