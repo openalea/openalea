@@ -91,6 +91,8 @@ elif LPYEDITOR == "LPY":
     class LPyCodeEditor(LpyCodeEditor, TextEditorOALab):
         def __init__(self, parent=None):
             super(LPyCodeEditor, self).__init__(parent)
+            self.set_name('LPyEditor')
+            self.set_language('lpy')
             self.setup()     
 
         def setup(self):
