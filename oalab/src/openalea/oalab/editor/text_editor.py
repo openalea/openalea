@@ -40,7 +40,7 @@ if LPYEDITOR == "SPYDER":
             # Create qt btns and connect actions
             actionRun.setShortcut(qt.QApplication.translate("MainWindow", "Ctrl+R", None, qt.QApplication.UnicodeUTF8))
             icon3 = qt.QIcon()
-            icon3.addPixmap(qt.QPixmap("./resources/run.png"), qt.QIcon.Normal, qt.QIcon.Off)
+            icon3.addPixmap(qt.QPixmap("./resources/new/run.png"), qt.QIcon.Normal, qt.QIcon.Off)
             actionRun.setIcon(icon3)
             qt.QObject.connect(actionRun, qt.SIGNAL('triggered(bool)'),window.run)
             return actionRun
@@ -125,7 +125,7 @@ elif LPYEDITOR == "LPY":
             # Create qt btns and connect actions
             actionRun.setShortcut(qt.QApplication.translate("MainWindow", "Ctrl+R", None, qt.QApplication.UnicodeUTF8))
             icon3 = qt.QIcon()
-            icon3.addPixmap(qt.QPixmap("./resources/run.png"), qt.QIcon.Normal, qt.QIcon.Off)
+            icon3.addPixmap(qt.QPixmap("./resources/new/run.png"), qt.QIcon.Normal, qt.QIcon.Off)
             actionRun.setIcon(icon3)
             qt.QObject.connect(actionRun, qt.SIGNAL('triggered(bool)'),window.run)
             return actionRun
@@ -250,7 +250,7 @@ elif EDITOR == "SCINTILLA":
             # Create qt btns and connect actions
             actionRun.setShortcut(qt.QApplication.translate("MainWindow", "Ctrl+R", None, qt.QApplication.UnicodeUTF8))
             icon3 = qt.QIcon()
-            icon3.addPixmap(qt.QPixmap("./resources/run.png"), qt.QIcon.Normal, qt.QIcon.Off)
+            icon3.addPixmap(qt.QPixmap("./resources/new/run.png"), qt.QIcon.Normal, qt.QIcon.Off)
             actionRun.setIcon(icon3)
             qt.QObject.connect(actionRun, qt.SIGNAL('triggered(bool)'),window.run)
             return actionRun
@@ -349,3 +349,4 @@ class SelectEditor(qt.QWidget):
     
     def clic(self, type):
         self.parent.new_text_editor(type=type)
+        
