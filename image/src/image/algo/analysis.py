@@ -31,15 +31,17 @@ import scipy.ndimage as nd
 try:
     from sklearn.decomposition import PCA
 except:
-    warnings.warn("You will not be able to use some functionnalities of SpatialImageAnalysis because you fail loading some libraries!")
+    warnings.warn("'import PCA' failed, 'sklearn' seems to be missing!")
+    warnings.warn("You will not be able to use some functionnalities of SpatialImageAnalysis!")
     pass
 
 from openalea.image.spatial_image import SpatialImage
 
 try:
-    from openalea.plantgl.all import (r_neighborhood, principal_curvatures)
+    from openalea.plantgl.all import (r_neighborhood, principal_curvatures, k_closest_points_from_ann)
 except:
-    warnings.warn("You will not be able to use some functionnalities of SpatialImageAnalysis because you fail loading some of them!")
+    warnings.warn("'import (r_neighborhood, principal_curvatures, k_closest_points_from_ann)' failed, 'plantgl' seems to be missing!")
+    warnings.warn("You will not be able to use some functionnalities of SpatialImageAnalysis!")
     pass
 
 
@@ -94,6 +96,94 @@ def hollow_out_cells(image, background, verbose = True):
     m[np.where(m==background)] = 0
     if verbose: print 'Done !!'
     return m
+
+
+def wall_voxels_between_two_cells(image, label_1, label_2, bbox = None):
+    """
+    Return the voxels coordinates defining the contact wall between two labels.
+
+    :Parameters:
+     - `image` (ndarray of ints) - Array containing objects defined by different labels
+     - `label_1` (int) - object id #1
+     - `label_2` (int) - object id #2
+     - `bbox` (dict, optional) - If given, contain a dict of slices
+
+    :Return:
+     - xyz 3xN array.
+    """
+
+    if bbox is None or not isinstance(bbox,dict):
+        bbox = nd.find_objects( image, max_label = min([label_1, label_2]) )
+        boundingbox = bbox[-1]
+    if isinstance(bbox,dict):
+        boundingbox = bbox(label_1)
+
+    dilated_bbox = dilation( boundingbox )
+    dilated_bbox_img = image[dilated_bbox]
+
+    mask_img_1 = (dilated_bbox_img == label_1)
+    mask_img_2 = (dilated_bbox_img == label_2)
+
+    struct = nd.generate_binary_structure(3, 1)
+    dil_1 = nd.binary_dilation(mask_img_1, structure=struct)
+    dil_2 = nd.binary_dilation(mask_img_2, structure=struct)
+    x,y,z = np.where( ( (dil_1 & mask_img_2) | (dil_2 & mask_img_1) ) == 1 )
+
+    return np.array( (x+dilated_bbox[0].start, y+dilated_bbox[1].start, z+dilated_bbox[2].start) )
+
+
+def walls_voxels_per_cell(image, label_1, bbox = None, neighbors = None, verbose = False):
+    """
+    Return the voxels coordinates of all walls from one cell. 
+    There must be a contact defined between two labels, the given one and its neighbors.
+
+    :Parameters:
+     - `label_1` (int): cell id #1.
+    :Return:
+     - `coord` (dict): *keys= [min(labels_1,neighbors[n]), max(labels_1,neighbors[n])]; *values= xyz 3xN array.
+    """
+    if isinstance(bbox,dict):
+        boundingbox = bbox(label_1)
+    elif isinstance(bbox,tuple) and isinstance(bbox[0],slice):
+        boundingbox = bbox
+    elif bbox is None:
+        bbox = nd.find_objects( image, max_label = label_1 )
+        boundingbox = bbox[-1]
+
+    dilated_bbox = dilation(dilation( boundingbox ))
+    dilated_bbox_img = image[dilated_bbox]
+
+    mask_img_1 = (dilated_bbox_img == label_1)
+    #~ struct = nd.generate_binary_structure(3, 1)
+    #~ dil_1 = nd.binary_dilation(mask_img_1, structure=struct)
+    dil_1 = nd.binary_dilation(mask_img_1)
+
+    if neighbors is None:
+        neighbors = np.unique(dilated_bbox_img)
+        neighbors.remove(label_1)
+        len_neighbors = len(neighbors)
+    if isinstance(neighbors,int):
+        neighbors = [neighbors]
+
+    coord = {}
+    for n,label_2 in enumerate(neighbors):
+        if verbose and n%2==0: print n,'/',len_neighbors
+        #~ if label_1 == 1:
+            #~ dilated_bbox_2 = dilation( self.boundingbox(label_2) )
+            #~ x,y,z = np.where( self.image[dilated_bbox_2]*dil_1[dilated_bbox_2] == label_2 )
+            #~ coord[1,label_2]=np.array((x+dilated_bbox_2[0].start,y+dilated_bbox_2[1].start,z+dilated_bbox_2[2].start))
+        #~ else:
+            #~ mask_img_2 = (dilated_bbox_img == label_2)
+            #~ dil_2 = nd.binary_dilation(mask_img_2, structure=struct)
+            #~ x,y,z = np.where( ( (dil_1 & mask_img_2) | (dil_2 & mask_img_1) ) == 1 )
+            #~ coord[min(label_1,label_2),max(label_1,label_2)]=np.array((x+dilated_bbox[0].start,y+dilated_bbox[1].start,z+dilated_bbox[2].start))
+        mask_img_2 = (dilated_bbox_img == label_2)
+        #~ dil_2 = nd.binary_dilation(mask_img_2, structure=struct)
+        dil_2 = nd.binary_dilation(mask_img_2)
+        x,y,z = np.where( ( (dil_1 & mask_img_2) | (dil_2 & mask_img_1) ) == 1 )
+        coord[min(label_1,label_2),max(label_1,label_2)]=np.array((x+dilated_bbox[0].start,y+dilated_bbox[1].start,z+dilated_bbox[2].start))
+
+    return coord
 
 
 def cells_walls_coords(image, background = 1, hollow_out = True, verbose = True):
@@ -654,83 +744,6 @@ class AbstractSpatialImageAnalysis(object):
             return np.array([a[0],a[1]])
 
 
-    def wall_voxels(self, label_1, label_2):
-        """
-        Return the voxels coordinates defining the contact wall between two labels.
-
-        :Parameters:
-        - `label_1` (int) - cell id #1.
-        - `label_2` (int) - cell id #2.
-
-        :Return:
-        -`coord` (dict) - *keys= (min(label_1,label_2),max(label_1,label_2)); *values= xyz 3xN array.
-        """
-        
-        # -- We first make sure that labels are neighbors:
-        if label_2 not in self.neighbors(label_1):
-            warnings.warn("You got it wrong dude,"+str(label_1)+"and"+str(label_2)+"are not neighbors!!")
-        
-        dilated_bbox = dilation( self.boundingbox(label_1) )
-        dilated_bbox_img = self.image[dilated_bbox]
-        
-        mask_img_1 = (dilated_bbox_img == label_1)
-        mask_img_2 = (dilated_bbox_img == label_2)
-        
-        struct = nd.generate_binary_structure(3, 1)
-        
-        dil_1 = nd.binary_dilation(mask_img_1, structure=struct)
-        dil_2 = nd.binary_dilation(mask_img_2, structure=struct)
-        x,y,z = np.where( ( (dil_1 & mask_img_2) | (dil_2 & mask_img_1) ) == 1 )
-        
-        coord={}
-        coord[min(label_1,label_2),max(label_1,label_2)]=np.array((x+dilated_bbox[0].start,y+dilated_bbox[1].start,z+dilated_bbox[2].start))
-        
-        return coord
-
-
-    def walls_voxels(self, label_1, verbose = False):
-        """
-        Return the voxels coordinates of all walls from one cell. 
-        There must be a contact defined between two labels, the given one and its neighbors.
-
-        :Parameters:
-            - `label_1` (int) - cell id #1.
-
-        :Return:
-            -`coord` (dict) - *keys= [min(labels_1,neighbors[n]), max(labels_1,neighbors[n])]; *values= xyz 3xN array.
-        """
-        coord={}
-        
-        dilated_bbox = dilation( self.boundingbox(label_1) )
-        dilated_bbox_img = self.image[dilated_bbox]
-
-        mask_img_1 = (dilated_bbox_img == label_1)
-        struct = nd.generate_binary_structure(3, 1)
-        dil_1 = nd.binary_dilation(mask_img_1, structure=struct)
-
-        neighbors=self.neighbors(label_1)
-        if 0 in neighbors: neighbors.remove(0)
-        len_neighbors=len(neighbors)
-        if verbose: print 'Extracting cell walls coordinates between',label_1,'and its neighbors:',neighbors
-        for n,label_2 in enumerate(neighbors):
-            if verbose and (label_1!=1) and n%2==0: print n,'/',len_neighbors
-            if label_1 == 1:
-                dilated_bbox_2 = dilation( self.boundingbox(label_2) )
-                #~ dilated_bbox_img_2 = self.image[dilated_bbox_2]
-                #~ mask_img_2 = (dilated_bbox_img_2 == label_2)
-                #~ dil_2 = nd.binary_dilation(mask_img_2, structure=struct)
-                #~ x,y,z = np.where( ( (dil_1[dilated_bbox_2] & mask_img_2) | (dil_2 & mask_img_1[dilated_bbox_2]) ) == 1 )
-                x,y,z = np.where( self.image[dilated_bbox_2]*dil_1[dilated_bbox_2] == label_2 )
-                coord[1,label_2]=np.array((x+dilated_bbox_2[0].start,y+dilated_bbox_2[1].start,z+dilated_bbox_2[2].start))
-            else:
-                mask_img_2 = (dilated_bbox_img == label_2)
-                dil_2 = nd.binary_dilation(mask_img_2, structure=struct)
-                x,y,z = np.where( ( (dil_1 & mask_img_2) | (dil_2 & mask_img_1) ) == 1 )
-                coord[min(label_1,label_2),max(label_1,label_2)]=np.array((x+dilated_bbox[0].start,y+dilated_bbox[1].start,z+dilated_bbox[2].start))
-
-        return coord
-
-
     def cell_wall_surface( self, label_id, neighbors, real = True):
         """
         Return the surface of contact between a label and its neighbors.
@@ -862,6 +875,67 @@ class AbstractSpatialImageAnalysis(object):
         return self._first_voxel_layer
 
 
+    def wall_normal_orientation(self, labels=None, fitting_degree=2, dimensionality=3, labels2avoid = None, background = 1):
+        """
+        Compute wall orientation according to fitting degree and dimensionality.
+        :WARNING: if dimensionality = 2, only the cells belonging to the outer layer of the object will be used.
+        """
+        if dimensionality == 3:
+            image = self.image
+        elif dimensionality == 2:
+            image = self.first_voxel_layer(background, True)
+        else:
+            warnings.warn("Dimensionality %d is not possible, choose between 2 or 3" % dimensionality)
+            return None
+
+        if labels is None and dimensionality == 3:
+            labels=self.labels()
+        elif labels is None and dimensionality == 2:
+            labels=np.unique(image)
+        elif isinstance(labels,list):
+            labels.sort()
+        else:
+            warnings.warn("Couldn't find any labels.")
+            return None
+
+        if labels2avoid is not None:
+            labels = list( set(labels)-set(labels2avoid) )
+
+        dict_wall_voxels = {}
+        for label in labels:
+            ## We take care of undesirable labels in the neighbors' list:
+            nei = list(set(self.neighbors(label))-set(labels2avoid)) # those we explicitly want to get rid of
+            for n in nei:
+                if dict_wall_voxels.has_key( (min(label,n),max(label,n)) ): # those we already used
+                    nei.remove(n)
+            ## If there are neighbors left in the list, we extract the voxels separating them from `label`:
+            if nei != []:
+                dict_wall_voxels.update(walls_voxels_per_cell(image, label, self.boundingbox(label), nei))
+
+        if dimensionality == 3:
+            ## For each 3D points set of coordinates (defining a wall), we will fit a "plane":
+            for wall in dict_wall_voxels:
+                x, y, z = dict_wall_voxels[wall] # the points set
+                ## We need to find an origin: the closest point in set set from the geometric median
+                # compute geometric median:
+                neighborhood_origin = geometric_median( np.array([list(x),list(y),list(z)]) )
+                integers = np.vectorize(lambda x : int(x))
+                neighborhood_origin = integers(neighborhood_origin)
+                # closest points:
+                pts = [tuple([int(x[i]),int(y[i]),int(z[i])]) for i in xrange(len(x))]
+                min_dist = closest_from_A(neighborhood_origin, pts)
+                id_min_dist = pts.index(min_dist)
+                # we create a grid of adjacencies between the points
+                adjacencies = k_closest_points_from_ann(pts, k=10)
+                ## We can now compute the curvature values, direction, normal and origin (Monge):
+                pc = principal_curvatures(pts, id_min_dist, adjacencies, fitting_degree, 2)
+                principal_curvatures[wall] = [pc[1][1], pc[2][1]]
+                principal_curvatures_normal[wall] = pc[3]
+                principal_curvatures_directions[wall] = [pc[1][0], pc[2][0]]
+                principal_curvatures_origin[wall] = pc[0]
+
+        return dict_wall_voxels, principal_curvatures, principal_curvatures_normal, principal_curvatures_directions, principal_curvatures_origin
+
     def inertia_axis_normal_to_surface(self, labels=None, center_of_mass=None, inertia_axis=None, real=False, verbose=True):
         """
         Find the inertia axis defining the "Z" orientation of the cell.
@@ -929,7 +1003,10 @@ class AbstractSpatialImageAnalysis(object):
             xyz = np.where( (self.image[self.boundingbox(vid)]) == vid )
             self.image[tuple((xyz[0]+self.boundingbox(vid)[0].start, xyz[1]+self.boundingbox(vid)[1].start, xyz[2]+self.boundingbox(vid)[2].start))]=erase_value
 
-        self.__init__(self.image)
+        ignoredlabels = copy.copy(self._ignoredlabels)
+        ignoredlabels.update([erase_value])
+        return_type = copy.copy(self.return_type)
+        self.__init__(self.image, ignoredlabels, return_type)
 
         if verbose: print 'Done !!'
 
@@ -969,12 +1046,12 @@ class AbstractSpatialImageAnalysis(object):
             xyz = np.where( (self.image[self.boundingbox(c)]) == c )
             self.image[tuple((xyz[0]+self.boundingbox(c)[0].start,xyz[1]+self.boundingbox(c)[1].start,xyz[2]+self.boundingbox(c)[2].start))]=erase_value
         
-        if verbose: print 'Done !!'
-        
         ignoredlabels = copy.copy(self._ignoredlabels)
         ignoredlabels.update([erase_value])
         return_type = copy.copy(self.return_type)
         self.__init__(self.image, ignoredlabels, return_type)
+
+        if verbose: print 'Done !!'
 
 
 class SpatialImageAnalysis2D (AbstractSpatialImageAnalysis):
@@ -1210,6 +1287,41 @@ class SpatialImageAnalysis3D(AbstractSpatialImageAnalysis):
 
         return list(margins)
 
+    def region_boundingbox(self, labels):
+        """
+        This function return a boundingbox of a region including all cells (provided by `labels`).
+
+        :Parameters:
+         - `labels` (list): list of cells ids;
+        :Returns:
+         - [x_start,y_start,z_start,x_stop,y_stop,z_stop]
+        """
+        if isinstance(labels,list) and len(labels) == 1:
+            return self.boundingbox(labels[0])
+        if isinstance(labels,int):
+            return self.boundingbox(labels)
+        
+        dict_slices = self.boundingbox(labels)
+        #-- We start by making sure that all cells have an entry (key) in `dict_slices`:
+        not_found=[]
+        for c in labels:
+            if c not in dict_slices.keys():
+                not_found.append(c)
+        if len(not_found)!=0:
+            warnings.warn('You have asked for unknown cells labels: '+" ".join([str(k) for k in not_found]))
+
+        #-- We now define a slice for the region including all cells:
+        x_start,y_start,z_start,x_stop,y_stop,z_stop=np.inf,np.inf,np.inf,0,0,0
+        for c in labels:
+            x,y,z=dict_slices[c]
+            x_start=min(x.start,x_start)
+            y_start=min(y.start,y_start)
+            z_start=min(z.start,z_start)
+            x_stop=max(x.stop,x_stop)
+            y_stop=max(y.stop,y_stop)
+            z_stop=max(z.stop,z_stop)
+
+        return [x_start,y_start,z_start,x_stop,y_stop,z_stop]
 
     def __principal_curvature_parameters_CGAL(func):
         def wrapped_function(self, vids = None, radius = 60, fitting_degree = 2, monge_degree = 2, background = 1, verbose = False):
@@ -1263,7 +1375,6 @@ class SpatialImageAnalysis3D(AbstractSpatialImageAnalysis):
             curvature={}
             x,y,z = np.where(self.first_voxel_layer() != 0)
             pts = [tuple([int(x[i]),int(y[i]),int(z[i])]) for i in xrange(len(x))]
-            from openalea.plantgl.all import k_closest_points_from_ann
             adjacencies = k_closest_points_from_ann(pts, k=10)
 
             # -- Now we can compute the principal curvatures informations
@@ -1301,9 +1412,9 @@ class SpatialImageAnalysis3D(AbstractSpatialImageAnalysis):
 
         neigborids = r_neighborhood(id_min_dist, pts, adjacencies, self.used_radius_for_curvature)
 
-        neigbor_pts=[]
-        for i in neigborids:
-            neigbor_pts.append(pts[i])
+        #~ neigbor_pts=[]
+        #~ for i in neigborids:
+            #~ neigbor_pts.append(pts[i])
 
         #~ pc = principal_curvatures(pts,id_min_dist,neigborids)
         pc = principal_curvatures(pts,id_min_dist,neigborids, fitting_degree, monge_degree)
@@ -1383,13 +1494,26 @@ class SpatialImageAnalysis3D(AbstractSpatialImageAnalysis):
         return float(self.principal_curvatures[vid][0] - self.principal_curvatures[vid][1])/float(self.principal_curvatures[vid][0] + self.principal_curvatures[vid][1])
 
 
+    def wall_orientation(self, vids=None, external=False, proj_2D=False, return_inertia_tensors=False, real=False, verbose = False):
+        """
+        Compute anisotropy from inertia axis length. 
+        
+        :Parameters:
+         - vids (list): list of ids, if None, will compute orientation for all walls.
+         - external (bool): if True, only the first layer of voxel will be used to compute the orientation of the walls.
+        """
+        if vids is None:
+            vids = self.layer1()
+
+        (min(label_1,label_2),max(label_1,label_2))
+    
     def cell_shape_anisotropy(self, vids=None, external=False, proj_2D=False, return_inertia_tensors=False, real=False, verbose = False):
         """
         Compute anisotropy from inertia axis length. 
         
         :Parameters:
          - vids (list): list of ids.
-         - external (bool): if True, use only the first layer of voxel to compute inertia axis and shape anisotropy.
+         - external (bool): if True, only the first layer of voxel will be used to compute inertia axis and shape anisotropy.
          - as_2D (bool): if True, use only the two longest inertia axis to compute shape anisotropy.
         """
         if vids is None:

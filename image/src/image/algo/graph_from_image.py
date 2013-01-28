@@ -5,7 +5,7 @@
 #       Copyright 2012 INRIA - CIRAD - INRA
 #
 #       File author(s):  Jonathan Legrand <jonathan.legrand@ens-lyon.fr>
-#                        Frederic Boudon 
+#                        Frederic Boudon <frederic.boudon@cirad.fr>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
