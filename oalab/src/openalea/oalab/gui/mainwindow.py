@@ -9,6 +9,9 @@ import os
 
 import qt
 
+# from openalea.core.logger import get_logger
+from openalea.visualea.splitterui import SplittableUI
+
 from openalea.oalab.editor.text_editor import PythonCodeEditor as Editor
 from openalea.oalab.editor.text_editor import LPyCodeEditor as LPyEditor
 from openalea.oalab.editor.text_editor import SelectEditor
@@ -16,11 +19,25 @@ from openalea.oalab.shell.shell import ShellWidget
 from openalea.oalab.shell.interpreter import Interpreter
 from openalea.oalab.gui.project import ProjectManager
 
+
+# sn_logger = get_logger(__name__)
+
+
 class MainWindow(qt.QMainWindow):
     def __init__(self, parent=None):
         super(qt.QMainWindow, self).__init__(parent)
+        
         # -- show the splash screen --
-        self.splash = show_splash_screen()
+        self.splash = show_splash_screen()   
+        
+        # self.logger = sn_logger
+        
+        # window title and icon
+        self.setWindowTitle("Open Alea Virtual Laboratory")
+        self.setWindowIcon(qt.QIcon("./resources/openalea_icon2.png"))
+        
+        self.setAttribute(qt.Qt.WA_DeleteOnClose)
+        self.showMaximized()
         # project
         self.projectManager = ProjectManager()
         self.projectManager.new_project()
@@ -33,8 +50,14 @@ class MainWindow(qt.QMainWindow):
         self.set_virtual_world()
         # editor
         self.set_text_editor_container()
+        
+        # self.set_central_widget(1,2)
         # central widget
-        self.set_central_widget(1,2)
+        # self.widList[1]=qt.QWidget()
+        splittable = SplittableUI(parent=self, content=self.widList[0])
+        splittable.splitPane(content=self.widList[1], paneId=0, direction=qt.Qt.Horizontal, amount=0.8)
+        # splittable.splitPane(content=self.widList[2], paneId=2, direction=qt.Qt.Vertical, amount=0.3)
+        self.setCentralWidget(splittable)
         
         # Other widgets
         # control panel
@@ -59,17 +82,26 @@ class MainWindow(qt.QMainWindow):
         self.set_permanent_editor_buttons()
         self.set_model_actions()
         self.set_model_buttons()
+        self.set_model_2_actions()
+        self.set_model_2_buttons()
         self.set_view_actions()
         self.set_view_buttons()
-        # window title and icon
-        self.setWindowTitle("Open Alea Virtual Laboratory")
-        self.setWindowIcon(qt.QIcon("./resources/openalea_icon2.png"))
+        
         self.splash.finish(self)
     
     #----------------------------------------
     # Setup Central Widget
     #----------------------------------------
+    
+    def add_widget(self, wid):
+        # self.__centralStack.addWidget(wid)
+        # self.__centralStack.setCurrentWidget(wid)
+        pass
+        
     def set_central_widget(self, row, column):
+        pass
+        # self.__centralStack.addWidget(wid)
+        """
         layout = qt.QGridLayout()
         self.central = qt.QWidget()
         self.central.setMinimumSize(600, 500)
@@ -102,7 +134,8 @@ class MainWindow(qt.QMainWindow):
         
         self.central.setLayout(layout)
 
-        self.setCentralWidget(self.central)         
+        self.setCentralWidget(self.central)  
+        """
 
         
     def set_central_widget11(self):    
@@ -124,7 +157,7 @@ class MainWindow(qt.QMainWindow):
     def set_virtual_world(self):
     
         imageLabel = qt.QLabel()
-        image = qt.QImage("./resources/arbre.png")
+        image = qt.QImage("./resources/arbre2.png")
         pix = qt.QPixmap()
         pix = pix.fromImage(image)
         imageLabel.setPixmap(pix)
@@ -145,12 +178,14 @@ class MainWindow(qt.QMainWindow):
         
         self.widList.append(self.VW)
         
+        self.add_widget(self.VW)
+        
     #----------------------------------------
     # Setup Ressources Manager Dock Widget
     #----------------------------------------
     def set_ressources_manager(self):
         # Ressources
-        self.ressManaWid = qt.QWidget()
+        self.ressManaWid = qt.QTreeWidget()
         self.ressManaWid.setMinimumSize(100, 100)
         self.ressManaWid.setMaximumSize(400, 400)
 
@@ -200,7 +235,7 @@ class MainWindow(qt.QMainWindow):
     def set_control_panel(self):
     
         # Help
-        self.controlWid = qt.QWidget()
+        self.controlWid = qt.QLineEdit("Modifie a control value")
         self.controlWid.setMinimumSize(150, 150)
         self.controlWid.setMaximumSize(400, 400)
 
@@ -217,7 +252,7 @@ class MainWindow(qt.QMainWindow):
     def set_observation_panel(self):
     
         # Help
-        self.obsWid = qt.QWidget()
+        self.obsWid = qt.QLabel("number of leafs : 42000")
         self.obsWid.setMinimumSize(150, 150)
         self.obsWid.setMaximumSize(400, 400)
 
@@ -273,6 +308,7 @@ class MainWindow(qt.QMainWindow):
         self.selectEditor = SelectEditor(parent=self)
         self.textEditorContainer.addTab(self.selectEditor, name)
         self.textEditorContainer.setCurrentWidget(self.selectEditor)
+        self.add_widget(self.selectEditor)
     
     def setup_new_tab(self):
         self.textEditorContainer.max_ID += 1
@@ -316,6 +352,22 @@ class MainWindow(qt.QMainWindow):
         
         self.actionGlobalWorkflow.setText(qt.QApplication.translate("MainWindow", "Global Workflow", None, qt.QApplication.UnicodeUTF8))
 
+    def set_model_2_actions(self):
+        # Create actions
+        self.actionBDD = qt.QAction(self)
+        self.actionPy = qt.QAction(self)
+        self.actionLPy = qt.QAction(self)
+        self.actionWF = qt.QAction(self)
+
+                
+        # Set title of buttons       
+        self.actionBDD.setText(qt.QApplication.translate("MainWindow", "From DataBase", None, qt.QApplication.UnicodeUTF8))
+        self.actionPy.setText(qt.QApplication.translate("MainWindow", "From Python", None, qt.QApplication.UnicodeUTF8))
+        self.actionLPy.setText(qt.QApplication.translate("MainWindow", "From LPy", None, qt.QApplication.UnicodeUTF8))
+        self.actionWF.setText(qt.QApplication.translate("MainWindow", "From Workflow", None, qt.QApplication.UnicodeUTF8))
+
+    
+        
     def set_editor_actions(self):
         # Create actions
         self.actionNew = qt.QAction(self)
@@ -444,6 +496,20 @@ class MainWindow(qt.QMainWindow):
         self.ModelBar.addAction(self.actionPlay)
         self.ModelBar.addSeparator()
         self.ModelBar.addAction(self.actionGlobalWorkflow)
+    
+    
+    def set_model_2_buttons(self):
+        self.ModelBar2 = qt.QToolBar(self)
+        self.ModelBar2.setToolButtonStyle(qt.Qt.ToolButtonTextOnly)
+        size = qt.QSize(30, 30)
+        self.ModelBar2.setIconSize(size)
+        self.addToolBar(qt.Qt.TopToolBarArea, self.ModelBar2)    
+        
+        self.ModelBar2.addAction(self.actionBDD)
+        self.ModelBar2.addAction(self.actionPy)
+        self.ModelBar2.addAction(self.actionLPy)
+        self.ModelBar2.addAction(self.actionWF)
+        
         
     
     def set_permanent_editor_buttons(self):
@@ -744,12 +810,12 @@ def show_splash_screen():
     
 def main():
     app = qt.QApplication(sys.argv)
-    app.setStyle('windows')
+    app.setStyle('plastique')
     MainW = MainWindow()
-    MainW.resize(1200, 900)
     MainW.show()
     app.exec_()
 
     
 if( __name__ == "__main__"):
     main()
+
