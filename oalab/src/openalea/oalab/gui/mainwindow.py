@@ -1,7 +1,7 @@
 #---------------------------------------------
 # Main Window class
 # 
-# OALab start here with the 'main' function
+# VPlantsLab GUI is create here
 #---------------------------------------------
 
 import sys
@@ -17,7 +17,7 @@ from openalea.oalab.editor.text_editor import LPyCodeEditor as LPyEditor
 from openalea.oalab.editor.text_editor import SelectEditor
 from openalea.oalab.shell.shell import ShellWidget
 from openalea.oalab.shell.interpreter import Interpreter
-from openalea.oalab.gui.project import ProjectManager
+from openalea.oalab.project.project import ProjectManager
 
 
 # sn_logger = get_logger(__name__)
@@ -60,20 +60,29 @@ class MainWindow(qt.QMainWindow):
         self.setCentralWidget(splittable)
         
         # Other widgets
+        # Ressources
+        self.set_ressources_manager()
+        # Packages
+        # self.set_package_manager()
+        
         # control panel
         self.set_control_panel()
         # observation panel
         self.set_observation_panel()
+        # tabify control and observation panels
+        self.tabifyDockWidget(self.controlDockWidget, self.obsDockWidget)
+        
         # shell
         self.set_shell()
+        # log
+        self.set_log()
+        # tabify control and observation panels
+        self.tabifyDockWidget(self.shellDockWidget, self.logDockWidget)
+
         # help
         self.set_help()
-        # Shell and Help
-        # self.splitDockWidget(self.shellDockWidget, self.helpDockWidget, qt.Qt.Horizontal)
-        # Ressources
-        self.set_ressources_manager()
-        # Packages
-        self.set_package_manager()
+
+        
         
         # Status Bar
         self.set_status_bar()
@@ -82,8 +91,8 @@ class MainWindow(qt.QMainWindow):
         self.set_permanent_editor_buttons()
         self.set_model_actions()
         self.set_model_buttons()
-        self.set_model_2_actions()
-        self.set_model_2_buttons()
+        # self.set_model_2_actions()
+        # self.set_model_2_buttons()
         self.set_view_actions()
         self.set_view_buttons()
         
@@ -157,7 +166,7 @@ class MainWindow(qt.QMainWindow):
     def set_virtual_world(self):
     
         imageLabel = qt.QLabel()
-        image = qt.QImage("./resources/arbre2.png")
+        image = qt.QImage("./resources/arbre.png")
         pix = qt.QPixmap()
         pix = pix.fromImage(image)
         imageLabel.setPixmap(pix)
@@ -185,11 +194,17 @@ class MainWindow(qt.QMainWindow):
     #----------------------------------------
     def set_ressources_manager(self):
         # Ressources
-        self.ressManaWid = qt.QTreeWidget()
+        self.ressManaWid = qt.QListWidget()
+        
+        item = qt.QListWidgetItem("Item Tree1", parent=self.ressManaWid)
+        item = qt.QListWidgetItem("Item Leaf 242", parent=self.ressManaWid)
+        item = qt.QListWidgetItem("Item Soil 3", parent=self.ressManaWid)
+        # self.ressManaWid.addItem(item)
+
         self.ressManaWid.setMinimumSize(100, 100)
         self.ressManaWid.setMaximumSize(400, 400)
 
-        self.ressManaDockWidget = qt.QDockWidget("Ressources Manager", self)
+        self.ressManaDockWidget = qt.QDockWidget("Virtual World", self)
         self.ressManaDockWidget.setObjectName("RessMana")
         self.ressManaDockWidget.setAllowedAreas(qt.Qt.LeftDockWidgetArea | qt.Qt.RightDockWidgetArea | qt.Qt.TopDockWidgetArea)
         self.ressManaDockWidget.setWidget(self.ressManaWid)
@@ -237,7 +252,6 @@ class MainWindow(qt.QMainWindow):
         # Help
         self.controlWid = qt.QLineEdit("Modifie a control value")
         self.controlWid.setMinimumSize(150, 150)
-        self.controlWid.setMaximumSize(400, 400)
 
         self.controlDockWidget = qt.QDockWidget("Control Panel", self)
         self.controlDockWidget.setObjectName("ControlPanel")
@@ -254,7 +268,7 @@ class MainWindow(qt.QMainWindow):
         # Help
         self.obsWid = qt.QLabel("number of leafs : 42000")
         self.obsWid.setMinimumSize(150, 150)
-        self.obsWid.setMaximumSize(400, 400)
+        self.obsWid.setMinimumSize(400, 400)
 
         self.obsDockWidget = qt.QDockWidget("Observation Panel", self)
         self.obsDockWidget.setObjectName("ObservationPanel")
@@ -665,7 +679,7 @@ class MainWindow(qt.QMainWindow):
         self.addDockWidget(qt.Qt.BottomDockWidgetArea, self.shellDockWidget)
         
         self.shellwdgt = ShellWidget(self.interpreter)
-        self.shellwdgt.setMinimumSize(150,150)
+        self.shellwdgt.setMinimumSize(700,150)
         self.shellDockWidget.setWidget(self.shellwdgt)
 
     def run(self):
@@ -676,6 +690,21 @@ class MainWindow(qt.QMainWindow):
  
     def get_interpreter(self):
         return self.interpreter
+        
+        
+    #----------------------------------------
+    # Log
+    #----------------------------------------
+    def set_log(self):
+
+        # dock widget => Log
+        self.logDockWidget = qt.QDockWidget("Log", self)
+        self.logDockWidget.setObjectName("Shell")
+        self.logDockWidget.setAllowedAreas(qt.Qt.BottomDockWidgetArea | qt.Qt.TopDockWidgetArea)
+        self.addDockWidget(qt.Qt.BottomDockWidgetArea, self.logDockWidget)
+
+        self.logDockWidget.setMinimumSize(150,150)
+
         
     #----------------------------------------
     # Actions on files
