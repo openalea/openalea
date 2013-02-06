@@ -9,12 +9,15 @@ import os
 
 import qt
 
+from openalea.lpy.gui.lpyview3d import LpyView3D
+
 # from openalea.core.logger import get_logger
 from openalea.visualea.splitterui import SplittableUI
 
 from openalea.oalab.editor.text_editor import PythonCodeEditor as Editor
 from openalea.oalab.editor.text_editor import LPyCodeEditor as LPyEditor
 from openalea.oalab.editor.text_editor import SelectEditor
+# from openalea.oalab.workflow.visualea import WorkflowEditor
 from openalea.oalab.shell.shell import ShellWidget
 from openalea.oalab.shell.interpreter import Interpreter
 from openalea.oalab.project.project import ProjectManager
@@ -54,10 +57,10 @@ class MainWindow(qt.QMainWindow):
         # self.set_central_widget(1,2)
         # central widget
         # self.widList[1]=qt.QWidget()
-        splittable = SplittableUI(parent=self, content=self.widList[0])
-        splittable.splitPane(content=self.widList[1], paneId=0, direction=qt.Qt.Horizontal, amount=0.8)
+        self.splittable = SplittableUI(parent=self, content=self.VW)
+        self.splittable.splitPane(content=self.widList[1], paneId=0, direction=qt.Qt.Horizontal, amount=0.8)
         # splittable.splitPane(content=self.widList[2], paneId=2, direction=qt.Qt.Vertical, amount=0.3)
-        self.setCentralWidget(splittable)
+        self.setCentralWidget(self.splittable)
         
         # Other widgets
         # Ressources
@@ -88,9 +91,9 @@ class MainWindow(qt.QMainWindow):
         self.set_status_bar()
         # Actions bars and buttons
         self.set_editor_actions()
-        self.set_permanent_editor_buttons()
         self.set_model_actions()
         self.set_model_buttons()
+        self.set_permanent_editor_buttons()
         # self.set_model_2_actions()
         # self.set_model_2_buttons()
         self.set_view_actions()
@@ -165,25 +168,25 @@ class MainWindow(qt.QMainWindow):
     #----------------------------------------
     def set_virtual_world(self):
     
-        imageLabel = qt.QLabel()
-        image = qt.QImage("./resources/arbre.png")
-        pix = qt.QPixmap()
-        pix = pix.fromImage(image)
-        imageLabel.setPixmap(pix)
+        view3D = LpyView3D(self)
+        view3D.setObjectName("view3D")
+
+    
+    
+    
+        # imageLabel = qt.QLabel()
+        # image = qt.QImage("./resources/arbre.png")
+        # pix = qt.QPixmap()
+        # pix = pix.fromImage(image)
+        # imageLabel.setPixmap(pix)
         
-        scrollArea = qt.QScrollArea()
-        scrollArea.setBackgroundRole(qt.QPalette.Dark)
-        scrollArea.setWidget(imageLabel)
-        scrollArea.setAlignment(qt.Qt.AlignCenter)
+        # scrollArea = qt.QScrollArea()
+        # scrollArea.setBackgroundRole(qt.QPalette.Dark)
+        # scrollArea.setWidget(imageLabel)
+        # scrollArea.setAlignment(qt.Qt.AlignCenter)
         
-        self.VW = scrollArea
+        self.VW = view3D
         self.VW.setMinimumSize(300, 300)
-        
-        # self.VWDockWidget = qt.QDockWidget("Virtual World", self)
-        # self.VWDockWidget.setObjectName("VW")
-        # self.VWDockWidget.setAllowedAreas(qt.Qt.LeftDockWidgetArea | qt.Qt.RightDockWidgetArea | qt.Qt.TopDockWidgetArea)
-        # self.VWDockWidget.setWidget(self.VW)
-        # self.addDockWidget(qt.Qt.RightDockWidgetArea, self.VWDockWidget) 
         
         self.widList.append(self.VW)
         
@@ -251,7 +254,7 @@ class MainWindow(qt.QMainWindow):
     
         # Help
         self.controlWid = qt.QLineEdit("Modifie a control value")
-        self.controlWid.setMinimumSize(150, 150)
+        self.controlWid.setMinimumSize(50, 50)
 
         self.controlDockWidget = qt.QDockWidget("Control Panel", self)
         self.controlDockWidget.setObjectName("ControlPanel")
@@ -267,8 +270,8 @@ class MainWindow(qt.QMainWindow):
     
         # Help
         self.obsWid = qt.QLabel("number of leafs : 42000")
-        self.obsWid.setMinimumSize(150, 150)
-        self.obsWid.setMinimumSize(400, 400)
+        self.obsWid.setMinimumSize(50, 50)
+        # self.obsWid.setMinimumSize(400, 400)
 
         self.obsDockWidget = qt.QDockWidget("Observation Panel", self)
         self.obsDockWidget.setObjectName("ObservationPanel")
@@ -316,6 +319,11 @@ class MainWindow(qt.QMainWindow):
             self.textEditorContainer.addTab(self.editorWidget, name)
             self.textEditorContainer.setCurrentWidget(self.editorWidget)
             self.setup_new_tab()
+        elif type=='wf':
+            self.editorWidget = Editor(parent=self)
+            self.textEditorContainer.addTab(self.editorWidget, name)
+            self.textEditorContainer.setCurrentWidget(self.editorWidget)
+            self.setup_new_tab()    
 
     
     def show_select_editor(self, name="Select your editor type"):
@@ -467,7 +475,8 @@ class MainWindow(qt.QMainWindow):
         self.ModelBar.setToolButtonStyle(qt.Qt.ToolButtonTextUnderIcon)
         size = qt.QSize(40, 40)
         self.ModelBar.setIconSize(size)
-        self.addToolBar(qt.Qt.TopToolBarArea, self.ModelBar)    
+        self.addToolBar(qt.Qt.TopToolBarArea, self.ModelBar)
+        self.addToolBarBreak()        
         
         icon2_2 = qt.QIcon()
         icon2_2.addPixmap(qt.QPixmap("./resources/new/plant.png"), qt.QIcon.Normal, qt.QIcon.Off)
@@ -532,7 +541,8 @@ class MainWindow(qt.QMainWindow):
         self.CodeBar.setToolButtonStyle(qt.Qt.ToolButtonTextUnderIcon)
         size = qt.QSize(30, 30)
         self.CodeBar.setIconSize(size)
-        self.addToolBar(qt.Qt.RightToolBarArea, self.CodeBar)
+        self.addToolBar(qt.Qt.TopToolBarArea, self.CodeBar)
+        self.addToolBarBreak()
 
         # Shortcuts
         self.actionNew.setShortcut(qt.QApplication.translate("MainWindow", "Ctrl+N", None, qt.QApplication.UnicodeUTF8))
