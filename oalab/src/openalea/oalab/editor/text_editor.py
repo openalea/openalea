@@ -11,9 +11,9 @@ EDITOR = "SCINTILLA"
 EDITOR = "LPY"
 EDITOR = "SPYDER"
 EDITOR = "SCINTILLA"
-LPYEDITOR = "LPY"
-LPYEDITOR = "SPYDER"
 
+LPYEDITOR = "SPYDER"
+LPYEDITOR = "LPY"
 
 PythonCodeEditor = None
 LPyCodeEditor = None
@@ -56,18 +56,18 @@ if LPYEDITOR == "SPYDER":
             
         def get_text(self, start='sof', end='eof'):
             # Return text which is contained in the editor between 'start' and 'end'
-            return super(PythonCodeEditor, self).get_text(start, end)
+            return super(LPyCodeEditor, self).get_text(start, end)
             
         def set_text(self, text):
             # Set the text 'text' in the editor
-            return super(PythonCodeEditor, self).set_text(text)
+            return super(LPyCodeEditor, self).set_text(text)
 
         def set_language(self, language='lpy'):
             # Set the language of the editor
             # 'language' can be 'py', 'lpy' or 'wf'
             # (script python, script l-system, workflow)
             self.language = language
-            super(PythonCodeEditor, self).set_language(language)
+            super(LPyCodeEditor, self).set_language(language)
         
         def get_language(self):
             # Return the language of the editor

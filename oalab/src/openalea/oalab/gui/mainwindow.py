@@ -9,7 +9,7 @@ import os
 
 import qt
 
-from openalea.lpy.gui.lpyview3d import LpyView3D
+from openalea.oalab.scene.oalabview3d import oalabView3D
 
 # from openalea.core.logger import get_logger
 from openalea.visualea.splitterui import SplittableUI
@@ -58,8 +58,9 @@ class MainWindow(qt.QMainWindow):
         # central widget
         # self.widList[1]=qt.QWidget()
         self.splittable = SplittableUI(parent=self, content=self.VW)
-        self.splittable.splitPane(content=self.widList[1], paneId=0, direction=qt.Qt.Horizontal, amount=0.8)
-        # splittable.splitPane(content=self.widList[2], paneId=2, direction=qt.Qt.Vertical, amount=0.3)
+        self.showEditors = False
+        # self.splittable.splitPane(content=self.widList[1], paneId=0, direction=qt.Qt.Horizontal, amount=0.8)
+        
         self.setCentralWidget(self.splittable)
         
         # Other widgets
@@ -151,9 +152,11 @@ class MainWindow(qt.QMainWindow):
 
         
     def set_central_widget11(self):    
-        self.set_central_widget(1,1)
+        if self.showEditors == True:
+            self.hide_editors()
     def set_central_widget12(self):    
-        self.set_central_widget(1,2)
+        if self.showEditors == False:
+            self.show_editors()
     def set_central_widget13(self):    
         self.set_central_widget(1,3)
     def set_central_widget21(self):    
@@ -161,17 +164,34 @@ class MainWindow(qt.QMainWindow):
     def set_central_widget22(self):    
         self.set_central_widget(2,2)
     def set_central_widget23(self):    
-        self.set_central_widget(2,3)    
-        
+        self.set_central_widget(2,3)   
+
+    #----------------------------------------
+    # Show / Hide editors
+    #----------------------------------------
+    def show_hide_editors(self):    
+        if self.showEditors == False:
+            self.show_editors()
+        else:
+            self.hide_editors()
+            
+    def show_editors(self):
+        self.splittable.splitPane(content=self.widList[1], paneId=0, direction=qt.Qt.Horizontal, amount=0.8)
+        self.showEditors = True
+            
+    def hide_editors(self):
+        self.splittable.collapsePane(paneId=0)
+        self.showEditors = False
+            
     #----------------------------------------
     # Setup Virtual World
     #----------------------------------------
     def set_virtual_world(self):
     
-        view3D = LpyView3D(self)
+        view3D = oalabView3D(parent=self)
         view3D.setObjectName("view3D")
-
-    
+        
+        view3D.start()    
     
     
         # imageLabel = qt.QLabel()
@@ -416,6 +436,7 @@ class MainWindow(qt.QMainWindow):
         self.action21 = qt.QAction(self)
         self.action22 = qt.QAction(self)
         self.action23 = qt.QAction(self)
+        self.actionEditors = qt.QAction(self)
         
         # Set title of buttons
         self.action11.setText(qt.QApplication.translate("MainWindow", "1 block", None, qt.QApplication.UnicodeUTF8))
@@ -424,7 +445,7 @@ class MainWindow(qt.QMainWindow):
         self.action21.setText(qt.QApplication.translate("MainWindow", "grid 2x1", None, qt.QApplication.UnicodeUTF8))
         self.action22.setText(qt.QApplication.translate("MainWindow", "grid 2x2", None, qt.QApplication.UnicodeUTF8))
         self.action23.setText(qt.QApplication.translate("MainWindow", "grid 2x3", None, qt.QApplication.UnicodeUTF8))
-
+        self.actionEditors.setText(qt.QApplication.translate("MainWindow", "show/hide editors", None, qt.QApplication.UnicodeUTF8))
     
     def set_view_buttons(self):
         self.ViewBar = qt.QToolBar(self)
@@ -451,6 +472,10 @@ class MainWindow(qt.QMainWindow):
         icon8 = qt.QIcon()
         icon8.addPixmap(qt.QPixmap("./resources/new/square23.png"), qt.QIcon.Normal, qt.QIcon.Off)
         self.action23.setIcon(icon8)
+        icon9 = qt.QIcon()
+        icon9.addPixmap(qt.QPixmap("./resources/book.png"), qt.QIcon.Normal, qt.QIcon.Off)
+        self.actionEditors.setIcon(icon9)
+        
 
         # connect actions to buttons
         qt.QObject.connect(self.action11, qt.SIGNAL('triggered(bool)'),self.set_central_widget11)
@@ -459,16 +484,18 @@ class MainWindow(qt.QMainWindow):
         qt.QObject.connect(self.action21, qt.SIGNAL('triggered(bool)'),self.set_central_widget21)
         qt.QObject.connect(self.action22, qt.SIGNAL('triggered(bool)'),self.set_central_widget22)         
         qt.QObject.connect(self.action23, qt.SIGNAL('triggered(bool)'),self.set_central_widget23)         
+        qt.QObject.connect(self.actionEditors, qt.SIGNAL('triggered(bool)'),self.show_hide_editors)    
         
         self.ViewBar.addAction(self.action11)
         self.ViewBar.addSeparator()
         self.ViewBar.addAction(self.action12)
-        self.ViewBar.addAction(self.action13)
+        # self.ViewBar.addAction(self.action13)
+        # self.ViewBar.addSeparator()
+        # self.ViewBar.addAction(self.action21)
+        # self.ViewBar.addAction(self.action22)
+        # self.ViewBar.addAction(self.action23)
         self.ViewBar.addSeparator()
-        self.ViewBar.addAction(self.action21)
-        self.ViewBar.addAction(self.action22)
-        self.ViewBar.addAction(self.action23)
-    
+        self.ViewBar.addAction(self.actionEditors)
     
     def set_model_buttons(self):
         self.ModelBar = qt.QToolBar(self)
