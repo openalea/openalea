@@ -124,7 +124,7 @@ def wall_voxels_between_two_cells(image, label_1, label_2, bbox = None):
     mask_img_1 = (dilated_bbox_img == label_1)
     mask_img_2 = (dilated_bbox_img == label_2)
 
-    struct = nd.generate_binary_structure(3, 1)
+    struct = nd.generate_binary_structure(3, 2)
     dil_1 = nd.binary_dilation(mask_img_1, structure=struct)
     dil_2 = nd.binary_dilation(mask_img_2, structure=struct)
     x,y,z = np.where( ( (dil_1 & mask_img_2) | (dil_2 & mask_img_1) ) == 1 )
@@ -132,7 +132,7 @@ def wall_voxels_between_two_cells(image, label_1, label_2, bbox = None):
     return np.array( (x+dilated_bbox[0].start, y+dilated_bbox[1].start, z+dilated_bbox[2].start) )
 
 
-def walls_voxels_per_cell(image, label_1, bbox = None, neighbors = None, verbose = False):
+def walls_voxels_per_cell(image, label_1, bbox = None, neighbors = None, neighbors2ignore = None ):
     """
     Return the voxels coordinates of all walls from one cell. 
     There must be a contact defined between two labels, the given one and its neighbors.
@@ -142,6 +142,7 @@ def walls_voxels_per_cell(image, label_1, bbox = None, neighbors = None, verbose
     :Return:
      - `coord` (dict): *keys= [min(labels_1,neighbors[n]), max(labels_1,neighbors[n])]; *values= xyz 3xN array.
     """
+    # -- We use the bounding box to work faster (on a smaller image)
     if isinstance(bbox,dict):
         boundingbox = bbox(label_1)
     elif isinstance(bbox,tuple) and isinstance(bbox[0],slice):
@@ -149,15 +150,15 @@ def walls_voxels_per_cell(image, label_1, bbox = None, neighbors = None, verbose
     elif bbox is None:
         bbox = nd.find_objects( image, max_label = label_1 )
         boundingbox = bbox[-1]
-
     dilated_bbox = dilation(dilation( boundingbox ))
     dilated_bbox_img = image[dilated_bbox]
 
+    # -- Binary mask saying where the label_1 can be found on the image.
     mask_img_1 = (dilated_bbox_img == label_1)
-    #~ struct = nd.generate_binary_structure(3, 1)
-    #~ dil_1 = nd.binary_dilation(mask_img_1, structure=struct)
-    dil_1 = nd.binary_dilation(mask_img_1)
+    struct = nd.generate_binary_structure(3, 2)
+    dil_1 = nd.binary_dilation(mask_img_1, structure=struct)
 
+    # -- We edit the neighbors list as required:
     if neighbors is None:
         neighbors = np.unique(dilated_bbox_img)
         neighbors.remove(label_1)
@@ -166,22 +167,24 @@ def walls_voxels_per_cell(image, label_1, bbox = None, neighbors = None, verbose
         neighbors = [neighbors]
 
     coord = {}
-    for n,label_2 in enumerate(neighbors):
-        if verbose and n%2==0: print n,'/',len_neighbors
-        #~ if label_1 == 1:
-            #~ dilated_bbox_2 = dilation( self.boundingbox(label_2) )
-            #~ x,y,z = np.where( self.image[dilated_bbox_2]*dil_1[dilated_bbox_2] == label_2 )
-            #~ coord[1,label_2]=np.array((x+dilated_bbox_2[0].start,y+dilated_bbox_2[1].start,z+dilated_bbox_2[2].start))
-        #~ else:
-            #~ mask_img_2 = (dilated_bbox_img == label_2)
-            #~ dil_2 = nd.binary_dilation(mask_img_2, structure=struct)
-            #~ x,y,z = np.where( ( (dil_1 & mask_img_2) | (dil_2 & mask_img_1) ) == 1 )
-            #~ coord[min(label_1,label_2),max(label_1,label_2)]=np.array((x+dilated_bbox[0].start,y+dilated_bbox[1].start,z+dilated_bbox[2].start))
+    for label_2 in neighbors:
+        # -- Binary mask saying where the label_2 can be found on the image.
         mask_img_2 = (dilated_bbox_img == label_2)
-        #~ dil_2 = nd.binary_dilation(mask_img_2, structure=struct)
-        dil_2 = nd.binary_dilation(mask_img_2)
+        dil_2 = nd.binary_dilation(mask_img_2, structure=struct)
+        # -- We now intersect the two dilated binary mask to find the voxels defining the contact area between two objects:
         x,y,z = np.where( ( (dil_1 & mask_img_2) | (dil_2 & mask_img_1) ) == 1 )
-        coord[min(label_1,label_2),max(label_1,label_2)]=np.array((x+dilated_bbox[0].start,y+dilated_bbox[1].start,z+dilated_bbox[2].start))
+        if x != []:
+            if label_2 not in neighbors2ignore:
+                coord[min(label_1,label_2),max(label_1,label_2)] = np.array((x+dilated_bbox[0].start, y+dilated_bbox[1].start, z+dilated_bbox[2].start))
+            else: # in case we want to ignore the specific position of some neighbors we replace its id by '0':
+                if not coord.has_key((0,label_1)):
+                    coord[(0,label_1)] = np.array((x+dilated_bbox[0].start, y+dilated_bbox[1].start, z+dilated_bbox[2].start))
+                else:
+                    coord[(0,label_1)][0].extend( x+dilated_bbox[0].start )
+                    coord[(0,label_1)][1].extend( y+dilated_bbox[1].start )
+                    coord[(0,label_1)][2].extend( z+dilated_bbox[2].start )
+        else:
+            print "Couldn't find a contact between neighbor cells %d" % label_1, "& %d" % label_2
 
     return coord
 
@@ -236,7 +239,7 @@ def cell_vertex_extraction(image, hollow_out = True, verbose = False):
         if verbose and n%20000 == 0:
             print n,'/',dim
         i, j, k = x[n], y[n], z[n]
-        sub_image = image[(i-1):(i+2),(j-1):(j+2),(k-1):(k+2)] # we generate a sub_image-matrix...
+        sub_image = image[(i-1):(i+2),(j-1):(j+2),(k-1):(k+2)] # we extract a sub part of the matrix...
         sub_image = tuple(np.unique(sub_image))
         # -- Now we detect voxels defining cells' vertices.
         if ( len(sub_image) == 4 ): # ...in which we search for 4 different labels
@@ -251,34 +254,6 @@ def cell_vertex_extraction(image, hollow_out = True, verbose = False):
     if verbose: print 'Done !!'
 
     return barycentric_vtx
-
-
-def cells_vertices_relations(cells2coord):
-    """
-    Creates vtx2cells, vtx2coord & cell2vertices dictionaries.
-    
-    :INPUT:
-    - `cells2coord` (dict) *keys=the 4 cells ids at the vertex position ; *values=3D coordinates of the vertex in the Spatial Image.
-    
-    :OUPTUTS:
-    - `vtx2cells` (dict) - *keys= vertex NEW id ; *values= ids of the 4 associated cells.
-    - `vtx2coord` (dict) - *keys= vertex NEW id ; *values= 3D coordinates of the vertex in the SpatialImage.
-    - `cell2vertices` (dict) - *keys= cell id ; *values= ids of the vertices defining the cell.
-    """
-    vtx2cells = {} #associated cells to each vertex;
-    cell2vertices = {} #associated vertex to each cells;
-    vtx2coord = {}
-    for n, i in enumerate(cells2coord.keys()):
-        vtx2cells[n] = list(i)
-        vtx2coord[n] = list(cells2coord[i])
-        for j in list(i):
-            #check if cell j is already in the dict
-            if cell2vertices.has_key(j): 
-                cell2vertices[j] = cell2vertices[j]+[n] #if true, keep the previous entry (vertex)and give the value of the associated vertex
-            else:
-                cell2vertices[j] = [n] #if false, create a new one and give the value of the associated vertex
-    #~ del(cell2vertices[1]) #cell #1 doesn't really exist...
-    return vtx2cells, vtx2coord, cell2vertices
 
 
 #~ def OLS_wall(xyz):
@@ -344,7 +319,7 @@ class AbstractSpatialImageAnalysis(object):
     (cells volume...) and the neighborhood structure (also the shared surface area of two neighboring cells).
     """
     
-    def __init__(self, image, ignoredlabels = [], return_type = NPLIST):
+    def __init__(self, image, ignoredlabels = [], return_type = NPLIST, background = 1):
         """
         ..warning :: Label features in the images are an arithmetic progression of continous integers.
         
@@ -355,12 +330,23 @@ class AbstractSpatialImageAnalysis(object):
         else:
             self.image = image
 
+        # -- Sounds a bit paranoiac but usefull !!
+        if not isinstance(background,int):
+            warnings.warn("The label you provided as background is not an integer !")
+            return None
+
+        if background not in self.image:
+            warnings.warn("The label you provided as background has not been detected in the image !")
+            return None
+
         # -- We use this to avoid (when possible) computation of properties on background and other cells (ex: cell in image margins)
         if isinstance(ignoredlabels, int):
             ignoredlabels = [ignoredlabels]
-        self._ignoredlabels = set(ignoredlabels) 
+        self._ignoredlabels = set(ignoredlabels)
+        self._ignoredlabels.update([background])
 
         # -- Variables for caching information:
+        self._background = background
         self._labels = None
         self._bbox = None
         self._kernels = None
@@ -378,7 +364,10 @@ class AbstractSpatialImageAnalysis(object):
 
     def is3D(self): return False
 
+    def background(self): return self._background
 
+    def ignoredlabels(self): return self._ignoredlabels
+    
     def add2ignoredlabels(self, list2add, verbose = False):
         """
         Add labels to the ignoredlabels list (set) and update the self._labels cache.
@@ -391,22 +380,17 @@ class AbstractSpatialImageAnalysis(object):
         if verbose: print 'Updating labels list...'
         self._labels = self.__labels()
 
-    def ignoredlabels(self):
-        """"
-        Function returning the ignoredlabels.
-        """
-        return self._ignoredlabels
 
     def save(self, filename = ""):
         """
-        Save an 'analysis' object, under the name 'name'. One can choose to keep only ceretains attributes.
+        Save a 'SpatialImageAnalysis' object, under the name 'filename'.
         
         :Parameters:
          - `filename` (str) - name of the file to create WITHOUT extension.
         """
 
         # If no filename is given, we create one based on the name of the SpatialImage (if possible).
-        if ( filename == "" ) and ( self.filename != None ):
+        if ( filename == "" ) and ( self.filename != None ): # None is the default value in self.__init__
             filename = self.filename
             if filename.endswith(".inr.gz"):
                 filename = filename[:-7]
@@ -476,7 +460,10 @@ class AbstractSpatialImageAnalysis(object):
         return self._labels
 
     def __labels(self):
-        """ Compute the actual list of labels """
+        """
+        Compute the actual list of labels.
+        :IMPORTANT: `background` is not in the list of labels.
+        """
         labels = set(np.unique(self.image))-self._ignoredlabels
         integers = np.vectorize(lambda x : int(x))
         return integers(list(labels)).tolist()
@@ -875,7 +862,7 @@ class AbstractSpatialImageAnalysis(object):
         return self._first_voxel_layer
 
 
-    def wall_normal_orientation(self, labels=None, fitting_degree=2, dimensionality=3, labels2avoid = None, background = 1):
+    def wall_voxels_per_cells_pairs(self, labels=None, dimensionality=3, labels2avoid = None, background = 1):
         """
         Compute wall orientation according to fitting degree and dimensionality.
         :WARNING: if dimensionality = 2, only the cells belonging to the outer layer of the object will be used.
@@ -900,6 +887,8 @@ class AbstractSpatialImageAnalysis(object):
 
         if labels2avoid is not None:
             labels = list( set(labels)-set(labels2avoid) )
+        else:
+            labels2avoid = []
 
         dict_wall_voxels = {}
         for label in labels:
@@ -910,31 +899,49 @@ class AbstractSpatialImageAnalysis(object):
                     nei.remove(n)
             ## If there are neighbors left in the list, we extract the voxels separating them from `label`:
             if nei != []:
-                dict_wall_voxels.update(walls_voxels_per_cell(image, label, self.boundingbox(label), nei))
+                dict_wall_voxels.update(walls_voxels_per_cell(image, label, self.boundingbox(label), nei, neighbors2ignore = labels2avoid))
 
+        return dict_wall_voxels
+
+    def wall_normal_orientation(self, dict_wall_voxels, fitting_degree = 2, dimensionality = 3, labels2avoid = None, dict_coord_points_ori = None, background = 1):
+        """
+        Compute wall orientation according to fitting degree and dimensionality.
+        :WARNING: if dimensionality = 2, only the cells belonging to the outer layer of the object will be used.
+        """
+        integers = np.vectorize(lambda x : int(x))
+
+        pc_values, pc_normal, pc_directions, pc_origin = {},{},{},{} 
         if dimensionality == 3:
             ## For each 3D points set of coordinates (defining a wall), we will fit a "plane":
             for wall in dict_wall_voxels:
                 x, y, z = dict_wall_voxels[wall] # the points set
                 ## We need to find an origin: the closest point in set set from the geometric median
                 # compute geometric median:
-                neighborhood_origin = geometric_median( np.array([list(x),list(y),list(z)]) )
-                integers = np.vectorize(lambda x : int(x))
-                neighborhood_origin = integers(neighborhood_origin)
-                # closest points:
-                pts = [tuple([int(x[i]),int(y[i]),int(z[i])]) for i in xrange(len(x))]
-                min_dist = closest_from_A(neighborhood_origin, pts)
-                id_min_dist = pts.index(min_dist)
-                # we create a grid of adjacencies between the points
-                adjacencies = k_closest_points_from_ann(pts, k=10)
-                ## We can now compute the curvature values, direction, normal and origin (Monge):
-                pc = principal_curvatures(pts, id_min_dist, adjacencies, fitting_degree, 2)
-                principal_curvatures[wall] = [pc[1][1], pc[2][1]]
-                principal_curvatures_normal[wall] = pc[3]
-                principal_curvatures_directions[wall] = [pc[1][0], pc[2][0]]
-                principal_curvatures_origin[wall] = pc[0]
+                try:
+                    closest_voxel_coords = dict_coord_points_ori[wall]
+                except:
+                    neighborhood_origin = geometric_median( np.array([list(x),list(y),list(z)]) )
+                    neighborhood_origin = integers(neighborhood_origin)
+                    # closest points:
+                    pts = [tuple([int(x[i]),int(y[i]),int(z[i])]) for i in xrange(len(x))]
+                    closest_voxel_coords = closest_from_A(neighborhood_origin, pts)
+                    id_min_dist = pts.index(closest_voxel_coords)
+                else:
+                    pts = [tuple([int(x[i]),int(y[i]),int(z[i])]) for i in xrange(len(x))]
+                    id_min_dist = pts.index(closest_voxel_coords)
 
-        return dict_wall_voxels, principal_curvatures, principal_curvatures_normal, principal_curvatures_directions, principal_curvatures_origin
+                ## We can now compute the curvature values, direction, normal and origin (Monge):
+                pc = principal_curvatures(pts, id_min_dist, range(len(x)), fitting_degree, 2)
+                pc_values[wall] = [pc[1][1], pc[2][1]]
+                pc_normal[wall] = pc[3]
+                pc_directions[wall] = [pc[1][0], pc[2][0]]
+                pc_origin[wall] = pc[0]
+
+        if dimensionality == 2:
+            print 'Not done yet...'
+            return None
+
+        return pc_values, pc_normal, pc_directions, pc_origin
 
     def inertia_axis_normal_to_surface(self, labels=None, center_of_mass=None, inertia_axis=None, real=False, verbose=True):
         """
@@ -1059,8 +1066,8 @@ class SpatialImageAnalysis2D (AbstractSpatialImageAnalysis):
     Class dedicated to 2D objects.
     """
     
-    def __init__(self, image, ignoredlabels = [], return_type = NPLIST):
-        AbstractSpatialImageAnalysis.__init__(self, image, ignoredlabels, return_type)
+    def __init__(self, image, ignoredlabels = [], return_type = NPLIST, background = 1):
+        AbstractSpatialImageAnalysis.__init__(self, image, ignoredlabels, return_type, background)
 
 
     def cells_in_image_margins(self):
@@ -1142,8 +1149,8 @@ class SpatialImageAnalysis3DS (AbstractSpatialImageAnalysis):
     Only one layer of voxel is extracted (representing the external envelope of the biological object to analyse).
     """
     
-    def __init__(self, image, ignoredlabels = [], return_type = NPLIST):
-        AbstractSpatialImageAnalysis.__init__(self, image, ignoredlabels, return_type)
+    def __init__(self, image, ignoredlabels = [], return_type = NPLIST, background = 1):
+        AbstractSpatialImageAnalysis.__init__(self, image, ignoredlabels, return_type, background)
 
 
 
@@ -1152,8 +1159,8 @@ class SpatialImageAnalysis3D(AbstractSpatialImageAnalysis):
     Class dedicated to 3D objects.
     """
 
-    def __init__(self, image, ignoredlabels = [], return_type = NPLIST):
-        AbstractSpatialImageAnalysis.__init__(self, image, ignoredlabels, return_type)
+    def __init__(self, image, ignoredlabels = [], return_type = NPLIST, background = 1):
+        AbstractSpatialImageAnalysis.__init__(self, image, ignoredlabels, return_type, background)
         self._first_voxel_layer = None
         self.principal_curvatures = {}
         self.principal_curvatures_normal = {}
@@ -1417,7 +1424,7 @@ class SpatialImageAnalysis3D(AbstractSpatialImageAnalysis):
             #~ neigbor_pts.append(pts[i])
 
         #~ pc = principal_curvatures(pts,id_min_dist,neigborids)
-        pc = principal_curvatures(pts,id_min_dist,neigborids, fitting_degree, monge_degree)
+        pc = principal_curvatures(pts, id_min_dist, neigborids, fitting_degree, monge_degree)
         k1 = pc[1][1]
         k2 = pc[2][1]
         self.principal_curvatures[vid] = [k1, k2]
@@ -1494,19 +1501,6 @@ class SpatialImageAnalysis3D(AbstractSpatialImageAnalysis):
         return float(self.principal_curvatures[vid][0] - self.principal_curvatures[vid][1])/float(self.principal_curvatures[vid][0] + self.principal_curvatures[vid][1])
 
 
-    def wall_orientation(self, vids=None, external=False, proj_2D=False, return_inertia_tensors=False, real=False, verbose = False):
-        """
-        Compute anisotropy from inertia axis length. 
-        
-        :Parameters:
-         - vids (list): list of ids, if None, will compute orientation for all walls.
-         - external (bool): if True, only the first layer of voxel will be used to compute the orientation of the walls.
-        """
-        if vids is None:
-            vids = self.layer1()
-
-        (min(label_1,label_2),max(label_1,label_2))
-    
     def cell_shape_anisotropy(self, vids=None, external=False, proj_2D=False, return_inertia_tensors=False, real=False, verbose = False):
         """
         Compute anisotropy from inertia axis length. 
@@ -1667,7 +1661,6 @@ def outliers_exclusion( data, std_multiplier = 3, display_data_plot = False):
     Outliers are detected according to a distance from standard deviation.
     """
     from numpy import std,mean
-    import copy
     tmp = copy.deepcopy(data)
     if isinstance(data,list):
         borne = mean(tmp) + std_multiplier*std(tmp)
@@ -1712,7 +1705,7 @@ def vector_correlation(vect1,vect2):
     return np.round(np.dot(vect1,vect2),3)
 
 
-def geometric_median(X, numIter = 100):
+def geometric_median(X, numIter = 200):
     """
     Compute the geometric medians of cells according to the coordinates of their voxels.
     The geometric medians coordinates will be expressed in the Spatial Image reference system (not in real world metrics).
@@ -1758,7 +1751,7 @@ def geometric_median(X, numIter = 100):
     if i == numIter:
         warnings.warn( "The Weiszfeld's algoritm did not converged after"+str(numIter)+"iterations !!!!!!!!!" )
         warnings.warn( "Remaining distance: "+str(abs(dist[i-1]-dist[i-3])) )
-        pass
+        return None
     #When convergence or iterations limit is reached we assume that we found the median.
 
     return np.array(y)
