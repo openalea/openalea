@@ -10,6 +10,7 @@ import os
 import qt
 
 from openalea.oalab.scene.oalabview3d import oalabView3D
+from openalea.oalab.history.history import History
 
 # from openalea.core.logger import get_logger
 from openalea.visualea.splitterui import SplittableUI
@@ -189,23 +190,12 @@ class MainWindow(qt.QMainWindow):
     # Setup Virtual World
     #----------------------------------------
     def set_virtual_world(self):
+        self.history = History()
     
         view3D = oalabView3D(parent=self)
         view3D.setObjectName("view3D")
         
         view3D.start()    
-    
-    
-        # imageLabel = qt.QLabel()
-        # image = qt.QImage("./resources/arbre.png")
-        # pix = qt.QPixmap()
-        # pix = pix.fromImage(image)
-        # imageLabel.setPixmap(pix)
-        
-        # scrollArea = qt.QScrollArea()
-        # scrollArea.setBackgroundRole(qt.QPalette.Dark)
-        # scrollArea.setWidget(imageLabel)
-        # scrollArea.setAlignment(qt.Qt.AlignCenter)
         
         self.VW = view3D
         self.VW.setMinimumSize(300, 300)
@@ -214,10 +204,18 @@ class MainWindow(qt.QMainWindow):
         
         self.add_widget(self.VW)
         
+        # Connect the scene3D (self.VW) to the history list (self.history)
+        self.actionHistoryList = qt.QAction(self)
+        qt.QObject.connect(self.history.obj, qt.SIGNAL('HistoryChanged'),self.VW.setScene)
+        qt.QObject.connect(self.history.obj, qt.SIGNAL('HistoryChanged'),self.update_ressources_manager)
+        
     def addSphere(self):
-        from openalea.plantgl.all import *
+        from openalea.plantgl.all import Sphere
         sphere = Sphere()
-        self.VW.addToScene(sphere)
+        self.history.append(sphere)
+        # self.VW.addToScene(sphere)
+        
+  
         
     #----------------------------------------
     # Setup Ressources Manager Dock Widget
@@ -225,10 +223,10 @@ class MainWindow(qt.QMainWindow):
     def set_ressources_manager(self):
         # Ressources
         self.ressManaWid = qt.QListWidget()
-        
-        item = qt.QListWidgetItem("Item Tree1", parent=self.ressManaWid)
-        item = qt.QListWidgetItem("Item Leaf 242", parent=self.ressManaWid)
-        item = qt.QListWidgetItem("Item Soil 3", parent=self.ressManaWid)
+               
+        # item = qt.QListWidgetItem("Item Tree1", parent=self.ressManaWid)
+        # item = qt.QListWidgetItem("Item Leaf 242", parent=self.ressManaWid)
+        # item = qt.QListWidgetItem("Item Soil 3", parent=self.ressManaWid)
         # self.ressManaWid.addItem(item)
 
         self.ressManaWid.setMinimumSize(100, 100)
@@ -240,6 +238,22 @@ class MainWindow(qt.QMainWindow):
         self.ressManaDockWidget.setWidget(self.ressManaWid)
         self.addDockWidget(qt.Qt.LeftDockWidgetArea, self.ressManaDockWidget) 
         
+        hist = self.history.getHistory()
+        self.update_ressources_manager(hist)
+        
+    def reset_ressources_manager(self):
+        self.ressManaWid.clear()
+        
+    def update_ressources_manager(self, scene):
+        self.reset_ressources_manager()
+        for h in scene:
+            cla = str(h.__class__)
+            name = cla.split(".")
+            name = name[len(cla.split("."))-1]
+            name = name.split("'")[0]
+            item = qt.QListWidgetItem(name, parent=self.ressManaWid)
+    
+    
     #----------------------------------------
     # Setup Package Manager Dock Widget
     #----------------------------------------
