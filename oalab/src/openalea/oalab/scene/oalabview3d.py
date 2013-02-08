@@ -1,11 +1,15 @@
 from openalea.oalab.gui import qt
 from openalea.plantgl.all import *
-from PyQGLViewer import QGLViewer
+# from PyQGLViewer import QGLViewer, Vec
+from PyQGLViewer import *
 
 
 class oalabView3D (QGLViewer):
     def __init__(self,parent=None,scene=None,statefilename='.temp_scene.xml'):
         QGLViewer.__init__(self,parent)
+        
+        self.setAxisIsDrawn()
+        self.setGridIsDrawn()
         
         if scene == None:
             scene = self.defaultScene()
@@ -13,8 +17,27 @@ class oalabView3D (QGLViewer):
         
         self.setStateFileName(statefilename)
         self.connect(self,qt.SIGNAL("drawNeeded()"),self.draw)
+        
+        position = Vec(0.0,-1.0,0.1)
+        self.camera().setPosition(position)
+        self.camera().lookAt(self.sceneCenter())
+        self.camera().setSceneRadius(5)
 
-       
+        # self.camera().setType(Camera.ORTHOGRAPHIC)
+        self.camera().showEntireScene()
+
+    def setScene(self, scene):
+        self.scene=scene
+        self.draw()
+        
+    def getScene(self):
+        return self.scene
+        
+    def addToScene(self, add):
+        scene = self.getScene()
+        scene += add
+        self.setScene(scene)
+    
     def draw(self):
         d = Discretizer()
         gl = GLRenderer(d)

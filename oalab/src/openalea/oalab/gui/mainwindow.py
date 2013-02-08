@@ -33,10 +33,12 @@ class MainWindow(qt.QMainWindow):
         # -- show the splash screen --
         self.splash = show_splash_screen()   
         
+        self.showEditors = False
+        
         # self.logger = sn_logger
         
         # window title and icon
-        self.setWindowTitle("Open Alea Virtual Laboratory")
+        self.setWindowTitle("Virtual Plants Laboratory")
         self.setWindowIcon(qt.QIcon("./resources/openalea_icon2.png"))
         
         self.setAttribute(qt.Qt.WA_DeleteOnClose)
@@ -51,14 +53,12 @@ class MainWindow(qt.QMainWindow):
         # Central widgets
         # Virtual World
         self.set_virtual_world()
-        # editor
-        self.set_text_editor_container()
-        
-        # self.set_central_widget(1,2)
-        # central widget
         # self.widList[1]=qt.QWidget()
         self.splittable = SplittableUI(parent=self, content=self.VW)
-        self.showEditors = False
+        # editor
+        self.set_text_editor_container()
+        self.hide_editors()
+        
         # self.splittable.splitPane(content=self.widList[1], paneId=0, direction=qt.Qt.Horizontal, amount=0.8)
         
         self.setCentralWidget(self.splittable)
@@ -176,12 +176,14 @@ class MainWindow(qt.QMainWindow):
             self.hide_editors()
             
     def show_editors(self):
-        self.splittable.splitPane(content=self.widList[1], paneId=0, direction=qt.Qt.Horizontal, amount=0.8)
-        self.showEditors = True
+        if self.showEditors == False:
+            self.splittable.splitPane(content=self.widList[1], paneId=0, direction=qt.Qt.Horizontal, amount=0.8)
+            self.showEditors = True
             
     def hide_editors(self):
-        self.splittable.collapsePane(paneId=0)
-        self.showEditors = False
+        if self.showEditors == True:
+            self.splittable.collapsePane(paneId=0)
+            self.showEditors = False
             
     #----------------------------------------
     # Setup Virtual World
@@ -211,6 +213,11 @@ class MainWindow(qt.QMainWindow):
         self.widList.append(self.VW)
         
         self.add_widget(self.VW)
+        
+    def addSphere(self):
+        from openalea.plantgl.all import *
+        sphere = Sphere()
+        self.VW.addToScene(sphere)
         
     #----------------------------------------
     # Setup Ressources Manager Dock Widget
@@ -271,9 +278,8 @@ class MainWindow(qt.QMainWindow):
     # Setup Control Panel Dock Widget
     #----------------------------------------
     def set_control_panel(self):
-    
-        # Help
-        self.controlWid = qt.QLineEdit("Modifie a control value")
+        self.controlWid = qt.QTabWidget()
+        self.controlWid.setTabsClosable(True)
         self.controlWid.setMinimumSize(50, 50)
 
         self.controlDockWidget = qt.QDockWidget("Control Panel", self)
@@ -282,6 +288,12 @@ class MainWindow(qt.QMainWindow):
         self.controlDockWidget.setWidget(self.controlWid)
         self.addDockWidget(qt.Qt.BottomDockWidgetArea, self.controlDockWidget)       
     
+    def set_controls_from_editor(self, editor):
+        control = editor.get_widgets_controls()
+        for c in control:
+            name = ('control %i' %(self.controlWid.count()+1))
+            self.controlWid.addTab(c(parent=self), name)
+
     
     #----------------------------------------
     # Setup Observation Panel Dock Widget
@@ -313,7 +325,6 @@ class MainWindow(qt.QMainWindow):
         self.textEditorContainer.current_path_and_fname = [None]
         self.textEditorContainer.current_path = [None]
         self.textEditorContainer.setTabsClosable(True)
-        self.new()
         self.textEditorContainer.setMinimumSize(250, 250)
         
         # editorsDockWidget = qt.QDockWidget("Editors", self)
@@ -323,7 +334,7 @@ class MainWindow(qt.QMainWindow):
         # self.addDockWidget(qt.Qt.RightDockWidgetArea, editorsDockWidget)
         
         self.widList.append(self.textEditorContainer)
-        
+        self.new()
                
     def new_text_editor(self, name="NewFile", type="py"):
         # central widget => Editor
@@ -339,11 +350,13 @@ class MainWindow(qt.QMainWindow):
             self.textEditorContainer.addTab(self.editorWidget, name)
             self.textEditorContainer.setCurrentWidget(self.editorWidget)
             self.setup_new_tab()
+            self.set_controls_from_editor(self.editorWidget)
         elif type=='wf':
             self.editorWidget = Editor(parent=self)
             self.textEditorContainer.addTab(self.editorWidget, name)
             self.textEditorContainer.setCurrentWidget(self.editorWidget)
             self.setup_new_tab()    
+            self.set_controls_from_editor(LPyEditor())
 
     
     def show_select_editor(self, name="Select your editor type"):
@@ -536,6 +549,7 @@ class MainWindow(qt.QMainWindow):
         # qt.QObject.connect(self.actionPlay, qt.SIGNAL('triggered(bool)'),self.play) 
         # qt.QObject.connect(self.actionGlobalWorkflow, qt.SIGNAL('triggered(bool)'),self.globalWorkflow) 
         
+        qt.QObject.connect(self.actionSoil, qt.SIGNAL('triggered(bool)'),self.addSphere)
         self.ModelBar.addAction(self.actionAddPlant)
         self.ModelBar.addAction(self.actionPlantGrowing)
         self.ModelBar.addSeparator()
@@ -747,9 +761,11 @@ class MainWindow(qt.QMainWindow):
     # Actions on files
     #----------------------------------------
     def new(self):
+        self.show_editors()
         self.show_select_editor()
     
     def open(self, fname=None):
+        self.show_editors()
         try:
             try:
                 old_id = self.textEditorContainer.currentWidget().ID

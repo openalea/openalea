@@ -74,6 +74,9 @@ if LPYEDITOR == "SPYDER":
             # 'language' can be 'py', 'lpy' or 'wf'
             # (script python, script l-system, workflow)
             return self.language
+            
+        def get_widgets_controls(self):
+            pass
     '''
     ----QPlainTextEdit----
     doc.qt.digia.com: QPlainText uses very much the same technology and concepts as QTextEdit,
@@ -94,9 +97,12 @@ elif LPYEDITOR == "LPY":
             super(LPyCodeEditor, self).__init__(parent)
             self.set_name('LPyEditor')
             self.set_language('lpy')
+            from openalea.lpy.gui.lpystudio import LPyWindow
+            self.initWithEditor(LPyWindow())
             self.setup()     
 
         def setup(self):
+            
             # ErrorMarker,BreakPointMarker,CodePointMarker = range(3)
             self.sidebar = Margin(self,self)
             # self.sidebar.setGeometry(0,0,50,100)
@@ -137,7 +143,16 @@ elif LPYEDITOR == "LPY":
             menuPython.setTitle(qt.QApplication.translate("MainWindow", "LPy scripts", None, qt.QApplication.UnicodeUTF8))
             menuPython.setObjectName("menuPython")
             menuPython.addAction(actions)
-            return menuPython.menuAction()    
+            return menuPython.menuAction()
+
+        def get_widgets_controls(self):
+            from openalea.lpy.gui.materialeditor import MaterialPanelWidget
+            from openalea.lpy.gui.scalareditor import ScalarEditor
+            controls = [MaterialPanelWidget,ScalarEditor]
+            return controls
+        
+        def get_engine(self):
+            pass
     '''
     ----QTextEdit----
     - syntax coloring
