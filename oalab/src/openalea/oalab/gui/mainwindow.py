@@ -209,28 +209,95 @@ class MainWindow(qt.QMainWindow):
         qt.QObject.connect(self.history.obj, qt.SIGNAL('HistoryChanged'),self.VW.setScene)
         qt.QObject.connect(self.history.obj, qt.SIGNAL('HistoryChanged'),self.update_ressources_manager)
         
-    def addSphere(self):
-        from openalea.plantgl.all import Sphere
-        sphere = Sphere()
-        self.history.append(sphere)
-        # self.VW.addToScene(sphere)
+    def add_soil(self):
+        import openalea.plantgl.all as pgl
+        #import Box, Sphere, Shape, Translated
+        from random import randint, random
+        box = pgl.Translated((0.5,0.5,-0.5),pgl.Scaled((0.9,0.9,0.9),pgl.Box()))
+        material = lambda : pgl.Material(ambient=(randint(0,255), randint(0,255), randint(0,255)), transparency=float(randint(100,255)))
         
+        class Soil(pgl.Scene):
+            pass
+            
+            
+        scene = [ pgl.Shape(pgl.Translated((x,y,z),box), material()) for x in range(-5,5) for y in range(-5,5) for z in range(0,-5,-1)]
+        soil = Soil(scene)
+        self.history.append(soil)
+        # for x in range(-5,5):
+            # for y in range(-5,5):
+                # for z in range(0,-5,-1):
+                    # s = Soil(pgl.Translated((x,y,z),box), material())
+                    # self.history.append(s)
+        # self.VW.addToScene(sphere)
   
+    def add_plant(self):
+        '''
+        from math import pi
+        from openalea.plantgl.all import Polyline2D, Material, Translated, Swung, Shape
+        def line_prof():
+            """ create a list of profiles with polyline """
+            return [Polyline2D([(0,0),(1.5,0.1),(0.75,2),(1.1,2.2),(0.55,3),(0.8,3.1),(0,4),(0,4)]),
+                    Polyline2D([(0,0),(1.2,0.1),(0.7,2),(1.0,2.3),(0.5,3.1),(0.8,3.1),(0,4),(0,4)]),
+                    Polyline2D([(0,0),(1.4,0.1),(0.8,2),(1.1,2.1),(0.6,3),(0.85,3.0),(0,4),(0,4)]),
+                    Polyline2D([(0,0),(1.6,0.1),(0.8,2),(1.2,2.2),(0.4,3),(0.7,3.2),(0,4),(0,4)]),
+                    Polyline2D([(0,0),(1.5,0.1),(0.75,2),(1.1,2.2),(0.55,3),(0.8,3.1),(0,4),(0,4)])]
+
+        
+        #the angles to associate to profiles
+        angles = [0,pi/2.,pi,3.*pi/2.,2.*pi]
+        col = Material((0,100,50))
+        
+        class Plant(Shape):pass
+        
+        # a swung interpolating the profiles associated to the angles
+        tree = Plant(Translated(1,1,0,Swung(line_prof(),angles)),col)
+        '''
+        import random
+        from vplants.weberpenn import tree_client
+        from vplants.weberpenn import tree_server
+        from vplants.weberpenn import tree_geom
+        import openalea.plantgl.all as pgl
+
+
+        p= [(0.5,0), ( 0,0.5), (-0.5,0),(0,-0.5),(0.5,0)]
+        section= pgl.Polyline2D(p)
+
+        param = tree_client.Quaking_Aspen()
+        param.order-= 2
+        param.scale = (7,2)
+
+        class Tree(pgl.Scene): pass
+
+        def f( param, section=section, position= (0,0,0), scene=None ):
+            param.leaves= 0
+            client= tree_client.Weber_Laws(param)
+            server= tree_server.TreeServer(client)
+            server.run()
+            geom= tree_geom.GeomEngine(server,section,position)
+            scene= geom.scene('axis', scene)
+            return scene
+
+        scene = Tree()
+        scene += f(param) 
+        scene.__class__ = Tree
+        self.history.append(scene)
+    
+    def add_sun(self):
+        import openalea.plantgl.all as pgl
+        class Sun(pgl.Shape):pass
+        sun = pgl.Shape(pgl.Translated((3,3,7),pgl.Sphere()), pgl.Material(ambient=(255, 255, 0)))
+        sun.__class__ = Sun
+       
+        self.history.append(sun)
         
     #----------------------------------------
-    # Setup Ressources Manager Dock Widget
+    # Setup Ressources Manager / History Viewer Dock Widget
     #----------------------------------------
     def set_ressources_manager(self):
         # Ressources
         self.ressManaWid = qt.QListWidget()
-               
-        # item = qt.QListWidgetItem("Item Tree1", parent=self.ressManaWid)
-        # item = qt.QListWidgetItem("Item Leaf 242", parent=self.ressManaWid)
-        # item = qt.QListWidgetItem("Item Soil 3", parent=self.ressManaWid)
-        # self.ressManaWid.addItem(item)
 
         self.ressManaWid.setMinimumSize(100, 100)
-        self.ressManaWid.setMaximumSize(400, 400)
 
         self.ressManaDockWidget = qt.QDockWidget("Virtual World", self)
         self.ressManaDockWidget.setObjectName("RessMana")
@@ -563,7 +630,10 @@ class MainWindow(qt.QMainWindow):
         # qt.QObject.connect(self.actionPlay, qt.SIGNAL('triggered(bool)'),self.play) 
         # qt.QObject.connect(self.actionGlobalWorkflow, qt.SIGNAL('triggered(bool)'),self.globalWorkflow) 
         
-        qt.QObject.connect(self.actionSoil, qt.SIGNAL('triggered(bool)'),self.addSphere)
+        qt.QObject.connect(self.actionSoil, qt.SIGNAL('triggered(bool)'),self.add_soil)
+        qt.QObject.connect(self.actionAddPlant, qt.SIGNAL('triggered(bool)'),self.add_plant)
+        qt.QObject.connect(self.actionSky, qt.SIGNAL('triggered(bool)'),self.add_sun)
+        
         self.ModelBar.addAction(self.actionAddPlant)
         self.ModelBar.addAction(self.actionPlantGrowing)
         self.ModelBar.addSeparator()

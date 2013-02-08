@@ -21,7 +21,7 @@ class oalabView3D (QGLViewer):
         position = Vec(0.0,-1.0,0.1)
         self.camera().setPosition(position)
         self.camera().lookAt(self.sceneCenter())
-        self.camera().setSceneRadius(5)
+        self.camera().setSceneRadius(4)#Size of vectors x,y,z
 
         # self.camera().setType(Camera.ORTHOGRAPHIC)
         self.camera().showEntireScene()
@@ -42,7 +42,7 @@ class oalabView3D (QGLViewer):
     
     def draw(self):
         d = Discretizer()
-        gl = GLRenderer(d)
+        gl = GLRenderer(d)       
         self.scene.apply(gl)
     
     def start(self):
@@ -62,11 +62,11 @@ class oalabView3D (QGLViewer):
 
         scene = Scene()
         
-        # #the angles to associate to profiles
+        # the angles to associate to profiles
         # angles = [0,pi/2.,pi,3.*pi/2.,2.*pi]
         # col = Material(Color3(0,100,50))
         
-        # # a swung interpolating the profiles associated to the angles
+        # a swung interpolating the profiles associated to the angles
         # scene += Shape(Translated(1,1,0,Swung(line_prof(),angles)),col)
 
         
