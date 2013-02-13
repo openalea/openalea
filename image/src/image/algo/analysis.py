@@ -132,7 +132,7 @@ def wall_voxels_between_two_cells(image, label_1, label_2, bbox = None):
     return np.array( (x+dilated_bbox[0].start, y+dilated_bbox[1].start, z+dilated_bbox[2].start) )
 
 
-def walls_voxels_per_cell(image, label_1, bbox = None, neighbors = None, neighbors2ignore = None ):
+def walls_voxels_per_cell(image, label_1, bbox = None, neighbors = None, neighbors2ignore = None, verbose = False ):
     """
     Return the voxels coordinates of all walls from one cell. 
     There must be a contact defined between two labels, the given one and its neighbors.
@@ -184,7 +184,7 @@ def walls_voxels_per_cell(image, label_1, bbox = None, neighbors = None, neighbo
                     coord[(0,label_1)][1].extend( y+dilated_bbox[1].start )
                     coord[(0,label_1)][2].extend( z+dilated_bbox[2].start )
         else:
-            print "Couldn't find a contact between neighbor cells %d" % label_1, "& %d" % label_2
+            if verbose: print "Couldn't find a contact between neighbor cells %d" % label_1, "& %d" % label_2
 
     return coord
 
@@ -1718,12 +1718,16 @@ def geometric_median(X, numIter = 200):
     :Return:
         - np.array((x,y,z)): geometric median of the coordinates;
     """
-    # Initialising 'median' to the centroid
-    y =(( np.mean(X[0]),np.mean(X[1]),np.mean(X[2]) ))
-    convergence=False #boolean testing the convergence toward a global optimum
-    dist=[] #list recording the distance evolution
+    # -- Initialising 'median' to the centroid
+    y = np.mean(X,1)
+    # -- If the init point is in the set of points, we shift it:
+    while (y[0] in X[0]) and (y[1] in X[1]) and (y[2] in X[2]):
+        y+=0.1
 
-    # Minimizing the sum of the squares of the distances between each points in 'X' (cells walls voxels) and the median.
+    convergence=False # boolean testing the convergence toward a global optimum
+    dist=[] # list recording the distance evolution
+
+    # -- Minimizing the sum of the squares of the distances between each points in 'X' (cells walls voxels) and the median.
     i=0
     while ( (not convergence) and (i < numIter) ):
         num_x, num_y, num_z = 0.0, 0.0, 0.0
@@ -1736,23 +1740,23 @@ def geometric_median(X, numIter = 200):
             num_y += X[1,j] / div
             num_z += X[2,j] / div
             denum += 1./div
-            d += div**2 #distance (to the median) to miminize
-        dist.append(d) #update of the distance evolution
+            d += div**2 # distance (to the median) to miminize
+        dist.append(d) # update of the distance evolution
         
         if denum == 0.:
             warnings.warn( "Couldn't compute a geometric median, please check your data!" )
             return [0,0,0]
         
-        y = [num_x/denum, num_y/denum, num_z/denum] #update to the new value of the median
+        y = [num_x/denum, num_y/denum, num_z/denum] # update to the new value of the median
         if i > 3:
-            convergence=(abs(dist[i]-dist[i-2])<0.1) #we test the convergence over three steps for stability
+            convergence=(abs(dist[i]-dist[i-2])<0.1) # we test the convergence over three steps for stability
             #~ print abs(dist[i]-dist[i-2]), convergence
         i += 1
     if i == numIter:
         warnings.warn( "The Weiszfeld's algoritm did not converged after"+str(numIter)+"iterations !!!!!!!!!" )
         warnings.warn( "Remaining distance: "+str(abs(dist[i-1]-dist[i-3])) )
         return None
-    #When convergence or iterations limit is reached we assume that we found the median.
+    # -- When convergence or iterations limit is reached we assume that we found the median.
 
     return np.array(y)
 

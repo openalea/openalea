@@ -23,55 +23,94 @@ import numpy as np
 
 #~ default_properties2D = ['barycenter','boundingbox','border','L1','epidermis_surface','wall_surface','inertia_axis']
 default_properties2D = ['barycenter','boundingbox','border','L1','epidermis_surface','inertia_axis']
-default_properties3D = ['volume','barycenter','boundingbox','border','L1','epidermis_surface','wall_surface','inertia_axis', 'projected_anticlinal_walls_median', 'walls_median', 'walls_orientation']
+default_properties3D = ['volume','barycenter','boundingbox','border','L1','epidermis_surface','wall_surface','inertia_axis', 'projected_anticlinal_wall_median', 'wall_median', 'wall_orientation']
 
 def generate_graph_topology(labels, neigborhood):
+    """
+    Function generating a topological/spatial graph based on neighbors detection.
+
+    :Parameters:
+     - `labels` (list) - list of labels to be found in the image and added to the topological graph.
+     - `neigborhood` (dict) - dictionary giving neighbors of each object.
+
+    :Returns:
+     - `graph` (PropertyGraph) - the topological/spatial graph.
+     - `label2vertex` (dict) - dictionary translating labels into vertex ids (vids).
+     - `edges` (dict) - dictionary associating an edge id to a couple of topologically/spatially related vertex.
+    """
     graph = PropertyGraph()
     vertex2label = {}
     for l in labels: vertex2label[graph.add_vertex(l)] = l
     label2vertex = dict([(j,i) for i,j in vertex2label.iteritems()])
-    
+
     labelset = set(labels)
     edges = {}
-    
+
+
     for source,targets in neigborhood.iteritems():
         if source in labelset :
             for target in targets:
                 if source < target and target in labelset:
                     edges[(source,target)] = graph.add_edge(label2vertex[source],label2vertex[target])
-    
+
     graph.add_vertex_property('label')
     graph.vertex_property('label').update(vertex2label)
-    
+
+    return graph, label2vertex, edges
+
+def generate_surface_filtered_graph_topology(labels, analysis, min_contact_surface = 10):
+    """
+    :NOTE: Maybe it would be better/easier to filter neighbors' detection depending contact surface if a threshold is given.
+    """
+    graph = PropertyGraph()
+    vertex2label = {}
+    for l in labels: vertex2label[graph.add_vertex(l)] = l
+    label2vertex = dict([(j,i) for i,j in vertex2label.iteritems()])
+
+    labelset = set(labels)
+    edges = {}
+
+    neigborhood = analysis.neighbors(labels)
+    dict_contact_surface = analysis.wall_surfaces(neigborhood, real = False)
+    for source,targets in neigborhood.iteritems():
+        if source in labelset :
+            for target in targets:
+                if source < target and target in labelset:
+                    if dict_contact_surface[(source,target)] >= min_contact_surface:
+                        edges[(source,target)] = graph.add_edge(label2vertex[source],label2vertex[target])
+
+    graph.add_vertex_property('label')
+    graph.vertex_property('label').update(vertex2label)
+
     return graph, label2vertex, edges
 
 def _graph_from_image(image, labels, background, default_properties, 
                      default_real_property, bbox_as_real, 
-                     remove_stack_margins_cells):
+                     remove_stack_margins_cells, min_contact_surface):
     """ 
-        Construct a PropertyGraph from a SpatialImage (or equivalent) representing a segmented image.
+    Construct a PropertyGraph from a SpatialImage (or equivalent) representing a segmented image.
 
-        :Parameters:
-         - `labels` (list) - sequence of label numbers of the objects to be measured.
-            If labels is None, all labels are used.
-         - `background` (int) - label representing background.
-         - `default_properties` (list) - the list of name of properties to create. It should be in default_properties.
-         - `default_real_property` (bool) - If default_real_property = True, property is in real-world units else in voxels.
-         - `bbox_as_real` (bool) - If bbox_as_real = True, bounding boxes are in real-world units else in voxels.
+    :Parameters:
+     - `image` (SpatialImage|AbstractSpatialImageAnalysis) - image containing labeled objects | analysis of an image.
+     - `labels` (list) - list of labels to be found in the image.
+        If labels is None, all labels are used.
+     - `background` (int) - label representing background.
+     - `default_properties` (list) - the list of name of properties to create. It should be in default_properties.
+     - `default_real_property` (bool) - If default_real_property = True, property is in real-world units else in voxels.
+     - `bbox_as_real` (bool) - If bbox_as_real = True, bounding boxes are in real-world units else in voxels.
 
-        :rtype: PropertyGraph
+    :rtype: PropertyGraph
 
-        :Examples:
+    :Examples:
 
-        >>> import numpy as np
-        >>> image = np.array([[1, 2, 7, 7, 1, 1],
-                          [1, 6, 5, 7, 3, 3],
-                          [2, 2, 1, 7, 3, 3],
-                          [1, 1, 1, 4, 1, 1]])
+    >>> import numpy as np
+    >>> image = np.array([[1, 2, 7, 7, 1, 1],
+                      [1, 6, 5, 7, 3, 3],
+                      [2, 2, 1, 7, 3, 3],
+                      [1, 1, 1, 4, 1, 1]])
 
-        >>> from openalea.image.algo.graph_from_image import graph_from_image
-        >>> graph = graph_from_image(image)
-
+    >>> from openalea.image.algo.graph_from_image import graph_from_image
+    >>> graph = graph_from_image(image)
     """
 
     if isinstance(image, AbstractSpatialImageAnalysis):
@@ -102,13 +141,16 @@ def _graph_from_image(image, labels, background, default_properties,
 
     labelset = set(labels)
 
-    graph, label2vertex, edges = generate_graph_topology(labels, neigborhood)
+    if min_contact_surface is None:
+        graph, label2vertex, edges = generate_graph_topology(labels, neigborhood)
+    else:
+        graph, label2vertex, edges = generate_surface_filtered_graph_topology(labels, analysis, min_contact_surface)
 
     # -- We want to keep the unit system of each variable
     graph.add_graph_property("units",dict())
     
-    if ("walls_orientation" in default_properties) and ('all_walls_orientation' in default_properties):
-        default_properties.remove("walls_orientation")
+    if ("wall_orientation" in default_properties) and ('all_wall_orientation' in default_properties):
+        default_properties.remove("wall_orientation")
 
     if 'boundingbox' in default_properties : 
         print 'Extracting boundingbox...'
@@ -149,12 +191,18 @@ def _graph_from_image(image, labels, background, default_properties,
 
     if 'wall_surface' in default_properties : 
         print 'Computing wall_surface property...'
-        filtered_edges = {}
+        filtered_edges, unlabelled_target, unlabelled_wall_surfaces = {}, {}, {}
         for source,targets in neigborhood.iteritems():
             if source in labelset :
                 filtered_edges[source] = [ target for target in targets if source < target and target in labelset ]
+                unlabelled_target[source] = [ target for target in targets if target not in labelset and target != background]
         wall_surfaces = analysis.wall_surfaces(filtered_edges,real=default_real_property)
         add_edge_property_from_label_property(graph,'wall_surface',wall_surfaces,mlabelpair2edge=edges)
+
+        graph.add_vertex_property('unlabelled_wall_surface')
+        for source in unlabelled_target:
+            graph.vertex_property('unlabelled_wall_surface')[label2vertex[source]] = analysis.wall_surfaces({source:unlabelled_target[source]},real=default_real_property)
+
         #~ graph._graph_property("units").update( {"wall_surface":('um2'if default_real_property else 'voxels')} )
 
     if 'epidermis_surface' in default_properties :
@@ -172,9 +220,9 @@ def _graph_from_image(image, labels, background, default_properties,
         #~ graph._graph_property("units").update( {"epidermis_surface":('um2'if default_real_property else 'voxels')} )
 
 
-    if 'projected_anticlinal_walls_median' in default_properties:
-        print 'Computing projected_anticlinal_walls_median property...'
-        walls_median = {}
+    if 'projected_anticlinal_wall_median' in default_properties:
+        print 'Computing projected_anticlinal_wall_median property...'
+        wall_median = {}
         dict_wall_voxels = analysis.wall_voxels_per_cells_pairs(list(set(labels)|set(analysis.layer1())),
          dimensionality = 2, labels2avoid = analysis._ignoredlabels, background = background)
         for k in dict_wall_voxels:
@@ -187,14 +235,14 @@ def _graph_from_image(image, labels, background, default_properties,
             # closest points:
             pts = [tuple([int(x[i]),int(y[i]),int(z[i])]) for i in xrange(len(x))]
             min_dist = closest_from_A(neighborhood_origin, pts)
-            walls_median[k] = min_dist
+            wall_median[k] = min_dist
 
-        add_edge_property_from_dictionary(graph, 'projected_anticlinal_walls_median', walls_median)
+        add_edge_property_from_dictionary(graph, 'projected_anticlinal_wall_median', wall_median)
 
 
-    if 'walls_median' in default_properties:
-        print 'Computing walls_median property...'
-        walls_median = {}
+    if 'wall_median' in default_properties:
+        print 'Computing wall_median property...'
+        wall_median = {}
         dict_wall_voxels = analysis.wall_voxels_per_cells_pairs(labels, dimensionality = 3, labels2avoid = analysis._ignoredlabels-set([0,1]), background = background )
         for k in dict_wall_voxels:
             x,y,z = dict_wall_voxels[k]
@@ -206,20 +254,20 @@ def _graph_from_image(image, labels, background, default_properties,
             # closest points:
             pts = [tuple([int(x[i]),int(y[i]),int(z[i])]) for i in xrange(len(x))]
             min_dist = closest_from_A(neighborhood_origin, pts)
-            walls_median[k] = min_dist
+            wall_median[k] = min_dist
 
-        edge_walls_median, unlabelled_walls_median, vertex_walls_median = {},{},{}
+        edge_wall_median, unlabelled_wall_median, vertex_wall_median = {},{},{}
         for label_1, label_2 in dict_wall_voxels.keys():
             if (label_1 in graph.vertices()) and (label_2 in graph.vertices()):
-                edge_walls_median[(label_1, label_2)] = walls_median[(label_1, label_2)]
+                edge_wall_median[(label_1, label_2)] = wall_median[(label_1, label_2)]
             if (label_1 == 0): # no need to check `label_2` because labels are sorted in keys returned by `wall_voxels_per_cells_pairs`
-                unlabelled_walls_median[label_2] = walls_median[(label_1, label_2)]
+                unlabelled_wall_median[label_2] = wall_median[(label_1, label_2)]
             if (label_1 == 1): # no need to check `label_2` because labels are sorted in keys returned by `wall_voxels_per_cells_pairs`
-                vertex_walls_median[label_2] = walls_median[(label_1, label_2)]
+                vertex_wall_median[label_2] = wall_median[(label_1, label_2)]
 
-        add_edge_property_from_dictionary(graph, 'walls_median', edge_walls_median)
-        add_vertex_property_from_dictionary(graph, 'epidermis_walls_median', vertex_walls_median)
-        add_vertex_property_from_dictionary(graph, 'unlabelled_walls_median', unlabelled_walls_median)
+        add_edge_property_from_dictionary(graph, 'wall_median', edge_wall_median)
+        add_vertex_property_from_dictionary(graph, 'epidermis_wall_median', vertex_wall_median)
+        add_vertex_property_from_dictionary(graph, 'unlabelled_wall_median', unlabelled_wall_median)
 
 
     if 'walls_orientation' in default_properties:
@@ -228,10 +276,10 @@ def _graph_from_image(image, labels, background, default_properties,
         # - Here we DO NOT extract wall_orientation property for 'unlabelled' and 'epidermis' walls :
         dict_wall_voxels = analysis.wall_voxels_per_cells_pairs(labels, dimensionality = 3, labels2avoid = analysis._ignoredlabels, background = background )
 
-        if 'walls_median' in graph.edge_properties():
-            medians_coords = dict( (graph.edge_vertices(eid), coord) for eid,coord in graph.edge_property('walls_median').iteritems() )
-            medians_coords.update(dict( (0,vid) for vid in graph.vertex_property('unlabelled_walls_median') ))
-            medians_coords.update(dict( (1,vid) for vid in graph.vertex_property('epidermis_walls_median') ))
+        if 'wall_median' in graph.edge_properties():
+            medians_coords = dict( (graph.edge_vertices(eid), coord) for eid,coord in graph.edge_property('wall_median').iteritems() )
+            medians_coords.update(dict( (0,vid) for vid in graph.vertex_property('unlabelled_wall_median') ))
+            medians_coords.update(dict( (1,vid) for vid in graph.vertex_property('epidermis_wall_median') ))
             pc_values, pc_normal, pc_directions, pc_origin = analysis.wall_normal_orientation( dict_wall_voxels, fitting_degree = 2, dimensionality = 3, dict_coord_points_ori = medians_coords )
         else:
             dict_wall_voxels = analysis.wall_voxels_per_cells_pairs(labels, dimensionality = 3, labels2avoid = analysis._ignoredlabels-set([0,1]), background = background )
@@ -259,8 +307,8 @@ def _graph_from_image(image, labels, background, default_properties,
         # - Extract wall_orientation property for 'unlabelled' and 'epidermis' walls as well:
         dict_wall_voxels = analysis.wall_voxels_per_cells_pairs(labels, dimensionality = 3, labels2avoid = analysis._ignoredlabels-set([0,1]), background = background )
 
-        if 'walls_median' in graph.edge_properties():
-            medians_coords = dict( (graph.edge_vertices(eid), coord) for eid,coord in graph.edge_property('walls_median').iteritems() )
+        if 'wall_median' in graph.edge_properties():
+            medians_coords = dict( (graph.edge_vertices(eid), coord) for eid,coord in graph.edge_property('wall_median').iteritems() )
             pc_values, pc_normal, pc_directions, pc_origin = analysis.wall_normal_orientation( dict_wall_voxels, fitting_degree = 2, dimensionality = 3, dict_coord_points_ori = medians_coords )
         else:
             dict_wall_voxels = analysis.wall_voxels_per_cells_pairs(labels, dimensionality = 3, labels2avoid = analysis._ignoredlabels-set([0,1]), background = background )
@@ -307,15 +355,15 @@ def _graph_from_image(image, labels, background, default_properties,
 
 def graph_from_image2D(image, labels, background, default_properties, 
                      default_real_property, bbox_as_real, 
-                     remove_stack_margins_cells):
+                     remove_stack_margins_cells, min_contact_surface):
     return _graph_from_image(image, labels, background, default_properties,
-                            default_real_property, bbox_as_real, remove_stack_margins_cells)
+                            default_real_property, bbox_as_real, remove_stack_margins_cells, min_contact_surface)
 
 def graph_from_image3D(image, labels, background, default_properties, 
                      default_real_property, bbox_as_real, 
-                     remove_stack_margins_cells):
+                     remove_stack_margins_cells, min_contact_surface):
     return _graph_from_image(image, labels, background, default_properties,
-                            default_real_property, bbox_as_real, remove_stack_margins_cells)
+                            default_real_property, bbox_as_real, remove_stack_margins_cells, min_contact_surface)
 
 def graph_from_image(image, 
                      labels = None, 
@@ -323,7 +371,8 @@ def graph_from_image(image,
                      default_properties = None,
                      default_real_property = True,
                      bbox_as_real = False,
-                     remove_stack_margins_cells = True):
+                     remove_stack_margins_cells = True,
+                     min_contact_surface = None):
 
     if isinstance(image, AbstractSpatialImageAnalysis):
         real_image = image.image
@@ -336,12 +385,12 @@ def graph_from_image(image,
         if default_properties == None:
             default_properties = default_properties2D
         return graph_from_image2D(image, labels, background, default_properties,
-                            default_real_property, bbox_as_real, remove_stack_margins_cells)
+                            default_real_property, bbox_as_real, remove_stack_margins_cells, min_contact_surface)
     else:
         if default_properties == None:
             default_properties = default_properties3D
         return graph_from_image3D(image, labels, background, default_properties,
-                            default_real_property, bbox_as_real, remove_stack_margins_cells)
+                            default_real_property, bbox_as_real, remove_stack_margins_cells, min_contact_surface)
 
 def label2vertex_map(graph):
     """
