@@ -295,8 +295,7 @@ class MainWindow(qt.QMainWindow):
     #----------------------------------------
     def set_ressources_manager(self):
         # Ressources
-        self.ressManaWid = qt.QListWidget()
-
+        self.ressManaWid = qt.QTableWidget(0,2)       
         self.ressManaWid.setMinimumSize(100, 100)
 
         self.ressManaDockWidget = qt.QDockWidget("Virtual World", self)
@@ -310,15 +309,27 @@ class MainWindow(qt.QMainWindow):
         
     def reset_ressources_manager(self):
         self.ressManaWid.clear()
+        headerName1 = qt.QTableWidgetItem("name")
+        headerName2 = qt.QTableWidgetItem("value")
+        self.ressManaWid.setHorizontalHeaderItem(0,headerName1)
+        self.ressManaWid.setHorizontalHeaderItem(1,headerName2)
         
     def update_ressources_manager(self, scene):
         self.reset_ressources_manager()
+        
+        row = 0
         for h in scene:
             cla = str(h.__class__)
             name = cla.split(".")
             name = name[len(cla.split("."))-1]
             name = name.split("'")[0]
-            item = qt.QListWidgetItem(name, parent=self.ressManaWid)
+            itemName = qt.QTableWidgetItem(name)
+            itemObj = qt.QTableWidgetItem(str(h))
+            if self.ressManaWid.rowCount()<=row:
+                self.ressManaWid.insertRow(row)
+            self.ressManaWid.setItem(row,0,itemName)
+            self.ressManaWid.setItem(row,1,itemObj)
+            row += 1
     
     
     #----------------------------------------
@@ -808,6 +819,7 @@ class MainWindow(qt.QMainWindow):
 
         # dock widget => Shell IPython
         self.interpreter = Interpreter()# interpreter
+        self.interpreter.locals['history'] = self.history.getHistory()
         self.shellDockWidget = qt.QDockWidget("IPython Shell", self)
         self.shellDockWidget.setObjectName("Shell")
         self.shellDockWidget.setAllowedAreas(qt.Qt.BottomDockWidgetArea | qt.Qt.TopDockWidgetArea)
