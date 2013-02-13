@@ -11,6 +11,7 @@ import qt
 
 from openalea.oalab.scene.oalabview3d import oalabView3D
 from openalea.oalab.history.history import History
+from openalea.oalab.control.controlmanager import ControlManager
 
 # from openalea.core.logger import get_logger
 from openalea.visualea.splitterui import SplittableUI
@@ -370,10 +371,17 @@ class MainWindow(qt.QMainWindow):
     # Setup Control Panel Dock Widget
     #----------------------------------------
     def set_control_panel(self):
-        self.controlWid = qt.QTabWidget()
-        self.controlWid.setTabsClosable(True)
-        self.controlWid.setMinimumSize(50, 50)
-
+        """ Set the control panel
+        Only once by project!
+        """
+        
+        # Set THE control manager
+        self.controlManager = ControlManager()
+        
+        # Create widget control panel
+        self.controlWid = qt.QTableWidget(0,2)
+        self.reset_control_panel()
+        self.controlWid.setMinimumSize(50, 50) 
         self.controlDockWidget = qt.QDockWidget("Control Panel", self)
         self.controlDockWidget.setObjectName("ControlPanel")
         self.controlDockWidget.setAllowedAreas(qt.Qt.LeftDockWidgetArea | qt.Qt.RightDockWidgetArea | qt.Qt.TopDockWidgetArea | qt.Qt.BottomDockWidgetArea)
@@ -381,10 +389,39 @@ class MainWindow(qt.QMainWindow):
         self.addDockWidget(qt.Qt.BottomDockWidgetArea, self.controlDockWidget)       
     
     def set_controls_from_editor(self, editor):
-        control = editor.get_widgets_controls()
-        for c in control:
-            name = ('control %i' %(self.controlWid.count()+1))
-            self.controlWid.addTab(c(parent=self), name)
+        """ Set Control from editor 'editor' in the control manager and the widget control panel.
+        """
+        self.reset_control_panel()
+        
+        # Get new controls which come from editor
+        new_controls = editor.get_widgets_controls()
+        # Add new controls in control manager
+        for name in new_controls:
+            self.controlManager.add_control(name,new_controls[name]) 
+        row = 0
+        # Get all controls
+        all_controls = self.controlManager.get_controls()
+        
+        # Display all controls
+        for n in all_controls:
+            itemName = qt.QTableWidgetItem(str(n))
+            itemObj = qt.QTableWidgetItem(str(all_controls[n]))
+            # Add row if necessary
+            if self.controlWid.rowCount()<=row:
+                self.controlWid.insertRow(row)
+            self.controlWid.setItem(row,0,itemName)
+            self.controlWid.setItem(row,1,itemObj)
+            row += 1
+            
+            
+    def reset_control_panel(self):
+        """Clear the control panel and set the headers.
+        """
+        self.controlWid.clear()
+        headerName1 = qt.QTableWidgetItem("name")
+        headerName2 = qt.QTableWidgetItem("value")
+        self.controlWid.setHorizontalHeaderItem(0,headerName1)
+        self.controlWid.setHorizontalHeaderItem(1,headerName2)
 
     
     #----------------------------------------

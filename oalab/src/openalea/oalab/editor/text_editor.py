@@ -148,7 +148,9 @@ elif LPYEDITOR == "LPY":
         def get_widgets_controls(self):
             from openalea.lpy.gui.materialeditor import MaterialPanelWidget
             from openalea.lpy.gui.scalareditor import ScalarEditor
-            controls = [MaterialPanelWidget,ScalarEditor]
+            controls = dict()
+            controls["color map"] = MaterialPanelWidget
+            controls["scalar editor"] = ScalarEditor
             return controls
         
         def get_engine(self):
