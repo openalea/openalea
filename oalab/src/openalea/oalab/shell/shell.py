@@ -1,6 +1,6 @@
+from openalea.oalab.gui import qt as qt_
 from streamredirection import *
 
-# from ipyinterpreter import IPyInterpreter
 from IPython.frontend.qt.console.rich_ipython_widget import RichIPythonWidget
 from IPython.frontend.qt.inprocess_kernelmanager import QtInProcessKernelManager
 
@@ -46,3 +46,25 @@ class ShellWidget(RichIPythonWidget,GraphicalStreamRedirection):
 
     def write(self, s):
         self.interpreter.shell.write(s)
+
+
+def main():
+    from interpreter import Interpreter
+    import sys
+    
+    app = qt_.QApplication(sys.argv)
+    
+    # Set interpreter
+    interpreter = Interpreter()
+    # Set Shell Widget
+    shellwdgt = ShellWidget(interpreter)
+    
+    mainWindow = qt_.QMainWindow()
+    mainWindow.setCentralWidget(shellwdgt)
+    mainWindow.show()
+    
+    app.exec_()
+    
+    
+if( __name__ == "__main__"):
+    main()    

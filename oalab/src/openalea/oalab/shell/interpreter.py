@@ -11,3 +11,12 @@ class Interpreter(InProcessKernel):
         
     def runsource(self, s):    
         self.shell.run_cell(s)
+        
+        
+def main():
+    from shell import main as main_
+    main_()
+    
+    
+if( __name__ == "__main__"):
+    main()          

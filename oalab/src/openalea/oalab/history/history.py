@@ -23,8 +23,22 @@ class History(object):
         
         
 def main():
-    pass
+    a = 1
+    b = 2
+    c = 3
+    d = "Viva Virtual Plants Lab!!!"
 
+    h = History()
+    h.append(a)
+    h.append(b)
+    h.reset()
+    h.append(c)
+    h.append(d)
+    hist = h.getHistory()
+    print "We must have two objects in the history:"
+    print "c=3 and d='Viva Virtual Plants Lab!!!'."
+    print "Here we have:"
+    print hist
     
 if( __name__ == "__main__"):
     main()

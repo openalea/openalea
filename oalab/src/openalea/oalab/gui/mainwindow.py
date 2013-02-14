@@ -19,7 +19,6 @@ from openalea.visualea.splitterui import SplittableUI
 from openalea.oalab.editor.text_editor import PythonCodeEditor as Editor
 from openalea.oalab.editor.text_editor import LPyCodeEditor as LPyEditor
 from openalea.oalab.editor.text_editor import SelectEditor
-# from openalea.oalab.workflow.visualea import WorkflowEditor
 from openalea.oalab.shell.shell import ShellWidget
 from openalea.oalab.shell.interpreter import Interpreter
 from openalea.oalab.project.project import ProjectManager
@@ -55,7 +54,6 @@ class MainWindow(qt.QMainWindow):
         # Central widgets
         # Virtual World
         self.set_virtual_world()
-        # self.widList[1]=qt.QWidget()
         self.splittable = SplittableUI(parent=self, content=self.VW)
         # editor
         self.set_text_editor_container()
