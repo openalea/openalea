@@ -9,7 +9,7 @@ import os
 
 import qt
 
-from openalea.oalab.scene.oalabview3d import oalabView3D
+from openalea.oalab.scene.view3d import view3D
 from openalea.oalab.history.history import History
 from openalea.oalab.control.controlmanager import ControlManager
 
@@ -193,12 +193,12 @@ class MainWindow(qt.QMainWindow):
     def set_virtual_world(self):
         self.history = History()
     
-        view3D = oalabView3D(parent=self)
-        view3D.setObjectName("view3D")
+        view = view3D(parent=self)
+        view.setObjectName("view3D")
         
-        view3D.start()    
+        view.start()    
         
-        self.VW = view3D
+        self.VW = view
         self.VW.setMinimumSize(300, 300)
         
         self.widList.append(self.VW)
