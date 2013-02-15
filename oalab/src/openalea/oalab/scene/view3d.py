@@ -35,7 +35,7 @@ class view3D (QGLViewer):
         # Set the scene (erase old scene if necessary)
         self.scene = Scene()
         for s in scene:
-            self.scene += s
+            self.scene += scene[s]
         self.draw()
         
     def getScene(self):

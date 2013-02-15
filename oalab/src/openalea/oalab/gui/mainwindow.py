@@ -210,23 +210,17 @@ class MainWindow(qt.QMainWindow):
         
     def add_soil(self):
         import openalea.plantgl.all as pgl
-        #import Box, Sphere, Shape, Translated
         from random import randint, random
         box = pgl.Translated((0.5,0.5,-0.5),pgl.Scaled((0.9,0.9,0.9),pgl.Box()))
         material = lambda : pgl.Material(ambient=(randint(0,255), randint(0,255), randint(0,255)), transparency=float(randint(100,255)))
-        
-        class Soil(pgl.Scene):
-            pass
-            
-            
         scene = [ pgl.Shape(pgl.Translated((x,y,z),box), material()) for x in range(-5,5) for y in range(-5,5) for z in range(0,-5,-1)]
-        soil = Soil(scene)
-        self.history.append(soil)
+        soil = pgl.Scene(scene)
+        self.history.add(name="soil",obj=soil)
         # for x in range(-5,5):
             # for y in range(-5,5):
                 # for z in range(0,-5,-1):
                     # s = Soil(pgl.Translated((x,y,z),box), material())
-                    # self.history.append(s)
+                    # self.history.add("soil",s)
         # self.VW.addToScene(sphere)
   
     def add_plant(self):
@@ -264,9 +258,6 @@ class MainWindow(qt.QMainWindow):
         param = tree_client.Quaking_Aspen()
         param.order-= 2
         param.scale = (7,2)
-
-        class Tree(pgl.Scene): pass
-
         def f( param, section=section, position= (0,0,0), scene=None ):
             param.leaves= 0
             client= tree_client.Weber_Laws(param)
@@ -275,19 +266,14 @@ class MainWindow(qt.QMainWindow):
             geom= tree_geom.GeomEngine(server,section,position)
             scene= geom.scene('axis', scene)
             return scene
+        scene = f(param) 
 
-        scene = Tree()
-        scene += f(param) 
-        scene.__class__ = Tree
-        self.history.append(scene)
+        self.history.add(name="tree",obj=scene)
     
     def add_sun(self):
         import openalea.plantgl.all as pgl
-        class Sun(pgl.Shape):pass
-        sun = pgl.Shape(pgl.Translated((3,3,7),pgl.Sphere()), pgl.Material(ambient=(255, 255, 0)))
-        sun.__class__ = Sun
-       
-        self.history.append(sun)
+        sun = pgl.Shape(pgl.Translated((3,3,7),pgl.Sphere()), pgl.Material(ambient=(255, 255, 0)))      
+        self.history.add(name="sun",obj=sun)
         
     #----------------------------------------
     # Setup Ressources Manager / History Viewer Dock Widget
@@ -315,15 +301,10 @@ class MainWindow(qt.QMainWindow):
         
     def update_ressources_manager(self, scene):
         self.reset_ressources_manager()
-        
         row = 0
         for h in scene:
-            cla = str(h.__class__)
-            name = cla.split(".")
-            name = name[len(cla.split("."))-1]
-            name = name.split("'")[0]
-            itemName = qt.QTableWidgetItem(name)
-            itemObj = qt.QTableWidgetItem(str(h))
+            itemName = qt.QTableWidgetItem(str(h))
+            itemObj = qt.QTableWidgetItem(str(scene[h]))
             if self.ressManaWid.rowCount()<=row:
                 self.ressManaWid.insertRow(row)
             self.ressManaWid.setItem(row,0,itemName)

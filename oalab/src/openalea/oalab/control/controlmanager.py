@@ -74,7 +74,7 @@ def main():
     
     print "We must have 2 controls registered in control manager"
     print "Here, we have:"
-    for c in CM.get_controls(): print c 
+    for c in CM.get_controls(): print c,  CM.get_controls()[c]
 
     
 if( __name__ == "__main__"):

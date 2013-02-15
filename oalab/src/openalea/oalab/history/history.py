@@ -4,22 +4,32 @@ class History(object):
     def __init__(self):
         self.obj = qt.QObject()
         self.actionChanged = qt.QAction(self.obj)
-        self.list = []
+        self.hist = dict()
         self.valueChanged()
         
-    def append(self, a):
-        self.list.append(a)
+    def add(self, name="unnamed object", obj="None"):
+        name = self.check_if_name_is_unique(name)
+        self.hist[name] = obj
         self.valueChanged()
         
     def getHistory(self):
-        return self.list
+        return self.hist
         
     def reset(self):
-        self.list = []
+        self.hist = dict()
         self.valueChanged()
         
     def valueChanged(self):
-        self.obj.emit(qt.SIGNAL('HistoryChanged'), self.list)  
+        self.obj.emit(qt.SIGNAL('HistoryChanged'), self.hist)
+
+    def check_if_name_is_unique(self, name):
+        # Check if a control with the same name 'name' is alreadey register
+        # in the control manager.
+        # If it is the case, the name is changed ("_1" is append).
+        # This is realize until the name becomes unique.
+        while name in self.hist:
+            name += "_1"
+        return name  
         
         
 def main():
@@ -29,16 +39,16 @@ def main():
     d = "Viva Virtual Plants Lab!!!"
 
     h = History()
-    h.append(a)
-    h.append(b)
+    h.add("a",a)
+    h.add("b",b)
     h.reset()
-    h.append(c)
-    h.append(d)
+    h.add("c",c)
+    h.add("d",d)
     hist = h.getHistory()
     print "We must have two objects in the history:"
-    print "c=3 and d='Viva Virtual Plants Lab!!!'."
-    print "Here we have:"
-    print hist
+    print "c=3 and d='Viva Virtual Plants Lab!!!'.\n"
+    print "Here, we have:"
+    for h in hist: print h,  hist[h]
     
 if( __name__ == "__main__"):
     main()
