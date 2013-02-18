@@ -103,7 +103,7 @@ def wall_voxels_between_two_cells(image, label_1, label_2, bbox = None):
     Return the voxels coordinates defining the contact wall between two labels.
 
     :Parameters:
-     - `image` (ndarray of ints) - Array containing objects defined by different labels
+     - `image` (ndarray of ints) - Array containing objects defined by labels
      - `label_1` (int) - object id #1
      - `label_2` (int) - object id #2
      - `bbox` (dict, optional) - If given, contain a dict of slices
@@ -138,7 +138,11 @@ def walls_voxels_per_cell(image, label_1, bbox = None, neighbors = None, neighbo
     There must be a contact defined between two labels, the given one and its neighbors.
 
     :Parameters:
+     - `image` (ndarray of ints) - Array containing objects defined by labels
      - `label_1` (int): cell id #1.
+     - `bbox` (dict, optional) - dictionary of slices defining bounding box for each labelled object.
+     - `neighbors` (list, optional) - list of neighbors for the object `label_1`.
+     - `neighbors2ignore` (list, optional) - labels of neighbors to ignore while considering separation between the object `label_1` and its neighbors. All ignored labels will be returned as 0.
     :Return:
      - `coord` (dict): *keys= [min(labels_1,neighbors[n]), max(labels_1,neighbors[n])]; *values= xyz 3xN array.
     """
@@ -2110,8 +2114,8 @@ def save_id_list(id_list, filename, sep='\n' ):
     #~ a1,a2,a3,a4,a5,a6=params
     #~ x,y=data
     #~ return (a1*x**2 + a2*x*y + a3*y**2 + a4*x + a5*y + a6)
-
-
+#~ 
+#~ 
 #~ def quadratic_plane_fit( x, y, z, fit_init = [0,0,0,0,0,1] ):
     #~ """
     #~ Use non-linear least squares to fit a function, f, to data. The algorithm uses the Levenburg-Marquardt algorithm.
