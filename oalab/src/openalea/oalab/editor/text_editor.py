@@ -18,7 +18,7 @@ LPYEDITOR = "LPY"
 PythonCodeEditor = None
 LPyCodeEditor = None
 
-
+'''
 if LPYEDITOR == "SPYDER":
     # from spyderlib.widgets.editor import EditorStack
     from spyderlib.widgets.sourcecode.codeeditor import CodeEditor      
@@ -77,7 +77,7 @@ if LPYEDITOR == "SPYDER":
             
         def get_widgets_controls(self):
             pass
-    '''
+    """
     ----QPlainTextEdit----
     doc.qt.digia.com: QPlainText uses very much the same technology and concepts as QTextEdit,
     but is optimized for plain text handling.
@@ -88,9 +88,10 @@ if LPYEDITOR == "SPYDER":
     - calltips
     - go-to-definition (rope)
     - function/class browser
-    '''
-    
-elif LPYEDITOR == "LPY":
+    """
+'''   
+
+if LPYEDITOR == "LPY":
     from openalea.lpy.gui.lpycodeeditor import LpyCodeEditor, Margin      
     class LPyCodeEditor(LpyCodeEditor, TextEditorOALab):
         def __init__(self, parent=None):

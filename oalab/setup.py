@@ -107,8 +107,7 @@ setup(
 
     # Declare scripts and wralea as entry_points (extensions) of your package 
     entry_points = { 
-        # 'wralea' : ['oalab = openalea.oalab_wralea' if has_project else 'oalab = oalab_wralea' ],
-        'gui': ['oalab = openalea.oalab.main:main']
+        'gui_scripts': ['oalab = openalea.oalab.main:main']
         #'console_scripts': [
         #       'fake_script = openalea.fakepackage.amodule:console_script', ],
         # 'gui_scripts': [

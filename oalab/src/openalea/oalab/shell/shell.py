@@ -17,13 +17,13 @@ class ShellWidget(RichIPythonWidget,GraphicalStreamRedirection):
     
     
     def __init__(self, interpreter, message="", log='', parent=None):
-        """Constructor.
-        @param interpreter : InteractiveInterpreter in which
+        """
+        :param interpreter : InteractiveInterpreter in which
         the code will be executed
 
-        @param message : welcome message string
+        :param message: welcome message string
         
-        @param  'parent' : specifies the parent widget.
+        :param  parent: specifies the parent widget.
         If no parent widget has been specified, it is possible to
         exit the interpreter by Ctrl-D.
         """
@@ -40,7 +40,9 @@ class ShellWidget(RichIPythonWidget,GraphicalStreamRedirection):
 
         
     def get_interpreter(self):
-        """ Return the interpreter object """
+        """ 
+        :return: the interpreter object 
+        """
         return self.interpreter
         
 

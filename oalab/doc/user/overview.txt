@@ -1,3 +1,1 @@
-The text in this box is a short overview of your package
-that is written in ./doc/user/overview.txt and should be 
-compatible with restructured format
+Open Alea Laboratory (OpenAlea.OALab) provides a graphical user interface wich combine LPy, Visualea and others...

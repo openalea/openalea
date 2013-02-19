@@ -3,6 +3,8 @@
 # 
 # VPlantsLab GUI is create here
 #---------------------------------------------
+""" Main Window """
+
 
 import sys
 import os
@@ -28,6 +30,11 @@ from openalea.oalab.project.project import ProjectManager
 
 
 class MainWindow(qt.QMainWindow):
+    """
+    Main Window Class
+    
+    .. warning:: In Progress
+    """
     def __init__(self, parent=None):
         super(qt.QMainWindow, self).__init__(parent)
         
@@ -233,27 +240,6 @@ class MainWindow(qt.QMainWindow):
         # self.VW.addToScene(sphere)
   
     def add_plant(self):
-        '''
-        from math import pi
-        from openalea.plantgl.all import Polyline2D, Material, Translated, Swung, Shape
-        def line_prof():
-            """ create a list of profiles with polyline """
-            return [Polyline2D([(0,0),(1.5,0.1),(0.75,2),(1.1,2.2),(0.55,3),(0.8,3.1),(0,4),(0,4)]),
-                    Polyline2D([(0,0),(1.2,0.1),(0.7,2),(1.0,2.3),(0.5,3.1),(0.8,3.1),(0,4),(0,4)]),
-                    Polyline2D([(0,0),(1.4,0.1),(0.8,2),(1.1,2.1),(0.6,3),(0.85,3.0),(0,4),(0,4)]),
-                    Polyline2D([(0,0),(1.6,0.1),(0.8,2),(1.2,2.2),(0.4,3),(0.7,3.2),(0,4),(0,4)]),
-                    Polyline2D([(0,0),(1.5,0.1),(0.75,2),(1.1,2.2),(0.55,3),(0.8,3.1),(0,4),(0,4)])]
-
-        
-        #the angles to associate to profiles
-        angles = [0,pi/2.,pi,3.*pi/2.,2.*pi]
-        col = Material((0,100,50))
-        
-        class Plant(Shape):pass
-        
-        # a swung interpolating the profiles associated to the angles
-        tree = Plant(Translated(1,1,0,Swung(line_prof(),angles)),col)
-        '''
         import random
         from vplants.weberpenn import tree_client
         from vplants.weberpenn import tree_server
