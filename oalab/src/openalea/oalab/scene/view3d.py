@@ -8,20 +8,14 @@ class view3D (QGLViewer):
     This scene is based on QGLViewer.
     For the moment, we have only one view of this scene."""
     
-    def __init__(self,parent=None,scene=None,statefilename='.temp_scene.xml'):
-        QGLViewer.__init__(self,parent)
-        
+    def __init__(self,parent=None,scene=None,statefilename='.temp_scene.xml',shareWidget=None):
+        QGLViewer.__init__(self,parent,shareWidget)
         # set the scene
         if scene == None:        
             scene = self.defaultScene()
         self.scene = scene
-        
         # temp file
         self.setStateFileName(statefilename)
-        
-        # connection
-        self.connect(self,qt.SIGNAL("drawNeeded()"),self.draw)
-        
         # set some parameters
         self.setAxisIsDrawn() # show axis
         self.setGridIsDrawn() # show grid
@@ -30,7 +24,9 @@ class view3D (QGLViewer):
         self.camera().lookAt(self.sceneCenter())
         self.camera().setSceneRadius(4)#Size of vectors x,y,z
         self.camera().showEntireScene()
-
+        # connection
+        self.connect(self,qt.SIGNAL("drawNeeded()"),self.draw)
+        
     def setScene(self, scene):
         # Set the scene (erase old scene if necessary)
         self.scene = Scene()
@@ -56,7 +52,6 @@ class view3D (QGLViewer):
     
     def start(self):
         self.show()
-        pass
         
     def defaultScene(self):
         # Create a default scene.

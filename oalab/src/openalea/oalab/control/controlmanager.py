@@ -1,8 +1,10 @@
+from collections import OrderedDict
+
 class ControlManager(object):
     """ Manage controls """
     def __init__(self):
         # Initialize the dictionnary wich contain the controls registered
-        self.controls = dict()
+        self.controls = OrderedDict()
 
     def new_control(self, name):
         # Create and register a default empty control with the name 'name'
@@ -11,7 +13,7 @@ class ControlManager(object):
         
     def add_control(self, name, control):
         # Register a control 'control' with name 'name' in the ControlManager
-        name = self.check_if_name_is_unique(name)
+        name = self._check_if_name_is_unique(name)
         self.controls[name]=control
 
     def get_controls(self):
@@ -35,13 +37,20 @@ class ControlManager(object):
     def save(self):
         pass        
 
-    def check_if_name_is_unique(self, name):
+    def _check_if_name_is_unique(self, name):
         # Check if a control with the same name 'name' is alreadey register
         # in the control manager.
         # If it is the case, the name is changed ("_1" is append).
         # This is realize until the name becomes unique.
         while name in self.controls:
-            name += "_1"
+            try:
+                end = name.split("_")[-1]
+                l = len(end)
+                end = int(end)
+                end += 1
+                name = name[0:-l] + str(end)
+            except:    
+                name += "_1"
         return name    
         
         

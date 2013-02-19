@@ -207,6 +207,15 @@ class MainWindow(qt.QMainWindow):
         self.actionHistoryList = qt.QAction(self)
         qt.QObject.connect(self.history.obj, qt.SIGNAL('HistoryChanged'),self.VW.setScene)
         qt.QObject.connect(self.history.obj, qt.SIGNAL('HistoryChanged'),self.update_ressources_manager)
+    
+    def add_virtual_world_viewer(self):
+        print "This action doens't work for the moment('new virtual world viewer')."
+        pass
+        # view = view3D(scene=self.VW.getScene(),parent=self,shareWidget=self.VW)
+        # view.start()
+        # self.widList.append(view)
+        # self.splittable.splitPane(content=self.widList[2], paneId=0, direction=qt.Qt.Vertical, amount=0.8)
+        # self.show_editors()
         
     def add_soil(self):
         import openalea.plantgl.all as pgl
@@ -365,7 +374,15 @@ class MainWindow(qt.QMainWindow):
         self.controlDockWidget.setObjectName("ControlPanel")
         self.controlDockWidget.setAllowedAreas(qt.Qt.LeftDockWidgetArea | qt.Qt.RightDockWidgetArea | qt.Qt.TopDockWidgetArea | qt.Qt.BottomDockWidgetArea)
         self.controlDockWidget.setWidget(self.controlWid)
-        self.addDockWidget(qt.Qt.BottomDockWidgetArea, self.controlDockWidget)       
+        self.addDockWidget(qt.Qt.BottomDockWidgetArea, self.controlDockWidget)   
+
+        # qt.QObject.connect(self.controlWid, qt.SIGNAL('cellClicked(int,int)'),self.printTest) 
+        qt.QObject.connect(self.controlWid, qt.SIGNAL('cellDoubleClicked(int,int)'),self.edit_control)        
+            
+    def edit_control(self, row, column):
+        cont = self.controlWid.item(row,column)
+        print(cont)
+
     
     def set_controls_from_editor(self, editor):
         """ Set Control from editor 'editor' in the control manager and the widget control panel.
@@ -601,7 +618,7 @@ class MainWindow(qt.QMainWindow):
         # connect actions to buttons
         qt.QObject.connect(self.action11, qt.SIGNAL('triggered(bool)'),self.set_central_widget11)
         qt.QObject.connect(self.action12, qt.SIGNAL('triggered(bool)'),self.set_central_widget12)
-        qt.QObject.connect(self.action13, qt.SIGNAL('triggered(bool)'),self.set_central_widget13) 
+        qt.QObject.connect(self.action13, qt.SIGNAL('triggered(bool)'),self.add_virtual_world_viewer) 
         qt.QObject.connect(self.action21, qt.SIGNAL('triggered(bool)'),self.set_central_widget21)
         qt.QObject.connect(self.action22, qt.SIGNAL('triggered(bool)'),self.set_central_widget22)         
         qt.QObject.connect(self.action23, qt.SIGNAL('triggered(bool)'),self.set_central_widget23)         
@@ -610,9 +627,8 @@ class MainWindow(qt.QMainWindow):
         self.ViewBar.addAction(self.action11)
         self.ViewBar.addSeparator()
         self.ViewBar.addAction(self.action12)
-        # self.ViewBar.addAction(self.action13)
-        # self.ViewBar.addSeparator()
-        # self.ViewBar.addAction(self.action21)
+        self.ViewBar.addSeparator()
+        self.ViewBar.addAction(self.action13)
         # self.ViewBar.addAction(self.action22)
         # self.ViewBar.addAction(self.action23)
         self.ViewBar.addSeparator()
