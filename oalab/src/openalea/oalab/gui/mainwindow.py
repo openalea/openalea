@@ -14,13 +14,14 @@ import qt
 from openalea.oalab.scene.view3d import view3D
 from openalea.oalab.history.history import History
 from openalea.oalab.control.controlmanager import ControlManager
+from openalea.oalab.applets.mapping import map_language
 
 # from openalea.core.logger import get_logger
 from openalea.visualea.splitterui import SplittableUI
 
 from openalea.oalab.editor.text_editor import PythonCodeEditor as Editor
 from openalea.oalab.editor.text_editor import LPyCodeEditor as LPyEditor
-from openalea.oalab.editor.text_editor import SelectEditor
+from openalea.oalab.applets.mapping import SelectEditor
 from openalea.oalab.shell.shell import ShellWidget
 from openalea.oalab.shell.interpreter import Interpreter
 from openalea.oalab.project.project import ProjectManager
@@ -314,7 +315,7 @@ class MainWindow(qt.QMainWindow):
         # Ressources
         self.packManaWid = qt.QWidget()
         self.packManaWid.setMinimumSize(100, 100)
-        self.packManaWid.setMaximumSize(400, 400)
+        # self.packManaWid.setMaximumSize(400, 400)
 
         self.packManaDockWidget = qt.QDockWidget("Package Manager", self)
         self.packManaDockWidget.setObjectName("RessMana")
@@ -331,7 +332,7 @@ class MainWindow(qt.QMainWindow):
         # Help
         self.helpWid = qt.QWidget()
         self.helpWid.setMinimumSize(150, 150)
-        self.helpWid.setMaximumSize(400, 400)
+        # self.helpWid.setMaximumSize(400, 400)
 
         self.helpDockWidget = qt.QDockWidget("Help", self)
         self.helpDockWidget.setObjectName("Help")
@@ -370,13 +371,16 @@ class MainWindow(qt.QMainWindow):
         print(cont)
 
     
-    def set_controls_from_editor(self, editor):
-        """ Set Control from editor 'editor' in the control manager and the widget control panel.
+    def set_controls_from_applet(self, controls):
+        """
+        Set Control from the applet in the control manager and the widget control panel.
+        
+        :param controls: dict of the controls to set
         """
         self.reset_control_panel()
         
         # Get new controls which come from editor
-        new_controls = editor.get_widgets_controls()
+        new_controls = controls
         # Add new controls in control manager
         for name in new_controls:
             self.controlManager.add_control(name,new_controls[name]) 
@@ -414,7 +418,6 @@ class MainWindow(qt.QMainWindow):
         # Help
         self.obsWid = qt.QLabel("number of leafs : 42000")
         self.obsWid.setMinimumSize(50, 50)
-        # self.obsWid.setMinimumSize(400, 400)
 
         self.obsDockWidget = qt.QDockWidget("Observation Panel", self)
         self.obsDockWidget.setObjectName("ObservationPanel")
@@ -438,39 +441,35 @@ class MainWindow(qt.QMainWindow):
         self.textEditorContainer.setTabsClosable(True)
         self.textEditorContainer.setMinimumSize(250, 250)
         
-        # editorsDockWidget = qt.QDockWidget("Editors", self)
-        # editorsDockWidget.setObjectName("Editors")
-        # editorsDockWidget.setAllowedAreas(qt.Qt.LeftDockWidgetArea | qt.Qt.RightDockWidgetArea | qt.Qt.TopDockWidgetArea)
-        # editorsDockWidget.setWidget(self.textEditorContainer)
-        # self.addDockWidget(qt.Qt.RightDockWidgetArea, editorsDockWidget)
-        
         self.widList.append(self.textEditorContainer)
         self.new()
                
-    def new_text_editor(self, name="NewFile", type="py"):
-        # central widget => Editor
+    def new_text_editor(self, name="NewFile", type="python"):
         if(self.textEditorContainer.tabText(self.textEditorContainer.currentIndex())=="Select your editor type"):
             self.textEditorContainer.removeTab(self.textEditorContainer.currentIndex())
-        if type=='py':
-            self.editorWidget = Editor(parent=self)
-            self.textEditorContainer.addTab(self.editorWidget, name)
-            self.textEditorContainer.setCurrentWidget(self.editorWidget)
-            self.setup_new_tab()
-        elif type=='lpy':
-            self.editorWidget = LPyEditor()
-            self.textEditorContainer.addTab(self.editorWidget, name)
-            self.textEditorContainer.setCurrentWidget(self.editorWidget)
-            self.setup_new_tab()
-            self.set_controls_from_editor(self.editorWidget)
-        elif type=='wf':
-            self.editorWidget = Editor(parent=self)
-            self.textEditorContainer.addTab(self.editorWidget, name)
-            self.textEditorContainer.setCurrentWidget(self.editorWidget)
-            self.setup_new_tab()    
-            self.set_controls_from_editor(LPyEditor())
+            
+        applet, widget = map_language(language=type)  
+        
+        self.editorWidget = widget(parent=self)
+        appl = applet()
+        self.editorWidget.appl = appl
+        
+        self.textEditorContainer.addTab(self.editorWidget, name)
+        self.textEditorContainer.setCurrentWidget(self.editorWidget)
+        self.setup_new_tab()
 
+        try: appl.controls()
+        except: print("can\'t get controls from %s" %appl) 
+        
+        try: self.set_controls_from_applet(appl.controls())
+        except: print("can\'t set controls from %s in application" %appl)
     
     def show_select_editor(self, name="Select your editor type"):
+        """
+        Display a widget for select the editor type
+        
+        :param name: string that you want to display as widget title
+        """
         self.selectEditor = SelectEditor(parent=self)
         self.textEditorContainer.addTab(self.selectEditor, name)
         self.textEditorContainer.setCurrentWidget(self.selectEditor)
@@ -848,6 +847,8 @@ class MainWindow(qt.QMainWindow):
         self.shellDockWidget.setWidget(self.shellwdgt)
 
     def run(self):
+        # self.textEditorContainer.currentWidget().appl.run()
+        # 123456
         code = self.textEditorContainer.currentWidget().get_text()
         interp = self.get_interpreter()
         interp.runsource(code)
@@ -879,6 +880,9 @@ class MainWindow(qt.QMainWindow):
         self.show_select_editor()
     
     def open(self, fname=None):
+        # self.textEditorContainer.currentWidget().appl.open(fname)
+        # 123456
+        
         self.show_editors()
         try:
             try:
@@ -907,7 +911,7 @@ class MainWindow(qt.QMainWindow):
             self.textEditorContainer.currentWidget().set_language(self.textEditorContainer.current_extension[id])
         except:
             self.edit_status_bar("No file opened...")
-
+        
     
     def saveall(self):
         try:
