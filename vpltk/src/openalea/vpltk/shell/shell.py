@@ -1,4 +1,4 @@
-from vpltk.qt import qt as qt_
+from openalea.vpltk.qt import qt as qt_
 from streamredirection import *
 
 from IPython.frontend.qt.console.rich_ipython_widget import RichIPythonWidget

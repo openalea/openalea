@@ -17,7 +17,7 @@
 
 
 import sys
-from vpltk.qt import qt
+from openalea.vpltk.qt import qt
 from PyQt4 import QtCore, QtGui #To Delete
 from PyQt4.QtGui import QApplication #To Delete
 from PyQt4.QtCore import QThread, QEvent #To Delete
