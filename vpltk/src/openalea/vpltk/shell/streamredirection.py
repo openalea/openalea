@@ -17,12 +17,9 @@
 
 
 import sys
-from openalea.core import qt
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtGui import QApplication
-from PyQt4.QtCore import QThread, QEvent
+from openalea.vpltk.qt import qt
 
-RedirectionEventId = QEvent.User+100
+RedirectionEventId = qt.QtCore.QEvent.User+100
 sys_stderr = None
 sys_stdout = None
 sys_stdin = None
@@ -66,10 +63,10 @@ class ThreadedRedirection:
 
     def write(self, str):
         """ Emulate write function """
-        if self.guistream.thread() != QThread.currentThread():
-            e = QEvent(QEvent.Type(RedirectionEventId))
+        if self.guistream.thread() != qt.QtCore.QThread.currentThread():
+            e = qt.QtCore.QEvent(qt.QtCore.QEvent.Type(RedirectionEventId))
             e.txt = str
-            QApplication.postEvent(self.guistream,e)
+            qt.QtGui.QApplication.postEvent(self.guistream,e)
             pass
         else:
             self.guistream.write(str)  
