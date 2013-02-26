@@ -1,33 +1,48 @@
+#
+# Copyright (c) 2010 Mikhail Gusarov
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+
 """ path.py - An object representing a path to a file or directory.
 
-:Example:
+Original author:
+ Jason Orendorff <jason.orendorff\x40gmail\x2ecom>
 
->>> from openalea.core.path import path
->>> d = path('/tmp')
->>> for f in d.files('*.py'):
-...    f.chmod(0755)   #doctest: +SKIP
+Contributors:
+ Mikhail Gusarov <dottedmag@dottedmag.net>
+ Marc Abramowitz <marc@marc-abramowitz.com>
+ Jason R. Coombs <jaraco@jaraco.com>
+ Jason Chu <jchu@xentac.net>
+ Vojislav Stojkovic <vstojkovic@syntertainment.com>
 
-This module requires Python 2.2 or later.
+Example:
 
+from path import path
+d = path('/home/guido/bin')
+for f in d.files('*.py'):
+    f.chmod(0755)
 
-:URL:     http://www.jorendorff.com/articles/python/path
-:Author:  Jason Orendorff <jason.orendorff\x40gmail\x2ecom> (et al;see the url)
-:Date:    9 Mar 2007
+path.py requires Python 2.5 or later.
 """
 
-
-# TODO
-#   - Tree-walking functions don't avoid symlink loops.  Matt Harrison
-#     sent me a patch for this.
-#   - Bug in write_text().  It doesn't support Universal newline mode.
-#   - Better error message in listdir() when self isn't a
-#     directory. (On Windows, the error message really sucks.)
-#   - Make sure everything has a good docstring.
-#   - Add methods for regex find and replace.
-#   - guess_content_type() method?
-#   - Perhaps support arguments to touch().
-
-from __future__ import generators
+from __future__ import with_statement
 
 import sys
 import warnings
@@ -36,128 +51,155 @@ import fnmatch
 import glob
 import shutil
 import codecs
+import hashlib
+import errno
+import tempfile
+import functools
 
-__version__ = '2.2'
-__all__ = ['path']
-
-# Platform-specific support for path.owner
-if os.name == 'nt':
-    try:
-        import win32security
-    except ImportError:
-        win32security = None
-else:
-    try:
-        import pwd
-    except ImportError:
-        pwd = None
-
-# Pre-2.3 support.  Are unicode filenames supported?
-_base = str
-_getcwd = os.getcwd
 try:
-    if os.path.supports_unicode_filenames:
-        _base = unicode
-        _getcwd = os.getcwdu
-except AttributeError:
+    import win32security
+except ImportError:
     pass
 
-# Pre-2.3 workaround for booleans
 try:
-    True, False
-except NameError:
-    True, False = 1, 0
+    import pwd
+except ImportError:
+    pass
 
-# Pre-2.3 workaround for basestring.
-try:
-    basestring
-except NameError:
-    basestring = (str, unicode)
-
-# Universal newline support
-_textmode = 'r'
-if hasattr(file, 'newlines'):
-    _textmode = 'U'
-
+__version__ = '3.0'
+__all__ = ['path']
 
 class TreeWalkWarning(Warning):
     pass
 
+def simple_cache(func):
+    """
+    Save results for the 'using_module' classmethod.
+    When Python 3.2 is available, use functools.lru_cache instead.
+    """
+    saved_results = {}
+    def wrapper(cls, module):
+        if module in saved_results:
+            return saved_results[module]
+        saved_results[module] = func(cls, module)
+        return saved_results[module]
+    return wrapper
 
-class path(_base):
+class ClassProperty(property):
+    def __get__(self, cls, owner):
+        return self.fget.__get__(None, owner)()
+
+class multimethod(object):
+    """
+    Acts like a classmethod when invoked from the class and like an
+    instancemethod when invoked from the instance.
+    """
+    def __init__(self, func):
+        self.func = func
+
+    def __get__(self, instance, owner):
+        return (
+            functools.partial(self.func, owner) if instance is None
+            else functools.partial(self.func, owner, instance)
+        )
+
+class path(unicode):
     """ Represents a filesystem path.
 
     For documentation on individual methods, consult their
     counterparts in os.path.
     """
 
+    def __init__(self, other):
+        if not isinstance(other, basestring):
+            raise TypeError("path must be a string")
+
+    module = os.path
+    "The path module to use for path operations."
+
+    @classmethod
+    @simple_cache
+    def using_module(cls, module):
+        subclass_name = cls.__name__ + '_' + module.__name__
+        bases = (cls,)
+        ns = {'module': module}
+        return type(subclass_name, bases, ns)
+
+    @ClassProperty
+    @classmethod
+    def _next_class(cls):
+        """
+        What class should be used to construct new instances from this class
+        """
+        return cls
+
     # --- Special Python methods.
 
     def __repr__(self):
-        return 'path(%s)' % _base.__repr__(self)
+        return '%s(%s)' % (type(self).__name__, super(path, self).__repr__())
 
     # Adding a path and a string yields a path.
-
     def __add__(self, more):
         try:
-            resultStr = _base.__add__(self, more)
-        except TypeError:  #Python bug
-            resultStr = NotImplemented
-        if resultStr is NotImplemented:
-            return resultStr
-        return self.__class__(resultStr)
-
-    def __radd__(self, other):
-        if isinstance(other, basestring):
-            return self.__class__(other.__add__(self))
-        else:
+            return self._next_class(super(path, self).__add__(more))
+        except TypeError:  # Python bug
             return NotImplemented
 
-    # The / operator joins paths.
+    def __radd__(self, other):
+        if not isinstance(other, basestring):
+            return NotImplemented
+        return self._next_class(other.__add__(self))
 
+    # The / operator joins paths.
     def __div__(self, rel):
         """ fp.__div__(rel) == fp / rel == fp.joinpath(rel)
 
         Join two path components, adding a separator character if
         needed.
         """
-        return self.__class__(os.path.join(self, rel))
+        return self._next_class(self.module.join(self, rel))
 
     # Make the / operator work even when true division is enabled.
     __truediv__ = __div__
 
+    def __enter__(self):
+        self._old_dir = self.getcwd()
+        os.chdir(self)
+
+    def __exit__(self, *_):
+        os.chdir(self._old_dir)
+
+    @classmethod
     def getcwd(cls):
         """ Return the current working directory as a path object. """
-        return cls(_getcwd())
-    getcwd = classmethod(getcwd)
+        return cls(os.getcwdu())
 
-
+    #
     # --- Operations on path strings.
 
-    isabs = os.path.isabs
-
     def abspath(self):
-        return self.__class__(os.path.abspath(self))
+        return self._next_class(self.module.abspath(self))
 
     def normcase(self):
-        return self.__class__(os.path.normcase(self))
+        return self._next_class(self.module.normcase(self))
 
     def normpath(self):
-        return self.__class__(os.path.normpath(self))
+        return self._next_class(self.module.normpath(self))
 
     def realpath(self):
-        return self.__class__(os.path.realpath(self))
+        return self._next_class(self.module.realpath(self))
 
     def expanduser(self):
-        return self.__class__(os.path.expanduser(self))
+        return self._next_class(self.module.expanduser(self))
 
     def expandvars(self):
-        return self.__class__(os.path.expandvars(self))
+        return self._next_class(self.module.expandvars(self))
 
     def dirname(self):
-        return self.__class__(os.path.dirname(self))
+        return self._next_class(self.module.dirname(self))
 
-    basename = os.path.basename
+    def basename(self):
+        return self._next_class(self.module.basename(self))
 
     def expand(self):
         """ Clean up a filename by calling expandvars(),
@@ -169,16 +211,16 @@ class path(_base):
         return self.expandvars().expanduser().normpath()
 
     def _get_namebase(self):
-        base, ext = os.path.splitext(self.name)
+        base, ext = self.module.splitext(self.name)
         return base
 
     def _get_ext(self):
-        f, ext = os.path.splitext(_base(self))
+        f, ext = self.module.splitext(self)
         return ext
 
     def _get_drive(self):
-        drive, r = os.path.splitdrive(self)
-        return self.__class__(drive)
+        drive, r = self.module.splitdrive(self)
+        return self._next_class(drive)
 
     parent = property(
         dirname, None, None,
@@ -214,8 +256,8 @@ class path(_base):
 
     def splitpath(self):
         """ p.splitpath() -> Return (p.parent, p.name). """
-        parent, child = os.path.split(self)
-        return self.__class__(parent), child
+        parent, child = self.module.split(self)
+        return self._next_class(parent), child
 
     def splitdrive(self):
         """ p.splitdrive() -> Return (p.drive, <the rest of p>).
@@ -224,8 +266,8 @@ class path(_base):
         no drive specifier, p.drive is empty, so the return value
         is simply (path(''), p).  This is always the case on Unix.
         """
-        drive, rel = os.path.splitdrive(self)
-        return self.__class__(drive), rel
+        drive, rel = self.module.splitdrive(self)
+        return self._next_class(drive), rel
 
     def splitext(self):
         """ p.splitext() -> Return (p.stripext(), p.ext).
@@ -237,8 +279,8 @@ class path(_base):
         last path segment.  This has the property that if
         (a, b) == p.splitext(), then a + b == p.
         """
-        filename, ext = os.path.splitext(self)
-        return self.__class__(filename), ext
+        filename, ext = self.module.splitext(self)
+        return self._next_class(filename), ext
 
     def stripext(self):
         """ p.stripext() -> Remove one file extension from the path.
@@ -248,27 +290,29 @@ class path(_base):
         """
         return self.splitext()[0]
 
-    if hasattr(os.path, 'splitunc'):
+    def splitunc(self):
+        unc, rest = self.module.splitunc(self)
+        return self._next_class(unc), rest
 
-        def splitunc(self):
-            unc, rest = os.path.splitunc(self)
-            return self.__class__(unc), rest
-
-        def _get_uncshare(self):
-            unc, r = os.path.splitunc(self)
-            return self.__class__(unc)
-
-        uncshare = property(
-            _get_uncshare, None, None,
-            """ The UNC mount point for this path.
-            This is empty for paths on local drives. """)
-
-    def joinpath(self, *args):
-        """ Join two or more path components, adding a separator
-        character (os.sep) if needed.  Returns a new path
-        object.
+    @property
+    def uncshare(self):
         """
-        return self.__class__(os.path.join(self, *args))
+        The UNC mount point for this path.
+        This is empty for paths on local drives.
+        """
+        unc, r = self.module.splitunc(self)
+        return self._next_class(unc)
+
+    @multimethod
+    def joinpath(cls, first, *others):
+        """
+        Join first to zero or more path components, adding a separator
+        character (first.module.sep) if needed.  Returns a new instance of
+        first._next_class.
+        """
+        if not isinstance(first, cls):
+            first = cls(first)
+        return first._next_class(first.module.join(first, *others))
 
     def splitall(self):
         r""" Return a list of the path components in this path.
@@ -278,7 +322,7 @@ class path(_base):
         this path (for example, '/' or 'C:\\').  The other items in
         the list will be strings.
 
-        path.path.joinpath(\*result) will yield the original path.
+        path.path.joinpath(*result) will yield the original path.
         """
         parts = []
         loc = self
@@ -296,7 +340,7 @@ class path(_base):
         """ Return this path as a relative path,
         based from the current working directory.
         """
-        cwd = self.__class__(os.getcwd())
+        cwd = self._next_class(os.getcwd())
         return cwd.relpathto(self)
 
     def relpathto(self, dest):
@@ -307,20 +351,20 @@ class path(_base):
         dest.abspath().
         """
         origin = self.abspath()
-        dest = self.__class__(dest).abspath()
+        dest = self._next_class(dest).abspath()
 
         orig_list = origin.normcase().splitall()
         # Don't normcase dest!  We want to preserve the case.
         dest_list = dest.splitall()
 
-        if orig_list[0] != os.path.normcase(dest_list[0]):
+        if orig_list[0] != self.module.normcase(dest_list[0]):
             # Can't get here from there.
             return dest
 
         # Find the location where the two paths start to differ.
         i = 0
         for start_seg, dest_seg in zip(orig_list, dest_list):
-            if start_seg != os.path.normcase(dest_seg):
+            if start_seg != self.module.normcase(dest_seg):
                 break
             i += 1
 
@@ -334,8 +378,8 @@ class path(_base):
             # If they happen to be identical, use os.curdir.
             relpath = os.curdir
         else:
-            relpath = os.path.join(*segments)
-        return self.__class__(relpath)
+            relpath = self.module.join(*segments)
+        return self._next_class(relpath)
 
     # --- Listing, searching, walking, and matching
 
@@ -364,7 +408,7 @@ class path(_base):
 
         With the optional 'pattern' argument, this only lists
         directories whose names match the given pattern.  For
-        example, d.dirs('build-\*').
+        example, d.dirs('build-*').
         """
         return [p for p in self.listdir(pattern) if p.isdir()]
 
@@ -376,7 +420,7 @@ class path(_base):
 
         With the optional 'pattern' argument, this only lists files
         whose names match the given pattern.  For example,
-        d.files('\*.pyc').
+        d.files('*.pyc').
         """
 
         return [p for p in self.listdir(pattern) if p.isfile()]
@@ -439,7 +483,7 @@ class path(_base):
 
         With the optional 'pattern' argument, this yields only
         directories whose names match the given pattern.  For
-        example, mydir.walkdirs('\*test') yields only directories
+        example, mydir.walkdirs('*test') yields only directories
         with names ending in 'test'.
 
         The errors= keyword argument controls behavior when an
@@ -475,7 +519,7 @@ class path(_base):
 
         The optional argument, pattern, limits the results to files
         with names that match the pattern.  For example,
-        mydir.walkfiles('\*.tmp') yields only files with the .tmp
+        mydir.walkfiles('*.tmp') yields only files with the .tmp
         extension.
         """
         if errors not in ('strict', 'warn', 'ignore'):
@@ -522,7 +566,7 @@ class path(_base):
         """ Return True if self.name matches the given pattern.
 
         pattern - A filename pattern with wildcards,
-            for example '\*.py'.
+            for example '*.py'.
         """
         return fnmatch.fnmatch(self.name, pattern)
 
@@ -531,26 +575,23 @@ class path(_base):
 
         pattern - a path relative to this directory, with wildcards.
 
-        For example, path('/users').glob('\*/bin/\*') returns a list
+        For example, path('/users').glob('*/bin/*') returns a list
         of all the files users have in their bin directories.
         """
-        cls = self.__class__
-        return [cls(s) for s in glob.glob(_base(self / pattern))]
+        cls = self._next_class
+        return [cls(s) for s in glob.glob(self / pattern)]
 
-
+    #
     # --- Reading or writing an entire file at once.
 
     def open(self, mode='r'):
         """ Open this file.  Return a file object. """
-        return file(self, mode)
+        return open(self, mode)
 
     def bytes(self):
         """ Open this file, read all bytes, return them as a string. """
-        f = self.open('rb')
-        try:
+        with self.open('rb') as f:
             return f.read()
-        finally:
-            f.close()
 
     def write_bytes(self, bytes, append=False):
         """ Open this file and write the given bytes to it.
@@ -562,17 +603,14 @@ class path(_base):
             mode = 'ab'
         else:
             mode = 'wb'
-        f = self.open(mode)
-        try:
+        with self.open(mode) as f:
             f.write(bytes)
-        finally:
-            f.close()
 
     def text(self, encoding=None, errors='strict'):
         r""" Open this file, read it in, return the content as a string.
 
-        This uses 'U' mode in Python 2.3 and later, so '\r\n' and '\r'
-        are automatically translated to '\n'.
+        This method uses 'U' mode, so '\r\n' and '\r' are automatically
+        translated to '\n'.
 
         Optional arguments:
 
@@ -585,20 +623,14 @@ class path(_base):
         """
         if encoding is None:
             # 8-bit
-            f = self.open(_textmode)
-            try:
+            with self.open('U') as f:
                 return f.read()
-            finally:
-                f.close()
         else:
             # Unicode
-            f = codecs.open(self, 'r', encoding, errors)
-            # (Note - Can't use 'U' mode here, since codecs.open
-            # doesn't support 'U' mode, even in Python 2.3.)
-            try:
+            with codecs.open(self, 'r', encoding, errors) as f:
+                # (Note - Can't use 'U' mode here, since codecs.open
+                # doesn't support 'U' mode.)
                 t = f.read()
-            finally:
-                f.close()
             return (t.replace(u'\r\n', u'\n')
                      .replace(u'\r\x85', u'\n')
                      .replace(u'\r', u'\n')
@@ -615,7 +647,7 @@ class path(_base):
         path.write_bytes(): newline handling and Unicode handling.
         See below.
 
-        :Parameters:
+        Parameters:
 
           - text - str/unicode - The text to be written.
 
@@ -653,7 +685,7 @@ class path(_base):
         u'\x85', u'\r\x85', and u'\u2028'.
 
         (This is slightly different from when you open a file for
-        writing with fopen(filename, "w") in C or file(filename, 'w')
+        writing with fopen(filename, "w") in C or open(filename, 'w')
         in Python.)
 
 
@@ -709,14 +741,11 @@ class path(_base):
                 translated to '\n'.  If false, newline characters are
                 stripped off.  Default is True.
 
-        This uses 'U' mode in Python 2.3 and later.
+        This uses 'U' mode.
         """
         if encoding is None and retain:
-            f = self.open(_textmode)
-            try:
+            with self.open('U') as f:
                 return f.readlines()
-            finally:
-                f.close()
         else:
             return self.text(encoding, errors).splitlines(retain)
 
@@ -758,8 +787,7 @@ class path(_base):
             mode = 'ab'
         else:
             mode = 'wb'
-        f = self.open(mode)
-        try:
+        with self.open(mode) as f:
             for line in lines:
                 isUnicode = isinstance(line, unicode)
                 if linesep is not None:
@@ -782,65 +810,79 @@ class path(_base):
                         encoding = sys.getdefaultencoding()
                     line = line.encode(encoding, errors)
                 f.write(line)
-        finally:
-            f.close()
 
     def read_md5(self):
         """ Calculate the md5 hash for this file.
 
         This reads through the entire file.
         """
-        f = self.open('rb')
-        try:
-            import hashlib
-            m = hashlib.md5()
+        return self.read_hash('md5')
+
+    def _hash(self, hash_name):
+        with self.open('rb') as f:
+            m = hashlib.new(hash_name)
             while True:
                 d = f.read(8192)
                 if not d:
                     break
                 m.update(d)
-        finally:
-            f.close()
-        return m.digest()
+            return m
+
+    def read_hash(self, hash_name):
+        """ Calculate given hash for this file.
+
+        List of supported hashes can be obtained from hashlib package. This
+        reads the entire file.
+        """
+        return self._hash(hash_name).digest()
+
+    def read_hexhash(self, hash_name):
+        """ Calculate given hash for this file, returning hexdigest.
+
+        List of supported hashes can be obtained from hashlib package. This
+        reads the entire file.
+        """
+        return self._hash(hash_name).hexdigest()
 
     # --- Methods for querying the filesystem.
+    # N.B. On some platforms, the os.path functions may be implemented in C
+    # (e.g. isdir on Windows, Python 3.2.2), and compiled functions don't get
+    # bound. Playing it safe and wrapping them all in method calls.
 
-    exists = os.path.exists
-    isdir = os.path.isdir
-    isfile = os.path.isfile
-    islink = os.path.islink
-    ismount = os.path.ismount
+    def isabs(self): return self.module.isabs(self)
+    def exists(self): return self.module.exists(self)
+    def isdir(self): return self.module.isdir(self)
+    def isfile(self): return self.module.isfile(self)
+    def islink(self): return self.module.islink(self)
+    def ismount(self): return self.module.ismount(self)
 
-    if hasattr(os.path, 'samefile'):
-        samefile = os.path.samefile
+    def samefile(self): return self.module.samefile(self)
 
-    getatime = os.path.getatime
+    def getatime(self): return self.module.getatime(self)
     atime = property(
         getatime, None, None,
         """ Last access time of the file. """)
 
-    getmtime = os.path.getmtime
+    def getmtime(self): return self.module.getmtime(self)
     mtime = property(
         getmtime, None, None,
         """ Last-modified time of the file. """)
 
-    if hasattr(os.path, 'getctime'):
-        getctime = os.path.getctime
-        ctime = property(
-            getctime, None, None,
-            """ Creation time of the file. """)
+    def getctime(self): return self.module.getctime(self)
+    ctime = property(
+        getctime, None, None,
+        """ Creation time of the file. """)
 
-    getsize = os.path.getsize
+    def getsize(self): return self.module.getsize(self)
     size = property(
         getsize, None, None,
         """ Size of the file, in bytes. """)
 
     if hasattr(os, 'access'):
-
         def access(self, mode):
             """ Return true if current user has access to this path.
 
-            :param mode: one of the constants: os.F_OK, os.R_OK, os.W_OK, os.X_OK
+            mode - One of the constants os.F_OK, os.R_OK, os.W_OK, os.X_OK
             """
             return os.access(self, mode)
 
@@ -852,78 +894,125 @@ class path(_base):
         """ Like path.stat(), but do not follow symbolic links. """
         return os.lstat(self)
 
-    def get_owner(self):
-        r""" Return the name of the owner of this file or directory.
+    def __get_owner_windows(self):
+        r"""
+        Return the name of the owner of this file or directory. Follow
+        symbolic links.
 
-        This follows symbolic links.
-
-        On Windows, this returns a name of the form ur'DOMAIN\User Name'.
-        On Windows, a group can own a file or directory.
+        Return a name of the form ur'DOMAIN\User Name'; may be a group.
         """
-        if os.name == 'nt':
-            if win32security is None:
-                raise Exception("path.owner requires win32all to be installed")
-            desc = win32security.GetFileSecurity(
-                self, win32security.OWNER_SECURITY_INFORMATION)
-            sid = desc.GetSecurityDescriptorOwner()
-            account, domain, typecode = win32security.LookupAccountSid(None, sid)
-            return domain + u'\\' + account
-        else:
-            if pwd is None:
-                raise NotImplementedError("path.owner is not implemented on this platform.")
-            st = self.stat()
-            return pwd.getpwuid(st.st_uid).pw_name
+        desc = win32security.GetFileSecurity(
+            self, win32security.OWNER_SECURITY_INFORMATION)
+        sid = desc.GetSecurityDescriptorOwner()
+        account, domain, typecode = win32security.LookupAccountSid(None, sid)
+        return domain + u'\\' + account
+
+    def __get_owner_unix(self):
+        """
+        Return the name of the owner of this file or directory. Follow
+        symbolic links.
+        """
+        st = self.stat()
+        return pwd.getpwuid(st.st_uid).pw_name
+
+    def __get_owner_not_implemented(self):
+        raise NotImplementedError("Ownership not available on this platform.")
+
+    if 'win32security' in globals():
+        get_owner = __get_owner_windows
+    elif 'pwd' in globals():
+        get_owner = __get_owner_unix
+    else:
+        get_owner = __get_owner_not_implemented
 
     owner = property(
         get_owner, None, None,
         """ Name of the owner of this file or directory. """)
 
     if hasattr(os, 'statvfs'):
-
         def statvfs(self):
             """ Perform a statvfs() system call on this path. """
             return os.statvfs(self)
 
     if hasattr(os, 'pathconf'):
-
         def pathconf(self, name):
             return os.pathconf(self, name)
 
+    #
     # --- Modifying operations on files and directories
 
     def utime(self, times):
         """ Set the access and modified times of this file. """
         os.utime(self, times)
+        return self
 
     def chmod(self, mode):
         os.chmod(self, mode)
+        return self
 
     if hasattr(os, 'chown'):
-
         def chown(self, uid, gid):
             os.chown(self, uid, gid)
+            return self
 
     def rename(self, new):
         os.rename(self, new)
+        return self._next_class(new)
 
     def renames(self, new):
         os.renames(self, new)
+        return self._next_class(new)
 
-
+    #
     # --- Create/delete operations on directories
 
     def mkdir(self, mode=0777):
         os.mkdir(self, mode)
+        return self
+
+    def mkdir_p(self, mode=0777):
+        try:
+            self.mkdir(mode)
+        except OSError, e:
+            if e.errno != errno.EEXIST:
+                raise
+        return self
 
     def makedirs(self, mode=0777):
         os.makedirs(self, mode)
+        return self
+
+    def makedirs_p(self, mode=0777):
+        try:
+            self.makedirs(mode)
+        except OSError, e:
+            if e.errno != errno.EEXIST:
+                raise
+        return self
 
     def rmdir(self):
         os.rmdir(self)
+        return self
+
+    def rmdir_p(self):
+        try:
+            self.rmdir()
+        except OSError, e:
+            if e.errno != errno.ENOTEMPTY and e.errno != errno.EEXIST:
+                raise
+        return self
 
     def removedirs(self):
         os.removedirs(self)
+        return self
 
+    def removedirs_p(self):
+        try:
+            self.removedirs()
+        except OSError, e:
+            if e.errno != errno.ENOTEMPTY and e.errno != errno.EEXIST:
+                raise
+        return self
 
     # --- Modifying operations on files
 
@@ -934,36 +1023,49 @@ class path(_base):
         fd = os.open(self, os.O_WRONLY | os.O_CREAT, 0666)
         os.close(fd)
         os.utime(self, None)
+        return self
 
     def remove(self):
         os.remove(self)
+        return self
+
+    def remove_p(self):
+        try:
+            self.unlink()
+        except OSError, e:
+            if e.errno != errno.ENOENT:
+                raise
+        return self
 
     def unlink(self):
         os.unlink(self)
+        return self
 
+    def unlink_p(self):
+        self.remove_p()
+        return self
 
     # --- Links
 
     if hasattr(os, 'link'):
-
         def link(self, newpath):
             """ Create a hard link at 'newpath', pointing to this file. """
             os.link(self, newpath)
+            return self._next_class(newpath)
 
     if hasattr(os, 'symlink'):
-
         def symlink(self, newlink):
             """ Create a symbolic link at 'newlink', pointing here. """
             os.symlink(self, newlink)
+            return self._next_class(newlink)
 
     if hasattr(os, 'readlink'):
-
         def readlink(self):
             """ Return the path to which this symbolic link points.
 
             The result may be an absolute or a relative path.
             """
-            return self.__class__(os.readlink(self))
+            return self._next_class(os.readlink(self))
 
         def readlinkabs(self):
             """ Return the path to which this symbolic link points.
@@ -976,7 +1078,7 @@ class path(_base):
             else:
                 return (self.parent / p).abspath()
 
-
+    #
     # --- High-level functions from shutil
 
     copyfile = shutil.copyfile
@@ -989,15 +1091,54 @@ class path(_base):
         move = shutil.move
     rmtree = shutil.rmtree
 
+    def rmtree_p(self):
+        try:
+            self.rmtree()
+        except OSError, e:
+            if e.errno != errno.ENOENT:
+                raise
+        return self
 
+    #
     # --- Special stuff from os
 
     if hasattr(os, 'chroot'):
-
         def chroot(self):
             os.chroot(self)
 
     if hasattr(os, 'startfile'):
-
         def startfile(self):
             os.startfile(self)
+            return self
+
+class tempdir(path):
+    """
+    A temporary directory via tempfile.mkdtemp, and constructed with the
+    same parameters that you can use as a context manager.
+
+    Example:
+
+        with tempdir() as d:
+            # do stuff with the path object "d"
+
+        # here the directory is deleted automatically
+    """
+
+    @ClassProperty
+    @classmethod
+    def _next_class(cls):
+        return path
+
+    def __new__(cls, *args, **kwargs):
+        dirname = tempfile.mkdtemp(*args, **kwargs)
+        return super(tempdir, cls).__new__(cls, dirname)
+
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if not exc_value:
+            self.rmtree()

@@ -28,11 +28,12 @@ import openalea
 import sys
 import os
 from os.path import join as pj
+from os.path import isdir
 
 import tempfile
 import glob
 import urlparse
-from path import path
+from openalea.core.path import path
 from fnmatch import fnmatch
 from pkg_resources import iter_entry_points
 
@@ -175,7 +176,9 @@ class PackageManager(Observed):
     def get_wralea_path(self):
         """ return the list of wralea path (union of user and system)"""
 
-        return list(self.temporary_wralea_paths.union(self.sys_wralea_path.union(self.user_wralea_path)))
+        dirs = list(self.temporary_wralea_paths.union(self.sys_wralea_path.union(self.user_wralea_path)))
+        dirs = filter(isdir, dirs)
+        return dirs
 
 
     def set_user_wralea_path(self):
@@ -606,11 +609,10 @@ class PackageManager(Observed):
         recursive = True
         if not SEARCH_OUTSIDE_ENTRY_POINTS:
             recursive = False 
-
         if recursive:
-            files = set( f.abspath() for p in directories if path(p).isdir() for f in path(p).walkfiles('*wralea*.py'))
+            files = set( f.abspath() for p in directories for f in path(p).walkfiles('*wralea*.py'))
         else:
-            files = set( f.abspath() for p in directories if path(p).isdir() for f in path(p).glob('*wralea*.py'))
+            files = set( f.abspath() for p in directories for f in path(p).glob('*wralea*.py'))
         return files
 
     def create_readers(self, wralea_files):
@@ -726,7 +728,7 @@ class PackageManager(Observed):
             path = get_userpkg_dir()
         path = os.path.join(path, name)
 
-        if(not os.path.isdir(path)):
+        if(not isdir(path)):
             os.mkdir(path)
 
         if(not os.path.exists(os.path.join(path, "__wralea__.py"))):
