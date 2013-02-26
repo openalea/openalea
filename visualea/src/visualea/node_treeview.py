@@ -46,7 +46,7 @@ from openalea.visualea.util import grab_icon
 
 from . import images_rc
 
-from openalea.core.compat import to_qvariant
+from openalea.vpltk.qt.compat import to_qvariant
 
 # Utilities function
 

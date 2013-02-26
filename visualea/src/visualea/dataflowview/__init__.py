@@ -23,7 +23,7 @@ import anno
 import adapter
 
 from PyQt4 import QtGui, QtCore
-from openalea.core.compat import to_qvariant
+from openalea.vpltk.qt.compat import to_qvariant
 from openalea.visualea.graph_operator import GraphOperator
 from openalea.core import compositenode, node
 from openalea.core.pkgmanager import PackageManager # for drag and drop
