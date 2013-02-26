@@ -22,8 +22,8 @@ from openalea.visualea.splitterui import SplittableUI
 from openalea.oalab.editor.text_editor import PythonCodeEditor as Editor
 from openalea.oalab.editor.text_editor import LPyCodeEditor as LPyEditor
 from openalea.oalab.applets.mapping import SelectEditor
-from openalea.oalab.shell.shell import ShellWidget
-from openalea.oalab.shell.interpreter import Interpreter
+from openalea.vpltk.shell.shell import get_shell_class
+from openalea.vpltk.shell.shell import get_interpreter_class
 from openalea.oalab.project.project import ProjectManager
 
 
@@ -451,7 +451,8 @@ class MainWindow(qt.QMainWindow):
         applet, widget = map_language(language=type)  
         
         self.editorWidget = widget(parent=self)
-        appl = applet()
+        try: appl = applet(parent=self)
+        except: appl = applet()
         self.editorWidget.appl = appl
         
         self.textEditorContainer.addTab(self.editorWidget, name)
@@ -835,24 +836,29 @@ class MainWindow(qt.QMainWindow):
     def set_shell(self):
 
         # dock widget => Shell IPython
-        self.interpreter = Interpreter()# interpreter
+        InterpreterClass = get_interpreter_class()
+        self.interpreter = InterpreterClass()# interpreter
         self.interpreter.locals['history'] = self.history.getHistory()
-        self.shellDockWidget = qt.QDockWidget("IPython Shell", self)
+
+        self.shellDockWidget = qt.QDockWidget("Python Shell", self)     
+            
         self.shellDockWidget.setObjectName("Shell")
         self.shellDockWidget.setAllowedAreas(qt.Qt.BottomDockWidgetArea | qt.Qt.TopDockWidgetArea)
         self.addDockWidget(qt.Qt.BottomDockWidgetArea, self.shellDockWidget)
         
-        self.shellwdgt = ShellWidget(self.interpreter)
+        
+        ShellClass = get_shell_class()
+        self.shellwdgt = ShellClass(self.interpreter)
         self.shellwdgt.setMinimumSize(700,150)
         self.shellDockWidget.setWidget(self.shellwdgt)
 
     def run(self):
-        # self.textEditorContainer.currentWidget().appl.run()
+        self.textEditorContainer.currentWidget().appl.run()
         # 123456
-        code = self.textEditorContainer.currentWidget().get_text()
-        interp = self.get_interpreter()
-        interp.runsource(code)
-        self.edit_status_bar("Code runned.")
+        # code = self.textEditorContainer.currentWidget().get_text()
+        # interp = self.get_interpreter()
+        # interp.runsource(code)
+        # self.edit_status_bar("Code runned.")
  
     def get_interpreter(self):
         return self.interpreter
@@ -880,9 +886,9 @@ class MainWindow(qt.QMainWindow):
         self.show_select_editor()
     
     def open(self, fname=None):
-        # self.textEditorContainer.currentWidget().appl.open(fname)
+        self.textEditorContainer.currentWidget().appl.open(fname)
         # 123456
-        
+        '''
         self.show_editors()
         try:
             try:
@@ -911,7 +917,7 @@ class MainWindow(qt.QMainWindow):
             self.textEditorContainer.currentWidget().set_language(self.textEditorContainer.current_extension[id])
         except:
             self.edit_status_bar("No file opened...")
-        
+        '''
     
     def saveall(self):
         try:
