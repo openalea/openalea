@@ -23,14 +23,13 @@ from PyQt4 import QtCore, QtGui, QtSvg
 from PyQt4.QtCore import SIGNAL
 
 import ui_mainwindow
-from openalea.visualea.shell import get_shell_class
+from openalea.vpltk.shell.shell import get_shell_class, get_interpreter_class
 
 from openalea.core import cli, logger
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.settings import Settings,NoSectionError,NoOptionError
 from openalea.core.node import NodeFactory
 from openalea.core.compositenode import CompositeNodeFactory
-from code import InteractiveInterpreter as Interpreter
 
 from openalea.visualea.node_treeview import NodeFactoryView, NodeFactoryTreeView, PkgModel, CategoryModel
 from openalea.visualea.node_treeview import DataPoolListView, DataPoolModel
@@ -81,27 +80,17 @@ class MainWindow(QtGui.QMainWindow,
         self.splitter.addWidget(self.lowerpane)
 
         # python interpreter
-        ipy = False
-        try:
-            from IPython.frontend.qt.console.rich_ipython_widget import RichIPythonWidget
-            from IPython.frontend.qt.inprocess_kernelmanager import QtInProcessKernelManager
-            from openalea.visualea.ipyinterpreter import IPyInterpreter
-            interpreter = IPyInterpreter()
-            ipy = True
-        except ImportError:
-            interpreter = Interpreter()
-            
+        InterpreterClass = get_interpreter_class()
+        interpreter = InterpreterClass()
+                    
         # interpreter init defered after session init
         shellclass = get_shell_class()
         self.interpreterWidget = shellclass(interpreter,
                                             cli.get_welcome_msg())
 
         GraphOperator.globalInterpreter = interpreter
-        if ipy:
-            self.lowerpane.addTab(self.interpreterWidget, "IPython Shell")
-        else:
-            self.lowerpane.addTab(self.interpreterWidget, "Python Shell")
-
+        self.lowerpane.addTab(self.interpreterWidget, "Python Shell")
+        
         if logger.QT_LOGGING_MODEL_AVAILABLE:
             # openalea logger
             model = logger.LoggerOffice().get_handler("qt")
