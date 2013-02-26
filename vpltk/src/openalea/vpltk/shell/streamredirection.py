@@ -17,10 +17,10 @@
 
 
 import sys
-from openalea.vpltk.qt import qt
-from PyQt4 import QtCore, QtGui #To Delete
-from PyQt4.QtGui import QApplication #To Delete
-from PyQt4.QtCore import QThread, QEvent #To Delete
+from openalea.core import qt
+from PyQt4 import QtCore, QtGui
+from PyQt4.QtGui import QApplication
+from PyQt4.QtCore import QThread, QEvent
 
 RedirectionEventId = QEvent.User+100
 sys_stderr = None
@@ -47,7 +47,14 @@ class MultipleRedirection:
         for stream in self.streams:
             stream.write(str)
 
-    def flush(self):
+class NoneOutput:
+    """ Dummy file which redirects stream to nothing """
+
+    def __init__(self):
+        """ The stream is redirect to nothing """
+        pass
+    def write(self, str):
+        """ Emulate write function """
         pass
 
 class ThreadedRedirection:
@@ -55,23 +62,18 @@ class ThreadedRedirection:
 
     def __init__(self,  guistream):
         """ The stream is redirect to the file list 'files' """
-
         self.guistream = guistream
 
     def write(self, str):
         """ Emulate write function """
-
         if self.guistream.thread() != QThread.currentThread():
-            sys_stdout.write(str)
             e = QEvent(QEvent.Type(RedirectionEventId))
             e.txt = str
             QApplication.postEvent(self.guistream,e)
             pass
         else:
-            self.guistream.write(str)
+            self.guistream.write(str)  
 
-    def flush(self):
-        pass
             
 class GraphicalStreamRedirection:
     """ Redirection of a stream as graphic output """
@@ -106,6 +108,29 @@ class GraphicalStreamRedirection:
             sys.stdout   = MultipleRedirection(sys_stdout, ThreadedRedirection(self))
         else:
             sys.stdout   = ThreadedRedirection(self)
+
+    def selfAsStdOutRedirection(self):
+        sys.stdout   = ThreadedRedirection(self)
+        
+    def sysAsStdOutRedirection(self):
+        sys.stdout   = sys_stdout
+        
+    def noneAsStdOutRedirection(self):
+        sys.stdout   = NoneOutput()
+        
+    def hasMultipleStdOutRedirection(self):
+        return isinstance(sys.stdout, MultipleRedirection)
+        
+    def isSelfStdOutRedirection(self):
+        return isinstance(sys.stdout, ThreadedRedirection)
+        
+    def isSysStdOutRedirection(self):
+        return sys.stdout   == sys_stdout
+        
+    def isNoneAsStdOutRedirection(self):
+        return isinstance(sys.stdout, NoneOutput)
+        
+        
         
     def multipleStdErrRedirection(self,enabled = True):
         """ make multiple (sys.stderr/pyconsole) or single (pyconsole) redirection of stderr """
@@ -113,3 +138,39 @@ class GraphicalStreamRedirection:
             sys.stderr   = MultipleRedirection(sys_stderr, ThreadedRedirection(self))
         else:
             sys.stderr   = ThreadedRedirection(self)
+    def selfAsStdErrRedirection(self):
+        sys.stderr   = ThreadedRedirection(self)
+                
+    def sysAsStdErrRedirection(self):
+        sys.stderr   = sys_stderr
+        
+    def noneAsStdErrRedirection(self):
+        sys.stderr   = NoneOutput()
+        
+    def hasMultipleStdErrRedirection(self):
+        return isinstance(sys.stderr, MultipleRedirection)
+        
+    def isSelfStdErrRedirection(self):
+        return isinstance(sys.stderr, ThreadedRedirection)
+        
+    def isSysStdErrRedirection(self):
+        return sys.stderr   == sys_stderr
+        
+    def isNoneAsStdErrRedirection(self):
+        return isinstance(sys.stderr, NoneOutput)
+
+    def setOutputRedirection(self, selfoutput = True, sysoutput = True, outanderr = 3):
+        if selfoutput:
+            if sysoutput:
+                if outanderr & 1 : self.multipleStdOutRedirection(True)
+                if outanderr & 2 : self.multipleStdErrRedirection(True)                
+            else:
+                if outanderr & 1 :self.selfAsStdOutRedirection()
+                if outanderr & 2 : self.selfAsStdErrRedirection() 
+        elif sysoutput:
+            if outanderr & 1 :self.sysAsStdOutRedirection()
+            if outanderr & 2 : self.sysAsStdErrRedirection()
+        else:
+            if outanderr & 1 :self.noneAsStdOutRedirection()
+            if outanderr & 2 : self.noneAsStdErrRedirection()
+        
