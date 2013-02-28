@@ -18,7 +18,7 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 import weakref, sip
-from PyQt4 import QtCore, QtGui, QtSvg
+from openalea.vpltk.qt import qt
 from openalea.visualea.graph_operator import GraphOperator
 from openalea.core import observer, compositenode
 from openalea.core.node import InputPort, OutputPort, AbstractPort, AbstractNode
@@ -45,15 +45,15 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
                                   ):
     # --- PAINTING STUFF ---
     # Color Definition
-    default_pen_color = QtGui.QColor(QtCore.Qt.darkGray)
-    default_pen_selected_color = QtGui.QColor(QtCore.Qt.lightGray)
-    default_pen_error_color = QtGui.QColor(QtCore.Qt.red)
+    default_pen_color = qt.QtGui.QColor(qt.QtCore.Qt.darkGray)
+    default_pen_selected_color = qt.QtGui.QColor(qt.QtCore.Qt.lightGray)
+    default_pen_error_color = qt.QtGui.QColor(qt.QtCore.Qt.red)
 
-    default_top_color = QtGui.QColor(200, 200, 200, 255)
-    default_bottom_color = QtGui.QColor(140, 140, 255, 255)
-    default_error_color = QtGui.QColor(255, 0, 0, 255)
-    default_user_application_color = QtGui.QColor(255, 144, 0, 200)
-    default_unlazy_color = QtGui.QColor(200, 255, 160, 255)
+    default_top_color = qt.QtGui.QColor(200, 200, 200, 255)
+    default_bottom_color = qt.QtGui.QColor(140, 140, 255, 255)
+    default_error_color = qt.QtGui.QColor(255, 0, 0, 255)
+    default_user_application_color = qt.QtGui.QColor(255, 144, 0, 200)
+    default_unlazy_color = qt.QtGui.QColor(200, 255, 160, 255)
 
     #gradient stops
     startPos = 0.0
@@ -63,7 +63,7 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
     portSpacing = 5.0
     outMargins = 5.0
     delayMargins = 7.0
-    evalColor = QtGui.QColor(255, 0, 0, 200)
+    evalColor = qt.QtGui.QColor(255, 0, 0, 200)
 
     default_corner_radius = 1.2
     default_margin = 3.0
@@ -93,7 +93,7 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
                                                      center=True,
                                                      mins=(ph, ph))
         # Caption
-        self._caption = QtGui.QGraphicsSimpleTextItem(self)
+        self._caption = qt.QtGui.QGraphicsSimpleTextItem(self)
         self.vLayout.addItem(self._caption)
         # out ports
         self.outPortLayout = qtutils.HorizontalLayout(parent=self.vLayout,
@@ -112,26 +112,26 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
         self.inPortLayout.addFinalItem(hiddenPortItem)
 
         # Small box when the vertex is busy, beping evaluated
-        self._busyItem = QtGui.QGraphicsRectItem(0,0,7,7, self)
+        self._busyItem = qt.QtGui.QGraphicsRectItem(0,0,7,7, self)
         self._busyItem.setBrush(self.evalColor)
-        self._busyItem.setAcceptedMouseButtons(QtCore.Qt.NoButton)
+        self._busyItem.setAcceptedMouseButtons(qt.QtCore.Qt.NoButton)
         self._busyItem.setVisible(False)
 
         # Clock image when the vertex has a delay
-        self._delayItem = QtSvg.QGraphicsSvgItem(":icons/clock.svg",self)
-        self._delayItem.setAcceptedMouseButtons(QtCore.Qt.NoButton)
+        self._delayItem = qt.QtSvg.QGraphicsSvgItem(":icons/clock.svg",self)
+        self._delayItem.setAcceptedMouseButtons(qt.QtCore.Qt.NoButton)
         self._delayItem.setVisible(False)
 
-        self._delayText = QtGui.QGraphicsSimpleTextItem("0",self._delayItem)
-        self._delayText.setFont(QtGui.QFont("ariana",6) )
-        self._delayText.setBrush(QtGui.QBrush(QtGui.QColor(255,0,0,200) ) )
+        self._delayText = qt.QtGui.QGraphicsSimpleTextItem("0",self._delayItem)
+        self._delayText.setFont(qt.QtGui.QFont("ariana",6) )
+        self._delayText.setBrush(qt.QtGui.QBrush(qt.QtGui.QColor(255,0,0,200) ) )
         self._delayText.setZValue(self._delayItem.zValue() + 1)
         self._delayText.setVisible(False)
 
         # ----- drawing nicities -----
-        self.setPen(QtGui.QPen(QtCore.Qt.black, self.pen_width))
+        self.setPen(qt.QtGui.QPen(qt.QtCore.Qt.black, self.pen_width))
         if safeEffects:
-            fx = QtGui.QGraphicsDropShadowEffect()
+            fx = qt.QtGui.QGraphicsDropShadowEffect()
             fx.setOffset(2,2)
             fx.setBlurRadius(5)
             self.setGraphicsEffect(fx)
@@ -213,17 +213,17 @@ class ObserverOnlyGraphicalVertex(qtgraphview.Vertex,
                 self.__bottomColor = self.__topColor.darker()
         else:
             userColor = self.get_view_data("userColor")
-            self.__topColor=QtGui.QColor(*userColor)
-            self.__bottomColor=QtGui.QColor(*userColor)
+            self.__topColor=qt.QtGui.QColor(*userColor)
+            self.__bottomColor=qt.QtGui.QColor(*userColor)
 
         pen = self.pen()
         pen.setColor(self.__penColor)
 
-        gradient = QtGui.QLinearGradient(self.rect().topLeft(),
+        gradient = qt.QtGui.QLinearGradient(self.rect().topLeft(),
                                          self.rect().bottomLeft())
         gradient.setColorAt(self.startPos, self.__topColor)
         gradient.setColorAt(self.endPos, self.__bottomColor)
-        brush = QtGui.QBrush(gradient)
+        brush = qt.QtGui.QBrush(gradient)
 
         self.setPen(pen)
         self.setBrush(brush)
@@ -296,10 +296,10 @@ the vertex data"""
         if refresh:
             if(eventTopKey == "start_eval"):
                 self._busyItem.setVisible(self.isVisible())
-                QtGui.QApplication.processEvents()
+                qt.QtGui.QApplication.processEvents()
             elif(eventTopKey == "stop_eval"):
                 self._busyItem.setVisible(False)
-                QtGui.QApplication.processEvents()
+                qt.QtGui.QApplication.processEvents()
         elif(eventTopKey == "input_port_added"):
             self.add_port(event[1])
         elif(eventTopKey == "output_port_added"):
@@ -349,7 +349,7 @@ the vertex data"""
     #####################################################################
     def layout_items(self):
         geom = self.vLayout.boundingRect(force=True)
-        self.vLayout.setPos(QtCore.QPointF(0.,0.))
+        self.vLayout.setPos(qt.QtCore.QPointF(0.,0.))
         self._busyItem.setPos(0, 0)
 
         diBr = self._delayItem.boundingRect()
@@ -382,7 +382,7 @@ the vertex data"""
         painter.drawPath(path)
 
         if(self.vertex().block):
-            brush.setStyle(QtCore.Qt.BDiagPattern)
+            brush.setStyle(qt.QtCore.Qt.BDiagPattern)
             painter.setBrush(brush)
             painter.drawPath(path)
 
@@ -390,7 +390,7 @@ the vertex data"""
     # Qt Overloads #
     ################
     def itemChange(self, change, value):
-        if change == QtGui.QGraphicsItem.ItemSelectedChange:
+        if change == qt.QtGui.QGraphicsItem.ItemSelectedChange:
             selected = bool(value)
             pen = self.pen()
             brush = self.brush()
@@ -411,10 +411,10 @@ the vertex data"""
             self.setBrush(brush)
 
         qtgraphview.Vertex.itemChange(self, change, value)
-        return QtGui.QGraphicsRectItem.itemChange(self, change, value)
+        return qt.QtGui.QGraphicsRectItem.itemChange(self, change, value)
 
 
-    mousePressEvent = mixin_method(qtgraphview.Vertex, QtGui.QGraphicsRectItem,
+    mousePressEvent = mixin_method(qtgraphview.Vertex, qt.QtGui.QGraphicsRectItem,
                                    "mousePressEvent")
 
 
@@ -423,7 +423,7 @@ class GraphicalVertex(ObserverOnlyGraphicalVertex):
         ObserverOnlyGraphicalVertex.__init__(self, vertex, graph, parent)
 
     def mouseDoubleClickEvent(self, event):
-        if event.button()==QtCore.Qt.LeftButton:
+        if event.button()==qt.QtCore.Qt.LeftButton:
             # Read settings
             try:
                 localsettings = Settings()
@@ -531,7 +531,7 @@ class GraphicalInVertex(GraphicalVertex):
         if len(itemGeoms) > 0:
             bounds = reduce(lambda x,y: x|y, itemGeoms)
         else:
-            bounds = QtCore.QRectF(0,0,1,1)
+            bounds = qt.QtCore.QRectF(0,0,1,1)
         midX = bounds.center().x()
         y = bounds.top() - self.boundingRect().height()*2
         self.store_view_data(position=[midX, y])
@@ -550,7 +550,7 @@ class GraphicalOutVertex(GraphicalVertex):
         if len(itemGeoms) > 0:
             bounds = reduce(lambda x,y: x|y, itemGeoms)
         else:
-            bounds = QtCore.QRectF(0,0,1,1)
+            bounds = qt.QtCore.QRectF(0,0,1,1)
         midX = bounds.center().x()
         y = bounds.bottom()
         self.store_view_data(position=[midX, y])
@@ -562,13 +562,13 @@ class GraphicalOutVertex(GraphicalVertex):
 # ----------------------- PORTS ----------------------- #
 #########################################################
 
-class HiddenPort (QtGui.QGraphicsItem):
+class HiddenPort (qt.QtGui.QGraphicsItem):
     """Graphical representation of hidden ports"""
-    __size = QtCore.QSizeF(15.,4.)
-    __nosize = QtCore.QSizeF(0.0, 0.0)
+    __size = qt.QtCore.QSizeF(15.,4.)
+    __nosize = qt.QtCore.QSizeF(0.0, 0.0)
     def __init__ (self, parent) :
         """"""
-        QtGui.QGraphicsItem.__init__(self, parent)
+        qt.QtGui.QGraphicsItem.__init__(self, parent)
         self.setToolTip("hidden ports")
 
     def add_to_view(self, view):
@@ -587,22 +587,22 @@ class HiddenPort (QtGui.QGraphicsItem):
         return self.size()
 
     def boundingRect(self):
-        pos = QtCore.QPointF(0,0)
+        pos = qt.QtCore.QPointF(0,0)
         size = self.size()
-        return QtCore.QRectF(pos, size)
+        return qt.QtCore.QRectF(pos, size)
 
     def paint(self, painter, option, widget):
         if not self.isVisible() :
             return
-        painter.setBackgroundMode(QtCore.Qt.TransparentMode)
-        painter.setBrush(QtGui.QBrush(QtGui.QColor(50,50,50,200) ) )
-        painter.setPen(QtGui.QPen(QtCore.Qt.black, 0) )
+        painter.setBackgroundMode(qt.QtCore.Qt.TransparentMode)
+        painter.setBrush(qt.QtGui.QBrush(qt.QtGui.QColor(50,50,50,200) ) )
+        painter.setPen(qt.QtGui.QPen(qt.QtCore.Qt.black, 0) )
         for i in (0,1,2) :
-            painter.drawEllipse(QtCore.QRectF(i * 5.,0.,4.,4.) )
+            painter.drawEllipse(qt.QtCore.QRectF(i * 5.,0.,4.,4.) )
 
 
 # --------------------------- ConnectorType ---------------------------------
-class GraphicalPort(QtGui.QGraphicsEllipseItem, qtgraphview.Connector):
+class GraphicalPort(qt.QtGui.QGraphicsEllipseItem, qtgraphview.Connector):
     """ A vertex port """
     MAX_TIPLEN = 400
     WIDTH = 7.0
@@ -611,10 +611,10 @@ class GraphicalPort(QtGui.QGraphicsEllipseItem, qtgraphview.Connector):
     def __init__(self, parent, port):
         """
 """
-        QtGui.QGraphicsEllipseItem.__init__(self, 0, 0, self.WIDTH, self.HEIGHT, parent)
+        qt.QtGui.QGraphicsEllipseItem.__init__(self, 0, 0, self.WIDTH, self.HEIGHT, parent)
         qtgraphview.Connector.__init__(self, observed=port)
         self.__interfaceColor = None
-        self.set_connection_modifiers(QtCore.Qt.NoModifier)
+        self.set_connection_modifiers(qt.QtCore.Qt.NoModifier)
         self.initialise_from_model()
 
     port = baselisteners.GraphElementListenerBase.get_observed
@@ -626,7 +626,7 @@ class GraphicalPort(QtGui.QGraphicsEllipseItem, qtgraphview.Connector):
         mdict.simulate_full_data_change(self, port)
         interface = port.get_interface()
         if interface and interface.__color__ is not None:
-            self.__interfaceColor = QtGui.QColor(*interface.__color__)
+            self.__interfaceColor = qt.QtGui.QColor(*interface.__color__)
         #update tooltip
         self.notify(port, ("tooltip_modified", port.get_tip()))
 
@@ -700,24 +700,24 @@ class GraphicalPort(QtGui.QGraphicsEllipseItem, qtgraphview.Connector):
         if(not self.isVisible()):
             return
         pos = self.pos()
-        painter.setBackgroundMode(QtCore.Qt.TransparentMode)
-        gradient = QtGui.QLinearGradient(0, 0, 10, 0)
+        painter.setBackgroundMode(qt.QtCore.Qt.TransparentMode)
+        gradient = qt.QtGui.QLinearGradient(0, 0, 10, 0)
         if self.highlighted:
-            gradient.setColorAt(1, QtGui.QColor(QtCore.Qt.red).light(120))
-            gradient.setColorAt(0, QtGui.QColor(QtCore.Qt.darkRed).light(120))
+            gradient.setColorAt(1, qt.QtGui.QColor(qt.QtCore.Qt.red).light(120))
+            gradient.setColorAt(0, qt.QtGui.QColor(qt.QtCore.Qt.darkRed).light(120))
         else:
             if self.__interfaceColor is None:
-                gradient.setColorAt(0.8, QtGui.QColor(QtCore.Qt.yellow).light(120))
-                gradient.setColorAt(0.2, QtGui.QColor(QtCore.Qt.darkYellow).light(120))
+                gradient.setColorAt(0.8, qt.QtGui.QColor(qt.QtCore.Qt.yellow).light(120))
+                gradient.setColorAt(0.2, qt.QtGui.QColor(qt.QtCore.Qt.darkYellow).light(120))
             else:
                 gradient.setColorAt(0.8, self.__interfaceColor.light(120))
                 gradient.setColorAt(0.2, self.__interfaceColor.light(120))
 
-        painter.setBrush(QtGui.QBrush(gradient))
-        painter.setPen(QtGui.QPen(QtCore.Qt.black, 0))
-        painter.drawEllipse(QtCore.QRectF(0, 0, self.WIDTH, self.HEIGHT) )
+        painter.setBrush(qt.QtGui.QBrush(gradient))
+        painter.setPen(qt.QtGui.QPen(qt.QtCore.Qt.black, 0))
+        painter.drawEllipse(qt.QtCore.QRectF(0, 0, self.WIDTH, self.HEIGHT) )
 
 
-    itemChange = mixin_method(qtgraphview.Connector, QtGui.QGraphicsItem,
+    itemChange = mixin_method(qtgraphview.Connector, qt.QtGui.QGraphicsItem,
                               "itemChange")
 

@@ -21,7 +21,7 @@
 __license__ = "CeCILL V2"
 __revision__ = " $Id$"
 
-from PyQt4 import QtCore, QtGui
+from openalea.vpltk.qt import qt
 from openalea.core.interface import * #IGNORE:W0614,W0401
 from openalea.core.observer import lock_notify
 
@@ -33,7 +33,7 @@ def isiterable(seq):
         return False
     return False
 
-class IFloatWidget(IInterfaceWidget, QtGui.QWidget):
+class IFloatWidget(IInterfaceWidget, qt.QtGui.QWidget):
     """
     Float spin box widget
     """
@@ -47,18 +47,18 @@ class IFloatWidget(IInterfaceWidget, QtGui.QWidget):
         @param parameter_str : the parameter key the widget is associated to
         @param interface : instance of interface object
         """
-        QtGui.QWidget.__init__(self, parent)
+        qt.QtGui.QWidget.__init__(self, parent)
         IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
 
-        hboxlayout = QtGui.QHBoxLayout(self)
+        hboxlayout = qt.QtGui.QHBoxLayout(self)
         hboxlayout.setMargin(3)
         hboxlayout.setSpacing(5)
 
-        self.label = QtGui.QLabel(self)
+        self.label = qt.QtGui.QLabel(self)
         self.label.setText(node.get_input_port(name=parameter_str).get_label())
         hboxlayout.addWidget(self.label)
 
-        self.spin = QtGui.QDoubleSpinBox (self)
+        self.spin = qt.QtGui.QDoubleSpinBox (self)
         self.spin.setRange(interface.min, interface.max)
         self.spin.setSingleStep(interface.step)
 
@@ -66,7 +66,7 @@ class IFloatWidget(IInterfaceWidget, QtGui.QWidget):
 
         self.notify(None, None)
 
-        self.connect(self.spin, QtCore.SIGNAL("valueChanged(double)"), \
+        self.connect(self.spin, qt.QtCore.SIGNAL("valueChanged(double)"), \
                      self.valueChanged)
 
     @lock_notify
@@ -87,7 +87,7 @@ class IFloatWidget(IInterfaceWidget, QtGui.QWidget):
 
 
 
-class IIntWidget(IInterfaceWidget, QtGui.QWidget):
+class IIntWidget(IInterfaceWidget, qt.QtGui.QWidget):
     """
     integer spin box widget
     """
@@ -101,19 +101,19 @@ class IIntWidget(IInterfaceWidget, QtGui.QWidget):
         @param parameter_str : the parameter key the widget is associated to
         @param interface : instance of interface object
         """
-        QtGui.QWidget.__init__(self, parent)
+        qt.QtGui.QWidget.__init__(self, parent)
         IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
 
-        hboxlayout = QtGui.QHBoxLayout(self)
+        hboxlayout = qt.QtGui.QHBoxLayout(self)
         hboxlayout.setMargin(3)
         hboxlayout.setSpacing(5)
 
 
-        self.label = QtGui.QLabel(self)
+        self.label = qt.QtGui.QLabel(self)
         self.label.setText(node.get_input_port(name=parameter_str).get_label())
         hboxlayout.addWidget(self.label)
 
-        self.spin = QtGui.QSpinBox (self)
+        self.spin = qt.QtGui.QSpinBox (self)
         self.spin.setRange(interface.min, interface.max)
         self.spin.setSingleStep(interface.step)
 
@@ -121,7 +121,7 @@ class IIntWidget(IInterfaceWidget, QtGui.QWidget):
 
         self.notify(None, None)
 
-        self.connect(self.spin, QtCore.SIGNAL("valueChanged(int)"), self.valueChanged)
+        self.connect(self.spin, qt.QtCore.SIGNAL("valueChanged(int)"), self.valueChanged)
 
 
     @lock_notify
@@ -142,7 +142,7 @@ class IIntWidget(IInterfaceWidget, QtGui.QWidget):
 
 
 
-class IBoolWidget(IInterfaceWidget, QtGui.QWidget):
+class IBoolWidget(IInterfaceWidget, qt.QtGui.QWidget):
     """
     integer spin box widget
     """
@@ -156,25 +156,25 @@ class IBoolWidget(IInterfaceWidget, QtGui.QWidget):
         @param interface : instance of interface object
         """
 
-        QtGui.QWidget.__init__(self, parent)
+        qt.QtGui.QWidget.__init__(self, parent)
         IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
 
-        hboxlayout = QtGui.QHBoxLayout(self)
+        hboxlayout = qt.QtGui.QHBoxLayout(self)
         hboxlayout.setMargin(3)
         hboxlayout.setSpacing(5)
 
-        self.checkbox = QtGui.QCheckBox (parameter_str, self)
+        self.checkbox = qt.QtGui.QCheckBox (parameter_str, self)
 
         hboxlayout.addWidget(self.checkbox)
 
         self.notify(node, None)
-        self.connect(self.checkbox, QtCore.SIGNAL("stateChanged(int)"), self.stateChanged)
+        self.connect(self.checkbox, qt.QtCore.SIGNAL("stateChanged(int)"), self.stateChanged)
 
 
     @lock_notify
     def stateChanged(self, state):
 
-        if(state == QtCore.Qt.Checked):
+        if(state == qt.QtCore.Qt.Checked):
             self.node.set_input(self.param_str, True)
         else:
             self.node.set_input(self.param_str, False)
@@ -189,13 +189,13 @@ class IBoolWidget(IInterfaceWidget, QtGui.QWidget):
             ischecked = False
 
         if(ischecked):
-            self.checkbox.setCheckState(QtCore.Qt.Checked)
+            self.checkbox.setCheckState(qt.QtCore.Qt.Checked)
         else:
-            self.checkbox.setCheckState(QtCore.Qt.Unchecked)
+            self.checkbox.setCheckState(qt.QtCore.Qt.Unchecked)
 
 
 
-class IStrWidget(IInterfaceWidget, QtGui.QWidget):
+class IStrWidget(IInterfaceWidget, qt.QtGui.QWidget):
     """
     Line Edit widget
     """
@@ -211,25 +211,25 @@ class IStrWidget(IInterfaceWidget, QtGui.QWidget):
         @param interface : instance of interface object
         """
 
-        QtGui.QWidget.__init__(self, parent)
+        qt.QtGui.QWidget.__init__(self, parent)
         IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
 
-        self.hboxlayout = QtGui.QHBoxLayout(self)
+        self.hboxlayout = qt.QtGui.QHBoxLayout(self)
 
         self.hboxlayout.setMargin(3)
         self.hboxlayout.setSpacing(5)
 
 
-        self.label = QtGui.QLabel(self)
+        self.label = qt.QtGui.QLabel(self)
         self.label.setText(node.get_input_port(name=parameter_str).get_label())
         self.hboxlayout.addWidget(self.label)
 
-        self.subwidget = QtGui.QLineEdit (self)
+        self.subwidget = qt.QtGui.QLineEdit (self)
         self.hboxlayout.addWidget(self.subwidget)
 
         self.too_long = False # Validity Flag
         self.notify(None, None)
-        self.connect(self.subwidget, QtCore.SIGNAL("textChanged()"), self.valueChanged)
+        self.connect(self.subwidget, qt.QtCore.SIGNAL("textChanged()"), self.valueChanged)
 
 
     @lock_notify
@@ -254,7 +254,7 @@ class IStrWidget(IInterfaceWidget, QtGui.QWidget):
 
 
 
-class IDateTimeWidget(IInterfaceWidget, QtGui.QWidget):
+class IDateTimeWidget(IInterfaceWidget, qt.QtGui.QWidget):
     """
     Date widget
     """
@@ -269,20 +269,20 @@ class IDateTimeWidget(IInterfaceWidget, QtGui.QWidget):
         @param interface : instance of interface object
         """
 
-        QtGui.QWidget.__init__(self, parent)
+        qt.QtGui.QWidget.__init__(self, parent)
         IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
 
-        self.hboxlayout = QtGui.QHBoxLayout(self)
+        self.hboxlayout = qt.QtGui.QHBoxLayout(self)
 
         self.hboxlayout.setMargin(3)
         self.hboxlayout.setSpacing(5)
 
 
-        self.label = QtGui.QLabel(self)
+        self.label = qt.QtGui.QLabel(self)
         self.label.setText(node.get_input_port(name=parameter_str).get_label())
         self.hboxlayout.addWidget(self.label)
 
-        self.subwidget = QtGui.QDateTimeEdit(self)
+        self.subwidget = qt.QtGui.QDateTimeEdit(self)
         self.hboxlayout.addWidget(self.subwidget)
 
         try:
@@ -290,7 +290,7 @@ class IDateTimeWidget(IInterfaceWidget, QtGui.QWidget):
         except:
             pass
 
-        self.connect(self.subwidget, QtCore.SIGNAL
+        self.connect(self.subwidget, qt.QtCore.SIGNAL
                      ("dateTimeChanged( const QDateTime  )"), self.valueChanged)
 
 
@@ -311,14 +311,14 @@ class IDateTimeWidget(IInterfaceWidget, QtGui.QWidget):
 
 
 
-class ITextStrWidget(IInterfaceWidget, QtGui.QWidget):
+class ITextStrWidget(IInterfaceWidget, qt.QtGui.QWidget):
     """
     Multi-Line Edit widget
     """
 
     __interface__   = ITextStr
     __metaclass__   = make_metaclass()
-    __widgetclass__ = QtGui.QTextEdit
+    __widgetclass__ = qt.QtGui.QTextEdit
 
     MAX_LEN = 1000000
 
@@ -328,18 +328,18 @@ class ITextStrWidget(IInterfaceWidget, QtGui.QWidget):
         @param interface : instance of interface object
         """
 
-        QtGui.QWidget.__init__(self, parent)
+        qt.QtGui.QWidget.__init__(self, parent)
         IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
 
-        self.hboxlayout = QtGui.QHBoxLayout(self)
+        self.hboxlayout = qt.QtGui.QHBoxLayout(self)
 
         self.hboxlayout.setMargin(3)
         self.hboxlayout.setSpacing(5)
 
 
-        self.label = QtGui.QLabel(self)
+        self.label = qt.QtGui.QLabel(self)
         self.label.setText(node.get_input_port(name=parameter_str).get_label())
-        self.label.setSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
+        self.label.setSizePolicy(qt.QtGui.QSizePolicy.Fixed, qt.QtGui.QSizePolicy.Fixed)
         self.hboxlayout.addWidget(self.label)
 
         self.subwidget = self.__widgetclass__()
@@ -347,7 +347,7 @@ class ITextStrWidget(IInterfaceWidget, QtGui.QWidget):
 
         self.too_long = False # Validity Flag
 
-        self.connect(self.subwidget, QtCore.SIGNAL("textChanged()"), self.valueChanged)
+        self.connect(self.subwidget, qt.QtCore.SIGNAL("textChanged()"), self.valueChanged)
         self.notify(None, None)
 
     def setEnabled(self, val):
@@ -392,7 +392,7 @@ class ICodeStrWidget(ITextStrWidget):
             self.subwidget.setText(s)
 
 
-class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
+class ISequenceWidget(IInterfaceWidget, qt.QtGui.QWidget):
     """
     List edit widget
     """
@@ -406,36 +406,36 @@ class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
         @param interface : instance of interface object
         """
 
-        QtGui.QWidget.__init__(self, parent)
+        qt.QtGui.QWidget.__init__(self, parent)
         IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
 
-        self.gridlayout = QtGui.QGridLayout(self)
+        self.gridlayout = qt.QtGui.QGridLayout(self)
         self.gridlayout.setMargin(3)
         self.gridlayout.setSpacing(5)
 
-        self.button = QtGui.QPushButton("Add Item", self)
+        self.button = qt.QtGui.QPushButton("Add Item", self)
         self.gridlayout.addWidget(self.button,2,0,1,2)
 
-        self.buttonplus = QtGui.QPushButton(" + ", self)
+        self.buttonplus = qt.QtGui.QPushButton(" + ", self)
         self.gridlayout.addWidget(self.buttonplus,3,1,1,1)
 
-        self.buttonmoins = QtGui.QPushButton(" - ", self)
+        self.buttonmoins = qt.QtGui.QPushButton(" - ", self)
         self.gridlayout.addWidget(self.buttonmoins,3,0,1,1)
 
-        self.label = QtGui.QLabel(self)
+        self.label = qt.QtGui.QLabel(self)
         self.label.setText(node.get_input_port(name=parameter_str).get_label())
         self.gridlayout.addWidget(self.label,0,0,1,1)
 
-        self.subwidget = QtGui.QListWidget (self)
+        self.subwidget = qt.QtGui.QListWidget (self)
         self.gridlayout.addWidget(self.subwidget,1,0,1,2)
 
-        self.connect(self.subwidget, QtCore.SIGNAL("itemDoubleClicked(QListWidgetItem*)"),
+        self.connect(self.subwidget, qt.QtCore.SIGNAL("itemDoubleClicked(QListWidgetItem*)"),
                      self.itemclick)
-        self.connect(self.subwidget, QtCore.SIGNAL("itemChanged(QListWidgetItem*)"),
+        self.connect(self.subwidget, qt.QtCore.SIGNAL("itemChanged(QListWidgetItem*)"),
                      self.itemchanged)
-        self.connect(self.button, QtCore.SIGNAL("clicked()"), self.button_clicked)
-        self.connect(self.buttonplus, QtCore.SIGNAL("clicked()"), self.buttonplus_clicked)
-        self.connect(self.buttonmoins, QtCore.SIGNAL("clicked()"), self.buttonmoins_clicked)
+        self.connect(self.button, qt.QtCore.SIGNAL("clicked()"), self.button_clicked)
+        self.connect(self.buttonplus, qt.QtCore.SIGNAL("clicked()"), self.buttonplus_clicked)
+        self.connect(self.buttonmoins, qt.QtCore.SIGNAL("clicked()"), self.buttonmoins_clicked)
 
         self.updating = False # itemchanged protection
         self.update_list()
@@ -457,10 +457,10 @@ class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
         for i in range(self.subwidget.count()):
             item = self.subwidget.item(i)
             if(self.connected):
-                item.setFlags(QtCore.Qt.ItemIsSelectable)
+                item.setFlags(qt.QtCore.Qt.ItemIsSelectable)
             else:
-                item.setFlags(QtCore.Qt.ItemIsEditable|QtCore.Qt.ItemIsEnabled|
-                              QtCore.Qt.ItemIsSelectable)
+                item.setFlags(qt.QtCore.Qt.ItemIsEditable|qt.QtCore.Qt.ItemIsEnabled|
+                              qt.QtCore.Qt.ItemIsSelectable)
         self.updating = False
 
 
@@ -481,9 +481,9 @@ class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
 
         if not isiterable(seq): return
         for elt in seq :
-            item = QtGui.QListWidgetItem(str(elt))
-            item.setFlags(QtCore.Qt.ItemIsEditable|QtCore.Qt.ItemIsEnabled|
-                          QtCore.Qt.ItemIsSelectable)
+            item = qt.QtGui.QListWidgetItem(str(elt))
+            item.setFlags(qt.QtCore.Qt.ItemIsEditable|qt.QtCore.Qt.ItemIsEnabled|
+                          qt.QtCore.Qt.ItemIsSelectable)
             self.subwidget.addItem(item)
         self.updating = False
 
@@ -492,9 +492,9 @@ class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
     def button_clicked(self):
         seq = self.node.get_input(self.param_str)
         seq.append(None)
-        item = QtGui.QListWidgetItem(str(None))
-        item.setFlags(QtCore.Qt.ItemIsEditable|QtCore.Qt.ItemIsEnabled|
-                      QtCore.Qt.ItemIsSelectable)
+        item = qt.QtGui.QListWidgetItem(str(None))
+        item.setFlags(qt.QtCore.Qt.ItemIsEditable|qt.QtCore.Qt.ItemIsEnabled|
+                      qt.QtCore.Qt.ItemIsSelectable)
         self.subwidget.addItem(item)
         self.node.unvalidate_input(self.param_str)
 
@@ -561,7 +561,7 @@ class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
         if(self.connected): return
         key = e.key()
         seq = self.node.get_input(self.param_str)
-        if( key == QtCore.Qt.Key_Delete):
+        if( key == qt.QtCore.Qt.Key_Delete):
             selectlist = self.subwidget.selectedItems()
             for i in selectlist:
                 row = self.subwidget.row(i)
@@ -573,7 +573,7 @@ class ISequenceWidget(IInterfaceWidget, QtGui.QWidget):
 
 
 
-class IDictWidget(IInterfaceWidget, QtGui.QWidget):
+class IDictWidget(IInterfaceWidget, qt.QtGui.QWidget):
     """
     List edit widget
     """
@@ -587,28 +587,28 @@ class IDictWidget(IInterfaceWidget, QtGui.QWidget):
         @param interface : instance of interface object
         """
 
-        QtGui.QWidget.__init__(self, parent)
+        qt.QtGui.QWidget.__init__(self, parent)
         IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
 
-        self.hboxlayout = QtGui.QVBoxLayout(self)
+        self.hboxlayout = qt.QtGui.QVBoxLayout(self)
 
         self.hboxlayout.setMargin(3)
         self.hboxlayout.setSpacing(5)
 
-        self.label = QtGui.QLabel(self)
+        self.label = qt.QtGui.QLabel(self)
         self.label.setText(node.get_input_port(name=parameter_str).get_label())
         self.hboxlayout.addWidget(self.label)
 
-        self.subwidget = QtGui.QListWidget (self)
+        self.subwidget = qt.QtGui.QListWidget (self)
         self.hboxlayout.addWidget(self.subwidget)
 
-        self.button = QtGui.QPushButton("Add Item", self)
+        self.button = qt.QtGui.QPushButton("Add Item", self)
         self.hboxlayout.addWidget(self.button)
 
         self.update_list()
-        self.connect(self.subwidget, QtCore.SIGNAL("itemDoubleClicked(QListWidgetItem*)"),
+        self.connect(self.subwidget, qt.QtCore.SIGNAL("itemDoubleClicked(QListWidgetItem*)"),
                      self.itemclick)
-        self.connect(self.button, QtCore.SIGNAL("clicked()"), self.button_clicked)
+        self.connect(self.button, qt.QtCore.SIGNAL("clicked()"), self.button_clicked)
 
 
     def update_state(self):
@@ -622,10 +622,10 @@ class IDictWidget(IInterfaceWidget, QtGui.QWidget):
         for i in range(self.subwidget.count()):
             item = self.subwidget.item(i)
             if(self.connected):
-                item.setFlags(QtCore.Qt.ItemIsSelectable)
+                item.setFlags(qt.QtCore.Qt.ItemIsSelectable)
             else:
-                item.setFlags(QtCore.Qt.ItemIsEnabled|
-                              QtCore.Qt.ItemIsSelectable)
+                item.setFlags(qt.QtCore.Qt.ItemIsEnabled|
+                              qt.QtCore.Qt.ItemIsSelectable)
 
 
     def notify(self, sender, event):
@@ -644,8 +644,8 @@ class IDictWidget(IInterfaceWidget, QtGui.QWidget):
             keys.sort()
             for key in keys:
                 elt = dic[key]
-                item = QtGui.QListWidgetItem("%s : %s"%(str(key), str(elt)))
-                item.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsSelectable)
+                item = qt.QtGui.QListWidgetItem("%s : %s"%(str(key), str(elt)))
+                item.setFlags(qt.QtCore.Qt.ItemIsEnabled|qt.QtCore.Qt.ItemIsSelectable)
                 self.subwidget.addItem(item)
                 self.rowkey.append(key)
         except Exception, e:
@@ -656,7 +656,7 @@ class IDictWidget(IInterfaceWidget, QtGui.QWidget):
     def button_clicked(self):
         """ Add add an element in the dictionary """
         dic = self.node.get_input(self.param_str)
-        (text, ok) = QtGui.QInputDialog.getText(self, "Key", "Key", )
+        (text, ok) = qt.QtGui.QInputDialog.getText(self, "Key", "Key", )
         if (not ok or text.isEmpty()):
             return
 
@@ -678,7 +678,7 @@ class IDictWidget(IInterfaceWidget, QtGui.QWidget):
         dic = self.node.get_input(self.param_str)
         key = self.rowkey[i]
 
-        (text, ok) = QtGui.QInputDialog.getText(self, "Value", "Value")
+        (text, ok) = qt.QtGui.QInputDialog.getText(self, "Value", "Value")
         if (not ok or text.isEmpty()):
             return
 
@@ -701,7 +701,7 @@ class IDictWidget(IInterfaceWidget, QtGui.QWidget):
         seq = self.node.get_input(self.param_str)
 
         # Delete Row
-        if( key == QtCore.Qt.Key_Delete):
+        if( key == qt.QtCore.Qt.Key_Delete):
             selectlist = self.subwidget.selectedItems()
             for i in selectlist:
                 row = self.subwidget.row(i)
@@ -722,7 +722,7 @@ class IFileStrWidget(IStrWidget):
     __interface__ = IFileStr
     __metaclass__ = make_metaclass()
 
-    last_result = QtCore.QDir.homePath()
+    last_result = qt.QtCore.QDir.homePath()
 
     def __init__(self, node, parent, parameter_str, interface):
         """
@@ -733,26 +733,26 @@ class IFileStrWidget(IStrWidget):
         IStrWidget.__init__(self, node, parent, parameter_str, interface)
 
 
-        self.button = QtGui.QPushButton("...", self)
-        self.checkbox = QtGui.QCheckBox("Save", self)
+        self.button = qt.QtGui.QPushButton("...", self)
+        self.checkbox = qt.QtGui.QCheckBox("Save", self)
         self.hboxlayout.addWidget(self.button)
         self.hboxlayout.addWidget(self.checkbox)
         self.filter = interface.filter
         self.open = not interface.save
         #self.open = False
 
-        self.connect(self.button, QtCore.SIGNAL("clicked()"), self.button_clicked)
+        self.connect(self.button, qt.QtCore.SIGNAL("clicked()"), self.button_clicked)
 
 
     def button_clicked(self):
 
 
-        if(not self.open or self.checkbox.checkState()== QtCore.Qt.Checked):
-            result = QtGui.QFileDialog.getSaveFileName(self, "Select File",
+        if(not self.open or self.checkbox.checkState()== qt.QtCore.Qt.Checked):
+            result = qt.QtGui.QFileDialog.getSaveFileName(self, "Select File",
                                                        self.last_result, self.filter)
 
         else:
-            result = QtGui.QFileDialog.getOpenFileName(self, "Select File",
+            result = qt.QtGui.QFileDialog.getOpenFileName(self, "Select File",
                                                        self.last_result, self.filter)
 
         if(result):
@@ -768,7 +768,7 @@ class IDirStrWidget(IStrWidget):
     __interface__ = IDirStr
     __metaclass__ = make_metaclass()
 
-    last_result = QtCore.QDir.homePath()
+    last_result = qt.QtCore.QDir.homePath()
 
     def __init__(self, node, parent, parameter_str, interface):
         """
@@ -779,15 +779,15 @@ class IDirStrWidget(IStrWidget):
         IStrWidget.__init__(self, node, parent, parameter_str, interface)
 
 
-        self.button = QtGui.QPushButton("...", self)
+        self.button = qt.QtGui.QPushButton("...", self)
         self.hboxlayout.addWidget(self.button)
 
-        self.connect(self.button, QtCore.SIGNAL("clicked()"), self.button_clicked)
+        self.connect(self.button, qt.QtCore.SIGNAL("clicked()"), self.button_clicked)
 
 
     def button_clicked(self):
 
-        result = QtGui.QFileDialog.getExistingDirectory(self, "Select Directory", self.last_result)
+        result = qt.QtGui.QFileDialog.getExistingDirectory(self, "Select Directory", self.last_result)
 
         if(result):
             self.node.set_input(self.param_str, str(result))
@@ -796,7 +796,7 @@ class IDirStrWidget(IStrWidget):
 
 
 
-class IEnumStrWidget(IInterfaceWidget, QtGui.QWidget):
+class IEnumStrWidget(IInterfaceWidget, qt.QtGui.QWidget):
     """ String Enumeration widget """
 
     __interface__ = IEnumStr
@@ -809,18 +809,18 @@ class IEnumStrWidget(IInterfaceWidget, QtGui.QWidget):
         @param interface : instance of interface object
         """
 
-        QtGui.QWidget.__init__(self, parent)
+        qt.QtGui.QWidget.__init__(self, parent)
         IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
 
-        self.hboxlayout = QtGui.QHBoxLayout(self)
+        self.hboxlayout = qt.QtGui.QHBoxLayout(self)
         self.hboxlayout.setMargin(3)
         self.hboxlayout.setSpacing(5)
 
-        self.label = QtGui.QLabel(self)
+        self.label = qt.QtGui.QLabel(self)
         self.label.setText(node.get_input_port(name=parameter_str).get_label())
         self.hboxlayout.addWidget(self.label)
 
-        self.subwidget = QtGui.QComboBox(self)
+        self.subwidget = qt.QtGui.QComboBox(self)
 
         # map between string and combobox index
         self.map_index = {}
@@ -832,7 +832,7 @@ class IEnumStrWidget(IInterfaceWidget, QtGui.QWidget):
         self.notify(None, None)
 
         self.connect(self.subwidget,
-                     QtCore.SIGNAL("currentIndexChanged(int)"),
+                     qt.QtCore.SIGNAL("currentIndexChanged(int)"),
                      self.valueChanged)
 
 
@@ -856,7 +856,7 @@ class IEnumStrWidget(IInterfaceWidget, QtGui.QWidget):
 
 
 
-class IRGBColorWidget(IInterfaceWidget, QtGui.QWidget):
+class IRGBColorWidget(IInterfaceWidget, qt.QtGui.QWidget):
     """ RGB Color Widget """
 
     __interface__ = IRGBColor
@@ -868,22 +868,22 @@ class IRGBColorWidget(IInterfaceWidget, QtGui.QWidget):
         @param interface : instance of interface object
         """
 
-        QtGui.QWidget.__init__(self, parent)
+        qt.QtGui.QWidget.__init__(self, parent)
         IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
 
-        self.hboxlayout = QtGui.QHBoxLayout(self)
+        self.hboxlayout = qt.QtGui.QHBoxLayout(self)
         self.hboxlayout.setMargin(3)
         self.hboxlayout.setSpacing(5)
 
-        self.label = QtGui.QLabel(self)
+        self.label = qt.QtGui.QLabel(self)
         self.label.setText(node.get_input_port(name=parameter_str).get_label())
         self.hboxlayout.addWidget(self.label)
 
-        self.colorwidget = QtGui.QWidget(self)
+        self.colorwidget = qt.QtGui.QWidget(self)
         self.colorwidget.setAutoFillBackground(True)
 
-        self.colorwidget.setMinimumSize(QtCore.QSize(50,50))
-        self.colorwidget.setBackgroundRole(QtGui.QPalette.Window)
+        self.colorwidget.setMinimumSize(qt.QtCore.QSize(50,50))
+        self.colorwidget.setBackgroundRole(qt.QtGui.QPalette.Window)
         self.colorwidget.mouseDoubleClickEvent = self.widget_clicked
         self.notify(node, None)
 
@@ -894,11 +894,11 @@ class IRGBColorWidget(IInterfaceWidget, QtGui.QWidget):
 
         try:
             (r,g,b) = self.node.get_input(self.param_str)
-            oldcolor = QtGui.QColor(r,g,b)
+            oldcolor = qt.QtGui.QColor(r,g,b)
         except:
-            oldcolor = QtGui.QColor(0,0,0)
+            oldcolor = qt.QtGui.QColor(0,0,0)
 
-        color = QtGui.QColorDialog.getColor(oldcolor, self)
+        color = qt.QtGui.QColorDialog.getColor(oldcolor, self)
 
         if(color):
             self.node.set_input(self.param_str, (color.red(), color.green(), color.blue()))
@@ -915,12 +915,12 @@ class IRGBColorWidget(IInterfaceWidget, QtGui.QWidget):
             self.node.set_input(self.param_str, (r,g,b))
 
         palette = self.colorwidget.palette()
-        palette.setColor(QtGui.QPalette.Window, QtGui.QColor(r,g,b))
+        palette.setColor(qt.QtGui.QPalette.Window, qt.QtGui.QColor(r,g,b))
         self.colorwidget.setPalette(palette)
         self.colorwidget.update()
 
 
-class ITupleWidget(IInterfaceWidget, QtGui.QWidget):
+class ITupleWidget(IInterfaceWidget, qt.QtGui.QWidget):
     """
     Tuple widget
     """
@@ -934,24 +934,24 @@ class ITupleWidget(IInterfaceWidget, QtGui.QWidget):
         @param interface : instance of interface object
         """
 
-        QtGui.QWidget.__init__(self, parent)
+        qt.QtGui.QWidget.__init__(self, parent)
         IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
 
-        self.hboxlayout = QtGui.QHBoxLayout(self)
+        self.hboxlayout = qt.QtGui.QHBoxLayout(self)
 
         self.hboxlayout.setMargin(3)
         self.hboxlayout.setSpacing(5)
 
 
-        self.label = QtGui.QLabel(self)
+        self.label = qt.QtGui.QLabel(self)
         self.label.setText(node.get_input_port(name=parameter_str).get_label())
         self.hboxlayout.addWidget(self.label)
 
-        self.subwidget = QtGui.QLineEdit (self)
+        self.subwidget = qt.QtGui.QLineEdit (self)
         self.hboxlayout.addWidget(self.subwidget)
 
         self.notify(None, None)
-        self.connect(self.subwidget, QtCore.SIGNAL("textChanged()"), self.valueChanged)
+        self.connect(self.subwidget, qt.QtCore.SIGNAL("textChanged()"), self.valueChanged)
 
 
     @lock_notify

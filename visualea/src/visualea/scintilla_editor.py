@@ -21,8 +21,8 @@ __license__ = "CeCILL V2"
 __revision__ = " $Id$"
 
 
-from PyQt4 import QtCore, QtGui, Qsci
-
+from openalea.vpltk.qt import qt
+from PyQt4 import Qsci
 
 ###################################
 # LEXERS OVERRIDEN                #
@@ -30,7 +30,7 @@ from PyQt4 import QtCore, QtGui, Qsci
 ###################################
 # style indices (Scintilla reserves up to 39)
 styles = {}
-styles[40] = "HIGHLIGHT", QtGui.QColor(0,0,0), QtGui.QColor(0,180,0)
+styles[40] = "HIGHLIGHT", qt.QtGui.QColor(0,0,0), qt.QtGui.QColor(0,180,0)
 
 for k,v in list(styles.iteritems()):
     styles[v[0]] = k, v[1], v[2]
@@ -205,28 +205,28 @@ class CodeWidget(Qsci.QsciScintilla):
 # Code editor controls and settings #
 #####################################
 
-class CodeWidgetFindReplace(QtGui.QWidget):
+class CodeWidgetFindReplace(qt.QtGui.QWidget):
 
     # -- signals forwarded from internal widget --
-    textSearchRequest  = QtCore.pyqtSignal(str, bool, bool)
-    textReplaceRequest = QtCore.pyqtSignal(str, str, bool)
-    resultClearRequest = QtCore.pyqtSignal()
+    textSearchRequest  = qt.QtCore.pyqtSignal(str, bool, bool)
+    textReplaceRequest = qt.QtCore.pyqtSignal(str, str, bool)
+    resultClearRequest = qt.QtCore.pyqtSignal()
 
 
     def __init__(self, parent=None):
-        QtGui.QWidget.__init__(self, parent)
+        qt.QtGui.QWidget.__init__(self, parent)
 
         # - Find text -
-        findLabel  = QtGui.QLabel("Find:")
-        findLabel.setSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
-        self.findLineEdit             = QtGui.QLineEdit()
-        self.highlightResultsCheckBox = QtGui.QCheckBox("Highlight all matches")
-        self.clearResultsPushButton   = QtGui.QPushButton("Clear results")
+        findLabel  = qt.QtGui.QLabel("Find:")
+        findLabel.setSizePolicy(qt.QtGui.QSizePolicy.Fixed, qt.QtGui.QSizePolicy.Fixed)
+        self.findLineEdit             = qt.QtGui.QLineEdit()
+        self.highlightResultsCheckBox = qt.QtGui.QCheckBox("Highlight all matches")
+        self.clearResultsPushButton   = qt.QtGui.QPushButton("Clear results")
 
         # - Replace text -
-        replaceLabel  = QtGui.QLabel("Replace with:")
-        replaceLabel.setSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
-        self.replaceLineEdit = QtGui.QLineEdit()
+        replaceLabel  = qt.QtGui.QLabel("Replace with:")
+        replaceLabel.setSizePolicy(qt.QtGui.QSizePolicy.Fixed, qt.QtGui.QSizePolicy.Fixed)
+        self.replaceLineEdit = qt.QtGui.QLineEdit()
 
         # --- signal bindings ---
         self.findLineEdit.returnPressed.connect(self._searchRequest)
@@ -235,7 +235,7 @@ class CodeWidgetFindReplace(QtGui.QWidget):
         self.replaceLineEdit.returnPressed.connect(self._replaceRequest)
 
         # --- general layout ---
-        layout = QtGui.QGridLayout()
+        layout = qt.QtGui.QGridLayout()
         layout.setMargin(3)
         layout.setSpacing(2)
         layout.addWidget(findLabel, 0, 0)
@@ -265,27 +265,27 @@ class CodeWidgetFindReplace(QtGui.QWidget):
             self.textReplaceRequest.emit(findText, replaceText, fromStart)
 
 
-class CodeWidgetPreferences(QtGui.QWidget):
+class CodeWidgetPreferences(qt.QtGui.QWidget):
 
     # -- signals forwarded from internal widgets --
-    languageChanged   = QtCore.pyqtSignal(str)
-    lineNumberToggled = QtCore.pyqtSignal(bool)
-    foldingToggled    = QtCore.pyqtSignal(bool)
+    languageChanged   = qt.QtCore.pyqtSignal(str)
+    lineNumberToggled = qt.QtCore.pyqtSignal(bool)
+    foldingToggled    = qt.QtCore.pyqtSignal(bool)
 
     def __init__(self, parent=None):
-        QtGui.QWidget.__init__(self, parent)
+        qt.QtGui.QWidget.__init__(self, parent)
 
         # - language chooser -
-        label  = QtGui.QLabel("Language:")
-        self.languageCombo = QtGui.QComboBox()
+        label  = qt.QtGui.QLabel("Language:")
+        self.languageCombo = qt.QtGui.QComboBox()
         self.languageCombo.addItems( sorted(list(lexers.iterkeys())) )
-        langLayout = QtGui.QHBoxLayout()
-        langLayout.addWidget(label, 0, QtCore.Qt.AlignLeft)
-        langLayout.addWidget(self.languageCombo, 0, QtCore.Qt.AlignLeft)
+        langLayout = qt.QtGui.QHBoxLayout()
+        langLayout.addWidget(label, 0, qt.QtCore.Qt.AlignLeft)
+        langLayout.addWidget(self.languageCombo, 0, qt.QtCore.Qt.AlignLeft)
         # - show line no -
-        self.showLineCheckBox = QtGui.QCheckBox("Show line numbers")
+        self.showLineCheckBox = qt.QtGui.QCheckBox("Show line numbers")
         # - show folding -
-        self.showFoldingCheckBox = QtGui.QCheckBox("Show folding")
+        self.showFoldingCheckBox = qt.QtGui.QCheckBox("Show folding")
 
         # --- signal bindings ---
         self.languageCombo.currentIndexChanged[str].connect(self.languageChanged)
@@ -293,12 +293,12 @@ class CodeWidgetPreferences(QtGui.QWidget):
         self.showFoldingCheckBox.toggled.connect(self.foldingToggled)
 
         # --- general layout ---
-        layout = QtGui.QHBoxLayout()
+        layout = qt.QtGui.QHBoxLayout()
         layout.setMargin(3)
         layout.setSpacing(2)
         layout.addLayout(langLayout)
-        layout.addWidget(self.showLineCheckBox, 0, QtCore.Qt.AlignLeft)
-        layout.addWidget(self.showFoldingCheckBox, 1, QtCore.Qt.AlignLeft)
+        layout.addWidget(self.showLineCheckBox, 0, qt.QtCore.Qt.AlignLeft)
+        layout.addWidget(self.showFoldingCheckBox, 1, qt.QtCore.Qt.AlignLeft)
         self.setLayout(layout)
 
     def initialise(self, language="Python", showLineNo=False, showFolding=False):
@@ -319,10 +319,10 @@ class CodeWidgetPreferences(QtGui.QWidget):
 # The final top widgets aggregating everything above #
 ######################################################
 
-class SmallTabWidget(QtGui.QTabWidget):
+class SmallTabWidget(qt.QtGui.QTabWidget):
     def __init__(self, parent=None):
-        QtGui.QTabWidget.__init__(self, parent)
-        self.setSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Fixed)
+        qt.QtGui.QTabWidget.__init__(self, parent)
+        self.setSizePolicy(qt.QtGui.QSizePolicy.Preferred, qt.QtGui.QSizePolicy.Fixed)
         tabbar = self.tabBar()
         tabbar.setStyleSheet("QTabBar::tab {" +\
                              "height :18px;" +\
@@ -332,13 +332,13 @@ class SmallTabWidget(QtGui.QTabWidget):
 
 
 
-class ScintillaCodeEditor(QtGui.QWidget):
+class ScintillaCodeEditor(qt.QtGui.QWidget):
 
     # -- this signal makes us compatible with Openalea's NodeWidgets --
-    textChanged = QtCore.pyqtSignal()
+    textChanged = qt.QtCore.pyqtSignal()
 
     def __init__(self, language="Python", *args, **kwargs):
-        QtGui.QWidget.__init__(self, *args, **kwargs)
+        qt.QtGui.QWidget.__init__(self, *args, **kwargs)
 
         # --- the scintilla widget ---
         self.editor = CodeWidget()
@@ -347,7 +347,7 @@ class ScintillaCodeEditor(QtGui.QWidget):
         findReplaceWidget = CodeWidgetFindReplace()
         preferencesWidget = CodeWidgetPreferences()
         # -- controls are organised into a tabwidget --
-        # tabWidget = QtGui.QTabWidget()
+        # tabWidget = qt.QtGui.QTabWidget()
         tabWidget = SmallTabWidget()
         # - fill the tabwidget -
         tabWidget.addTab(findReplaceWidget, "Find & Replace")
@@ -363,7 +363,7 @@ class ScintillaCodeEditor(QtGui.QWidget):
         self.editor.textChanged.connect(self.textChanged)
 
         # --- general layout ---
-        layout = QtGui.QVBoxLayout()
+        layout = qt.QtGui.QVBoxLayout()
         layout.setMargin(3)
         layout.setSpacing(0)
         layout.addWidget(self.editor)
@@ -405,7 +405,7 @@ class CodeEditor(Qsci.QsciScintilla):
         self.setMarginWidth(1,"10000")
         self.setIndentationsUseTabs(False)
     """
-    app = QtGui.QApplication([])
+    app = qt.QtGui.QApplication([])
     w = ScintillaCodeEditor(parent=None)
     w.show()
     w.setText(s)

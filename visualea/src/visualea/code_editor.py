@@ -19,8 +19,7 @@
 __license__ = "CeCILL V2"
 __revision__ = " $Id$"
 
-
-from PyQt4 import QtCore, QtGui
+from openalea.vpltk.qt import qt
 import os
 from subprocess import Popen
 from openalea.core.settings import Settings
@@ -106,7 +105,7 @@ class ExternalCodeEditor(AbstractCodeEditor):
         """ Open file in the editor """
         
         if(not filename):
-            ret = QtGui.QMessageBox.warning(None, "Error", "Cannot find the file to edit.")
+            ret = qt.QtGui.QMessageBox.warning(None, "Error", "Cannot find the file to edit.")
             return
 
         c = self.get_command()
@@ -118,38 +117,38 @@ class ExternalCodeEditor(AbstractCodeEditor):
 
 
 
-class PythonCodeEditor(QtGui.QWidget, AbstractCodeEditor):
+class PythonCodeEditor(qt.QtGui.QWidget, AbstractCodeEditor):
     """ Simple Python code editor """
 
     def __init__(self, parent=None):
         
-        QtGui.QWidget.__init__(self, parent)
+        qt.QtGui.QWidget.__init__(self, parent)
         AbstractCodeEditor.__init__(self)
 
         self.textedit = self.get_editor()
 
-        vboxlayout = QtGui.QVBoxLayout(self)
+        vboxlayout = qt.QtGui.QVBoxLayout(self)
         vboxlayout.setMargin(1)
         vboxlayout.setSpacing(1)
-        self.hboxlayout = QtGui.QHBoxLayout()
+        self.hboxlayout = qt.QtGui.QHBoxLayout()
         self.hboxlayout.setMargin(1)
         self.hboxlayout.setSpacing(1)
-        self.applybut = QtGui.QPushButton("Apply changes", self)
+        self.applybut = qt.QtGui.QPushButton("Apply changes", self)
         self.hboxlayout.addWidget(self.applybut)
 
-        self.savbut = QtGui.QPushButton("Save changes", self)
+        self.savbut = qt.QtGui.QPushButton("Save changes", self)
         self.hboxlayout.addWidget(self.savbut)
         vboxlayout.addLayout(self.hboxlayout)
         vboxlayout.addWidget(self.textedit)
 
 
-        self.label = QtGui.QLabel("")
+        self.label = qt.QtGui.QLabel("")
         vboxlayout.addWidget(self.label)
 
-        self.savescut = QtGui.QShortcut( QtGui.QKeySequence(QtGui.QKeySequence.Save), self)
-        self.connect(self.savescut, QtCore.SIGNAL("triggered()"), self.save_changes)
-        self.connect(self.savbut, QtCore.SIGNAL("clicked()"), self.save_changes)
-        self.connect(self.applybut, QtCore.SIGNAL("clicked()"), self.apply_changes)
+        self.savescut = qt.QtGui.QShortcut( qt.QtGui.QKeySequence(qt.QtGui.QKeySequence.Save), self)
+        self.connect(self.savescut, qt.QtCore.SIGNAL("triggered()"), self.save_changes)
+        self.connect(self.savbut, qt.QtCore.SIGNAL("clicked()"), self.save_changes)
+        self.connect(self.applybut, qt.QtCore.SIGNAL("clicked()"), self.apply_changes)
         
     
     def is_widget(self):
@@ -157,11 +156,11 @@ class PythonCodeEditor(QtGui.QWidget, AbstractCodeEditor):
 
 
     def file_changed(self, path):
-        ret = QtGui.QMessageBox.question(self, "File has changed on the disk.",
+        ret = qt.QtGui.QMessageBox.question(self, "File has changed on the disk.",
                                          "Reload ?\n",
-                                         QtGui.QMessageBox.Yes, QtGui.QMessageBox.No,)
+                                         qt.QtGui.QMessageBox.Yes, qt.QtGui.QMessageBox.No,)
         
-        if(ret == QtGui.QMessageBox.No): return
+        if(ret == qt.QtGui.QMessageBox.No): return
         self.edit_file(self.filename)
         
 
@@ -190,8 +189,8 @@ class PythonCodeEditor(QtGui.QWidget, AbstractCodeEditor):
             textedit.setMinimumHeight(250)
             
         except ImportError:
-            textedit = QtGui.QTextEdit(self)
-            textedit.setLineWrapMode(QtGui.QTextEdit.NoWrap)
+            textedit = qt.QtGui.QTextEdit(self)
+            textedit.setLineWrapMode(qt.QtGui.QTextEdit.NoWrap)
             textedit.setMinimumWidth(200)
             textedit.setMinimumHeight(200)
 
@@ -239,9 +238,9 @@ class PythonCodeEditor(QtGui.QWidget, AbstractCodeEditor):
             self.savbut.setEnabled(True)
             self.applybut.setEnabled(False)
 
-            self.filewatcher = QtCore.QFileSystemWatcher(self)
+            self.filewatcher = qt.QtCore.QFileSystemWatcher(self)
             self.filewatcher.addPath(self.filename)
-            self.connect(self.filewatcher, QtCore.SIGNAL("fileChanged(const str &)"), self.file_changed)
+            self.connect(self.filewatcher, qt.QtCore.SIGNAL("fileChanged(const str &)"), self.file_changed)
         
 
         except Exception, e:
@@ -279,7 +278,7 @@ class PythonCodeEditor(QtGui.QWidget, AbstractCodeEditor):
     def save_changes(self):
         """ Save module """
         if(not os.access(self.filename, os.W_OK)):
-            ret = QtGui.QMessageBox.warning(self, "Cannot write file %s", self.filename)
+            ret = qt.QtGui.QMessageBox.warning(self, "Cannot write file %s", self.filename)
             return
             
         self.filewatcher.removePath(self.filename)
@@ -336,12 +335,12 @@ class NodeCodeEditor(PythonCodeEditor):
     def save_changes(self):
         """ Save module """
 
-        ret = QtGui.QMessageBox.question(self, "Save",
+        ret = qt.QtGui.QMessageBox.question(self, "Save",
                                          "Modification will be written in the module\n"+
                                          "Continue ?\n",
-                                         QtGui.QMessageBox.Yes, QtGui.QMessageBox.No,)
+                                         qt.QtGui.QMessageBox.Yes, qt.QtGui.QMessageBox.No,)
 
-        if(ret == QtGui.QMessageBox.No): return
+        if(ret == qt.QtGui.QMessageBox.No): return
 
         module_name = self.factory.nodemodule_name
         newsrc = str(self.getText())
@@ -387,7 +386,7 @@ class Command(object):
         self.p = Popen(command%name, shell = True, cwd = cwd)
 
 
-class EditorSelector(AbstractCodeEditor, QtGui.QWidget):
+class EditorSelector(AbstractCodeEditor, qt.QtGui.QWidget):
     """
     Dialog to select an editor
     """
@@ -398,9 +397,9 @@ class EditorSelector(AbstractCodeEditor, QtGui.QWidget):
         @param params : strings to replace command param (%s)
         """
 
-        QtGui.QWidget.__init__(self, parent)
+        qt.QtGui.QWidget.__init__(self, parent)
 
-        vboxlayout = QtGui.QVBoxLayout(self)
+        vboxlayout = qt.QtGui.QVBoxLayout(self)
         vboxlayout.setMargin(3)
         vboxlayout.setSpacing(5)
 
@@ -414,11 +413,11 @@ class EditorSelector(AbstractCodeEditor, QtGui.QWidget):
             keys.insert(0, 'edit')
 
         for k in keys:
-            but = QtGui.QPushButton(self)
+            but = qt.QtGui.QPushButton(self)
             but.setText(k)
             vboxlayout.addWidget(but)
 
-            self.connect(but, QtCore.SIGNAL("clicked()"), self.button_clicked)
+            self.connect(but, qt.QtCore.SIGNAL("clicked()"), self.button_clicked)
 
     
     def is_widget(self):
