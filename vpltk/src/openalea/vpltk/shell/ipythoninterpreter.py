@@ -20,9 +20,10 @@ class Interpreter(InProcessKernel):
         """
         Compile code from file, then run it thanks to 'runcode'
         
-        :param source: the source string; may contain \n characters
+        :param source: the source string
         :param filename: optional filename from which source was read; default "<input>"
         :param symbol: optional grammar start symbol; "single" (default) or "eval"
+        
         :return: True if all is allright, else False.
         
         :warning: "print" problem: sometimes, print is displayed later
