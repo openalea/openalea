@@ -46,7 +46,6 @@ def generate_graph_topology(labels, neigborhood):
     labelset = set(labels)
     edges = {}
 
-
     for source,targets in neigborhood.iteritems():
         if source in labelset :
             for target in targets:
@@ -58,31 +57,6 @@ def generate_graph_topology(labels, neigborhood):
 
     return graph, label2vertex, edges
 
-def generate_surface_filtered_graph_topology(labels, analysis, min_contact_surface = 10):
-    """
-    :NOTE: Maybe it would be better/easier to filter neighbors' detection depending contact surface if a threshold is given.
-    """
-    graph = PropertyGraph()
-    vertex2label = {}
-    for l in labels: vertex2label[graph.add_vertex(l)] = l
-    label2vertex = dict([(j,i) for i,j in vertex2label.iteritems()])
-
-    labelset = set(labels)
-    edges = {}
-
-    neigborhood = analysis.neighbors(labels)
-    dict_contact_surface = analysis.wall_surfaces(neigborhood, real = False)
-    for source,targets in neigborhood.iteritems():
-        if source in labelset :
-            for target in targets:
-                if source < target and target in labelset:
-                    if dict_contact_surface[(source,target)] >= min_contact_surface:
-                        edges[(source,target)] = graph.add_edge(label2vertex[source],label2vertex[target])
-
-    graph.add_vertex_property('label')
-    graph.vertex_property('label').update(vertex2label)
-
-    return graph, label2vertex, edges
 
 def _graph_from_image(image, labels, background, default_properties, 
                      default_real_property, bbox_as_real, 
@@ -128,23 +102,20 @@ def _graph_from_image(image, labels, background, default_properties,
         filter_label = False
         labels = list(analysis.labels())
         if background in labels : del labels[labels.index(background)]
-        neigborhood = analysis.neighbors(labels)
     else:
         filter_label = True
         if isinstance(labels,int) : labels = [labels]
         # -- We don't want to have the "outer cell" (background) and "removed cells" (0) in the graph structure.
         # if 0 in labels: labels.remove(0)
         if background in labels: labels.remove(background)
-        neigborhood = analysis.neighbors(labels)
         # -- If labels are provided, we ignore all others by default:
         analysis.add2ignoredlabels( set(analysis.labels()) - set(labels) )
 
+    analysis.neighbors(min_contact_surface = min_contact_surface) # allow to save neighbors in analysis._neighbors
+    neigborhood = analysis.neighbors(labels)
     labelset = set(labels)
 
-    if min_contact_surface is None:
-        graph, label2vertex, edges = generate_graph_topology(labels, neigborhood)
-    else:
-        graph, label2vertex, edges = generate_surface_filtered_graph_topology(labels, analysis, min_contact_surface)
+    graph, label2vertex, edges = generate_graph_topology(labels, neigborhood)
 
     # -- We want to keep the unit system of each variable
     graph.add_graph_property("units",dict())

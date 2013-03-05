@@ -577,6 +577,7 @@ class AbstractSpatialImageAnalysis(object):
         
         if labels is None:
             labels = self.labels()
+            labels.append(self.background())
             #~ if real: return [real_indices(bbox,self.image.resolution) for bbox in self._bbox]
             #~ else :   return self._bbox
         
@@ -594,9 +595,12 @@ class AbstractSpatialImageAnalysis(object):
                 return None
 
 
-    def neighbors(self, labels=None, **kwd ):
+    def neighbors(self, labels=None, min_contact_surface = None ):
         """
         Return the list of neighbors of a label.
+
+        :WARNING:
+            If `min_contact_surface` is given it should be in real world units.
 
         :Examples:
 
@@ -624,24 +628,31 @@ class AbstractSpatialImageAnalysis(object):
          6: [1, 2, 5],
          7: [1, 2, 3, 4, 5] }
         """
+        if min_contact_surface is not None:
+            print u"Neighbors will be filtered according to a minimal contact surface of %.2f \u03bcm\u00B2" %min_contact_surface
         if labels is None:
-            return self._all_neighbors()
+            return self._all_neighbors(min_contact_surface, True)
         elif not isinstance (labels , list):
-            return self._neighbors_with_mask(labels)
+            return self._neighbors_with_mask(labels, min_contact_surface, True)
         else:
-            return self._neighbors_from_list_with_mask(labels)
+            return self._neighbors_from_list_with_mask(labels, min_contact_surface, True)
 
-    def _neighbors_with_mask(self,label):
-        if not self._neighbors is None:
+    def _neighbors_with_mask(self, label, min_contact_surface, real_surface):
+        if not self._neighbors is None and label in self._neighbors.keys():
             return self._neighbors[label] 
 
         slices = self.boundingbox(label)
 
         ex_slices = dilation(slices)
         mask_img = self.image[ex_slices]
-        return list(contact_surface(mask_img,label))
+        neigh = list(contact_surface(mask_img,label))
+        if min_contact_surface is not None:
+            neigh = self._neighbors_filtering_by_contact_surface(label, neigh, min_contact_surface, real_surface)
 
-    def _neighbors_from_list_with_mask(self,labels):
+        return neigh
+
+
+    def _neighbors_from_list_with_mask(self, labels, min_contact_surface, real_surface):
         if not self._neighbors is None:
             return dict([(i,self._neighbors[i]) for i in labels])
 
@@ -656,23 +667,26 @@ class AbstractSpatialImageAnalysis(object):
             mask_img = self.image[ex_slices]
 
             neigh = list(contact_surface(mask_img,label))
+            if min_contact_surface is not None:
+                neigh = self._neighbors_filtering_by_contact_surface(label, neigh, min_contact_surface, real_surface)
 
             edges[label]=neigh
 
         return edges
 
-    def _all_neighbors(self):
+    def _all_neighbors(self, min_contact_surface, real_surface):
         if not self._neighbors is None:
             return self._neighbors
 
         edges = {} # store src, target
 
         slice_label = self.boundingbox()
-        for label, slices in enumerate(slice_label):
+        if self.return_type == 0 or self.return_type == 1:
+            slice_label = dict( (label+1,slices) for label, slices in enumerate(slice_label))
             # label_id = label +1 because the label_id begin at 1
             # and the enumerate begin at 0.
-            label_id = label+1
 
+        for label_id, slices in slice_label.items():
             # sometimes, the label doesn't exist ans slices is None
             if slices is None:
                continue
@@ -680,12 +694,25 @@ class AbstractSpatialImageAnalysis(object):
             ex_slices = dilation(slices)
             mask_img = self.image[ex_slices]
             neigh = list(contact_surface(mask_img,label_id))
+            if min_contact_surface is not None:
+                neigh = self._neighbors_filtering_by_contact_surface(label_id, neigh, min_contact_surface, real_surface)
 
             edges[label_id]=neigh
 
         self._neighbors = edges
         return edges
 
+
+    def _neighbors_filtering_by_contact_surface(self, label, neighbors, min_contact_surface, real_surface):
+        """
+        Function used to filter the returned neighbors according to a given minimal contact surface between them!
+        """
+        surfaces = self.cell_wall_surface(label, neighbors, real_surface)
+        for i,j in surfaces.keys():
+            if surfaces[(i,j)] < min_contact_surface:
+                neighbors.remove( i if j==label else j )
+
+        return neighbors
 
     def neighbor_kernels(self):
         if self._kernels is None:
