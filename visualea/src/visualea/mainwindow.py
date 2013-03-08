@@ -655,17 +655,25 @@ class MainWindow(qt.QtGui.QMainWindow,
 
         filename = qt.QtGui.QFileDialog.getOpenFileName(
             self, "Python Script", "Python script (*.py)")
+            
         filename = str(filename)
         if(not filename) : return
 
+        import code
         file = open(filename, 'r')
+        
         sources = ''
         compiled = None
-        for line in file:
-            sources += line
-            
-        try: self.interpreterWidget.get_interpreter().runcode(sources, hidden=False)
-        except: self.interpreterWidget.get_interpreter().runcode(sources)
+        
+        # Try if IPython    
+        try: self.interpreterWidget.get_interpreter().runcode(file, hidden=False)
+        except:
+            for line in file:
+                sources += line
+                compiled = code.compile_command(sources, filename)
+                if(compiled):
+                    self.interpreterWidget.get_interpreter().runcode(compiled)
+                    sources = ''
         
         sources = ''
 
