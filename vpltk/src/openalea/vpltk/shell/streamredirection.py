@@ -43,6 +43,11 @@ class MultipleRedirection:
 
         for stream in self.streams:
             stream.write(str)
+            stream.flush()
+    
+    def flush(self):
+        pass
+
 
 class NoneOutput:
     """ Dummy file which redirects stream to nothing """
@@ -70,7 +75,6 @@ class ThreadedRedirection:
             pass
         else:
             self.guistream.write(str)  
-
             
 class GraphicalStreamRedirection:
     """ Redirection of a stream as graphic output """
@@ -81,13 +85,15 @@ class GraphicalStreamRedirection:
         if sys_stdout is None:  sys_stdout = sys.stdout
         if sys_stderr is None:  sys_stderr = sys.stderr
         if sys_stdin is None:   sys_stdin = sys.stdin
+
         sys.stdout   = ThreadedRedirection(self)
+        
         if py2exe_release:
             sys.stderr   = ThreadedRedirection(self)
         else:
             sys.stderr   = MultipleRedirection(sys_stderr, ThreadedRedirection(self))
         sys.stdin    = self
-        #self.multipleStdOutRedirection()
+        # self.multipleStdOutRedirection()
 
     def __del__(self):
         sys.stdout   = sys_stdout
