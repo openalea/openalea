@@ -43,8 +43,7 @@ class MultipleRedirection:
 
         for stream in self.streams:
             stream.write(str)
-            stream.flush()
-    
+
     def flush(self):
         pass
 
@@ -80,7 +79,7 @@ class GraphicalStreamRedirection:
     """ Redirection of a stream as graphic output """
     
     def __init__(self):
-        """  capture all interactive input/output """
+        """  capture all interactive input/output """        
         global sys_stdout, sys_stderr, sys_stdin
         if sys_stdout is None:  sys_stdout = sys.stdout
         if sys_stderr is None:  sys_stderr = sys.stderr
@@ -104,7 +103,7 @@ class GraphicalStreamRedirection:
         """ custom event processing. Redirection to write """
         if event.type() == RedirectionEventId:
             self.write(event.txt)
-            
+    
     def multipleStdOutRedirection(self,enabled = True):
         """ make multiple (sys.stdout/pyconsole) or single (pyconsole) redirection of stdout """
         if enabled:
@@ -132,8 +131,6 @@ class GraphicalStreamRedirection:
         
     def isNoneAsStdOutRedirection(self):
         return isinstance(sys.stdout, NoneOutput)
-        
-        
         
     def multipleStdErrRedirection(self,enabled = True):
         """ make multiple (sys.stderr/pyconsole) or single (pyconsole) redirection of stderr """

@@ -1,11 +1,8 @@
-from openalea.vpltk.qt import qt as qt_
-from streamredirection import *
-
+from streamredirection import GraphicalStreamRedirection
 from IPython.frontend.qt.console.rich_ipython_widget import RichIPythonWidget
 from IPython.frontend.qt.inprocess_kernelmanager import QtInProcessKernelManager
 
-
-class ShellWidget(RichIPythonWidget,GraphicalStreamRedirection):
+class ShellWidget(RichIPythonWidget, GraphicalStreamRedirection):
     """
     ShellWidget is an IPython shell.
     """
@@ -14,7 +11,6 @@ class ShellWidget(RichIPythonWidget,GraphicalStreamRedirection):
         obj = RichIPythonWidget()
         obj.__class__ = ShellWidget
         return obj
-    
     
     def __init__(self, interpreter, message="", log='', parent=None):
         """
@@ -27,41 +23,77 @@ class ShellWidget(RichIPythonWidget,GraphicalStreamRedirection):
         If no parent widget has been specified, it is possible to
         exit the interpreter by Ctrl-D.
         """
-        GraphicalStreamRedirection.__init__(self)
-        
+        # Set interpreter
         self.interpreter = interpreter
+
+        # Multiple Stream Redirection
+        GraphicalStreamRedirection.__init__(self)
+
+        # Compatibility with visualea
+        self.interpreter.runsource = self.runsource
+        self.interpreter.runcode = self.runcode
+        
+        # Write welcome message
         self.write(message)   
         
+        # Set kernel manager
         km = QtInProcessKernelManager(kernel=self.interpreter)
         km.start_channels()
         self.interpreter.frontends.append(km)
-        
         self.kernel_manager = km
-
+        
+        # # For Debug Only
+        # self.interpreter.locals['shell'] = self 
         
     def get_interpreter(self):
         """ 
         :return: the interpreter object 
         """
-        return self.interpreter
+        return self
         
+    def runsource(self, source=None, filename="<input>", symbol="single", hidden=False, interactive=False):
+        """
+        TODO
+        """
+        try:
+            self.runcode(source=source, hidden=hidden, interactive=interactive)  
+        except:
+            code = compile(source, filename, symbol)
+            if code is not None:
+                self.runcode(source=code, hidden=hidden, interactive=interactive)
 
-    def write(self, s):
-        self.interpreter.shell.write(s)
+          
+    def runcode(self, source=None, hidden=False, interactive=False):
+        """
+        TODO
+        """
+        executed = False
+        try: executed = self.execute(source=source, hidden=hidden, interactive=interactive)
+        except RuntimeError as e:
+            self.write(e)
+            exec(source)
+        except:
+            raise    
+        finally: return executed
+    
+    def write(self, txt):       
+        self.interpreter.shell.write(txt)
+        self.interpreter.stdout.flush()
 
-
+        
 def main():
-    from interpreter import Interpreter
+    from openalea.vpltk.qt import qt as qt_
+    from ipythoninterpreter import Interpreter
     import sys
     
-    app = qt_.QApplication(sys.argv)
+    app = qt_.QtGui.QApplication(sys.argv)
     
     # Set interpreter
     interpreter = Interpreter()
     # Set Shell Widget
     shellwdgt = ShellWidget(interpreter)
     
-    mainWindow = qt_.QMainWindow()
+    mainWindow = qt_.QtGui.QMainWindow()
     mainWindow.setCentralWidget(shellwdgt)
     mainWindow.show()
     
