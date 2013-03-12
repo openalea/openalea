@@ -659,27 +659,38 @@ class MainWindow(qt.QtGui.QMainWindow,
         filename = str(filename)
         if(not filename) : return
 
-        import code
-        file = open(filename, 'r')
         
-        sources = ''
-        compiled = None
-        
+
         # Try if IPython    
-        try: self.interpreterWidget.get_interpreter().runcode(file, hidden=False)
+        try:
+            file = open(filename, 'r')
+            src = ""
+            for f in file:
+                src += f
+            self.interpreterWidget.get_interpreter().runcode(src, hidden=False)
+            file.close()
+            
         except:
+            file = open(filename, 'r')
+            sources = ''
+            compiled = None
+            import code
             for line in file:
                 sources += line
                 compiled = code.compile_command(sources, filename)
                 if(compiled):
                     self.interpreterWidget.get_interpreter().runcode(compiled)
                     sources = ''
+            file.close()        
         
         sources = ''
 
     def open_python_console(self):
         """ Set focus on the python shell """
-        self.interpreterWidget.setFocus(qt.QtCore.Qt.ShortcutFocusReason)
+        try:
+            self.interpreterWidget.setFocus(qt.QtCore.Qt.ShortcutFocusReason)
+        except:
+            pass
 
     def clear_python_console(self):
         """ Clear python shell """
