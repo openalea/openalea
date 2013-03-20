@@ -40,10 +40,9 @@ def test_on_simple_array():
                   [2, 2, 1, 7, 3, 3],
                   [1, 1, 1, 4, 1, 1]])
     
-    from openalea.image.algo.analysis import SpatialImageAnalysis, LIST
-    analysis = SpatialImageAnalysis(a,return_type=LIST)
+    from openalea.image.algo.analysis import SpatialImageAnalysis, LIST, DICT
+    analysis = SpatialImageAnalysis(a, return_type=LIST)
 
-    
     res = analysis.neighbors(7)
     assert res == [1, 2, 3, 4, 5]
 

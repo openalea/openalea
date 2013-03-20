@@ -132,7 +132,7 @@ def wall_voxels_between_two_cells(image, label_1, label_2, bbox = None):
     return np.array( (x+dilated_bbox[0].start, y+dilated_bbox[1].start, z+dilated_bbox[2].start) )
 
 
-def walls_voxels_per_cell(image, label_1, bbox = None, neighbors = None, neighbors2ignore = None, verbose = False ):
+def walls_voxels_per_cell(image, label_1, bbox = None, neighbors = None, neighbors2ignore = [], verbose = False ):
     """
     Return the voxels coordinates of all walls from one cell. 
     There must be a contact defined between two labels, the given one and its neighbors.
@@ -171,6 +171,7 @@ def walls_voxels_per_cell(image, label_1, bbox = None, neighbors = None, neighbo
         neighbors = [neighbors]
 
     coord = {}
+    neighbors_not_found = False
     for label_2 in neighbors:
         # -- Binary mask saying where the label_2 can be found on the image.
         mask_img_2 = (dilated_bbox_img == label_2)
@@ -188,7 +189,10 @@ def walls_voxels_per_cell(image, label_1, bbox = None, neighbors = None, neighbo
                     coord[(0,label_1)][1].extend( y+dilated_bbox[1].start )
                     coord[(0,label_1)][2].extend( z+dilated_bbox[2].start )
         else:
+            neighbors_not_found = True
             if verbose: print "Couldn't find a contact between neighbor cells %d" % label_1, "& %d" % label_2
+    if neighbors_not_found:
+        warnings.warn("Some neighboring cells hasn't been found !")
 
     return coord
 
@@ -323,7 +327,7 @@ class AbstractSpatialImageAnalysis(object):
     (cells volume...) and the neighborhood structure (also the shared surface area of two neighboring cells).
     """
     
-    def __init__(self, image, ignoredlabels = [], return_type = NPLIST, background = 1):
+    def __init__(self, image, ignoredlabels = [], return_type = NPLIST, background = None):
         """
         ..warning :: Label features in the images are an arithmetic progression of continous integers.
         
@@ -334,20 +338,20 @@ class AbstractSpatialImageAnalysis(object):
         else:
             self.image = image
 
-        # -- Sounds a bit paranoiac but usefull !!
-        if not isinstance(background,int):
-            warnings.warn("The label you provided as background is not an integer !")
-            return None
-
-        if background not in self.image:
-            warnings.warn("The label you provided as background has not been detected in the image !")
-            return None
-
         # -- We use this to avoid (when possible) computation of properties on background and other cells (ex: cell in image margins)
         if isinstance(ignoredlabels, int):
             ignoredlabels = [ignoredlabels]
         self._ignoredlabels = set(ignoredlabels)
-        self._ignoredlabels.update([background])
+
+        # -- Sounds a bit paranoiac but usefull !!
+        if background is not None:
+            if not isinstance(background,int):
+                raise ValueError("The label you provided as background is not an integer !")
+            if background not in self.image:
+                raise ValueError("The background you provided has not been detected in the image !")
+            self._ignoredlabels.update([background])
+        else:
+            warnings.warn("You did not specified a value for the background, some functionalities won't work.")
 
         # -- Variables for caching information:
         self._background = background
@@ -402,13 +406,11 @@ class AbstractSpatialImageAnalysis(object):
                 filename = filename[:-4]
             filename.join([filename+"_analysis.pklz"])
         else:
-            warnings.warn("The filename is missing, and there's no information about it in "+str(self)+". Saving process ABORTED.")
-            return None
+            raise ValueError("The filename is missing, and there's no information about it in "+str(self)+". Saving process ABORTED.")
 
         # -- We make sure the file doesn't already exist !
         if exists(filename):
-            warnings.warn("The file "+filename+" already exist. Saving process ABORTED.")
-            return None
+            raise ValueError("The file "+filename+" already exist. Saving process ABORTED.")
 
         # -- We save a binary compresed version of the file:
         f = gzip.open( filename , 'wb')
@@ -434,8 +436,11 @@ class AbstractSpatialImageAnalysis(object):
             return values
         # -- return a standard python list
         elif self.return_type == LIST:
-            self.return_type = copy.copy(tmp_save_type)
-            return values.tolist()
+            if isinstance(values,list):
+                return values
+            else:
+                self.return_type = copy.copy(tmp_save_type)
+                return values.tolist()
         # -- return a dictionary 
         else:
             self.return_type = copy.copy(tmp_save_type)
@@ -573,11 +578,16 @@ class AbstractSpatialImageAnalysis(object):
         (slice(0, 3), slice(2, 4), slice(0, 1))]
         """        
         if self._bbox is None:
+            #~ if 0 in self.image:
+                #~ self._bbox = nd.find_objects(self.image)[1:]
+            #~ else:
+                #~ self._bbox = nd.find_objects(self.image)
             self._bbox = nd.find_objects(self.image)
         
         if labels is None:
-            labels = self.labels()
-            labels.append(self.background())
+            labels = copy.copy(self.labels())
+            if self.background() is not None:
+                labels.append(self.background())
             #~ if real: return [real_indices(bbox,self.image.resolution) for bbox in self._bbox]
             #~ else :   return self._bbox
         
@@ -595,7 +605,7 @@ class AbstractSpatialImageAnalysis(object):
                 return None
 
 
-    def neighbors(self, labels=None, min_contact_surface=None, real_surface=True ):
+    def neighbors(self, labels=None, min_contact_surface=None, real_surface=True):
         """
         Return the list of neighbors of a label.
 
@@ -637,7 +647,7 @@ class AbstractSpatialImageAnalysis(object):
         else:
             return self._neighbors_from_list_with_mask(labels, min_contact_surface, real_surface)
 
-    def _neighbors_with_mask(self, label, min_contact_surface, real_surface):
+    def _neighbors_with_mask(self, label, min_contact_surface=None, real_surface=True):
         if not self._neighbors is None and label in self._neighbors.keys():
             result = self._neighbors[label]
             if  min_contact_surface is None:
@@ -655,7 +665,7 @@ class AbstractSpatialImageAnalysis(object):
         return neigh
 
 
-    def _neighbors_from_list_with_mask(self, labels, min_contact_surface, real_surface):
+    def _neighbors_from_list_with_mask(self, labels, min_contact_surface=None, real_surface=True):
         if not self._neighbors is None :
             result = dict([(i,self._neighbors[i]) for i in labels])
             if  min_contact_surface is None:
@@ -676,7 +686,7 @@ class AbstractSpatialImageAnalysis(object):
 
         return edges
 
-    def _all_neighbors(self, min_contact_surface, real_surface):
+    def _all_neighbors(self, min_contact_surface=None, real_surface=True):
         if not self._neighbors is None:
             result = self._neighbors
             if  min_contact_surface is None:
@@ -849,7 +859,7 @@ class AbstractSpatialImageAnalysis(object):
         >>> analysis.wall_surfaces()
         {(1, 2): 5.0, (1, 3): 4.0, (1, 4): 2.0, (1, 5): 1.0, (1, 6): 1.0, (1, 7): 2.0, (2, 6): 2.0, (2, 7): 1.0, (3, 7): 2, (4, 7): 1, (5, 6): 1.0, (5, 7): 2.0 }
         """
-        if neighbors is None : neighbors = self._all_neighbors()
+        if neighbors is None : neighbors = self.neighbors()
         surfaces = {}
         for label_id, lneighbors in neighbors.iteritems():
             # To avoid computing 2 times the same wall surface, we select wall between i and j with j > i.
@@ -861,33 +871,33 @@ class AbstractSpatialImageAnalysis(object):
         return surfaces 
 
 
-    def __layer1(self, background = 1):
-        return list( set(self.neighbors(background))-self._ignoredlabels )
+    def __layer1(self):
+        return list( set(self.neighbors(self.background()))-self._ignoredlabels )
 
 
-    def layer1(self, background = 1, filter_by_surface = True, minimal_external_surface=10):
+    def layer1(self, filter_by_surface = True, minimal_external_surface=10):
         """
         Extract a list of labels corresponding to a layer of cell.
         It start from the cell in contact with the outer surface to the inner parts of the segemented tissu.
         """
         integers = np.vectorize(lambda x : int(x))
         if self._layer1 is None :
-            cell_list = list(integers(self.__layer1(background)))
+            cell_list = list(integers(self.__layer1()))
             if filter_by_surface:
                 vids_surface = (self.cell_wall_surface(1,cell_list,real=False))
                 self._layer1 = [vid for vid in cell_list if vids_surface[(1,vid)]>minimal_external_surface]
             else:
-                self._layer1 = list(integers(self.__layer1(background)))
+                self._layer1 = list(integers(self.__layer1()))
         
         return self._layer1
 
 
-    def __first_voxel_layer(self, background = 1, keep_background = True):
+    def __first_voxel_layer(self, keep_background = True):
         """
         Extract the first layer of voxels at the surface of the biological object.
         """
         print "Extracting the first layer of voxels..."
-        mask_img_1 = (self.image == 1)
+        mask_img_1 = (self.image == self.background())
         struct = nd.generate_binary_structure(3, 1)
         dil_1 = nd.binary_dilation(mask_img_1, structure=struct)
         
@@ -899,12 +909,12 @@ class AbstractSpatialImageAnalysis(object):
             return self.image * layer
 
 
-    def first_voxel_layer(self, background = 1, keep_background = False):
+    def first_voxel_layer(self, keep_background = False):
         """
         Function extracting the first layer of voxels detectable from the outer surface.
         """
         if self._first_voxel_layer is None :
-            self._first_voxel_layer = self.__first_voxel_layer(background, keep_background)
+            self._first_voxel_layer = self.__first_voxel_layer(keep_background)
         return self._first_voxel_layer
 
 
@@ -916,11 +926,9 @@ class AbstractSpatialImageAnalysis(object):
         if dimensionality == 3:
             image = self.image
         elif dimensionality == 2:
-            background = self.background()
-            image = self.first_voxel_layer(background, True)
+            image = self.first_voxel_layer(True)
         else:
-            warnings.warn("Dimensionality %d is not possible, choose between 2 or 3" % dimensionality)
-            return None
+            raise ValueError("Dimensionality %d is not possible, choose between 2 or 3" % dimensionality)
 
         compute_neighborhood=False
         if labels is None and neighborhood is None:
@@ -933,8 +941,7 @@ class AbstractSpatialImageAnalysis(object):
         elif isinstance(labels,list):
             labels.sort()
         else:
-            warnings.warn("Couldn't find any labels.")
-            return None
+            raise ValueError("Couldn't find any labels.")
 
         dict_wall_voxels = {}
         for label in labels:
@@ -942,7 +949,7 @@ class AbstractSpatialImageAnalysis(object):
             if compute_neighborhood:
                 nei = self.neighbors(label, min_contact_surface, real_surface)
             else:
-                nei = [n for nei in neighborhood[label] for n in nei if n in labels]
+                nei = [neighbors for neighbors in neighborhood[label] if neighbors in labels]
             for n in nei:
                 if dict_wall_voxels.has_key( (min(label,n),max(label,n)) ): # we remove the couple of cells we already used.
                     nei.remove(n)
@@ -952,7 +959,7 @@ class AbstractSpatialImageAnalysis(object):
 
         return dict_wall_voxels
 
-    def wall_normal_orientation(self, dict_wall_voxels, fitting_degree = 2, dimensionality = 3, labels2avoid = None, dict_coord_points_ori = None, background = 1):
+    def wall_normal_orientation(self, dict_wall_voxels, fitting_degree = 2, dimensionality = 3, labels2avoid = None, dict_coord_points_ori = None):
         """
         Compute wall orientation according to fitting degree and dimensionality.
         :WARNING: if dimensionality = 2, only the cells belonging to the outer layer of the object will be used.
@@ -1047,10 +1054,7 @@ class AbstractSpatialImageAnalysis(object):
         if (len(vids)!=1) and (1 in vids) :
             vids.remove(1)
 
-        try:
-            isinstance(vids,list)
-        except TypeError:
-            return None
+        assert isinstance(vids,list)
 
         N=len(vids)
         if verbose: print "Removing", N, "cells."
@@ -1115,7 +1119,7 @@ class SpatialImageAnalysis2D (AbstractSpatialImageAnalysis):
     Class dedicated to 2D objects.
     """
     
-    def __init__(self, image, ignoredlabels = [], return_type = NPLIST, background = 1):
+    def __init__(self, image, ignoredlabels = [], return_type = NPLIST, background = None):
         AbstractSpatialImageAnalysis.__init__(self, image, ignoredlabels, return_type, background)
 
 
@@ -1198,7 +1202,7 @@ class SpatialImageAnalysis3DS (AbstractSpatialImageAnalysis):
     Only one layer of voxel is extracted (representing the external envelope of the biological object to analyse).
     """
     
-    def __init__(self, image, ignoredlabels = [], return_type = NPLIST, background = 1):
+    def __init__(self, image, ignoredlabels = [], return_type = NPLIST, background = None):
         AbstractSpatialImageAnalysis.__init__(self, image, ignoredlabels, return_type, background)
 
 
@@ -1208,7 +1212,7 @@ class SpatialImageAnalysis3D(AbstractSpatialImageAnalysis):
     Class dedicated to 3D objects.
     """
 
-    def __init__(self, image, ignoredlabels = [], return_type = NPLIST, background = 1):
+    def __init__(self, image, ignoredlabels = [], return_type = NPLIST, background = None):
         AbstractSpatialImageAnalysis.__init__(self, image, ignoredlabels, return_type, background)
         self._first_voxel_layer = None
         self.principal_curvatures = {}
@@ -1380,7 +1384,7 @@ class SpatialImageAnalysis3D(AbstractSpatialImageAnalysis):
         return [x_start,y_start,z_start,x_stop,y_stop,z_stop]
 
     def __principal_curvature_parameters_CGAL(func):
-        def wrapped_function(self, vids = None, radius = 60, fitting_degree = 2, monge_degree = 2, background = 1, verbose = False):
+        def wrapped_function(self, vids = None, radius = 60, fitting_degree = 2, monge_degree = 2, verbose = False):
             """
             Decorator wrapping function `compute_principal_curvatures` allowing use of various input for `vids` and preparing the necessary variables for the wrapped function.
             """
@@ -1408,12 +1412,11 @@ class SpatialImageAnalysis3D(AbstractSpatialImageAnalysis):
                 vids = self.layer1()
 
             # -- Now we need the SpatialImage of the first layer of voxels without the background.
-            if self._first_voxel_layer == None:
-                self.first_voxel_layer(background, keep_background = False)
+            # - If the first layer of voxels has been extracted already, we make sure that we have exluded the background.
+            if self._first_voxel_layer is not None and self.background() in self._first_voxel_layer:
+                self._first_voxel_layer[self._first_voxel_layer == self.background()]=0
             else:
-                # - If the first layer of voxels has been extracted already, we make sure that we have exluded the background.
-                if background in self._first_voxel_layer:
-                    self._first_voxel_layer[self._first_voxel_layer == background]=0
+                self.first_voxel_layer(self.background(), keep_background = False)
 
             # -- We make sure the radius hasn't been changed and if not defined, we save the value for further evaluation and information.
             try:
@@ -1802,9 +1805,7 @@ def geometric_median(X, numIter = 200):
             #~ print abs(dist[i]-dist[i-2]), convergence
         i += 1
     if i == numIter:
-        warnings.warn( "The Weiszfeld's algoritm did not converged after"+str(numIter)+"iterations !!!!!!!!!" )
-        warnings.warn( "Remaining distance: "+str(abs(dist[i-1]-dist[i-3])) )
-        return None
+        raise ValueError( "The Weiszfeld's algoritm did not converged after"+str(numIter)+"iterations !!!!!!!!!" )
     # -- When convergence or iterations limit is reached we assume that we found the median.
 
     return np.array(y)
