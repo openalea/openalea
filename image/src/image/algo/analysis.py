@@ -595,7 +595,7 @@ class AbstractSpatialImageAnalysis(object):
                 return None
 
 
-    def neighbors(self, labels=None, min_contact_surface = None ):
+    def neighbors(self, labels=None, min_contact_surface=None, real_surface=True ):
         """
         Return the list of neighbors of a label.
 
@@ -631,82 +631,97 @@ class AbstractSpatialImageAnalysis(object):
         if min_contact_surface is not None:
             print u"Neighbors will be filtered according to a minimal contact surface of %.2f \u03bcm\u00B2" %min_contact_surface
         if labels is None:
-            return self._all_neighbors(min_contact_surface, True)
+            return self._all_neighbors(min_contact_surface, real_surface)
         elif not isinstance (labels , list):
-            return self._neighbors_with_mask(labels, min_contact_surface, True)
+            return self._neighbors_with_mask(labels, min_contact_surface, real_surface)
         else:
-            return self._neighbors_from_list_with_mask(labels, min_contact_surface, True)
+            return self._neighbors_from_list_with_mask(labels, min_contact_surface, real_surface)
 
     def _neighbors_with_mask(self, label, min_contact_surface, real_surface):
         if not self._neighbors is None and label in self._neighbors.keys():
-            return self._neighbors[label] 
+            result = self._neighbors[label]
+            if  min_contact_surface is None:
+                return result
+            else:
+                return self._neighbors_filtering_by_contact_surface(result, label, min_contact_surface, real_surface)
 
         slices = self.boundingbox(label)
-
         ex_slices = dilation(slices)
         mask_img = self.image[ex_slices]
         neigh = list(contact_surface(mask_img,label))
         if min_contact_surface is not None:
-            neigh = self._neighbors_filtering_by_contact_surface(label, neigh, min_contact_surface, real_surface)
+            neigh = self._neighbors_filtering_by_contact_surface(neigh, label, min_contact_surface, real_surface)
 
         return neigh
 
 
     def _neighbors_from_list_with_mask(self, labels, min_contact_surface, real_surface):
-        if not self._neighbors is None:
-            return dict([(i,self._neighbors[i]) for i in labels])
+        if not self._neighbors is None :
+            result = dict([(i,self._neighbors[i]) for i in labels])
+            if  min_contact_surface is None:
+                return result
+            else:
+                return self._filter_with_surface(result, min_contact_surface, real_surface)
 
         edges = {}
         for label in labels:
-
             slices = self.boundingbox(label)
-
             if slices is None: continue
-
             ex_slices = dilation(slices)
             mask_img = self.image[ex_slices]
-
             neigh = list(contact_surface(mask_img,label))
             if min_contact_surface is not None:
                 neigh = self._neighbors_filtering_by_contact_surface(label, neigh, min_contact_surface, real_surface)
-
-            edges[label]=neigh
+            edges[label] = neigh
 
         return edges
 
     def _all_neighbors(self, min_contact_surface, real_surface):
         if not self._neighbors is None:
-            return self._neighbors
+            result = self._neighbors
+            if  min_contact_surface is None:
+                return result
+            else:
+                return self._filter_with_surface(result, min_contact_surface, real_surface)
 
         edges = {} # store src, target
-
         slice_label = self.boundingbox()
         if self.return_type == 0 or self.return_type == 1:
             slice_label = dict( (label+1,slices) for label, slices in enumerate(slice_label))
             # label_id = label +1 because the label_id begin at 1
             # and the enumerate begin at 0.
-
         for label_id, slices in slice_label.items():
             # sometimes, the label doesn't exist ans slices is None
             if slices is None:
                continue
-
             ex_slices = dilation(slices)
             mask_img = self.image[ex_slices]
             neigh = list(contact_surface(mask_img,label_id))
-            if min_contact_surface is not None:
-                neigh = self._neighbors_filtering_by_contact_surface(label_id, neigh, min_contact_surface, real_surface)
-
+            #if min_contact_surface is not None:
+            #    neigh = self._neighbors_filtering_by_contact_surface(label_id, neigh, min_contact_surface, real_surface)
             edges[label_id]=neigh
 
         self._neighbors = edges
-        return edges
+        if min_contact_surface is None:
+            return edges
+        else:
+            return self._filter_with_surface(edges, min_contact_surface, real_surface)
 
+    def _filter_with_surface(neigborhood_dictionary, min_contact_surface, real_surface):
+        """
+
+        """
+        filtered_dict = {}
+        for label in neigborhood_dictionary.keys():
+            filtered_dict[label] = self._neighbors_filtering_by_contact_surface(self, label, neigborhood_dictionary[label], min_contact_surface, real_surface)
+
+        return filtered_dict
 
     def _neighbors_filtering_by_contact_surface(self, label, neighbors, min_contact_surface, real_surface):
         """
         Function used to filter the returned neighbors according to a given minimal contact surface between them!
         """
+        
         surfaces = self.cell_wall_surface(label, neighbors, real_surface)
         for i,j in surfaces.keys():
             if surfaces[(i,j)] < min_contact_surface:
@@ -893,7 +908,7 @@ class AbstractSpatialImageAnalysis(object):
         return self._first_voxel_layer
 
 
-    def wall_voxels_per_cells_pairs(self, labels=None, dimensionality=3, labels2avoid = None, background = 1):
+    def wall_voxels_per_cells_pairs(self, labels=None, neighborhood=None, dimensionality=3, min_contact_surface=None, real_surface=True):
         """
         Compute wall orientation according to fitting degree and dimensionality.
         :WARNING: if dimensionality = 2, only the cells belonging to the outer layer of the object will be used.
@@ -901,10 +916,15 @@ class AbstractSpatialImageAnalysis(object):
         if dimensionality == 3:
             image = self.image
         elif dimensionality == 2:
+            background = self.background()
             image = self.first_voxel_layer(background, True)
         else:
             warnings.warn("Dimensionality %d is not possible, choose between 2 or 3" % dimensionality)
             return None
+
+        compute_neighborhood=False
+        if labels is None and neighborhood is None:
+            compute_neighborhood=True
 
         if labels is None and dimensionality == 3:
             labels=self.labels()
@@ -916,21 +936,19 @@ class AbstractSpatialImageAnalysis(object):
             warnings.warn("Couldn't find any labels.")
             return None
 
-        if labels2avoid is not None:
-            labels = list( set(labels)-set(labels2avoid) )
-        else:
-            labels2avoid = []
-
         dict_wall_voxels = {}
         for label in labels:
-            ## We take care of undesirable labels in the neighbors' list:
-            nei = list(set(self.neighbors(label))-set(labels2avoid)) # those we explicitly want to get rid of
+            # We compute or use the neihborhood of `label`:
+            if compute_neighborhood:
+                nei = self.neighbors(label, min_contact_surface, real_surface)
+            else:
+                nei = [n for nei in neighborhood[label] for n in nei if n in labels]
             for n in nei:
-                if dict_wall_voxels.has_key( (min(label,n),max(label,n)) ): # those we already used
+                if dict_wall_voxels.has_key( (min(label,n),max(label,n)) ): # we remove the couple of cells we already used.
                     nei.remove(n)
-            ## If there are neighbors left in the list, we extract the voxels separating them from `label`:
+           ## If there are neighbors left in the list, we extract the voxels separating them from `label`:
             if nei != []:
-                dict_wall_voxels.update(walls_voxels_per_cell(image, label, self.boundingbox(label), nei, neighbors2ignore = labels2avoid))
+                dict_wall_voxels.update(walls_voxels_per_cell(image, label, self.boundingbox(label), nei))
 
         return dict_wall_voxels
 

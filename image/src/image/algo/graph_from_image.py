@@ -25,13 +25,13 @@ import numpy as np
 default_properties2D = ['barycenter','boundingbox','border','L1','epidermis_surface','inertia_axis']
 default_properties3D = ['volume','barycenter','boundingbox','border','L1','epidermis_surface','wall_surface','inertia_axis', 'projected_anticlinal_wall_median', 'wall_median', 'wall_orientation']
 
-def generate_graph_topology(labels, neigborhood):
+def generate_graph_topology(labels, neighborhood):
     """
     Function generating a topological/spatial graph based on neighbors detection.
 
     :Parameters:
      - `labels` (list) - list of labels to be found in the image and added to the topological graph.
-     - `neigborhood` (dict) - dictionary giving neighbors of each object.
+     - `neighborhood` (dict) - dictionary giving neighbors of each object.
 
     :Returns:
      - `graph` (PropertyGraph) - the topological/spatial graph.
@@ -46,7 +46,7 @@ def generate_graph_topology(labels, neigborhood):
     labelset = set(labels)
     edges = {}
 
-    for source,targets in neigborhood.iteritems():
+    for source,targets in neighborhood.iteritems():
         if source in labelset :
             for target in targets:
                 if source < target and target in labelset:
@@ -111,11 +111,10 @@ def _graph_from_image(image, labels, background, default_properties,
         # -- If labels are provided, we ignore all others by default:
         analysis.add2ignoredlabels( set(analysis.labels()) - set(labels) )
 
-    analysis.neighbors(min_contact_surface = min_contact_surface) # allow to save neighbors in analysis._neighbors
-    neigborhood = analysis.neighbors(labels)
+    neighborhood = analysis.neighbors(labels, min_contact_surface = min_contact_surface)
     labelset = set(labels)
 
-    graph, label2vertex, edges = generate_graph_topology(labels, neigborhood)
+    graph, label2vertex, edges = generate_graph_topology(labels, neighborhood)
 
     # -- We want to keep the unit system of each variable
     graph.add_graph_property("units",dict())
@@ -163,7 +162,7 @@ def _graph_from_image(image, labels, background, default_properties,
     if 'wall_surface' in default_properties : 
         print 'Computing wall_surface property...'
         filtered_edges, unlabelled_target, unlabelled_wall_surfaces = {}, {}, {}
-        for source,targets in neigborhood.iteritems():
+        for source,targets in neighborhood.iteritems():
             if source in labelset :
                 filtered_edges[source] = [ target for target in targets if source < target and target in labelset ]
                 unlabelled_target[source] = [ target for target in targets if target not in labelset and target != background]
@@ -194,8 +193,7 @@ def _graph_from_image(image, labels, background, default_properties,
     if 'projected_anticlinal_wall_median' in default_properties:
         print 'Computing projected_anticlinal_wall_median property...'
         wall_median = {}
-        dict_wall_voxels = analysis.wall_voxels_per_cells_pairs(list(set(labels)|set(analysis.layer1())),
-         dimensionality = 2, labels2avoid = analysis._ignoredlabels, background = background)
+        dict_wall_voxels = analysis.wall_voxels_per_cells_pairs( analysis.layer1(), neighborhood, dimensionality = 2 )
         for k in dict_wall_voxels:
             x,y,z = dict_wall_voxels[k]
             # compute geometric median:
@@ -214,7 +212,7 @@ def _graph_from_image(image, labels, background, default_properties,
     if 'wall_median' in default_properties:
         print 'Computing wall_median property...'
         wall_median = {}
-        dict_wall_voxels = analysis.wall_voxels_per_cells_pairs(labels, dimensionality = 3, labels2avoid = analysis._ignoredlabels-set([0,1]), background = background )
+        dict_wall_voxels = analysis.wall_voxels_per_cells_pairs(labels, neighborhood, dimensionality = 3 )
         for k in dict_wall_voxels:
             x,y,z = dict_wall_voxels[k]
             # compute geometric median:
@@ -245,7 +243,7 @@ def _graph_from_image(image, labels, background, default_properties,
         print 'Computing wall_orientation property...'
         # -- First we have to extract the voxels defining the frontier between two objects:
         # - Here we DO NOT extract wall_orientation property for 'unlabelled' and 'epidermis' walls :
-        dict_wall_voxels = analysis.wall_voxels_per_cells_pairs(labels, dimensionality = 3, labels2avoid = analysis._ignoredlabels, background = background )
+        dict_wall_voxels = analysis.wall_voxels_per_cells_pairs(labels, neighborhood, dimensionality = 3 )
 
         if 'wall_median' in graph.edge_properties():
             medians_coords = dict( (graph.edge_vertices(eid), coord) for eid,coord in graph.edge_property('wall_median').iteritems() )
@@ -253,7 +251,7 @@ def _graph_from_image(image, labels, background, default_properties,
             medians_coords.update(dict( (1,vid) for vid in graph.vertex_property('epidermis_wall_median') ))
             pc_values, pc_normal, pc_directions, pc_origin = analysis.wall_normal_orientation( dict_wall_voxels, fitting_degree = 2, dimensionality = 3, dict_coord_points_ori = medians_coords )
         else:
-            dict_wall_voxels = analysis.wall_voxels_per_cells_pairs(labels, dimensionality = 3, labels2avoid = analysis._ignoredlabels-set([0,1]), background = background )
+            dict_wall_voxels = analysis.wall_voxels_per_cells_pairs(labels, neighborhood, dimensionality = 3 )
             pc_values, pc_normal, pc_directions, pc_origin = analysis.wall_normal_orientation( dict_wall_voxels, fitting_degree = 2, dimensionality = 3 )
 
         # -- Now we can compute the orientation of the frontier between two objects:
@@ -276,13 +274,13 @@ def _graph_from_image(image, labels, background, default_properties,
         print 'Computing wall_orientation property...'
         # -- First we have to extract the voxels defining the frontier between two objects:
         # - Extract wall_orientation property for 'unlabelled' and 'epidermis' walls as well:
-        dict_wall_voxels = analysis.wall_voxels_per_cells_pairs(labels, dimensionality = 3, labels2avoid = analysis._ignoredlabels-set([0,1]), background = background )
+        dict_wall_voxels = analysis.wall_voxels_per_cells_pairs(labels, neighborhood, dimensionality = 3 )
 
         if 'wall_median' in graph.edge_properties():
             medians_coords = dict( (graph.edge_vertices(eid), coord) for eid,coord in graph.edge_property('wall_median').iteritems() )
             pc_values, pc_normal, pc_directions, pc_origin = analysis.wall_normal_orientation( dict_wall_voxels, fitting_degree = 2, dimensionality = 3, dict_coord_points_ori = medians_coords )
         else:
-            dict_wall_voxels = analysis.wall_voxels_per_cells_pairs(labels, dimensionality = 3, labels2avoid = analysis._ignoredlabels-set([0,1]), background = background )
+            dict_wall_voxels = analysis.wall_voxels_per_cells_pairs(labels, neighborhood, dimensionality = 3 )
             pc_values, pc_normal, pc_directions, pc_origin = analysis.wall_normal_orientation( dict_wall_voxels, fitting_degree = 2, dimensionality = 3 )
 
         # -- Now we can compute the orientation of the frontier between two objects:
