@@ -76,10 +76,24 @@ class ShellWidget(RichIPythonWidget, GraphicalStreamRedirection):
             raise    
         finally: return executed
     
-    def write(self, txt):       
+    def write(self, txt):    
+        """
+        Write a text in the stdout of the shell and flush it.
+        :param txt: String to write.
+        """
         self.interpreter.shell.write(txt)
         self.interpreter.stdout.flush()
 
+    def push(self, var):
+        """
+        Push variables in the namespace.
+        :param var: dict of objects
+        """
+        if var is not None:
+            for v in var:
+                self.interpreter.locals += v
+
+    
         
 def main():
     from openalea.vpltk.qt import qt as qt_
