@@ -263,7 +263,6 @@ def cell_vertex_extraction(image, hollow_out = True, verbose = False):
 
     return barycentric_vtx
 
-
 #~ def OLS_wall(xyz):
     #~ """
     #~ Compute OLS (Ordinary Least Square) fitting of a plane in a 3D space.
@@ -959,6 +958,7 @@ class AbstractSpatialImageAnalysis(object):
 
         return dict_wall_voxels
 
+
     def wall_normal_orientation(self, dict_wall_voxels, fitting_degree = 2, dimensionality = 3, labels2avoid = None, dict_coord_points_ori = None):
         """
         Compute wall orientation according to fitting degree and dimensionality.
@@ -967,35 +967,37 @@ class AbstractSpatialImageAnalysis(object):
         integers = np.vectorize(lambda x : int(x))
 
         pc_values, pc_normal, pc_directions, pc_origin = {},{},{},{} 
-        if dimensionality == 3:
-            ## For each 3D points set of coordinates (defining a wall), we will fit a "plane":
-            for wall in dict_wall_voxels:
-                x, y, z = dict_wall_voxels[wall] # the points set
-                ## We need to find an origin: the closest point in set set from the geometric median
-                # compute geometric median:
-                try:
-                    closest_voxel_coords = dict_coord_points_ori[wall]
-                except:
-                    neighborhood_origin = geometric_median( np.array([list(x),list(y),list(z)]) )
-                    neighborhood_origin = integers(neighborhood_origin)
-                    # closest points:
-                    pts = [tuple([int(x[i]),int(y[i]),int(z[i])]) for i in xrange(len(x))]
-                    closest_voxel_coords = closest_from_A(neighborhood_origin, pts)
-                    id_min_dist = pts.index(closest_voxel_coords)
-                else:
-                    pts = [tuple([int(x[i]),int(y[i]),int(z[i])]) for i in xrange(len(x))]
-                    id_min_dist = pts.index(closest_voxel_coords)
+        ## For each 3D points set of coordinates (defining a wall), we will fit a "plane":
+        for wall in dict_wall_voxels:
+            x, y, z = dict_wall_voxels[wall] # the points set
+            if dimensionality == 2:
+                fitting_degree = 0 #ther will be no curvature since the wall will be flatenned !
+                x_bar, y_bar, z_bar = np.mean(x), np.mean(y), np.mean(z)
+                point_set_3D = np.array( [x-x_bar,y-y_bar,z-z_bar] )
+                U, S, V = np.linalg.svd(point_set_3D.T, full_matrices=False)
+                point_set_2D = np.dot(point_set_3D.T, np.dot(V[:2,:].T,V[:2,:]))
+                x,y,z = point_set_2D[:,0]+x_bar,point_set_2D[:,1]+y_bar,point_set_2D[:,2]+z_bar
+            ## We need to find an origin: the closest point in set set from the geometric median
+            # compute geometric median:
+            try:
+                closest_voxel_coords = dict_coord_points_ori[wall]
+            except:
+                neighborhood_origin = geometric_median( np.array([list(x),list(y),list(z)]) )
+                neighborhood_origin = integers(neighborhood_origin)
+                # closest points:
+                pts = [tuple([int(x[i]),int(y[i]),int(z[i])]) for i in xrange(len(x))]
+                closest_voxel_coords = closest_from_A(neighborhood_origin, pts)
+                id_min_dist = pts.index(closest_voxel_coords)
+            else:
+                pts = [tuple([int(x[i]),int(y[i]),int(z[i])]) for i in xrange(len(x))]
+                id_min_dist = pts.index(closest_voxel_coords)
 
-                ## We can now compute the curvature values, direction, normal and origin (Monge):
-                pc = principal_curvatures(pts, id_min_dist, range(len(x)), fitting_degree, 2)
-                pc_values[wall] = [pc[1][1], pc[2][1]]
-                pc_normal[wall] = pc[3]
-                pc_directions[wall] = [pc[1][0], pc[2][0]]
-                pc_origin[wall] = pc[0]
-
-        if dimensionality == 2:
-            print 'Not done yet...'
-            return None
+            ## We can now compute the curvature values, direction, normal and origin (Monge):
+            pc = principal_curvatures(pts, id_min_dist, range(len(x)), fitting_degree, 2)
+            pc_values[wall] = [pc[1][1], pc[2][1]]
+            pc_normal[wall] = pc[3]
+            pc_directions[wall] = [pc[1][0], pc[2][0]]
+            pc_origin[wall] = pc[0]
 
         return pc_values, pc_normal, pc_directions, pc_origin
 
