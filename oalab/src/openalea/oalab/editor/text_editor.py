@@ -1,4 +1,4 @@
-from openalea.oalab.gui import qt
+from openalea.vpltk.qt import qt
 from openalea.oalab.editor.plugins import TextEditorOALab
 import os
 
@@ -32,23 +32,23 @@ if LPYEDITOR == "SPYDER":
             super(LPyCodeEditor, self).setup_editor() #C:\Spyder\spyder-2.1.11\spyderlib\widgets\sourcecode\codeeditor.py l.669
             
         def set_actions(self):    
-            actionRun = qt.QAction(self)
-            actionRun.setText(qt.QApplication.translate("MainWindow", "Run", None, qt.QApplication.UnicodeUTF8))
+            actionRun = qt.QtGui.QAction(self)
+            actionRun.setText(qt.QtGui.QApplication.translate("MainWindow", "Run", None, qt.QtGui.QApplication.UnicodeUTF8))
             return actionRun
             
         def set_buttons(self, actionRun, window):
             # Create qt btns and connect actions
-            actionRun.setShortcut(qt.QApplication.translate("MainWindow", "Ctrl+R", None, qt.QApplication.UnicodeUTF8))
-            icon3 = qt.QIcon()
-            icon3.addPixmap(qt.QPixmap("./resources/new/run.png"), qt.QIcon.Normal, qt.QIcon.Off)
+            actionRun.setShortcut(qt.QtGui.QApplication.translate("MainWindow", "Ctrl+R", None, qt.QtGui.QApplication.UnicodeUTF8))
+            icon3 = qt.QtGui.QIcon()
+            icon3.addPixmap(qt.QtGui.QPixmap("./resources/new/run.png"), qt.QtGui.QIcon.Normal, qt.QtGui.QIcon.Off)
             actionRun.setIcon(icon3)
-            qt.QObject.connect(actionRun, qt.SIGNAL('triggered(bool)'),window.run)
+            qt.QtCore.QObject.connect(actionRun, qt.QtCore.SIGNAL('triggered(bool)'),window.run)
             return actionRun
             
         def set_menu(self, menubar, actions):
             # Return qt actions
             menuPython = qt.QMenu(menubar)
-            menuPython.setTitle(qt.QApplication.translate("MainWindow", "LPy scripts", None, qt.QApplication.UnicodeUTF8))
+            menuPython.setTitle(qt.QtGui.QApplication.translate("MainWindow", "LPy scripts", None, qt.QtGui.QApplication.UnicodeUTF8))
             menuPython.setObjectName("menuPython")
             menuPython.addAction(actions)
             return menuPython.menuAction()
@@ -132,17 +132,17 @@ if LPYEDITOR == "LPY":
             
         '''    
         def set_actions(self):    
-            actionRun = qt.QAction(self)
-            actionRun.setText(qt.QApplication.translate("MainWindow", "Run", None, qt.QApplication.UnicodeUTF8))
+            actionRun = qt.QtGui.QAction(self)
+            actionRun.setText(qt.QtGui.QApplication.translate("MainWindow", "Run", None, qt.QtGui.QApplication.UnicodeUTF8))
             return actionRun
             
         def set_buttons(self, actionRun, window):
             # Create qt btns and connect actions
-            actionRun.setShortcut(qt.QApplication.translate("MainWindow", "Ctrl+R", None, qt.QApplication.UnicodeUTF8))
-            icon3 = qt.QIcon()
-            icon3.addPixmap(qt.QPixmap("./resources/new/run.png"), qt.QIcon.Normal, qt.QIcon.Off)
+            actionRun.setShortcut(qt.QtGui.QApplication.translate("MainWindow", "Ctrl+R", None, qt.QtGui.QApplication.UnicodeUTF8))
+            icon3 = qt.QtGui.QIcon()
+            icon3.addPixmap(qt.QtGui.QPixmap("./resources/new/run.png"), qt.QtGui.QIcon.Normal, qt.QtGui.QIcon.Off)
             actionRun.setIcon(icon3)
-            qt.QObject.connect(actionRun, qt.SIGNAL('triggered(bool)'),window.run)
+            qt.QtCore.QObject.connect(actionRun, qt.QtCore.SIGNAL('triggered(bool)'),window.run)
             return actionRun
         '''    
 
@@ -184,8 +184,8 @@ elif LPYEDITOR == "SCINTILLA":
             """
             .. todo:: Move this to applets
             """
-            actionRun = qt.QAction(self)
-            actionRun.setText(qt.QApplication.translate("MainWindow", "Run", None, qt.QApplication.UnicodeUTF8))
+            actionRun = qt.QtGui.QAction(self)
+            actionRun.setText(qt.QtGui.QApplication.translate("MainWindow", "Run", None, qt.QtGui.QApplication.UnicodeUTF8))
             return actionRun
             
         def set_buttons(self, actionRun, window):
@@ -194,11 +194,11 @@ elif LPYEDITOR == "SCINTILLA":
             """
             # Create qt btns and connect actions
             self.window = window
-            actionRun.setShortcut(qt.QApplication.translate("MainWindow", "Ctrl+R", None, qt.QApplication.UnicodeUTF8))
-            icon3 = qt.QIcon()
-            icon3.addPixmap(qt.QPixmap("./resources/new/run.png"), qt.QIcon.Normal, qt.QIcon.Off)
+            actionRun.setShortcut(qt.QtGui.QApplication.translate("MainWindow", "Ctrl+R", None, qt.QtGui.QApplication.UnicodeUTF8))
+            icon3 = qt.QtGui.QIcon()
+            icon3.addPixmap(qt.QtGui.QPixmap("./resources/new/run.png"), qt.QtGui.QIcon.Normal, qt.QtGui.QIcon.Off)
             actionRun.setIcon(icon3)
-            qt.QObject.connect(actionRun, qt.SIGNAL('triggered(bool)'),self.run)
+            qt.QtCore.QObject.connect(actionRun, qt.QtCore.SIGNAL('triggered(bool)'),self.run)
             return actionRun    
 
         def run(self):
@@ -240,23 +240,23 @@ if EDITOR == "SPYDER":
             super(PythonCodeEditor, self).setup_editor(go_to_definition=True) #C:\Spyder\spyder-2.1.11\spyderlib\widgets\sourcecode\codeeditor.py l.669
             
         def set_actions(self):    
-            actionRun = qt.QAction(self)
-            actionRun.setText(qt.QApplication.translate("MainWindow", "Run", None, qt.QApplication.UnicodeUTF8))
+            actionRun = qt.QtGui.QAction(self)
+            actionRun.setText(qt.QtGui.QApplication.translate("MainWindow", "Run", None, qt.QtGui.QApplication.UnicodeUTF8))
             return actionRun
             
         def set_buttons(self, actionRun, window):
             # Create qt btns and connect actions
-            actionRun.setShortcut(qt.QApplication.translate("MainWindow", "Ctrl+R", None, qt.QApplication.UnicodeUTF8))
-            icon3 = qt.QIcon()
-            icon3.addPixmap(qt.QPixmap("./resources/run.png"), qt.QIcon.Normal, qt.QIcon.Off)
+            actionRun.setShortcut(qt.QtGui.QApplication.translate("MainWindow", "Ctrl+R", None, qt.QtGui.QApplication.UnicodeUTF8))
+            icon3 = qt.QtGui.QIcon()
+            icon3.addPixmap(qt.QtGui.QPixmap("./resources/run.png"), qt.QtGui.QIcon.Normal, qt.QtGui.QIcon.Off)
             actionRun.setIcon(icon3)
-            qt.QObject.connect(actionRun, qt.SIGNAL('triggered(bool)'),window.run)
+            qt.QtCore.QObject.connect(actionRun, qt.QtCore.SIGNAL('triggered(bool)'),window.run)
             return actionRun
             
         def set_menu(self, menubar, actions):
             # Return qt actions
             menuPython = qt.QMenu(menubar)
-            menuPython.setTitle(qt.QApplication.translate("MainWindow", "Python scripts", None, qt.QApplication.UnicodeUTF8))
+            menuPython.setTitle(qt.QtGui.QApplication.translate("MainWindow", "Python scripts", None, qt.QtGui.QApplication.UnicodeUTF8))
             menuPython.setObjectName("menuPython")
             menuPython.addAction(actions)
             return menuPython.menuAction()
@@ -329,8 +329,8 @@ elif EDITOR == "SCINTILLA":
             """
             .. todo:: Move this to applets
             """
-            actionRun = qt.QAction(self)
-            actionRun.setText(qt.QApplication.translate("MainWindow", "Run", None, qt.QApplication.UnicodeUTF8))
+            actionRun = qt.QtGui.QAction(self)
+            actionRun.setText(qt.QtGui.QApplication.translate("MainWindow", "Run", None, qt.QtGui.QApplication.UnicodeUTF8))
             return actionRun
             
         def set_buttons(self, actionRun, window):
@@ -339,11 +339,11 @@ elif EDITOR == "SCINTILLA":
             """
             # Create qt btns and connect actions
             self.window = window
-            actionRun.setShortcut(qt.QApplication.translate("MainWindow", "Ctrl+R", None, qt.QApplication.UnicodeUTF8))
-            icon3 = qt.QIcon()
-            icon3.addPixmap(qt.QPixmap("./resources/new/run.png"), qt.QIcon.Normal, qt.QIcon.Off)
+            actionRun.setShortcut(qt.QtGui.QApplication.translate("MainWindow", "Ctrl+R", None, qt.QtGui.QApplication.UnicodeUTF8))
+            icon3 = qt.QtGui.QIcon()
+            icon3.addPixmap(qt.QtGui.QPixmap("./resources/new/run.png"), qt.QtGui.QIcon.Normal, qt.QtGui.QIcon.Off)
             actionRun.setIcon(icon3)
-            qt.QObject.connect(actionRun, qt.SIGNAL('triggered(bool)'),self.run)
+            qt.QtCore.QObject.connect(actionRun, qt.QtCore.SIGNAL('triggered(bool)'),self.run)
             return actionRun    
 
         def run(self):

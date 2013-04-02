@@ -1,4 +1,4 @@
-from openalea.oalab.gui import qt
+from openalea.vpltk.qt import qt
 
 
 def map_language(language):
@@ -37,7 +37,7 @@ def map_language(language):
 ##        return  pythonApplet, PythonCodeEditor 
         return  PythonCodeEditor
         
-class SelectEditor(qt.QWidget):
+class SelectEditor(qt.QtGui.QWidget):
     """
     This is the widget for select the type of editor/applet that you want to use.
     
@@ -50,21 +50,21 @@ class SelectEditor(qt.QWidget):
         self._addButtons()
         
     def _addButtons(self):
-        layout = qt.QVBoxLayout()
-        layout.setAlignment(qt.Qt.AlignCenter)
-        pythonBtn = qt.QPushButton("Python")
+        layout = qt.QtGui.QVBoxLayout()
+        layout.setAlignment(qt.QtCore.Qt.AlignCenter)
+        pythonBtn = qt.QtGui.QPushButton("Python")
         pythonBtn.setMaximumSize(100,100)  
         pythonBtn.setMinimumSize(50,50)         
-        lpyBtn = qt.QPushButton("L-System")
+        lpyBtn = qt.QtGui.QPushButton("L-System")
         lpyBtn.setMaximumSize(100,100)    
         lpyBtn.setMinimumSize(50,50)
-        workflowBtn = qt.QPushButton("Workflow")
+        workflowBtn = qt.QtGui.QPushButton("Workflow")
         workflowBtn.setMaximumSize(100,100) 
         workflowBtn.setMinimumSize(50,50)
         
-        qt.QObject.connect(pythonBtn, qt.SIGNAL("clicked()"),self._clicpy)
-        qt.QObject.connect(lpyBtn, qt.SIGNAL("clicked()"),self._cliclpy)
-        qt.QObject.connect(workflowBtn, qt.SIGNAL("clicked()"),self._clicwf)
+        qt.QtCore.QObject.connect(pythonBtn, qt.QtCore.SIGNAL("clicked()"),self._clicpy)
+        qt.QtCore.QObject.connect(lpyBtn, qt.QtCore.SIGNAL("clicked()"),self._cliclpy)
+        qt.QtCore.QObject.connect(workflowBtn, qt.QtCore.SIGNAL("clicked()"),self._clicwf)
         
         layout.addWidget(pythonBtn)
         layout.addWidget(lpyBtn)

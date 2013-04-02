@@ -99,25 +99,3 @@ class ControlABC(object):
         .. todo:: Implement
         """
         pass
- 
- 
-def main():
-    """ Example of how to use control manager """ 
-    class ControlExample(ControlABC):
-        """ Empty class Control for test """
-        def __init__(self):
-            pass
-
-    CM = ControlManager()
-    CM.new_control("test1")
-    C = ControlExample()
-    CM.add_control("test2",C)
-    
-    print "We must have 2 controls registered in control manager"
-    print "Here, we have:"
-    for c in CM.get_controls(): print c,  CM.get_controls()[c]
-
-    
-if( __name__ == "__main__"):
-    main()
- 

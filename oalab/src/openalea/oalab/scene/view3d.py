@@ -1,7 +1,7 @@
-from openalea.oalab.gui import qt
+from openalea.vpltk.qt import qt
 from openalea.plantgl.all import *
 from PyQGLViewer import *
-
+import sys
 
 class view3D (QGLViewer):
     """ This class is used to create and manipulate a 3 dimensions scene.
@@ -25,7 +25,7 @@ class view3D (QGLViewer):
         self.camera().setSceneRadius(4)#Size of vectors x,y,z
         self.camera().showEntireScene()
         # connection
-        self.connect(self,qt.SIGNAL("drawNeeded()"),self.draw)
+        self.connect(self,qt.QtCore.SIGNAL("drawNeeded()"),self.draw)
         
     def setScene(self, scene):
         # Set the scene (erase old scene if necessary)
@@ -61,9 +61,6 @@ class view3D (QGLViewer):
         
         
 def main():
-        import sys
-        from openalea.oalab.gui import qt
-        
         app = qt.QApplication(sys.argv)
         view = view3D()
         view.addToScene(Sphere())
