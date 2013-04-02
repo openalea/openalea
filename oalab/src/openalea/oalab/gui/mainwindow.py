@@ -8,23 +8,22 @@
 
 import sys
 import os
-
 import qt
+from path import path
 
+from openalea.core import settings
 from openalea.oalab.scene.view3d import view3D
 from openalea.oalab.history.history import History
 from openalea.oalab.control.controlmanager import ControlManager
 from openalea.oalab.applets.mapping import map_language
-
 # from openalea.core.logger import get_logger
 from openalea.visualea.splitterui import SplittableUI
-
 from openalea.oalab.editor.text_editor import PythonCodeEditor as Editor
 from openalea.oalab.editor.text_editor import LPyCodeEditor as LPyEditor
 from openalea.oalab.applets.mapping import SelectEditor
 from openalea.vpltk.shell.shell import get_shell_class
 from openalea.vpltk.shell.shell import get_interpreter_class
-from openalea.oalab.project.project import ProjectManager
+from openalea.vpltk.project.project import ProjectManager
 
 
 # sn_logger = get_logger(__name__)
@@ -52,24 +51,28 @@ class MainWindow(qt.QMainWindow):
         
         self.setAttribute(qt.Qt.WA_DeleteOnClose)
         self.showMaximized()
-        # project
-        self.projectManager = ProjectManager()
-        self.projectManager.new_project()
-        
+
         # list of central widgets
         self.widList = []
+        self.current_mode = None
         
-        # Central widgets
-        # Virtual World
-        self.set_virtual_world()
-        self.splittable = SplittableUI(parent=self, content=self.VW)
+        # project
+        # list of opened projects
+        self.projects = {}
+        self.projectManager = ProjectManager()
+        
         # editor
         self.set_text_editor_container()
-        self.hide_editors()
+        # self.hide_editors()
+        
+        # Central widgets
+        # self.splittable = SplittableUI(parent=self, content=self.VW)
+        # Virtual World
+        self.set_virtual_world()
         
         # self.splittable.splitPane(content=self.widList[1], paneId=0, direction=qt.Qt.Horizontal, amount=0.8)
-        
-        self.setCentralWidget(self.splittable)
+        self.set_central_widget(1,1)
+        # self.setCentralWidget(self.splittable)
         
         # Other widgets
         # Ressources
@@ -94,38 +97,38 @@ class MainWindow(qt.QMainWindow):
         # help
         self.set_help()
 
-        
-        
         # Status Bar
         self.set_status_bar()
+        # Menu Bar
+        self.set_permanent_menu_bar()
         # Actions bars and buttons
-        self.set_editor_actions()
+        self.set_buttons_level_one()
+        
         self.set_model_actions()
         self.set_model_buttons()
-        self.set_permanent_editor_buttons()
         # self.set_model_2_actions()
         # self.set_model_2_buttons()
-        self.set_view_actions()
-        self.set_view_buttons()
+
         
+
+##        self.openProj(name='demo_lpy_noise_branche')        
+
         self.splash.finish(self)
-    
     #----------------------------------------
     # Setup Central Widget
     #----------------------------------------
-    
     def add_widget(self, wid):
         # self.__centralStack.addWidget(wid)
         # self.__centralStack.setCurrentWidget(wid)
         pass
         
     def set_central_widget(self, row, column):
-        pass
+        # pass
         # self.__centralStack.addWidget(wid)
-        """
+        
         layout = qt.QGridLayout()
         self.central = qt.QWidget()
-        self.central.setMinimumSize(600, 500)
+        self.central.setMinimumSize(200, 200)
         
         l = len(self.widList)
         
@@ -144,7 +147,7 @@ class MainWindow(qt.QMainWindow):
                 except:
                     pass
   
-                layout.addWidget(wid ,x ,y)
+                layout.addWidget(wid, x, y)
                 i += 1
         
         # If they are too many widgets, they are add (in new lines)
@@ -156,7 +159,7 @@ class MainWindow(qt.QMainWindow):
         self.central.setLayout(layout)
 
         self.setCentralWidget(self.central)  
-        """
+        
 
         
     def set_central_widget11(self):    
@@ -165,34 +168,33 @@ class MainWindow(qt.QMainWindow):
     def set_central_widget12(self):    
         if self.showEditors == False:
             self.show_editors()
-    def set_central_widget13(self):    
-        self.set_central_widget(1,3)
-    def set_central_widget21(self):    
-        self.set_central_widget(2,1)
-    def set_central_widget22(self):    
-        self.set_central_widget(2,2)
-    def set_central_widget23(self):    
-        self.set_central_widget(2,3)   
-
     #----------------------------------------
     # Show / Hide editors
     #----------------------------------------
-    def show_hide_editors(self):    
+    def show_hide_editors(self):  
+        pass
+        """
         if self.showEditors == False:
             self.show_editors()
         else:
             self.hide_editors()
+        """    
             
     def show_editors(self):
+        pass
+        """
         if self.showEditors == False:
             self.splittable.splitPane(content=self.widList[1], paneId=0, direction=qt.Qt.Horizontal, amount=0.8)
             self.showEditors = True
-            
+        """
+        
     def hide_editors(self):
+        pass
+        """
         if self.showEditors == True:
             self.splittable.collapsePane(paneId=0)
             self.showEditors = False
-            
+        """    
     #----------------------------------------
     # Setup Virtual World
     #----------------------------------------
@@ -205,7 +207,7 @@ class MainWindow(qt.QMainWindow):
         view.start()    
         
         self.VW = view
-        self.VW.setMinimumSize(300, 300)
+        # self.VW.setMinimumSize(500, 500)
         
         self.widList.append(self.VW)
         
@@ -215,7 +217,7 @@ class MainWindow(qt.QMainWindow):
         self.actionHistoryList = qt.QAction(self)
         qt.QObject.connect(self.history.obj, qt.SIGNAL('HistoryChanged'),self.VW.setScene)
         qt.QObject.connect(self.history.obj, qt.SIGNAL('HistoryChanged'),self.update_ressources_manager)
-    
+        
     def add_virtual_world_viewer(self):
         print "This action doens't work for the moment('new virtual world viewer')."
         pass
@@ -283,7 +285,7 @@ class MainWindow(qt.QMainWindow):
         self.ressManaDockWidget.setObjectName("RessMana")
         self.ressManaDockWidget.setAllowedAreas(qt.Qt.LeftDockWidgetArea | qt.Qt.RightDockWidgetArea | qt.Qt.TopDockWidgetArea)
         self.ressManaDockWidget.setWidget(self.ressManaWid)
-        self.addDockWidget(qt.Qt.LeftDockWidgetArea, self.ressManaDockWidget) 
+        self.addDockWidget(qt.Qt.RightDockWidgetArea, self.ressManaDockWidget) 
         
         hist = self.history.getHistory()
         self.update_ressources_manager(hist)
@@ -367,11 +369,12 @@ class MainWindow(qt.QMainWindow):
         qt.QObject.connect(self.controlWid, qt.SIGNAL('cellDoubleClicked(int,int)'),self.edit_control)        
             
     def edit_control(self, row, column):
+        # TODO
         cont = self.controlWid.item(row,column)
         print(cont)
 
     
-    def set_controls_from_applet(self, controls):
+    def set_controls(self, controls):
         """
         Set Control from the applet in the control manager and the widget control panel.
         
@@ -430,7 +433,6 @@ class MainWindow(qt.QMainWindow):
     # Setup Editor Container Dock Widget
     #----------------------------------------
     def set_text_editor_container(self):
-    
         # Editor
         self.textEditorContainer = qt.QTabWidget()
         self.textEditorContainer.max_ID = 0
@@ -439,31 +441,68 @@ class MainWindow(qt.QMainWindow):
         self.textEditorContainer.current_path_and_fname = [None]
         self.textEditorContainer.current_path = [None]
         self.textEditorContainer.setTabsClosable(True)
-        self.textEditorContainer.setMinimumSize(250, 250)
+        self.textEditorContainer.setMinimumSize(200, 200)
+        self.textEditorContainer.setMaximumSize(1000, 1000)
         
-        self.widList.append(self.textEditorContainer)
+        self.editDockWidget = qt.QDockWidget("Editor", self)
+        self.editDockWidget.setObjectName("Editor")
+        self.editDockWidget.setAllowedAreas(qt.Qt.LeftDockWidgetArea | qt.Qt.RightDockWidgetArea | qt.Qt.TopDockWidgetArea | qt.Qt.BottomDockWidgetArea)
+        self.editDockWidget.setWidget(self.textEditorContainer)
+        
+        # self.widList.append(self.textEditorContainer)
         self.new()
-               
+        
+        # Bar of Editor: instanciate self.CodeBar
+        self.set_editor_actions()
+        self.set_permanent_editor_buttons()
+        
+        # Add Dock Widget
+        self.addDockWidget(qt.Qt.LeftDockWidgetArea, self.editDockWidget)
+        self.editDockWidget.setTitleBarWidget( self.CodeBar )
+            
+    def update_text_editor(self):
+        """
+        Clear the text editor container and set in tab
+        script from current project.
+        """        
+        self.textEditorContainer.clear()
+        for script in self.current_project.scripts:
+            language = str(script).split('.')[-1]
+            Editor = map_language(language)
+            edit = Editor()
+            edit.set_text(self.current_project.scripts[script])
+            self.textEditorContainer.addTab(edit, str(script))
+            self.setup_new_tab()            
+
+            
+            
     def new_text_editor(self, name="NewFile", type="python"):
         if(self.textEditorContainer.tabText(self.textEditorContainer.currentIndex())=="Select your editor type"):
             self.textEditorContainer.removeTab(self.textEditorContainer.currentIndex())
-            
-        applet, widget = map_language(language=type)  
+        
+        widget = map_language(language=type)  
         
         self.editorWidget = widget(parent=self)
-        try: appl = applet(parent=self)
-        except: appl = applet()
-        self.editorWidget.appl = appl
-        
         self.textEditorContainer.addTab(self.editorWidget, name)
         self.textEditorContainer.setCurrentWidget(self.editorWidget)
         self.setup_new_tab()
 
-        try: appl.controls()
-        except: print("can\'t get controls from %s" %appl) 
-        
-        try: self.set_controls_from_applet(appl.controls())
-        except: print("can\'t set controls from %s in application" %appl)
+##        applet, widget = map_language(language=type)  
+##        
+##        self.editorWidget = widget(parent=self)
+##        try: appl = applet(parent=self)
+##        except: appl = applet()
+##        self.editorWidget.appl = appl
+##        
+##        self.textEditorContainer.addTab(self.editorWidget, name)
+##        self.textEditorContainer.setCurrentWidget(self.editorWidget)
+##        self.setup_new_tab()
+##
+##        try: appl.controls()
+##        except: print("can\'t get controls from %s" %appl) 
+##        
+##        try: self.set_controls(appl.controls())
+##        except: print("can\'t set controls from %s in application" %appl)
     
     def show_select_editor(self, name="Select your editor type"):
         """
@@ -474,7 +513,7 @@ class MainWindow(qt.QMainWindow):
         self.selectEditor = SelectEditor(parent=self)
         self.textEditorContainer.addTab(self.selectEditor, name)
         self.textEditorContainer.setCurrentWidget(self.selectEditor)
-        self.add_widget(self.selectEditor)
+        # self.add_widget(self.selectEditor)
     
     def setup_new_tab(self):
         self.textEditorContainer.max_ID += 1
@@ -493,6 +532,107 @@ class MainWindow(qt.QMainWindow):
     #----------------------------------------
     # Setup Windows, bars, buttons
     #----------------------------------------
+    def set_button_change_project(self):
+        menu = CustomMenu(self.projects, self)  
+        self.current_project_button.setMenu(menu)
+    
+    def set_buttons_level_one(self):
+        # Create actions
+
+        self.actionFile = qt.QAction(self)
+        self.actionEdit = qt.QAction(self)
+        self.actionView = qt.QAction(self)
+        self.actionHelp = qt.QAction(self)
+        self.actionInit = qt.QAction(self)
+        self.actionSimu = qt.QAction(self)
+        self.actionExp = qt.QAction(self)
+
+        self.current_project_button = qt.QPushButton(self)
+        
+        self.current_project_label = qt.QLabel(self)
+
+        # Set title of buttons       
+        self.actionFile.setText(qt.QApplication.translate("MainWindow", "File", None, qt.QApplication.UnicodeUTF8))
+        self.actionEdit.setText(qt.QApplication.translate("MainWindow", "Edit", None, qt.QApplication.UnicodeUTF8))
+        self.actionView.setText(qt.QApplication.translate("MainWindow", "View", None, qt.QApplication.UnicodeUTF8))
+        self.actionHelp.setText(qt.QApplication.translate("MainWindow", "Help", None, qt.QApplication.UnicodeUTF8))
+        self.actionInit.setText(qt.QApplication.translate("MainWindow", "Initialisation", None, qt.QApplication.UnicodeUTF8))
+        self.actionSimu.setText(qt.QApplication.translate("MainWindow", "Simulation", None, qt.QApplication.UnicodeUTF8))
+        self.actionExp.setText(qt.QApplication.translate("MainWindow", "Exporation", None, qt.QApplication.UnicodeUTF8))
+        self.current_project_button.setText(qt.QApplication.translate("MainWindow", "Select Project", None, qt.QApplication.UnicodeUTF8))
+    
+        self.LevelOneBar = qt.QToolBar(self)
+        self.LevelOneBar.setToolButtonStyle(qt.Qt.ToolButtonTextUnderIcon)
+        size = qt.QSize(60, 60)
+        self.LevelOneBar.setIconSize(size)
+        self.addToolBar(qt.Qt.TopToolBarArea, self.LevelOneBar) 
+        self.addToolBarBreak()
+        
+        icon0 = qt.QIcon()
+        icon0.addPixmap(qt.QPixmap("./resources/new/axiom2.png"), qt.QIcon.Normal, qt.QIcon.Off)
+        self.actionInit.setIcon(icon0)
+        icon1 = qt.QIcon()
+        icon1.addPixmap(qt.QPixmap("./resources/new/growth2.png"), qt.QIcon.Normal, qt.QIcon.Off)
+        self.actionSimu.setIcon(icon1)
+        icon2 = qt.QIcon()
+        icon2.addPixmap(qt.QPixmap("./resources/new/analysis.png"), qt.QIcon.Normal, qt.QIcon.Off)
+        self.actionExp.setIcon(icon2)
+
+        # connect actions to buttons
+        # qt.QObject.connect(self.actionInit, qt.SIGNAL('triggered(bool)'),self.set_central_widget11)
+        # qt.QObject.connect(self.actionSimu, qt.SIGNAL('triggered(bool)'),self.set_central_widget12)
+        # qt.QObject.connect(self.actionExp, qt.SIGNAL('triggered(bool)'),self.add_virtual_world_viewer) 
+        
+        # self.LevelOneBar.addAction(self.actionFile)
+        # self.LevelOneBar.addAction(self.actionEdit)
+        # self.LevelOneBar.addAction(self.actionView)
+        # self.LevelOneBar.addAction(self.actionHelp)
+        # self.LevelOneBar.addSeparator()
+        self.LevelOneBar.addAction(self.actionInit)
+        self.LevelOneBar.addSeparator()
+        self.LevelOneBar.addAction(self.actionSimu)   
+        self.LevelOneBar.addSeparator()        
+        self.LevelOneBar.addAction(self.actionExp)
+        self.LevelOneBar.addSeparator()
+        self.LevelOneBar.addWidget(self.current_project_label)
+        self.LevelOneBar.addSeparator()
+        self.LevelOneBar.addWidget(self.current_project_button)
+        self.LevelOneBar.addSeparator()
+    
+    def update_current_project_label(self):
+        text = 'current project:\n\n"%s"' %self.current_project.name
+        self.current_project_label.setText(text)
+    
+    def change_current_mode(self, mode=None):
+        self.current_mode = mode
+        
+    def signal_init(self):
+        pass
+  
+    
+    def set_buttons_level_two(self):
+        self.delete_buttons_level_two()
+        if self.current_mode == "init":
+            self.set_buttons_init()
+        elif self.current_mode == "simu":
+            self.set_buttons_simu()
+        elif self.current_mode == "expl":
+            self.set_buttons_expl()
+        else:
+            pass
+            
+    
+    def delete_buttons_level_two(self):
+        pass
+    
+        self.LevelTwoBar.clear()
+        
+    # def set_buttons_level_three(self):
+        # pass
+    
+    # def delete_buttons_level_three(self):
+        # pass    
+    
     def set_model_actions(self):
         # Create actions
         self.actionAddPlant = qt.QAction(self)
@@ -507,7 +647,7 @@ class MainWindow(qt.QMainWindow):
         self.actionGlobalWorkflow= qt.QAction(self)
                 
         # Set title of buttons       
-        self.actionAddPlant.setText(qt.QApplication.translate("MainWindow", "New Plant", None, qt.QApplication.UnicodeUTF8))
+        self.actionAddPlant.setText(qt.QApplication.translate("MainWindow", "Plant", None, qt.QApplication.UnicodeUTF8))
         self.actionPlantGrowing.setText(qt.QApplication.translate("MainWindow", "Plant Growth", None, qt.QApplication.UnicodeUTF8))
         
         self.actionSoil.setText(qt.QApplication.translate("MainWindow", "Soil", None, qt.QApplication.UnicodeUTF8))
@@ -550,80 +690,11 @@ class MainWindow(qt.QMainWindow):
         self.actionSaveAll.setText(qt.QApplication.translate("MainWindow", "Save All", None, qt.QApplication.UnicodeUTF8))
         self.actionSaveAs.setText(qt.QApplication.translate("MainWindow", "Save As", None, qt.QApplication.UnicodeUTF8))
         self.actionClose.setText(qt.QApplication.translate("MainWindow", "Close", None, qt.QApplication.UnicodeUTF8))
-    
-    
-    def set_view_actions(self):
-        # Create actions
-        self.action11 = qt.QAction(self)
-        self.action12 = qt.QAction(self)
-        self.action13 = qt.QAction(self)
-        self.action21 = qt.QAction(self)
-        self.action22 = qt.QAction(self)
-        self.action23 = qt.QAction(self)
-        self.actionEditors = qt.QAction(self)
-        
-        # Set title of buttons
-        self.action11.setText(qt.QApplication.translate("MainWindow", "1 block", None, qt.QApplication.UnicodeUTF8))
-        self.action12.setText(qt.QApplication.translate("MainWindow", "grid 1x2", None, qt.QApplication.UnicodeUTF8))
-        self.action13.setText(qt.QApplication.translate("MainWindow", "grid 1x3", None, qt.QApplication.UnicodeUTF8))
-        self.action21.setText(qt.QApplication.translate("MainWindow", "grid 2x1", None, qt.QApplication.UnicodeUTF8))
-        self.action22.setText(qt.QApplication.translate("MainWindow", "grid 2x2", None, qt.QApplication.UnicodeUTF8))
-        self.action23.setText(qt.QApplication.translate("MainWindow", "grid 2x3", None, qt.QApplication.UnicodeUTF8))
-        self.actionEditors.setText(qt.QApplication.translate("MainWindow", "show/hide editors", None, qt.QApplication.UnicodeUTF8))
-    
-    def set_view_buttons(self):
-        self.ViewBar = qt.QToolBar(self)
-        self.ViewBar.setToolButtonStyle(qt.Qt.ToolButtonIconOnly)
-        size = qt.QSize(20, 20)
-        self.ViewBar.setIconSize(size)
-        self.addToolBar(qt.Qt.LeftToolBarArea, self.ViewBar)    
-        
-        icon2_2 = qt.QIcon()
-        icon2_2.addPixmap(qt.QPixmap("./resources/new/square11.png"), qt.QIcon.Normal, qt.QIcon.Off)
-        self.action11.setIcon(icon2_2)
-        icon2_3 = qt.QIcon()
-        icon2_3.addPixmap(qt.QPixmap("./resources/new/square12.png"), qt.QIcon.Normal, qt.QIcon.Off)
-        self.action12.setIcon(icon2_3)
-        icon5 = qt.QIcon()
-        icon5.addPixmap(qt.QPixmap("./resources/new/square13.png"), qt.QIcon.Normal, qt.QIcon.Off)
-        self.action13.setIcon(icon5)
-        icon6 = qt.QIcon()
-        icon6.addPixmap(qt.QPixmap("./resources/new/square21.png"), qt.QIcon.Normal, qt.QIcon.Off)
-        self.action21.setIcon(icon6)
-        icon7 = qt.QIcon()
-        icon7.addPixmap(qt.QPixmap("./resources/new/square22.png"), qt.QIcon.Normal, qt.QIcon.Off)
-        self.action22.setIcon(icon7)
-        icon8 = qt.QIcon()
-        icon8.addPixmap(qt.QPixmap("./resources/new/square23.png"), qt.QIcon.Normal, qt.QIcon.Off)
-        self.action23.setIcon(icon8)
-        icon9 = qt.QIcon()
-        icon9.addPixmap(qt.QPixmap("./resources/book.png"), qt.QIcon.Normal, qt.QIcon.Off)
-        self.actionEditors.setIcon(icon9)
-        
 
-        # connect actions to buttons
-        qt.QObject.connect(self.action11, qt.SIGNAL('triggered(bool)'),self.set_central_widget11)
-        qt.QObject.connect(self.action12, qt.SIGNAL('triggered(bool)'),self.set_central_widget12)
-        qt.QObject.connect(self.action13, qt.SIGNAL('triggered(bool)'),self.add_virtual_world_viewer) 
-        qt.QObject.connect(self.action21, qt.SIGNAL('triggered(bool)'),self.set_central_widget21)
-        qt.QObject.connect(self.action22, qt.SIGNAL('triggered(bool)'),self.set_central_widget22)         
-        qt.QObject.connect(self.action23, qt.SIGNAL('triggered(bool)'),self.set_central_widget23)         
-        qt.QObject.connect(self.actionEditors, qt.SIGNAL('triggered(bool)'),self.show_hide_editors)    
-        
-        self.ViewBar.addAction(self.action11)
-        self.ViewBar.addSeparator()
-        self.ViewBar.addAction(self.action12)
-        self.ViewBar.addSeparator()
-        self.ViewBar.addAction(self.action13)
-        # self.ViewBar.addAction(self.action22)
-        # self.ViewBar.addAction(self.action23)
-        self.ViewBar.addSeparator()
-        self.ViewBar.addAction(self.actionEditors)
-    
     def set_model_buttons(self):
         self.ModelBar = qt.QToolBar(self)
         self.ModelBar.setToolButtonStyle(qt.Qt.ToolButtonTextUnderIcon)
-        size = qt.QSize(40, 40)
+        size = qt.QSize(20, 20)
         self.ModelBar.setIconSize(size)
         self.addToolBar(qt.Qt.TopToolBarArea, self.ModelBar)
         self.addToolBarBreak()        
@@ -664,21 +735,28 @@ class MainWindow(qt.QMainWindow):
         qt.QObject.connect(self.actionSky, qt.SIGNAL('triggered(bool)'),self.add_sun)
         
         self.ModelBar.addAction(self.actionAddPlant)
-        self.ModelBar.addAction(self.actionPlantGrowing)
-        self.ModelBar.addSeparator()
+        # self.ModelBar.addAction(self.actionPlantGrowing)
+        # self.ModelBar.addSeparator()
         self.ModelBar.addAction(self.actionSoil)
         self.ModelBar.addAction(self.actionSky)
         self.ModelBar.addAction(self.actionGreenhouse)
-        self.ModelBar.addSeparator()
-        self.ModelBar.addAction(self.actionPlay)
-        self.ModelBar.addSeparator()
-        self.ModelBar.addAction(self.actionGlobalWorkflow)
+        # self.ModelBar.addSeparator()
+        # self.ModelBar.addAction(self.actionPlay)
+        # self.ModelBar.addSeparator()
+        # self.ModelBar.addAction(self.actionGlobalWorkflow)
     
+    set_buttons_init = set_model_buttons
+    
+    def set_buttons_simu(self):
+        pass
+        
+    def set_buttons_expl(self):
+        pass
     
     def set_model_2_buttons(self):
         self.ModelBar2 = qt.QToolBar(self)
         self.ModelBar2.setToolButtonStyle(qt.Qt.ToolButtonTextOnly)
-        size = qt.QSize(30, 30)
+        size = qt.QSize(20, 20)
         self.ModelBar2.setIconSize(size)
         self.addToolBar(qt.Qt.TopToolBarArea, self.ModelBar2)    
         
@@ -693,7 +771,7 @@ class MainWindow(qt.QMainWindow):
         # set top buttons
         self.CodeBar = qt.QToolBar(self)
         self.CodeBar.setToolButtonStyle(qt.Qt.ToolButtonTextUnderIcon)
-        size = qt.QSize(30, 30)
+        size = qt.QSize(20, 20)
         self.CodeBar.setIconSize(size)
         self.addToolBar(qt.Qt.TopToolBarArea, self.CodeBar)
         self.addToolBarBreak()
@@ -737,9 +815,13 @@ class MainWindow(qt.QMainWindow):
         self.CodeBar.addAction(self.actionClose)  
             
     def set_permanent_menu_bar(self):
-        self.menubar = qt.QMenuBar()
+        self.menubar = qt.QMenuBar(self)
         self.menubar.setGeometry(qt.QRect(0, 0, 1024, 20))
         self.menubar.setObjectName("menubar")
+        
+        self.menuProj = qt.QMenu(self.menubar)
+        self.menuProj.setTitle(qt.QApplication.translate("MainWindow", "Project", None, qt.QApplication.UnicodeUTF8))  
+        self.menuProj.setObjectName("menuProj")
         
         self.menuFile = qt.QMenu(self.menubar)
         self.menuFile.setTitle(qt.QApplication.translate("MainWindow", "File", None, qt.QApplication.UnicodeUTF8))
@@ -765,16 +847,45 @@ class MainWindow(qt.QMainWindow):
         self.menuView.setTitle(qt.QApplication.translate("MainWindow", "View", None, qt.QApplication.UnicodeUTF8))
         self.menuView.setObjectName("menuView")
         
-        self.setMenuBar(self.menubar)
+        self.setMenuBar(self.menubar)       
         
-        self.menuFile.addAction(self.actionNew)
-        self.menuFile.addAction(self.actionOpen)
-        self.menuFile.addAction(self.actionSave)
-        self.menuFile.addAction(self.actionSaveAs)
-        self.menuFile.addAction(self.actionSaveAll)
-        self.menuFile.addAction(self.actionClose)
+        self.actionNewProj = qt.QAction(self)
+        self.actionOpenProj = qt.QAction(self)
+        self.actionSaveProj = qt.QAction(self)
+        self.actionSaveAllProj = qt.QAction(self)
+        self.actionCloseProj = qt.QAction(self)
+        self.actionChangeActiveProj = qt.QAction(self)
+        
+        self.actionNewProj.setText(qt.QApplication.translate("MainWindow", "New Project", None, qt.QApplication.UnicodeUTF8))
+        self.actionOpenProj.setText(qt.QApplication.translate("MainWindow", "Open Project", None, qt.QApplication.UnicodeUTF8))
+        self.actionSaveProj.setText(qt.QApplication.translate("MainWindow", "Save Current Project", None, qt.QApplication.UnicodeUTF8))
+        self.actionCloseProj.setText(qt.QApplication.translate("MainWindow", "Close Current Project", None, qt.QApplication.UnicodeUTF8))
+        self.actionSaveAllProj.setText(qt.QApplication.translate("MainWindow", "Save All Project", None, qt.QApplication.UnicodeUTF8))
+        self.actionChangeActiveProj.setText(qt.QApplication.translate("MainWindow", "Change Current Project", None, qt.QApplication.UnicodeUTF8))
+        
+        qt.QObject.connect(self.actionNewProj, qt.SIGNAL('triggered(bool)'),self.newProj)
+        qt.QObject.connect(self.actionOpenProj, qt.SIGNAL('triggered(bool)'),self.openProj)
+        qt.QObject.connect(self.actionSaveProj, qt.SIGNAL('triggered(bool)'),self.saveProj)
+        qt.QObject.connect(self.actionSaveAllProj, qt.SIGNAL('triggered(bool)'),self.saveAllProj)
+        qt.QObject.connect(self.actionCloseProj, qt.SIGNAL('triggered(bool)'),self.closeProj)
+        qt.QObject.connect(self.actionChangeActiveProj, qt.SIGNAL('triggered(bool)'),self.changeActiveProj)
+        
+        self.menuProj.addAction(self.actionNewProj)
+        self.menuProj.addAction(self.actionOpenProj)
+        self.menuProj.addAction(self.actionSaveProj)
+        self.menuProj.addAction(self.actionSaveAllProj)
+        self.menuProj.addAction(self.actionCloseProj)
+        self.menuProj.addAction(self.actionChangeActiveProj)  
+
+        # self.menuFile.addAction(self.actionNew)
+        # self.menuFile.addAction(self.actionOpen)
+        # self.menuFile.addAction(self.actionSave)
+        # self.menuFile.addAction(self.actionSaveAs)
+        # self.menuFile.addAction(self.actionSaveAll)
+        # self.menuFile.addAction(self.actionClose)
        
         self.menubar.addAction(self.menuFile.menuAction())
+        self.menubar.addAction(self.menuProj.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
         self.menubar.addAction(self.menuView.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
@@ -815,15 +926,16 @@ class MainWindow(qt.QMainWindow):
                 self.CodeBar.removeAction(actions[4])
         
     def set_local_menu_bar(self):
-        try:
-            self.remove_local_menu_bar()
-        except:
-            pass
-        try:    
-            menu_local = self.textEditorContainer.currentWidget().set_menu(self.menubar, self.local_actions)
-            self.menubar.insertAction(self.menuEdit.menuAction(), menu_local)
-        except:
-            pass    
+        pass
+##        try:
+##            self.remove_local_menu_bar()
+##        except:
+##            pass
+##        try:    
+##            menu_local = self.textEditorContainer.currentWidget().set_menu(self.menubar, self.local_actions)
+##            self.menubar.insertAction(self.menuEdit.menuAction(), menu_local)
+##        except:
+##            pass    
         
     def remove_local_menu_bar(self):
         actions= self.menubar.actions()
@@ -839,6 +951,8 @@ class MainWindow(qt.QMainWindow):
         InterpreterClass = get_interpreter_class()
         self.interpreter = InterpreterClass()# interpreter
         self.interpreter.locals['history'] = self.history.getHistory()
+        self.interpreter.locals['projects'] = self.projects
+        # self.interpreter.runcode("print('yep')")
 
         self.shellDockWidget = qt.QDockWidget("Python Shell", self)     
             
@@ -852,8 +966,8 @@ class MainWindow(qt.QMainWindow):
         self.shellwdgt.setMinimumSize(700,150)
         self.shellDockWidget.setWidget(self.shellwdgt)
 
-    def run(self):
-        self.textEditorContainer.currentWidget().appl.run()
+##    def run(self):
+##        self.textEditorContainer.currentWidget().appl.run()
         # 123456
         # code = self.textEditorContainer.currentWidget().get_text()
         # interp = self.get_interpreter()
@@ -877,6 +991,76 @@ class MainWindow(qt.QMainWindow):
 
         self.logDockWidget.setMinimumSize(150,150)
 
+    #----------------------------------------
+    # Actions on project
+    #----------------------------------------
+    def newProj(self):
+        proj = self.projectManager.create('unamed_project')
+        self.projects[proj.name] = proj
+        self.project_change(proj.name)
+       
+    def openProj(self, name=False):
+        if name is False:
+            name = self.showOpenFileDialog()
+        if name is not u'':
+            proj_name = name.split('/')[-1]
+            proj = self.projectManager[proj_name]
+            self.projects[proj.name] = proj
+            self.project_change(proj.name)
+            
+    def saveProj(self):
+        self.current_project.save()
+        self.project_changed() 
+
+    def saveAllProj(self):
+        for proj in self.projects:
+            self.projects[proj].save()
+        self.project_changed()
+
+    def closeProj(self):
+        name = self.current_project.name
+        del self.projects[name]
+        for pname in self.projects:
+            self.current_project = self.projects[pname]
+        self.project_changed()
+        
+    def changeActiveProj(self):
+        pass
+    
+    def project_change(self, name):
+        if hasattr(self, 'current_project'):
+            if name is not self.current_project.name:
+                # Get project
+                self.current_project = self.projects[name]
+                # Get the world
+                self.history.reset()
+##                for w in self.current_project.world:
+##                    self.history.add(w,world[w])
+                # Get controls
+                self.set_controls(self.current_project.controls)
+                self.project_changed()
+        else:
+            # If this is the first project
+            self.current_project = self.projects[name]
+            self.history.reset()
+##            for w in self.current_project.world:
+##                self.history.add(w,self.current_project.world[w])
+            self.set_controls(self.current_project.controls)
+            self.project_changed()
+        
+    def project_changed(self):    
+        self.set_button_change_project()
+        self.update_text_editor()
+        self.update_current_project_label()
+        
+    #----------------------------------------
+    # Dialog
+    #----------------------------------------        
+    def showOpenFileDialog(self):
+        my_path = path(settings.get_project_dir())
+        fname = qt.QFileDialog.getExistingDirectory(self, 'Select Project Directory', 
+                my_path)
+        return fname
         
     #----------------------------------------
     # Actions on files
@@ -886,7 +1070,8 @@ class MainWindow(qt.QMainWindow):
         self.show_select_editor()
     
     def open(self, fname=None):
-        self.textEditorContainer.currentWidget().appl.open(fname)
+        pass
+##        self.textEditorContainer.currentWidget().appl.open(fname)
         # 123456
         '''
         self.show_editors()
@@ -934,19 +1119,21 @@ class MainWindow(qt.QMainWindow):
             self.saveas()
         else:
             try:
-                code = self.textEditorContainer.currentWidget().get_text() # type(code) = unicode
+##                code = self.textEditorContainer.currentWidget().get_text() # type(code) = unicode
                 id = self.textEditorContainer.currentWidget().ID
                 fname = self.textEditorContainer.current_path_and_fname[id]
                 # Encode in utf8
                 # /!\ 
                 # encode("iso-8859-1","ignore") don't know what to do with "\n" and so ignore it
                 # encode("utf8","ignore") works well but the read function need decode("utf8")
-                code_enc = code.encode("utf8","ignore") #utf8 or iso-8859-1, ignore or replace
+##                code_enc = code.encode("utf8","ignore") #utf8 or iso-8859-1, ignore or replace
                 
                 # Write text in the file
-                f = open(fname, "w")
-                f.writelines(code_enc)
-                f.close()
+##                f = open(fname, "w")
+##                f.writelines(code_enc)
+##                f.close()
+                
+                self.current_project.save()
                 
                 fname_without_ext = self.textEditorContainer.current_file_name[id]
                 self.edit_status_bar(("File '%s' saved.") %fname_without_ext )
@@ -957,13 +1144,16 @@ class MainWindow(qt.QMainWindow):
     def saveas(self):
         try:
             id = self.textEditorContainer.currentWidget().ID
-            fname = qt.QFileDialog.getSaveFileName(self, 'Save file', self.textEditorContainer.current_path[id], "Python File(*.py)")
+            fname = qt.QFileDialog.getSaveFileName(self, 'Save file', self.current_project.path/self.current_project.name/'scripts', "Python File(*.py)")
             code = self.textEditorContainer.currentWidget().get_text()
             code_enc = code.encode("utf8","ignore") 
             
-            f = open(fname, "w")
-            f.writelines(code_enc)
-            f.close()
+            self.current_project.scripts[fname] = code_enc
+            self.current_project.save()
+            
+##            f = open(fname, "w")
+##            f.writelines(code_enc)
+##            f.close()
             
             fnamesplit = os.path.split(fname)
             fnamesplitext = os.path.splitext(fname)
@@ -998,6 +1188,25 @@ class MainWindow(qt.QMainWindow):
         self.textEditorContainer.setCurrentIndex(n_tab)
         self.close()    
     
+    
+class CustomMenu(qt.QMenu):
+    def __init__(self, projects, parent):
+        qt.QMenu.__init__(self)
+        for proj in projects:
+            action = CustomAction(str(proj),self, parent)
+            self.addAction(action)   
+    
+class CustomAction(qt.QAction):
+    def __init__(self, name, wid, parent):
+        qt.QAction.__init__(self, name, wid)
+        self.name = name
+        self.parent = parent
+        qt.QObject.connect(self, qt.SIGNAL('triggered(bool)'), self.on_click)
+    def on_click(self):
+        self.parent.project_change(self.name)   
+
+
+
 def show_splash_screen():
     """Show a small splash screen to make people wait for OpenAleaLab to startup"""
     # import metainfo

@@ -1,5 +1,6 @@
 from openalea.oalab.gui import qt
 from openalea.oalab.editor.plugins import TextEditorOALab
+import os
 
 # TODO : Editor type
 #   1. from a flag
@@ -11,6 +12,7 @@ EDITOR = "SCINTILLA"
 
 LPYEDITOR = "SPYDER"
 LPYEDITOR = "LPY"
+LPYEDITOR = "SCINTILLA"
 
 PythonCodeEditor = None
 LPyCodeEditor = None
@@ -146,6 +148,77 @@ if LPYEDITOR == "LPY":
 
    
 
+elif LPYEDITOR == "SCINTILLA":
+    from openalea.visualea.scintilla_editor import ScintillaCodeEditor
+    from openalea.plantgl import all as pgl
+    from openalea.lpy_wralea.lpy_nodes import run_lpy
+    class LPyCodeEditor(ScintillaCodeEditor, TextEditorOALab):
+        def __init__(self, parent=None):
+            super(LPyCodeEditor, self).__init__()
+            
+        def get_full_text(self):
+            """
+            :return: the full text in the editor
+            """
+            return self.text()
+            
+        def get_text(self, start='sof', end='eof'):
+            """
+            Return a part of the text.
+            
+            :param start: is the begining of what you want to get
+            :param end: is the end of what you want to get
+            :return: text which is contained in the editor between 'start' and 'end'
+            """
+            return super(LPyCodeEditor, self).text()
+            
+        def set_text(self, text):
+            """
+            Set text in the editor
+            
+            :param text: text you want to set 
+            """
+            return super(LPyCodeEditor, self).setText(text)    
+            
+        def set_actions(self):
+            """
+            .. todo:: Move this to applets
+            """
+            actionRun = qt.QAction(self)
+            actionRun.setText(qt.QApplication.translate("MainWindow", "Run", None, qt.QApplication.UnicodeUTF8))
+            return actionRun
+            
+        def set_buttons(self, actionRun, window):
+            """
+            .. todo:: Move this to applets
+            """
+            # Create qt btns and connect actions
+            self.window = window
+            actionRun.setShortcut(qt.QApplication.translate("MainWindow", "Ctrl+R", None, qt.QApplication.UnicodeUTF8))
+            icon3 = qt.QIcon()
+            icon3.addPixmap(qt.QPixmap("./resources/new/run.png"), qt.QIcon.Normal, qt.QIcon.Off)
+            actionRun.setIcon(icon3)
+            qt.QObject.connect(actionRun, qt.SIGNAL('triggered(bool)'),self.run)
+            return actionRun    
+
+        def run(self):
+            code = self.get_text()
+            ns = self.window.current_project.ns
+   
+            file = open('.mytemplpy.lpy', "w")
+            file.write(code)
+            file.close()    
+
+            tree, lsys = run_lpy('.mytemplpy.lpy', parameters=ns)
+    
+            os.remove('.mytemplpy.lpy')
+
+            scene = lsys.sceneInterpretation(tree)
+            self.window.history.add(name='lpy',obj=scene)
+        
+    
+
+
 if EDITOR == "SPYDER":
     # from spyderlib.widgets.editor import EditorStack as CodeEditor
     # from spyderlib.plugins.editor import Editor as CodeEditor
@@ -265,10 +338,16 @@ elif EDITOR == "SCINTILLA":
             .. todo:: Move this to applets
             """
             # Create qt btns and connect actions
+            self.window = window
             actionRun.setShortcut(qt.QApplication.translate("MainWindow", "Ctrl+R", None, qt.QApplication.UnicodeUTF8))
             icon3 = qt.QIcon()
             icon3.addPixmap(qt.QPixmap("./resources/new/run.png"), qt.QIcon.Normal, qt.QIcon.Off)
             actionRun.setIcon(icon3)
-            qt.QObject.connect(actionRun, qt.SIGNAL('triggered(bool)'),window.run)
+            qt.QObject.connect(actionRun, qt.SIGNAL('triggered(bool)'),self.run)
             return actionRun    
 
+        def run(self):
+            code = self.get_text()
+            interp = self.window.get_interpreter()
+            interp.runcode(code)
+            self.window.edit_status_bar("Code runned.")

@@ -14,21 +14,28 @@ def map_language(language):
     if language == "python":
         from .python import pythonApplet
         from openalea.oalab.editor.text_editor import PythonCodeEditor
-        return  pythonApplet, PythonCodeEditor 
+##        return  pythonApplet, PythonCodeEditor 
+        return  PythonCodeEditor 
         
-    if language == "lpy":
+    elif language == "lpy":
         from .lpy import lpyApplet
-        from openalea.oalab.editor.text_editor import PythonCodeEditor
-        return  lpyApplet, PythonCodeEditor 
+        from openalea.oalab.editor.text_editor import LPyCodeEditor
+##        return  lpyApplet, LPyCodeEditor 
+        return  LPyCodeEditor 
 
-    if language == "visualea":
+    elif language == "visualea":
         print "You try to use Visualea but you can't for the moment."
         print "Visualea is not implemented yet. You can use the Python Editor."
         from .python import pythonApplet
         from openalea.oalab.editor.text_editor import PythonCodeEditor
-        return  pythonApplet, PythonCodeEditor 
+##        return  pythonApplet, PythonCodeEditor 
+        return  PythonCodeEditor 
 
-        
+    else:
+        from .python import pythonApplet
+        from openalea.oalab.editor.text_editor import PythonCodeEditor
+##        return  pythonApplet, PythonCodeEditor 
+        return  PythonCodeEditor
         
 class SelectEditor(qt.QWidget):
     """
