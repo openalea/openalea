@@ -163,12 +163,17 @@ def walls_voxels_per_cell(image, label_1, bbox = None, neighbors = None, neighbo
     dil_1 = nd.binary_dilation(mask_img_1, structure=struct)
 
     # -- We edit the neighbors list as required:
+    try_to_use_neighbors2ignore = False
     if neighbors is None:
         neighbors = np.unique(dilated_bbox_img)
         neighbors.remove(label_1)
         len_neighbors = len(neighbors)
     if isinstance(neighbors,int):
         neighbors = [neighbors]
+    if isinstance(neighbors,dict):
+        neighborhood = neighbors
+        neighbors = neighborhood[label_1]
+        try_to_use_neighbors2ignore = True
 
     coord = {}
     neighbors_not_found = False
@@ -181,8 +186,8 @@ def walls_voxels_per_cell(image, label_1, bbox = None, neighbors = None, neighbo
         if x != []:
             if label_2 not in neighbors2ignore:
                 coord[min(label_1,label_2),max(label_1,label_2)] = np.array((x+dilated_bbox[0].start, y+dilated_bbox[1].start, z+dilated_bbox[2].start))
-            else: # in case we want to ignore the specific position of some neighbors we replace its id by '0':
-                if are_these_labels_neighbors(neighbors2ignore,neighbors): # we check that all neighbors to ignore are themself a set of neighbor at rank 1.
+            elif try_to_use_neighbors2ignore: # in case we want to ignore the specific position of some neighbors we replace its id by '0':
+                if are_these_labels_neighbors(neighbors2ignore, neighborhood): # we check that all neighbors to ignore are themself a set of connected neighbors!
                     if not coord.has_key((0,label_1)):
                         coord[(0,label_1)] = np.array((x+dilated_bbox[0].start, y+dilated_bbox[1].start, z+dilated_bbox[2].start))
                     else:
@@ -959,7 +964,10 @@ class AbstractSpatialImageAnalysis(object):
                     neighbors.remove(nei)
             ## If there are neighbors left in the list, we extract the voxels separating them from `label`:
             if neighbors != []:
-                dict_wall_voxels.update(walls_voxels_per_cell(image, label, self.boundingbox(label), neighbors, neighbors2ignore))
+                if neighborhood is not None:
+                    dict_wall_voxels.update(walls_voxels_per_cell(image, label, self.boundingbox(label), neighborhood, neighbors2ignore))
+                else:
+                    dict_wall_voxels.update(walls_voxels_per_cell(image, label, self.boundingbox(label), neighbors, neighbors2ignore))
 
         return dict_wall_voxels
 
