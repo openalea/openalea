@@ -182,17 +182,18 @@ def walls_voxels_per_cell(image, label_1, bbox = None, neighbors = None, neighbo
             if label_2 not in neighbors2ignore:
                 coord[min(label_1,label_2),max(label_1,label_2)] = np.array((x+dilated_bbox[0].start, y+dilated_bbox[1].start, z+dilated_bbox[2].start))
             else: # in case we want to ignore the specific position of some neighbors we replace its id by '0':
-                if not coord.has_key((0,label_1)):
-                    coord[(0,label_1)] = np.array((x+dilated_bbox[0].start, y+dilated_bbox[1].start, z+dilated_bbox[2].start))
+                if are_these_labels_neighbors(neighbors2ignore,neighbors): # we check that all neighbors to ignore are themself a set of neighbor at rank 1.
+                    if not coord.has_key((0,label_1)):
+                        coord[(0,label_1)] = np.array((x+dilated_bbox[0].start, y+dilated_bbox[1].start, z+dilated_bbox[2].start))
+                    else:
+                        coord[(0,label_1)] = np.hstack( (coord[(0,label_1)], np.array((x+dilated_bbox[0].start, y+dilated_bbox[1].start, z+dilated_bbox[2].start))) )
                 else:
-                    coord[(0,label_1)][0].extend( x+dilated_bbox[0].start )
-                    coord[(0,label_1)][1].extend( y+dilated_bbox[1].start )
-                    coord[(0,label_1)][2].extend( z+dilated_bbox[2].start )
+                    coord[(0,label_1)] = None
         else:
             neighbors_not_found = True
             if verbose: print "Couldn't find a contact between neighbor cells %d" % label_1, "& %d" % label_2
     if neighbors_not_found:
-        warnings.warn("Some neighboring cells hasn't been found !")
+        warnings.warn("Some neighboring cells have not been found !")
 
     return coord
 
@@ -917,7 +918,7 @@ class AbstractSpatialImageAnalysis(object):
         return self._first_voxel_layer
 
 
-    def wall_voxels_per_cells_pairs(self, labels=None, neighborhood=None, dimensionality=3, min_contact_surface=None, real_surface=True):
+    def wall_voxels_per_cells_pairs(self, labels=None, neighborhood=None, dimensionality=3, ignore_background=True, min_contact_surface=None, real_surface=True):
         """
         Compute wall orientation according to fitting degree and dimensionality.
         :WARNING: if dimensionality = 2, only the cells belonging to the outer layer of the object will be used.
@@ -946,15 +947,19 @@ class AbstractSpatialImageAnalysis(object):
         for label in labels:
             # We compute or use the neihborhood of `label`:
             if compute_neighborhood:
-                nei = self.neighbors(label, min_contact_surface, real_surface)
+                neighbors = self.neighbors(label, min_contact_surface, real_surface)
             else:
-                nei = [neighbors for neighbors in neighborhood[label] if neighbors in labels]
-            for n in nei:
-                if dict_wall_voxels.has_key( (min(label,n),max(label,n)) ): # we remove the couple of cells we already used.
-                    nei.remove(n)
-           ## If there are neighbors left in the list, we extract the voxels separating them from `label`:
-            if nei != []:
-                dict_wall_voxels.update(walls_voxels_per_cell(image, label, self.boundingbox(label), nei))
+                neighbors = copy.copy( neighborhood[label] )
+                if ignore_background:
+                    neighbors2ignore = [ n for n in neighbors if n not in labels ]
+                else:
+                    neighbors2ignore = [ n for n in neighbors if n not in labels+[self.background()] ]
+            for nei in neighbors:
+                if dict_wall_voxels.has_key( (min(label,nei),max(label,nei)) ): # we remove the couple of cells we already extracted.
+                    neighbors.remove(nei)
+            ## If there are neighbors left in the list, we extract the voxels separating them from `label`:
+            if neighbors != []:
+                dict_wall_voxels.update(walls_voxels_per_cell(image, label, self.boundingbox(label), neighbors, neighbors2ignore))
 
         return dict_wall_voxels
 
@@ -1812,6 +1817,21 @@ def geometric_median(X, numIter = 200):
 
     return np.array(y)
 
+def are_these_labels_neighbors(labels,neighborhood):
+    """
+    This function allows you to make sure the provided labels are all connected neighbors.
+    """
+    intersection={}
+    intersection = set(neighborhood[labels[0]])&set(labels)
+    for label in labels[:1]:
+        if set(neighborhood[label])&set(labels) == set(labels)-set([label]):
+            return True
+        intersection.update(set(neighborhood[label])&set(labels))
+
+    if intersection == set(labels):
+        return True
+    else:
+        return False
 
 def SpatialImageAnalysis(image, *args, **kwd):
     """
