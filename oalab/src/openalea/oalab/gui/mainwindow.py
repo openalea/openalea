@@ -14,7 +14,6 @@ from path import path
 from openalea.core import settings
 from openalea.oalab.scene.view3d import view3D
 from openalea.oalab.history.history import History
-from openalea.oalab.control.controlmanager import ControlManager
 from openalea.oalab.applets.mapping import map_language
 # from openalea.core.logger import get_logger
 from openalea.visualea.splitterui import SplittableUI
@@ -311,13 +310,9 @@ class MainWindow(qt.QtGui.QMainWindow):
     def set_control_panel(self):
         """ Set the control panel
         Only once by project!
-        """
-        
-        # Set THE control manager
-        self.controlManager = ControlManager()
-        
+        """        
         # Create widget control panel
-        self.controlWid = qt.QtGui.QTableWidget(0,2)
+        self.controlWid = qt.QtGui.QTableWidget(0,3)
         self.reset_control_panel()
         self.controlWid.setMinimumSize(50, 50) 
         self.controlDockWidget = qt.QtGui.QDockWidget("Control Panel", self)
@@ -326,19 +321,48 @@ class MainWindow(qt.QtGui.QMainWindow):
         self.controlDockWidget.setWidget(self.controlWid)
         self.addDockWidget(qt.QtCore.Qt.BottomDockWidgetArea, self.controlDockWidget)   
 
-        # qt.QtCore.QObject.connect(self.controlWid, qt.QtCore.SIGNAL('cellClicked(int,int)'),self.printTest) 
-        qt.QtCore.QObject.connect(self.controlWid, qt.QtCore.SIGNAL('cellDoubleClicked(int,int)'),self.edit_control)        
-            
-    def edit_control(self, row, column):
-        # TODO
-        cont = self.controlWid.item(row,column)
-        print self.controlWid.item(row,0).text()
-        print self.controlWid.item(row,1).text()
-##        print cont.text()
-##        print row
-##        print column
+        qt.QtCore.QObject.connect(self.controlWid, qt.QtCore.SIGNAL('itemChanged(QTableWidgetItem *)'),self.edit_control)   
 
-    
+    def edit_control(self, item):
+        row = item.row()
+        column = item.column()
+        
+        try:
+            name = self.controlWid.item(row,0).text()
+            value = self.controlWid.item(row,1).text()
+            filename = self.controlWid.item(row,2).text()
+            
+            if column == 0:
+                # TODO
+                # Delete old control "name"
+                self.current_project.controls[filename][name] = eval(value)
+            elif column == 1:
+                self.current_project.controls[filename][name] = eval(value)
+            elif column == 2:
+                # TODO
+                # Delete old control "filename"
+                self.current_project.controls[filename][name] = eval(value)        
+
+            ctrl = self.current_project.controls[filename]
+            self.interpreter.user_ns.update(ctrl)
+        
+        except:
+            pass
+        
+    def add_control(self, controle_filename, controle_name, controle_value):
+        """
+        Add one Control in the widget control panel.
+        
+        :param controle_filename: file name where the control is saved
+        :param controle_name: name of the control
+        :param controle_value: value of the control
+        """
+        row = self.controlWid.rowCount()
+        self.controlWid.insertRow(row)
+        self.controlWid.setItem(row,0,qt.QtGui.QTableWidgetItem(str(controle_name)))
+        self.controlWid.setItem(row,1,qt.QtGui.QTableWidgetItem(str(controle_value)))
+        self.controlWid.setItem(row,2,qt.QtGui.QTableWidgetItem(str(controle_filename)))
+        
     def set_controls(self, controls):
         """
         Set Control from the applet in the control manager and the widget control panel.
@@ -346,37 +370,22 @@ class MainWindow(qt.QtGui.QMainWindow):
         :param controls: dict of the controls to set
         """
         self.reset_control_panel()
-        
-        # Get new controls which come from editor
-        new_controls = eval(controls)
         # Add new controls in control manager
-        for name in new_controls:
-            self.controlManager.add_control(name,new_controls[name]) 
-        row = 0
-        # Get all controls
-        all_controls = self.controlManager.get_controls()
-        
-        # Display all controls
-        for n in all_controls:
-            itemName = qt.QtGui.QTableWidgetItem(str(n))
-            itemValue = qt.QtGui.QTableWidgetItem(str(all_controls[n]))
-            # Add row if necessary
-            if self.controlWid.rowCount()<=row:
-                self.controlWid.insertRow(row)
-            self.controlWid.setItem(row,0,itemName)
-            self.controlWid.setItem(row,1,itemValue)
-            row += 1
-            
-            
+        for filename in controls:
+            for name in eval(str(controls[filename])):
+                new_control = eval(str(controls[filename]))[name] 
+                self.add_control(filename,name,new_control) 
+
     def reset_control_panel(self):
         """Clear the control panel and set the headers.
         """
         self.controlWid.clear()
-        headerName1 = qt.QtGui.QTableWidgetItem("object")
-        headerName2 = qt.QtGui.QTableWidgetItem("value")
-        self.controlWid.setHorizontalHeaderItem(0,headerName1)
-        self.controlWid.setHorizontalHeaderItem(1,headerName2)
-
+        headerName0 = qt.QtGui.QTableWidgetItem("object")
+        headerName1 = qt.QtGui.QTableWidgetItem("value")
+        headerName2 = qt.QtGui.QTableWidgetItem("file name")
+        self.controlWid.setHorizontalHeaderItem(0,headerName0)
+        self.controlWid.setHorizontalHeaderItem(1,headerName1)
+        self.controlWid.setHorizontalHeaderItem(2,headerName2)
     
     #----------------------------------------
     # Setup Observation Panel Dock Widget
@@ -528,10 +537,10 @@ class MainWindow(qt.QtGui.QMainWindow):
     
         self.LevelOneBar = qt.QtGui.QToolBar(self)
         self.LevelOneBar.setToolButtonStyle(qt.QtCore.Qt.ToolButtonTextUnderIcon)
-        size = qt.QtCore.QSize(60, 60)
+        size = qt.QtCore.QSize(30, 30)
         self.LevelOneBar.setIconSize(size)
         self.addToolBar(qt.QtCore.Qt.TopToolBarArea, self.LevelOneBar) 
-        self.addToolBarBreak()
+##        self.addToolBarBreak()
         
         icon0 = qt.QtGui.QIcon()
         icon0.addPixmap(qt.QtGui.QPixmap("./resources/new/axiom2.png"), qt.QtGui.QIcon.Normal, qt.QtGui.QIcon.Off)
@@ -655,7 +664,7 @@ class MainWindow(qt.QtGui.QMainWindow):
     def set_model_buttons(self):
         self.ModelBar = qt.QtGui.QToolBar(self)
         self.ModelBar.setToolButtonStyle(qt.QtCore.Qt.ToolButtonTextUnderIcon)
-        size = qt.QtCore.QSize(20, 20)
+        size = qt.QtCore.QSize(30, 30)
         self.ModelBar.setIconSize(size)
         self.addToolBar(qt.QtCore.Qt.TopToolBarArea, self.ModelBar)
         self.addToolBarBreak()        
@@ -717,7 +726,7 @@ class MainWindow(qt.QtGui.QMainWindow):
     def set_model_2_buttons(self):
         self.ModelBar2 = qt.QtGui.QToolBar(self)
         self.ModelBar2.setToolButtonStyle(qt.QtCore.Qt.ToolButtonTextOnly)
-        size = qt.QtCore.QSize(20, 20)
+        size = qt.QtCore.QSize(30, 30)
         self.ModelBar2.setIconSize(size)
         self.addToolBar(qt.QtCore.Qt.TopToolBarArea, self.ModelBar2)    
         
@@ -732,7 +741,7 @@ class MainWindow(qt.QtGui.QMainWindow):
         # set top buttons
         self.CodeBar = qt.QtGui.QToolBar(self)
         self.CodeBar.setToolButtonStyle(qt.QtCore.Qt.ToolButtonTextUnderIcon)
-        size = qt.QtCore.QSize(20, 20)
+        size = qt.QtCore.QSize(30, 30)
         self.CodeBar.setIconSize(size)
         self.addToolBar(qt.QtCore.Qt.TopToolBarArea, self.CodeBar)
         self.addToolBarBreak()
@@ -911,7 +920,7 @@ class MainWindow(qt.QtGui.QMainWindow):
         # dock widget => Shell IPython
         InterpreterClass = get_interpreter_class()
         self.interpreter = InterpreterClass()# interpreter
-        self.interpreter.locals['history'] = self.history.getHistory()
+        self.interpreter.locals['world'] = self.history.getHistory()
         self.interpreter.locals['projects'] = self.projects
         # self.interpreter.runcode("print('yep')")
 
@@ -1000,13 +1009,11 @@ class MainWindow(qt.QtGui.QMainWindow):
 ##                for w in self.current_project.world:
 ##                    self.history.add(w,world[w])
                 # Get controls
-##                print self.current_project.controls
-##                print '+++++++++++++++'
-                for control in self.current_project.controls:
-                    self.set_controls(self.current_project.controls[control])
-##                    print control
-##                    print self.current_project.controls[control]
-##                self.set_controls(eval(control))
+                controls = self.current_project.controls
+                self.set_controls(controls)
+                
+                self.interpreter.user_ns = self.current_project.ns
+
                 self.project_changed()
         else:
             # If this is the first project
@@ -1014,12 +1021,13 @@ class MainWindow(qt.QtGui.QMainWindow):
             self.history.reset()
 ##            for w in self.current_project.world:
 ##                self.history.add(w,self.current_project.world[w])
-##            print self.current_project.controls
-##            print '+++++++++++++++'
-            for control in self.current_project.controls:
-##                print control
-##                print self.current_project.controls[control]
-                self.set_controls(self.current_project.controls[control])
+
+            controls = self.current_project.controls
+
+            self.set_controls(controls)
+            
+            self.interpreter.user_ns = self.current_project.ns
+            
             self.project_changed()
         
     def project_changed(self):    

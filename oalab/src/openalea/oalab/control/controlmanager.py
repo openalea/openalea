@@ -13,7 +13,11 @@ class ControlManager(object):
         control=''
         self.controls[name]=control
         
-    def add_control(self, name, control):
+    def add_controls(self, controls):
+        for control in controls:
+            self.add_control(control)
+        
+    def add_control(self, name, control, filename="unamed.py"):
         """ Register a control in the ControlManager 
         
         :param name: name of the control to register (must be a string)
