@@ -28,8 +28,7 @@ import signal
 from platform import platform as get_platform
 from platform import dist as get_dist
 
-from PyQt4 import QtGui
-from PyQt4 import QtCore
+from openalea.vpltk.qt import QtGui, QtCore
 
 import ui_mainwindow
 

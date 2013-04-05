@@ -1,6 +1,6 @@
 import sys
 
-from PyQt4 import QtGui
+from openalea.vpltk.qt import QtGui
 from openalea.grapheditor import qt
 from custom_graph_model import Graph
 

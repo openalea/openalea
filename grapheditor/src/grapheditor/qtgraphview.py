@@ -19,7 +19,7 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 import weakref, types, gc, warnings
-from PyQt4 import QtGui, QtCore
+from openalea.vpltk.qt import QtGui, QtCore
 import base, baselisteners, qtutils
 import edgefactory
 

@@ -28,9 +28,7 @@ def level_one(args=None):
     # Restore default signal handler for CTRL+C
     import signal
 
-    from openalea.core.qt import *
-    from PyQt4 import QtGui
-    from PyQt4 import QtCore
+    from openalea.core.qt import QtGui, QtCore
 
     from openalea.core import logger
     from openalea.secondnature import mainwindow

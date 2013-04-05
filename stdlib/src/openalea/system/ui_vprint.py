@@ -11,7 +11,7 @@
 __revision__ = "$Id$"
 __license__ = "Cecill-C"
 
-from PyQt4 import QtCore, QtGui
+from openalea.vpltk.qt import QtCore, QtGui
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):

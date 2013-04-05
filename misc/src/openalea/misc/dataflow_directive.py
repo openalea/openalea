@@ -107,7 +107,7 @@ def out_of_date(original, derived):
 
 
 
-from PyQt4 import QtCore, QtGui
+from openalea.vpltk.qt import QtCore, QtGui
 from openalea.visualea.dataflowview import GraphicalGraph
 # create the application only once!
 app = QtGui.QApplication.instance() or QtGui.QApplication([])

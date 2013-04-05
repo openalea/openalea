@@ -1,4 +1,4 @@
-from PyQt4 import QtGui
+from openalea.vpltk.qt import QtGui
 from openalea.core.alea import *
 from openalea.visualea.dataflowview import GraphicalGraph
 
