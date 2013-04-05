@@ -7,32 +7,32 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from PyQt4 import QtCore, QtGui
+from openalea.vpltk.qt import qt
 
 class Ui_NodeChooser(object):
     def setupUi(self, NodeChooser):
         NodeChooser.setObjectName("NodeChooser")
-        NodeChooser.resize(QtCore.QSize(QtCore.QRect(0,0,417,156).size()).expandedTo(NodeChooser.minimumSizeHint()))
+        NodeChooser.resize(qt.QtCore.QSize(qt.QtCore.QRect(0,0,417,156).size()).expandedTo(NodeChooser.minimumSizeHint()))
 
-        self.vboxlayout = QtGui.QVBoxLayout(NodeChooser)
+        self.vboxlayout = qt.QtGui.QVBoxLayout(NodeChooser)
         self.vboxlayout.setObjectName("vboxlayout")
 
-        self.comboBox = QtGui.QComboBox(NodeChooser)
+        self.comboBox = qt.QtGui.QComboBox(NodeChooser)
         self.comboBox.setEditable(True)
         self.comboBox.setObjectName("comboBox")
         self.vboxlayout.addWidget(self.comboBox)
 
-        self.buttonBox = QtGui.QDialogButtonBox(NodeChooser)
-        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.NoButton|QtGui.QDialogButtonBox.Ok)
+        self.buttonBox = qt.QtGui.QDialogButtonBox(NodeChooser)
+        self.buttonBox.setOrientation(qt.QtCore.Qt.Horizontal)
+        self.buttonBox.setStandardButtons(qt.QtGui.QDialogButtonBox.Cancel|qt.QtGui.QDialogButtonBox.NoButton|qt.QtGui.QDialogButtonBox.Ok)
         self.buttonBox.setObjectName("buttonBox")
         self.vboxlayout.addWidget(self.buttonBox)
 
         self.retranslateUi(NodeChooser)
-        QtCore.QObject.connect(self.buttonBox,QtCore.SIGNAL("accepted()"),NodeChooser.accept)
-        QtCore.QObject.connect(self.buttonBox,QtCore.SIGNAL("rejected()"),NodeChooser.reject)
-        QtCore.QMetaObject.connectSlotsByName(NodeChooser)
+        qt.QtCore.QObject.connect(self.buttonBox,qt.QtCore.SIGNAL("accepted()"),NodeChooser.accept)
+        qt.QtCore.QObject.connect(self.buttonBox,qt.QtCore.SIGNAL("rejected()"),NodeChooser.reject)
+        qt.QtCore.QMetaObject.connectSlotsByName(NodeChooser)
 
     def retranslateUi(self, NodeChooser):
-        NodeChooser.setWindowTitle(QtGui.QApplication.translate("NodeChooser", "Choose a node", None, QtGui.QApplication.UnicodeUTF8))
+        NodeChooser.setWindowTitle(qt.QtGui.QApplication.translate("NodeChooser", "Choose a node", None, qt.QtGui.QApplication.UnicodeUTF8))
 

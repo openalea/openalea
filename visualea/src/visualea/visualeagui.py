@@ -23,25 +23,23 @@ __revision__ = "$Id$"
 
 
 import sys
-from PyQt4 import QtGui
-from PyQt4 import QtCore
-
+from openalea.vpltk.qt import qt
 from openalea.core import logger
 from openalea.visualea.mainwindow import MainWindow
 from openalea.core.session import Session
 
 MULTITHREAD = False
 
-class Openalea(QtGui.QApplication):
+class Openalea(qt.QtGui.QApplication):
     """Materialisation of the Openalea application.
     Does the basic inits. The session is initialised
     in a thread. It is safe to use once the sessionStarted
     signal has been emitted."""
 
-    sessionStarted = QtCore.pyqtSignal(object)
+    sessionStarted = qt.QtCore.pyqtSignal(object)
 
     def __init__(self, args):
-        QtGui.QApplication.__init__(self, args)
+        qt.QtGui.QApplication.__init__(self, args)
         # -- redirect stdout to null if pythonw --
         set_stdout()
         # -- reconfigure LoggerOffice to use Qt log handler and a file handler --
@@ -76,10 +74,10 @@ class Openalea(QtGui.QApplication):
     @staticmethod
     def check_qt_version():
         """Ensure we are running a minimal version of Qt"""
-        version = QtCore.QT_VERSION_STR
+        version = qt.QtCore.QT_VERSION_STR
         # QT_VERSION_STR implement __le__ operator
         if(version < '4.5.2'):
-            mess = QtGui.QMessageBox.warning(None,
+            mess = qt.QtGui.QMessageBox.warning(None,
                                              "Error",
                                              "Visualea needs Qt library >= 4.5.2")
             sys.exit(-1)
@@ -114,15 +112,15 @@ def set_stdout():
 def show_splash_screen():
     """Show a small splash screen to make people wait for OpenAlea to startup"""
     import metainfo
-    pix = QtGui.QPixmap(":/icons/splash.png")
-    splash = QtGui.QSplashScreen(pix, QtCore.Qt.WindowStaysOnTopHint)
+    pix = qt.QtGui.QPixmap(":/icons/splash.png")
+    splash = qt.QtGui.QSplashScreen(pix, qt.QtCore.Qt.WindowStaysOnTopHint)
     splash.show()
-    message = QtCore.QString( metainfo.get_copyright() +
-                              "Version : %s\n"%(metainfo.get_version(),) +
-                              "Loading modules...")
-    splash.showMessage(message, QtCore.Qt.AlignCenter|QtCore.Qt.AlignBottom)
+    message = "" + metainfo.get_copyright() +\
+              "Version : %s\n"%(metainfo.get_version(),) +\
+              "Loading modules..."
+    splash.showMessage(message, qt.QtCore.Qt.AlignCenter|qt.QtCore.Qt.AlignBottom)
     # -- make sure qt really display the message before importing the modules.--
-    QtGui.QApplication.processEvents()
+    qt.QtGui.QApplication.processEvents()
     return splash
 
 def timeit(f, *args, **kwargs):
@@ -154,9 +152,9 @@ def threadit(f, parent=None, endCb=None, *args, **kwargs):
 
     It probably requires a QApp to be started somewhere.
     """
-    class CustomThread(QtCore.QThread):
+    class CustomThread(qt.QtCore.QThread):
         def __init__(self, target, parent=parent, args=[], kwargs={}):
-            QtCore.QThread.__init__(self, parent)
+            qt.QtCore.QThread.__init__(self, parent)
             self.target = target
             self.args   = args
             self.kwargs = kwargs
