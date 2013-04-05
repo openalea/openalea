@@ -2,8 +2,17 @@
 
 The goal is to have the same version of QString and QVariant in all OpenAlea
 """
-try:
+
+def load_qt():
+    from PyQt4 import QtCore, QtGui, QtSvg
+    return QtCore, QtGui, QtSvg
+
+
+
+try: 
     from IPython.external.qt import *
 except ImportError:
-    from PyQt4 import QtCore, QtGui, QtSvg
+    QtCore, QtGui, QtSvg = load_qt()    
     
+
+

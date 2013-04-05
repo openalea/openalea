@@ -104,6 +104,8 @@ def main():
     
     # Set interpreter
     interpreter = Interpreter()
+    
+    interpreter.locals['interp'] = interpreter
     # Set Shell Widget
     shellwdgt = ShellWidget(interpreter)
     

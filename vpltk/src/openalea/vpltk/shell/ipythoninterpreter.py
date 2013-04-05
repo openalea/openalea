@@ -1,4 +1,4 @@
-from IPython.inprocess.ipkernel import InProcessKernel
+from IPython.kernel.inprocess.ipkernel import InProcessKernel
 
 class Interpreter(InProcessKernel):
     """
