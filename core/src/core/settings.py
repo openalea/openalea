@@ -82,6 +82,21 @@ def get_openalea_home_dir(name='.openalea'):
 
     return aleahome
 
+    
+def get_project_dir(name='projects'):
+    """
+    Get user package directory (the place where are the
+    wralea.py files).
+    If it doesn't exist, create it
+    """
+
+    aleahome = get_openalea_home_dir()
+    projecthome = os.path.join(aleahome, name)
+    if(not os.path.exists(projecthome)):
+        os.mkdir(projecthome)
+
+    return projecthome
+    
 
 def get_userpkg_dir(name='user_pkg'):
     """
