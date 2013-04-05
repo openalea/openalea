@@ -19,10 +19,9 @@
 __license__ = "CeCILL V2"
 __revision__ = " $Id: scishell.py 3672 2012-12-05 12:28:19Z jcoste $"
 
-from openalea.vpltk.qt import qt
 import os, sys
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtCore import Qt
+from openalea.vpltk.qt import QtCore, QtGui
+from openalea.vpltk.qt.QtCore import Qt
 
 from PyQt4.Qsci import QsciScintilla, QsciLexerPython, QsciAPIs
 from streamredirection import *
