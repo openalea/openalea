@@ -1,4 +1,4 @@
-====== OpenAlea.OALab ======
+====== OpenAlea.VPLab ======
 
 **Authors** : XXX
 
@@ -14,13 +14,13 @@
 
 === Description ===
 
-OpenAlea.OALab is a XXX
+OpenAlea.VPLab is a XXX
 
 
 
 === Content ===
 
-The OpenAlea.OALab package contains :
+The OpenAlea.VPLab package contains :
 
 
 ===== Installation =====
@@ -51,5 +51,5 @@ python setup.py install
 
 ===== Documentation =====
 
-http://openalea.gforge.inria.fr/doc/openalea/oalab/doc/_build/html/contents.html
+http://openalea.gforge.inria.fr/doc/openalea/vplab/doc/_build/html/contents.html
 

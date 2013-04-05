@@ -12,14 +12,14 @@ from openalea.vpltk.qt import qt
 from path import path
 
 from openalea.core import settings
-from openalea.oalab.scene.view3d import view3D
-from openalea.oalab.history.history import History
-from openalea.oalab.applets.mapping import map_language
+from openalea.vplab.scene.view3d import view3D
+from openalea.vplab.history.history import History
+from openalea.vplab.applets.mapping import map_language
 # from openalea.core.logger import get_logger
 from openalea.visualea.splitterui import SplittableUI
-from openalea.oalab.editor.text_editor import PythonCodeEditor as Editor
-from openalea.oalab.editor.text_editor import LPyCodeEditor as LPyEditor
-from openalea.oalab.applets.mapping import SelectEditor
+from openalea.vplab.editor.text_editor import PythonCodeEditor as Editor
+from openalea.vplab.editor.text_editor import LPyCodeEditor as LPyEditor
+from openalea.vplab.applets.mapping import SelectEditor
 from openalea.vpltk.shell.shell import get_shell_class
 from openalea.vpltk.shell.shell import get_interpreter_class
 from openalea.vpltk.project.project import ProjectManager
@@ -867,7 +867,7 @@ class MainWindow(qt.QtGui.QMainWindow):
         status = self.statusBar()     
         status.setSizeGripEnabled(False)
         status.addPermanentWidget(self.sizeLabel)     
-        self.edit_status_bar(message="OALab is ready!", time=10000)   
+        self.edit_status_bar(message="VPLab is ready!", time=10000)   
 
     def edit_status_bar(self, message, time=10000):   
         self.statusBar().showMessage(message, time)     

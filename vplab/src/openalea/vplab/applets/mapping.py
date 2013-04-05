@@ -13,13 +13,13 @@ def map_language(language):
 
     if language == "python":
         from .python import pythonApplet
-        from openalea.oalab.editor.text_editor import PythonCodeEditor
+        from openalea.vplab.editor.text_editor import PythonCodeEditor
 ##        return  pythonApplet, PythonCodeEditor 
         return  PythonCodeEditor 
         
     elif language == "lpy":
         from .lpy import lpyApplet
-        from openalea.oalab.editor.text_editor import LPyCodeEditor
+        from openalea.vplab.editor.text_editor import LPyCodeEditor
 ##        return  lpyApplet, LPyCodeEditor 
         return  LPyCodeEditor 
 
@@ -27,13 +27,13 @@ def map_language(language):
         print "You try to use Visualea but you can't for the moment."
         print "Visualea is not implemented yet. You can use the Python Editor."
         from .python import pythonApplet
-        from openalea.oalab.editor.text_editor import PythonCodeEditor
+        from openalea.vplab.editor.text_editor import PythonCodeEditor
 ##        return  pythonApplet, PythonCodeEditor 
         return  PythonCodeEditor 
 
     else:
         from .python import pythonApplet
-        from openalea.oalab.editor.text_editor import PythonCodeEditor
+        from openalea.vplab.editor.text_editor import PythonCodeEditor
 ##        return  pythonApplet, PythonCodeEditor 
         return  PythonCodeEditor
         

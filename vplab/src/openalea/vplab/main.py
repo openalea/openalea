@@ -5,7 +5,7 @@
 
 import sys
 from openalea.vpltk.qt import qt
-from openalea.oalab.gui.mainwindow import MainWindow
+from openalea.vplab.gui.mainwindow import MainWindow
 
 def main():
     """

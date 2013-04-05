@@ -2,7 +2,7 @@
 
 from openalea.core import *
 
-__name__ = 'OALab'
+__name__ = 'VPLab'
 __version__ = '1.0.0'
 __license__ = 'CeCILL-C'
 __author__ = None

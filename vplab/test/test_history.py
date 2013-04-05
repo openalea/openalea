@@ -1,4 +1,4 @@
-from openalea.oalab.history.history import History
+from openalea.vplab.history.history import History
 
 def test_create_and_reset():
     a = 1

@@ -1,149 +1,149 @@
 .. change to your needs
 
-.. _oalab_reference:
+.. _vplab_reference:
 
 
 Reference guide
 ###################################
 .. contents::
 
-.. currentmodule:: openalea.oalab
+.. currentmodule:: openalea.vplab
 
-:mod:`openalea.oalab.main` module
+:mod:`openalea.vplab.main` module
 =================================
-Download the source file :download:`..\\..\\src\\openalea\\oalab\\main.py`.
+Download the source file :download:`..\\..\\src\\openalea\\vplab\\main.py`.
 
-.. automodule:: openalea.oalab.main
+.. automodule:: openalea.vplab.main
     :members:
     :undoc-members:
     :inherited-members:
     :show-inheritance:
     :synopsis: launcher of GUI
 
-.. currentmodule:: openalea.oalab.control
+.. currentmodule:: openalea.vplab.control
 
-:mod:`openalea.oalab.control.controlmanager` module
+:mod:`openalea.vplab.control.controlmanager` module
 ===================================================
-Download the source file :download:`..\\..\\src\\openalea\\oalab\\control\\controlmanager.py`.
+Download the source file :download:`..\\..\\src\\openalea\\vplab\\control\\controlmanager.py`.
 
-.. automodule:: openalea.oalab.control.controlmanager
+.. automodule:: openalea.vplab.control.controlmanager
     :members:
     :undoc-members:
     :inherited-members:
     :show-inheritance:
     :synopsis: manage controls
     
-.. currentmodule:: openalea.oalab.gui    
+.. currentmodule:: openalea.vplab.gui    
     
-:mod:`openalea.oalab.gui.mainwindow` module
+:mod:`openalea.vplab.gui.mainwindow` module
 ===================================================
-Download the source file :download:`..\\..\\src\\openalea\\oalab\\gui\\mainwindow.py`.
+Download the source file :download:`..\\..\\src\\openalea\\vplab\\gui\\mainwindow.py`.
 
-.. automodule:: openalea.oalab.gui.mainwindow
+.. automodule:: openalea.vplab.gui.mainwindow
     :members:
     :undoc-members:
     :show-inheritance:
     :synopsis: manage the GUI  
     
-:mod:`openalea.oalab.gui.qt` module
+:mod:`openalea.vplab.gui.qt` module
 ===================================================
-Download the source file :download:`..\\..\\src\\openalea\\oalab\\gui\\qt.py`.
+Download the source file :download:`..\\..\\src\\openalea\\vplab\\gui\\qt.py`.
 
-.. automodule:: openalea.oalab.gui.qt
+.. automodule:: openalea.vplab.gui.qt
     :members:
     :undoc-members:
     :inherited-members:
     :show-inheritance:
     :synopsis: import qt   
     
-.. currentmodule:: openalea.oalab.history    
+.. currentmodule:: openalea.vplab.history    
     
-:mod:`openalea.oalab.history.history` module
+:mod:`openalea.vplab.history.history` module
 ===================================================
-Download the source file :download:`..\\..\\src\\openalea\\oalab\\history\\history.py`.
+Download the source file :download:`..\\..\\src\\openalea\\vplab\\history\\history.py`.
 
-.. automodule:: openalea.oalab.history.history
+.. automodule:: openalea.vplab.history.history
     :members:
     :undoc-members:
     :inherited-members:
     :show-inheritance:
     :synopsis: manage the history      
     
-.. currentmodule:: openalea.oalab.project    
+.. currentmodule:: openalea.vplab.project    
     
-:mod:`openalea.oalab.project.project` module
+:mod:`openalea.vplab.project.project` module
 ===================================================
-Download the source file :download:`..\\..\\src\\openalea\\oalab\\project\\project.py`.
+Download the source file :download:`..\\..\\src\\openalea\\vplab\\project\\project.py`.
 
-.. automodule:: openalea.oalab.project.project
+.. automodule:: openalea.vplab.project.project
     :members:
     :undoc-members:
     :inherited-members:
     :show-inheritance:
     :synopsis: manage projects
     
-.. currentmodule:: openalea.oalab.scene    
+.. currentmodule:: openalea.vplab.scene    
     
-:mod:`openalea.oalab.scene.view3d` module
+:mod:`openalea.vplab.scene.view3d` module
 ===================================================
-Download the source file :download:`..\\..\\src\\openalea\\oalab\\scene\\view3d.py`.
+Download the source file :download:`..\\..\\src\\openalea\\vplab\\scene\\view3d.py`.
 
-.. automodule:: openalea.oalab.scene.view3d
+.. automodule:: openalea.vplab.scene.view3d
     :members:
     :undoc-members:
     :show-inheritance:
     :synopsis: manage the 3d view of the scene     
     
-.. currentmodule:: openalea.oalab.shell    
+.. currentmodule:: openalea.vplab.shell    
     
-:mod:`openalea.oalab.shell.shell` module
+:mod:`openalea.vplab.shell.shell` module
 ===================================================
-Download the source file :download:`..\\..\\src\\openalea\\oalab\\shell\\shell.py`.
+Download the source file :download:`..\\..\\src\\openalea\\vplab\\shell\\shell.py`.
 
-.. automodule:: openalea.oalab.shell.shell
+.. automodule:: openalea.vplab.shell.shell
     :members:
     :undoc-members:
     :show-inheritance:
     :synopsis: shell  
 
-:mod:`openalea.oalab.shell.interpreter` module
+:mod:`openalea.vplab.shell.interpreter` module
 ===================================================
-Download the source file :download:`..\\..\\src\\openalea\\oalab\\shell\\interpreter.py`.
+Download the source file :download:`..\\..\\src\\openalea\\vplab\\shell\\interpreter.py`.
 
-.. automodule:: openalea.oalab.shell.interpreter
+.. automodule:: openalea.vplab.shell.interpreter
     :members:
     :undoc-members:
     :show-inheritance:
     :synopsis: interpreter ipython  
 
-:mod:`openalea.oalab.shell.streamredirection` module
+:mod:`openalea.vplab.shell.streamredirection` module
 ====================================================
-Download the source file :download:`..\\..\\src\\openalea\\oalab\\shell\\streamredirection.py`.
+Download the source file :download:`..\\..\\src\\openalea\\vplab\\shell\\streamredirection.py`.
 
-.. automodule:: openalea.oalab.shell.streamredirection
+.. automodule:: openalea.vplab.shell.streamredirection
     :members:
     :undoc-members:
     :inherited-members:
     :show-inheritance:
     :synopsis: manage redirection of stream for the shell     
     
-.. currentmodule:: openalea.oalab.editor    
+.. currentmodule:: openalea.vplab.editor    
     
-:mod:`openalea.oalab.editor.text_editor` module
+:mod:`openalea.vplab.editor.text_editor` module
 ===================================================
-Download the source file :download:`..\\..\\src\\openalea\\oalab\\editor\\text_editor.py`.
+Download the source file :download:`..\\..\\src\\openalea\\vplab\\editor\\text_editor.py`.
 
-.. automodule:: openalea.oalab.editor.text_editor
+.. automodule:: openalea.vplab.editor.text_editor
     :members:
     :undoc-members:
     :show-inheritance:
     :synopsis: manage text editors  
     
-:mod:`openalea.oalab.editor.plugins` module
+:mod:`openalea.vplab.editor.plugins` module
 ===================================================
-Download the source file :download:`..\\..\\src\\openalea\\oalab\\editor\\plugins.py`.
+Download the source file :download:`..\\..\\src\\openalea\\vplab\\editor\\plugins.py`.
 
-.. automodule:: openalea.oalab.editor.plugins
+.. automodule:: openalea.vplab.editor.plugins
     :members:
     :undoc-members:
     :inherited-members:

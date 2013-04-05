@@ -24,7 +24,7 @@ class PluginManager(object):
             
         
 
-class OALabPlugin(object):
+class VPLabPlugin(object):
     def __init__(self):
         pass
         
@@ -55,24 +55,24 @@ class OALabPlugin(object):
         return self.__sub_categorie__     
         
         
-class EditorOALab(OALabPlugin):
+class EditorVPLab(VPLabPlugin):
     def __init__(self):
         self.set_categorie('Editor')
         
         
-class VisualizatorOALab(OALabPlugin):
+class VisualizatorVPLab(VPLabPlugin):
     def __init__(self):
         self.set_categorie('Visualizator')        
      
         
-class WorkFlowEditorOALab(EditorOALab):
+class WorkFlowEditorVPLab(EditorVPLab):
     def __init__(self):
         self.set_sub_categorie('Workflow')
         
         
-class TextEditorOALab(EditorOALab):
+class TextEditorVPLab(EditorVPLab):
     def __init__(self):
-        super(TextEditorOALab, self).__init__()
+        super(TextEditorVPLab, self).__init__()
         self.set_sub_categorie('Text')
         self.setup()
         

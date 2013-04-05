@@ -1,4 +1,4 @@
-from openalea.oalab.control.controlmanager import ControlManager, ControlABC
+from openalea.vplab.control.controlmanager import ControlManager, ControlABC
 
 def test_create_controls():
     """ Example of how to use control manager """ 

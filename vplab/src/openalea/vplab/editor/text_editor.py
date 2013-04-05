@@ -1,5 +1,5 @@
 from openalea.vpltk.qt import qt
-from openalea.oalab.editor.plugins import TextEditorOALab
+from openalea.vplab.editor.plugins import TextEditorVPLab
 import os
 
 # TODO : Editor type
@@ -21,7 +21,7 @@ LPyCodeEditor = None
 if LPYEDITOR == "SPYDER":
     # from spyderlib.widgets.editor import EditorStack
     from spyderlib.widgets.sourcecode.codeeditor import CodeEditor      
-    class LPyCodeEditor(CodeEditor, TextEditorOALab):
+    class LPyCodeEditor(CodeEditor, TextEditorVPLab):
         def __init__(self, parent=None):
             super(LPyCodeEditor, self).__init__()
             self.language = 'lpy'
@@ -92,7 +92,7 @@ if LPYEDITOR == "SPYDER":
 
 if LPYEDITOR == "LPY":
     from openalea.lpy.gui.lpycodeeditor import LpyCodeEditor, Margin      
-    class LPyCodeEditor(LpyCodeEditor, TextEditorOALab):
+    class LPyCodeEditor(LpyCodeEditor, TextEditorVPLab):
         def __init__(self, parent=None):
             super(LPyCodeEditor, self).__init__(parent)
             self.set_name('LPyEditor')
@@ -152,7 +152,7 @@ elif LPYEDITOR == "SCINTILLA":
     from openalea.visualea.scintilla_editor import ScintillaCodeEditor
     from openalea.plantgl import all as pgl
     from openalea.lpy_wralea.lpy_nodes import run_lpy
-    class LPyCodeEditor(ScintillaCodeEditor, TextEditorOALab):
+    class LPyCodeEditor(ScintillaCodeEditor, TextEditorVPLab):
         def __init__(self, parent=None):
             super(LPyCodeEditor, self).__init__()
             
@@ -223,7 +223,7 @@ if EDITOR == "SPYDER":
     # from spyderlib.widgets.editor import EditorStack as CodeEditor
     # from spyderlib.plugins.editor import Editor as CodeEditor
     from spyderlib.widgets.sourcecode.codeeditor import CodeEditor      
-    class PythonCodeEditor(CodeEditor, TextEditorOALab):
+    class PythonCodeEditor(CodeEditor, TextEditorVPLab):
         def __init__(self, parent):
             super(PythonCodeEditor, self).__init__(parent)
             self.language = 'py'
@@ -297,7 +297,7 @@ if EDITOR == "SPYDER":
     
 elif EDITOR == "SCINTILLA":
     from openalea.visualea.scintilla_editor import ScintillaCodeEditor
-    class PythonCodeEditor(ScintillaCodeEditor, TextEditorOALab):
+    class PythonCodeEditor(ScintillaCodeEditor, TextEditorVPLab):
         def __init__(self, parent=None):
             super(PythonCodeEditor, self).__init__()
             

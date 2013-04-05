@@ -18,7 +18,7 @@ for key,value in metadata.iteritems():
 # authors, authors_email, url and license
 # * version is 1.0.0 and release 1.0
 # * project must be in [openalea, vplants, alinea]
-# * name is the full name (e.g., OpenAlea.OALab) whereas pkg_name is only 'oalab'
+# * name is the full name (e.g., OpenAlea.VPLab) whereas pkg_name is only 'vplab'
 
 # name will determine the name of the egg, as well as the name of 
 # the pakage directory under Python/lib/site-packages). It is also 
@@ -107,7 +107,7 @@ setup(
 
     # Declare scripts and wralea as entry_points (extensions) of your package 
     entry_points = { 
-        'gui_scripts': ['oalab = openalea.oalab.main:main']
+        'gui_scripts': ['vplab = openalea.vplab.main:main']
         #'console_scripts': [
         #       'fake_script = openalea.fakepackage.amodule:console_script', ],
         # 'gui_scripts': [
