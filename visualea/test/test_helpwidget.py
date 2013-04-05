@@ -34,9 +34,8 @@ def test_rst2alea():
     res = rst2alea(text2)
     assert (res == rst2) or (res == text2.replace("\n", "<br />")+"\n"), res
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-app = QApplication([])
+from openalea.vpltk.qt import QtGui
+app = QtGui.QApplication([])
 
 def test_helpwidget():
     help = HelpWidget()
