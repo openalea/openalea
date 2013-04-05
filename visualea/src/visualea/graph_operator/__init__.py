@@ -18,9 +18,10 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 import weakref
-from PyQt4 import QtGui, QtCore
+from openalea.vpltk.qt import qt
 from openalea.core.observer import Observed
 from openalea.core.compositenode import CompositeNodeFactory
+from openalea.vpltk.qt.compat import to_qvariant
 
 
 class GraphOperator(Observed):
@@ -67,14 +68,14 @@ class GraphOperator(Observed):
     def get_action(self, actionName=None, parent=None, fName=None, **kwargs):
         if actionName is None and parent is None and fName is not None:
             return self.__get_wrapped(fName, kwargs)[0]
-        action = QtGui.QAction(actionName, parent)
+        action = qt.QtGui.QAction(actionName, parent)
         return self.bind_action(action, fName, kwargs)
 
     def bind_action(self, action, fName, kwargs=None):
         func, argcount = self.__get_wrapped(fName, kwargs)
         #self.unbind_action(action, fName)
         action.triggered.connect(func)
-        data = QtCore.QVariant(func)
+        data = to_qvariant(func)
         action.setData(data)
         return action
 
@@ -141,7 +142,7 @@ class GraphOperator(Observed):
 
     def get_sensible_parent(self):
         # TODO improve this:
-        return QtGui.QApplication.topLevelWidgets()[0]
+        return qt.QtGui.QApplication.topLevelWidgets()[0]
 
     def get_graph_scene(self):
         return self.__scene

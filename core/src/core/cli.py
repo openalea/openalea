@@ -27,7 +27,8 @@ def init_interpreter(interpreter, session, _locals=None):
     Initialise the interpreter to interact with the openalea system
     (import, variables...)
     """
-    interpreter.runsource("from openalea.core.cli import *")
+    # try: interpreter.runsource("from openalea.core.cli import *", hidden=True)
+    # except: interpreter.runsource("from openalea.core.cli import *")
     interpreter.locals['session'] = session
     interpreter.locals['pmanager'] = session.pkgmanager
     interpreter.locals['datapool'] = session.datapool

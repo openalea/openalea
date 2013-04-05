@@ -19,7 +19,6 @@ __license__ = "CeCILL v2"
 __revision__ = " $Id$"
 
 import os, sys
-
 import traceback
 
 def level_one(args=None):
@@ -29,7 +28,7 @@ def level_one(args=None):
     # Restore default signal handler for CTRL+C
     import signal
 
-
+    from openalea.core.qt import *
     from PyQt4 import QtGui
     from PyQt4 import QtCore
 
@@ -50,11 +49,12 @@ def level_one(args=None):
             logger.connect_loggers_to_handlers(logger.get_logger_names(), logger.get_handler_names())
 
             if __debug__:
-                logger.set_global_logger_level(logger.DEBUG)
+                logger.set_global_logger_level(logger.ERROR)#DEBUG
             else:
                 logger.set_global_logger_level(logger.WARNING)
 
             # -- status clearout timer --
+
             self.__statusTimeout = QtCore.QTimer(self)
             self.__statusTimeout.setSingleShot(True)
             self.__statusTimeout.timeout.connect(self.clear_status_message)
@@ -64,6 +64,7 @@ def level_one(args=None):
             self.post_status_message("Starting up! Please wait")
             self.win.show()
             self.clear_status_message()
+
 
         def post_status_message(self, msg, timeout=2000):
             if self.__statusTimeout.isActive():
@@ -75,11 +76,16 @@ def level_one(args=None):
             self.win.statusBar().clearMessage()
 
         def event(self, e):
+            
+            try: 
+                win_ext = self.win.extensions_initialised
+            except Exception:
+                win_ext = False
+                
             if e.type() == QtCore.QEvent.ApplicationActivate and \
-                   not self.win.extensions_initialised:
-                self.win.init_extensions()
+                   not win_ext:  
+                self.win.init_extensions()  
             return QtGui.QApplication.event(self, e)
-
 
 
     signal.signal(signal.SIGINT, signal.SIG_DFL)

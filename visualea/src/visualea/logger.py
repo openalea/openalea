@@ -20,15 +20,14 @@ The logger view widget.
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
+from openalea.vpltk.qt import qt
 
-from PyQt4 import QtCore, QtGui
-
-class LoggerView(QtGui.QTableView):
+class LoggerView(qt.QtGui.QTableView):
     """A QTableView that has more compact lines
     and customized header actions to manipulate logs"""
 
     def __init__(self, parent, model, *args, **kwargs):
-        QtGui.QTableView.__init__(self, *args, **kwargs)
+        qt.QtGui.QTableView.__init__(self, *args, **kwargs)
         rowHeight = self.fontMetrics().height() + 2;
         self.verticalHeader().setDefaultSectionSize(rowHeight);
         self.verticalHeader().setStyleSheet(
@@ -40,7 +39,7 @@ class LoggerView(QtGui.QTableView):
             "margin: 1px;" + \
             "}")
 
-        self.__proxyModel = QtGui.QSortFilterProxyModel(self)
+        self.__proxyModel = qt.QtGui.QSortFilterProxyModel(self)
         self.__proxyModel.setSourceModel(model)
         self.__proxyModel.setDynamicSortFilter(True)
 
@@ -54,7 +53,7 @@ class LoggerView(QtGui.QTableView):
 
     def on_section_pressed(self, section):
         if section == 0:
-            menu = QtGui.QMenu(self)
+            menu = qt.QtGui.QMenu(self)
             filterMenu = menu.addMenu("Filter...")
             #sortMenu   = menu.addMenu("Sort...")
 
@@ -73,7 +72,7 @@ class LoggerView(QtGui.QTableView):
             showError.triggered.connect(self.show_error)
             showCritical.triggered.connect(self.show_critical)
 
-            menu.popup(menu.mapFromGlobal(QtGui.QCursor.pos()))
+            menu.popup(menu.mapFromGlobal(qt.QtGui.QCursor.pos()))
 
     def show_all(self):
         self.__proxyModel.setFilterWildcard("*")

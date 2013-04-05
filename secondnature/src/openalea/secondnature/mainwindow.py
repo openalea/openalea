@@ -24,6 +24,7 @@ import urlparse
 import traceback
 
 from openalea.core.logger import get_logger
+from openalea.core.compat import to_qvariant
 
 from openalea.secondnature.splittable import CustomSplittable
 from openalea.secondnature.managers   import AbstractSourceManager
@@ -68,8 +69,7 @@ class MainWindow(QtGui.QMainWindow):
         self._projectMenu.addAction(qpm.get_action_save())
         self._projectMenu.addAction(qpm.get_action_close())
 
-        # -- a default central widget : the different layouts
-        # will be managed by the stackedwidget
+        # -- a default central widget--
         self.__centralStack = QtGui.QStackedWidget(self)
 
         # -- status bar --
@@ -257,7 +257,7 @@ class MainWindow(QtGui.QMainWindow):
 
         layoutNames.sort()
         for ln in layoutNames:
-            self._layoutMode.addItem(ln, oldDataMap.get(ln, QtCore.QVariant()))
+            self._layoutMode.addItem(ln, oldDataMap.get(ln, to_qvariant()))
         self._layoutMode.adjustSize()
 
         ind = self._layoutMode.findText(current)
@@ -270,19 +270,17 @@ class MainWindow(QtGui.QMainWindow):
         in the central window."""
 
         proj       = self.__projMan.get_active_project()
-        layoutName = self._layoutMode.itemText(index)
+        layoutName = str(self._layoutMode.itemText(index))
         if layoutName is None or layoutName == "":
             return
 
-        data = self._layoutMode.itemData(index).toPyObject()
+        data = self._layoutMode.itemData(index)#.toPyObject()
         if data and isinstance(data, CustomSplittable):
             index = self.__centralStack.indexOf(data)
             if index == -1:
                 self.__centralStack.addWidget(data)
             self.__centralStack.setCurrentWidget(data)
         else:
-            # convert from QString to python str
-            layoutName = str(layoutName)
             # layoutNames encodes the application
             # name and the layout name:
             # they are seperated by a period.
@@ -334,7 +332,7 @@ class MainWindow(QtGui.QMainWindow):
             self.__centralStack.addWidget(newSplit)
 
             self.__centralStack.setCurrentWidget(newSplit)
-            self._layoutMode.setItemData(index, QtCore.QVariant(newSplit))
+            self._layoutMode.setItemData(index, to_qvariant(newSplit))
 
     ######################
     # Pane Menu handlers #

@@ -17,7 +17,7 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-from PyQt4 import QtGui, QtCore
+from openalea.vpltk.qt import qt
 from openalea.visualea.graph_operator.base import Base
 
 class ColorOperators(Base):
@@ -31,13 +31,13 @@ class ColorOperators(Base):
         if(length==1):
             color = items[0].vertex().get_ad_hoc_dict().get_metadata("userColor")
             if(color):
-                color = QtGui.QColor(*color)
-            else: color = QtGui.QColor(100,100,100,255)
+                color = qt.QtGui.QColor(*color)
+            else: color = qt.QtGui.QColor(100,100,100,255)
         else:
-            color = QtGui.QColor(100,100,100,255)
+            color = qt.QtGui.QColor(100,100,100,255)
 
         # todo give me a parent
-        color = QtGui.QColorDialog.getColor(color, None)
+        color = qt.QtGui.QColorDialog.getColor(color, None)
 
         if not color.isValid():
             return

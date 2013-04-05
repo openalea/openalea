@@ -17,8 +17,7 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-
-from PyQt4 import QtCore
+from openalea.vpltk.qt import qt
 from openalea.core.observer import AbstractListener
 from openalea.visualea.dataflowview import DataflowView, GraphicalGraph
 from openalea.visualea.util import exception_display
@@ -29,8 +28,8 @@ class InspectorView(DataflowView, AbstractListener):
     def __init__(self, parent):
         DataflowView.__init__(self, parent)
         AbstractListener.__init__(self)
-        self.setAttribute(QtCore.Qt.WA_DeleteOnClose, False)
-        self.setWindowFlags(QtCore.Qt.Window)
+        self.setAttribute(qt.QtCore.Qt.WA_DeleteOnClose, False)
+        self.setWindowFlags(qt.QtCore.Qt.Window)
 
     @exception_display
     def notify(self, sender, event):

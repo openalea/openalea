@@ -17,7 +17,7 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-from PyQt4 import QtGui, QtCore
+from openalea.vpltk.qt import qt
 from openalea.grapheditor import qtgraphview, baselisteners
 from openalea.grapheditor import qtutils
 from openalea.grapheditor.qtutils import *
@@ -66,12 +66,12 @@ class GraphicalAnnotation(qtutils.MemoRects, qtgraphview.Vertex):
 
     def __init__(self, annotation, graphadapter, parent=None):
         """ Create a nice annotation """
-        qtutils.MemoRects.__init__(self, QtCore.QRectF())
+        qtutils.MemoRects.__init__(self, qt.QtCore.QRectF())
         qtgraphview.Vertex.__init__(self, annotation, graphadapter)
         self.initialise(annotation.get_ad_hoc_dict())
         self.__textItem = AleaQGraphicsEmitingTextItem(self.__def_string__, self)
         self.__textItem.geometryModified.connect(self.__onTextModified)
-        self.__textItem.setTextInteractionFlags(QtCore.Qt.TextEditorInteraction)
+        self.__textItem.setTextInteractionFlags(qt.QtCore.Qt.TextEditorInteraction)
         self.setZValue(-100)
         self.__textItem.setZValue(-99)
         self.__visualStyle = 0
@@ -81,9 +81,9 @@ class GraphicalAnnotation(qtutils.MemoRects, qtgraphview.Vertex):
     def initialise_from_model(self):
         rectP2 = self.get_view_data("rectP2")
         if rectP2 is not None:
-            rect = QtCore.QRectF(0,0,rectP2[0],rectP2[1])
+            rect = qt.QtCore.QRectF(0,0,rectP2[0],rectP2[1])
         else:
-            rect = QtCore.QRectF(0,0,-1,-1)
+            rect = qt.QtCore.QRectF(0,0,-1,-1)
         qtutils.MemoRects.setRect(self,rect)
 
         self.setHeaderRect(self.__textItem.boundingRect())
@@ -93,11 +93,11 @@ class GraphicalAnnotation(qtutils.MemoRects, qtgraphview.Vertex):
 
         txtCol = self.get_view_data("textColor")
         if txtCol:
-            self.__textItem.setDefaultTextColor(QtGui.QColor(*txtCol))
+            self.__textItem.setDefaultTextColor(qt.QtGui.QColor(*txtCol))
 
         color = self.get_view_data("color")
         if color:
-            color = QtGui.QColor(*color)
+            color = qt.QtGui.QColor(*color)
             self.setColor(color)
 
         # if an annotation has already a rectP2 field but no visualStyle,
@@ -168,14 +168,14 @@ class GraphicalAnnotation(qtutils.MemoRects, qtgraphview.Vertex):
                 # -- value is a color tuple --
                 elif key == "textColor":
                     if value:
-                        self.__textItem.setDefaultTextColor(QtGui.QColor(*value))
+                        self.__textItem.setDefaultTextColor(qt.QtGui.QColor(*value))
                 elif key == "color":
                     if value:
-                        color = QtGui.QColor(*value)
+                        color = qt.QtGui.QColor(*value)
                         self.setColor(color)
                 # -- value is a position tuple --
                 elif key == "rectP2":
-                    rect = QtCore.QRectF(0,0,value[0],value[1])
+                    rect = qt.QtCore.QRectF(0,0,value[0],value[1])
                     qtutils.MemoRects.setRect(self,rect)
                     self.setHeaderRect(self.__textItem.boundingRect())
                 # -- value is an int in [0, 1] --
@@ -200,7 +200,7 @@ class GraphicalAnnotation(qtutils.MemoRects, qtgraphview.Vertex):
     def mousePressEvent(self, event):
         #let a lmb click anywhere in the header activate
         #text edition:
-        if event.button()==QtCore.Qt.LeftButton and \
+        if event.button()==qt.QtCore.Qt.LeftButton and \
                self._MemoRects__headerRect.contains( event.pos() ):
             self.__textItem.setFocus()
         else:

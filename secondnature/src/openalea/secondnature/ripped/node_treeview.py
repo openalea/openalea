@@ -36,6 +36,7 @@ from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.pkgmanager import PseudoGroup, PseudoPackage
 from openalea.core import cli
+from openalea.core.compat import to_qvariant
 
 from openalea.visualea.dialogs import EditPackage, NewGraph, NewPackage, NewData
 from openalea.visualea.util import open_dialog, exception_display, busy_cursor
@@ -195,7 +196,7 @@ class PkgModel(QtGui.QStandardItemModel, AbstractListener):
         icon = get_icon2(elt)
         newItem.setIcon(icon)
         newItem.setToolTip(elt.get_tip())
-        newItem.setData(QtCore.QVariant(elt), self.pkgmodelRole)
+        newItem.setData(to_qvariant(elt), self.pkgmodelRole)
         if parent:
             parent.appendRow(newItem)
         return newItem
@@ -208,7 +209,7 @@ class PkgModel(QtGui.QStandardItemModel, AbstractListener):
         # -- marshall package and factory to the data stream, needed later --
         itemData   = QtCore.QByteArray()
         dataStream = QtCore.QDataStream(itemData, QtCore.QIODevice.WriteOnly)
-        dataStream << QtCore.QString(pkg_id) << QtCore.QString(factory_id)
+        dataStream = dataStream + str(pkg_id) + str(factory_id)
         mimeData.setData(mimetype, itemData)
 
         # -- build an url --
@@ -231,7 +232,7 @@ class PkgModel(QtGui.QStandardItemModel, AbstractListener):
 
 
     def headerData(self, section, orientation, role):
-        return QtCore.QVariant()
+        return to_qvariant()
 
     @classmethod
     def get_item_info(cls, item):
@@ -268,10 +269,10 @@ class DataPoolModel (QtCore.QAbstractListModel) :
     def data(self, index, role):
 
         if (not index.isValid()):
-            return QtCore.QVariant()
+            return to_qvariant()
 
         if (index.row() >= len(self.datapool.keys())):
-            return QtCore.QVariant()
+            return to_qvariant()
 
         if (role == QtCore.Qt.DisplayRole):
             l = self.datapool.keys()
@@ -280,11 +281,11 @@ class DataPoolModel (QtCore.QAbstractListModel) :
             #classname = self.datapool[name].__class__
             value = repr(self.datapool[name])
             if(len(value) > 30) : value = value[:30] + "..."
-            return QtCore.QVariant("%s ( %s )"%(name, value))
+            return to_qvariant("%s ( %s )"%(name, value))
 
         # Icon
         elif( role == QtCore.Qt.DecorationRole ):
-            return QtCore.QVariant(QtGui.QPixmap(":/icons/ccmime.png"))
+            return to_qvariant(QtGui.QPixmap(":/icons/ccmime.png"))
 
         # Tool Tip
         elif( role == QtCore.Qt.ToolTipRole ):
@@ -310,10 +311,10 @@ class DataPoolModel (QtCore.QAbstractListModel) :
             if(temp) : tips.append(temp)
             tipstr = '\n'.join(tips)
 
-            return QtCore.QVariant(str(tipstr))
+            return to_qvariant(str(tipstr))
 
         else:
-            return QtCore.QVariant()
+            return to_qvariant()
 
 
     def flags(self, index):
@@ -326,7 +327,7 @@ class DataPoolModel (QtCore.QAbstractListModel) :
 
 
     def headerData(self, section, orientation, role):
-        return QtCore.QVariant()
+        return to_qvariant()
 
 
     def rowCount(self, parent):
@@ -865,7 +866,7 @@ class DataPoolListView(QtGui.QListView, SignalSlotListener):
         l.sort()
         name = l[item.row()]
 
-        dataStream << QtCore.QString(name)
+        dataStream = dataStream + str(name)
 
         mimeData = QtCore.QMimeData()
         mimeData.setData("openalea/data_instance", itemData)

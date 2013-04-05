@@ -25,7 +25,7 @@ import sys
 import os
 import weakref
 
-from PyQt4 import QtCore, QtGui
+from openalea.vpltk.qt import qt
 from openalea.core.interface import InterfaceWidgetMap, IInterfaceMetaClass
 from openalea.core.observer import lock_notify, AbstractListener
 from openalea.core.traitsui import View, Item, Group
@@ -42,14 +42,14 @@ class SignalSlotListener(AbstractListener):
     def __init__(self):
         AbstractListener.__init__(self)
         # Create a QObject if necessary
-        if(not isinstance(self, QtCore.QObject)):
-            self.obj = QtCore.QObject()
+        if(not isinstance(self, qt.QtCore.QObject)):
+            self.obj = qt.QtCore.QObject()
             self.qobj = weakref.ref(self.obj)
         else:
             self.qobj = weakref.ref(self)
 
 
-        self.qobj().connect(self.qobj(), QtCore.SIGNAL("notify"), self.notify)
+        self.qobj().connect(self.qobj(), qt.QtCore.SIGNAL("notify"), self.notify)
 
 
     def call_notify (self, sender, event=None):
@@ -60,7 +60,7 @@ class SignalSlotListener(AbstractListener):
         """
 
         try:
-            self.qobj().emit(QtCore.SIGNAL("notify"), sender, event)
+            self.qobj().emit(qt.QtCore.SIGNAL("notify"), sender, event)
         except Exception, e:
             print "Cannot emit Qt Signal : ", e
             self.notify(sender, event)
@@ -111,7 +111,7 @@ class NodeWidget(SignalSlotListener):
 
 
 
-class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
+class DefaultNodeWidget(NodeWidget, qt.QtGui.QWidget):
     """
     Default implementation of a NodeWidget.
     It displays the node contents.
@@ -123,15 +123,15 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
     def __init__(self, node, parent, autonomous=False):
         """ Constructor """
 
-        QtGui.QWidget.__init__(self, parent)
+        qt.QtGui.QWidget.__init__(self, parent)
         NodeWidget.__init__(self, node)
         self.setMinimumSize(100, 20)
 
         self.widgets = []
         self.empty = True
 
-        self.vboxlayout = QtGui.QVBoxLayout(self)
-        self.vboxlayout.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
+        self.vboxlayout = qt.QtGui.QVBoxLayout(self)
+        self.vboxlayout.setSizeConstraint(qt.QtGui.QLayout.SetMinimumSize)
 
         DefaultNodeWidget.do_layout(self, node, self.vboxlayout)
 
@@ -141,12 +141,12 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
     def set_autonomous(self):
         """ Add Run and close buttons """
 
-        runbutton = QtGui.QPushButton("Run", self)
-        exitbutton = QtGui.QPushButton("Exit", self)
-        self.connect(runbutton, QtCore.SIGNAL("clicked()"), self.run)
-        self.connect(exitbutton, QtCore.SIGNAL("clicked()"), self.exit)
+        runbutton = qt.QtGui.QPushButton("Run", self)
+        exitbutton = qt.QtGui.QPushButton("Exit", self)
+        self.connect(runbutton, qt.QtCore.SIGNAL("clicked()"), self.run)
+        self.connect(exitbutton, qt.QtCore.SIGNAL("clicked()"), self.exit)
 
-        buttons = QtGui.QHBoxLayout()
+        buttons = qt.QtGui.QHBoxLayout()
         buttons.addWidget(runbutton)
         buttons.addWidget(exitbutton)
         self.vboxlayout.addLayout(buttons)
@@ -188,8 +188,8 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
             for port in node.input_desc:
                 DefaultNodeWidget.place_item(widget, port, layout)
         else:
-            #if node.factory.view.layout=="-": layout = QtGui.QHBoxLayout(self)
-            #elif node.factory.view.layout=="|": layout = QtGui.QVBoxLayout(self)
+            #if node.factory.view.layout=="-": layout = qt.QtGui.QHBoxLayout(self)
+            #elif node.factory.view.layout=="|": layout = qt.QtGui.QVBoxLayout(self)
             #layout.setMargin(3)
             #layout.setSpacing(2)
             #
@@ -236,7 +236,7 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
             #print widget
             widgetT = wclass(widget.node, widget, name, interface)
             widgetT.update_state()
-            layout.addWidget(widgetT, 0)#, QtCore.Qt.AlignTop)
+            layout.addWidget(widgetT, 0)#, qt.QtCore.Qt.AlignTop)
             widget.widgets.append(widgetT)
             widget.empty = False
         else:
@@ -245,7 +245,7 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
         # If there is no subwidget, add the name
         if( widget.empty ):
             pass
-#             label = QtGui.QLabel(self)
+#             label = qt.QtGui.QLabel(self)
 #             label.setText(self.node.__class__.__name__+
 #                           " (No Widget available)")
 
@@ -267,20 +267,20 @@ class DefaultNodeWidget(NodeWidget, QtGui.QWidget):
         """
 
         if group.layout=="-" or  group.layout=="|":
-            groupW = QtGui.QGroupBox(widget)
+            groupW = qt.QtGui.QGroupBox(widget)
             groupW.setTitle(group.label)
             layout.addWidget( groupW )
-            if group.layout=="-": nlayout = QtGui.QHBoxLayout(widget)
-            else: nlayout = QtGui.QVBoxLayout(widget)
+            if group.layout=="-": nlayout = qt.QtGui.QHBoxLayout(widget)
+            else: nlayout = qt.QtGui.QVBoxLayout(widget)
             groupW.setLayout(nlayout)
         else:
-            tab=QtGui.QTabWidget( widget )
+            tab=qt.QtGui.QTabWidget( widget )
             layout.addWidget( tab )
 
         for i in group.content:
             if group.layout=="t":
-                groupW = QtGui.QWidget()
-                nlayout = QtGui.QVBoxLayout(widget)
+                groupW = qt.QtGui.QWidget()
+                nlayout = qt.QtGui.QVBoxLayout(widget)
                 groupW.setLayout(nlayout)
                 if isinstance( i, Item ):
                     name=widget.node.get_input_port( i.name ).get_label()

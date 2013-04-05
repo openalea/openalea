@@ -18,12 +18,11 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 import weakref
-from PyQt4 import QtCore, QtGui
-
+from openalea.vpltk.qt import qt
 from openalea.visualea.graph_operator import GraphOperator
 from openalea.grapheditor import baselisteners, qtgraphview, edgefactory, qtutils
 
-class FloatingEdge(QtGui.QGraphicsPathItem, qtgraphview.FloatingEdge):
+class FloatingEdge(qt.QtGui.QGraphicsPathItem, qtgraphview.FloatingEdge):
     """
     Represents an edge during its creation
     It is connected to one connector only
@@ -32,7 +31,7 @@ class FloatingEdge(QtGui.QGraphicsPathItem, qtgraphview.FloatingEdge):
     """
 
     def __init__(self, srcPoint, graph):
-        QtGui.QGraphicsPathItem.__init__(self, None)
+        qt.QtGui.QGraphicsPathItem.__init__(self, None)
         qtgraphview.FloatingEdge.__init__(self, srcPoint, graph)
 
     def get_connections(self):
@@ -69,12 +68,12 @@ class FloatingEdge(QtGui.QGraphicsPathItem, qtgraphview.FloatingEdge):
                                 "plugging input to input or output to output")
 
 
-class GraphicalEdge(QtGui.QGraphicsPathItem, qtgraphview.Edge):
+class GraphicalEdge(qt.QtGui.QGraphicsPathItem, qtgraphview.Edge):
     """ An edge between two graphical vertices """
 
     def __init__(self, edgeModel, graphadapter, port1, port2, parent=None):
         """ """
-        QtGui.QGraphicsPathItem.__init__(self, parent)
+        qt.QtGui.QGraphicsPathItem.__init__(self, parent)
         qtgraphview.Edge.__init__(self, edgeModel, graphadapter, port1, port2)
         self.__edge_creator = self.set_edge_creator(edgefactory.SplineEdgePath())        
         

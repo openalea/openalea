@@ -7,31 +7,31 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from PyQt4 import QtCore, QtGui
+from openalea.vpltk.qt import qt
 
 class Ui_ListEdit(object):
     def setupUi(self, ListEdit):
         ListEdit.setObjectName("ListEdit")
-        ListEdit.resize(QtCore.QSize(QtCore.QRect(0,0,400,300).size()).expandedTo(ListEdit.minimumSizeHint()))
+        ListEdit.resize(qt.QtCore.QSize(qt.QtCore.QRect(0,0,400,300).size()).expandedTo(ListEdit.minimumSizeHint()))
 
-        self.vboxlayout = QtGui.QVBoxLayout(ListEdit)
+        self.vboxlayout = qt.QtGui.QVBoxLayout(ListEdit)
         self.vboxlayout.setObjectName("vboxlayout")
 
-        self.listWidget = QtGui.QListWidget(ListEdit)
+        self.listWidget = qt.QtGui.QListWidget(ListEdit)
         self.listWidget.setObjectName("listWidget")
         self.vboxlayout.addWidget(self.listWidget)
 
-        self.buttonBox = QtGui.QDialogButtonBox(ListEdit)
-        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.NoButton|QtGui.QDialogButtonBox.Ok)
+        self.buttonBox = qt.QtGui.QDialogButtonBox(ListEdit)
+        self.buttonBox.setOrientation(qt.QtCore.Qt.Horizontal)
+        self.buttonBox.setStandardButtons(qt.QtGui.QDialogButtonBox.Cancel|qt.QtGui.QDialogButtonBox.NoButton|qt.QtGui.QDialogButtonBox.Ok)
         self.buttonBox.setObjectName("buttonBox")
         self.vboxlayout.addWidget(self.buttonBox)
 
         self.retranslateUi(ListEdit)
-        QtCore.QObject.connect(self.buttonBox,QtCore.SIGNAL("accepted()"),ListEdit.accept)
-        QtCore.QObject.connect(self.buttonBox,QtCore.SIGNAL("rejected()"),ListEdit.reject)
-        QtCore.QMetaObject.connectSlotsByName(ListEdit)
+        qt.QtCore.QObject.connect(self.buttonBox,qt.QtCore.SIGNAL("accepted()"),ListEdit.accept)
+        qt.QtCore.QObject.connect(self.buttonBox,qt.QtCore.SIGNAL("rejected()"),ListEdit.reject)
+        qt.QtCore.QMetaObject.connectSlotsByName(ListEdit)
 
     def retranslateUi(self, ListEdit):
-        ListEdit.setWindowTitle(QtGui.QApplication.translate("ListEdit", "Dialog", None, QtGui.QApplication.UnicodeUTF8))
+        ListEdit.setWindowTitle(qt.QtGui.QApplication.translate("ListEdit", "Dialog", None, qt.QtGui.QApplication.UnicodeUTF8))
 

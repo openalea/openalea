@@ -1,0 +1,23 @@
+To use IPython with VisuAlea or LPy,
+you have to download and install IPython in a special way.
+
+
+/!\ You need a GitHub account.
+
+You have to:
+
+- go to https://github.com/epatters/ipython
+- "fork"
+- clone in local forked repository (with "Git Gui" or in command line)
+- checkout the branch "origin/embedded-ipython-v2"
+- check if "ipython\docs\examples\frontend\inprocess_qtconsole.py" exists
+- if it exists continue, else check in GitHub if you have really forked the repository
+- install ipython (in command line: "python setup.py")
+
+
+Congratulation! You have IPython in VisuAlea and Lpy!
+
+
+@author: julien coste
+@mail: julien.coste@inria.fr
+@date: 05 december 2012

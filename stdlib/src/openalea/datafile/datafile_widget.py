@@ -25,7 +25,7 @@ class GetDataBrowser(NodeWidget, QDialog):
         self.package_lineedit = QLineEdit(self)
         self.gridlayout.addWidget(self.package_lineedit, 0, 1, 1, 3)
         self.connect(self.package_lineedit, 
-                     SIGNAL("textChanged(QString)"), 
+                     SIGNAL("textChanged()"), 
                      self.package_changed)
 
         self.metadata_textedit = QTextEdit('', self)
@@ -39,7 +39,7 @@ class GetDataBrowser(NodeWidget, QDialog):
         self.glob_lineedit = QLineEdit(self)
         self.gridlayout.addWidget(self.glob_lineedit, 2, 1, 1, 2)
         self.connect(self.glob_lineedit, 
-                     SIGNAL("textChanged(QString)"), 
+                     SIGNAL("textChanged()"), 
                      self.glob_changed)
 
         self.filenames_combobox_label = QLabel('3. Select the data file:', self)
@@ -47,7 +47,7 @@ class GetDataBrowser(NodeWidget, QDialog):
 
         self.filenames_combobox = QComboBox(self)
         self.connect(self.filenames_combobox,
-                     SIGNAL("activated(QString)"), 
+                     SIGNAL("activated()"), 
                      self.filename_changed)
         self.gridlayout.addWidget(self.filenames_combobox, 3, 1, 1, 3)
 
