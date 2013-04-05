@@ -219,7 +219,7 @@ class FileRead(object):
 from openalea.visualea.node_widget import NodeWidget
 from openalea.core.observer import lock_notify
 
-from PyQt4 import QtGui, QtCore
+from openalea.vpltk.qt import QtGui, QtCore
 
 class ListSelectorWidget(QtGui.QListWidget, NodeWidget):
     """ This Widget allows to select an element in a list

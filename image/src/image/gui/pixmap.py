@@ -21,12 +21,15 @@ This module defines functions to transform images into QPixmaps
 __license__= "Cecill-C"
 __revision__ = " $Id: __init__.py 2245 2010-02-08 17:11:34Z cokelaer $ "
 
-from PyQt4.QtGui import QPixmap,QImage
+from openalea.vpltk.qt import qt
+#from qt.QtGui import QPixmap,QImage
 from numpy import array,zeros,uint32,uint8
-import sip
 
 from openalea.image.spatial_image import SpatialImage
 from openalea.image.gui.palette import palette_factory, from_argb_swap_columns_and_recast
+
+QPixmap = qt.QtGui.QPixmap
+QImage = qt.QtGui.QImage
 
 def to_img (img, scalar_type=None, lut=None, forceNativeLut=None) :
     """Transform an image array into a QImage
@@ -43,10 +46,10 @@ def to_img (img, scalar_type=None, lut=None, forceNativeLut=None) :
     # explicitly asked by the user view GUI or what. If the image is not
     # properly oriented it is up to the reading code to fix the orientation! --
 
-#    try:
-#        from PIL import Image, ImageQt
-#    except ImportError:
-#        return None
+    try:
+        import Image, ImageQt
+    except ImportError:
+        return None
     #print isinstance(img, SpatialImage)
     if isinstance(img, SpatialImage):
         nb_dim = len(img.shape)
@@ -108,6 +111,8 @@ def to_img_fast( img, scalar_type=None, lut=None, forceNativeLut=False):
 
     :Returns Type: QImage
     """
+    import sip
+
     l_sh = len(img.shape)
     if l_sh == 3:
         vdim = img.shape[2]

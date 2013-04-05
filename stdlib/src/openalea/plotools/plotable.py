@@ -37,20 +37,8 @@ else:
   rc('text', usetex=True )
 """
 use('Qt4Agg')
-#rcParams.update( {
-#        'font.family'  : 'serif',
-#        })
 
-
-#the following allows a smooth use of pylab windows with Qt4.2#
-try:
-  from matplotlib.backends.backend_qt4 import qApp
-except ImportError:
-  import matplotlib as mymat
-  from matplotlib.backends import backend_qt4, backend_qt4agg
-  from PyQt4 import QtGui
-  backend_qt4.qApp = QtGui.qApp
-  backend_qt4agg.matplotlib = mymat
+from matplotlib.backends.backend_qt4 import qApp
 import pylab
 
         

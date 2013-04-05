@@ -21,7 +21,8 @@ import types
 from inspect import getmembers, ismethod, isfunction, isbuiltin
 from openalea.visualea.node_widget import NodeWidget, DefaultNodeWidget
 from openalea.core.observer import lock_notify
-from PyQt4 import QtGui, QtCore
+from openalea.vpltk.qt import QtGui, QtCore
+#from PyQt4 import QtGui, QtCore
 
 class SelectCallable(QtGui.QWidget, NodeWidget):
     def __init__(self, node, parent):

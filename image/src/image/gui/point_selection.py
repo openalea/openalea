@@ -21,12 +21,19 @@ __revision__=" $Id$ "
 
 __all__ = ["PointSelection","point_selection"]
 
+def load_local(mod,modules):
+    modules = modules.split()
+    modules = ''.join(modules).split(',')
 
-from PyQt4.QtCore import Qt,QObject,SIGNAL,QRectF,QPointF, QPoint
-from PyQt4.QtGui import (QApplication,QMainWindow,QGraphicsScene,QGraphicsPixmapItem,
+    for m in modules:
+        globals()[m] = mod.__getattribute__(m)
+
+from openalea.vpltk.qt import *
+load_local(QtCore,'Qt,QObject,SIGNAL,QRectF,QPointF, QPoint')
+load_local(QtGui,"""QApplication,QMainWindow,QGraphicsScene,QGraphicsPixmapItem,
                          QToolBar,QSlider,QLabel,QComboBox,QIcon,QActionGroup,
                          QColor,QPen,QBrush,QGraphicsSimpleTextItem,QTransform,
-                         QFileDialog,QMessageBox)
+                         QFileDialog,QMessageBox """)
 
 import numpy as np
 from openalea.image.gui import icons_rc
