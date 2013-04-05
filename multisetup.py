@@ -48,6 +48,7 @@ except ImportError:
 dirs = """
 deploy
 deploygui
+vpltk
 core
 scheduler
 grapheditor

@@ -183,11 +183,11 @@ class DataNode(Node):
     def monitor_file(self, filename):
         """ Enable file monitoring """
         try:
-            from PyQt4 import QtCore
+            from openalea.vpltk.qt import qt
 
-            self.watch = QtCore.QFileSystemWatcher()
-            QtCore.QCoreApplication.instance().connect(\
-                self.watch, QtCore.SIGNAL("fileChanged(const QString&)"),\
+            self.watch = qt.QtCore.QFileSystemWatcher()
+            qt.QtCore.QCoreApplication.instance().connect(\
+                self.watch, qt.QtCore.SIGNAL("fileChanged(const QString&)"),\
                 self.changed)
 
             self.watch.addPath(filename)
