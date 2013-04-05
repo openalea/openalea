@@ -21,11 +21,11 @@ __license__= "Cecill-C"
 __revision__ = " $Id: __init__.py 2245 2010-02-08 17:11:34Z cokelaer $ "
 
 from numpy import array, random, zeros
-from PyQt4.QtGui import QApplication,QLabel
+from openalea.vpltk.qt import QtGui
 from openalea.image.all import (rainbow,grayscale,bw,
 				apply_mask,saturate,high_level,color_select, to_pix)
 
-qapp = QApplication.instance()
+qapp = QtGui.QApplication.instance()
 
 if qapp:
 
@@ -58,7 +58,7 @@ if qapp:
 			(sat,"sat"),
 			(hgimg,"hgimg"),(hg,"hg"),
 			(selimg,"selimg"),(sel,"sel")] :
-		w = QLabel()
+		w = QtGui.QLabel()
 		w.setWindowTitle(name)
 		w.setPixmap(to_pix(im) )
 		w.show()

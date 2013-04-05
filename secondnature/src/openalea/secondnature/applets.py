@@ -25,7 +25,7 @@ from openalea.core.singleton           import Singleton
 
 from openalea.core.logger import get_logger
 
-from PyQt4 import QtCore
+from openalea.vpltk.qt import QtCore
 
 mod_logger = get_logger(__name__)
 
@@ -131,7 +131,7 @@ class AbstractApplet(HasName, CanBeStarted):
 
 
 
-from PyQt4 import QtGui, QtCore
+from openalea.vpltk.qt import QtGui, QtCore
 import weakref
 import types
 import traceback

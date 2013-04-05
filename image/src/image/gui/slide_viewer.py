@@ -22,11 +22,19 @@ __revision__=" $Id: $ "
 
 __all__ = ["display","SlideViewer"]
 
+def load_local(mod,modules):
+    modules = modules.split()
+    modules = ''.join(modules).split(',')
+
+    for m in modules:
+        globals()[m] = mod.__getattribute__(m)
+
 from openalea.image.spatial_image import SpatialImage
 import numpy as np
-from PyQt4.QtCore import Qt,QObject,SIGNAL
-from PyQt4.QtGui import (QApplication,QLabel,QMainWindow,QComboBox,
-                        QSlider,QToolBar)
+from openalea.vpltk.qt import QtCore, QtGui
+load_local(QtCore,'Qt,QObject,SIGNAL')
+load_local(QtGui,"""QApplication,QLabel,QMainWindow,QComboBox,
+                        QSlider,QToolBar""")
 from palette import palette_names,palette_factory
 from pixmap_view import PixmapStackView,ScalableLabel
 

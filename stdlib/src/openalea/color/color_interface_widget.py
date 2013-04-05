@@ -17,13 +17,12 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id: interface.py 2245 2010-02-08 17:11:34Z cokelaer $"
 
-from PyQt4.QtCore import QObject,SIGNAL
-from PyQt4.QtGui import QPushButton,QColor,QBrush,QPainter,QColorDialog,qRgba
+from openalea.vpltk.qt import QtCore, QtGui
 from openalea.core.observer import lock_notify
 from openalea.core.interface import IInterfaceWidget,make_metaclass
 from color_interface import IColor
 
-class IColorWidget (IInterfaceWidget, QPushButton) :
+class IColorWidget (IInterfaceWidget, QtGui.QPushButton) :
     """Interface for colors expressed as triplet of values
     """
     __interface__ = IColor
@@ -38,19 +37,19 @@ class IColorWidget (IInterfaceWidget, QPushButton) :
          - `parameter_str` (str) - the parameter key the widget is associated to
          - `interface` (Ismth) - instance of interface object
         """
-        QPushButton.__init__(self,parent)
+        QtGui.QPushButton.__init__(self,parent)
         IInterfaceWidget.__init__(self,node,parent,parameter_str,interface)
         self.setMinimumSize(64,64)
         
         self._color = (0,0,0)
-        self._brush = QBrush(QColor(*self._color[:3]) )
+        self._brush = QtGui.QBrush(QtGui.QColor(*self._color[:3]) )
         
-        QObject.connect(self,SIGNAL("clicked(bool)"),self.open_color_dialog)
+        QtCore.QObject.connect(self,QtCore.SIGNAL("clicked(bool)"),self.open_color_dialog)
         
         self.notify(node,("input_modified",self.param_str) )
     
     def paintEvent (self, event) :
-        painter = QPainter(self)
+        painter = QtGui.QPainter(self)
         painter.fillRect(event.rect(),self._brush)
         painter.end()
     
@@ -59,20 +58,20 @@ class IColorWidget (IInterfaceWidget, QPushButton) :
     
     def set_color (self, color) :
         self._color = color
-        self._brush = QBrush(QColor(*self._color[:3]) )
+        self._brush = QtGui.QBrush(QtGui.QColor(*self._color[:3]) )
     
     def open_color_dialog (self) :
         old_color = self.color()
         
         color = None
         if len(old_color) == 3 :
-            col = QColorDialog.getColor(QColor(*old_color),self)
+            col = QtGui.QColorDialog.getColor(QtGui.QColor(*old_color),self)
             if col.isValid() :
                 color = (col.red(),col.green(),col.blue() )
         elif len(old_color) == 4 :
-            col,ok = QColorDialog.getRgba(qRgba(*old_color),self)
+            col,ok = QtGui.QColorDialog.getRgba(QtGui.qRgba(*old_color),self)
             if ok :
-                col = QColor.fromRgba(col)
+                col = QtGui.QColor.fromRgba(col)
                 color = (col.red(),col.green(),col.blue(),col.alpha() )
         else :
             msg = "unable to display this color: %s" % str(self._color)

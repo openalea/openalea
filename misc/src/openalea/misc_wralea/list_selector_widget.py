@@ -3,21 +3,20 @@
 import sys
 from openalea.visualea.node_widget import NodeWidget       
 
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
+from openalea.vpltk.qt import QtCore, QtGui
 
-class ListSelector(NodeWidget, QDialog):
+class ListSelector(NodeWidget, QtGui.QDialog):
     """
     This Widget allows to select some elements in a list
     """
     def __init__(self, node, parent):
 
-        QDialog.__init__(self, parent)
+        QtGui.QDialog.__init__(self, parent)
         NodeWidget.__init__(self, node)
 
-        #self.browser = QTextBrowser()
+        #self.browser = QtGui.QTextBrowser()
         
-        layout = QVBoxLayout()
+        layout = QtGui.QVBoxLayout()
         #layout.addWidget(self.browser)
         self.setLayout(layout)
 
@@ -66,10 +65,10 @@ class ListSelector(NodeWidget, QDialog):
 
         for i, elt in enumerate(self.in_list):
             elt_name = str(elt)
-            button = QCheckBox(elt_name)
+            button = QtGui.QCheckBox(elt_name)
             button.setChecked(True)
 
-            self.connect(button, SIGNAL("clicked()"), lambda index=i: self.reactToClick(index))
+            self.connect(button, QtCore.SIGNAL("clicked()"), lambda index=i: self.reactToClick(index))
             layout.addWidget(button)
             self.widgets.append(button)
 

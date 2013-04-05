@@ -17,15 +17,14 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id: interface.py 2245 2010-02-08 17:11:34Z cokelaer $"
 
-from PyQt4.QtCore import Qt,QObject,SIGNAL
-from PyQt4.QtGui import QMainWindow,QToolBar,QSlider
+from openalea.vpltk.qt import QtCore, QtGui
 from openalea.core.observer import lock_notify
 from openalea.core.interface import IInterfaceWidget,make_metaclass
 from image_interface import IImage
 from openalea.image.gui.pixmap import to_pix
 from openalea.image.gui.pixmap_view import ScalableLabel
 
-class IImageWidget (IInterfaceWidget, QMainWindow) :
+class IImageWidget (IInterfaceWidget, QtGui.QMainWindow) :
     """Interface for images expressed as array of triplet of values
     """
     __interface__ = IImage
@@ -41,7 +40,7 @@ class IImageWidget (IInterfaceWidget, QMainWindow) :
             - `interface` (Ismth) - instance of interface object
         """
         
-        QMainWindow.__init__(self,parent)
+        QtGui.QMainWindow.__init__(self,parent)
         IInterfaceWidget.__init__(self,node,parent,parameter_str,interface)
         self.setMinimumSize(100,50)
 
@@ -49,16 +48,16 @@ class IImageWidget (IInterfaceWidget, QMainWindow) :
         self._lab = ScalableLabel()
         self.setCentralWidget(self._lab)
 
-        self._bot_toolbar = QToolBar("slider")
+        self._bot_toolbar = QtGui.QToolBar("slider")
 
-        self._img_slider = QSlider(Qt.Horizontal)
+        self._img_slider = QtGui.QSlider(QtCore.Qt.Horizontal)
         self._img_slider.setEnabled(False)
-        QObject.connect(self._img_slider,
-                        SIGNAL("valueChanged(int)"),
+        QtCore.QObject.connect(self._img_slider,
+                        QtCore.SIGNAL("valueChanged(int)"),
                         self.slice_changed)
 
         self._bot_toolbar.addWidget(self._img_slider)
-        self.addToolBar(Qt.BottomToolBarArea,self._bot_toolbar)
+        self.addToolBar(QtCore.Qt.BottomToolBarArea,self._bot_toolbar)
         self._bot_toolbar.hide()
 
         #update

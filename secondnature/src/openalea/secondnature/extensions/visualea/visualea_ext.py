@@ -115,7 +115,7 @@ class DataflowViewFactory(AbstractApplet):
 
     def make_menus_helper(self, node, gwidget):
         from openalea.visualea.graph_operator import GraphOperator
-        from PyQt4 import QtGui
+        from openalea.vpltk.qt import QtGui
 
         operator = GraphOperator(graph      = node,
                                  graphScene = gwidget.scene(),

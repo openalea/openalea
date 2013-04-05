@@ -26,7 +26,7 @@ __revision__ = " $Id$ "
 import os
 from weakref import ref
 
-from PyQt4 import QtCore, QtGui
+from openalea.vpltk.qt import QtCore, QtGui
 
 from openalea.core.observer import AbstractListener
 from openalea.core.node import NodeFactory, AbstractFactory

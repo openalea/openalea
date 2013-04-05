@@ -24,10 +24,19 @@ __revision__=" $Id$ "
 __all__ = ["PixmapView","PixmapStackView",
            "ScalableLabel","ScalableGraphicsView"]
 
+def load_local(mod,modules):
+    modules = modules.split()
+    modules = ''.join(modules).split(',')
+
+    for m in modules:
+        globals()[m] = mod.__getattribute__(m)
+
 from numpy import array,uint32, uint8
-from PyQt4.QtCore import Qt,SIGNAL
-from PyQt4.QtGui import (QImage,QPixmap,QTransform,QMatrix,
-                         QLabel,QGraphicsView)
+from openalea.vpltk.qt import QtCore, QtGui
+load_local(QtGui,'Qt,SIGNAL')
+load_local(QtGui,"""QImage,QPixmap,QTransform,QMatrix,
+                         QLabel,QGraphicsView """)                         
+                         
 from pixmap import to_img, to_pix
 from openalea.image.spatial_image import SpatialImage
 

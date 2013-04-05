@@ -17,7 +17,7 @@
 __license__ = "CeCILL v2"
 __revision__ = " $Id$ "
 
-from PyQt4 import QtGui, QtCore
+from openalea.vpltk.qt import QtGui, QtCore
 from openalea.visualea.splitterui import SplittableUI, DraggableWidget, RubberBandScrollArea
 
 

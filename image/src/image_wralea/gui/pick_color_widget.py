@@ -17,10 +17,18 @@ Expose the animator as a visualea node
 
 __revision__ = " $$ "
 
-from PyQt4.QtCore import QObject,SIGNAL
-from PyQt4.QtGui import (QWidget,QLabel,QPixmap,
+def load_local(mod,modules):
+    modules = modules.split()
+    modules = ''.join(modules).split(',')
+
+    for m in modules:
+        globals()[m] = mod.__getattribute__(m)
+
+from openalea.vpltk.qt import QtGui, QtCore
+load_local(QtCore,'QObject,SIGNAL')
+load_local(QtGui,"""QWidget,QLabel,QPixmap,
                          QHBoxLayout,QVBoxLayout,
-                         QColor,QCursor,QApplication)
+                         QColor,QCursor,QApplication""")
 from openalea.core import Node
 from openalea.visualea.node_widget import NodeWidget
 from openalea.image.gui.all import to_pix,ScalableLabel

@@ -16,7 +16,7 @@
 __license__ = "CeCILL v2"
 __revision__ = " $Id$ "
 
-from PyQt4 import QtCore, QtGui
+from openalea.vpltk.qt import QtCore, QtGui
 
 class EscEventSwallower(QtCore.QObject):
     def eventFilter(self, watched, event):

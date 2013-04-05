@@ -18,7 +18,7 @@ __license__ = "CeCILL v2"
 __revision__ = " $Id$ "
 
 
-from PyQt4 import QtCore, QtGui
+from openalea.vpltk.qt import QtCore, QtGui
 from openalea.core.compat import to_qvariant
 from openalea.secondnature.project import ProjectManager
 from openalea.secondnature.qtutils import try_to_disconnect

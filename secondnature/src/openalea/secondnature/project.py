@@ -17,7 +17,7 @@ __license__ = "CeCILL v2"
 __revision__ = " $Id$ "
 
 
-from PyQt4 import QtCore, QtGui
+from openalea.vpltk.qt import QtCore, QtGui
 from openalea.core.singleton import ProxySingleton
 from openalea.core.metaclass import make_metaclass
 import cPickle

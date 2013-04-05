@@ -86,10 +86,10 @@ class egg_qt4(BaseEggBuilder):
         lib_dirs    = {"PyQt4": qt4_.install_dll_dir}
         package_dir = {"PyQt4": pj(pyqt4_.install_site_dir, "PyQt4")}
         
-        from PyQt4 import Qt
+        from openalea.vpltk.qt import QtCore
         from setuptools import find_packages
         return dict( 
-                    VERSION  = Qt.QT_VERSION_STR,
+                    VERSION  = QtCore.QT_VERSION_STR,
                     PACKAGES = find_packages(pyqt4_.install_site_dir, "PyQt4"),
                     PACKAGE_DIRS = package_dir,
                     PACKAGE_DATA = {'' : [Pattern.pyext]},
@@ -128,10 +128,10 @@ class egg_qt4_dev(BaseEggBuilder):
         # plugins files are recursive subdirectories in qt4
         plu = recursive_glob_as_dict(qt4_.install_plu_lib_dir, Pattern.qtstalib, strip_keys=True, prefix_key="plugins").items()        
 
-        from PyQt4 import Qt
+        from openalea.vpltk.qt import QtCore
         
         return dict( 
-                    VERSION          = Qt.QT_VERSION_STR,                   
+                    VERSION          = QtCore.QT_VERSION_STR,                   
                     BIN_DIRS         = bin_dirs,
                     INC_DIRS         = inc_dirs,
                     DATA_FILES       = libs+sips+srcs+tra+mks+plu,

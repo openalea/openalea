@@ -12,7 +12,7 @@
 #
 ################################################################################
 
-from PyQt4.QtCore import QObject,SIGNAL
+from openalea.vpltk.qt imprt QtCore
 from openalea.visualea.node_widget import NodeWidget
 from openalea.core.observer import lock_notify
 from openalea.image.all import PointSelection, SpatialImage, palette_names, palette_factory
@@ -27,7 +27,7 @@ class PointSelectionWidget(NodeWidget,PointSelection) :
 
         self.notify(node, ('input_modified',))
 
-        self.connect(self, SIGNAL("points_changed"), \
+        self.connect(self, QtCore.SIGNAL("points_changed"), \
                      self.pointsChanged)
 
         self.window().setWindowTitle(node.get_caption())

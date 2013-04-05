@@ -20,10 +20,18 @@ This module defines a widget to animate a sequence of images
 __license__= "Cecill-C"
 __revision__ = " $Id: __wralea__.py 2245 2010-02-08 17:11:34Z cokelaer $ "
 
-from PyQt4.QtCore import QObject,Qt,SIGNAL,QTimer
-from PyQt4.QtGui import (QMainWindow,QLabel,QToolBar,
+def load_local(mod,modules):
+    modules = modules.split()
+    modules = ''.join(modules).split(',')
+
+    for m in modules:
+        globals()[m] = mod.__getattribute__(m)
+
+from openalea.vpltk.qt import QtGui, QtCore
+load_local(QtCore,'QObject,Qt,SIGNAL,QTimer')
+load_local(QtGui,"""QMainWindow,QLabel,QToolBar,
                          QAction,QIcon,QSlider,
-                         QPixmap,QSpinBox)
+                         QPixmap,QSpinBox""")
 
 import icons_rc
 
