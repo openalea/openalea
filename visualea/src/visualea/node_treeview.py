@@ -102,6 +102,14 @@ def item_compare(x, y):
         return cmp(x.get_id(), y.get_id())
     else:
         tx, ty = type(x), type(y)
+        for t in type_order_map.keys(): 
+            if isinstance(x,t):
+                tx = t
+                break
+        for t in type_order_map.keys(): 
+            if isinstance(y,t):
+                ty = t
+                break
         return cmp(type_order_map[tx], type_order_map[ty])
 
 class PkgModel (qt.QtCore.QAbstractItemModel) :
