@@ -63,14 +63,15 @@ class Project(object):
     def start(self):
         # Load in object
         self.startup = self._load_startup()
+
+        # Load in shell
+        self._startup_import()
+        self._startup_run()
+        
         self.scripts = self._load_scripts()
         self.controls = self._load_controls()
         self.cache = self._load_cache()
         self.world = self._load_world()
-        
-        # Load in shell
-        self._startup_import()
-        self._startup_run()
         
     def save(self):
         self._save_startup()
@@ -125,13 +126,19 @@ class Project(object):
         
         temp_files = os.listdir(temp_path)
         for file in temp_files:
-            scripts[file] = open(file).read()
+            if not file.endswith('~'):
+                scripts[file] = open(file).read()
             
         os.chdir(cwd)    
             
         return scripts
         
     def _load_controls(self):
+        """
+        Struct of controls:
+        dict 'key = FileName' 'value = dict(Names : Values)'
+        ie. {FileName : {Name:Value, Name2:Value2, ...} }
+        """
         controls = dict()
         temp_path = self.path/self.name/"data"/"controls"
         
@@ -140,13 +147,16 @@ class Project(object):
  
         # Load Controls 
         temp_files = os.listdir(temp_path)
-        for file in temp_files:
-            controls[file] = open(file).read()
-        
+        for file_name in temp_files:
+            if not file_name.endswith('~'):
+                text = open(file_name).read()
+                temp_dict = eval(text, self.ns)
+                controls[file_name] = temp_dict
+
         # Add controls in namespace
-        for control in controls:
-            for key in eval(controls[control]):
-                self.ns[key] = eval(controls[control])[key]
+        for filename in controls:
+            for name in controls[filename]:
+                self.ns[name] = eval(controls[filename][name])
         
         os.chdir(cwd)    
             
@@ -162,12 +172,13 @@ class Project(object):
         # Load Cache
         temp_files = os.listdir(temp_path)
         for file in temp_files:
-            cache[file] = open(file).read()
+            if not file.endswith('~'):
+                cache[file] = open(file).read()
 
         # Add cache in namespace
         for cache_dict in cache:
-            for key in eval(cache[cache_dict]):
-                self.ns[key] = eval(cache[cache_dict])[key]
+            for key in eval(cache[cache_dict], self.ns):
+                self.ns[key] = eval(cache[cache_dict], self.ns)[key]
         
         os.chdir(cwd)    
             
@@ -182,7 +193,8 @@ class Project(object):
         
         temp_files = os.listdir(temp_path)
         for file in temp_files:
-            world[file] = open(file).read() in temp_path
+            if not file.endswith('~'):
+                world[file] = open(file).read() in temp_path
             
         # TODO ? : merge world from (dict of dict) in (dict)
         
@@ -198,7 +210,9 @@ class Project(object):
         
         for unit_startup in self.startup:
             file = open(unit_startup, "w")
-            file.write(repr(self.startup[unit_startup]))
+            code = str(self.startup[unit_startup])
+            code_enc = code.encode("utf8","ignore") 
+            file.write(code_enc)
             file.close()
        
         os.chdir(cwd) 
@@ -211,20 +225,36 @@ class Project(object):
         
         for script in self.scripts:
             file = open(script, "w")
-            file.write(repr(self.scripts[script]))
+            code = str(self.scripts[script])
+            code_enc = code.encode("utf8","ignore") 
+            file.write(code_enc)
             file.close()
        
         os.chdir(cwd) 
         
     def _save_controls(self):
+        """
+        Struct of controls:
+        dict 'key = FileName' 'value = dict(Names : Values)'
+        ie. {FileName : {Name:Value, Name2:Value2, ...} }
+
+        On the disk, controls are group by FileName in dict {Name:Value}
+        """
         temp_path = self.path/self.name/"data"/"controls"
         
         cwd = os.getcwd()
         os.chdir(temp_path)
         
-        for control in self.controls:
-            file = open(control, "w")
-            file.write(repr(self.controls[control]))
+        temp_dict = dict()
+        
+        for FileName in self.controls:
+            for Name in self.controls[FileName]:
+                temp_dict[Name] = self.controls[FileName][Name]
+
+            file = open(FileName, "w")
+            code = str(temp_dict)
+            code_enc = code.encode("utf8","ignore") 
+            file.write(code_enc)
             file.close()
        
         os.chdir(cwd) 
@@ -237,7 +267,9 @@ class Project(object):
         
         for unit_cache in self.cache:
             file = open(unit_cache, "w")
-            file.write(repr(self.cache[unit_cache]))
+            code = str(self.cache[unit_cache])
+            code_enc = code.encode("utf8","ignore") 
+            file.write(code_enc)
             file.close()
        
         os.chdir(cwd)    
@@ -250,7 +282,9 @@ class Project(object):
         
         for unit_world in self.world:
             file = open(unit_world, "w")
-            file.write(repr(self.world[unit_world]))
+            code = str(self.world[unit_world])
+            code_enc = code.encode("utf8","ignore") 
+            file.write(code_enc)            
             file.close()
        
         os.chdir(cwd) 
