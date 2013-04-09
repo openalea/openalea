@@ -125,19 +125,19 @@ def _graph_from_image(image, labels, background, default_properties,
     if 'boundingbox' in default_properties : 
         print 'Extracting boundingbox...'
         add_vertex_property_from_label_and_value(graph,'boundingbox',labels,analysis.boundingbox(labels,real=bbox_as_real),mlabel2vertex=label2vertex)
-        #~ graph._graph_property("units").update( {"boundingbox":('um'if bbox_as_real else 'voxel')} )
+        #~ graph._graph_property("units").update( {"boundingbox":(u'\u03bcm'if bbox_as_real else 'voxels')} )
 
     if 'volume' in default_properties and analysis.is3D(): 
         print 'Computing volume property...'
         add_vertex_property_from_dictionary(graph,'volume',analysis.volume(labels,real=default_real_property),mlabel2vertex=label2vertex)
-        #~ graph._graph_property("units").update( {"volume":('um3'if default_real_property else 'voxels')} )
+        #~ graph._graph_property("units").update( {"volume":('\u03bcm\u00B3'if default_real_property else 'voxels')} )
 
     barycenters = None
     if 'barycenter' in default_properties :
         print 'Computing barycenter property...'
         barycenters = analysis.center_of_mass(labels,real=default_real_property)
         add_vertex_property_from_dictionary(graph,'barycenter',barycenters,mlabel2vertex=label2vertex)
-        #~ graph._graph_property("units").update( {"barycenter":('um'if default_real_property else 'voxels')} )
+        #~ graph._graph_property("units").update( {"barycenter":('\u03bcm'if default_real_property else 'voxels')} )
 
     background_neighbors = set(analysis.neighbors(background))
     background_neighbors.intersection_update(labelset)
@@ -174,7 +174,7 @@ def _graph_from_image(image, labels, background, default_properties,
             unlabelled_wall_surface = analysis.wall_surfaces({source:unlabelled_target[source]},real=default_real_property)
             graph.vertex_property('unlabelled_wall_surface')[label2vertex[source]] = sum(unlabelled_wall_surface.values())
 
-        #~ graph._graph_property("units").update( {"wall_surface":('um2'if default_real_property else 'voxels')} )
+        #~ graph._graph_property("units").update( {"wall_surface":('\u03bcm\u00B2'if default_real_property else 'voxels')} )
 
     if 'epidermis_surface' in default_properties :
         print 'Computing epidermis_surface property...'
@@ -194,10 +194,10 @@ def _graph_from_image(image, labels, background, default_properties,
     if 'projected_anticlinal_wall_median' in default_properties:
         print 'Computing projected_anticlinal_wall_median property...'
         wall_median = {}
-        dict_wall_voxels = analysis.wall_voxels_per_cells_pairs( analysis.layer1(), neighborhood, dimensionality = 2 )
-        for label_1, label_2 in dict_wall_voxels:
+        dict_anticlinal_wall_voxels = analysis.wall_voxels_per_cells_pairs( analysis.layer1(), neighborhood, only_epidermis = True, ignore_background = True )
+        for label_1, label_2 in dict_anticlinal_wall_voxels:
             if label_1 == 0: continue # if 0 means that it wasn't in the labels list provided, so we skip it.
-            x,y,z = dict_wall_voxels[(label_1, label_2)]
+            x,y,z = dict_anticlinal_wall_voxels[(label_1, label_2)]
             # compute geometric median:
             from openalea.image.algo.analysis import geometric_median, closest_from_A
             neighborhood_origin = geometric_median( np.array([list(x),list(y),list(z)]) )
@@ -213,10 +213,18 @@ def _graph_from_image(image, labels, background, default_properties,
 
     if 'wall_median' in default_properties:
         print 'Computing wall_median property...'
+        try:
+            dict_wall_voxels
+        except:
+            dict_wall_voxels = analysis.wall_voxels_per_cells_pairs(labels, neighborhood, ignore_background=False )
+
         wall_median = {}
-        dict_wall_voxels = analysis.wall_voxels_per_cells_pairs(labels, neighborhood, dimensionality = 3, ignore_background=False )
-        for k in dict_wall_voxels:
-            x,y,z = dict_wall_voxels[k]
+        for label_1, label_2 in dict_wall_voxels:
+            #~ if dict_wall_voxels[(label_1, label_2)] == None:
+                #~ if label_1 != 0:
+                    #~ print "There might be something wrong between cells %d and %d" %label_1  %label_2
+                #~ continue # if None we can use it.
+            x,y,z = dict_wall_voxels[(label_1, label_2)]
             # compute geometric median:
             from openalea.image.algo.analysis import geometric_median, closest_from_A
             neighborhood_origin = geometric_median( np.array([list(x),list(y),list(z)]) )
@@ -225,7 +233,7 @@ def _graph_from_image(image, labels, background, default_properties,
             # closest points:
             pts = [tuple([int(x[i]),int(y[i]),int(z[i])]) for i in xrange(len(x))]
             min_dist = closest_from_A(neighborhood_origin, pts)
-            wall_median[k] = min_dist
+            wall_median[(label_1, label_2)] = min_dist
 
         edge_wall_median, unlabelled_wall_median, vertex_wall_median = {},{},{}
         for label_1, label_2 in dict_wall_voxels.keys():
@@ -245,15 +253,18 @@ def _graph_from_image(image, labels, background, default_properties,
         print 'Computing wall_orientation property...'
         # -- First we have to extract the voxels defining the frontier between two objects:
         # - Extract wall_orientation property for 'unlabelled' and 'epidermis' walls as well:
-        dict_wall_voxels = analysis.wall_voxels_per_cells_pairs(labels, neighborhood, dimensionality = 3, ignore_background=False )
+        try:
+            dict_wall_voxels
+        except:
+            dict_wall_voxels = analysis.wall_voxels_per_cells_pairs(labels, neighborhood, ignore_background=False )
 
         if 'wall_median' in graph.edge_properties():
             medians_coords = dict( (graph.edge_vertices(eid), coord) for eid,coord in graph.edge_property('wall_median').iteritems() )
             medians_coords.update(dict( (0,vid) for vid in graph.vertex_property('unlabelled_wall_median') ))
             medians_coords.update(dict( (1,vid) for vid in graph.vertex_property('epidermis_wall_median') ))
-            pc_values, pc_normal, pc_directions, pc_origin = analysis.wall_normal_orientation( dict_wall_voxels, fitting_degree = 2, dimensionality = 3, dict_coord_points_ori = medians_coords )
+            pc_values, pc_normal, pc_directions, pc_origin = analysis.wall_orientation( dict_wall_voxels, fitting_degree = 2, plane_projection = False, dict_coord_points_ori = medians_coords )
         else:
-            pc_values, pc_normal, pc_directions, pc_origin = analysis.wall_normal_orientation( dict_wall_voxels, fitting_degree = 2, dimensionality = 3 )
+            pc_values, pc_normal, pc_directions, pc_origin = analysis.wall_orientation( dict_wall_voxels, fitting_degree = 2, plane_projection = False )
 
         # -- Now we can compute the orientation of the frontier between two objects:
         edge_pc_values, edge_pc_normal, edge_pc_directions, edge_pc_origin = {},{},{},{}

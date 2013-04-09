@@ -132,7 +132,7 @@ def wall_voxels_between_two_cells(image, label_1, label_2, bbox = None):
     return np.array( (x+dilated_bbox[0].start, y+dilated_bbox[1].start, z+dilated_bbox[2].start) )
 
 
-def walls_voxels_per_cell(image, label_1, bbox = None, neighbors = None, neighbors2ignore = [], verbose = False ):
+def walls_voxels_per_cell(image, label_1, bbox = None, neighbors = None, neighbors2ignore = [], background = None, verbose = False ):
     """
     Return the voxels coordinates of all walls from one cell. 
     There must be a contact defined between two labels, the given one and its neighbors.
@@ -167,13 +167,15 @@ def walls_voxels_per_cell(image, label_1, bbox = None, neighbors = None, neighbo
     if neighbors is None:
         neighbors = np.unique(dilated_bbox_img)
         neighbors.remove(label_1)
-        len_neighbors = len(neighbors)
     if isinstance(neighbors,int):
         neighbors = [neighbors]
     if isinstance(neighbors,dict):
         neighborhood = neighbors
         neighbors = neighborhood[label_1]
         try_to_use_neighbors2ignore = True
+        if background in neighbors2ignore:
+            neighbors.remove(background) # We don't want the voxels coordinates with the background.
+            neighbors2ignore.remove(background) # And we don't want to replace it by '0' (fuse or group all voxels coordinates to an "unlabelled" set of points)
 
     coord = {}
     neighbors_not_found = False
@@ -192,8 +194,8 @@ def walls_voxels_per_cell(image, label_1, bbox = None, neighbors = None, neighbo
                         coord[(0,label_1)] = np.array((x+dilated_bbox[0].start, y+dilated_bbox[1].start, z+dilated_bbox[2].start))
                     else:
                         coord[(0,label_1)] = np.hstack( (coord[(0,label_1)], np.array((x+dilated_bbox[0].start, y+dilated_bbox[1].start, z+dilated_bbox[2].start))) )
-                else:
-                    coord[(0,label_1)] = None
+                #~ else:
+                    #~ coord[(0,label_1)] = None
         else:
             neighbors_not_found = True
             if verbose: print "Couldn't find a contact between neighbor cells %d" % label_1, "& %d" % label_2
@@ -617,6 +619,11 @@ class AbstractSpatialImageAnalysis(object):
         :WARNING:
             If `min_contact_surface` is given it should be in real world units.
 
+        :Parameters:
+         - `labels` (None|int|list) - label or list of labels of which we want to return the neighbors. If none, neighbors for all labels found in self.image will be returned.
+         - `min_contact_surface` (None|int|float) - value of the min contact surface threshold.
+         - `real_surface` (bool) - indicate wheter the min contact surface is a real world value or a number of voxels.
+
         :Examples:
 
         >>> import numpy as np
@@ -644,7 +651,10 @@ class AbstractSpatialImageAnalysis(object):
          7: [1, 2, 3, 4, 5] }
         """
         if min_contact_surface is not None:
-            print u"Neighbors will be filtered according to a minimal contact surface of %.2f \u03bcm\u00B2" %min_contact_surface
+            if real_surface:
+                print u"Neighbors will be filtered according to a min contact surface of %.2f \u03bcm\u00B2" %min_contact_surface
+            else:
+                print "Neighbors will be filtered according to a min contact surface of %d voxels" %min_contact_surface
         if labels is None:
             return self._all_neighbors(min_contact_surface, real_surface)
         elif not isinstance (labels , list):
@@ -712,8 +722,6 @@ class AbstractSpatialImageAnalysis(object):
             ex_slices = dilation(slices)
             mask_img = self.image[ex_slices]
             neigh = list(contact_surface(mask_img,label_id))
-            #if min_contact_surface is not None:
-            #    neigh = self._neighbors_filtering_by_contact_surface(label_id, neigh, min_contact_surface, real_surface)
             edges[label_id]=neigh
 
         self._neighbors = edges
@@ -724,7 +732,12 @@ class AbstractSpatialImageAnalysis(object):
 
     def _filter_with_surface(neigborhood_dictionary, min_contact_surface, real_surface):
         """
-
+        Function filtering a neighborhood dictionary according to a minimal contact surface between two neigbhors.
+        
+        :Parameters:
+         - `neigborhood_dictionary` (dict) - dictionary of neighborhood to be filtered.
+         - `min_contact_surface` (None|int|float) - value of the min contact surface threshold.
+         - `real_surface` (bool) - indicate wheter the min contact surface is a real world value or a number of voxels.
         """
         filtered_dict = {}
         for label in neigborhood_dictionary.keys():
@@ -735,8 +748,13 @@ class AbstractSpatialImageAnalysis(object):
     def _neighbors_filtering_by_contact_surface(self, label, neighbors, min_contact_surface, real_surface):
         """
         Function used to filter the returned neighbors according to a given minimal contact surface between them!
+
+        :Parameters:
+         - `label` (int) - label of the image to threshold by the min contact surface.
+         - `neighbors` (list) - list of neighbors of the `label` to be filtered.
+         - `min_contact_surface` (None|int|float) - value of the min contact surface threshold.
+         - `real_surface` (bool) - indicate wheter the min contact surface is a real world value or a number of voxels.
         """
-        
         surfaces = self.cell_wall_surface(label, neighbors, real_surface)
         for i,j in surfaces.keys():
             if surfaces[(i,j)] < min_contact_surface:
@@ -923,28 +941,38 @@ class AbstractSpatialImageAnalysis(object):
         return self._first_voxel_layer
 
 
-    def wall_voxels_per_cells_pairs(self, labels=None, neighborhood=None, dimensionality=3, ignore_background=True, min_contact_surface=None, real_surface=True):
+    def wall_voxels_per_cells_pairs(self, labels=None, neighborhood=None, only_epidermis=False, ignore_background=False, min_contact_surface=None, real_surface=True):
         """
-        Compute wall orientation according to fitting degree and dimensionality.
+        Extract the coordinates of voxels defining the 'wall' between a pair of labels.
         :WARNING: if dimensionality = 2, only the cells belonging to the outer layer of the object will be used.
+
+        :Parameters:
+         - `labels` (int|list) - label or list of labels to extract walls coordinate with its neighbors.
+         - `neighborhood` (list|dict) - list of neighbors of label if isinstance(labels,int), if not neighborhood should be a dictionary of neighbors by labels.
+         - `only_epidermis` (bool) - indicate if we work with the whole image or just the first layer of voxels (epidermis).
+         - `ignore_background` (bool) - indicate whether we want to return the coordinate of the voxels defining the 'epidermis wall' (in contact with self.background()) or not.
+         - `min_contact_surface` (None|int|float) - value of the min contact surface threshold.
+         - `real_surface` (bool) - indicate wheter the min contact surface is a real world value or a number of voxels.
         """
-        if dimensionality == 3:
-            image = self.image
-        elif dimensionality == 2:
+        if only_epidermis:
             image = self.first_voxel_layer(True)
         else:
-            raise ValueError("Dimensionality %d is not possible, choose between 2 or 3" % dimensionality)
+            image = self.image
 
         compute_neighborhood=False
         if labels is None and neighborhood is None:
             compute_neighborhood=True
 
-        if labels is None and dimensionality == 3:
+        if labels is None and not only_epidermis:
             labels=self.labels()
-        elif labels is None and dimensionality == 2:
+        elif labels is None and only_epidermis:
             labels=np.unique(image)
         elif isinstance(labels,list):
             labels.sort()
+            if not isinstance(neighborhood,dict):
+                compute_neighborhood=True
+        elif isinstance(labels,int):
+            labels = [labels]
         else:
             raise ValueError("Couldn't find any labels.")
 
@@ -954,37 +982,50 @@ class AbstractSpatialImageAnalysis(object):
             if compute_neighborhood:
                 neighbors = self.neighbors(label, min_contact_surface, real_surface)
             else:
-                neighbors = copy.copy( neighborhood[label] )
-                if ignore_background:
-                    neighbors2ignore = [ n for n in neighbors if n not in labels ]
-                else:
-                    neighbors2ignore = [ n for n in neighbors if n not in labels+[self.background()] ]
+                if isinstance(neighborhood,dict):
+                    neighbors = copy.copy( neighborhood[label] )
+                if isinstance(neighborhood,list):
+                    neighbors = neighborhood
+            if ignore_background:
+                neighbors2ignore = [ n for n in neighbors if n not in labels ]
+            else:
+                neighbors2ignore = [ n for n in neighbors if n not in labels+[self.background()] ]
             for nei in neighbors:
-                if dict_wall_voxels.has_key( (min(label,nei),max(label,nei)) ): # we remove the couple of cells we already extracted.
+                if dict_wall_voxels.has_key( (min(label,nei),max(label,nei)) ): # we remove the couples of labels from wich the "wall voxels" are already extracted.
                     neighbors.remove(nei)
-            ## If there are neighbors left in the list, we extract the voxels separating them from `label`:
+            ## If there are neighbors left in the list, we extract the "wall voxels" between them and `label`:
             if neighbors != []:
-                if neighborhood is not None:
-                    dict_wall_voxels.update(walls_voxels_per_cell(image, label, self.boundingbox(label), neighborhood, neighbors2ignore))
+                if isinstance(neighborhood,dict):
+                    dict_wall_voxels.update(walls_voxels_per_cell(image, label, self.boundingbox(label), neighborhood, neighbors2ignore, self.background()))
                 else:
-                    dict_wall_voxels.update(walls_voxels_per_cell(image, label, self.boundingbox(label), neighbors, neighbors2ignore))
+                    dict_wall_voxels.update(walls_voxels_per_cell(image, label, self.boundingbox(label), neighbors, neighbors2ignore, self.background()))
 
         return dict_wall_voxels
 
 
-    def wall_normal_orientation(self, dict_wall_voxels, fitting_degree = 2, dimensionality = 3, labels2avoid = None, dict_coord_points_ori = None):
+    def wall_orientation(self, dict_wall_voxels, fitting_degree = 2, plane_projection = False, dict_coord_points_ori = None):
         """
         Compute wall orientation according to fitting degree and dimensionality.
-        :WARNING: if dimensionality = 2, only the cells belonging to the outer layer of the object will be used.
+        :WARNING: if plane_projection, voxels will projected on a plane according to a least square regression (made here by a base projection from a SVD)
+
+        :Parameters:
+         - `dict_wall_voxels` (dict) - dictionary of voxels to be fitted by a surface (*keys = couple of neighbor labels; *values = set of coordinates)
+         - `fitting_degree` (int) - number of 'curvature' (local differential properties) allowed for the fitted surface.
+         - `plane_projection` (bool) - if True, the voxels coordinates will projected on a plane according to a least square regression.
+         - `dict_coord_points_ori` (None|dict) - dictionary of coordinate defining the origin point where to fit the surface. If None, will be computed as the geometric median of the point set.
         """
         integers = np.vectorize(lambda x : int(x))
 
         pc_values, pc_normal, pc_directions, pc_origin = {},{},{},{} 
-        ## For each 3D points set of coordinates (defining a wall), we will fit a "plane":
-        for wall in dict_wall_voxels:
-            x, y, z = dict_wall_voxels[wall] # the points set
-            if dimensionality == 2:
-                fitting_degree = 0 #ther will be no curvature since the wall will be flatenned !
+        ## For each 3D points (*keys = couple of neighbor labels) set of coordinates (defining a wall), we will fit a "plane":
+        for label_1, label_2 in dict_wall_voxels:
+            if dict_wall_voxels[(label_1, label_2)] == None:
+                if label_1 != 0:
+                    print "There might be something wrong between cells %d and %d" %label_1  %label_2
+                continue # if None we can use it.
+            x, y, z = dict_wall_voxels[(label_1, label_2)] # the points set
+            if plane_projection:
+                fitting_degree = 0 #there will be no curvature since the wall will be flatenned !
                 x_bar, y_bar, z_bar = np.mean(x), np.mean(y), np.mean(z)
                 point_set_3D = np.array( [x-x_bar,y-y_bar,z-z_bar] )
                 U, S, V = np.linalg.svd(point_set_3D.T, full_matrices=False)
@@ -993,7 +1034,7 @@ class AbstractSpatialImageAnalysis(object):
             ## We need to find an origin: the closest point in set set from the geometric median
             # compute geometric median:
             try:
-                closest_voxel_coords = dict_coord_points_ori[wall]
+                closest_voxel_coords = dict_coord_points_ori[(label_1, label_2)]
             except:
                 neighborhood_origin = geometric_median( np.array([list(x),list(y),list(z)]) )
                 neighborhood_origin = integers(neighborhood_origin)
@@ -1007,12 +1048,13 @@ class AbstractSpatialImageAnalysis(object):
 
             ## We can now compute the curvature values, direction, normal and origin (Monge):
             pc = principal_curvatures(pts, id_min_dist, range(len(x)), fitting_degree, 2)
-            pc_values[wall] = [pc[1][1], pc[2][1]]
-            pc_normal[wall] = pc[3]
-            pc_directions[wall] = [pc[1][0], pc[2][0]]
-            pc_origin[wall] = pc[0]
+            pc_values[(label_1, label_2)] = [pc[1][1], pc[2][1]]
+            pc_normal[(label_1, label_2)] = pc[3]
+            pc_directions[(label_1, label_2)] = [pc[1][0], pc[2][0]]
+            pc_origin[(label_1, label_2)] = pc[0]
 
         return pc_values, pc_normal, pc_directions, pc_origin
+
 
     def inertia_axis_normal_to_surface(self, labels=None, center_of_mass=None, inertia_axis=None, real=False, verbose=True):
         """
@@ -1058,16 +1100,16 @@ class AbstractSpatialImageAnalysis(object):
         """
         Use remove_cell to iterate over a list of cell to remove if there is more cells to keep than to remove.
         If there is more cells to remove than to keep, we fill a "blank" image with those to keep.
-        !!!!WARNING!!!!
+        :!!!!WARNING!!!!:
         This function modify the SpatialImage on self.image
-        !!!!WARNING!!!!
+        :!!!!WARNING!!!!:
         """
 
         if isinstance(vids,int):
             vids= [vids]
         
-        if (len(vids)!=1) and (1 in vids) :
-            vids.remove(1)
+        if (len(vids)!=1) and (self.background() in vids) :
+            vids.remove(self.background())
 
         assert isinstance(vids,list)
 
@@ -1088,9 +1130,9 @@ class AbstractSpatialImageAnalysis(object):
 
     def remove_margins_cells(self, erase_value = 0, verbose = False):
         """
-        !!!!WARNING!!!!
+        :!!!!WARNING!!!!:
         This function modify the SpatialImage on self.image
-        !!!!WARNING!!!!
+        :!!!!WARNING!!!!:
         Function removing cells at the margins, because most probably cut during stack aquisition.
         
         :INPUTS:
@@ -1106,7 +1148,7 @@ class AbstractSpatialImageAnalysis(object):
         # -- We start by making sure that there is not only one cell in the image (appart from 0 and 1)
         labels = copy.copy(list(self.labels()))
         if 0 in labels: labels.remove(0)
-        if 1 in labels: labels.remove(1)
+        if self.background() in labels: labels.remove(self.background())
         if len(labels)==1:
             warnings.warn("Only one cell left in your image, we won't take it out !")
             return self.__init__(self.image)
@@ -1114,7 +1156,7 @@ class AbstractSpatialImageAnalysis(object):
         # -- Then we recover the list of border cells and delete the from the image:
         cells_in_image_margins = self.cells_in_image_margins()
         if 0 in cells_in_image_margins: cells_in_image_margins.remove(0)
-        if 1 in cells_in_image_margins: cells_in_image_margins.remove(1)
+        if self.background() in cells_in_image_margins: cells_in_image_margins.remove(self.background())
         N = len(cells_in_image_margins)
         for n,c in enumerate(cells_in_image_margins):
             if verbose and n%20 == 0: print n,'/',N
@@ -1825,21 +1867,27 @@ def geometric_median(X, numIter = 200):
 
     return np.array(y)
 
-def are_these_labels_neighbors(labels,neighborhood):
+
+def are_these_labels_neighbors(labels, neighborhood):
     """
-    This function allows you to make sure the provided labels are all connected neighbors.
+    This function allows you to make sure the provided labels are all connected neighbors according to a known neighborhood.
     """
-    intersection={}
-    intersection = set(neighborhood[labels[0]])&set(labels)
-    for label in labels[:1]:
-        if set(neighborhood[label])&set(labels) == set(labels)-set([label]):
+    intersection=set()
+    for label in labels:
+        try:
+            inter = set(neighborhood[label])&set(labels) # it's possible that `neighborhood` does not have key `label`
+        except:
+            inter = set()
+        if inter == set(labels)-set([label]):
             return True
-        intersection.update(set(neighborhood[label])&set(labels))
+        if inter != set():
+            intersection.update(inter)
 
     if intersection == set(labels):
         return True
     else:
         return False
+
 
 def SpatialImageAnalysis(image, *args, **kwd):
     """
