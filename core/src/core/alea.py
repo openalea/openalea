@@ -32,21 +32,21 @@ def start_qt(factory, node):
 
     """
 
-    from openalea.vpltk.qt import qt
+    from openalea.vpltk.qt import QtGui, QtCore
 
-    app = qt.QtGui.QApplication(sys.argv)
+    app = QtGui.QApplication(sys.argv)
 
     # CTRL+C binding
     import signal
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-    dialog = qt.QtGui.QDialog()
+    dialog = QtGui.QDialog()
     widget = factory.instantiate_widget(node, autonomous=True)
 
-    dialog.setAttribute(qt.QtCore.Qt.WA_DeleteOnClose)
+    dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
     widget.setParent(dialog)
 
-    vboxlayout = qt.QtGui.QVBoxLayout(dialog)
+    vboxlayout = QtGui.QVBoxLayout(dialog)
     vboxlayout.setMargin(3)
     vboxlayout.setSpacing(5)
     vboxlayout.addWidget(widget)

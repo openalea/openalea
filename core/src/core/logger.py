@@ -137,7 +137,6 @@ from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL, NOTSET
 import logging.handlers
 from logging.handlers import TimedRotatingFileHandler
 from openalea.core.singleton import Singleton
-from openalea.vpltk.qt import qt
 
 
 #: List of default handler names:

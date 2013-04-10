@@ -12,7 +12,28 @@ try:
     from IPython.external.qt import QtCore, QtGui, QtSvg, QT_API
 except ImportError:
     QT_API = 'pyqt'
-    QtCore, QtGui, QtSvg = load_qt()    
+    QtCore, QtGui, QtSvg = load_qt()
+except:
+    import warnings
+    message = """
+    
+===============================================================================
+You are trying to import openalea.vpltk.qt.
+This import will set api of Qt to version 2 (cf sip).
+
+But api is yet set to 1!
+
+So, if you want to use IPython inside OpenAlea applications (ie. LPy, 
+Visualea...), you have to import openalea.vpltk.qt before other applications 
+using Qt (ex: matplotlib with backend qtAgg).
+
+Else, you can continue: api 1 will be used.
+===============================================================================
+
+"""
+    warnings.warn(message)
+    QT_API = 'pyqt'
+    QtCore, QtGui, QtSvg = load_qt()
     
 os.environ['QT_API'] = QT_API
     
