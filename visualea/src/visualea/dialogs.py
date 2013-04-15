@@ -137,8 +137,10 @@ class NewGraph(qt.QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
 
     def get_package(self):
         """ Return the selected package """
-
-        pkgstr = str(self.packageBox.currentText().toAscii())
+        try:
+            pkgstr = str(self.packageBox.currentText().toAscii())
+        except AttributeError:
+            pkgstr = str(self.packageBox.currentText())  # Qt api 2
         return self.pkgmap[pkgstr]
 
 
@@ -149,10 +151,16 @@ class NewGraph(qt.QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
         """
 
         name = str(self.nameEdit.text())
-        category = str(self.categoryEdit.currentText().toAscii())
+        try:
+            category = str(self.categoryEdit.currentText().toAscii())
+        except AttributeError:
+            category = str(self.categoryEdit.currentText())  # Qt api 2
         if not category:
             category = 'Unclassified'
-        description = str(self.descriptionEdit.text().toAscii())
+        try:
+            description = str(self.descriptionEdit.text().toAscii())
+        except AttributeError:
+            description = str(self.descriptionEdit.text())  # Qt api 2
 
         return (name, self.get_package(), category, description)
 
@@ -284,7 +292,10 @@ class NewData(qt.QtGui.QDialog, ui_newdata.Ui_NewDataDialog) :
     def get_package(self):
         """ Return the selected package """
 
-        pkgstr = str(self.packageBox.currentText().toAscii())
+        try:
+            pkgstr = str(self.packageBox.currentText().toAscii())
+        except AttributeError:
+            pkgstr = str(self.packageBox.currentText())  # Qt api 2
         return self.pkgmap[pkgstr]
 
 
@@ -295,7 +306,10 @@ class NewData(qt.QtGui.QDialog, ui_newdata.Ui_NewDataDialog) :
         """
 
         name = str(self.nameEdit.text())
-        description = str(self.descriptionEdit.text().toAscii())
+        try:
+            description = str(self.descriptionEdit.text().toAscii())
+        except AttributeError:
+            description = str(self.descriptionEdit.text())  # Qt api 2
 
         return (name, self.get_package(), description)
 
