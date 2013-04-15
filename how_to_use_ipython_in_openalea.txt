@@ -8,6 +8,11 @@ You have to:
 - unzip
 - install ipython (in command line: "python setup.py")
 
+You may have to install ipython dependencies too: zmq and pygments.
+You can do it like that:
+- easy_install pyzmq            (for zmq)
+- easy_install pygments         (for pygments)
+
 Congratulation! You have IPython in VisuAlea and Lpy!
 
 @author: julien coste

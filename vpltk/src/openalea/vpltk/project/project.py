@@ -12,7 +12,7 @@ When you create or load a P, the PM return a P like here:
     P2 = PM.load('project2')
     P3 = PM['project2']
 
-You can then manipulate P and these attributes (name, controls, world, global_workflow)
+You can then manipulate P and these attributes (name, controls, scene, global_workflow)
 .. code-block::
     P1.controls['newcontrol'] = my_new_control
     print P1
@@ -32,7 +32,7 @@ stored in your computer.
     /scripts          (Files sources, Script Python, LPy...)
     /data               (Data Files)
         /controls       (Controls, like color map or curve)
-        /world          (World, scene 3D)
+        /scene          (scene, scene 3D)
         /cache          (Intermediary saved objects)
     /startup          (Preprocessing scripts)
         *.py            (Preprocessing scripts)
@@ -41,6 +41,7 @@ stored in your computer.
 """
 import os
 import path as module_path
+import warnings
 from path import path as _path
 from openalea.core import settings
 
@@ -71,14 +72,14 @@ class Project(object):
         self.scripts = self._load_scripts()
         self.controls = self._load_controls()
         self.cache = self._load_cache()
-        self.world = self._load_world()
+        self.scene = self._load_scene()
         
     def save(self):
         self._save_startup()
         self._save_scripts()
         self._save_controls()
         self._save_cache()
-        self._save_world()
+        self._save_scene()
         
     def set_ipython(self, shell=None):
         if not self.use_ipython():
@@ -125,9 +126,10 @@ class Project(object):
         os.chdir(temp_path)
         
         temp_files = os.listdir(temp_path)
-        for file in temp_files:
-            if not file.endswith('~'):
-                scripts[file] = open(file).read()
+        for filename in temp_files:
+            if not filename.endswith('~'):
+                scripts[filename] = open(filename, 'rU').read()
+##                scripts[file] = file(filename,'rU').read()
             
         os.chdir(cwd)    
             
@@ -136,8 +138,7 @@ class Project(object):
     def _load_controls(self):
         """
         Struct of controls:
-        dict 'key = FileName' 'value = dict(Names : Values)'
-        ie. {FileName : {Name:Value, Name2:Value2, ...} }
+        dict 'dict(Names : Values)'
         """
         controls = dict()
         temp_path = self.path/self.name/"data"/"controls"
@@ -149,14 +150,12 @@ class Project(object):
         temp_files = os.listdir(temp_path)
         for file_name in temp_files:
             if not file_name.endswith('~'):
-                text = open(file_name).read()
-                temp_dict = eval(text, self.ns)
-                controls[file_name] = temp_dict
+                text = open(file_name, 'rU').read()
+                controls[file_name] = text
 
         # Add controls in namespace
-        for filename in controls:
-            for name in controls[filename]:
-                self.ns[name] = eval(controls[filename][name])
+        for controlname in controls:
+            self.ns[controlname] = eval(controls[controlname])
         
         os.chdir(cwd)    
             
@@ -184,23 +183,33 @@ class Project(object):
             
         return cache
         
-    def _load_world(self):
-        world = dict()
-        temp_path = self.path/self.name/"data"/"world"
-        
-        cwd = os.getcwd()
-        os.chdir(temp_path)
-        
-        temp_files = os.listdir(temp_path)
-        for file in temp_files:
-            if not file.endswith('~'):
-                world[file] = open(file).read() in temp_path
+    def _load_scene(self):
+        try:
+            from openalea.plantgl.all import Scene
+            import copy
+            sc = Scene()
+            scene = dict()
+            temp_path = self.path/self.name/"data"/"scene"
             
-        # TODO ? : merge world from (dict of dict) in (dict)
-        
-        os.chdir(cwd)    
+            cwd = os.getcwd()
+            os.chdir(temp_path)
             
-        return world    
+            temp_files = os.listdir(temp_path)
+            for file in temp_files:
+                if not file.endswith('~'):
+                    fileName, fileExtension = os.path.splitext(str(file))
+                    sc.clear()
+                    sc.read(fileName, "BGEOM")
+                    
+                    scene[fileName] = sc.deepcopy()
+            os.chdir(cwd)          
+                    
+        except:
+            scene = dict()
+            warnings.warn("""
+You must install PlantGL if you want to load scene in project.""")
+
+        return scene    
         
     def _save_startup(self):
         temp_path = self.path/self.name/"startup"
@@ -235,10 +244,8 @@ class Project(object):
     def _save_controls(self):
         """
         Struct of controls:
-        dict 'key = FileName' 'value = dict(Names : Values)'
-        ie. {FileName : {Name:Value, Name2:Value2, ...} }
+        dict(Names : Values)
 
-        On the disk, controls are group by FileName in dict {Name:Value}
         """
         temp_path = self.path/self.name/"data"/"controls"
         
@@ -247,12 +254,9 @@ class Project(object):
         
         temp_dict = dict()
         
-        for FileName in self.controls:
-            for Name in self.controls[FileName]:
-                temp_dict[Name] = self.controls[FileName][Name]
-
-            file = open(FileName, "w")
-            code = str(temp_dict)
+        for controlName in self.controls:
+            file = open(controlName, "w")
+            code = str(self.controls[controlName])
             code_enc = code.encode("utf8","ignore") 
             file.write(code_enc)
             file.close()
@@ -274,19 +278,19 @@ class Project(object):
        
         os.chdir(cwd)    
 
-    def _save_world(self):
-        temp_path = self.path/self.name/"data"/"world"
+    def _save_scene(self):
+        temp_path = self.path/self.name/"data"/"scene"     
         
         cwd = os.getcwd()
         os.chdir(temp_path)
+        files = os.listdir(temp_path)
+        for file in files:
+            os.remove(file)
+           
+        for sub_scene_name in self.scene:
+            name = str("%s/%s" %(temp_path,sub_scene_name))
+            self.scene[sub_scene_name].save(name, "BGEOM")
         
-        for unit_world in self.world:
-            file = open(unit_world, "w")
-            code = str(self.world[unit_world])
-            code_enc = code.encode("utf8","ignore") 
-            file.write(code_enc)            
-            file.close()
-       
         os.chdir(cwd) 
         
     def _startup_import(self): 
@@ -324,7 +328,7 @@ class Project(object):
                    self.path/self.name/'startup',
                    self.path/self.name/'data'/'controls', 
                    self.path/self.name/'data'/'cache', 
-                   self.path/self.name/'data'/'world' ]
+                   self.path/self.name/'data'/'scene' ]
         try:
             map(os.mkdir, folders)
         except OSError:
