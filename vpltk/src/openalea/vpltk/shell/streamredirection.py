@@ -75,6 +75,9 @@ class ThreadedRedirection:
         else:
             self.guistream.write(str)  
             
+    def flush(self):
+        pass            
+            
 class GraphicalStreamRedirection:
     """ Redirection of a stream as graphic output """
     
@@ -174,3 +177,5 @@ class GraphicalStreamRedirection:
             if outanderr & 1 :self.noneAsStdOutRedirection()
             if outanderr & 2 : self.noneAsStdErrRedirection()
         
+    def flush(self):
+        pass        
