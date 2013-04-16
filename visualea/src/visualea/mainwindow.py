@@ -736,7 +736,8 @@ class MainWindow(qt.QtGui.QMainWindow,
     def search_node(self):
         """ Activated when search line edit is validated """
 
-        results = self.pkgmanager.search_node(str(self.search_lineEdit.text()))
+        text = str(unicode(self.search_lineEdit.text()).encode('latin1'))
+        results = self.pkgmanager.search_node(text)
         self.search_model.set_results(results)
 
     def find_node(self):

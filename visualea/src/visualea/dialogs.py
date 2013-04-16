@@ -111,7 +111,7 @@ class NewGraph(qt.QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
         """ Accept Dialog result """
 
         # Test if name is correct
-        name = str(self.nameEdit.text())
+        name = str(unicode(self.nameEdit.text()).encode('latin1'))
         if(not name or
            (not self.factory and self.get_package().has_key(name)) or
            (self.factory and self.factory.name != name and
@@ -140,7 +140,7 @@ class NewGraph(qt.QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
         try:
             pkgstr = str(self.packageBox.currentText().toAscii())
         except AttributeError:
-            pkgstr = str(self.packageBox.currentText())  # Qt api 2
+            pkgstr = str(unicode(self.packageBox.currentText()).encode('latin1'))  # Qt api 2
         return self.pkgmap[pkgstr]
 
 
@@ -150,17 +150,18 @@ class NewGraph(qt.QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
         (name, nin, nout, category, description)
         """
 
-        name = str(self.nameEdit.text())
+        name = str(unicode(self.nameEdit.text()).encode('latin1'))
+        #name = str(self.nameEdit.text())
         try:
             category = str(self.categoryEdit.currentText().toAscii())
         except AttributeError:
-            category = str(self.categoryEdit.currentText())  # Qt api 2
+            category = str(unicode(self.categoryEdit.currentText()).encode('latin1'))  # Qt api 2
         if not category:
             category = 'Unclassified'
         try:
             description = str(self.descriptionEdit.text().toAscii())
         except AttributeError:
-            description = str(self.descriptionEdit.text())  # Qt api 2
+            description = str(unicode(self.descriptionEdit.text()).encode('latin1'))  # Qt api 2
 
         return (name, self.get_package(), category, description)
 
@@ -295,7 +296,7 @@ class NewData(qt.QtGui.QDialog, ui_newdata.Ui_NewDataDialog) :
         try:
             pkgstr = str(self.packageBox.currentText().toAscii())
         except AttributeError:
-            pkgstr = str(self.packageBox.currentText())  # Qt api 2
+            pkgstr = str(unicode(self.packageBox.currentText()).encode('latin1'))  # Qt api 2
         return self.pkgmap[pkgstr]
 
 
@@ -309,7 +310,7 @@ class NewData(qt.QtGui.QDialog, ui_newdata.Ui_NewDataDialog) :
         try:
             description = str(self.descriptionEdit.text().toAscii())
         except AttributeError:
-            description = str(self.descriptionEdit.text())  # Qt api 2
+            description = str(unicode(self.descriptionEdit.text()).encode('latin1'))  # Qt api 2
 
         return (name, self.get_package(), description)
 
@@ -537,7 +538,7 @@ class FactorySelector(qt.QtGui.QDialog, ui_tofactory.Ui_FactorySelector) :
     def get_factory(self):
         """ Return the selected factory """
 
-        text = self.comboBox.currentText()
+        text = unicode(self.comboBox.currentText()).encode('latin1')
         return self.factorymap[str(text)]
 
 
