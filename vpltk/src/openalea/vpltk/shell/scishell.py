@@ -21,7 +21,8 @@ __revision__ = " $Id: scishell.py 3672 2012-12-05 12:28:19Z jcoste $"
 
 import os, sys
 from openalea.vpltk.qt import QtCore, QtGui
-from openalea.vpltk.qt.QtCore import Qt
+#from openalea.vpltk.qt.QtCore import Qt
+Qt = QtCore.Qt
 
 from PyQt4.Qsci import QsciScintilla, QsciLexerPython, QsciAPIs
 from streamredirection import *
