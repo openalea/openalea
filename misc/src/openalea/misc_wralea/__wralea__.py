@@ -1,5 +1,5 @@
 
-# This file has been generated at Sun May 20 19:47:26 2012
+# This file has been generated at Fri Apr 19 10:04:53 2013
 
 from openalea.core import *
 
@@ -128,15 +128,12 @@ list_selector_Select = Factory(name='list_selector',
 
 shared_data_SharedDataBrowser = Factory(name='SharedDataBrowser',
                 authors='Thomas Cokelaer',
-                description='This node permits to find a shared data file located in a given Python package. \
-The data file is searched in the shared directories.',
+                description='This node permits to find a shared data file located in a given Python package. The data file is searched in the shared directories.',
                 category='data i/o',
                 nodemodule='shared_data',
                 nodeclass='SharedDataBrowser',
-                inputs=[{'interface': IStr, 'name': 'package', 'value': None, 'desc': 'toto'}, 
-                        {'interface': IStr, 'name': 'glob', 'value': '*'}, 
-                        {'interface': IStr, 'name': 'filename', 'value': None}],
-                outputs=[{'interface': IStr, 'name': 'filepath'}],
+                inputs=[{'interface': IStr, 'name': 'package', 'value': None, 'desc': ''}, {'interface': IStr, 'name': 'glob', 'value': None, 'desc': ''}, {'interface': IStr, 'name': 'filename', 'value': None, 'desc': ''}],
+                outputs=[{'interface': IStr, 'name': 'filepath', 'desc': ''}],
                 widgetmodule='shared_data_widget',
                 widgetclass='SharedDataBrowser',
                )
