@@ -30,7 +30,7 @@ try:
 except:
     py2exe_release = False
     
-class MultipleRedirection:
+class MultipleRedirection(object):
     """ Dummy file which redirects stream to multiple file """
 
     def __init__(self, *streams):
@@ -48,7 +48,7 @@ class MultipleRedirection:
         pass
 
 
-class NoneOutput:
+class NoneOutput(object):
     """ Dummy file which redirects stream to nothing """
 
     def __init__(self):
@@ -58,7 +58,7 @@ class NoneOutput:
         """ Emulate write function """
         pass
 
-class ThreadedRedirection:
+class ThreadedRedirection(object):
     """ Dummy file which redirects stream to threaded gui output """
 
     def __init__(self,  guistream):
@@ -78,7 +78,7 @@ class ThreadedRedirection:
     def flush(self):
         pass            
             
-class GraphicalStreamRedirection:
+class GraphicalStreamRedirection(object):
     """ Redirection of a stream as graphic output """
     
     def __init__(self):
