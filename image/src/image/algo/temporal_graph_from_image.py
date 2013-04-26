@@ -16,9 +16,11 @@
 ################################################################################
 """This module helps to create PropertyGraph from SpatialImages."""
 
+from openalea.image.serial.basics import SpatialImage, imread
 from openalea.image.algo.analysis import SpatialImageAnalysis, AbstractSpatialImageAnalysis, DICT
-from openalea.image.spatial_image import  is2D
+from openalea.image.spatial_image import is2D
 from openalea.container import PropertyGraph
+from openalea.container import TemporalPropertyGraph
 import numpy as np
 
 #~ default_properties2D = ['barycenter','boundingbox','border','L1','epidermis_surface','wall_surface','inertia_axis']
@@ -56,66 +58,13 @@ def generate_graph_topology(labels, neighborhood):
     graph.vertex_property('label').update(vertex2label)
 
     return graph, label2vertex, edges
-
-
-def _graph_from_image(image, labels, background, default_properties, 
-                     default_real_property, bbox_as_real, 
-                     ignore_cells_at_stack_margins, min_contact_surface):
+    
+def _graph_properties_from_image(graph, SpatialImageAnalysis, labels, background, default_properties, 
+                     default_real_property, bbox_as_real):
     """ 
-    Construct a PropertyGraph from a SpatialImage (or equivalent) representing a segmented image.
-
-    :Parameters:
-     - `image` (SpatialImage|AbstractSpatialImageAnalysis) - image containing labeled objects | analysis of an image.
-     - `labels` (list) - list of labels to be found in the image.
-        If labels is None, all labels are used.
-     - `background` (int) - label representing background.
-     - `default_properties` (list) - the list of name of properties to create. It should be in default_properties.
-     - `default_real_property` (bool) - If default_real_property = True, property is in real-world units else in voxels.
-     - `bbox_as_real` (bool) - If bbox_as_real = True, bounding boxes are in real-world units else in voxels.
-
-    :rtype: PropertyGraph
-
-    :Examples:
-
-    >>> import numpy as np
-    >>> image = np.array([[1, 2, 7, 7, 1, 1],
-                      [1, 6, 5, 7, 3, 3],
-                      [2, 2, 1, 7, 3, 3],
-                      [1, 1, 1, 4, 1, 1]])
-
-    >>> from openalea.image.algo.graph_from_image import graph_from_image
-    >>> graph = graph_from_image(image)
+    Add properties from a `SpatialImageAnalysis` class object (representing a segmented image) to a PropertyGraph.
     """
-
-    if isinstance(image, AbstractSpatialImageAnalysis):
-        analysis = image
-        image = analysis.image
-    else:
-        try:
-            analysis = SpatialImageAnalysis(image, ignoredlabels = 0, return_type = DICT, background = 1)
-        except:
-            analysis = SpatialImageAnalysis(image, ignoredlabels = 0, return_type = DICT)
-    if ignore_cells_at_stack_margins:
-        analysis.add2ignoredlabels( analysis.cells_in_image_margins() )
-
-    if labels is None: 
-        filter_label = False
-        labels = list(analysis.labels())
-        if background in labels : del labels[labels.index(background)]
-    else:
-        filter_label = True
-        if isinstance(labels,int) : labels = [labels]
-        # -- We don't want to have the "outer cell" (background) and "removed cells" (0) in the graph structure.
-        # if 0 in labels: labels.remove(0)
-        if background in labels: labels.remove(background)
-        # -- If labels are provided, we ignore all others by default:
-        analysis.add2ignoredlabels( set(analysis.labels()) - set(labels) )
-
-    neighborhood = analysis.neighbors(labels, min_contact_surface = min_contact_surface)
     labelset = set(labels)
-
-    graph, label2vertex, edges = generate_graph_topology(labels, neighborhood)
-
     # -- We want to keep the unit system of each variable
     graph.add_graph_property("units",dict())
 
@@ -153,6 +102,24 @@ def _graph_from_image(image, labels, background, default_properties,
         border_cells = set(border_cells)
         add_vertex_property_from_label_and_value(graph,'border',labels,[(l in border_cells) for l in labels],mlabel2vertex=label2vertex)
 
+
+def _temporal_properties_from_image(graph, SpatialImageAnalysis, index, labels, background, default_properties, 
+                     default_real_property, bbox_as_real, 
+                     ignore_cells_at_stack_margins, min_contact_surface):
+    """ 
+    Add properties from a `SpatialImageAnalysis` class object (representing a segmented image) to a TemporalPropertyGraph.
+
+    :Parameters:
+     - `SpatialImageAnalysis` (AbstractSpatialImageAnalysis) - Spatial analysis of an image.
+     - `labels` (list) - list of labels to be found in the image.
+        If labels is None, all labels are used.
+     - `background` (int) - label representing background.
+     - `default_properties` (list) - the list of name of properties to create. It should be in default_properties.
+     - `default_real_property` (bool) - If default_real_property = True, property is in real-world units else in voxels.
+     - `bbox_as_real` (bool) - If bbox_as_real = True, bounding boxes are in real-world units else in voxels.
+
+    """
+    labelset = set(labels)
     if 'inertia_axis' in default_properties : 
         print 'Computing inertia_axis property...'
         inertia_axis, inertia_values = analysis.inertia_axis(labels,barycenters)
@@ -185,7 +152,7 @@ def _graph_from_image(image, labels, background, default_properties,
                 else : return b
             elif b == background: return a
             else: raise ValueError(indices)
-        epidermis_surfaces = analysis.cell_wall_surface(background,list(background_neighbors) ,real=default_real_property)
+        epidermis_surfaces = analysis.cell_wall_surface(background, list(background_neighbors), real=default_real_property)
         epidermis_surfaces = dict([(not_background(indices),value) for indices,value in epidermis_surfaces.iteritems()])
         add_vertex_property_from_label_property(graph,'epidermis_surface',epidermis_surfaces,mlabel2vertex=label2vertex)
         #~ graph._graph_property("units").update( {"epidermis_surface":('um2'if default_real_property else 'voxels')} )
@@ -320,32 +287,89 @@ def graph_from_image3D(image, labels, background, default_properties,
     return _graph_from_image(image, labels, background, default_properties,
                             default_real_property, bbox_as_real, ignore_cells_at_stack_margins, min_contact_surface)
 
-def graph_from_image(image, 
-                     labels = None, 
-                     background = 1, 
-                     default_properties = None,
-                     default_real_property = True,
-                     bbox_as_real = False,
-                     ignore_cells_at_stack_margins = True,
-                     min_contact_surface = None):
+def temporal_graph_from_image(images, lineages, time_steps = [], list_labels = None, background = 1, default_properties = None,
+                     default_real_property = True, bbox_as_real = False, ignore_cells_at_stack_margins = True, **kwargs):
+    """
+    :Parameters:
+     - `images` (list) : list of images
+     - `lineages` (list) : list of lineages
+     - `time_steps` (list) : time steps between images
+     - `list_labels` (list) : list of labels (list) to use in each spatial graph.
+     
+    """
+    nb_images = len(images)
+    assert len(lineages) == nb_images-1
+    assert len(time_steps) == nb_images
+    if isinstance(list_labels, str):
+        list_labels = [list_labels for k in xrange(nb_images)]
+    if list_labels is not None:
+        assert len(list_labels) == nb_images
+    if isinstance(background, int):
+        background = [background for k in xrange(nb_images)]
+    elif isinstance(background, list):
+        assert len(background) == nb_images
 
-    if isinstance(image, AbstractSpatialImageAnalysis):
-        real_image = image.image
-        if labels is None:
-            labels = image.labels()
-    else:
-        real_image = image
+    if isinstance(images[0], AbstractSpatialImageAnalysis):
+        assert [isinstance(image, AbstractSpatialImageAnalysis) for image in images]
+    if isinstance(images[0], SpatialImage):
+        assert [isinstance(image, SpatialImage) for image in images]
+    if isinstance(images[0], str):
+        assert [isinstance(image, str) for image in images]
 
-    if is2D(real_image):
-        if default_properties == None:
-            default_properties = default_properties2D
-        return graph_from_image2D(image, labels, background, default_properties,
-                            default_real_property, bbox_as_real, ignore_cells_at_stack_margins, min_contact_surface)
+    if 'min_contact_surface' in kwargs:
+        min_contact_surface = kwargs['min_contact_surface']
+        if 'real_surface' in kwargs:
+            real_surface = kwargs['real_surface']
+        else:
+            real_surface = default_real_property
     else:
-        if default_properties == None:
-            default_properties = default_properties3D
-        return graph_from_image3D(image, labels, background, default_properties,
-                            default_real_property, bbox_as_real, ignore_cells_at_stack_margins, min_contact_surface)
+        min_contact_surface = None
+
+    print "Creating Spatial Graphs..."
+    analysis, graph, label2vertex, edges = {}, {}, {}, {}
+    for n,image in enumerate(images):
+        print "Analysing image #{}".format(n)
+        # - First we contruct an object `analysis` from class `AbstractSpatialImageAnalysis`
+        if isinstance(image, AbstractSpatialImageAnalysis):
+            analysis[n] = image
+        elif isinstance(image, str):
+            analysis[n] = SpatialImageAnalysis(imread(image), ignoredlabels = 0, return_type = DICT, background = background[n])
+        elif isinstance(image, SpatialImage):
+            analysis[n] = SpatialImageAnalysis(image, ignoredlabels = 0, return_type = DICT, background = background[n])
+        # - We modify it according to input parameters:
+        if ignore_cells_at_stack_margins:
+            analysis[n].add2ignoredlabels( analysis[n].cells_in_image_margins() )
+        if list_labels[n] == "layer1":
+            labels = analysis[n].layer1()
+        elif list_labels[n] is None:
+            labels = analysis[n].labels()
+        else:
+            labels = list_labels[n]
+        if background[n] in labels: labels.remove(background[n])
+
+        # -- Now we construct all Saptial Graph (4D):
+        neighborhood = analysis[n].neighbors(labels, min_contact_surface = min_contact_surface)
+        graph[n], label2vertex[n], edges[n] = generate_graph_topology(labels, neighborhood)
+
+    print "Creating Spatio-Temporal Graph..."
+    # -- Now we construct the Temporal Property Graph (with no properties attached to vertex):
+    tpg = TemporalPropertyGraph()
+    tpg.extend([graph[n] for n in graph], lineages, time_steps)
+
+    return tpg
+
+    #~ print "Extracting properties for the Spatio-Temporal Graph..."
+    
+        #~ if is2D(real_image):
+            #~ if default_properties == None:
+                #~ default_properties = default_properties2D
+            #~ return graph_from_image2D(image, labels, background, default_properties,
+                                #~ default_real_property, bbox_as_real, ignore_cells_at_stack_margins, min_contact_surface)
+        #~ else:
+            #~ if default_properties == None:
+                #~ default_properties = default_properties3D
+            #~ return graph_from_image3D(image, labels, background, default_properties,
+                                #~ default_real_property, bbox_as_real, ignore_cells_at_stack_margins, min_contact_surface)
 
 def label2vertex_map(graph):
     """

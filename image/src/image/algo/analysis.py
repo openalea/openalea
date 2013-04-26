@@ -324,6 +324,12 @@ def closest_from_A(A, pts2search):
 
     return pts_min_dist
 
+def shape_anisotropy(inertia_tensor, vids=None, dimension = 2):
+    """
+
+    """
+
+    return
 
 
 NPLIST, LIST, DICT = range(3)
@@ -1027,9 +1033,9 @@ class AbstractSpatialImageAnalysis(object):
             if plane_projection:
                 fitting_degree = 0 #there will be no curvature since the wall will be flatenned !
                 x_bar, y_bar, z_bar = np.mean(x), np.mean(y), np.mean(z)
-                point_set_3D = np.array( [x-x_bar,y-y_bar,z-z_bar] )
-                U, S, V = np.linalg.svd(point_set_3D.T, full_matrices=False)
-                point_set_2D = np.dot(point_set_3D.T, np.dot(V[:2,:].T,V[:2,:]))
+                centered_point_set_3D = np.array( [x-x_bar,y-y_bar,z-z_bar] )
+                U, S, V = np.linalg.svd(centered_point_set_3D.T, full_matrices=False)
+                point_set_2D = np.dot(centered_point_set_3D.T, np.dot(V[:2,:].T,V[:2,:]))
                 x,y,z = point_set_2D[:,0]+x_bar,point_set_2D[:,1]+y_bar,point_set_2D[:,2]+z_bar
             ## We need to find an origin: the closest point in set set from the geometric median
             # compute geometric median:
