@@ -3,18 +3,30 @@ you have to download and install developping version of IPython.
 
 You have to:
 
-- go to https://github.com/ipython/ipython
-- download zip
-- unzip
-- install ipython (in command line: "python setup.py")
+$ git clone https://github.com/ipython/ipython.git
+$ cd ipython
+$ python setup.py install
+
+If you want to be able to follow the development branch as it changes. If you have distribute installed, this is easy. Simply replace the last step by:
+
+$ python setupegg.py develop
+
+This creates links in the right places and installs the command line script to the appropriate places. Then, if you want to update your IPython at any time, just do:
+
+$ git pull
+
+
+( more details: http://ipython.org/ipython-doc/dev/install/install.html#installing-the-development-version )
+
+
 
 You may have to install ipython dependencies too: zmq and pygments.
 You can do it like that:
-- easy_install pyzmq            (for zmq)
-- easy_install pygments         (for pygments)
+$ easy_install pyzmq            (for zmq)
+$ easy_install pygments         (for pygments)
 
 Congratulation! You have IPython in VisuAlea and Lpy!
 
 @author: julien coste
 @mail: julien.coste@inria.fr
-@date: 09 april 2013
+@date: 30 april 2013
