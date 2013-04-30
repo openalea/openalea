@@ -1,6 +1,5 @@
 from streamredirection import GraphicalStreamRedirection
 from IPython.frontend.qt.console.rich_ipython_widget import RichIPythonWidget
-from IPython.frontend.qt.inprocess_kernelmanager import QtInProcessKernelManager
 
 class ShellWidget(RichIPythonWidget, GraphicalStreamRedirection):
     """
@@ -35,13 +34,32 @@ class ShellWidget(RichIPythonWidget, GraphicalStreamRedirection):
         
         # Write welcome message
         self.write(message)   
-        
+
         # Set kernel manager
-        km = QtInProcessKernelManager(kernel=self.interpreter)
-        km.start_channels()
-        self.interpreter.frontends.append(km)
-        self.kernel_manager = km
+        try:
+            from IPython.frontend.qt.inprocess import QtInProcessKernelManager
+
+            km = QtInProcessKernelManager()
+            km.kernel = self.interpreter
+
+            kernel_client = km.client()
+            kernel_client.start_channels()
+
+            self.kernel_manager = km
+            self.kernel_client = kernel_client
         
+        except ImportError:
+            # DEPRECATED !
+            from IPython.frontend.qt.inprocess_kernelmanager import QtInProcessKernelManager
+            km = QtInProcessKernelManager(kernel=self.interpreter)
+            km.start_channels()
+            self.interpreter.frontends.append(km)
+            self.kernel_manager = km
+            
+            import warnings
+            message = "You are using a deprecated version of IPython (please update)."
+            warnings.warn(message)
+
         # # For Debug Only
         # self.interpreter.locals['shell'] = self 
         
