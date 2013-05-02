@@ -24,7 +24,7 @@ import urlparse
 import traceback
 
 from openalea.core.logger import get_logger
-from openalea.core.compat import to_qvariant
+from openalea.vpltk.qt.compat import to_qvariant
 
 from openalea.secondnature.splittable import CustomSplittable
 from openalea.secondnature.managers   import AbstractSourceManager
