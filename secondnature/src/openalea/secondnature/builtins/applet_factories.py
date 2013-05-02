@@ -58,7 +58,8 @@ class DT_Interpreter(SingletonFactory):
     __icon_rc__          = ":icons/interpreter.png"
 
     def build_raw_instance(self):
-        from openalea.visualea.ipyinterpreter import IPyInterpreter as Interpreter
+        from openalea.vpltk.shell.shell import get_interpreter_class
+        Interpreter = get_interpreter_class()
         # from code import InteractiveInterpreter as Interpreter
         self.interpretermodel = Interpreter()
         return self.interpretermodel
@@ -81,7 +82,7 @@ class InterpreterFactory(AbstractApplet):
     __datafactories__ = [DT_Interpreter]
 
     def start(self):
-        from openalea.visualea.shell import get_shell_class
+        from openalea.vpltk.shell.shell import get_shell_class
         self.shellCls = get_shell_class()
 
         # just call it, we don't register it as a user visible type

@@ -100,13 +100,13 @@ class ProjectManagerTreeModel(QtGui.QStandardItemModel):
             self.disconnect_project(proj)
 
     def __on_item_changed(self, item):
-        proj = item.data(self.projectRole).toPyObject()
-        doc  = item.data(self.dataRole).toPyObject()
+        proj = item.data(self.projectRole)
+        doc  = item.data(self.dataRole)
         if proj:
             proj.name = str(item.text())
         else:
-            doc = item.data(self.dataRole).toPyObject()
-            proj = item.parent().data(self.projectRole).toPyObject()
+            doc = item.data(self.dataRole)
+            proj = item.parent().data(self.projectRole)
             if proj and doc:
                 proj.set_data_name(doc, str(item.text()))
 
@@ -159,7 +159,7 @@ class ProjectManagerTreeModel(QtGui.QStandardItemModel):
 
         encoded = QtCore.QByteArray()
         if item:
-            doc = item.data(self.dataRole).toPyObject()
+            doc = item.data(self.dataRole)
             if doc and self.__activeProj:
                 docId = self.__activeProj.get_data_id(doc)
                 encoded = QtCore.QByteArray.number(docId)

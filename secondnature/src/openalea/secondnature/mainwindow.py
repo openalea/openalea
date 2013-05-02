@@ -193,7 +193,7 @@ class MainWindow(QtGui.QMainWindow):
 
         if mimeData.hasUrls():
             formats = mimeData.formats()
-            url = str(mimeData.urls()[0].toString())
+            url = str(mimeData.urls()[0])
             dt = DataEditorSelector.mime_type_handler(formats, applet=False)
             if not dt:
                 return

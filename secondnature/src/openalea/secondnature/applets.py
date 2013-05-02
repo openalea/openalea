@@ -26,6 +26,7 @@ from openalea.core.singleton           import Singleton
 from openalea.core.logger import get_logger
 
 from openalea.vpltk.qt import QtCore
+from openalea.vpltk.qt.compat import to_qvariant
 
 mod_logger = get_logger(__name__)
 
@@ -286,7 +287,7 @@ class AppletSpace(QtGui.QWidget):
             if dp[0].hidden:
                 continue
             self.__browseDataBut.addItem(dp[0].icon, dp[0].name,
-                                         QtCore.QVariant(dp))
+                                         to_qvariant(dp))
 
         self.__browseDataBut.insertSeparator(self.__browseDataBut.count())
 
@@ -298,7 +299,7 @@ class AppletSpace(QtGui.QWidget):
             if dp[0].hidden:
                 continue
             self.__browseDataBut.addItem(dp[0].icon, dp[0].name,
-                                         QtCore.QVariant(dp))
+                                         to_qvariant(dp))
 
         index = self.__browseDataBut.findText(currentText)
         self.__browseDataBut.setCurrentIndex(index)
@@ -319,7 +320,7 @@ class AppletSpace(QtGui.QWidget):
             self.__browseDataBut.setCurrentIndex(index)
 
     def show_data_at_index(self, index):
-        itemData = self.__browseDataBut.itemData(index).toPyObject()
+        itemData = self.__browseDataBut.itemData(index)
         if not itemData:
             return
         data, proj =  itemData

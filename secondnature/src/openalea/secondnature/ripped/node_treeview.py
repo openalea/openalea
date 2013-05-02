@@ -209,7 +209,8 @@ class PkgModel(QtGui.QStandardItemModel, AbstractListener):
         # -- marshall package and factory to the data stream, needed later --
         itemData   = QtCore.QByteArray()
         dataStream = QtCore.QDataStream(itemData, QtCore.QIODevice.WriteOnly)
-        dataStream = dataStream + str(pkg_id) + str(factory_id)
+        dataStream.writeString(pkg_id)
+        dataStream.writeString(factory_id)
         mimeData.setData(mimetype, itemData)
 
         # -- build an url --
@@ -241,7 +242,7 @@ class PkgModel(QtGui.QStandardItemModel, AbstractListener):
         """
         # put in the Mime Data pkg id and factory id
         var = item.data(cls.pkgmodelRole)
-        obj = var.toPyObject()
+        obj = var
 
         if obj.mimetype in [NodeFactory.mimetype, CompositeNodeFactory.mimetype]:
             factory_id = obj.get_id()
@@ -367,7 +368,7 @@ class NodeFactoryView(object):
         """ Context menu event : Display the menu"""
 
         index = self.indexAt(event.pos())
-        obj   = self.model().data(index, PkgModel.pkgmodelRole).toPyObject()
+        obj   = self.model().data(index, PkgModel.pkgmodelRole)
         menu  = None
 
         if(isinstance(obj, AbstractFactory)): # Factory
@@ -454,7 +455,7 @@ class NodeFactoryView(object):
     def get_current_pkg(self):
         """ Return the current package """
         index = self.currentIndex()
-        obj   = self.model().data(index, PkgModel.pkgmodelRole).toPyObject()
+        obj   = self.model().data(index, PkgModel.pkgmodelRole)
         return obj
 
 
@@ -623,8 +624,7 @@ class NodeFactoryView(object):
     def mouseDoubleClickEvent(self, event):
 
         index = self.currentIndex()
-        obj   = self.model().data(index, PkgModel.pkgmodelRole).toPyObject()
-
+        obj   = self.model().data(index, PkgModel.pkgmodelRole)
         msg = """You are trying to open a composite node that has already been opened.
         Doing this might cause confusion later on.
         Do you want to continue?"""
@@ -651,7 +651,7 @@ class NodeFactoryView(object):
     def open_node(self):
         """ Instantiate Node : open a dialog """
         index = self.currentIndex()
-        obj   = self.model().data(index, PkgModel.pkgmodelRole).toPyObject()
+        obj   = self.model().data(index, PkgModel.pkgmodelRole)
 
         if(isinstance(obj, AbstractFactory)):
             widget = obj.instantiate_widget(autonomous=True)
@@ -668,7 +668,7 @@ class NodeFactoryView(object):
         """ Edit Node in tab workspace"""
 
         index = self.currentIndex()
-        obj   = self.model().data(index, PkgModel.pkgmodelRole).toPyObject()
+        obj   = self.model().data(index, PkgModel.pkgmodelRole)
 
         if isinstance(obj, CompositeNodeFactory):
             self.compositeFactoryOpenRequest.emit(obj)
@@ -683,7 +683,7 @@ class NodeFactoryView(object):
         """ Edit Node info"""
 
         index = self.currentIndex()
-        obj   = self.model().data(index, PkgModel.pkgmodelRole).toPyObject()
+        obj   = self.model().data(index, PkgModel.pkgmodelRole)
 
         if(isinstance(obj, DataFactory)):
             QtGui.QMessageBox.information(self, "Properties", "Data : %s"%(obj.name))
@@ -699,7 +699,7 @@ class NodeFactoryView(object):
         """ Remove the node from the package """
         pman  = self.model().pman
         index = self.currentIndex()
-        obj   = self.model().data(index, PkgModel.pkgmodelRole).toPyObject()
+        obj   = self.model().data(index, PkgModel.pkgmodelRole)
 
         ret = QtGui.QMessageBox.question(self, "Remove Model",
                                          "Remove %s?\n"%(obj.name,),
@@ -866,7 +866,7 @@ class DataPoolListView(QtGui.QListView, SignalSlotListener):
         l.sort()
         name = l[item.row()]
 
-        dataStream = dataStream + str(name)
+        dataStream.writeSting(name)
 
         mimeData = QtCore.QMimeData()
         mimeData.setData("openalea/data_instance", itemData)
