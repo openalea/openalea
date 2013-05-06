@@ -657,7 +657,7 @@ class IDictWidget(IInterfaceWidget, qt.QtGui.QWidget):
         """ Add add an element in the dictionary """
         dic = self.node.get_input(self.param_str)
         (text, ok) = qt.QtGui.QInputDialog.getText(self, "Key", "Key", )
-        if (not ok or text.isEmpty()):
+        if (not ok or len(text)==0):
             return
 
         try:
@@ -679,7 +679,7 @@ class IDictWidget(IInterfaceWidget, qt.QtGui.QWidget):
         key = self.rowkey[i]
 
         (text, ok) = qt.QtGui.QInputDialog.getText(self, "Value", "Value")
-        if (not ok or text.isEmpty()):
+        if (not ok or len(text)==0):
             return
 
         try:
