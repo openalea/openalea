@@ -68,7 +68,7 @@ class String(Node):
         :returns : transmit the stored value
         """
         s = str(inputs[0])
-        self.set_caption(repr(s))
+        self.set_caption(s)
         return (s, )
 
 

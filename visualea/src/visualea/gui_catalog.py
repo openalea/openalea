@@ -202,6 +202,7 @@ class IStrWidget(IInterfaceWidget, qt.QtGui.QWidget):
 
     __interface__ = IStr
     __metaclass__ = make_metaclass()
+    __widgetclass__ = qt.QtGui.QTextEdit#qt.QtGui.QLineEdit#
 
     MAX_LEN = 100000
 
@@ -224,19 +225,18 @@ class IStrWidget(IInterfaceWidget, qt.QtGui.QWidget):
         self.label.setText(node.get_input_port(name=parameter_str).get_label())
         self.hboxlayout.addWidget(self.label)
 
-        self.subwidget = qt.QtGui.QLineEdit (self)
+        self.subwidget = self.__widgetclass__()
         self.hboxlayout.addWidget(self.subwidget)
 
         self.too_long = False # Validity Flag
-        self.notify(None, None)
         self.connect(self.subwidget, qt.QtCore.SIGNAL("textChanged()"), self.valueChanged)
+        self.notify(None, None)
 
 
     @lock_notify
-    def valueChanged(self, newval):
-
+    def valueChanged(self):
         if(not self.too_long):
-            self.node.set_input(self.param_str, str(newval))
+            self.node.set_input(self.param_str, str(self.subwidget.toPlainText()))
 
 
     def notify(self, sender, event):
@@ -346,7 +346,6 @@ class ITextStrWidget(IInterfaceWidget, qt.QtGui.QWidget):
         self.hboxlayout.addWidget(self.subwidget)
 
         self.too_long = False # Validity Flag
-
         self.connect(self.subwidget, qt.QtCore.SIGNAL("textChanged()"), self.valueChanged)
         self.notify(None, None)
 
