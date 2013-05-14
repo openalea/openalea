@@ -282,7 +282,7 @@ class PyCutExt(qt.QtGui.QTextEdit,GraphicalStreamRedirection):
         """
         Clear input line buffer
         """
-        self.line.truncate(0)
+        #self.line.truncate(0)    ## bug
         self.point = 0
 
         
@@ -367,7 +367,7 @@ class PyCutExt(qt.QtGui.QTextEdit,GraphicalStreamRedirection):
                     self.pointer = 0
                 self.__recall()
 
-        elif text.length():
+        elif text.length():  ##len(text): ##
             self.__insertText(text)
             return
 
