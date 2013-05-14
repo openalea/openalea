@@ -44,12 +44,14 @@ import path as module_path
 import warnings
 from path import path as _path
 from openalea.core import settings
+import cPickle
 
 class Project(object):
     def __init__(self,project_name, project_path):
         self.name = str(project_name)
         self.path = _path(project_path)
         self.ns = dict()
+        self.controls = dict()
         
         # self.set_ipython()
         self.shell = None
@@ -140,26 +142,43 @@ class Project(object):
         Struct of controls:
         dict 'dict(Names : Values)'
         """
-        controls = dict()
-        temp_path = self.path/self.name/"data"/"controls"
-        
-        cwd = os.getcwd()
-        os.chdir(temp_path)
- 
-        # Load Controls 
-        temp_files = os.listdir(temp_path)
-        for file_name in temp_files:
-            if not file_name.endswith('~'):
-                text = open(file_name, 'rU').read()
-                controls[file_name] = text
+##        temp_path = self.path/self.name/"data"/"controls"
+##        
+##        cwd = os.getcwd()
+##        os.chdir(temp_path)
+## 
+##        # Load Controls 
+##        temp_files = os.listdir(temp_path)
+##        for file_name in temp_files:
+##            if not file_name.endswith('~'):
+##                text = open(file_name, 'rU').read()
+##                self.controls[file_name] = text
 
-        # Add controls in namespace
-        for controlname in controls:
-            self.ns[controlname] = eval(controls[controlname])
+
+        temp_path = self.path/self.name/"data"/"controls"
+        filename = '%s/control' %temp_path
         
-        os.chdir(cwd)    
+        try:
+            file = open(filename, 'r')
             
-        return controls
+    ##        cwd = os.getcwd()
+    ##        os.chdir(temp_path)
+
+            try:
+                self.controls = cPickle.load(file)
+            except EOFError :
+                  file.close()
+
+            # Add controls in namespace
+            for controlname in self.controls:
+                self.ns[controlname] = eval(str(self.controls[controlname]))            
+
+    ##        os.chdir(cwd)    
+    
+        except IOError:
+            self.controls = dict()
+        
+        return self.controls
         
     def _load_cache(self):
         cache = dict()
@@ -248,20 +267,27 @@ You must install PlantGL if you want to load scene in project.""")
 
         """
         temp_path = self.path/self.name/"data"/"controls"
+        filename = '%s/control' %temp_path
         
-        cwd = os.getcwd()
-        os.chdir(temp_path)
+        file = open(filename, 'w')
         
-        temp_dict = dict()
+##        cwd = os.getcwd()
+##        os.chdir(temp_path)
         
-        for controlName in self.controls:
-            file = open(controlName, "w")
-            code = str(self.controls[controlName])
-            code_enc = code.encode("utf8","ignore") 
-            file.write(code_enc)
-            file.close()
-       
-        os.chdir(cwd) 
+##        temp_dict = dict()
+        
+        cPickle.dump(self.controls,file,0)
+        
+        file.close()
+        
+##        for controlName in self.controls:
+##            file = open(controlName, "w")
+##            code = str(self.controls[controlName])
+##            code_enc = code.encode("utf8","ignore") 
+##            file.write(code_enc)
+##            file.close()
+##       
+##        os.chdir(cwd) 
         
     def _save_cache(self):
         temp_path = self.path/self.name/"data"/"cache"
@@ -292,6 +318,16 @@ You must install PlantGL if you want to load scene in project.""")
             self.scene[sub_scene_name].save(name, "BGEOM")
         
         os.chdir(cwd) 
+        
+##        TODO
+##        temp_path = self.path/self.name/"data"/"scene" 
+##        filename = '%s/scene' %temp_path
+##        
+##        file = open(filename, 'w')
+##        
+##        cPickle.dump(self.scene,file,0)
+##        
+##        file.close()
         
     def _startup_import(self): 
         use_ip = self.use_ipython()
