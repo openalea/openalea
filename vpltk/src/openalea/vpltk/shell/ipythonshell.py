@@ -31,6 +31,7 @@ class ShellWidget(RichIPythonWidget, GraphicalStreamRedirection):
         # Compatibility with visualea
         self.interpreter.runsource = self.runsource
         self.interpreter.runcode = self.runcode
+        self.interpreter.loadcode = self.loadcode
         
         # Write welcome message
         self.write(message)   
@@ -86,13 +87,20 @@ class ShellWidget(RichIPythonWidget, GraphicalStreamRedirection):
         TODO
         """
         executed = False
-        try: executed = self.execute(source=source, hidden=hidden, interactive=interactive)
+        try:
+            executed = self.execute(source=source, hidden=hidden, interactive=interactive)
         except RuntimeError as e:
             self.write(e)
             exec(source)
         except:
             raise    
         finally: return executed
+    
+    def loadcode(self, source=None):
+        """
+        TODO
+        """
+        exec(source,self.interpreter.locals,self.interpreter.locals)
     
     def write(self, txt):    
         """
