@@ -1,6 +1,23 @@
+# -*- python -*-
 #
+#       Plugin System for vpltk
+# 
+#       OpenAlea.VPLTk: Virtual Plants Lab Toolkit
 #
+#       Copyright 2013 INRIA - CIRAD - INRA
 #
+#       File author(s): Christophe Pradal <christophe.pradal@inria.fr>
+#
+#       File contributor(s):
+#
+#       Distributed under the Cecill-C License.
+#       See accompanying file LICENSE.txt or copy at
+#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
+#
+#       OpenAlea WebSite : http://openalea.gforge.inria.fr
+#
+###############################################################################
+__revision__ = ""
 
 """
 Plugin fundamentals are:
@@ -33,7 +50,7 @@ class Plugin(object):
     """ Define a Plugin from an entry point. """
 
     def __init__(self, epoint):
-        self.epoint = epoint
+        self.ep = epoint
 
     @property
     def name(self):
