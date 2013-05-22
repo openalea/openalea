@@ -55,6 +55,11 @@ class Project(object):
         
         # self.set_ipython()
         self.shell = None
+        
+        self.scripts = dict()
+        self.controls = dict()
+        self.cache = dict()
+        self.scene = dict()
     
     #----------------------------------------
     # Public API
@@ -102,6 +107,21 @@ class Project(object):
         else:
             return True
 
+    def get_scene(self):
+        return self.scene
+    
+    #----------------------------------------
+    # Add
+    #---------------------------------------- 
+    def add_script(self, name, script):
+        """
+        Add a script in the project
+        
+        :param name: of the script to add (string)
+        :param script: to add (string)
+        """
+        self.scripts[str(name)] = str(script)
+        
     #----------------------------------------
     # Protected 
     #---------------------------------------- 
@@ -223,11 +243,12 @@ class Project(object):
                     scene[fileName] = sc.deepcopy()
             os.chdir(cwd)          
                     
+        except ImportError:
+            scene = dict()
+            warnings.warn("You must install PlantGL if you want to load scene in project.")
         except:
             scene = dict()
-            warnings.warn("""
-You must install PlantGL if you want to load scene in project.""")
-
+            warnings.warn("Impossible to load the scene")
         return scene    
         
     def _save_startup(self):
@@ -382,6 +403,22 @@ class ProjectManager(object):
     Object which manage projects: creation, loading, saving   
     Should it be a Singleton?
     """
+    def __init__(self):
+        super(ProjectManager, self).__init__()
+        self.projects = {}
+        self.cproject = self.empty()
+
+    def get_current(self):
+        return self.cproject
+        
+    def empty(self):
+        """
+        :return: a fake empty project
+        """
+        project_path = _path(settings.get_project_dir())
+        proj = Project(project_name="fake", project_path=project_path)
+        return proj
+    
     def create(self, project_name, project_path=None):
         """
         Create new project
@@ -392,6 +429,9 @@ class ProjectManager(object):
         
         proj = Project(project_name, project_path)
         proj.create()
+        
+        self.projects[proj.name] = proj
+        self.cproject = self.projects[proj.name]
         return proj
     
     def load(self, project_name, project_path=None):
@@ -411,14 +451,20 @@ class ProjectManager(object):
         if full_path.exists():
             proj = Project(project_name, project_path)
             proj.start()
+            
+            self.projects[proj.name] = proj
+            self.cproject = self.projects[proj.name]
             return proj
         else:
             raise IOError('Project %s in repository %s does not exist' %(project_name,project_path))
             return -1
 
     def __getitem__(self, project_name):
-        return self.load(project_name)
-      
+        try:
+            proj = self.load(project_name)
+            return proj
+        except:
+            return self.empty()
     
     
 def main():
