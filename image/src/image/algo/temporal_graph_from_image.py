@@ -79,14 +79,14 @@ def _graph_properties_from_image(graph, SpatialImageAnalysis, labels, background
     if 'volume' in default_properties and analysis.is3D(): 
         print 'Computing volume property...'
         add_vertex_property_from_dictionary(graph,'volume',analysis.volume(labels,real=default_real_property),mlabel2vertex=label2vertex)
-        #~ graph._graph_property("units").update( {"volume":('\u03bcm\u00B3'if default_real_property else 'voxels')} )
+        #~ graph._graph_property("units").update( {"volume":(u'\u03bcm\u00B3'if default_real_property else 'voxels')} )
 
     barycenters = None
     if 'barycenter' in default_properties :
         print 'Computing barycenter property...'
         barycenters = analysis.center_of_mass(labels,real=default_real_property)
         add_vertex_property_from_dictionary(graph,'barycenter',barycenters,mlabel2vertex=label2vertex)
-        #~ graph._graph_property("units").update( {"barycenter":('\u03bcm'if default_real_property else 'voxels')} )
+        #~ graph._graph_property("units").update( {"barycenter":(u'\u03bcm'if default_real_property else 'voxels')} )
 
     background_neighbors = set(analysis.neighbors(background))
     background_neighbors.intersection_update(labelset)
@@ -102,24 +102,6 @@ def _graph_properties_from_image(graph, SpatialImageAnalysis, labels, background
         border_cells = set(border_cells)
         add_vertex_property_from_label_and_value(graph,'border',labels,[(l in border_cells) for l in labels],mlabel2vertex=label2vertex)
 
-
-def _temporal_properties_from_image(graph, SpatialImageAnalysis, index, labels, background, default_properties, 
-                     default_real_property, bbox_as_real, 
-                     ignore_cells_at_stack_margins, min_contact_surface):
-    """ 
-    Add properties from a `SpatialImageAnalysis` class object (representing a segmented image) to a TemporalPropertyGraph.
-
-    :Parameters:
-     - `SpatialImageAnalysis` (AbstractSpatialImageAnalysis) - Spatial analysis of an image.
-     - `labels` (list) - list of labels to be found in the image.
-        If labels is None, all labels are used.
-     - `background` (int) - label representing background.
-     - `default_properties` (list) - the list of name of properties to create. It should be in default_properties.
-     - `default_real_property` (bool) - If default_real_property = True, property is in real-world units else in voxels.
-     - `bbox_as_real` (bool) - If bbox_as_real = True, bounding boxes are in real-world units else in voxels.
-
-    """
-    labelset = set(labels)
     if 'inertia_axis' in default_properties : 
         print 'Computing inertia_axis property...'
         inertia_axis, inertia_values = analysis.inertia_axis(labels,barycenters)
@@ -177,7 +159,6 @@ def _temporal_properties_from_image(graph, SpatialImageAnalysis, index, labels, 
 
         add_edge_property_from_dictionary(graph, 'projected_anticlinal_wall_median', wall_median)
 
-
     if 'wall_median' in default_properties:
         print 'Computing wall_median property...'
         try:
@@ -214,7 +195,6 @@ def _temporal_properties_from_image(graph, SpatialImageAnalysis, index, labels, 
         add_edge_property_from_dictionary(graph, 'wall_median', edge_wall_median)
         add_vertex_property_from_dictionary(graph, 'epidermis_wall_median', vertex_wall_median)
         add_vertex_property_from_dictionary(graph, 'unlabelled_wall_median', unlabelled_wall_median)
-
 
     if 'all_walls_orientation' in default_properties:
         print 'Computing wall_orientation property...'
@@ -271,6 +251,55 @@ def _temporal_properties_from_image(graph, SpatialImageAnalysis, index, labels, 
             add_vertex_property_from_dictionary(graph, 'epidermis_wall_principal_curvature_directions', epidermis_pc_directions)
             if not 'wall_median' in graph.edge_properties():
                 add_vertex_property_from_dictionary(graph, 'epidermis_wall_principal_curvature_origin', epidermis_pc_origin)
+
+def _temporal_properties_from_image(tp_graph, SpatialImageAnalysis, index, labels, background, default_properties, 
+                     default_real_property, bbox_as_real, 
+                     ignore_cells_at_stack_margins, min_contact_surface):
+    """ 
+    Add properties from a `SpatialImageAnalysis` class object (representing a segmented image) to a TemporalPropertyGraph.
+
+    :Parameters:
+     - `SpatialImageAnalysis` (AbstractSpatialImageAnalysis) - Spatial analysis of an image.
+     - `labels` (list) - list of labels to be found in the image.
+        If labels is None, all labels are used.
+     - `background` (int) - label representing background.
+     - `default_properties` (list) - the list of name of properties to create. It should be in default_properties.
+     - `default_real_property` (bool) - If default_real_property = True, property is in real-world units else in voxels.
+     - `bbox_as_real` (bool) - If bbox_as_real = True, bounding boxes are in real-world units else in voxels.
+
+    """
+    for n,i in enumerate(xrange(1,tp_graph.nb_time_points)):
+        n+=1
+        
+        if 'temporal_inertia_axis' in default_properties:
+            
+        if 'temporal_epidermis_inertia_axis' in default_properties:
+            voxel_layer = copy.copy(analysis.first_voxel_layer(1))
+            for label in analysis.layer1():
+                xyz = np.where(voxel_layer==label)
+                center = np.mean(xyz,axis=1)
+                x,y,z = xyz[0]-center[0], xyz[1]-center[1], xyz[2]-center[2]
+                coord = np.array([x,y,z])
+
+        if 'temporal_projected_anticlinal_wall_median' in default_properties:
+            print 'Computing temporal_projected_anticlinal_wall_median property...'
+            wall_median = {}
+            dict_anticlinal_wall_voxels = analysis.wall_voxels_per_cells_pairs( analysis.layer1(), neighborhood, only_epidermis = True, ignore_background = True )
+            for label_1, label_2 in dict_anticlinal_wall_voxels:
+                if label_1 == 0: continue # if 0 means that it wasn't in the labels list provided, so we skip it.
+                x,y,z = dict_anticlinal_wall_voxels[(label_1, label_2)]
+                # compute geometric median:
+                from openalea.image.algo.analysis import geometric_median, closest_from_A
+                neighborhood_origin = geometric_median( np.array([list(x),list(y),list(z)]) )
+                integers = np.vectorize(lambda x : int(x))
+                neighborhood_origin = integers(neighborhood_origin)
+                # closest points:
+                pts = [tuple([int(x[i]),int(y[i]),int(z[i])]) for i in xrange(len(x))]
+                min_dist = closest_from_A(neighborhood_origin, pts)
+                wall_median[(label_1, label_2)] = min_dist
+
+            add_edge_property_from_dictionary(graph, 'projected_anticlinal_wall_median', wall_median)
+
 
     return graph
 
@@ -350,11 +379,15 @@ def temporal_graph_from_image(images, lineages, time_steps = [], list_labels = N
         # -- Now we construct all Saptial Graph (4D):
         neighborhood = analysis[n].neighbors(labels, min_contact_surface = min_contact_surface)
         graph[n], label2vertex[n], edges[n] = generate_graph_topology(labels, neighborhood)
-
+        
     print "Creating Spatio-Temporal Graph..."
     # -- Now we construct the Temporal Property Graph (with no properties attached to vertex):
     tpg = TemporalPropertyGraph()
     tpg.extend([graph[n] for n in graph], lineages, time_steps)
+
+    for n,g in enumerate(graph):
+        _graph_properties_from_image(g, analysis[n], labels, background[n], default_properties, 
+                     default_real_property, bbox_as_real)
 
     return tpg
 

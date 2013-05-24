@@ -938,7 +938,7 @@ class AbstractSpatialImageAnalysis(object):
             return self.image * layer
 
 
-    def first_voxel_layer(self, keep_background = False):
+    def first_voxel_layer(self, keep_background = True):
         """
         Function extracting the first layer of voxels detectable from the outer surface.
         """
@@ -1028,15 +1028,15 @@ class AbstractSpatialImageAnalysis(object):
             if dict_wall_voxels[(label_1, label_2)] == None:
                 if label_1 != 0:
                     print "There might be something wrong between cells %d and %d" %label_1  %label_2
-                continue # if None we can use it.
+                continue # if None, means no points to estimate wall orientation !!
             x, y, z = dict_wall_voxels[(label_1, label_2)] # the points set
             if plane_projection:
                 fitting_degree = 0 #there will be no curvature since the wall will be flatenned !
                 x_bar, y_bar, z_bar = np.mean(x), np.mean(y), np.mean(z)
                 centered_point_set_3D = np.array( [x-x_bar,y-y_bar,z-z_bar] )
                 U, S, V = np.linalg.svd(centered_point_set_3D.T, full_matrices=False)
-                point_set_2D = np.dot(centered_point_set_3D.T, np.dot(V[:2,:].T,V[:2,:]))
-                x,y,z = point_set_2D[:,0]+x_bar,point_set_2D[:,1]+y_bar,point_set_2D[:,2]+z_bar
+                proj_points = np.dot(centered_point_set_3D.T, np.dot(V[:2,:].T,V[:2,:]))
+                x,y,z = proj_points[:,0]+x_bar,proj_points[:,1]+y_bar,proj_points[:,2]+z_bar
             ## We need to find an origin: the closest point in set set from the geometric median
             # compute geometric median:
             try:
@@ -1123,9 +1123,12 @@ class AbstractSpatialImageAnalysis(object):
         if verbose: print "Removing", N, "cells."
         for n, vid in enumerate(vids):
             if verbose and n%20 == 0: print n,'/',N
-            xyz = np.where( (self.image[self.boundingbox(vid)]) == vid )
-            self.image[tuple((xyz[0]+self.boundingbox(vid)[0].start, xyz[1]+self.boundingbox(vid)[1].start, xyz[2]+self.boundingbox(vid)[2].start))]=erase_value
-
+            try:
+                xyz = np.where( (self.image[self.boundingbox(vid)]) == vid )
+                self.image[tuple((xyz[0]+self.boundingbox(vid)[0].start, xyz[1]+self.boundingbox(vid)[1].start, xyz[2]+self.boundingbox(vid)[2].start))]=erase_value
+            except:
+                print "No boundingbox found for cell id #{}, skipping...".format(vid)
+                continue
         ignoredlabels = copy.copy(self._ignoredlabels)
         ignoredlabels.update([erase_value])
         return_type = copy.copy(self.return_type)
@@ -1172,7 +1175,7 @@ class AbstractSpatialImageAnalysis(object):
         ignoredlabels = copy.copy(self._ignoredlabels)
         ignoredlabels.update([erase_value])
         return_type = copy.copy(self.return_type)
-        self.__init__(self.image, ignoredlabels, return_type)
+        self.__init__(self.image, ignoredlabels, return_type, self.background())
 
         if verbose: print 'Done !!'
 
@@ -1616,63 +1619,43 @@ class SpatialImageAnalysis3D(AbstractSpatialImageAnalysis):
         return float(self.principal_curvatures[vid][0] - self.principal_curvatures[vid][1])/float(self.principal_curvatures[vid][0] + self.principal_curvatures[vid][1])
 
 
-    def cell_shape_anisotropy(self, vids=None, external=False, proj_2D=False, return_inertia_tensors=False, real=False, verbose = False):
+    def epidermis_shape_anisotropy(self, vids=None, real=False, verbose=False):
         """
-        Compute anisotropy from inertia axis length. 
+        Compute anisotropy of epidermis cell from inertia axis length.
+        Based on the first layer of voxels only!!
         
         :Parameters:
          - vids (list): list of ids.
-         - external (bool): if True, only the first layer of voxel will be used to compute inertia axis and shape anisotropy.
-         - as_2D (bool): if True, use only the two longest inertia axis to compute shape anisotropy.
+         - real (bool): if True, return the eigenvalues in real world units.
         """
+        first_voxel_layer = self.first_voxel_layer(keep_background=True)
         if vids is None:
-            vids = self.layer1()
-        
+            vids = list(np.unique(first_voxel_layer))
+        if isinstance(vids,int):
+            vids = [vids]
+        if 0 in vids:
+            vids.remove(0)
+        if self.background() in vids:
+            vids.remove(self.background())
         N = len(vids)
-        
-        if proj_2D:
-            external = True
-        
+
         anisotropy = []
-        inertia_tensor = {}
-        inertia_bary = {}
-        
-        if external:
-            first_voxel_layer = self.first_voxel_layer(keep_background=True)
-            bbox_slices = nd.find_objects(first_voxel_layer)
-            bbox = dict(zip(xrange(1,len(bbox_slices)+1), bbox_slices))
-            for n,label in enumerate(vids):
-                if verbose :
-                    print "Cell",label,", ",n,'/',N
-                # project center into the slices sub_image coordinate
-                label_image = (first_voxel_layer[bbox[label]] == label)
-                # compute the indices of voxel with adequate label
-                coord = np.array(label_image.nonzero()).T
-                # difference with the center of mass
-                mean = np.mean(coord,axis=0)
-                coord = coord - mean
-                if proj_2D:
-                    U, S, V = np.linalg.svd(coord, full_matrices=False)
-                    coord = np.dot(coord, V[:2,:].T)
-                # compute P.P^T
-                cov = np.dot(coord,coord.T)
-                # Find the eigen values and vectors.
-                u, eig_val, v = np.linalg.svd(cov) # sorted eigen values
-                anisotropy.append( (eig_val[0]-eig_val[1]) / (eig_val[0]+eig_val[1]) )
-                if return_inertia_tensors:
-                    if proj_2D:
-                        print 'TO CHECK!'
-                        # - Getting back in 3D:.
-                        inertia_tensor[label] = np.dot(cov, V) + mean
-                    else:
-                        inertia_tensor[label] = u
-            if return_inertia_tensors:
-                inertia_bary[label] = nd.center_of_mass(first_voxel_layer,first_voxel_layer,index=vids)
-            
-        if return_inertia_tensors:
-            return self.convert_return(anisotropy, vids), inertia_tensor, inertia_bary
-        else:
-            return self.convert_return(anisotropy, vids)
+        for n,label in enumerate(vids):
+            if verbose: print n,'/',N
+            xyz = np.array(np.where(first_voxel_layer[self.boundingbox(label)] == label))
+            # difference with the center of mass
+            mean = np.mean(xyz, axis=1)
+            coord = xyz.T - mean
+            # compute P^T.P
+            cov = np.dot(coord.T,coord)
+            # Find the eigen values and vectors.
+            u, eig_val, eig_vec = np.linalg.svd(cov) # sorted eigenvalues
+            if real:
+                for i in xrange(3):
+                    eig_val[i] *= np.linalg.norm( np.multiply(eig_vec[i],self.image.resolution) )
+            anisotropy.append( (eig_val[0]-eig_val[1]) / (eig_val[0]+eig_val[1]) )
+
+        return self.convert_return(anisotropy, vids)
 
 
     def moment_invariants(self, vids = None, order = [], verbose = True):

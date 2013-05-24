@@ -24,6 +24,7 @@ __revision__ = " $Id: __init__.py 2245 2010-02-08 17:11:34Z cokelaer $ "
 from openalea.vpltk.qt import qt
 #from qt.QtGui import QPixmap,QImage
 from numpy import array,zeros,uint32,uint8
+from PIL import Image,ImageQt
 
 from openalea.image.spatial_image import SpatialImage
 from openalea.image.gui.palette import palette_factory, from_argb_swap_columns_and_recast
