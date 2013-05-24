@@ -33,7 +33,7 @@ def load_local(mod,modules):
 
 from numpy import array,uint32, uint8
 from openalea.vpltk.qt import QtCore, QtGui
-load_local(QtGui,'Qt,SIGNAL')
+load_local(QtCore,'Qt,SIGNAL')
 load_local(QtGui,"""QImage,QPixmap,QTransform,QMatrix,
                          QLabel,QGraphicsView """)                         
                          
