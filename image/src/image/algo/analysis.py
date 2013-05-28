@@ -77,7 +77,7 @@ def real_indices(slices, resolutions):
     return [ (s.start*r, s.stop*r) for s,r in zip(slices,resolutions) ]
 
 
-def hollow_out_cells(image, background, verbose = True):
+def hollow_out_cells(image, background, remove_background = True, verbose = True):
     """
     Laplacian filter used to dectect and return an Spatial Image containing only cell walls.
     (The Laplacian of an image highlights regions of rapid intensity change.)
@@ -93,7 +93,8 @@ def hollow_out_cells(image, background, verbose = True):
     b = nd.laplace(image)
     m = image.copy()
     m[b==0] = 0
-    m[np.where(m==background)] = 0
+    if remove_background:
+        m[np.where(m==background)] = 0
     if verbose: print 'Done !!'
     return m
 
@@ -200,7 +201,7 @@ def walls_voxels_per_cell(image, label_1, bbox = None, neighbors = None, neighbo
             neighbors_not_found = True
             if verbose: print "Couldn't find a contact between neighbor cells %d" % label_1, "& %d" % label_2
     if neighbors_not_found:
-        warnings.warn("Some neighboring cells have not been found !")
+        print "Some neighboring cells have not been found !"
 
     return coord
 
