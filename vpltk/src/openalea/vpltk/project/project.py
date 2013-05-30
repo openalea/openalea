@@ -40,9 +40,9 @@ stored in your computer.
 
 """
 import os
-import path as module_path
+import openalea.core.path as module_path
 import warnings
-from path import path as _path
+from openalea.core.path import path as _path
 from openalea.core import settings
 import cPickle
 
