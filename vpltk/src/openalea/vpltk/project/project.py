@@ -46,6 +46,8 @@ from openalea.core.path import path as _path
 from openalea.core import settings
 import cPickle
 
+##from openalea.vplab.scene.vplscene import VPLScene
+
 class Project(object):
     def __init__(self,project_name, project_path):
         self.name = str(project_name)
@@ -59,6 +61,8 @@ class Project(object):
         self.scripts = dict()
         self.controls = dict()
         self.cache = dict()
+##        self.scene_struct = VPLScene()
+##        self.scene = self.scene_struct.getScene()
         self.scene = dict()
     
     #----------------------------------------
@@ -227,6 +231,8 @@ class Project(object):
             from openalea.plantgl.all import Scene
             import copy
             sc = Scene()
+##            scene_struct = VPLScene()
+##            scene = scene_struct.getScene()
             scene = dict()
             temp_path = self.path/self.name/"data"/"scene"
             
@@ -239,8 +245,8 @@ class Project(object):
                     fileName, fileExtension = os.path.splitext(str(file))
                     sc.clear()
                     sc.read(fileName, "BGEOM")
-                    
                     scene[fileName] = sc.deepcopy()
+##                    scene_struct.add(name=fileName, obj=sc.deepcopy())
             os.chdir(cwd)          
                     
         except ImportError:
@@ -334,9 +340,10 @@ class Project(object):
         for file in files:
             os.remove(file)
            
-        for sub_scene_name in self.scene:
+        scene = self.scene
+        for sub_scene_name in scene:
             name = str("%s/%s" %(temp_path,sub_scene_name))
-            self.scene[sub_scene_name].save(name, "BGEOM")
+            scene[sub_scene_name].save(name, "BGEOM")
         
         os.chdir(cwd) 
         
