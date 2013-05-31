@@ -318,7 +318,7 @@ class GeneratorEvaluation(AbstractEvaluation):
         if (ret):
             self.reeval = ret
 
-    def eval(self, vtx_id=None):
+    def eval(self, vtx_id=None, step=False):
         t0 = clock()
 
         df = self._dataflow
@@ -464,7 +464,7 @@ class LambdaEvaluation(PriorityEvaluation):
             for i in xrange(actor.get_nb_output()):
                 actor.set_output(i, SubDataflow(df, self, vid, i))
 
-    def eval(self, vtx_id=None, context=None, is_subdataflow=False):
+    def eval(self, vtx_id=None, context=None, is_subdataflow=False, step=False):
         """
         Eval the dataflow from vtx_id with a particular context
 
@@ -755,7 +755,7 @@ class ToScriptEvaluation(AbstractEvaluation):
 
         return script
 
-    def eval(self, *args):
+    def eval(self, *args, **kwds):
         """ Evaluate the whole dataflow starting from leaves"""
         df = self._dataflow
 
@@ -879,7 +879,7 @@ class DiscreteTimeEvaluation(AbstractEvaluation):
         elif self._current_cycle > 1000:
             self._stop = True
 
-    def eval(self, vtx_id=None):
+    def eval(self, vtx_id=None, step=False):
         t0 = clock()
 
         self.clear()
@@ -900,7 +900,12 @@ class DiscreteTimeEvaluation(AbstractEvaluation):
         for vid, actor in leafs:
             if not self.is_stopped(vid, actor):
                 self.reeval = True
-                while(self.reeval and not self._stop):
+                if not step:
+                    while(self.reeval and not self._stop):
+                        self.clear()
+                        self.eval_vertex(vid)
+                        self.next_step()
+                elif (self.reeval and not self._stop):
                     self.clear()
                     self.eval_vertex(vid)
                     self.next_step()
@@ -913,8 +918,9 @@ class DiscreteTimeEvaluation(AbstractEvaluation):
         #print 'Run %d times the dataflow'%(self._current_cycle,)
 
         # Reset the state
-        self.clear()
-        self._current_cycle = 0
+        if not step:
+            self.clear()
+            self._current_cycle = 0
 
         t1 = clock()
         if quantify:

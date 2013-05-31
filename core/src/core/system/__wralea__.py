@@ -24,7 +24,7 @@ from openalea.core.pkgdict import protected
 
 __name__ = "openalea.flow control"
 __alias__ = ["system"]
-__version__ = '0.0.2'
+__version__ = '1.0.0'
 __license__ = "Cecill-C"
 __authors__ = 'OpenAlea Consortium'
 __institutes__ = 'INRIA/CIRAD'
