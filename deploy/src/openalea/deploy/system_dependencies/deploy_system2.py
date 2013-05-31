@@ -6,7 +6,7 @@
 #
 #       File author(s): Daniel Barbeau
 #       File Contributors(s):
-#                             - your name here
+#                             - your name heredeploy/src/openalea/deploy/system_dependencies/deploy_system2.py
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
@@ -496,12 +496,12 @@ class Ubuntu(NativePackageAPI):
                      "setuptools" : "python-setuptools",
                      "sip4-dev" : "python-sip4",
                      "scipy" : "python-scipy",
+                     "sip4-dev" : "python-sip4",
                      "scons-dev" :  "scons",
                      "soappy" : "python-soappy",
                      "svn-dev" : "subversion",
                      "wstools": Ignore,
              })
-
 
 class Ubuntu_Karmic(Ubuntu):
     def __init__(self):
@@ -536,7 +536,7 @@ class Ubuntu_Natty(Ubuntu_Lucid):
 
 class Ubuntu_Oneiric(Ubuntu_Natty):
     def __init__(self):
-        Ubuntu_Lucid.__init__(self)
+        Ubuntu_Natty.__init__(self)
         self.update({
                      "boostmath" : "libboost-math1.46.1",
                      "boostmath-dev" : "libboost-math-dev",
@@ -544,22 +544,18 @@ class Ubuntu_Oneiric(Ubuntu_Natty):
                      "boostpython" : "libboost-python1.46.1",
                      "cgal" :  "libcgal7",
         })
-
+        
 class Ubuntu_Precise(Ubuntu_Oneiric):
     def __init__(self):
         Ubuntu_Oneiric.__init__(self)
-
-
-class Ubuntu_Quantal(Ubuntu_Precise):
-    def __init__(self):
-        Ubuntu_Precise.__init__(self)
         self.update({
-                     "boostmath" : "libboost-math1.49.0",
-                     "boostmath-dev" : "libboost-math-dev",
-                     "boostpython" : "libboost-python1.49.0",
-                     "boostpython-dev" : "libboost-python1.49-dev",
-                     "cgal" :  "libcgal9"
+                     "boostmath" : "libboost-math1.48.0",
+                     "boostmath-dev" : "libboost-math1.48-dev libboost1.48-dev",
+                     "boostpython" : "libboost-python1.48.0",
+                     "boostpython-dev" : "libboost-python1.48-dev",
+                     "cgal" :  "libcgal8",
         })
+
 
 class Fedora(NativePackageAPI):
     install_cmd = "sudo yum install"

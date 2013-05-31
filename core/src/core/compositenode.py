@@ -512,7 +512,7 @@ class CompositeNode(Node, DataFlow):
 
         return self.eval_algo
 
-    def eval_as_expression(self, vtx_id=None):
+    def eval_as_expression(self, vtx_id=None, step=False):
         """
         Evaluate a vtx_id
 
@@ -528,7 +528,7 @@ class CompositeNode(Node, DataFlow):
 
         try:
             self.evaluating = True
-            algo.eval(vtx_id)
+            algo.eval(vtx_id,step=step)
         finally:
             self.evaluating = False
         t1 = time.time()
@@ -537,7 +537,7 @@ class CompositeNode(Node, DataFlow):
             print 'Evaluation time: %s'%(t1-t0)
     # Functions used by the node evaluator
 
-    def eval(self):
+    def eval(self, *args, **kwds):
         """
         Evaluate the graph
 
