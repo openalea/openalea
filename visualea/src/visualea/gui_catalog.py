@@ -831,7 +831,7 @@ class IEnumStrWidget(IInterfaceWidget, qt.QtGui.QWidget):
         self.notify(None, None)
 
         self.connect(self.subwidget,
-                     qt.QtCore.SIGNAL("currentIndexChanged(int)"),
+                     qt.QtCore.SIGNAL("currentIndexChanged(const QString &)"),
                      self.valueChanged)
 
 
@@ -839,6 +839,7 @@ class IEnumStrWidget(IInterfaceWidget, qt.QtGui.QWidget):
 
     @lock_notify
     def valueChanged(self, newval):
+        print 'newval ', newval
         self.node.set_input(self.param_str, str(newval))
 
 
