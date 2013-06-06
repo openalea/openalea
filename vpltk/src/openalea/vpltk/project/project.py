@@ -153,7 +153,7 @@ class Project(object):
         
         temp_files = os.listdir(temp_path)
         for filename in temp_files:
-            if not filename.endswith('~'):
+            if not filename.endswith('~') and not filename.endswith('.xml'):
                 scripts[filename] = open(filename, 'rU').read()
 ##                scripts[file] = file(filename,'rU').read()
             
@@ -279,11 +279,13 @@ class Project(object):
         os.chdir(temp_path)
         
         for script in self.scripts:
-            file = open(script, "w")
+            if isinstance(script,bool):
+                continue
+            f = open(script, "w")
             code = str(self.scripts[script])
             code_enc = code.encode("utf8","ignore") 
-            file.write(code_enc)
-            file.close()
+            f.write(code_enc)
+            f.close()
        
         os.chdir(cwd) 
         
