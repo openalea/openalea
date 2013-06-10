@@ -133,6 +133,9 @@ class Project(object):
         startup = dict()
         temp_path = self.path/self.name/"startup"
         
+        if not temp_path.exists():
+            return startup
+
         cwd = os.getcwd()
         os.chdir(temp_path)
         
@@ -148,6 +151,8 @@ class Project(object):
         scripts = dict()
         temp_path = self.path/self.name/"scripts"
         
+        if not temp_path.exists():
+            return scripts
         cwd = os.getcwd()
         os.chdir(temp_path)
         
@@ -207,7 +212,9 @@ class Project(object):
     def _load_cache(self):
         cache = dict()
         temp_path = self.path/self.name/"data"/"cache"
-        
+        if not temp_path.exists():
+            return cache
+
         cwd = os.getcwd()
         os.chdir(temp_path)
         
