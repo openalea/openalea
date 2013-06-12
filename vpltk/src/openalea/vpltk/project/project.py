@@ -55,8 +55,8 @@ class Project(object):
         self.ns = dict()
         self.controls = dict()
         
-        # self.set_ipython()
         self.shell = None
+        self.set_ipython()
         
         self.scripts = dict()
         self.controls = dict()
@@ -171,43 +171,24 @@ class Project(object):
         Struct of controls:
         dict 'dict(Names : Values)'
         """
-##        temp_path = self.path/self.name/"data"/"controls"
-##        
-##        cwd = os.getcwd()
-##        os.chdir(temp_path)
-## 
-##        # Load Controls 
-##        temp_files = os.listdir(temp_path)
-##        for file_name in temp_files:
-##            if not file_name.endswith('~'):
-##                text = open(file_name, 'rU').read()
-##                self.controls[file_name] = text
-
-
+        cwd = os.getcwd()
+        os.chdir(cwd) 
+        
+        ctrls = dict()
         temp_path = self.path/self.name/"data"/"controls"
-        filename = '%s/control' %temp_path
         
-        try:
-            file = open(filename, 'r')
+        cwd = os.getcwd()
+        os.chdir(temp_path)
+        
+        temp_files = os.listdir(temp_path)
+        for filename in temp_files:
+            if not filename.endswith('~') and not filename.endswith('.xml'):
+                f = open(filename, 'rU')
+                ctrls[filename] = cPickle.load(f)
+                f.close()
+        os.chdir(cwd)    
             
-    ##        cwd = os.getcwd()
-    ##        os.chdir(temp_path)
-
-            try:
-                self.controls = cPickle.load(file)
-            except EOFError :
-                  file.close()
-
-            # Add controls in namespace
-            for controlname in self.controls:
-                self.ns[controlname] = eval(str(self.controls[controlname]))            
-
-    ##        os.chdir(cwd)    
-    
-        except IOError:
-            self.controls = dict()
-        
-        return self.controls
+        return ctrls
         
     def _load_cache(self):
         cache = dict()
@@ -303,27 +284,18 @@ class Project(object):
 
         """
         temp_path = self.path/self.name/"data"/"controls"
-        filename = '%s/control' %temp_path
         
-        file = open(filename, 'w')
+        cwd = os.getcwd()
+        os.chdir(temp_path)
         
-##        cwd = os.getcwd()
-##        os.chdir(temp_path)
+        for ctrl in self.controls:
+            if isinstance(ctrl,bool):
+                continue   
+            f = open(ctrl, 'w')
+            cPickle.dump(self.controls[ctrl],f,0)
+            f.close()    
+        os.chdir(cwd) 
         
-##        temp_dict = dict()
-        
-        cPickle.dump(self.controls,file,0)
-        
-        file.close()
-        
-##        for controlName in self.controls:
-##            file = open(controlName, "w")
-##            code = str(self.controls[controlName])
-##            code_enc = code.encode("utf8","ignore") 
-##            file.write(code_enc)
-##            file.close()
-##       
-##        os.chdir(cwd) 
         
     def _save_cache(self):
         temp_path = self.path/self.name/"data"/"cache"
@@ -393,7 +365,7 @@ class Project(object):
         try:
             os.mkdir(self.path/self.name)
         except OSError:
-            print("Directory %s alreay exits in %s" %(self.name,self.path))
+            warning.warn("Directory %s alreay exits in %s" %(self.name,self.path))
             error = True
         
         folders = [self.path/self.name/'data', 
@@ -405,12 +377,11 @@ class Project(object):
         try:
             map(os.mkdir, folders)
         except OSError:
-            print("Directories %s alreay exits in %s\%s" %(folders,self.name,self.path))
+            warning.warn("Directories %s alreay exits in %s\%s" %(folders,self.name,self.path))
             error = True
         
         if error:
-            print("---Warning!---")
-            print("Please delete old directories before creating new!")
+            warning.warn("---Warning!---\nPlease delete old directories before creating new!")
             raise OSError("Please delete old directories before creating new!")
         
 
@@ -484,17 +455,16 @@ class ProjectManager(object):
     
     
 def main():
-    print("Warning: Need OpenAlea.VPLTK to work") 
-    from openalea.vpltk.qt import qt as qt_
+    from openalea.vpltk.qt import QtGui
     from openalea.vpltk.shell.ipythoninterpreter import Interpreter
     from openalea.vpltk.shell.ipythonshell import ShellWidget
     import sys
     
     # Create Window with IPython shell
-    app = qt_.QtGui.QApplication(sys.argv)
+    app = QtGui.QApplication(sys.argv)
     interpreter = Interpreter()
     shellwdgt = ShellWidget(interpreter)
-    mainWindow = qt_.QtGui.QMainWindow()
+    mainWindow = QtGui.QMainWindow()
     mainWindow.setCentralWidget(shellwdgt)
     mainWindow.show()
 
