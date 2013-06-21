@@ -172,7 +172,7 @@ def walls_voxels_per_cell(image, label_1, bbox = None, neighbors = None, neighbo
         neighbors = [neighbors]
     if isinstance(neighbors,dict):
         neighborhood = neighbors
-        neighbors = neighborhood[label_1]
+        neighbors = copy.copy(neighborhood[label_1])
         try_to_use_neighbors2ignore = True
         if background in neighbors2ignore:
             neighbors.remove(background) # We don't want the voxels coordinates with the background.
@@ -201,7 +201,7 @@ def walls_voxels_per_cell(image, label_1, bbox = None, neighbors = None, neighbo
             neighbors_not_found = True
             if verbose: print "Couldn't find a contact between neighbor cells %d" % label_1, "& %d" % label_2
     if neighbors_not_found:
-        print "Some neighboring cells have not been found !"
+        warnings.warn("Some neighboring cells have not been found !")
 
     return coord
 

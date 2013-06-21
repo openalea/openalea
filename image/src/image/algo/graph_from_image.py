@@ -213,10 +213,7 @@ def _graph_from_image(image, labels, background, default_properties,
 
     if 'wall_median' in default_properties:
         print 'Computing wall_median property...'
-        try:
-            dict_wall_voxels
-        except:
-            dict_wall_voxels = analysis.wall_voxels_per_cells_pairs(labels, neighborhood, ignore_background=False )
+        dict_wall_voxels = analysis.wall_voxels_per_cells_pairs(labels, neighborhood, ignore_background=False )
 
         wall_median = {}
         for label_1, label_2 in dict_wall_voxels:
