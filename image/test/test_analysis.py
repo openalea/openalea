@@ -72,7 +72,7 @@ def test_on_simple_array():
     
     assert np.allclose(analysis.center_of_mass(7),array([.75, 2.75]))
     
-    print analysis.center_of_mass()
+    # print analysis.center_of_mass()
     assert np.allclose(analysis.center_of_mass([7,2]),[array([0.75, 2.75]), array([1.3333333333333333, 0.66666666666666663])])
     
     assert np.allclose(analysis.center_of_mass(),[array([1.8, 2.2999999999999998]),
@@ -90,7 +90,6 @@ def test_on_simple_array():
     assert analysis.wall_surfaces({ 1 : [2, 3], 2 : [6] }) == {(1, 2): 5.0, (1, 3): 4.0, (2, 6): 2.0 }
 
     assert analysis.wall_surfaces() == {(1, 2): 5.0, (1, 3): 4.0, (1, 4): 2.0, (1, 5): 1.0, (1, 6): 1.0, (1, 7): 2.0, (2, 6): 2.0, (2, 7): 1.0, (3, 7): 2, (4, 7): 1, (5, 6): 1.0, (5, 7): 2.0 }
-    print 'ok'
     
     inertia_axis, inertia_norm = analysis.inertia_axis(7)
     assert np.allclose(inertia_axis, [[ 0.9486833 , -0.31622777],[ 0.31622777,  0.9486833]])

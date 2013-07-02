@@ -124,7 +124,7 @@ def _graph_from_image(image, labels, background, default_properties,
 
     if 'boundingbox' in default_properties : 
         print 'Extracting boundingbox...'
-        add_vertex_property_from_label_and_value(graph,'boundingbox',labels,analysis.boundingbox(labels,real=bbox_as_real),mlabel2vertex=label2vertex)
+        add_vertex_property_from_dictionary(graph,'boundingbox',analysis.boundingbox(labels,real=bbox_as_real),mlabel2vertex=label2vertex)
         #~ graph._graph_property("units").update( {"boundingbox":(u'\u03bcm'if bbox_as_real else 'voxels')} )
 
     if 'volume' in default_properties and analysis.is3D(): 

@@ -1223,14 +1223,18 @@ class SpatialImageAnalysis2D (AbstractSpatialImageAnalysis):
             center_of_mass = self.center_of_mass(labels)
         for i,label in enumerate(labels):
             slices = self.boundingbox(label)
+            print slices
             if len(labels) == 1:
-                center = center_of_mass
+                # Fred note: It seems that now, an array is always returned. Even with one value.
+                center = center_of_mass[0]
             elif isinstance(center_of_mass, dict):
                 center = center_of_mass[label]
             else:
                 center = center_of_mass[i]
+            print center
             # project center into the slices sub_image coordinate
             for i,slice in enumerate(slices):
+                print center[i], slice.start
                 center[i] = center[i] - slice.start
             label_image = (self.image[slices] == label)
 
@@ -1255,7 +1259,7 @@ class SpatialImageAnalysis2D (AbstractSpatialImageAnalysis):
                     eig_val[i] *= np.linalg.norm( np.multiply(eig_vec[i],self.image.resolution) )
 
             inertia_eig_val.append(eig_val)
-
+        
         if unique_label :
             return inertia_eig_vec[0], inertia_eig_val[0]
         else:
