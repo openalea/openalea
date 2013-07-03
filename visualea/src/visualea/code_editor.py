@@ -240,7 +240,7 @@ class PythonCodeEditor(qt.QtGui.QWidget, AbstractCodeEditor):
 
             self.filewatcher = qt.QtCore.QFileSystemWatcher(self)
             self.filewatcher.addPath(self.filename)
-            self.connect(self.filewatcher, qt.QtCore.SIGNAL("fileChanged(const str &)"), self.file_changed)
+            self.connect(self.filewatcher, qt.QtCore.SIGNAL("fileChanged(const QString &)"), self.file_changed)
         
 
         except Exception, e:
