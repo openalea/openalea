@@ -20,6 +20,7 @@ __revision__ = " $Id$ "
 
 import weakref, types, gc, warnings
 from openalea.vpltk.qt import QtGui, QtCore
+from openalea.vpltk.qt.compat import from_qvariant
 import base, baselisteners, qtutils
 import edgefactory
 
@@ -274,7 +275,7 @@ class Vertex(Element):
 
         elif change == qtutils.ItemPositionHasChanged:
             self.deaf(True)
-            point = QtCore.QPointF(value)
+            point = QtCore.QPointF(from_qvariant(value))
             self.store_view_data(position=[point.x(), point.y()])
             self.deaf(False)
             self.notify_position_change()
