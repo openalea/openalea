@@ -8,13 +8,14 @@ class pylsm(Formula):
     py_dependent   = True
     arch_dependent = False
     version = "0.1-r34"
+    yet_installed = True
     
     @property 
     @with_original_sys_path
     def package(self):
         return __import__(self.packagename)
     
-    def setup(self):
+    def setup_2(self):
         pth = self.package.__path__[0]
         for p in pth.split("\\"):
             if ".egg" in p:

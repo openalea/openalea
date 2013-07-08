@@ -6,6 +6,8 @@ class pil(Formula):
     description = "PIL packaged as an egg"  
     __modulename__  = "Image"
     py_dependent   = True
-    arch_dependent = True    
-    def setup(self):
+    arch_dependent = True  
+    yet_installed = True
+    
+    def setup_2(self):
         return dict( VERSION = self.module.VERSION )

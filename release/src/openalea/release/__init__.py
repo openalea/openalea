@@ -67,6 +67,15 @@ class Formula(object):
     
     archive_subdir = None
     
+    # If you put it on True, this means that you have the     
+    # corresponding library installed. This is because they    
+    # are too difficult to compile and that we don't actually  
+    # need to compile them (no linkage from us to them)        
+    # or that they come as .exes and not eggs already  
+    yet_installed = False
+    
+    __packagename__ = None
+    
     working_path  = os.getcwd()
     
     def __init__(self,**kwargs):
@@ -113,6 +122,14 @@ class Formula(object):
 
                                        INSTALL_REQUIRES     = self.required_tools,
                                        )
+        
+        if self.yet_installed():
+            try:
+                p = self.package
+            except Exception:
+                self.enabled = False
+            else:
+                self.enabled = True
         
     @property
     def name(self):
@@ -341,11 +358,32 @@ class Formula(object):
         return True
 
     def setup(self):
-        return dict(
-                    LIB_DIRS         = {'lib' : pj(self.sourcedir,'lib') },
-                    INC_DIRS         = {'include' : pj(self.sourcedir,'include') },
-                    BIN_DIRS         = {'bin' : pj(self.sourcedir,'bin') },
-                    )
+        if self.yet_installed:
+            # for InstalledPackageEggBuilder
+            # ie. if you use library yet installed (no-compilation)
+            py_modules = recursive_glob(self.install_dir, Pattern.pymod)
+            data_files = recursive_glob_as_dict(self.install_dir,
+                        ",".join(["*.example","*.txt",Pattern.pyext,"*.c",".1"])).items()
+            packages, package_dirs = self.find_packages_and_directories()
+
+            d = dict ( PACKAGES = packages,
+                       PACKAGE_DIRS = package_dirs,
+                       DATA_FILES  = data_files,
+                      )
+            d.update(self.setup_2())
+            return d  
+        else:
+            # for everything else
+            return dict(
+                        LIB_DIRS         = {'lib' : pj(self.sourcedir,'lib') },
+                        INC_DIRS         = {'include' : pj(self.sourcedir,'include') },
+                        BIN_DIRS         = {'bin' : pj(self.sourcedir,'bin') },
+                        )
+    
+    # for InstalledPackageEggBuilder
+    # ie. if you use library yet installed (no-compilation)
+    def setup_2(self):
+        raise NotImplementedError     
 
     # -- The ones you can override are these ones --
     def extra_paths(self):
@@ -388,7 +426,43 @@ class Formula(object):
         else:
             opts = self.egg_name(), "\"ThirdPartyLibraries\"", "vplants" if not self.options["release"] else "openalea"
             return sh(sys.executable + " setup.py egg_upload --yes-to-all --release %s --package %s --project %s"%opts) == 0
+    
+    #################################
+    ## Come from InstalledPackageEggBuilder
+    #################################
+    @property
+    def package(self):
+        return __import__(self.packagename)
+    @property
+    def module(self):
+        if self.__modulename__:
+            return __import__(".".join([self.packagename,self.__modulename__]),
+                              fromlist=[self.__modulename__])
+    @property
+    def packagename(self):
+        return self.__packagename__ or self.egg_name()
+    @property
+    def install_dir(self):
+        return os.path.dirname(self.package.__file__)
 
+    def _filter_packages(self, pkgs):
+        parpkg = self.packagename + "."
+        return [ p for p in pkgs if (p == self.packagename or p.startswith(parpkg))]
+
+    def find_packages(self):
+        from setuptools import find_packages
+        pkgs   = find_packages( pj(self.install_dir, os.pardir) )
+        pkgs = self._filter_packages(pkgs)
+        return pkgs
+
+    def find_packages_and_directories(self):
+        pkgs = self.find_packages()
+        dirs = {}
+        base = abspath( pj(self.install_dir, os.pardir) )
+        for pk in pkgs:
+            dirs[pk] =  pj(base, pk.replace(".", os.sep))
+        return pkgs, dirs            
+            
     #################################
     ## Come from BuildEnvironment
     #################################
