@@ -1,0 +1,22 @@
+--- ./src/3rdparty/javascriptcore/JavaScriptCore/runtime/JSGlobalObject.h	Thu Dec 08 06:06:02 2011
++++ ./src/3rdparty/javascriptcore/JavaScriptCore/runtime/JSGlobalObject.h	Thu Mar 15 21:11:43 2012
+@@ -59,7 +59,7 @@
+     protected:
+         using JSVariableObject::JSVariableObjectData;
+ 
+-        struct JSGlobalObjectData : public JSVariableObjectData {
++        struct JSGlobalObjectData : public JSVariableObject::JSVariableObjectData {
+             // We use an explicit destructor function pointer instead of a
+             // virtual destructor because we want to avoid adding a vtable
+             // pointer to this struct. Adding a vtable pointer would force the
+--- ./src/3rdparty/javascriptcore/JavaScriptCore/runtime/JSStaticScopeObject.h	Thu Dec 08 06:06:02 2011
++++ ./src/3rdparty/javascriptcore/JavaScriptCore/runtime/JSStaticScopeObject.h	Thu Mar 15 21:15:05 2012
+@@ -33,7 +33,7 @@
+     class JSStaticScopeObject : public JSVariableObject {
+     protected:
+         using JSVariableObject::JSVariableObjectData;
+-        struct JSStaticScopeObjectData : public JSVariableObjectData {
++        struct JSStaticScopeObjectData : public JSVariableObject::JSVariableObjectData {
+             JSStaticScopeObjectData()
+                 : JSVariableObjectData(&symbolTable, &registerStore + 1)
+             {

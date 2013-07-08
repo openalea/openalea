@@ -1,0 +1,74 @@
+# -*- python -*-
+#
+#       @NAME setup.py
+#
+#       Copyright 2006-@THIS_YEAR INRIA - CIRAD - INRA
+#
+#       File author(s): @SETUP_AUTHORS
+#       Template File author(s): Daniel Barbeau
+#
+#       Distributed under the Cecill-C License.
+#       See accompanying file LICENSE.txt or copy at
+#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
+#
+#       OpenAlea WebSite : http://openalea.gforge.inria.fr
+#
+###############################################################################
+
+__license__ = "Cecill-C"
+__revision__ = " $Id$"
+
+#THIS SCRIPT IS CONFIGURED AND RUN BY THE DEPENDENCY_BUILDER PROCESS.
+#OTHERWISE IT WILL MOST PROBABLY FAIL AS THAT PROCESS CONFIGURES PATH
+#AND PYTHONPATH TEMPORARILY FOR SUBPROCESSES TO WORK PROPERLY.
+
+from setuptools import setup
+
+# General information
+name        = @NAME
+version     = @VERSION
+author      = "%s author : %s. Egg author : %s"%( @NAME, @CODE_AUTHOR, @SETUP_AUTHORS )
+description = @DESCRIPTION
+url         = @URL
+license     = @LICENSE
+
+# Technicalities
+zip_safe      = @ZIP_SAFE
+packages      = @PACKAGES
+package_dir   = @PACKAGE_DIRS
+package_data  = @PACKAGE_DATA
+data_files    = @DATA_FILES
+python_mods   = @PYTHON_MODS
+install_requires = @INSTALL_REQUIRES
+
+# Openalea Extensions
+bin_dirs = @BIN_DIRS
+lib_dirs = @LIB_DIRS
+inc_dirs = @INC_DIRS
+
+# The point in nesting the setup call is that
+# we can then import setup.py to extract the meta information
+if __name__ == "__main__":
+    setup(name        = name,
+          version     = version,
+          author      = author,
+          description = description,
+          url         = url,
+          license     = license,
+          
+          py_modules  = python_mods,
+          zip_safe    = zip_safe,                
+          packages    = packages,
+          package_dir = package_dir,                                             
+          package_data = package_data,
+                   
+          bin_dirs = bin_dirs,
+          lib_dirs = lib_dirs,
+          inc_dirs = inc_dirs,
+
+          data_files = data_files,
+
+          install_requires = install_requires,
+          setup_requires   = ["openalea.deploy"],
+          dependency_links = ['http://openalea.gforge.inria.fr/pi'],
+          )

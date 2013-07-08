@@ -1,0 +1,167 @@
+--- ./setup.py	Sun Mar 04 15:23:48 2012
++++ ./setup.py	Fri Mar 23 17:16:33 2012
+@@ -1,5 +1,5 @@
+ 
+-import os, os.path, sys, shutil, re, itertools, warnings
++import os, os.path, sys, shutil, re, itertools, warnings, platform
+ from collections import namedtuple
+ from distutils.command.build_ext import build_ext as _build_ext
+ from distutils.command.build import build as _build
+@@ -161,7 +161,7 @@
+         config = RConfig()
+         for about in ('--ldflags', '--cppflags', 
+                       'LAPACK_LIBS', 'BLAS_LIBS'):
+-            config += get_rconfig(r_home, about, sys.platform == "win32")
++            config += get_rconfig(r_home, about)#, sys.platform == "win32")
+ 
+         print(config.__repr__())
+ 
+@@ -267,6 +267,8 @@
+         
+         for substring in re.split('(?<!-framework) ', string):
+             ok = False
++            if not substring:
++                continue
+             for pattern in pp:
+                 rconfig_m = pattern.match(substring)
+                 if rconfig_m is not None:
+@@ -276,7 +278,7 @@
+                     break
+                 elif rconfig_m is None:
+                     if allow_empty:
+-                        print('\nreturned an empty string.\n')
++                        print('returned an empty string.\n')
+                         rc += RConfig()
+                         ok = True
+                         break
+@@ -321,18 +323,93 @@
+ 
+ 
+ def get_rconfig(r_home, about, allow_empty = False):
+-    r_exec = os.path.join(r_home, 'bin', 'R')
+-    cmd = '"'+r_exec+'" CMD config '+about
+-    rp = os.popen(cmd)
+-    rconfig = rp.readline()
+-    #Twist if 'R RHOME' spits out a warning
+-    if rconfig.startswith("WARNING"):
++    if sys.platform == "win32":
++        # parse the make conf file      
++        arch = "x64" if "64" in platform.architecture()[0] else 'i386' 
++        inc_dirs     = os.path.join(r_home, 'include')
++        arch_inc_dir = os.path.join(r_home, 'etc', arch)
++        d = get_makeconf_dict(r_home, arch)
++        if about == "--cppflags":
++            rconfig = d.get("ALL_CPPFLAGS") + r' -I"%s" -I"%s"'%(inc_dirs, arch_inc_dir)
++        elif about == "--ldflags":
++            rconfig = d.get("ALL_LIBS") + " -lreadline"
++        elif about == "LAPACK_LIBS":
++            rconfig = d.get("LAPACK_LIBS")        
++        elif about == "BLAS_LIBS":
++            rconfig = d.get("BLAS_LIBS")
++    else:
++        r_exec = os.path.join(r_home, 'bin', 'R')
++        cmd = '"'+r_exec+'" CMD config '+about
++        rp = os.popen(cmd)
+         rconfig = rp.readline()
++        #Twist if 'R RHOME' spits out a warning
++        if rconfig.startswith("WARNING"):
++            rconfig = rp.readline()
++        rp.close()
+     rconfig = rconfig.strip()
+     rc = RConfig.from_string(rconfig, allow_empty = allow_empty)
+-    rp.close()
+     return rc
+ 
++def get_makeconf_dict(r_home, arch):
++    makeconf = os.path.join(r_home, 'etc', arch, 'Makeconf')
++    return parse_make(makeconf, initial_vars={"R_HOME": r_home} )    
++
++def parse_make(makefile, initial_vars=None):
++	# regexp to find assignments
++    ass_re = re.compile(r"^\s*([\-\w]+)\s*=\s*(.*)$")
++    # regexp to find appends
++    app_re = re.compile(r"^\s*(\[\-\w]+)\s*\+=\s*(.*)$")
++    # regexp to find L variable references
++    var_re = re.compile(r"\$\(([\-\w]*)\)$")
++    # regexp to find R variable references
++    var_re2 = re.compile(r"(.*)\$\(([\-\w]*)\)(.*)")
++
++    if isinstance(makefile, file):
++        makefile.seek(0)
++        txt = makefile.readlines()
++    else:
++        with open(makefile) as f:
++            txt = f.readlines()
++    
++    # gather variables
++    vardict = {}      
++    for l in txt:
++        if "=" in l and not l.startswith("#"):
++
++            # ignore commented equal signs
++            if "#" in l and l.index("#") < l.index("="): continue
++            
++			# we do not do rule expansion so $* and relatives are not recognized
++            l = l.replace("$*","")
++			
++            assignmt = ass_re.match(l)
++            appendmt = app_re.match(l)
++            if assignmt: # store the variable name and its value.               
++                k = assignmt.group(1)
++                v = assignmt.group(2)
++                k = k.strip()
++                v = v.strip()          
++                vardict[k] = v
++            elif(appendmt): # append a value to a previously declared variable.
++                k = appendmt.group(1)
++                v = appendmt.group(2)
++                if k in vardict:
++                    vardict[k] += " "+v
++                else:
++                    vardict[k] = v
++    # squeeze in variables passed as arguments.
++    if initial_vars:
++        vardict.update(initial_vars)
++    # expand variables
++    for var, value in vardict.copy().iteritems():
++        expand = var_re2.search(value) #something to expand
++        while (expand):
++            value  = expand.group(1) + vardict.get(expand.group(2), "") + expand.group(3)  
++            expand = var_re2.search(value) #something to expand
++        vardict[var] = value
++    return vardict
++    
++    
+ def getRinterface_ext():
+     #r_libs = [os.path.join(RHOME, 'lib'), os.path.join(RHOME, 'modules')]
+     r_libs = []
+
+
+--- ./rpy/rinterface/__init__.py	Wed Apr 04 18:11:30 2012
++++ ./rpy/rinterface/__init__.py	Wed Apr 04 22:39:41 2012
+@@ -42,7 +42,9 @@
+         R_HOME = R_HOME[1]
+     else:
+         R_HOME = R_HOME[0]
+-        R_HOME = R_HOME.strip()
++        # the environment variable can contain underscores or quotes
++        # which aren't stripped by os.path.join.
++        R_HOME = R_HOME.strip(' "')
+ 
+ os.environ['R_HOME'] = R_HOME
+ 
+@@ -67,9 +69,13 @@
+     R_DLL_DIRS = ('bin', 'lib')
+     # Try dirs from R_DLL_DIRS
+     for r_dir in R_DLL_DIRS:
+-        Rlib = os.path.join(R_HOME, r_dir, _win_bindir, 'R.dll')
++        Rlib_base = os.path.join(R_HOME, r_dir, _win_bindir)
++        Rlib = os.path.join(Rlib_base, 'R.dll')
+         if not os.path.exists(Rlib):
+             continue
++        # if R_HOME is not on %PATH% LoadLibrary will fail
++        if Rlib_base not in os.environ['PATH']:
++            os.environ['PATH'] += ';' + Rlib_base
+         win32api.LoadLibrary( Rlib )
+         _win_ok = True
+         break
