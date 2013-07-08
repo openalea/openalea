@@ -1,6 +1,4 @@
-import os
 from os.path import join as pj
-from path import path
 from openalea.release import Formula
 from openalea.release.utils import recursive_copy, Pattern
 from openalea.release.formula.mingw import mingw

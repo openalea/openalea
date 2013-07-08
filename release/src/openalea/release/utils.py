@@ -26,7 +26,18 @@ formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
 hdlr.setFormatter(formatter) 
 logger.addHandler(hdlr) 
 '''
+
+
+#################################
+# Some Utilities - Path Joining #
+#################################
+# Native Path Joining function:
 sj = os.pathsep.join
+
+def uj(*args):
+    """Unix-style path joining, useful when working with qmake."""
+    return "/".join(args)
+    
 
 ############################################
 # A few decorators to factor out some code #
@@ -60,6 +71,16 @@ def in_dir(directory):
         wrapper.__name__ = f.__name__
         return wrapper
     return dir_changer
+    
+def with_original_sys_path(f):
+    """Calls the decorated function with the original PATH environment variable"""
+    def func(*args,**kwargs):
+        cursyspath = sys.path[:]
+        sys.path = BaseEggBuilder.__oldsyspath__[:]
+        ret = f(*args, **kwargs)
+        sys.path = cursyspath
+        return ret
+    return func
    
 def make_silent(self, silent):
         if silent:
@@ -97,7 +118,34 @@ def option_to_sys_path(option):
             return ret
         return wrapper
     return func_decorator
-    
+   
+def option_to_python_path(option):
+    """If optionnal argument "option" was provided on the command line
+    it will be appended to the PYTHONPATH and sys.path vars just for the
+    call this function decorates. After the call, the original environment
+    will be restored."""
+    def func_decorator(f):
+        def wrapper(self, *args, **kwargs):
+            opt_pth = self.options.get(option)
+            if opt_pth:
+                # save original values
+                prev_pth = sys.path[:]
+                prev_py_pth = os.environ.get("PYTHONPATH", "")
+                # modify environment
+                sys.path += opt_pth.split(";")
+                os.environ["PYTHONPATH"] = sj([opt_pth, prev_py_pth])
+                # call the function
+                ret = f(self, *args, **kwargs)
+                # restore original values
+                sys.path = prev_pth
+                os.environ["PYTHONPATH"] = prev_py_pth
+            else:
+                print "option_to_python_path:", option, "not provided"
+                ret = f(self, *args, **kwargs)
+            return ret
+        return wrapper
+    return func_decorator
+   
 ############################################
 # Useful small functions                   #
 ############################################

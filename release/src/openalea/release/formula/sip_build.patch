@@ -1,0 +1,40 @@
+--- ./build.py	Mon Oct 24 10:03:02 2011
++++ ./build.py	Thu Apr 05 21:42:06 2012
+@@ -188,13 +188,31 @@
+         release_suffix = "-unknown"
+         version = None
+ 
+-        parts = name.split('-')
+-        if len(parts) > 1:
+-            name = parts[-1]
++        hg_archival = os.path.join(_RootDir, ".hg_archival.txt")
++        if os.path.exists(hg_archival):            
++            # we might be able to get the tag
++            # from the hg_archival file!
++            print "Using hg_archival"
++            f = open(hg_archival)
++            lines = f.readlines()
++            f.close()
++            hg_values = dict( tuple(item.strip() for item in line.split(":")) for line in lines )
++            version   = hg_values.get("tag")
++            if version is not None:
++                version = version.split(".")
++                if len(version) == 2:
++                    version += 0,
++                version = tuple( int(i) for i in version )
++            release_suffix = ""
++        
++        if version is None:
++            parts = name.split('-')
++            if len(parts) > 1:
++                name = parts[-1]
+ 
+-            if len(name) == 12:
+-                # This is the best we can do without access to the repository.
+-                release_suffix = '-' + name
++                if len(name) == 12:
++                    # This is the best we can do without access to the repository.
++                    release_suffix = '-' + name
+ 
+     # Format the results.
+     if version is None:

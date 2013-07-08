@@ -5,14 +5,14 @@ from openalea.release.formula.pyqscintilla import pyqscintilla
 from openalea.release.formula.sip import sip
 from openalea.release.formula.mingw_rt import mingw_rt
 
-from openalea.release.utils import recursive_glob, recursive_glob_as_dict, recursive_copy, apply_patch, makedirs, Pattern
-from os.path import join as pj
+from openalea.release.utils import uj, recursive_glob, recursive_glob_as_dict, \
+ recursive_copy, apply_patch, makedirs, Pattern
+from os.path import join as pj, abspath, dirname
 import subprocess
 import ConfigParser
 import time
 import os
 
-from openalea.vpltk.qt import QtCore # /!\ VPLTK USED HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 from setuptools import find_packages
 
 PATCH_DIR = abspath(dirname(__file__))
@@ -153,7 +153,7 @@ class qt4(Formula):
         package_dir = {"PyQt4": pj(pyqt4_.install_site_dir, "PyQt4")}
         
         return dict( 
-                    VERSION  = QtCore.QT_VERSION_STR,
+                    VERSION  = self.version,
                     PACKAGES = find_packages(pyqt4_.install_site_dir, "PyQt4"),
                     PACKAGE_DIRS = package_dir,
                     PACKAGE_DATA = {'' : [Pattern.pyext]},

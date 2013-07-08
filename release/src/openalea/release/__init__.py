@@ -1,24 +1,13 @@
 import traceback
 import sys, os
-import subprocess
 import datetime
 import shutil
 import glob
-import zipfile
-import tarfile
-import string
-import fnmatch
-from path import path
-import requests
-from re import compile as re_compile
 from os.path import abspath, dirname
 
-from os import listdir
 from os.path import join as pj, splitext, exists, split
-from collections import OrderedDict, defaultdict
+from collections import OrderedDict
 
-# WARNING :  use deploy here
-from openalea.deploy.system_dependencies import patch
 
 '''
 import logging
@@ -29,10 +18,10 @@ formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
 hdlr.setFormatter(formatter) 
 logger.addHandler(hdlr) 
 '''
-sj = os.pathsep.join
 
-from openalea.release.utils import *
-
+from openalea.release.utils import make_silent, Later, url, unpack, \
+into_subdir, in_dir, try_except, TemplateStr, sh, sj
+                                
 
 ############################################
 # Formula                                  #

@@ -1,32 +1,29 @@
 from openalea.release import Formula
-from openalea.release.utils import recursive_copy
-from openalea.release.compiler import Compiler
-import os
+from openalea.release.utils import sh, pj
+from openalea.release.formula.qt4 import qt4
+from openalea.release.formula.qscintilla import qscintilla
+from openalea.release.formula.pyqt4 import pyqt4
+import sys
 
-MINGW_PATH = ''
+class pyqscintilla(Formula):
+    download_url = None # shares the same as qscintilla
+    download_name  = "qscintilla_src.zip"
+    archive_subdir = "QScint*/Python"
 
-class mingw_rt(Formula):
-    license = "PublicDomain for MingW runtime. GLP or LGPL for some libraries."
-    authors = "The Mingw Project"
-    description = "Mingw Development (compiler, linker, libs, includes)"
-    py_dependent   = False
-    arch_dependent = True
-    version        = "5.1.4_4b"
-    download_url = None
-    supported_tasks = "i"
-    download_name  = "mingw"
-    archive_subdir = None
     def __init__(self, *args, **kwargs):
-        super(mingw_rt, self).__init__(*args, **kwargs)
-        self.sourcedir = MINGW_PATH if MINGW_PATH else pj(Compiler.get_bin_path(), '..')
-        self.install_dll_dir = pj(self.installdir, "dll")
+        super(pyqscintilla, self).__init__(*args, **kwargs)
+        # define installation paths
+        qsci = qscintilla()
+        qt4_ = qt4()
+        pyqt = pyqt4()
+        self.install_paths = pj(qsci.sourcedir,"release"), pj(qt4_.installdir, "qsci"), \
+                             qsci.sourcedir, pj(pyqt.install_site_dir, "PyQt4"), \
+                             pyqt.install_sip_dir
+        self.qsci_dir = self.install_paths[1]
 
-    def install(self):
-        recursive_copy( pj(self.sourcedir, "bin"), self.install_dll_dir, Pattern.dynlib, levels=1)
-        return True
-        
-    def configure_init_py(self):
-        return dict( 
-                    VERSION  = self.version,
-                    LIB_DIRS = {"bin":self.install_dll_dir},
-                    )             
+    def configure(self):
+        # we want pyqscintilla to install itself where pyqt4 installed itself.
+        # -- The -S flag is needed or else configure.py
+        # sees any existing sip installation and can fail. --
+        return sh(sys.executable + \
+               " -S configure.py -o %s -a %s -n %s -d %s -v %s"%self.install_paths ) == 0

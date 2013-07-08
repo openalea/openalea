@@ -1,6 +1,5 @@
 from openalea.release import Formula
 from openalea.release.utils import recursive_glob_as_dict, memoize, sh
-from path import path
 import os, sys
 from os.path import join as pj
 from re import compile as re_compile
