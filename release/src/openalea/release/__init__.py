@@ -371,24 +371,50 @@ class Formula(object):
             # for InstalledPackageEggBuilder
             # ie. if you use library yet installed (no-compilation)
             
-            # py_modules = recursive_glob(self.install_dir, Pattern.pymod)
-            data_files = recursive_glob_as_dict(self.install_dir,
-                        ",".join(["*.example","*.txt",Pattern.pyext,"*.c",".1"])).items()
             packages, package_dirs = self.find_packages_and_directories()
+            
+            install_dir = os.path.dirname(self.package.__file__)
+            
+            # py_modules = recursive_glob(self.install_dir, Pattern.pymod)
+            data_files = recursive_glob_as_dict(install_dir,
+                        ",".join(["*.example","*.txt",Pattern.pyext,"*.c",".1"])).items()
 
             d = dict ( PACKAGES = packages,
                        PACKAGE_DIRS = package_dirs,
                        DATA_FILES  = data_files,
+                       LIB_DIRS         = None,
+                       INC_DIRS         = None,
+                       BIN_DIRS         = None,
                       )
             d.update(self.setup_2())
             return d  
         else:
             # for everything else
-            return dict(
-                        LIB_DIRS         = {'lib' : pj(self.sourcedir,'lib') },
-                        INC_DIRS         = {'include' : pj(self.sourcedir,'include') },
-                        BIN_DIRS         = {'bin' : pj(self.sourcedir,'bin') },
-                        )
+            ret = dict()
+            
+            lib = pj(self.sourcedir,'lib')
+            inc = pj(self.sourcedir,'include')
+            bin = pj(self.sourcedir,'bin')
+            
+            if lib.exists():
+                ret['LIB_DIRS'] = {'lib' : pj(self.sourcedir,'lib') }
+            else:
+                ret['LIB_DIRS'] = None
+            if inc.exists():
+                ret['INC_DIRS'] = {'include' : pj(self.sourcedir,'include') }
+            else:
+                ret['INC_DIRS'] = None
+            if bin.exists():
+                ret['BIN_DIRS'] = {'bin' : pj(self.sourcedir,'bin') }
+            else:
+                ret['BIN_DIRS'] = None                
+                
+            return ret 
+            # dict(
+                        # LIB_DIRS         = {'lib' : pj(self.sourcedir,'lib') },
+                        # INC_DIRS         = {'include' : pj(self.sourcedir,'include') },
+                        # BIN_DIRS         = {'bin' : pj(self.sourcedir,'bin') },
+                        # )
     
     # for InstalledPackageEggBuilder
     # ie. if you use library yet installed (no-compilation)

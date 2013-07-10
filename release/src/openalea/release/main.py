@@ -93,9 +93,9 @@ def install_build_deps():
 def get_rt_deps():
     ret = ["ann", "mingw", "mingw_rt", "qhull", "boost", "rpy2",\
     "qt4", "qt4_dev", "pyqt4", "qscintilla", "pyqscintilla",\
-    "sip", "qglviewer", "pyqglviewer", "pylsm", "pil", "numpy",\
+    "sip", "qglviewer", "pyqglviewer", "pylsm", "pillow", "numpy",\
     "scipy", "matplotlib", "gnuplot", "cgal"]
-    return ["numpy"]
+    return ["numpy", "scipy", "matplotlib", "pillow", "pylsm"]
     
 def install_rt_deps():
     """ Install the 3rd party dependencies needed for runing (rt = runtime) packages.

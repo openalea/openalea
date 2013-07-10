@@ -18,4 +18,4 @@ class numpy(Formula):
         return True    
     
     def setup_2(self):
-        return dict( VERSION = self.package.version.full_version )
+        return dict( VERSION = self.package.version.full_version, )
