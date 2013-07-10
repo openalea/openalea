@@ -1,8 +1,10 @@
 from openalea.release import Formula
 from openalea.release.utils import sh
-from boost import boost
+from openalea.release.formula.boost import boost
+from openalea.release.formula.mingw import mingw
 from os.path import join as pj
 import os
+from openalea.release.tools.cmake import cmake
 
 class cgal(Formula):
     license = "GNU Lesser Public License"
@@ -24,8 +26,9 @@ class cgal(Formula):
                     BIN_DIRS         = {'bin' : pj(self.sourcedir,'bin') },
                     ) 
     def configure(self):
-        compiler = Compiler.get_bin_path()
+        compiler = mingw().get_bin_path()
         boost_ = boost()
+        boost_._fix_source_dir()
         db_quote = lambda x: '"'+x+'"'
         options = " ".join(['-DCMAKE_INSTALL_PREFIX='+db_quote(self.installdir),
                             '-DCMAKE_CXX_COMPILER:FILEPATH='+db_quote(pj(compiler,'g++.exe')),

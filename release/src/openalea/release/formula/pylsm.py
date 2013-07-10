@@ -14,6 +14,15 @@ class pylsm(Formula):
     @with_original_sys_path
     def package(self):
         return __import__(self.packagename)
+        
+    def configure(self):
+        return True
+        
+    def make(self):
+        return True
+        
+    def install(self):
+        return True
     
     def setup_2(self):
         pth = self.package.__path__[0]

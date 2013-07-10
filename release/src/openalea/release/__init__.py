@@ -4,7 +4,6 @@ import datetime
 import shutil
 import glob
 from os.path import abspath, dirname
-
 from os.path import join as pj, splitext, exists, split
 from collections import OrderedDict
 
@@ -20,7 +19,8 @@ logger.addHandler(hdlr)
 '''
 
 from openalea.release.utils import make_silent, Later, url, unpack, \
-into_subdir, in_dir, try_except, TemplateStr, sh, sj
+into_subdir, in_dir, try_except, TemplateStr, sh, sj, makedirs, \
+Pattern, recursive_glob_as_dict
                                 
 
 ############################################
@@ -77,7 +77,7 @@ class Formula(object):
     __packagename__ = None
     
     working_path  = os.getcwd()
-    
+
     def __init__(self,**kwargs):
         self.done_tasks = {}
         self.options = {} 
@@ -100,8 +100,12 @@ class Formula(object):
             self.setup_in_name  = pj(abspath(dirname(__file__)), "setup.py.in")
         self.setup_out_name = pj(self.eggdir, "setup.py")
         self.use_cfg_login  = False
-        try: os.makedirs(self.eggdir)
-        except: pass
+        
+        makedirs(self._get_src_path())
+        makedirs(self._get_install_path())
+        makedirs(self._get_dl_path())
+        makedirs(self.eggdir)
+        
 
         self.default_substitutions = dict( NAME             = self.egg_name(),
                                        VERSION              = self.version,
@@ -121,11 +125,15 @@ class Formula(object):
                                        DATA_FILES           = None,
 
                                        INSTALL_REQUIRES     = self.required_tools,
+                                       
+                                       LIB_DIRS         = {'lib' : pj(self.sourcedir,'lib') },
+                                       INC_DIRS         = {'include' : pj(self.sourcedir,'include') },
+                                       BIN_DIRS         = {'bin' : pj(self.sourcedir,'bin') },
                                        )
         
-        if self.yet_installed():
+        if self.yet_installed:
             try:
-                p = self.package
+                self.package
             except Exception:
                 self.enabled = False
             else:
@@ -227,12 +235,13 @@ class Formula(object):
         # other proj installed it.
         if self.download_url is None:
             print 'No url'
-            return True
+            ret = True
         if exists(self.sourcedir):
             print 'already unpacked in '+repr(self.sourcedir)
-            return True
-        arch = arch or self.archname
-        ret = unpack(arch, self.sourcedir)
+            ret = True
+        else:
+            arch = arch or self.archname
+            ret = unpack(arch, self.sourcedir)
         
         self._fix_source_dir()
         return ret 
@@ -361,7 +370,8 @@ class Formula(object):
         if self.yet_installed:
             # for InstalledPackageEggBuilder
             # ie. if you use library yet installed (no-compilation)
-            py_modules = recursive_glob(self.install_dir, Pattern.pymod)
+            
+            # py_modules = recursive_glob(self.install_dir, Pattern.pymod)
             data_files = recursive_glob_as_dict(self.install_dir,
                         ",".join(["*.example","*.txt",Pattern.pyext,"*.c",".1"])).items()
             packages, package_dirs = self.find_packages_and_directories()
@@ -441,9 +451,6 @@ class Formula(object):
     @property
     def packagename(self):
         return self.__packagename__ or self.egg_name()
-    @property
-    def install_dir(self):
-        return os.path.dirname(self.package.__file__)
 
     def _filter_packages(self, pkgs):
         parpkg = self.packagename + "."
@@ -451,14 +458,16 @@ class Formula(object):
 
     def find_packages(self):
         from setuptools import find_packages
-        pkgs   = find_packages( pj(self.install_dir, os.pardir) )
+        install_dir = os.path.dirname(self.package.__file__)
+        pkgs   = find_packages( pj(install_dir, os.pardir) )
         pkgs = self._filter_packages(pkgs)
         return pkgs
 
     def find_packages_and_directories(self):
         pkgs = self.find_packages()
         dirs = {}
-        base = abspath( pj(self.install_dir, os.pardir) )
+        install_dir = os.path.dirname(self.package.__file__)
+        base = abspath( pj(install_dir, os.pardir) )
         for pk in pkgs:
             dirs[pk] =  pj(base, pk.replace(".", os.sep))
         return pkgs, dirs            

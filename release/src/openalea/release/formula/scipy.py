@@ -8,6 +8,15 @@ class scipy(Formula):
     arch_dependent = True 
     yet_installed = True
     
+    def configure(self):
+        return True
+        
+    def make(self):
+        return True
+        
+    def install(self):
+        return True    
+    
     def setup_2(self):
         return dict( VERSION = self.package.version.full_version )
-                    )             
+      

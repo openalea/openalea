@@ -1,6 +1,7 @@
 from openalea.release import Formula
 from openalea.release.utils import sh, apply_patch, pj, option_to_sys_path
 from openalea.release.formula.qt4 import qt4
+from openalea.release.tools.bisonflex import bisonflex
 import sys
 from os.path import abspath, dirname, exists
 

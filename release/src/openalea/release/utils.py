@@ -16,6 +16,10 @@ from collections import defaultdict
 
 # WARNING :  use deploy here
 from openalea.deploy.system_dependencies import patch
+from openalea.deploy.util import get_repo_list
+from setuptools.package_index import PackageIndex
+
+
 
 '''
 import logging
@@ -27,18 +31,20 @@ hdlr.setFormatter(formatter)
 logger.addHandler(hdlr) 
 '''
 
+__oldsyspath__ = sys.path[:]
 
-#################################
-# Some Utilities - Path Joining #
-#################################
-# Native Path Joining function:
+pi = PackageIndex(search_path=[])
+pi.add_find_links(get_repo_list())
+
 sj = os.pathsep.join
 
 def uj(*args):
     """Unix-style path joining, useful when working with qmake."""
     return "/".join(args)
     
-
+# A file object to redirect output to NULL:
+NullOutput = open("NUL", "w")
+    
 ############################################
 # A few decorators to factor out some code #
 ############################################
@@ -76,7 +82,7 @@ def with_original_sys_path(f):
     """Calls the decorated function with the original PATH environment variable"""
     def func(*args,**kwargs):
         cursyspath = sys.path[:]
-        sys.path = BaseEggBuilder.__oldsyspath__[:]
+        sys.path = __oldsyspath__[:]
         ret = f(*args, **kwargs)
         sys.path = cursyspath
         return ret
@@ -155,13 +161,15 @@ def sh(cmd,shell=True):
     return subprocess.call(cmd, shell=shell)
 
 def url(name, dir=None, dl_name=None):
-    """ Download an url into dir and renamed it into dl_name. 
+    """ Download from url into dir and renamed it into dl_name. 
     """
+    ret = True
+    
     if dir is None:
         dir = '.'
     dir = path(dir).abspath()
     if not dir.exists():
-        dir.mkdir()
+        makedirs(dir)
     
     filename = name.split('/')[-1]
     filename = filename.split('#')[0]
@@ -169,51 +177,95 @@ def url(name, dir=None, dl_name=None):
     if dl_name:
         complete_fn = dir/dl_name
 
-    reponse = requests.get(name)
-    with open(complete_fn, "wb") as code:
-        code.write(reponse.content)
-        print("%s Downloaded." %filename)
+    try:
+        reponse = requests.get(name)
+        with open(complete_fn, "wb") as code:
+            code.write(reponse.content)
+            print("%s Downloaded." %filename)
+            ret = complete_fn
+    except:
+        ret = False
         
+    return ret
+ 
+def install(filename):
+    ext = filename.split(".")[-1]
+    if ext.lower() == "msi":
+        sh('msiexec /i %s' %filename)
+        print("%s Installed." %filename)
+    elif ext.lower() == "exe":
+        sh(filename)
+        print("%s Installed." %filename)
+    else:
+        print("---We can't install %s. Unknow extension.---" %filename)
+ 
 def apply_patch(patchfile):
     """ Apply patch from file
     """
     p = patch.fromfile(patchfile)
-    return p.apply()    
-'''  
-def apply_patch(patchstring):
-    """ Apply patch from string
-    """
-    fn = "temp"
-    f = open(fn,"w")
-    f.write(patchstring)
-    f.close()
-    filename = "ann_mgw.patch"
-    p = patch.fromfile(fn)
-    p.apply()
-    #os.remove(fn)
+    return p.apply()   
 
-def fix_open_in_rb_mode(txt):
-    """ If you have a string reprensentation of a file,
-    you can need to have this reprensentation like in open(fn,'rb').read().
-    This function convert from mode 'r' to mode 'rb'.
+def get_dirs():
+    """ Return list of directories to create.
+        - install dir (install): where 3rd party will be installed
+        - source dirs (src): where svn dirs will be checkout
+        - egg dirs (egg): where "bdist_egg" will work
+        - download dirs (dl) : where files will be download
+        - dist dirs (dist) : where the final release files will be copied
     """
-    fn = "temp"
-    f = open(fn,"w")
-    f.write(txt)
-    f.close()
-    f = open(fn,"rb")
-    new_txt = f.read()
-    f.close()
-    os.remove(fn)
-    return new_txt
+    cwd = path(os.getcwd())
+    dirs = [
+       cwd/"dl",
+       cwd/"src",
+       cwd/"install",
+       cwd/"dist",
+       cwd/"egg",
+       ]
+    return dirs
+
+def rm_temp_dirs():
+    """ Remove old directories."""
+    dirs = get_dirs()
+    for f in dirs:
+        if f.exists():
+            if f.isdir():
+                f.rmtree()
+            else:
+                f.remove()
+        else:
+            print "Can't remove %s" %f
     
-def fix_line_separators(txt):
-    oldlinesep = '\n'
-    newlinesep = os.linesep
-    if newlinesep not in txt:
-        txt = txt.replace(oldlinesep,newlinesep)
-    return txt
-'''
+def mk_temp_dirs():
+    """ Create the working directories:
+    """
+    dirs = get_dirs()
+    makedirs(dirs)
+
+def download_egg(eggname, dir):
+    """Download an egg to a specific place
+    
+    :param eggname: name of egg to download
+    :param dir: destination directory
+    :return: local path
+    """
+    print "Downloading %s"%eggname
+    return pi.download(eggname, dir)
+        
+def checkout(url, dir=None):
+    """ Checkout (SVN) url into dir
+    """
+    if dir is None:
+        dir = '.'
+    dir = path(dir)
+    cmd = "svn co %s %s " %(url, dir)
+    sh(cmd)    
+    
+def set_windows_env():
+    """ Set window environment path
+    """
+    cmd = "set PATH=%PATH%;%INNO_PATH%;%SVN_PATH%;%PYTHON_PATH%;%PYTHON_PATH%\Scripts"
+    sh(cmd)
+
 def unpack(arch, where):
     """ Unpack a ZIP, TGZ or TAR file from 'where'
     """
@@ -233,7 +285,6 @@ def unpack(arch, where):
     print "done"
     return True
     
-
 def move(from_src, to_src):
     """ Move a tree from from_src to to_src.
     """
@@ -394,11 +445,32 @@ def recursive_copy(sourcedir, destdir, patterns=None, levels=-1, flat=False):
 def makedirs(pth, verbose=False):
     """ A wrapper around os.makedirs that prints what
     it's doing and catches harmless errors. """
-    #print "creating", pth, "...",
     try:
         os.makedirs( pth )
-        #print "ok"
     except os.error:
-        #print "already exists or access denied"
         if verbose:
             traceback.print_exc()
+         
+def get_python_scripts_dirs():
+    dirs = []
+    for pth in sorted(sys.path):
+        pth = [part for part in pth.split(os.sep)]
+        try:
+            pth_low = [part.lower() for part in pth]
+            idx = pth_low.index("lib")
+        except:
+            continue
+        else:
+            script_dir_name = "scripts" if sys.platform == "win32" else "bin"
+            script_path = pj(*pth[:idx]+[script_dir_name])
+            # sys.path contains absolute namesso the split operation above has to
+            # be compensated:
+            if sys.platform == "win32":
+                # restore "driveletter:\\" on windows
+                script_path = script_path.replace(":", ":"+os.sep)            
+            else:
+                # restore "/" on unixes
+                script_path = "/"+script_path
+            if script_path not in dirs:
+                dirs.append(script_path)
+    return dirs

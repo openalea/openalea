@@ -5,8 +5,11 @@ from openalea.release.formula.qt4 import qt4
 import sys
 
 class pyqt4(Formula):
+    download_url = "http://sourceforge.net/projects/pyqt/files/PyQt4/PyQt-4.10.2/PyQt-win-gpl-4.10.2.zip"
+    '''
     download_url = "http://pypi.python.jp/PyQt/PyQt-win-gpl-4.8.6.zip#md5=734bb1b8e6016866f4450211fc4770d9"
-    #url = "http://www.riverbankcomputing.co.uk/static/Downloads/PyQt4/PyQt-win-gpl-4.9.1.zip"
+    url = "http://www.riverbankcomputing.co.uk/static/Downloads/PyQt4/PyQt-win-gpl-4.9.1.zip"
+    '''
     download_name  = "pyqt4_src.zip"
     archive_subdir = "PyQt*"
     
@@ -29,7 +32,13 @@ class pyqt4(Formula):
     def configure(self):
         return sh(sys.executable + \
                       " -S configure.py --confirm-license -w -b %s -d %s -v %s"%self.inst_paths) == 0
-
+        
+    def make(self):
+        return True
+        
+    def install(self):
+        return True
+        
     def extra_paths(self):
         return self.install_bin_dir
 

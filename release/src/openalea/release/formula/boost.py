@@ -2,7 +2,7 @@ from openalea.release import Formula
 from openalea.release.utils import sh, ascii_file_replace, recursive_glob_as_dict, merge_list_dict, Pattern
 from openalea.release.formula.mingw_rt import mingw_rt
 from os.path import join as pj, exists
-import os
+import os, sys
 from re import compile as re_compile
 import re
 
@@ -63,5 +63,6 @@ class boost(Formula):
                     VERSION          = version,                 
                     LIB_DIRS         = lib_dirs,
                     INC_DIRS         = inc_dirs,
+                    BIN_DIRS         = None,                
                     INSTALL_REQUIRES = [mingw_rt.egg_name()]
                     )  

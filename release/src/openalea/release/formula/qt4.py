@@ -1,10 +1,6 @@
 from openalea.release import Formula
 from openalea.release.formula.mingw import mingw
-from openalea.release.formula.pyqt4 import pyqt4
-from openalea.release.formula.pyqscintilla import pyqscintilla
-from openalea.release.formula.sip import sip
 from openalea.release.formula.mingw_rt import mingw_rt
-
 from openalea.release.utils import uj, recursive_glob, recursive_glob_as_dict, \
  recursive_copy, apply_patch, makedirs, Pattern
 from os.path import join as pj, abspath, dirname
@@ -12,15 +8,16 @@ import subprocess
 import ConfigParser
 import time
 import os
-
 from setuptools import find_packages
+# Warnings : other imports in the setup
 
 PATCH_DIR = abspath(dirname(__file__))
 
 class qt4(Formula):
-    version = "4.7.4"
-    #version = "4.8.0"
+    #version = "4.7.4"
+    version = "4.8.5"
     download_url = "http://get.qt.nokia.com/qt/source/qt-everywhere-opensource-src-"+version+".zip"
+    download_url = "http://download.qt-project.org/official_releases/qt/4.8/4.8.5/qt-everywhere-opensource-src-"+version+".zip"
     download_name  = "qt4_src.zip"
     archive_subdir = "qt-every*"
 
@@ -42,8 +39,7 @@ class qt4(Formula):
         self.install_plu_lib_dir = pj(self.installdir, "plugins_lib")
         self.install_mks_dir = pj(self.installdir, "mkspecs")
         self.install_tra_dir = pj(self.installdir, "translations")
-        self.inst_paths = [getattr(self, attr) for attr in dir(self) if attr.startswith("install_")\
-                           and attr.endswith("_dir")]
+        self.inst_paths = [getattr(self, attr) for attr in dir(self) if attr.startswith("install_") and attr.endswith("_dir")]
 
     def new_env_vars(self):
         if mingw().version_gt("4.6.0"):
@@ -77,6 +73,9 @@ class qt4(Formula):
         pop.communicate("y\r")
         return pop.returncode == 0
 
+    def make(self):
+        return True
+        
     def install(self):
         # create the installation directories
         for pth in self.inst_paths:
@@ -138,10 +137,17 @@ class qt4(Formula):
             config.write(configfile)
         return True
  
-    def setup(self):        
+    def setup(self):  
+        from openalea.release.formula.pyqt4 import pyqt4
+        from openalea.release.formula.pyqscintilla import pyqscintilla
+        from openalea.release.formula.sip import sip    
+        
         pyqt4_ = pyqt4()
+        pyqt4_._fix_source_dir()
         pysci_ = pyqscintilla()
+        pysci_._fix_source_dir()
         sip_   = sip()
+        sip_._fix_source_dir()
         # dlls are the union of qt dlls and plugins directories (which is actually the same!)
         # qscis apis are recursive from qt4 (need to list all files)        
         qscis    = recursive_glob_as_dict(pysci_.qsci_dir, Pattern.sciapi, strip_keys=True, prefix_key="qsci").items()

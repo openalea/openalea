@@ -12,6 +12,15 @@ class qt4_dev(Formula):
     py_dependent   = True
     arch_dependent = True
     
+    def configure(self):
+        return True
+        
+    def make(self):
+        return True
+        
+    def install(self):
+        return True
+    
     def setup(self):
         qt4_   = qt4()
         pyqt4_ = pyqt4()
