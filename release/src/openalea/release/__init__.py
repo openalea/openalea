@@ -5,23 +5,14 @@ import shutil
 import glob
 from os.path import abspath, dirname
 from os.path import join as pj, splitext, exists, split
+from path import path
 from collections import OrderedDict
-
-
-'''
-import logging
-# TODO : doesn't write in the file if user doesn't want
-logger = logging.Logger('log')
-hdlr = logging.FileHandler('./formula.log')
-formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-hdlr.setFormatter(formatter) 
-logger.addHandler(hdlr) 
-'''
 
 from openalea.release.utils import make_silent, Later, url, unpack, \
 into_subdir, in_dir, try_except, TemplateStr, sh, sj, makedirs, \
-Pattern, recursive_glob_as_dict
+Pattern, recursive_glob_as_dict, get_logger
                                 
+logger = get_logger()
 
 ############################################
 # Formula                                  #
@@ -195,24 +186,27 @@ class Formula(object):
         # if a process is in forced_tasks it gets forced.
         forced_tasks = self.options.get(self.name, "")
         proc_str  = "Processing " + self.name
-        print "\n",proc_str
-        print "="*len(proc_str)
-        print "forced tasks are:", forced_tasks        
+        message = "%s = %s. Forced tasks are: %s" %(proc_str,len(proc_str),forced_tasks)
+        logger.debug(message)   
         for task, task_func, skippable in self.pending:
             if skippable and not should_process:
                 continue
             # doing unskippable actions like extending python or env PATH.
             # or we should_process is True
             nice_func = task_func.strip("_")
-            print "\t-->performing %s for %s"%(nice_func, self.name)
+            message = "\t-->performing %s for %s"%(nice_func, self.name)
+            logger.debug(message) 
             success = getattr(self, task_func)()
             if success == Later:
-                print "\t-->%s for %s we be done later"%(nice_func, self.name)
+                message = "\t-->%s for %s we be done later"%(nice_func, self.name)
+                logger.debug(message) 
             elif success == False:
-                print "\t-->%s for %s failed"%(nice_func, self.name)
+                message = "\t-->%s for %s failed"%(nice_func, self.name)
+                logger.debug(message)
                 if not should_process:
-                    print "-o %s was specified, ignoring error on package %s"% \
+                    message = "-o %s was specified, ignoring error on package %s"% \
                          (self.options.get("only"), self.name)
+                    logger.debug(message)
                     continue
                 return False
             else:
@@ -225,19 +219,26 @@ class Formula(object):
         # the sources are already here because some
         # other proj installed it.
         if self.download_url is None:
+            return True    
+        dir=self._get_dl_path()
+        if self.download_name in os.listdir(dir):
+            message = "%s already downloaded!" %self.download_name
+            logger.debug(message) 
             return True
-        ret = url(self.download_url, dir=self._get_dl_path(), dl_name=self.download_name)
-        return ret
+        else:
+            ret = url(self.download_url, dir=self._get_dl_path(), dl_name=self.download_name)
+            return ret
     
     def _unpack(self, arch=None):
         # a proj with a none url implicitely means
         # the sources are already here because some
         # other proj installed it.
         if self.download_url is None:
-            print 'No url'
+            logger.debug("No url")
             ret = True
         if exists(self.sourcedir):
-            print 'already unpacked in '+repr(self.sourcedir)
+            message =  'already unpacked in %s' %repr(self.sourcedir)
+            logger.debug(message)
             ret = True
         else:
             arch = arch or self.archname
@@ -251,12 +252,12 @@ class Formula(object):
             if not self._source_dir_fixed:
                 old_sourcedir = self.sourcedir
                 try:
-                    print "fixing sourcedir", self.sourcedir
+                    message =  "fixing sourcedir %s" %self.sourcedir
+                    logger.debug(message)               
                     self.sourcedir = into_subdir(self.sourcedir, self.archive_subdir)
                     if self.sourcedir is None:
                         self.sourcedir = old_sourcedir
                         raise Exception("Subdir should exist but doesn't, archive has probably not been unpacked")
-                    print self.sourcedir
                 except:
                     traceback.print_exc()
                     return False
@@ -392,9 +393,9 @@ class Formula(object):
             # for everything else
             ret = dict()
             
-            lib = pj(self.sourcedir,'lib')
-            inc = pj(self.sourcedir,'include')
-            bin = pj(self.sourcedir,'bin')
+            lib = path(self.sourcedir)/'lib'
+            inc = path(self.sourcedir)/'include'
+            bin = path(self.sourcedir)/'bin'
             
             if lib.exists():
                 ret['LIB_DIRS'] = {'lib' : pj(self.sourcedir,'lib') }
@@ -435,8 +436,11 @@ class Formula(object):
         return True
         
     def make(self):
-        cmd = "mingw32-make -j " + str(self.options["jobs"])
-        print cmd
+        try:
+            cmd = "mingw32-make -j " + str(self.options["jobs"])
+        except:
+            cmd = "mingw32-make"
+        logger.debug(cmd)  
         return sh( cmd ) == 0
 
     def install(self):

@@ -43,3 +43,7 @@ class cgal(Formula):
         cmd = 'cmake.exe -G"MinGW Makefiles" '+options+' . '
         print cmd
         return sh(cmd) == 0   
+'''    def make(self):
+        return True
+    def install(self):
+        return True'''

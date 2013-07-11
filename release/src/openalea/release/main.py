@@ -26,7 +26,7 @@ import os
 from os.path import abspath, dirname
 from collections import OrderedDict, namedtuple
 from openalea.release.utils import sh, install, checkout, url, rm_temp_dirs, \
-mk_temp_dirs, set_windows_env
+mk_temp_dirs, set_windows_env, logger
 
 FILE_DIR = abspath(dirname(__file__))
 
@@ -73,8 +73,8 @@ def get_build_deps(filename = None):
                 dependencies[line[0]] = line[2]
         return dependencies
     else:
-        print("%s doesn't exist." %filename)
-        print("We can't install 3rd party dependencies.")
+        logger.warn("%s doesn't exist." %filename)
+        logger.warn("We can't install 3rd party dependencies.")
         return -1
     
 def install_build_deps():
@@ -91,11 +91,18 @@ def install_build_deps():
 #############       Install RunTime dependencies        ##############
 ######################################################################         
 def get_rt_deps():
-    ret = ["ann", "mingw", "mingw_rt", "qhull", "boost", "rpy2",\
+    all = ["ann", "mingw", "mingw_rt", "qhull", "boost", "rpy2",\
     "qt4", "qt4_dev", "pyqt4", "qscintilla", "pyqscintilla",\
     "sip", "qglviewer", "pyqglviewer", "pylsm", "pillow", "numpy",\
     "scipy", "matplotlib", "gnuplot", "cgal"]
-    return ["numpy", "scipy", "matplotlib", "pillow", "pylsm"]
+    
+    subpart1 = ["ann", "gnuplot", "boost", "mingw", "mingw_rt", "cgal"]
+    subpart2 = ["numpy", "scipy", "matplotlib", "pillow", "pylsm"]
+    subpart3 = ["qt4", "qt4_dev", "sip", "pyqt4"]
+    subpart4 = ["qscintilla", "pyqscintilla"]
+    subpart5 = ["qglviewer", "pyqglviewer"]
+    subpart6 = ["rpy2" , "qhull"]
+    return subpart6
     
 def install_rt_deps():
     """ Install the 3rd party dependencies needed for runing (rt = runtime) packages.
@@ -115,15 +122,24 @@ def install_rt_deps():
         _install_formula(formula) 
         
 def _install_formula(formula):
-    print "========== INSTALL ", formula.__class__, " BEGIN ==========="
-    formula._download()
-    formula._unpack()
-    formula._patch()
-    formula._configure()
-    formula._make()
-    formula._install()
-    print "========== INSTALL ", formula.__class__, " DONE ==========="   
-        
+    message = "========== INSTALL %s BEGIN ===========" %formula.__class__
+    logger.debug(message)
+    print message
+    ret = formula._download()
+    logger.debug("%s _download. Result = %s" %(formula.__class__, ret))
+    ret = formula._unpack()
+    logger.debug("%s _unpack. Result = %s" %(formula.__class__, ret))
+    ret = formula._patch()
+    logger.debug("%s _patch. Result = %s" %(formula.__class__, ret))
+    ret = formula._configure()
+    logger.debug("%s _configure. Result = %s" %(formula.__class__, ret))
+    ret = formula._make()
+    logger.debug("%s _make. Result = %s" %(formula.__class__, ret))
+    ret = formula._install()
+    logger.debug("%s _install. Result = %s" %(formula.__class__, ret))
+    message = "========== INSTALL %s DONE ===========" %formula.__class__
+    logger.debug(message)
+    print message    
 
 ######################################################################
 #############       Bdist_egg                #########################
@@ -146,11 +162,19 @@ def bdist_egg_rt_deps():
         _bdist_egg_formula(formula)         
         
 def _bdist_egg_formula(formula):
-    print "========== EGGIFY ", formula.__class__, " BEGIN ==========="
-    formula._fix_source_dir()
-    formula._bdist_egg()
-    print "========== EGGIFY ", formula.__class__, " DONE ==========="        
-
+    message = "========== EGGIFY %s BEGIN ===========" %formula.__class__
+    logger.debug(message)
+    print message
+    
+    ret = formula._fix_source_dir()
+    logger.debug("%s _fix_source_dir. Result = %s" %(formula.__class__, ret))
+    ret = formula._bdist_egg()
+    logger.debug("%s _bdist_egg. Result = %s" %(formula.__class__, ret))
+    
+    message = "========== EGGIFY %s DONE ===========" %formula.__class__
+    logger.debug(message)
+    print message
+    
 def bdist_egg():
     """
     Create eggs into ./"dist"
@@ -207,14 +231,14 @@ def check_source(openalea = True, vplants = True, alinea = True):
     def try_compile(name="openalea"):
         try:
             sh("python multisetup.py build")
-            print ""
-            print("%s compilation succeed !" %name)
-            print ""
+            message = "%s compilation succeed !" %name
+            logger.debug(message)
+            print message
             return True
         except:
-            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            print("%s compilation Failed /!\ " %name)
-            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")  
+            message = "%s compilation Failed /!\ " %name
+            logger.warn(message)
+            print message            
             return False
     projects = default()
     for proj in projects:

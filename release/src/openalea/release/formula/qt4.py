@@ -72,9 +72,6 @@ class qt4(Formula):
         # accepts license agreement, also waits for configure to finish
         pop.communicate("y\r")
         return pop.returncode == 0
-
-    def make(self):
-        return True
         
     def install(self):
         # create the installation directories

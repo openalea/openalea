@@ -13,7 +13,7 @@ class rpy2(Formula):
     archive_subdir = "lgautier-rpy2*"
     homepage = "http://rpy.sourceforge.net"
     
-    cmd_options = [ ("rhome", None, "Path to R.exe") ]
+    cmd_options = [ ("R", None, "Path to R.exe") ]
 
     license = "AGPLv3.0 (except rpy2.rinterface: LGPL)"
     authors = "Laurent Gautier"
@@ -27,10 +27,10 @@ class rpy2(Formula):
                     PACKAGES     = find_packages(self.installdir,"rpy2"),
                     PACKAGE_DIRS = { "rpy2": pj(self.installdir, "rpy2") },
                     VERSION      = self.version+".rev"+self.revision,
-                    PACKAGE_DATA = {'' : [Pattern.pyext]},
+                    #PACKAGE_DATA = {'' : [Pattern.pyext]},
                     )     
 
-    @option_to_sys_path("rhome")
+    @option_to_sys_path("R")
     def patch(self):
         apply_patch( pj(PATCH_DIR,"rpy2.patch") )
         return True
@@ -38,12 +38,12 @@ class rpy2(Formula):
     def configure(self):
         return True
         
-    @option_to_sys_path("rhome")
+    @option_to_sys_path("R")
     def make(self):
         cmd = sys.executable + " setup.py build --compiler=mingw32"
         return sh(cmd) == 0
         
-    @option_to_sys_path("rhome")
+    @option_to_sys_path("R")
     def install(self):
         cmd = sys.executable + " setup.py install --install-lib=" + self.installdir
         return sh(cmd) == 0          

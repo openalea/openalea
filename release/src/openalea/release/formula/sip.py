@@ -8,12 +8,14 @@ from os.path import abspath, dirname, exists
 PATCH_DIR = abspath(dirname(__file__))
 
 class sip(Formula):
-    download_url = "http://www.riverbankcomputing.com/hg/sip/archive/0869eb93c773.zip" #downloading from the mercurial tag
+    download_url = "http://sourceforge.net/projects/pyqt/files/sip/sip-4.14.7/sip-4.14.7.zip"
+    #download_url = "http://www.riverbankcomputing.com/hg/sip/archive/0869eb93c773.zip" #downloading from the mercurial tag
+    #download_url = "http://www.riverbankcomputing.com/hg/sip/archive/0869eb93c773.zip" #downloading from the mercurial tag
     #url = "http://www.riverbankcomputing.co.uk/static/Downloads/sip4/sip-4.13.2.zip"
     download_name  = "sip_src.zip"
     archive_subdir = "sip*"
     
-    required_tools = [bisonflex]
+    required_tools = ['bisonflex']
 
     def __init__(self, *args, **kwargs):
         super(sip, self).__init__(*args, **kwargs)
@@ -32,7 +34,6 @@ class sip(Formula):
     @option_to_sys_path("bisonflex_path")
     def configure(self):
         if exists(pj(self.sourcedir,"configure.py") ):
-            print "it's alive!"
             # The -S flag is needed or else configure.py
             # sees any existing sip installation and can fail.
             return sh(sys.executable + \
@@ -57,7 +58,14 @@ class sip(Formula):
                 #we don't have a clue of what type of source we're in
                 #so dying cleanly can seem like a good option:
                 return False
-
+    '''
+    def make(self):
+        return True
+        
+    def install(self):
+        return True
+    '''
+    
     def extra_paths(self):
         return self.sourcedir, pj(self.sourcedir, "sipgen")
 
