@@ -16,7 +16,7 @@ class cgal(Formula):
     download_url = "https://gforge.inria.fr/frs/download.php/30390/CGAL-4.0.zip"
     download_name  = "cgal_src.zip"
     archive_subdir = "cgal*"
-    required_tools = [cmake]
+    required_tools = ["cmake"]
     version = "4.0"
     def setup(self):
         return dict( 
