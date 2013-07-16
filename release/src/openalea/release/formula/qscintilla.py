@@ -7,7 +7,6 @@ class qscintilla(Formula):
     #download_url = "http://www.riverbankcomputing.co.uk/static/Downloads/QScintilla2/QScintilla-gpl-2.6.1.zip"
     download_url = "http://sourceforge.net/projects/pyqt/files/QScintilla2/QScintilla-2.7.2/QScintilla-gpl-2.7.2.zip"
     download_name  = "qscintilla_src.zip"
-    archive_subdir = "QScint*/Qt4"
 
     def configure(self):
         # The install procedure will install qscintilla in qt's installation directories

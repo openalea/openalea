@@ -9,7 +9,6 @@ import re
 class boost(Formula):
     download_url = "http://switch.dl.sourceforge.net/project/boost/boost/1.48.0/boost_1_48_0.zip"
     download_name  = "boost_src.zip"
-    archive_subdir = "boost*"
     license = "Boost Software License 1.0"
     authors = "Boost contributors"
     description = "Windows gcc libs and includes of Boost"

@@ -11,7 +11,6 @@ class pyqt4(Formula):
     url = "http://www.riverbankcomputing.co.uk/static/Downloads/PyQt4/PyQt-win-gpl-4.9.1.zip"
     '''
     download_name  = "pyqt4_src.zip"
-    archive_subdir = "PyQt*"
     
     cmd_options = [ ("siphome", None, "Path to sip.exe"),
                     ("sipsite", None, "Path(s) to sip modules (';' seperated)") ]

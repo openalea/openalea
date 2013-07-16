@@ -268,7 +268,7 @@ def set_windows_env():
     """
     cmd = "set PATH=%PATH%;%INNO_PATH%;%SVN_PATH%;%PYTHON_PATH%;%PYTHON_PATH%\Scripts"
     sh(cmd)
-
+'''
 def unpack(arch, where):
     """ Unpack a ZIP, TGZ or TAR file from 'where'
     """
@@ -287,6 +287,34 @@ def unpack(arch, where):
         tarf.extractall( path=where )
     logger.debug("done")
     return True
+'''   
+def unpack(arch, where):
+    """ Unpack a ZIP, TGZ or TAR file from 'where'
+    """
+    arch = arch
+    base, ext = splitext( arch )
+    logger.debug("unpacking %s" %arch)
+    # TODO : verify that there is no absolute path inside zip.
+    if ext == ".zip":
+        zipf = zipfile.ZipFile( arch, "r" )
+        zipf.extractall( path=where )
+    elif ext == ".tgz":
+        tarf = tarfile.open( arch, "r:gz")
+        tarf.extractall( path=where )
+    elif ext == ".tar":
+        tarf = tarfile.open( arch, "r")
+        tarf.extractall( path=where )
+    logger.debug("done")
+    
+    # If ZIP contained only one directory, unpack move everything.
+    # ex:
+    # ./ann_src.zip/ann_1.1.2/... will begin after unpack ./ann_src/...
+    where = path(where).abspath()
+    listdirs = os.listdir(where)
+    if len(listdirs) == 1:
+        from_dirs = where/listdirs[0]
+        move(from_dirs, where)
+    return True
     
 def move(from_src, to_src):
     """ Move a tree from from_src to to_src.
@@ -300,6 +328,7 @@ def move(from_src, to_src):
     if path(to_src).exists():
         shutil.rmtree(to_src)
     shutil.move(from_src, to_src)
+    return True
 
 class Later(object):
     """ Just a way to be able to check if a process should be done later,

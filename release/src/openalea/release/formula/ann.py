@@ -15,7 +15,6 @@ class ann(Formula):
     py_dependent   = False
     arch_dependent = True
     patch_filename = pj(PATCH_DIR,"ann_mgw.patch")
-    archive_subdir = "ann*"
     def setup(self):
         return dict(DATA_FILES = [('doc' , [pj(self.sourcedir,'doc','ANNmanual.pdf')] )],
                     LIB_DIRS         = {'lib' : pj(self.sourcedir,'lib') },

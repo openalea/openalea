@@ -1,7 +1,7 @@
 from openalea.release import Formula
 from openalea.release.utils import sh, apply_patch, pj, option_to_sys_path
 from openalea.release.formula.qt4 import qt4
-from openalea.release.tools.bisonflex import bisonflex
+from openalea.release.formula.bisonflex import bisonflex
 import sys
 from os.path import abspath, dirname, exists
 
@@ -13,7 +13,6 @@ class sip(Formula):
     #download_url = "http://www.riverbankcomputing.com/hg/sip/archive/0869eb93c773.zip" #downloading from the mercurial tag
     #url = "http://www.riverbankcomputing.co.uk/static/Downloads/sip4/sip-4.13.2.zip"
     download_name  = "sip_src.zip"
-    archive_subdir = "sip*"
     
     required_tools = ['bisonflex']
 

@@ -19,7 +19,6 @@ class qt4(Formula):
     download_url = "http://get.qt.nokia.com/qt/source/qt-everywhere-opensource-src-"+version+".zip"
     download_url = "http://download.qt-project.org/official_releases/qt/4.8/4.8.5/qt-everywhere-opensource-src-"+version+".zip"
     download_name  = "qt4_src.zip"
-    archive_subdir = "qt-every*"
 
     license = "General Public License V3"
     authors = "Riverbank Computing (Sip+PyQt4+QSCintilla) & Nokia (Qt4)"

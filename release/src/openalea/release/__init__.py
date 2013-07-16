@@ -7,8 +7,9 @@ from os.path import abspath, dirname
 from os.path import join as pj, splitext, exists, split
 from path import path
 from collections import OrderedDict
+import warnings
 
-from openalea.release.utils import make_silent, Later, url, unpack, \
+from openalea.release.utils import make_silent, Later, url, unpack as utils_unpack, \
 into_subdir, in_dir, try_except, TemplateStr, sh, sj, makedirs, \
 Pattern, recursive_glob_as_dict, get_logger
                                 
@@ -172,7 +173,7 @@ class Formula(object):
         
     @classmethod
     def egg_name(cls):
-        return cls.__name__.strip("egg_")
+        return cls.__name__.split("egg_")[-1]
 
     def get_task_restriction_eggs(self):
         return self.options.get("only_action_eggs")
@@ -242,12 +243,14 @@ class Formula(object):
             ret = True
         else:
             arch = arch or self.archname
-            ret = unpack(arch, self.sourcedir)
-        
-        self._fix_source_dir()
+            ret = self.unpack(arch, self.sourcedir)
         return ret 
 
+    
     def _fix_source_dir(self):
+        """ Unused """
+        warnings.warn("_fix_source_dir is deprecated, please don't use it")
+        '''
         if self.archive_subdir:
             if not self._source_dir_fixed:
                 old_sourcedir = self.sourcedir
@@ -255,6 +258,7 @@ class Formula(object):
                     message =  "fixing sourcedir %s" %self.sourcedir
                     logger.debug(message)               
                     self.sourcedir = into_subdir(self.sourcedir, self.archive_subdir)
+                    self._source_dir_fixed = True
                     if self.sourcedir is None:
                         self.sourcedir = old_sourcedir
                         raise Exception("Subdir should exist but doesn't, archive has probably not been unpacked")
@@ -263,7 +267,7 @@ class Formula(object):
                     return False
                 else:
                     return True
-                self._source_dir_fixed = True
+        '''
 
     def _extend_sys_path(self):
         exp = self.extra_paths()
@@ -271,6 +275,9 @@ class Formula(object):
             if isinstance(exp, tuple):
                 exp = sj(exp)
             os.environ["PATH"] = sj([exp,os.environ["PATH"]])
+            
+            # cmd = "SET PATH=\""+exp+"\";%PATH%"
+            # sh(cmd)
         return True
 
     def _extend_python_path(self):
@@ -288,8 +295,8 @@ class Formula(object):
     @in_dir("sourcedir")
     @try_except
     def _configure(self):
-        #self._fix_source_dir()
-
+        self._extend_sys_path()
+        self._extend_python_path()
         return self.configure()
         
     @in_dir("sourcedir")
@@ -367,6 +374,9 @@ class Formula(object):
         shutil.copyfile(eggname, destname)
         return True
 
+    def unpack(self, arch, dir):
+        return utils_unpack(arch, dir)
+        
     def setup(self):
         if self.yet_installed:
             # for InstalledPackageEggBuilder
@@ -509,7 +519,7 @@ class Formula(object):
         return self.working_path
         
     def _get_dl_path(self):
-        return pj( self.get_working_path(), "dl")
+        return pj( self.get_working_path(), "cache")
     
     def _get_src_path(self):
         return pj( self.get_working_path(), "src")

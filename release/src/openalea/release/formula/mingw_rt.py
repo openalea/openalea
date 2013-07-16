@@ -13,7 +13,6 @@ class mingw_rt(Formula):
     download_url = None
     supported_tasks = "i"
     download_name  = "mingw"
-    archive_subdir = None
     
     def __init__(self, *args, **kwargs):
         super(mingw_rt, self).__init__(*args, **kwargs)

@@ -16,7 +16,6 @@ class pyqglviewer(Formula):
     arch_dependent = True
     download_url = "https://gforge.inria.fr/frs/download.php/28212/PyQGLViewer-0.9.1.zip"
     download_name  = "pyqglviewer_src.zip"
-    archive_subdir = "PyQGLV*"
 
     def __init__(self, *args, **kwargs):
         super(pyqglviewer, self).__init__(*args, **kwargs)

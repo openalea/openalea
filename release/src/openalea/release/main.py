@@ -165,9 +165,7 @@ def _bdist_egg_formula(formula):
     message = "========== EGGIFY %s BEGIN ===========" %formula.__class__
     logger.debug(message)
     print message
-    
-    ret = formula._fix_source_dir()
-    logger.debug("%s _fix_source_dir. Result = %s" %(formula.__class__, ret))
+
     ret = formula._bdist_egg()
     logger.debug("%s _bdist_egg. Result = %s" %(formula.__class__, ret))
     

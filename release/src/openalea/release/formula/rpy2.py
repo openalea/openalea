@@ -12,7 +12,6 @@ class rpy2(Formula):
     revision = "RELEASE_2_3_6"
     download_url = "https://bitbucket.org/lgautier/rpy2/get/"+revision+".zip"
     download_name  = "rpy2_src.zip"
-    archive_subdir = "lgautier-rpy2*"
     homepage = "http://rpy.sourceforge.net"
     
     cmd_options = [ ("R", None, "Path to R.exe") ]

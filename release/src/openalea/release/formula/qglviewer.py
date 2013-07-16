@@ -4,7 +4,6 @@ from openalea.release.utils import recursive_copy, pj, sh, Pattern
 class qglviewer(Formula):
     download_url = "https://gforge.inria.fr/frs/download.php/28138/libQGLViewer-2.3.9-py.tgz"
     download_name  = "qglviewer_src.tgz"
-    archive_subdir = "libQGLV*/QGLViewer"
 
     def __init__(self, *args, **kwargs):
         super(qglviewer, self).__init__(*args, **kwargs)
