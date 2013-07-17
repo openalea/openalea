@@ -1505,7 +1505,7 @@ class SpatialImageAnalysis3D(AbstractSpatialImageAnalysis):
             curvature={}
             x,y,z = np.where(self.first_voxel_layer() != 0)
             pts = [tuple([int(x[i]),int(y[i]),int(z[i])]) for i in xrange(len(x))]
-            adjacencies = k_closest_points_from_ann(pts, k=10)
+            adjacencies = k_closest_points_from_ann(pts, k=20)
 
             # -- Now we can compute the principal curvatures informations
             from openalea.image.algo.analysis import geometric_median
