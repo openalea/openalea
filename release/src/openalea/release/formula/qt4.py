@@ -13,10 +13,11 @@ from setuptools import find_packages
 
 PATCH_DIR = abspath(dirname(__file__))
 
+# Warning: really long compiling...
 class qt4(Formula):
     #version = "4.7.4"
     version = "4.8.5"
-    download_url = "http://get.qt.nokia.com/qt/source/qt-everywhere-opensource-src-"+version+".zip"
+    #download_url = "http://get.qt.nokia.com/qt/source/qt-everywhere-opensource-src-"+version+".zip"
     download_url = "http://download.qt-project.org/official_releases/qt/4.8/4.8.5/qt-everywhere-opensource-src-"+version+".zip"
     download_name  = "qt4_src.zip"
 
@@ -57,8 +58,11 @@ class qt4(Formula):
             apply_patch(  pj(PATCH_DIR,"qt-4.8.0.patch") )
             
         # build the configure command line
-        common = " -release -opensource -shared -nomake demos -nomake examples -mmx -sse2 -3dnow"
-        common += " -declarative -webkit -no-s60 -no-cetest"        
+        # more details on options:
+        # http://qt-project.org/doc/qt-4.8/configure-options.html
+        common = " -platform win32-g++"
+        common += " -release -opensource -shared -nomake demos -nomake examples -mmx -sse2 -3dnow"
+        common += " -declarative -webkit -no-cetest -qt-zlib"        
         cmd = "configure.exe" + common
         if mingw().version_gt("4.6.0"):
             # TDM doesn't ship with DirectX headers. Cannot use Phonon
@@ -139,11 +143,8 @@ class qt4(Formula):
         from openalea.release.formula.sip import sip    
         
         pyqt4_ = pyqt4()
-        pyqt4_._fix_source_dir()
         pysci_ = pyqscintilla()
-        pysci_._fix_source_dir()
         sip_   = sip()
-        sip_._fix_source_dir()
         # dlls are the union of qt dlls and plugins directories (which is actually the same!)
         # qscis apis are recursive from qt4 (need to list all files)        
         qscis    = recursive_glob_as_dict(pysci_.qsci_dir, Pattern.sciapi, strip_keys=True, prefix_key="qsci").items()
@@ -154,7 +155,7 @@ class qt4(Formula):
         lib_dirs    = {"PyQt4": self.install_dll_dir}
         package_dir = {"PyQt4": pj(pyqt4_.install_site_dir, "PyQt4")}
         
-        return dict( 
+        d  = dict( 
                     VERSION  = self.version,
                     PACKAGES = find_packages(pyqt4_.install_site_dir, "PyQt4"),
                     PACKAGE_DIRS = package_dir,
@@ -164,3 +165,4 @@ class qt4(Formula):
                     DATA_FILES       = qscis+sip_mods+extra_pyqt4_mods,
                     INSTALL_REQUIRES = [mingw_rt().egg_name()]
                     )   
+        return d

@@ -24,22 +24,20 @@ class cgal(Formula):
                     BIN_DIRS         = {'bin' : pj(self.sourcedir,'bin') },
                     ) 
     def configure(self):
-        compiler = mingw().get_bin_path()
+        compiler = mingw().get_path()
         boost_ = boost()
         db_quote = lambda x: '"'+x+'"'
         options = " ".join(['-DCMAKE_INSTALL_PREFIX='+db_quote(self.installdir),
-                            '-DCMAKE_CXX_COMPILER:FILEPATH='+db_quote(pj(compiler,'g++.exe')),
+                            '-DCMAKE_CXX_COMPILER:FILEPATH='+db_quote(pj(compiler,"bin","g++.exe")),
                             '-DBOOST_ROOT='+db_quote(boost_.installdir),
-                            '-DGMP_INCLUDE_DIR='+db_quote( pj(compiler, "..", "include") ),
-                            '-DMPFR_INCLUDE_DIR='+db_quote( pj(compiler, "..", "include") ),
-                            '-DZLIB_INCLUDE_DIR='+db_quote(pj(compiler, "..", "include")),
-                            '-DZLIB_LIBRARY='+db_quote(pj(compiler,"..", "lib", "libz.a")),
+                            '-DGMP_INCLUDE_DIR='+db_quote( pj(compiler, "include") ),
+                            '-DMPFR_INCLUDE_DIR='+db_quote( pj(compiler, "include") ),
+                            '-DZLIB_INCLUDE_DIR='+db_quote(pj(compiler, "include")),
+                            '-DZLIB_LIBRARY='+db_quote(pj(compiler, "lib", "libz.a")),
                             #'-DOPENGL_LIBRARIES='+db_quote(pj(compiler,"..", "lib", "libglu32.a")),
                             ])
         options=options.replace("\\", "/") #avoid "escape sequence" errors with cmake
         cmd = 'cmake -G"MinGW Makefiles" '+options+' . '
+        print cmd
+        print ""
         return sh(cmd) == 0   
-'''    def make(self):
-        return True+
-    def install(self):
-        return True'''

@@ -13,7 +13,7 @@ class bisonflex(Formula):
     def _make(self):
         return True
     def _install(self):
-        egg = glob.glob( pj(self._get_dl_path(), "*.egg") )[0]
+        egg = glob.glob( pj(self._get_dl_path(), "bisonflex*.egg") )[0]
         cmd = "alea_install -H None -f . %s" %egg
         return sh(cmd)
     def _bdist_egg(self):

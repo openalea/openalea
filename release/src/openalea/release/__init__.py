@@ -1,4 +1,3 @@
-import traceback
 import sys, os
 import datetime
 import shutil
@@ -10,7 +9,7 @@ from collections import OrderedDict
 import warnings
 
 from openalea.release.utils import make_silent, Later, url, unpack as utils_unpack, \
-into_subdir, in_dir, try_except, TemplateStr, sh, sj, makedirs, \
+in_dir, try_except, TemplateStr, sh, sj, makedirs, \
 Pattern, recursive_glob_as_dict, get_logger
                                 
 logger = get_logger()
@@ -95,6 +94,7 @@ class Formula(object):
         
         makedirs(self._get_src_path())
         makedirs(self._get_install_path())
+        makedirs(self.sourcedir)
         makedirs(self._get_dl_path())
         makedirs(self.eggdir)
         
@@ -447,8 +447,13 @@ class Formula(object):
         
     def make(self):
         try:
-            cmd = "mingw32-make -j " + str(self.options["jobs"])
+            opt = str(self.options["jobs"])
         except:
+            opt = None
+        logger.debug(opt) 
+        if opt:
+            cmd = "mingw32-make -j " + str(self.options["jobs"])
+        else:
             cmd = "mingw32-make"
         logger.debug(cmd)  
         return sh( cmd ) == 0
@@ -467,6 +472,12 @@ class Formula(object):
     def bdist_egg(self):
         #ret0 = sh(sys.executable + " setup.py egg_info --egg-base=%s"%self.eggdir ) == 0
         return sh(sys.executable + " setup.py bdist_egg") == 0
+        
+    def install_egg(self):
+        # Try to install egg (to call after bdist_egg)
+        egg = glob.glob( pj(self.eggdir, "dist", "*.egg") )[0]
+        cmd = "alea_install -H None -f . %s" %egg
+        return sh(cmd)
 
     def upload_egg(self):
         if not self.use_cfg_login:

@@ -11,7 +11,6 @@ class qscintilla(Formula):
     def configure(self):
         # The install procedure will install qscintilla in qt's installation directories
         qt4_ = qt4()
-        qt4_._fix_source_dir()
         paths = qt4_.install_inc_dir, qt4_.install_tra_dir, qt4_.installdir, qt4_.install_dll_dir,
         return sh( ("qmake -after header.path=%s trans.path=%s qsci.path=%s " + \
                                  "target.path=%s -spec win32-g++ qscintilla.pro")%paths) == 0
@@ -21,7 +20,6 @@ class qscintilla(Formula):
     def install(self):
         ret = super(qscintilla, self).install()
         qt4_ = qt4()
-        qt4_._fix_source_dir()
         try:
             shutil.move( pj(qt4_.install_dll_dir, "libqscintilla2.a"), qt4_.install_lib_dir)
         except Exception, e :

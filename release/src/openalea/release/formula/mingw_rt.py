@@ -1,6 +1,6 @@
 from os.path import join as pj
 from openalea.release import Formula
-from openalea.release.utils import recursive_copy, Pattern
+from openalea.release.utils import recursive_copy, Pattern, makedirs
 from openalea.release.formula.mingw import mingw
 
 class mingw_rt(Formula):
@@ -16,7 +16,8 @@ class mingw_rt(Formula):
     
     def __init__(self, *args, **kwargs):
         super(mingw_rt, self).__init__(*args, **kwargs)
-        self.sourcedir = pj(mingw().get_bin_path(),"..") 
+        makedirs(self.eggdir)
+        self.sourcedir = mingw().get_path()
         self.install_dll_dir = pj(self.installdir, "dll")
 
     def make(self):
@@ -29,5 +30,7 @@ class mingw_rt(Formula):
     def setup(self):
         return dict( 
                     VERSION  = self.version,
-                    LIB_DIRS = {"bin":self.install_dll_dir},
+                    LIB_DIRS = {"lib":self.install_dll_dir},
+                    INC_DIRS = None,
+                    BIN_DIRS = None,
                     )             
