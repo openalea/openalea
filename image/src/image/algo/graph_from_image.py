@@ -376,6 +376,16 @@ def labelpair2edge_map(graph):
     return dict([((mlabel2vertex[graph.source(eid)],mlabel2vertex[graph.target(eid)]),eid) for eid in graph.edges()])
 
 
+def vertexpair2edge_map(graph):
+    """
+        Compute a dictionary that map pair of labels to edge id.
+        It requires the existence of a 'label' property
+        
+        :rtype: dict
+    """
+    return dict([((graph.source(eid),graph.target(eid)),eid) for eid in graph.edges()])
+
+
 def add_vertex_property_from_dictionary(graph, name, dictionary, mlabel2vertex = None):
     """ 
         Add a vertex property with name 'name' to the graph build from an image. 
