@@ -73,13 +73,10 @@ class Formula(object):
                                     ("m",("make",True)),
                                     ("i",("install",True)),
                                     ("b",("bdist_egg",True)),
-                                    
-                                    
+                                    ("n",("install_egg",True)),
+
                                     ("u",("upload_egg",True)),
                                     ("g",("copy_egg",True)),
-                                    
-                                    ("x",("extend_sys_path",False)),
-                                    ("y",("extend_python_path",False)),
                                     ])
     #string of task ids that this particular builder supports (eg. "duf")
     # Only execute these tasks:
@@ -91,11 +88,8 @@ class Formula(object):
     py_dependent   = True
     # The egg depends on the os and processor type (allows correct egg naming)
     arch_dependent = True 
-    
-    archive_subdir = None
-    
+    # Only for package like Pillow wich use another name for import (<<import Pil>> and not <<import Pillow>>)
     __packagename__ = None
-    
     working_path  = os.getcwd()
 
     def __init__(self,**kwargs):
@@ -108,7 +102,6 @@ class Formula(object):
         self.installdir = pj( self._get_install_path(), splitext(self.download_name)[0] )
         self.install_inc_dir = pj(self.installdir, "include")
         self.install_lib_dir = pj(self.installdir, "lib")        
-        
         
         # Variable to check if the source directory is yet fixed
         self._source_dir_fixed = False
@@ -129,7 +122,10 @@ class Formula(object):
         makedirs(self.eggdir)
 
     def default_substitutions_setup_py(self):
-        
+        """
+        :return: default dict to fill "setup.py" files
+        """
+    
         # if package is python and yet installed
         try:
             packages, package_dirs = self.find_packages_and_directories()
@@ -174,7 +170,6 @@ class Formula(object):
         if lib.exists(): d['LIB_DIRS'] = {'lib' : pj(self.sourcedir,'lib') }
         if inc.exists(): d['INC_DIRS'] = {'include' : pj(self.sourcedir,'include') }
         if bin.exists(): d['BIN_DIRS'] = {'bin' : pj(self.sourcedir,'bin') }
-        
         
         return d
                 
@@ -310,24 +305,6 @@ class Formula(object):
     def _fix_source_dir(self):
         """ Unused """
         warnings.warn("_fix_source_dir is deprecated, please don't use it")
-        '''
-        if self.archive_subdir:
-            if not self._source_dir_fixed:
-                old_sourcedir = self.sourcedir
-                try:
-                    message =  "fixing sourcedir %s" %self.sourcedir
-                    logger.debug(message)               
-                    self.sourcedir = into_subdir(self.sourcedir, self.archive_subdir)
-                    self._source_dir_fixed = True
-                    if self.sourcedir is None:
-                        self.sourcedir = old_sourcedir
-                        raise Exception("Subdir should exist but doesn't, archive has probably not been unpacked")
-                except:
-                    traceback.print_exc()
-                    return False
-                else:
-                    return True
-        '''
 
     #### Do NOT USE "REG ADD..." !!!
     # def _permanent_extend_sys_path(self):
@@ -341,16 +318,15 @@ class Formula(object):
         
         # Modifie register... So, please use it carefully...
         
-        # TODO: test it...
+        ### TODO: test it...
         # """
         # exp = self.extra_paths()
         # if exp is not None:
-            # print "_permanent_extend_sys_path not tested..."
+            ### _permanent_extend_sys_path not tested...
             # warnnings.warn("You need to restart the computer to really extend the Path!")
             # cmd = 'REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment" /v Path /d "%PATH%;%s" /f', %exp
-            # print cmd
             # return sh(cmd) == 0
-        # print "nothing to add in sys path"
+        ### nothing to add in sys path
         # return True
             
     # def _permanent_extend_python_path(self):
@@ -361,12 +337,11 @@ class Formula(object):
         # """
         # exp = self.extra_python_paths()
         # if exp is not None:
-            # print "_permanent_extend_python_path not tested..."
+            ### _permanent_extend_python_path not tested...
             # warnnings.warn("You need to restart the computer to really extend the Python_Path!")
             # cmd = 'REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment" /v Python_path /d "%PYTHON_PATH%;%s" /f', %exp
-            # print cmd
             # return sh(cmd) == 0
-        # print "nothing to add in sys path"
+        ### nothing to add in sys path
         # return True
         
     def _extend_sys_path(self):
@@ -383,12 +358,12 @@ class Formula(object):
             
             # set temp PATH
             cmd1 = "SET" + cmd
-            print cmd1
+            logger.debug( cmd1 )
             sh(cmd1)
             
             # set permanent PATH
             cmd2 = "SETX" + cmd
-            print cmd2
+            logger.debug( cmd2 )
             sh(cmd2)
             
         return True
@@ -411,12 +386,12 @@ class Formula(object):
             
             # set temp PYTHON_PATH
             cmd1 = "SET" + cmd
-            print cmd1
+            logger.debug( cmd1 )
             sh(cmd1)
             
             # set permanent PYTHON_PATH
             cmd2 = "SETX" + cmd
-            print cmd2
+            logger.debug( cmd2 )
             sh(cmd2)
 
         return True
@@ -482,7 +457,8 @@ class Formula(object):
             self.use_cfg_login = True
             ret = self.upload_egg()
             if not ret:
-                print "No login or passwd provided, skipping egg upload"
+                warnings.warn("No login or passwd provided, skipping egg upload")
+                logger.warn( "No login or passwd provided, skipping egg upload" )
                 return Later
             return ret
         return self.upload_egg()
@@ -493,15 +469,16 @@ class Formula(object):
         if not dest_dir :
             dest_dir = self.options.get("dest_egg_dir")
         if not dest_dir:
-            print "Will not place egg in a directory"
+            warnings.warn("Will not place egg in a directory")
+            logger.warn("Will not place egg in a directory")
             return True
 
         eggname  = self._glob_egg()
         destname = pj(dest_dir, split(eggname)[1])
         if exists(destname):
-            print "removing", destname
+            logger.debug( "removing", destname )
             os.remove(destname)
-        print "copying", eggname, "to", destname
+        logger.debug(  "copying", eggname, "to", destname )
         shutil.copyfile(eggname, destname)
         return True
 

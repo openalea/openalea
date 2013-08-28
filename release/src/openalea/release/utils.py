@@ -473,7 +473,6 @@ def recursive_copy(sourcedir, destdir, patterns=None, levels=-1, flat=False):
     for pth in bases:
         makedirs(pth)
     for src, dst in zip(src, dests):
-        #print src, dst
         shutil.copy(src, dst)
         
 def makedirs(pth, verbose=False):
@@ -533,7 +532,8 @@ def remove_packages(dirs):
             else:
                 f.remove()
         else:
-            print "Can't remove %s" %f
+            warnings.warn("Can't remove %s" %f)
+            logger.warn("Can't remove %s" %f)
                 
 def uninstall_all():
     """ Try to remove all the openalea, Vplants and alinea packages
@@ -558,7 +558,8 @@ def uninstall_all():
         if pths[0].exists():
             pths[0].remove()
         else:
-            print "Can't remove %s" %pths[0]
+            warnings.warn("Can't remove %s" %pths[0])
+            logger.warn("Can't remove %s" %pths[0])
     
     # Modify the easy_install.pth file
     pths = pp.glob('easy-install.pth')
