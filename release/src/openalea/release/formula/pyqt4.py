@@ -47,9 +47,9 @@ class pyqt4(Formula):
         return self.install_site_dir
 
     def patch(self):
-        return True
+        # return True
         
-        '''
+
         header = """
 import sipconfig
 from sipconfig import pj as pj
@@ -76,4 +76,6 @@ from sipconfig import qt as qt"""
         shutil.copyfile( "pyqtconfig.py", "pyqtconfig.py.old" )
         with open("pyqtconfig.py", "w") as f:
             f.write(txt)
-        prefix = sys.prefix'''
+        prefix = sys.prefix
+        
+        return True 

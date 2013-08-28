@@ -8,7 +8,6 @@ class pylsm(Formula):
     py_dependent   = True
     arch_dependent = False
     version = "0.1-r34"
-    yet_installed = True
     
     @property 
     @with_original_sys_path

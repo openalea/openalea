@@ -11,7 +11,6 @@ class r(Formula):
     download_url = "http://mirror.ibcp.fr/pub/CRAN/bin/windows/base/old/2.15.3/R-2.15.3-win.exe"
     homepage = "http://www.r-project.org/"
     download_name  = "r.exe"
-    yet_installed = False
     
     def unpack(self):
         return True

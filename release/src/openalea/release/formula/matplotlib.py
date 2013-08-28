@@ -10,7 +10,6 @@ class matplotlib(Formula):
     description = "Matplotlib packaged as an egg"  
     py_dependent   = True
     arch_dependent = True   
-    yet_installed = False
 
     def unpack(self):
         return True

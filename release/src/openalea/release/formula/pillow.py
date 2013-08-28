@@ -9,7 +9,6 @@ class pillow(Formula):
     __packagename__  = "PIL"
     py_dependent   = True
     arch_dependent = True  
-    yet_installed = False
     version = "2.1.0"       
     download_url = "https://pypi.python.org/packages/2.7/P/Pillow/Pillow-2.1.0.win32-py2.7.exe"
     homepage = "https://pypi.python.org/pypi/Pillow"

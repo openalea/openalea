@@ -11,7 +11,6 @@ class svn(Formula):
     download_url = "http://sourceforge.net/projects/win32svn/files/1.8.0/apache22/Setup-Subversion-1.8.0-1.msi"
     homepage = "http://subversion.apache.org/"
     download_name  = "svn.msi"
-    yet_installed = False
     
     def unpack(self):
         return True

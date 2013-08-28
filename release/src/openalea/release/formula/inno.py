@@ -11,7 +11,6 @@ class inno(Formula):
     download_url = "http://mlaan2.home.xs4all.nl/ispack/isetup-5.5.3.exe"
     homepage = "http://www.jrsoftware.org/"
     download_name  = "innosetup.exe"
-    yet_installed = False
     
     def unpack(self):
         return True

@@ -14,6 +14,7 @@ Pattern, recursive_glob_as_dict, get_logger
                                 
 logger = get_logger()
 
+# python: http://python.org/ftp/python/2.7.5/python-2.7.5.msi
 
 def install_formula(formula_name):
     """
@@ -93,13 +94,6 @@ class Formula(object):
     
     archive_subdir = None
     
-    # If you put it on True, this means that you have the     
-    # corresponding library installed. This is because they    
-    # are too difficult to compile and that we don't actually  
-    # need to compile them (no linkage from us to them)        
-    # or that they come as .exes and not eggs already  
-    yet_installed = False
-    
     __packagename__ = None
     
     working_path  = os.getcwd()
@@ -133,15 +127,6 @@ class Formula(object):
         makedirs(self.sourcedir)
         makedirs(self._get_dl_path())
         makedirs(self.eggdir)
-
-        if self.yet_installed:
-            try:
-                self.package
-            except Exception:
-                self.enabled = False
-            else:
-                self.enabled = True
-                
 
     def default_substitutions_setup_py(self):
         
@@ -525,58 +510,6 @@ class Formula(object):
             
     def setup(self):
         return(dict())
-     
-        """
-    def setup(self):
-        if self.yet_installed:
-            # for InstalledPackageEggBuilder
-            # ie. if you use library yet installed (no-compilation)
-            
-            packages, package_dirs = self.find_packages_and_directories()
-            
-            install_dir = os.path.dirname(self.package.__file__)
-            
-            # py_modules = recursive_glob(self.install_dir, Pattern.pymod)
-            data_files = recursive_glob_as_dict(install_dir,
-                        ",".join(["*.example","*.txt",Pattern.pyext,"*.c",".1"])).items()
-
-            d = dict ( PACKAGES = packages,
-                       PACKAGE_DIRS = package_dirs,
-                       DATA_FILES  = data_files,
-                       LIB_DIRS         = None,
-                       INC_DIRS         = None,
-                       BIN_DIRS         = None,
-                      )
-            d.update(self.setup_2())
-            return d  
-        else:
-            # for everything else
-            ret = dict()
-            
-            lib = path(self.sourcedir)/'lib'
-            inc = path(self.sourcedir)/'include'
-            bin = path(self.sourcedir)/'bin'
-            
-            if lib.exists():
-                ret['LIB_DIRS'] = {'lib' : pj(self.sourcedir,'lib') }
-            else:
-                ret['LIB_DIRS'] = None
-            if inc.exists():
-                ret['INC_DIRS'] = {'include' : pj(self.sourcedir,'include') }
-            else:
-                ret['INC_DIRS'] = None
-            if bin.exists():
-                ret['BIN_DIRS'] = {'bin' : pj(self.sourcedir,'bin') }
-            else:
-                ret['BIN_DIRS'] = None                
-                
-            return ret 
-
-    
-    # for InstalledPackageEggBuilder
-    # ie. if you use library yet installed (no-compilation)
-    def setup_2(self):
-        raise NotImplementedError     """
 
     # -- The ones you can override are these ones --
     def extra_paths(self):

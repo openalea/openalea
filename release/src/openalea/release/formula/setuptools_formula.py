@@ -10,7 +10,6 @@ class setuptools_formula(Formula):
     version = "0.6c11"       
     download_url = "http://pypi.python.org/packages/2.7/s/setuptools/setuptools-0.6c11.win32-py2.7.exe"
     download_name  = "setuptools.exe"
-    yet_installed = False
     
     def unpack(self):
         return True

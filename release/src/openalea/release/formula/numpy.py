@@ -10,7 +10,6 @@ class numpy(Formula):
     arch_dependent = True      
     download_url = "http://freefr.dl.sourceforge.net/project/numpy/NumPy/1.7.1/numpy-1.7.1-win32-superpack-python2.7.exe"
     download_name  = "numpy.exe"
-    yet_installed = False
     
     def unpack(self):
         return True

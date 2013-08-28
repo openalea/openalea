@@ -11,7 +11,6 @@ class pyopengl(Formula):
     download_url = "http://pypi.python.org/packages/any/P/PyOpenGL/PyOpenGL-3.0.2.win32.exe"
     homepage = "http://pyopengl.sourceforge.net/"
     download_name  = "pyopengl.exe"
-    yet_installed = False
     
     def unpack(self):
         return True

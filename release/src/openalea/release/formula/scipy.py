@@ -10,7 +10,6 @@ class scipy(Formula):
     version = "0.12.0"       
     download_url = "http://freefr.dl.sourceforge.net/project/scipy/scipy/0.12.0/scipy-0.12.0-win32-superpack-python2.7.exe"
     download_name  = "scipy.exe"
-    yet_installed = False
     
     def unpack(self):
         return True

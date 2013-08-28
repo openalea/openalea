@@ -4,7 +4,6 @@ from os.path import join as pj
 class qhull(Formula):
     download_url = "http://www.qhull.org/download/qhull-2011.2.zip"
     download_name  = "qhull_src.zip"
-    enabled = False
     def configure(self):
         return True
     def make(self):

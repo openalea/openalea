@@ -4,7 +4,7 @@ from os.path import join as pj
 class gnuplot(Formula):
     download_url = "http://heanet.dl.sourceforge.net/project/gnuplot/gnuplot/4.4.4/gp444win32.zip"
     download_name  = "gnuplot_src.zip"
-    enabled = False
+
     def configure(self):
         return True
     def make(self):
