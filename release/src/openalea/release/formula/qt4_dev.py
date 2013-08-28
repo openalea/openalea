@@ -11,6 +11,7 @@ class qt4_dev(Formula):
     description = "Sip+PyQt4+QScintilla Development packaged as an egg for windows-gcc"
     py_dependent   = True
     arch_dependent = True
+    dependencies = ["qt4", "pyqt4", "sip", "mingw_rt"]
     
     def configure(self):
         return True
@@ -43,7 +44,7 @@ class qt4_dev(Formula):
         mks = recursive_glob_as_dict(qt4_.install_mks_dir, Pattern.qtmkspec, strip_keys=True, prefix_key="mkspecs").items()        
         # plugins files are recursive subdirectories in qt4
         plu = recursive_glob_as_dict(qt4_.install_plu_lib_dir, Pattern.qtstalib, strip_keys=True, prefix_key="plugins").items()
-        
+
         return dict( 
                     VERSION          = qt4_.version,                   
                     BIN_DIRS         = bin_dirs,

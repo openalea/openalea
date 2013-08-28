@@ -3,6 +3,9 @@ from openalea.release.utils import sh, apply_patch, pj, option_to_sys_path
 from openalea.release.formula.qt4 import qt4
 from openalea.release.formula.bisonflex import bisonflex
 import sys
+import os
+import re
+import shutil
 from os.path import abspath, dirname, exists
 
 PATCH_DIR = abspath(dirname(__file__))
@@ -57,13 +60,7 @@ class sip(Formula):
                 #we don't have a clue of what type of source we're in
                 #so dying cleanly can seem like a good option:
                 return False
-    '''
-    def make(self):
-        return True
-        
-    def install(self):
-        return True
-    '''
+
     
     def extra_paths(self):
         return self.sourcedir, pj(self.sourcedir, "sipgen")
@@ -71,10 +68,7 @@ class sip(Formula):
     def extra_python_paths(self):
         return self.sourcedir, pj(self.sourcedir, "siplib")
 
-    def patch(self):
-        return True
-        
-        '''
+    def patch(self):      
         # Patching sipconfig.py so that its
         # paths point to the qt4 egg path we are building.
         # Feel free to do better
@@ -121,4 +115,3 @@ if 'qt4-dev' in env:
             f.write(txt)
 
         return True
-        '''

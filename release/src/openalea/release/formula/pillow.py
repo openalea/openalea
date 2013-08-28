@@ -1,5 +1,5 @@
 from openalea.release import Formula
-import warnings
+from openalea.release.utils import in_dir, install as util_install
 
 class pillow(Formula):
     license = "Pillow License."
@@ -9,16 +9,21 @@ class pillow(Formula):
     __packagename__  = "PIL"
     py_dependent   = True
     arch_dependent = True  
-    yet_installed = True
+    yet_installed = False
+    version = "2.1.0"       
+    download_url = "https://pypi.python.org/packages/2.7/P/Pillow/Pillow-2.1.0.win32-py2.7.exe"
+    homepage = "https://pypi.python.org/pypi/Pillow"
+    download_name  = "pillow.exe"
     
+    def unpack(self):
+        return True
+        
     def configure(self):
         return True
         
     def make(self):
         return True
         
+    @in_dir("dldir")
     def install(self):
-        return True    
-        
-    def setup_2(self):
-        return dict( VERSION = self.module.VERSION )
+        return util_install(self.download_name)   

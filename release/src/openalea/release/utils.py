@@ -193,14 +193,16 @@ def url(name, dir=None, dl_name=None):
  
 def install(filename):
     ext = filename.split(".")[-1]
+    ret = False
     if ext.lower() == "msi":
-        sh('msiexec /i %s' %filename)
+        ret = sh('msiexec /i %s' %filename) == 0
         logger.debug("%s Installed." %filename)
     elif ext.lower() == "exe":
-        sh(filename)
+        ret = sh(filename) == 0
         logger.debug("%s Installed." %filename)
     else:
         logger.debug("---We can't install %s. Unknow extension.---" %filename)
+    return ret
  
 def apply_patch(patchfile):
     """ Apply patch from file
@@ -261,13 +263,13 @@ def checkout(url, dir=None):
         dir = '.'
     dir = path(dir)
     cmd = "svn co %s %s " %(url, dir)
-    sh(cmd)    
+    return sh(cmd) == 0
     
 def set_windows_env():
     """ Set window environment path
     """
     cmd = "set PATH=%PATH%;%INNO_PATH%;%SVN_PATH%;%PYTHON_PATH%;%PYTHON_PATH%\Scripts"
-    sh(cmd)
+    return sh(cmd) == 0
 '''
 def unpack(arch, where):
     """ Unpack a ZIP, TGZ or TAR file from 'where'

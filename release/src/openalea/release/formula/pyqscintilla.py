@@ -18,11 +18,15 @@ class pyqscintilla(Formula):
         self.install_paths = pj(qsci.sourcedir,"release"), pj(qt4_.installdir, "qsci"), \
                              qsci.sourcedir, pj(pyqt.install_site_dir, "PyQt4"), \
                              pyqt.install_sip_dir
-        self.qsci_dir = self.install_paths[1]
+        self.qsci_dir = self.install_paths[1]        
 
     def configure(self):
         # we want pyqscintilla to install itself where pyqt4 installed itself.
         # -- The -S flag is needed or else configure.py
         # sees any existing sip installation and can fail. --
-        return sh(sys.executable + \
-               " -S configure.py -o %s -a %s -n %s -d %s -v %s"%self.install_paths ) == 0
+        pyqt = pyqt4()
+        config_filename = pj(pyqt.sourcedir,"configure.py")
+        cmd = sys.executable + " -S " + config_filename +\
+                " -o %s -a %s -n %s -d %s -v %s"%self.install_paths 
+        print cmd
+        return sh(cmd) == 0

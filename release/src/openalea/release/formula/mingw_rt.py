@@ -14,6 +14,8 @@ class mingw_rt(Formula):
     supported_tasks = "i"
     download_name  = "mingw"
     
+    dependencies = ["mingw"]
+    
     def __init__(self, *args, **kwargs):
         super(mingw_rt, self).__init__(*args, **kwargs)
         makedirs(self.eggdir)

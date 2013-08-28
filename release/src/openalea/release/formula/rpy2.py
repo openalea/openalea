@@ -22,6 +22,8 @@ class rpy2(Formula):
     py_dependent   = True
     arch_dependent = True
     
+    dependencies = ["r"]
+    
     def setup(self):
         from setuptools import find_packages
         return dict(URL          = self.homepage,

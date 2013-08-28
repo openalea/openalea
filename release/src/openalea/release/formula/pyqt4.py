@@ -12,6 +12,8 @@ class pyqt4(Formula):
     '''
     download_name  = "pyqt4_src.zip"
     
+    dependencies = ["qt4", "sip"]
+   
     cmd_options = [ ("siphome", None, "Path to sip.exe"),
                     ("sipsite", None, "Path(s) to sip modules (';' seperated)") ]
 
@@ -24,8 +26,8 @@ class pyqt4(Formula):
         self.install_bin_dir  = qt4_.install_bin_dir
         self.install_site_dir = pj(self.installdir,"site")
         self.install_sip_dir  = pj(self.installdir,"sip")
-        self.inst_paths       = self.install_bin_dir, self.install_site_dir, self.install_sip_dir
-
+        self.inst_paths       = self.install_bin_dir, self.install_site_dir, self.install_sip_dir  
+        
     @option_to_python_path("sipsite")
     @option_to_sys_path("siphome")
     def configure(self):

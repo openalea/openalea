@@ -14,6 +14,37 @@ Pattern, recursive_glob_as_dict, get_logger
                                 
 logger = get_logger()
 
+
+def install_formula(formula_name):
+    """
+    Install formula
+    :param formula_name: string name of the formula
+    :return: instance of the installed formula
+    """
+    # import formula
+    cmd_import = "from openalea.release.formula.%s import %s" %(formula_name,formula_name)
+    exec(cmd_import, globals(), locals())
+    
+    # instanciate formula
+    cmd_instanciate = "%s()" %formula_name
+    formula = eval(cmd_instanciate)
+    
+    done = dict()
+
+    # install dependencies needed by formula
+    formula.install_deps()
+    
+    # download and install formula
+    done["download"] = formula._download()
+    done["unpack"] = formula._unpack()
+    done["patch"] = formula._patch()
+    done["configure"] = formula._configure()
+    done["make"] = formula._make()
+    done["install"] = formula._install()
+    done["bdist_egg"] = formula._bdist_egg()
+    
+    return formula, done
+
 ############################################
 # Formula                                  #
 ############################################
@@ -24,6 +55,8 @@ class Formula(object):
     homepage = ""
     licence = ""
     authors = ""
+    # List of dependencies of the formula
+    dependencies = ""
     # The URL to fetch the sources from
     # A None url implies the download has already done by someone else
     download_url = None
@@ -39,6 +72,8 @@ class Formula(object):
                                     ("m",("make",True)),
                                     ("i",("install",True)),
                                     ("b",("bdist_egg",True)),
+                                    
+                                    
                                     ("u",("upload_egg",True)),
                                     ("g",("copy_egg",True)),
                                     
@@ -73,6 +108,7 @@ class Formula(object):
         self.done_tasks = {}
         self.options = {} 
         self.pending = None
+        self.dldir = self._get_dl_path()
         self.archname  = pj( self._get_dl_path() , self.download_name)
         self.sourcedir = pj( self._get_src_path(), splitext(self.download_name)[0] )
         self.installdir = pj( self._get_install_path(), splitext(self.download_name)[0] )
@@ -97,32 +133,7 @@ class Formula(object):
         makedirs(self.sourcedir)
         makedirs(self._get_dl_path())
         makedirs(self.eggdir)
-        
 
-        self.default_substitutions = dict( NAME             = self.egg_name(),
-                                       VERSION              = self.version,
-                                       THIS_YEAR            = datetime.date.today().year,
-                                       SETUP_AUTHORS        = "Openalea Team",
-                                       CODE_AUTHOR          = self.authors,
-                                       DESCRIPTION          = self.description,
-                                       HOMEPAGE             = self.homepage,
-                                       URL                  = self.download_url,
-                                       LICENSE              = self.licence,
-
-                                       ZIP_SAFE             = False,
-                                       PYTHON_MODS          = None,
-                                       PACKAGES             = None,
-                                       PACKAGE_DIRS         = None,
-                                       PACKAGE_DATA         = {},
-                                       DATA_FILES           = None,
-
-                                       INSTALL_REQUIRES     = self.required_tools,
-                                       
-                                       LIB_DIRS         = {'lib' : pj(self.sourcedir,'lib') },
-                                       INC_DIRS         = {'include' : pj(self.sourcedir,'include') },
-                                       BIN_DIRS         = {'bin' : pj(self.sourcedir,'bin') },
-                                       )
-        
         if self.yet_installed:
             try:
                 self.package
@@ -130,7 +141,71 @@ class Formula(object):
                 self.enabled = False
             else:
                 self.enabled = True
+                
+
+    def default_substitutions_setup_py(self):
         
+        # if package is python and yet installed
+        try:
+            packages, package_dirs = self.find_packages_and_directories()
+            
+            install_dir = os.path.dirname(self.package.__file__)
+
+            # py_modules = recursive_glob(self.install_dir, Pattern.pymod)
+            data_files = recursive_glob_as_dict(install_dir,
+                        ",".join(["*.example","*.txt",Pattern.pyext,"*.c",".1"])).items()
+        # evreything else
+        except:
+            packages, package_dirs, data_files = None, None, None
+                        
+        d = dict ( NAME                 = self.egg_name(),
+                   VERSION              = self.version,
+                   THIS_YEAR            = datetime.date.today().year,
+                   SETUP_AUTHORS        = "Openalea Team",
+                   CODE_AUTHOR          = self.authors,
+                   DESCRIPTION          = self.description,
+                   HOMEPAGE             = self.homepage,
+                   URL                  = self.download_url,
+                   LICENSE              = self.licence,
+
+                   ZIP_SAFE             = False,
+                   PYTHON_MODS          = None,
+                   PACKAGE_DATA         = {},
+
+                   INSTALL_REQUIRES     = self.required_tools,
+                   
+                   PACKAGES             = packages,
+                   PACKAGE_DIRS         = package_dirs,
+                   DATA_FILES           = data_files,
+                   LIB_DIRS             = None,
+                   INC_DIRS             = None,
+                   BIN_DIRS             = None,
+                  )
+            
+        lib = path(self.sourcedir)/'lib'
+        inc = path(self.sourcedir)/'include'
+        bin = path(self.sourcedir)/'bin'
+
+        if lib.exists(): d['LIB_DIRS'] = {'lib' : pj(self.sourcedir,'lib') }
+        if inc.exists(): d['INC_DIRS'] = {'include' : pj(self.sourcedir,'include') }
+        if bin.exists(): d['BIN_DIRS'] = {'bin' : pj(self.sourcedir,'bin') }
+        
+        
+        return d
+                
+    def install_deps(self):
+        deps = self.get_dependencies()
+        for dep in deps:
+            install_formula(dep) 
+    
+    def get_dependencies(self):
+        """
+        :return: list of dependencies of the formula 
+        """
+        if self.dependencies is None:
+            self.dependencies = ""
+        return list(self.dependencies)
+    
     @property
     def name(self):
         return self.__class__.__name__
@@ -228,7 +303,7 @@ class Formula(object):
             return True
         else:
             ret = url(self.download_url, dir=self._get_dl_path(), dl_name=self.download_name)
-            return ret
+            return bool(ret)
     
     def _unpack(self, arch=None):
         # a proj with a none url implicitely means
@@ -269,15 +344,68 @@ class Formula(object):
                     return True
         '''
 
+    #### Do NOT USE "REG ADD..." !!!
+    # def _permanent_extend_sys_path(self):
+        # """
+        # Warnings: this method extend PERMANENTLY Path for WINDOWS (and only windows) and need a REBOOT of the computer
+        
+        # more here:
+        # http://fr.wikipedia.org/wiki/Variable_d%27environnement#.3CPATH.3E_pour_l.27emplacement_des_ex.C3.A9cutables
+        # and here:
+        # http://technet.microsoft.com/fr-fr/library/cc742162%28v=ws.10%29.aspx
+        
+        # Modifie register... So, please use it carefully...
+        
+        # TODO: test it...
+        # """
+        # exp = self.extra_paths()
+        # if exp is not None:
+            # print "_permanent_extend_sys_path not tested..."
+            # warnnings.warn("You need to restart the computer to really extend the Path!")
+            # cmd = 'REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment" /v Path /d "%PATH%;%s" /f', %exp
+            # print cmd
+            # return sh(cmd) == 0
+        # print "nothing to add in sys path"
+        # return True
+            
+    # def _permanent_extend_python_path(self):
+        # """
+        # See _permanent_extend_sys_path
+        
+        # Same for PYTHON_PATH and not PATH
+        # """
+        # exp = self.extra_python_paths()
+        # if exp is not None:
+            # print "_permanent_extend_python_path not tested..."
+            # warnnings.warn("You need to restart the computer to really extend the Python_Path!")
+            # cmd = 'REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment" /v Python_path /d "%PYTHON_PATH%;%s" /f', %exp
+            # print cmd
+            # return sh(cmd) == 0
+        # print "nothing to add in sys path"
+        # return True
+        
     def _extend_sys_path(self):
         exp = self.extra_paths()
         if exp is not None:
             if isinstance(exp, tuple):
                 exp = sj(exp)
             os.environ["PATH"] = sj([exp,os.environ["PATH"]])
+
+            cmd = " PATH "
+            for e in exp.split(";"):
+                cmd = cmd + "\"" + e + "\";"
+            cmd = cmd + "%PATH%"
             
-            # cmd = "SET PATH=\""+exp+"\";%PATH%"
-            # sh(cmd)
+            # set temp PATH
+            cmd1 = "SET" + cmd
+            print cmd1
+            sh(cmd1)
+            
+            # set permanent PATH
+            cmd2 = "SETX" + cmd
+            print cmd2
+            sh(cmd2)
+            
         return True
 
     def _extend_python_path(self):
@@ -288,7 +416,24 @@ class Formula(object):
                 exp = sj(exp)
             elif isinstance(exp, str):
                 sys.path.extend(exp.split(os.pathsep))
-            os.environ["PYTHONPATH"] = sj([exp,os.environ.get("PYTHONPATH","")])
+
+            os.environ["PYTHON_PATH"] = sj([exp,os.environ.get("PYTHON_PATH","")])
+            
+            cmd = " PYTHON_PATH "
+            for e in exp.split(";"):
+                cmd = cmd + "\"" + e + "\";"
+            cmd = cmd + "%PYTHON_PATH%"
+            
+            # set temp PYTHON_PATH
+            cmd1 = "SET" + cmd
+            print cmd1
+            sh(cmd1)
+            
+            # set permanent PYTHON_PATH
+            cmd2 = "SETX" + cmd
+            print cmd2
+            sh(cmd2)
+
         return True
 
     # -- Top level process, they delegate to abstract methods, try not to override --
@@ -318,7 +463,8 @@ class Formula(object):
     def _configure_script(self):
         with open( self.setup_in_name, "r") as input, \
              open( self.setup_out_name, "w") as output:
-            conf = self.default_substitutions.copy()
+             
+            conf = self.default_substitutions_setup_py()
             conf.update(self.setup())
             conf = dict( (k,repr(v)) for k,v in conf.iteritems() )
             template = TemplateStr(input.read())
@@ -376,7 +522,11 @@ class Formula(object):
 
     def unpack(self, arch, dir):
         return utils_unpack(arch, dir)
-        
+            
+    def setup(self):
+        return(dict())
+     
+        """
     def setup(self):
         if self.yet_installed:
             # for InstalledPackageEggBuilder
@@ -421,16 +571,12 @@ class Formula(object):
                 ret['BIN_DIRS'] = None                
                 
             return ret 
-            # dict(
-                        # LIB_DIRS         = {'lib' : pj(self.sourcedir,'lib') },
-                        # INC_DIRS         = {'include' : pj(self.sourcedir,'include') },
-                        # BIN_DIRS         = {'bin' : pj(self.sourcedir,'bin') },
-                        # )
+
     
     # for InstalledPackageEggBuilder
     # ie. if you use library yet installed (no-compilation)
     def setup_2(self):
-        raise NotImplementedError     
+        raise NotImplementedError     """
 
     # -- The ones you can override are these ones --
     def extra_paths(self):
@@ -477,7 +623,7 @@ class Formula(object):
         # Try to install egg (to call after bdist_egg)
         egg = glob.glob( pj(self.eggdir, "dist", "*.egg") )[0]
         cmd = "alea_install -H None -f . %s" %egg
-        return sh(cmd)
+        return sh(cmd) == 0
 
     def upload_egg(self):
         if not self.use_cfg_login:
@@ -494,6 +640,7 @@ class Formula(object):
     @property
     def package(self):
         return __import__(self.packagename)
+        
     @property
     def module(self):
         if self.__modulename__:
@@ -521,7 +668,8 @@ class Formula(object):
         base = abspath( pj(install_dir, os.pardir) )
         for pk in pkgs:
             dirs[pk] =  pj(base, pk.replace(".", os.sep))
-        return pkgs, dirs            
+        return pkgs, dirs          
+
             
     #################################
     ## Come from BuildEnvironment
