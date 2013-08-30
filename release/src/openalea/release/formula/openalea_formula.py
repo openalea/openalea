@@ -12,9 +12,12 @@ class openalea_formula(Formula):
     authors = "Inria, INRA, CIRAD"
     description = "OpenAlea is an open source project primarily aimed at the plant research community."
     download_name  = "OpenAlea"
-    dependencies = ["pyqt4", "numpy", "scipy", "matplotlib", 
-                  "pyqscintilla", "setuptools", "pillow", "pylsm", "pylibtiff"]
-                  # And what about "soappy" ???
+    dependencies = ["mingw", "mingw_rt", "pyqt4", "numpy", "scipy", "matplotlib", 
+                  "pyqscintilla", "setuptools", "pillow", "pylsm", "pylibtiff", "pywin32"]
+                  ## And what about "soappy" ???
+                  ## pywin32 only WINDOWS
+                  ## old: "pyqt4", "numpy", "scipy", "matplotlib", 
+                  ## "pyqscintilla", "setuptools", "pillow", "pylsm", "pylibtiff","soappy" , "pywin32"
     
     def _download(self):
         checkout(self.download_url, self.sourcedir)

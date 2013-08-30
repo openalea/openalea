@@ -21,6 +21,10 @@ class mingw(Formula):
     
     def _unpack(self, arch=None):
         arch = arch or self.archname
+              
+        if not (os.path.isfile(arch) or os.path.isdir(arch)):
+            self._download()
+        
         ret = self.unpack(arch, self.get_path())
         return ret 
 
@@ -149,15 +153,15 @@ class mingw_new(Formula):
             mingw-get install mpfr
         """
         mingw_get_installer = path(self._get_dl_path())/self.download_name
-        print mingw_get_installer
+        # print mingw_get_installer
         ret = install(mingw_get_installer) 
-        print ret
+        # print ret
         ret = ret & sh("mingw-get install zlib")
-        print ret
+        # print ret
         ret = ret & sh("mingw-get install gmp")
-        print ret
+        # print ret
         ret = ret & sh("mingw-get install mpfr")
-        print ret       
+        # print ret       
         return ret
 
     def setup(self):

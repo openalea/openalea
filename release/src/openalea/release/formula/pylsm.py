@@ -23,7 +23,7 @@ class pylsm(Formula):
     def install(self):
         return True
     
-    def setup_2(self):
+    def setup(self):
         pth = self.package.__path__[0]
         for p in pth.split("\\"):
             if ".egg" in p:

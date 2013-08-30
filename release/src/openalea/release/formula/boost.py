@@ -41,7 +41,6 @@ class boost(Formula):
         cmd += " variant=release link=shared threading=multi runtime-link=shared toolset=gcc"
         cmd += " include=%s library-path=%s install"
         cmd %= paths
-        print cmd
         return sh(cmd) == 0
     def install(self):
         """ bjam configures, builds and installs so nothing to do here"""

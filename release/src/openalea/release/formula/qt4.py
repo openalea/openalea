@@ -149,7 +149,7 @@ class qt4(Formula):
         # qscis apis are recursive from qt4 (need to list all files)        
         qscis    = recursive_glob_as_dict(pysci_.qsci_dir, Pattern.sciapi, strip_keys=True, prefix_key="qsci").items()
         extra_pyqt4_mods = recursive_glob_as_dict(pj(pyqt4_.install_site_dir,"PyQt4"), Pattern.pyall, strip_keys=True, prefix_key="PyQt4").items()
-        print extra_pyqt4_mods
+        # print extra_pyqt4_mods
         sip_mods = recursive_glob_as_dict(sip_.install_site_dir, Pattern.pyall, strip_keys=True, levels=1).items()
 
         lib_dirs    = {"PyQt4": self.install_dll_dir}

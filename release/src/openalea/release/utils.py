@@ -15,12 +15,28 @@ from os.path import join as pj, splitext, split
 from collections import defaultdict
 
 # WARNING :  use deploy here
-from openalea.deploy.system_dependencies import patch
-from openalea.deploy.util import get_repo_list
+from openalea.release import patch as release_patch
 from setuptools.package_index import PackageIndex
 import logging
 
 __oldsyspath__ = sys.path[:]
+
+
+OPENALEA_PI = "http://openalea.gforge.inria.fr/pi"
+OPENALEA_REPOLIST = "http://openalea.gforge.inria.fr/repolist"
+def get_repo_list():
+    """ Return the list of OpenAlea repository """
+    import urllib
+    try:
+        ret = []
+        u = urllib.urlopen(OPENALEA_REPOLIST)
+        for i in u:
+            ret.append(i.strip())
+        return ret
+
+    except Exception, e:
+        print e
+        return [OPENALEA_PI]
 
 pi = PackageIndex(search_path=[])
 pi.add_find_links(get_repo_list())
@@ -207,7 +223,7 @@ def install(filename):
 def apply_patch(patchfile):
     """ Apply patch from file
     """
-    p = patch.fromfile(patchfile)
+    p = release_patch.fromfile(patchfile)
     return p.apply()   
 
 def get_dirs():
@@ -509,129 +525,3 @@ def get_python_scripts_dirs():
     return dirs
     
     
-    
-    
-    
-    
-########################################    
-## UNINSTALL   
-########################################     
-def get_python_dir():
-    return path(sys.prefix)/'Lib'/'site-packages'
-
-def scripts_dir():
-    return path(sys.prefix)/'Scripts'
-
-def remove_packages(dirs):
-
-    # TODO : svn remove
-    for f in dirs:
-        if f.exists():
-            if f.isdir():
-                f.rmtree()
-            else:
-                f.remove()
-        else:
-            warnings.warn("Can't remove %s" %f)
-            logger.warn("Can't remove %s" %f)
-                
-def uninstall_all():
-    """ Try to remove all the openalea, Vplants and alinea packages
-    """
-    pp = get_python_dir() # python_path
-    
-    # remove egg-link
-    oa = pp.glob('openalea*.egg-link')
-    vp = pp.glob('vplants*.egg-link')
-    al = pp.glob('alinea*.egg-link')
-    remove_packages(oa+vp+al)
-            
-    # remove egg
-    oa = pp.glob('openalea*.egg')
-    vp = pp.glob('vplants*.egg')
-    al = pp.glob('alinea*.egg')
-    remove_packages(oa+vp+al)
-        
-    # remove shared_lib.pth
-    pths = pp.glob('shared-lib.pth')
-    if pths:
-        if pths[0].exists():
-            pths[0].remove()
-        else:
-            warnings.warn("Can't remove %s" %pths[0])
-            logger.warn("Can't remove %s" %pths[0])
-    
-    # Modify the easy_install.pth file
-    pths = pp.glob('easy-install.pth')
-    eapth = pths[0]
-    
-    f = eapth.open()
-    easy = f.read()
-    f.close()
-    
-    new_ea = []
-    for l in easy.split('\n'):
-        if 'openalea' in l.lower() or 'vplants' in l.lower():
-            pass
-        else:
-            new_ea.append(l)
-            
-    s = '\n'.join(new_ea)
-    f = eapth.open('w')
-    f.write(s)
-    f.close()
-    
-    # Uninstall scripts 
-    # How to know what are the installed console scripts?
-    scripts = scripts_dir()
-    # remove alea
-    l = scripts.glob('alea*')
-    l+= scripts.glob('aml2py*')
-    l+= scripts.glob('cpfg2lpy*')
-    l+= scripts.glob('flowerdemo*')
-    l+= scripts.glob('gforge*')
-    l+= scripts.glob('lpy*')
-    l+= scripts.glob('make_develop*')    
-    l+= scripts.glob('phyllotaxis*')    
-    l+= scripts.glob('upload_dist*')
-    l+= scripts.glob('visualea*')
-    l+= scripts.glob('vplab*')
-    l+= scripts.glob('secondnature*')
-    
-    remove_packages(l)
-        
-    # Update Environment variable
-    
-    # Change PATH before changing OPENALEA_LIB
-    # Remove the registery in the same spirit than environ_var in deploy...
-    # TODO
-    """
-    import _winreg
-    regpath = r'SYSTEM\CurrentControlSet\Control\Session Manager\Environment'
-    reg = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
-    key = _winreg.OpenKey(reg, regpath, 0, _winreg.KEY_ALL_ACCESS)
-    libs = _winreg.QueryValueEx(key,'PATH')[0]
-    libs = libs.split(';')
-    
-    new_libs = []
-    
-    for l in libs:
-        if "%OPENALEA_LIB%" not in l:
-            new_libs.append(l)
-    
-    set_win_env['PATH=%s'%new_libs]"""
-    
-    # Remove dirs in openalea_lib
-    libs=os.environ['OPENALEA_LIB']
-    libs = libs.split(';')
-    # extract all the egg from OPENALEA_LIB
-    eggs = [path(x.split('egg')[0]+'egg') for x in libs if 'egg' in x]
-    
-    remove_packages(eggs)
-    
-    sh_libs = [path(x) for x in libs if 'shared_libs' in x]
-    remove_packages(sh_libs)
-
-    libs = [path(x) for x in libs if 'egg' not in x and 'shared_libs' not in x]
-    
-    os.putenv('OPENALEA_LIB','')

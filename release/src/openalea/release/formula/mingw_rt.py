@@ -1,4 +1,5 @@
 from os.path import join as pj
+import os
 from openalea.release import Formula
 from openalea.release.utils import recursive_copy, Pattern, makedirs
 from openalea.release.formula.mingw import mingw
@@ -21,6 +22,12 @@ class mingw_rt(Formula):
         makedirs(self.eggdir)
         self.sourcedir = mingw().get_path()
         self.install_dll_dir = pj(self.installdir, "dll")
+        
+    def _unpack(self, arch=None):
+        if not (os.path.isfile(self.sourcedir) or os.path.isdir(self.sourcedir)):
+            mingw()._download()
+            return mingw()._unpack()
+        return True
 
     def make(self):
         return True

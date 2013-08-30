@@ -21,9 +21,9 @@ class cmake(Formula):
                     LIB_DIRS = None,
                     INC_DIRS = {'share' : pj(self.sourcedir,'share') },
                     )
-    def post_install(self):
-        egg = glob.glob( pj(self._get_dl_path(), "*.egg") )[0]
-        cmd = "alea_install -H None -f . %s" %egg
-        return sh(cmd)
+    # def post_install(self):
+        # egg = glob.glob( pj(self._get_dl_path(), "*.egg") )[0]
+        # cmd = "alea_install -H None -f . %s" %egg
+        # return sh(cmd)
     def extra_paths(self):
         return path(self.sourcedir)

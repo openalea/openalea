@@ -7,21 +7,28 @@ from os.path import join as pj, splitext, exists, split
 from path import path
 from collections import OrderedDict
 import warnings
+import platform
 
 from openalea.release.utils import make_silent, Later, url, unpack as utils_unpack, \
 in_dir, try_except, TemplateStr, sh, sj, makedirs, \
 Pattern, recursive_glob_as_dict, get_logger
-                                
+
+from openalea.release.aliases import dependency_filter
+
 logger = get_logger()
 
 # python: http://python.org/ftp/python/2.7.5/python-2.7.5.msi
 
-def install_formula(formula_name):
+def build_formula(formula_name):
     """
-    Install formula
+    Build formula
     :param formula_name: string name of the formula
-    :return: instance of the installed formula
+    :return: instance of the builded formula
     """
+    formula_name = dependency_filter(formula_name)
+    
+    logger.debug("Build formula %s" %formula_name)
+    
     # import formula
     cmd_import = "from openalea.release.formula.%s import %s" %(formula_name,formula_name)
     exec(cmd_import, globals(), locals())
@@ -30,21 +37,76 @@ def install_formula(formula_name):
     cmd_instanciate = "%s()" %formula_name
     formula = eval(cmd_instanciate)
     
-    done = dict()
+    ret = formula.build()
+    
+    logger.debug("Build formula %s, success : %s" %(formula_name,ret))
+    
+    return formula, ret
+    
+to_build = [ "mingw_rt",
+             "qt4",
+             "sip",
+             "pyqt4",
+             "qscintilla",
+             "pyqscintilla",
+             "qglviewer",
+             "pyqglviewer"
+             "boost",
+             "ann",
+             "gnuplot",
+             "qhull",
+             "cgal",
+             "rpy2"
+             ]
+    
+def eggify_formula(formula_name):
+    """
+    Build egg
+    :param formula_name: string name of the formula
+    :return: instance of the eggified formula
+    """
+    formula_name = dependency_filter(formula_name)
+    
+    # import formula
+    cmd_import = "from openalea.release.formula.%s import %s" %(formula_name,formula_name)
+    exec(cmd_import, globals(), locals())
+    
+    # instanciate formula
+    cmd_instanciate = "%s()" %formula_name
+    formula = eval(cmd_instanciate)
+    
+    ret = formula.eggify()
+    
+    logger.debug("Eggify formula %s, success : %s" %(formula_name,ret))
+    return formula, ret
+    
+    
+def install_runtime_formula(formula_name):
+    ##### TODO
+    pass
+    
+def install_dvlp_formula(formula_name):
+    ##### TODO
+    pass
+    
+def install_formula(formula_name):
+    """
+    Install formula
+    :param formula_name: string name of the formula
+    :return: instance of the installed formula
+    """
+    formula_name = dependency_filter(formula_name)
+    
+    # import formula
+    cmd_import = "from openalea.release.formula.%s import %s" %(formula_name,formula_name)
+    exec(cmd_import, globals(), locals())
+    
+    # instanciate formula
+    cmd_instanciate = "%s()" %formula_name
+    formula = eval(cmd_instanciate)
+    
+    return formula, formula.deploy()
 
-    # install dependencies needed by formula
-    formula.install_deps()
-    
-    # download and install formula
-    done["download"] = formula._download()
-    done["unpack"] = formula._unpack()
-    done["patch"] = formula._patch()
-    done["configure"] = formula._configure()
-    done["make"] = formula._make()
-    done["install"] = formula._install()
-    done["bdist_egg"] = formula._bdist_egg()
-    
-    return formula, done
 
 ############################################
 # Formula                                  #
@@ -93,6 +155,7 @@ class Formula(object):
     working_path  = os.getcwd()
 
     def __init__(self,**kwargs):
+        logger.debug("__init__ %s" %self.__class__)
         self.done_tasks = {}
         self.options = {} 
         self.pending = None
@@ -120,6 +183,90 @@ class Formula(object):
         makedirs(self.sourcedir)
         makedirs(self._get_dl_path())
         makedirs(self.eggdir)
+        
+    def build(self):
+        """
+        Download, unpack, patch and compile (all in one!)
+        
+        DO aproximatly the same thing that alea_dependency_builder PROJ_ACTION
+        
+        Use it for:
+            mingw_rt
+            ann
+            pyqt4
+            pyqscintilla
+            ...
+            
+        :return: True if everything is well done
+        """
+        ret = True
+        ret = ret & self._download()
+        ret = ret & self._unpack()
+        ret = ret & self._patch()
+        ret = ret & self._configure()
+        ret = ret & self._make()
+        ret = ret & self._install()
+        return ret
+        
+    def eggify(self):
+        """
+        Download, install and build egg (all in one!)
+        
+        DO aproximatly the same thing that alea_dependency_builder EGG_ACTION
+        
+        Use it for:
+            numpy
+            scipy
+            matplotlib
+            mingw_rt
+            mingw
+            qt4
+            qt4_dev
+            ...
+            
+        :return: True if everything is well done
+        """
+        ret = True
+        ret = ret & self._download()
+        ret = ret & self._install()
+        ret = ret & self._bdist_egg()
+        ret = ret & self._upload_egg()
+        return ret
+        
+    def deploy(self):
+        """
+        Install formula. Try to do it in installing egg.
+        If doesn't work, try to install in downloading.
+        
+        DO aproximatly the same thing that deploy_system2
+        
+        :return: True if everything is well done
+        """
+        if not self.install_egg():
+            try:
+                ret = ret & self._download()
+                return (ret & self._install())
+            except:
+                return False
+        else:
+            return True
+        
+    def get_platform_name(self):
+        """Creates a string out of the current platform with names seperated by whitespaces:
+        ex: "fedora 13 goddard" or "ubuntu 9.10 karmic"."""
+        _platform = None
+        system = platform.system().lower()
+        if system == "linux":
+            dist, number, name = platform.linux_distribution()
+            _platform = dist.lower() + " " + number.lower() + " " + name.lower()
+        elif system == "windows":
+            dist, host, name, number, proc, procinfo = platform.uname()
+            _platform = dist.lower() + " " + number.lower() + " " + name.lower() + " "+ proc.lower()
+        else:
+            warnings.warn("Currently unhandled system : " + system + ". Implement me please.")
+            
+        logger.debug("get_platform_name : %s" %_platform)
+        return _platform  
 
     def default_substitutions_setup_py(self):
         """
@@ -283,6 +430,7 @@ class Formula(object):
             return True
         else:
             ret = url(self.download_url, dir=self._get_dl_path(), dl_name=self.download_name)
+            logger.debug("Download %s" %ret)
             return bool(ret)
     
     def _unpack(self, arch=None):
@@ -293,12 +441,17 @@ class Formula(object):
             logger.debug("No url")
             ret = True
         if exists(self.sourcedir):
-            message =  'already unpacked in %s' %repr(self.sourcedir)
-            logger.debug(message)
-            ret = True
+            if os.path.getsize(self.sourcedir) > 0:
+                message =  'already unpacked in %s' %repr(self.sourcedir)
+                logger.debug(message)
+                ret = True
+            else:
+                arch = arch or self.archname
+                ret = self.unpack(arch, self.sourcedir)
         else:
             arch = arch or self.archname
             ret = self.unpack(arch, self.sourcedir)
+        logger.debug("Unpack %s" %ret)
         return ret 
 
     
@@ -351,10 +504,15 @@ class Formula(object):
                 exp = sj(exp)
             os.environ["PATH"] = sj([exp,os.environ["PATH"]])
 
-            cmd = " PATH "
+            # cmd = " PATH "
+            # for e in exp.split(";"):
+                # cmd = cmd + "\"" + e + "\";"
+            # cmd = cmd + "%PATH%"
+            cmd = " PATH \""
             for e in exp.split(";"):
-                cmd = cmd + "\"" + e + "\";"
-            cmd = cmd + "%PATH%"
+                cmd = cmd + e + ";"
+            cmd = cmd + "%PATH%\""            
+            
             
             # set temp PATH
             cmd1 = "SET" + cmd
@@ -402,22 +560,30 @@ class Formula(object):
     def _configure(self):
         self._extend_sys_path()
         self._extend_python_path()
-        return self.configure()
+        ret = self.configure()
+        logger.debug("Configure %s" %ret)
+        return ret
         
     @in_dir("sourcedir")
     @try_except
     def _make(self):
-        return self.make()
+        ret = self.make()
+        logger.debug("Make %s" %ret)
+        return ret
     
     @in_dir("sourcedir")
     @try_except
     def _patch(self):
-        return self.patch()
+        ret = self.patch()
+        logger.debug("Patch %s" %ret)
+        return ret
         
     @in_dir("sourcedir")
     @try_except
     def _install(self):
-        return self.install()
+        ret = self.install()
+        logger.debug("Install %s" %ret)
+        return ret 
         
     @try_except
     def _configure_script(self):
@@ -448,20 +614,24 @@ class Formula(object):
         if not self.arch_dependent:
             filename = filename.replace(archver, "")
         os.rename(eggname, pj(dir_, filename))
+        
+        logger.debug("Bdist_egg %s" %ret)
         return ret
 
     @in_dir("eggdir")
     @try_except
     def _upload_egg(self):
-        if not self.options["login"] or not self.options["passwd"]:
-            self.use_cfg_login = True
-            ret = self.upload_egg()
-            if not ret:
-                warnings.warn("No login or passwd provided, skipping egg upload")
-                logger.warn( "No login or passwd provided, skipping egg upload" )
-                return Later
-            return ret
-        return self.upload_egg()
+        return True
+    
+        # if not self.options["login"] or not self.options["passwd"]:
+            # self.use_cfg_login = True
+            # ret = self.upload_egg()
+            # if not ret:
+                # warnings.warn("No login or passwd provided, skipping egg upload")
+                # logger.warn( "No login or passwd provided, skipping egg upload" )
+                # return Later
+            # return ret
+        # return self.upload_egg()
         
     @in_dir("eggdir")
     @try_except
