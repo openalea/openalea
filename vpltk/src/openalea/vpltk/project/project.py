@@ -48,6 +48,15 @@ import cPickle
 
 ##from openalea.vplab.scene.vplscene import VPLScene
 
+
+class Script(object):
+    def __init__(self,filename="", value=""):
+        super(Script, self).__init__()
+        self.filename = filename
+        self.value = value
+
+
+
 class Project(object):
     def __init__(self,project_name, project_path):
         self.name = str(project_name)
