@@ -16,7 +16,7 @@
 #
 ###############################################################################
 """
-Visual Programming nodes define to interact with the vplab application components like:
+Visual Programming nodes define to interact with the oalab application components like:
     - the scene
     - controls
     - observer
@@ -25,7 +25,7 @@ Visual Programming nodes define to interact with the vplab application component
 __revision__ = '$Id$'
 
 from openalea.core import *
-from openalea.vplab.scene import Scene
+from openalea.oalab.scene import Scene
 
 # Nodes for read/write in scene
 
