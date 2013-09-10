@@ -1,0 +1,3 @@
+* 13/12/12 Creation of OALab
+* 05/04/13 Rename OALab into VPLab
+* 10/09/13 Rename VPLab into OALab
