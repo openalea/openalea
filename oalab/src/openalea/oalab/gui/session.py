@@ -29,7 +29,7 @@ from openalea.oalab.applets.container import AppletContainer
 from openalea.oalab.scene.vplscene import SceneWidget
 from openalea.oalab.project.widgets import ProjectWidget
 from openalea.oalab.project.treeview import ProjectTreeView
-from openalea.oalab.package import PackageViewWidget, PackageCategorieViewWidget
+from openalea.oalab.package import PackageViewWidget, PackageCategorieViewWidget, PackageSearchWidget
 from openalea.vpltk.qt import QtCore
 
 class Session(object):
@@ -60,6 +60,7 @@ class Session(object):
         
         self.package_manager_widget = PackageViewWidget(parent=self)
         self.package_manager_categorie_widget = PackageCategorieViewWidget(parent=self)
+        self.package_manager_search_widget = PackageSearchWidget(parent=self)
         
         self.interpreter.locals['projects'] = self.projects
         self.interpreter.locals['session'] = self

@@ -47,6 +47,8 @@ class view3D(QGLViewer):
         self.camera().showEntireScene()
         # connection
         self.connect(self,QtCore.SIGNAL("drawNeeded()"),self.draw)
+        self.orientation_initiale = self.camera().orientation()
+        self.position_initiale = self.camera().position()
 
 
     # Method for lpy.registerPlotter to "animate"
@@ -165,16 +167,27 @@ class Viewer(view3D):
         return self._actions
     
     def resetzoom(self):
-        #print "reset zoom"
-        pass
+        self.camera().setOrientation(self.orientation_initiale)
+        self.camera().setPosition(self.position_initiale)
+        self.updateGL() 
         
     def zoomout(self):
         #print "zoom out"
-        pass
+        cam = self.camera()
+        new_position = (cam.position()-cam.sceneCenter())*2
+        cam.setPosition(new_position)
+        self.updateGL() 
         
     def zoomin(self):
         #print "zoom in"
-        pass
+        cam = self.camera()
+        new_position = (cam.position()-cam.sceneCenter())/2
+        cam.setPosition(new_position)
+        self.updateGL() 
+        
+        #coef = qMax(fabsf((camera->frame()->coordinatesOf(camera->revolveAroundPoint())).z), 0.2f*camera->sceneRadius())
+        #trans(0.0, 0.0, -coef * (event->y() - prevPos_.y()) / camera->screenHeight())
+        #translate(inverseTransformOf(trans))
         
     def show_fps(self):
         self._fps = not self._fps

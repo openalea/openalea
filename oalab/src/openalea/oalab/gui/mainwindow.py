@@ -64,6 +64,13 @@ class MainWindow(QtGui.QMainWindow):
         self.packageManagerCatDockWidget.setWidget(session.package_manager_categorie_widget)
         self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.packageManagerCatDockWidget)  
         
+        # Package Manager Search
+        self.packageManagerSearchDockWidget = QtGui.QDockWidget("Search Pkg", self)
+        self.packageManagerSearchDockWidget.setObjectName("PackagePanel")
+        self.packageManagerSearchDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
+        self.packageManagerSearchDockWidget.setWidget(session.package_manager_search_widget)
+        self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.packageManagerSearchDockWidget)  
+        
         # Scene_Widget
         self.sceneMngDockWidget = QtGui.QDockWidget("Scene Components", self)     
         self.sceneMngDockWidget.setObjectName("SceneManager")
@@ -126,7 +133,8 @@ class MainWindow(QtGui.QMainWindow):
         self.statusBar().showMessage("OALab is ready!", 10000)   
         
         # Tabify docks
-        self.tabifyDockWidget(self.packageManagerCatDockWidget, self.packageManagerDockWidget)
+        self.tabifyDockWidget(self.packageManagerDockWidget, self.packageManagerCatDockWidget)
+        self.tabifyDockWidget(self.packageManagerCatDockWidget, self.packageManagerSearchDockWidget)
         self.tabifyDockWidget(self.packageManagerDockWidget, self.projectManagerDockWidget)
         
         self.tabifyDockWidget(self.obsDockWidget, self.controlDockWidget)
