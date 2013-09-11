@@ -28,11 +28,6 @@ from openalea.core import settings
 
 ErrorMarker,BreakPointMarker,CodePointMarker = range(3)
 
-try:
-    _fromUtf8 = QtCore.QString.fromUtf8
-except AttributeError:
-    _fromUtf8 = lambda s: s
-
 class TextEditor(_LpyCodeEditor):
     def __init__(self, session, parent=None):
         super(TextEditor, self).__init__(parent)
@@ -65,17 +60,21 @@ class TextEditor(_LpyCodeEditor):
         QtCore.QObject.connect(self.actionClose, QtCore.SIGNAL('triggered(bool)'),self.close)
         
 
+        #self._actions = ["Simulation",[
+                                    ##["Text Edit",self.actionSave,0],
+                                    #["Text Edit",self.actionFind,1],
+                                    #["Text Edit",self.actionReplace,1],
+                                    #["Text Edit",self.actionGoto,1],
+                                    #["Text Edit",self.actionUndo,1],
+                                    #["Text Edit",self.actionRedo,1],
+                                    #["Text Edit",self.actionCheck,1],
+                                    #["Text Edit",self.actionDebug,1],
+                                    #["Text Edit",self.actionProfle,1],
+                                    #["Text Edit",self.actionClose,1]]]
+                                
         self._actions = ["Simulation",[
-                                    #["Text Edit",self.actionSave,0],
-                                    ["Text Edit",self.actionFind,1],
-                                    ["Text Edit",self.actionReplace,1],
-                                    ["Text Edit",self.actionGoto,1],
-                                    ["Text Edit",self.actionUndo,1],
-                                    ["Text Edit",self.actionRedo,1],
-                                    ["Text Edit",self.actionCheck,1],
-                                    ["Text Edit",self.actionDebug,1],
-                                    ["Text Edit",self.actionProfle,1],
-                                    ["Text Edit",self.actionClose,1]]]
+                                    ["Text Edit",self.actionUndo,0],
+                                    ["Text Edit",self.actionRedo,0]]]
 
         self.init()
 

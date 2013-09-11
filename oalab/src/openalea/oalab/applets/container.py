@@ -192,14 +192,14 @@ class WelcomePage(QtGui.QWidget):
         layout = QtGui.QGridLayout()
         layout.setAlignment(QtCore.Qt.AlignCenter)
         
-        max_size = QtCore.QSize(400,200)
-        min_size = QtCore.QSize(50,50)
+        max_size = QtCore.QSize(200,60)
+        min_size = QtCore.QSize(200,60)
         
         messageBegin = QtGui.QLabel("Would you like")
         messageNew = QtGui.QLabel("* to create a new:")
         messageOpen =QtGui.QLabel("* to open an existing:")        
         
-        newBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/openalealogo.png"),"Local Project")
+        newBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/openalealogo.png"),"New Project")
         newBtn.setMaximumSize(max_size)  
         newBtn.setMinimumSize(min_size)         
         newSvnBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/svn.png"),"Versionned Project (SVN)")
@@ -212,7 +212,7 @@ class WelcomePage(QtGui.QWidget):
         newScriptBtn.setMaximumSize(max_size)  
         newScriptBtn.setMinimumSize(min_size)
         
-        openBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/openalealogo.png"),"Local Project")
+        openBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/openalealogo.png"),"Open Project")
         openBtn.setMaximumSize(max_size)    
         openBtn.setMinimumSize(min_size)
         openSvnBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/svn.png"),"Versionned Project (SVN)")
@@ -234,18 +234,21 @@ class WelcomePage(QtGui.QWidget):
         QtCore.QObject.connect(openGitBtn, QtCore.SIGNAL("clicked()"),self.openGit)
         QtCore.QObject.connect(openScriptBtn, QtCore.SIGNAL("clicked()"),self.openScript)
             
-        layout.addWidget(messageBegin,0,0,1,1)
-        layout.addWidget(messageNew,1,0)
-        layout.addWidget(newBtn,2,0)
-        layout.addWidget(newSvnBtn,3,0)
-        layout.addWidget(newGitBtn,4,0)
-        layout.addWidget(newScriptBtn,5,0)
+        #layout.addWidget(messageBegin,0,0,1,1)
+        #layout.addWidget(messageNew,1,0)
+        #layout.addWidget(newBtn,2,0)
+        #layout.addWidget(newSvnBtn,3,0)
+        #layout.addWidget(newGitBtn,4,0)
+        #layout.addWidget(newScriptBtn,5,0)
         
-        layout.addWidget(messageOpen,1,1)        
-        layout.addWidget(openBtn,2,1)
-        layout.addWidget(openSvnBtn,3,1)
-        layout.addWidget(openGitBtn,4,1)
-        layout.addWidget(openScriptBtn,5,1)
+        #layout.addWidget(messageOpen,1,1)        
+        #layout.addWidget(openBtn,2,1)
+        #layout.addWidget(openSvnBtn,3,1)
+        #layout.addWidget(openGitBtn,4,1)
+        #layout.addWidget(openScriptBtn,5,1)
+        
+        layout.addWidget(newBtn,0,0)
+        layout.addWidget(openBtn,0,1)
         
         self.setLayout(layout)
 
