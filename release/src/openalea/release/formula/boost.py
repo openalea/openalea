@@ -2,7 +2,7 @@ from openalea.release import Formula
 from openalea.release.utils import sh, ascii_file_replace, recursive_glob_as_dict, merge_list_dict, Pattern
 from openalea.release.formula.mingw_rt import mingw_rt
 from os.path import join as pj, exists
-import os, sys
+import sys
 from re import compile as re_compile
 import re
 

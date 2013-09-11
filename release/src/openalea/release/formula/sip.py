@@ -68,6 +68,7 @@ class sip(Formula):
     def extra_python_paths(self):
         return self.sourcedir, pj(self.sourcedir, "siplib")
 
+'''
     def patch(self):      
         # Patching sipconfig.py so that its
         # paths point to the qt4 egg path we are building.
@@ -115,3 +116,4 @@ if 'qt4-dev' in env:
             f.write(txt)
 
         return True
+'''

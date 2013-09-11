@@ -1,6 +1,5 @@
 from openalea.release import Formula
 from openalea.release.utils import sh, pj
-from path import path
 import glob
 
 class bisonflex(Formula):

@@ -27,21 +27,33 @@ def build_formula(formula_name):
     """
     formula_name = dependency_filter(formula_name)
     
-    logger.debug("Build formula %s" %formula_name)
+    if isinstance(formula_name, list):
+        for form in formula_name:
+            build_formula(form)
+    else:
     
-    # import formula
-    cmd_import = "from openalea.release.formula.%s import %s" %(formula_name,formula_name)
-    exec(cmd_import, globals(), locals())
+        logger.debug("Build formula %s" %formula_name)
+        
+        # import formula
+        cmd_import = "from openalea.release.formula.%s import %s" %(formula_name,formula_name)
+        exec(cmd_import, globals(), locals())
+        
+        # instanciate formula
+        cmd_instanciate = "%s()" %formula_name
+        formula = eval(cmd_instanciate)
+        
+        ret = formula.build()
+        
+        logger.debug("Build formula %s, success : %s" %(formula_name,ret))
+        
+        return formula, ret
+    # Cannot find file: QGLViewer*.pro.
+    # mingw32-make: *** No rule to make target `release'.  Stop.
     
-    # instanciate formula
-    cmd_instanciate = "%s()" %formula_name
-    formula = eval(cmd_instanciate)
+    # No module named pyqglviewerboost
     
-    ret = formula.build()
+    # qt4 build manny times 
     
-    logger.debug("Build formula %s, success : %s" %(formula_name,ret))
-    
-    return formula, ret
     
 to_build = [ "mingw_rt",
              "qt4",
@@ -67,18 +79,23 @@ def eggify_formula(formula_name):
     """
     formula_name = dependency_filter(formula_name)
     
-    # import formula
-    cmd_import = "from openalea.release.formula.%s import %s" %(formula_name,formula_name)
-    exec(cmd_import, globals(), locals())
+    if isinstance(formula_name, list):
+        for form in formula_name:
+            eggify_formula(form)
+    else:    
     
-    # instanciate formula
-    cmd_instanciate = "%s()" %formula_name
-    formula = eval(cmd_instanciate)
-    
-    ret = formula.eggify()
-    
-    logger.debug("Eggify formula %s, success : %s" %(formula_name,ret))
-    return formula, ret
+        # import formula
+        cmd_import = "from openalea.release.formula.%s import %s" %(formula_name,formula_name)
+        exec(cmd_import, globals(), locals())
+        
+        # instanciate formula
+        cmd_instanciate = "%s()" %formula_name
+        formula = eval(cmd_instanciate)
+        
+        ret = formula.eggify()
+        
+        logger.debug("Eggify formula %s, success : %s" %(formula_name,ret))
+        return formula, ret
     
     
 def install_runtime_formula(formula_name):
@@ -97,15 +114,26 @@ def install_formula(formula_name):
     """
     formula_name = dependency_filter(formula_name)
     
-    # import formula
-    cmd_import = "from openalea.release.formula.%s import %s" %(formula_name,formula_name)
-    exec(cmd_import, globals(), locals())
-    
-    # instanciate formula
-    cmd_instanciate = "%s()" %formula_name
-    formula = eval(cmd_instanciate)
-    
-    return formula, formula.deploy()
+    if isinstance(formula_name, list):
+        for form in formula_name:
+            install_formula(form)
+    else:    
+        # import formula
+        cmd_import = "from openalea.release.formula.%s import %s" %(formula_name,formula_name)
+        exec(cmd_import, globals(), locals())
+        
+        # instanciate formula
+        cmd_instanciate = "%s()" %formula_name
+        formula = eval(cmd_instanciate)
+        
+        deploy = formula.deploy()
+        
+        if deploy == True:
+            print "Installation of the package " +formula_name+ " successfully completed."
+        else:
+            print "Installation of the package " +formula_name+ " NOT totally completed."
+        
+        return formula, deploy
 
 
 ############################################
@@ -228,6 +256,8 @@ class Formula(object):
         """
         ret = True
         ret = ret & self._download()
+        ret = ret & self._unpack()
+        ret = ret & self._patch()
         ret = ret & self._install()
         ret = ret & self._bdist_egg()
         ret = ret & self._upload_egg()
@@ -244,8 +274,11 @@ class Formula(object):
         """
         if not self.install_egg():
             try:
-                ret = ret & self._download()
-                return (ret & self._install())
+                ret = self._download()
+                ret = ret & self._unpack()
+                ret = ret & self._patch()
+                ret = ret & self._install()
+                return ret
             except:
                 return False
         else:
@@ -433,7 +466,7 @@ class Formula(object):
             logger.debug("Download %s" %ret)
             return bool(ret)
     
-    def _unpack(self, arch=None):
+    def _unpack(self):
         # a proj with a none url implicitely means
         # the sources are already here because some
         # other proj installed it.
@@ -446,11 +479,9 @@ class Formula(object):
                 logger.debug(message)
                 ret = True
             else:
-                arch = arch or self.archname
-                ret = self.unpack(arch, self.sourcedir)
+                ret = self.unpack()
         else:
-            arch = arch or self.archname
-            ret = self.unpack(arch, self.sourcedir)
+            ret = self.unpack()
         logger.debug("Unpack %s" %ret)
         return ret 
 
@@ -652,8 +683,8 @@ class Formula(object):
         shutil.copyfile(eggname, destname)
         return True
 
-    def unpack(self, arch, dir):
-        return utils_unpack(arch, dir)
+    def unpack(self):
+        return utils_unpack(self.archname, self.sourcedir)
             
     def setup(self):
         return(dict())
@@ -701,7 +732,11 @@ class Formula(object):
         
     def install_egg(self):
         # Try to install egg (to call after bdist_egg)
-        egg = glob.glob( pj(self.eggdir, "dist", "*.egg") )[0]
+        egg = glob.glob( pj(self.eggdir, "dist", "*.egg") )
+        if egg:
+            egg = egg[0]
+        else: 
+            return False
         cmd = "alea_install -H None -f . %s" %egg
         return sh(cmd) == 0
 

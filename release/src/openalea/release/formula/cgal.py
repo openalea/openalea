@@ -3,7 +3,6 @@ from openalea.release.utils import sh
 from openalea.release.formula.boost import boost
 from openalea.release.formula.mingw import mingw
 from os.path import join as pj
-import os
 
 class cgal(Formula):
     license = "GNU Lesser Public License"

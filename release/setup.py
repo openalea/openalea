@@ -108,7 +108,9 @@ setup(
     # Declare scripts and wralea as entry_points (extensions) of your package 
     entry_points = { 
         'wralea' : ['release = openalea.release_wralea' if has_project else 'release = release_wralea' ],
-        'console_scripts': ['alea_pkg = openalea.release.alea_pkg:main', ],
+        'console_scripts': ['install_pkg = openalea.release.install_pkg:main', 
+                            'easy_pkg = openalea.release.easy_pkg:main',
+                            "uninstall_openalea = openalea.release.uninstall:uninstall",],
         # 'gui_scripts': [
         #      'fake_gui = openalea.fakepackage.amodule:gui_script',],
         #	'wralea': wralea_entry_points

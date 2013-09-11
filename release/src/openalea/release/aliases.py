@@ -16,14 +16,14 @@ def dependency_filter(dependency):
         return "mingw"
         
     ##################################
-    elif dependency == "sip4-dev":
-        return "qt4_dev"
-    elif dependency == "pyqt4":
-        return ["qt4","pyqglviewer"]
-    elif dependency == "pyqt4_dev":
-        return "qt4_dev"
-    elif dependency == "pyqscintilla":
-        return "qt4"    
+    # elif dependency == "sip4-dev":
+        # return "qt4_dev"
+    # elif dependency == "pyqt4":
+        # return ["qt4","pyqglviewer"]
+    # elif dependency == "pyqt4_dev":
+        # return "qt4_dev"
+    # elif dependency == "pyqscintilla":
+        # return "qt4"    
     ##################################
     
     elif dependency == "boostdev":

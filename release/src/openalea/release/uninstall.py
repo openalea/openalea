@@ -9,6 +9,7 @@ except:
     from openalea.core.path import path
 
 import os, sys
+from platform import platform
 
 
 def get_python_dir():
@@ -26,6 +27,12 @@ def remove_packages(dirs):
                 f.remove()
         else:
             print "Can't remove %s" %f
+            
+def uninstall():
+    if "windows" in platform().lower():
+        uninstall_all_windows()
+    else:
+        print "Can't uninstall on an other OS that Windows"
                 
 def uninstall_all_windows():
     """ Try to remove all the openalea, Vplants and alinea packages

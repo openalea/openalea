@@ -1,7 +1,6 @@
 from openalea.release import Formula
-from openalea.release.utils import sh, pj
+from openalea.release.utils import pj
 from path import path
-import glob
 
 class cmake(Formula):
     version        = '2.8.11.2'
