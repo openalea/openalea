@@ -75,6 +75,8 @@ class ProjectWidget(QtGui.QWidget):
         self.actionNewLPy = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/logo.png"),"L-System", self)
         self.actionNewWorkflow = QtGui.QAction(QtGui.QIcon(":/images/resources/openalealogo.png"),"Workflow", self)
         
+        self.actionImportFile = QtGui.QAction(QtGui.QIcon(":/images/resources/import.png"),"Import", self)
+        
         self.actionNewProj = QtGui.QAction(QtGui.QIcon(":/images/resources/new.png"),"New", self)
         self.actionNewProj.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+N", None, QtGui.QApplication.UnicodeUTF8))
         self.actionOpenProj = QtGui.QAction(QtGui.QIcon(":/images/resources/open.png"),"Open", self)
@@ -93,6 +95,8 @@ class ProjectWidget(QtGui.QWidget):
         QtCore.QObject.connect(self.actionNewLPy, QtCore.SIGNAL('triggered(bool)'),self.newLpy)
         QtCore.QObject.connect(self.actionNewWorkflow, QtCore.SIGNAL('triggered(bool)'),self.newVisualea)
         
+        QtCore.QObject.connect(self.actionImportFile, QtCore.SIGNAL('triggered(bool)'),self.importFile)
+        
         self._actions = ["Project",[["Manage Project",self.actionNewProj,0],
                                     ["Manage Project",self.actionOpenProj,0],
                                     ["Manage Project",self.actionSaveProj,0],
@@ -100,15 +104,22 @@ class ProjectWidget(QtGui.QWidget):
                                     ["New Model",self.actionNewPython,0],
                                     ["New Model",self.actionNewR,0],
                                     ["New Model",self.actionNewLPy,0],
-                                    ["New Model",self.actionNewWorkflow,0]]]
+                                    ["New Model",self.actionNewWorkflow,0],
+                                    ["New Model",self.actionImportFile,0]]]
 
         self._project_changed()
 
             
-    def showOpenFileDialog(self):
+    def showOpenProjectDialog(self):
         my_path = path(settings.get_project_dir())
         fname = QtGui.QFileDialog.getExistingDirectory(self, 'Select Project Directory', 
                 my_path)
+        return fname
+        
+    def showOpenFileDialog(self):
+        my_path = path(settings.get_project_dir())
+        fname = QtGui.QFileDialog.getOpenFileName(self, 'Select File to import', 
+                my_path, "Scripts Files (*.py *.lpy *.r *.wpy)")
         return fname
 
     def actions(self):
@@ -127,7 +138,7 @@ class ProjectWidget(QtGui.QWidget):
         Then open project.
         """
         if name is False:
-            name = self.showOpenFileDialog()
+            name = self.showOpenProjectDialog()
         if name:
             proj_path = path(name).abspath()
             proj_name = proj_path.basename()
@@ -177,6 +188,36 @@ class ProjectWidget(QtGui.QWidget):
             self._project_changed()
         """
 
+    def importFile(self, filename=None):
+        """
+        Import a file and add it in the project
+        """
+        project = self.session.project
+        if project is not None:
+        
+            if not filename:
+                filename = self.showOpenFileDialog()
+
+            if filename:
+                f = open(filename, "r")
+                txt = f.read() 
+                f.close()
+                
+                tab_name = str(path(filename).splitpath()[-1])
+                ext = str(path(filename).splitext()[-1])
+                ext = ext.split(".")[-1]
+
+                try:
+                    self.parent.applet_container.newTab(applet_type=ext, tab_name=tab_name, script=txt)
+                    project.add_script(tab_name, txt)
+                except:
+                    print "File extension " +ext+ "not recognised"
+        
+        else:
+            print "Doesn't work outside a project. Please create or open a project to continue."
+        
+            
+        
         
     def new(self, name=None):
         """
@@ -259,6 +300,12 @@ class ProjectWidget(QtGui.QWidget):
         project = self.session.project
         if project is not None:
             project.add_script(tab_name, self.session.applet_container.applets[-1].widget().get_text())  
+    
+    def openModel(self):
+        """"
+        Open a (script-type) file
+        """
+        
     
     def openPython(self, fname=None):
         """

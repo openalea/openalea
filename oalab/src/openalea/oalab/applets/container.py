@@ -109,13 +109,13 @@ class AppletContainer(QtGui.QTabWidget):
         self.rmDefaultTab()
         
         if (applet_type == "python") or (applet_type == "py"):
-            self.applets.append(PythonApplet(self.session, name=tab_name))
+            self.applets.append(PythonApplet(self.session, name=tab_name, script=script))
         elif applet_type == "lpy":
-            self.applets.append(LPyApplet(self.session, name=tab_name))
+            self.applets.append(LPyApplet(self.session, name=tab_name, script=script))
         elif applet_type in ("wpy","visualea"):
             self.applets.append(VisualeaApplet(self.session, name=tab_name,repr_model=script))
         elif applet_type in ("r","R"):
-            self.applets.append(RApplet(self.session, name=tab_name))
+            self.applets.append(RApplet(self.session, name=tab_name, script=script))
     
         self.addTab(self.applets[-1].widget(), tab_name)
         self.setCurrentWidget(self.applets[-1].widget())

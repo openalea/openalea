@@ -23,12 +23,14 @@ from openalea.oalab.applets.texteditor import TextEditor
 from openalea.lpy import Lsystem, AxialTree, registerPlotter
 
 class LPyApplet(object):
-    def __init__(self, session, name="script.lpy"):
+    def __init__(self, session, name="script.lpy", script=""):
         super(LPyApplet, self).__init__()
         self._widget = TextEditor(session=session)
         self._widget.applet = self
         self.session = session
         self.name = name
+
+        self.widget().set_text(script)
 
         self.lsys = Lsystem()
         self.code = str()

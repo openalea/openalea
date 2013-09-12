@@ -22,7 +22,7 @@ __revision__ = ""
 from openalea.oalab.applets.texteditor import TextEditor
     
 class PythonApplet(object):
-    def __init__(self, session, name="script.py"):
+    def __init__(self, session, name="script.py", script=""):
         super(PythonApplet, self).__init__()
         self._widget = TextEditor(session=session)
         self._widget.applet = self
@@ -31,6 +31,8 @@ class PythonApplet(object):
         self._step = None
         self._animate = None
         self._init = None
+        
+        self.widget().set_text(script)
         
     def widget(self):
         """
