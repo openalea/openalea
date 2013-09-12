@@ -21,7 +21,7 @@
 __revision__ = ""
 
 from openalea.vpltk.qt import QtGui, QtCore
-from openalea.lpy.gui.objectpanel import LpyObjectPanelDock
+#from openalea.lpy.gui.objectpanel import LpyObjectPanelDock
 
 class MainWindow(QtGui.QMainWindow):
     """
@@ -71,29 +71,29 @@ class MainWindow(QtGui.QMainWindow):
         self.packageManagerSearchDockWidget.setWidget(session.package_manager_search_widget)
         self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.packageManagerSearchDockWidget)  
         
-        # Scene_Widget
-        self.sceneMngDockWidget = QtGui.QDockWidget("Scene Components", self)     
-        self.sceneMngDockWidget.setObjectName("SceneManager")
-        self.sceneMngDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
-        self.sceneMngDockWidget.setWidget(session.scene_widget)
-        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.sceneMngDockWidget)          
+        ## Scene_Widget
+        #self.sceneMngDockWidget = QtGui.QDockWidget("Scene Components", self)     
+        #self.sceneMngDockWidget.setObjectName("SceneManager")
+        #self.sceneMngDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
+        #self.sceneMngDockWidget.setWidget(session.scene_widget)
+        #self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.sceneMngDockWidget)          
         
-        # Control_Panel
-        self.controlDockWidget = LpyObjectPanelDock(parent=self,name="Control Panel", panelmanager=session.control_panel_manager)
-        self.controlDockWidget.setStatusBar(self.statusBar())
-        session.control_panel_manager.panels.append(self.controlDockWidget)
-        #self.controlDockWidget = QtGui.QDockWidget("Control Panel", self)     
-        #self.controlDockWidget.setObjectName("ControlPanel")
-        #self.controlDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
-        #self.controlDockWidget.setWidget(session.control_panel)
-        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.controlDockWidget)         
+        ## Control_Panel
+        #self.controlDockWidget = LpyObjectPanelDock(parent=self,name="Control Panel", panelmanager=session.control_panel_manager)
+        #self.controlDockWidget.setStatusBar(self.statusBar())
+        #session.control_panel_manager.panels.append(self.controlDockWidget)
+        ##self.controlDockWidget = QtGui.QDockWidget("Control Panel", self)     
+        ##self.controlDockWidget.setObjectName("ControlPanel")
+        ##self.controlDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
+        ##self.controlDockWidget.setWidget(session.control_panel)
+        #self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.controlDockWidget)         
         
-        # Observer_Panel
-        self.obsDockWidget = QtGui.QDockWidget("Observer Panel", self)     
-        self.obsDockWidget.setObjectName("ObserverPanel")
-        self.obsDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
-        self.obsDockWidget.setWidget(session.observer_panel)
-        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.obsDockWidget)  
+        ## Observer_Panel
+        #self.obsDockWidget = QtGui.QDockWidget("Observer Panel", self)     
+        #self.obsDockWidget.setObjectName("ObserverPanel")
+        #self.obsDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
+        #self.obsDockWidget.setWidget(session.observer_panel)
+        #self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.obsDockWidget)  
         
         # Viewer
         self.viewerDockWidget = QtGui.QDockWidget("3D Viewer", self)
@@ -146,8 +146,8 @@ class MainWindow(QtGui.QMainWindow):
         self.tabifyDockWidget(self.packageManagerCatDockWidget, self.packageManagerSearchDockWidget)
         self.tabifyDockWidget(self.packageManagerDockWidget, self.projectManagerDockWidget)
         
-        self.tabifyDockWidget(self.obsDockWidget, self.controlDockWidget)
-        self.tabifyDockWidget(self.sceneMngDockWidget, self.viewerDockWidget)
+        #self.tabifyDockWidget(self.obsDockWidget, self.controlDockWidget)
+        #self.tabifyDockWidget(self.sceneMngDockWidget, self.viewerDockWidget)
         self.tabifyDockWidget(self.viewerDockWidget, self.storeDockWidget)
         self.tabifyDockWidget(self.helpDockWidget, self.loggerDockWidget)
         self.tabifyDockWidget(self.helpDockWidget, self.shellDockWidget)

@@ -15,7 +15,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-__revision__ = ""
+__revision__ = "$Id: $"
 
 from openalea.vpltk.qt import QtGui, QtCore
 

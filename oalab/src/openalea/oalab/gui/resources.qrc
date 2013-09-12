@@ -31,6 +31,9 @@
         <file>resources/flower.ico</file>
         <file>resources/git.png</file>
         <file>resources/svn.png</file>
+        <file>resources/axis.png</file>
+        <file>resources/fps.png</file>
+        <file>resources/grid.png</file>
     </qresource>
     <qresource prefix="/lpy_images">
         <file>resources/lpy/book.png</file>
