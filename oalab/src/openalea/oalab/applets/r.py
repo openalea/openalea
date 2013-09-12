@@ -22,7 +22,7 @@ __revision__ = ""
 from openalea.oalab.applets.texteditor import TextEditor
     
 class RApplet(object):
-    def __init__(self, session, name="script.R"):
+    def __init__(self, session, name="script.R", script=""):
         super(RApplet, self).__init__()
         self._widget = TextEditor(session=session)
         self._widget.applet = self
@@ -33,6 +33,8 @@ class RApplet(object):
         self._init = None
         
         self.session.shell.runcode(source="%load_ext rmagic")
+        
+        self.widget().set_text(script)
         
     def widget(self):
         """
