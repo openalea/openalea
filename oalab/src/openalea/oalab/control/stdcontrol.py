@@ -17,22 +17,46 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-__revision__ = ""
-
 """
 Control classes for standard python types
 """
+__revision__ = "$Id: $"
+
+
+
+from openalea.vpltk.qt import QtGui, QtCore
 
 class Control(object):
-    """ ABC for controls? """
+    """ ABC for controls """
+    
     def __init__(self):
         super(Control, self).__init__() 
         self.name = ""
         self.value = ""
         
     def save(self):
+        """
+        
+        """
         return repr(self.value)
     
+    def default(self):
+        """
+        Fill fields 'name' and ''value' with default values
+        """
+        raise NotImplementedError
+        
+    def edit(self):
+        """
+        Return a widget to edit object
+        """
+        raise NotImplementedError
+  
+    def thumbnail(self):
+        """
+        Return a widget to visualize object
+        """
+        raise NotImplementedError
 
 class IntControl(Control):
     def __init__(self):
@@ -81,7 +105,9 @@ class BoolControl(Control):
         """
         Return a widget to visualize object
         """
-        pass
+        self.widg = QtGui.QLabel()
+        self.widg.setText(self.value)
+        return self.widg
 
         
 class FloatControl(Control):

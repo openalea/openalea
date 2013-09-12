@@ -63,17 +63,19 @@ class Session(object):
         self.package_manager_categorie_widget = PackageCategorieViewWidget(parent=self)
         self.package_manager_search_widget = PackageSearchWidget(parent=self)
         
-        self.interpreter.locals['projects'] = self.projects
-        self.interpreter.locals['session'] = self
-        self.interpreter.locals['viewer'] = self.viewer
-        self.interpreter.locals['interp'] = self.interpreter
-        self._update_locals()
-        
-        self.control_panel_manager = ControlPanelManager()
-        self.control_panel = ControlPanel()
+        #self.control_panel_manager = ControlPanelManager()
+        #self.control_panel = ControlPanel()
         self.observer_panel = ObserverPanel()
         self.logger = Logger()
         self.help = Help()
+        
+        self.interpreter.locals['projects'] = self.projects
+        self.interpreter.locals['session'] = self
+        self.interpreter.locals['viewer'] = self.viewer
+        #self.interpreter.locals['ctrl'] = self.control_panel
+        #self.interpreter.locals['ctrl_mng'] = self.control_panel_manager
+        self.interpreter.locals['interp'] = self.interpreter
+        self._update_locals()
         
         # Applet Container : can contain text editor or/and workflow editor
         self.applet_container = AppletContainer(session=self)

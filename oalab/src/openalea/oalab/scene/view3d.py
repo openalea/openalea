@@ -136,10 +136,10 @@ class Viewer(view3D):
         actionResetZoom = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/resetzoom.png"),"Reset Zoom", self)
         actionZoomOut = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/zoomout.png"),"Zoom Out", self)
         actionZoomIn = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/zoomin.png"),"Zoom In", self)
-        actionShowAxis = QtGui.QAction(QtGui.QIcon(""),"Show Axis", self)
-        actionShowGrid = QtGui.QAction(QtGui.QIcon(""),"Show Grid", self)
-        actionRadius = QtGui.QAction(QtGui.QIcon(""),"Focus", self)
-        actionShowFps = QtGui.QAction(QtGui.QIcon(""),"Show FPS", self)
+        actionShowAxis = QtGui.QAction(QtGui.QIcon(":/images/resources/axis.png"),"Show Axis", self)
+        actionShowGrid = QtGui.QAction(QtGui.QIcon(":/images/resources/grid.png"),"Show Grid", self)
+        actionRadius = QtGui.QAction(QtGui.QIcon(":/images/resources/growth2.png"),"Focus", self)
+        actionShowFps = QtGui.QAction(QtGui.QIcon(":/images/resources/fps.png"),"Show FPS", self)
         
         actionShowAxis.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+A", None, QtGui.QApplication.UnicodeUTF8))
         actionShowGrid.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+G", None, QtGui.QApplication.UnicodeUTF8))
@@ -155,9 +155,9 @@ class Viewer(view3D):
         
         QtCore.QObject.connect(actionShowFps, QtCore.SIGNAL('triggered(bool)'),self.show_fps)
         
-        self._actions = ["3D View",[["Zoom",actionResetZoom,1],
-                                    ["Zoom",actionZoomOut,1],
-                                    ["Zoom",actionZoomIn,1],
+        self._actions = ["3D View",[["Zoom",actionResetZoom,0],
+                                    ["Zoom",actionZoomOut,0],
+                                    ["Zoom",actionZoomIn,0],
                                     ["Camera",actionShowAxis,1],
                                     ["Camera",actionShowGrid,1],
                                     ["Camera",actionRadius,1],

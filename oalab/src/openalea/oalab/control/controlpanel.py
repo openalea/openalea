@@ -15,7 +15,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-__revision__ = ""
+__revision__ = "$Id: $"
 
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.vpltk import plugin
@@ -25,19 +25,23 @@ from openalea.lpy.gui.objectpanel import ObjectPanelManager, TriggerParamFunc, O
 
 # Add a dict interface
 class ControlPanelManager(ObjectPanelManager):
-    def __init__(self):
+    def __init__(self, session):
         # Create unused menu to fit with original ObjectPanaleManager from lpy
         parent = QtCore.QObject()
         parent.vparameterView = QtGui.QMenu()
         super(ControlPanelManager, self).__init__(parent)
+        self.session = session
+        
      
     ##################################
     # Block save state in an xml file
     # TODO : do the same thing in a more beautiful way
     def restoreState(self, obj=None):
-        pass
+        controls = self.session.project().controls
+        print controls
+            
     def saveState(self, obj=None):
-        pass
+        self.session.project().controls = self.get_controls()
     ##################################
 
     def clear(self):
@@ -54,8 +58,8 @@ class ControlPanelManager(ObjectPanelManager):
         """
         :return: two Dict. Controls and Managers associated to controls.
         """
-        c = self.get_controls
-        m = self.get_managers
+        c = self.get_controls()
+        m = self.get_managers()
         return c, m
 
     def get_managers(self):

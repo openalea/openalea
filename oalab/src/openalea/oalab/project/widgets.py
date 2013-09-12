@@ -348,7 +348,7 @@ class ProjectWidget(QtGui.QWidget):
         current = self.session.project
         if current:
             self._current_proj_scene_change()
-            self._current_proj_control_change()
+            #self._current_proj_control_change()
             self._current_proj_script_change()
             self._current_proj_tree_view_change()
             
