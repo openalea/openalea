@@ -122,6 +122,15 @@ class MainWindow(QtGui.QMainWindow):
         self.shellDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
         self.shellDockWidget.setWidget(session.shell)
         self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.shellDockWidget)          
+        
+        # Store
+        self.storeDockWidget = QtGui.QDockWidget("OpenAlea Store", self)     
+        self.storeDockWidget.setObjectName("Store")
+        self.storeDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
+        self.storeDockWidget.setWidget(session.store)
+        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.storeDockWidget)  
+        self.storeDockWidget.hide()
+        session.storeDockWidget = self.storeDockWidget
 
         # Central Widget
         self.setCentralWidget(session.applet_container)
@@ -139,6 +148,7 @@ class MainWindow(QtGui.QMainWindow):
         
         self.tabifyDockWidget(self.obsDockWidget, self.controlDockWidget)
         self.tabifyDockWidget(self.sceneMngDockWidget, self.viewerDockWidget)
+        self.tabifyDockWidget(self.viewerDockWidget, self.storeDockWidget)
         self.tabifyDockWidget(self.helpDockWidget, self.loggerDockWidget)
         self.tabifyDockWidget(self.helpDockWidget, self.shellDockWidget)
         

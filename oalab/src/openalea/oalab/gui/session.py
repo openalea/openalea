@@ -30,6 +30,7 @@ from openalea.oalab.scene.vplscene import SceneWidget
 from openalea.oalab.project.widgets import ProjectWidget
 from openalea.oalab.project.treeview import ProjectTreeView
 from openalea.oalab.package import PackageViewWidget, PackageCategorieViewWidget, PackageSearchWidget
+from openalea.oalab.gui.store import Store
 from openalea.vpltk.qt import QtCore
 
 class Session(object):
@@ -77,6 +78,8 @@ class Session(object):
         # Applet Container : can contain text editor or/and workflow editor
         self.applet_container = AppletContainer(session=self)
         
+        self.store = Store(session=self)
+        
         self.connect_all_actions()
     
     def _update_locals(self):
@@ -94,6 +97,10 @@ class Session(object):
         self.connect_actions(self.applet_container, self.menu)
         self.connect_actions(self.viewer, self.menu)
         self.connect_actions(self.help, self.menu)
+        
+        # TODO: uncomment for store
+        # self.connect_actions(self.store, self.menu)
+        
         # TODO:
         # connect control
         # connect observer
