@@ -230,9 +230,17 @@ class Viewer(view3D):
         """
         try:
             bBox = BoundingBox(self.scene)
-            x = bBox.getXMax()
-            y = bBox.getYMax()
-            z = bBox.getZMax()
+            xmax = bBox.getXMax()
+            ymax = bBox.getYMax()
+            zmax = bBox.getZMax()
+            
+            xmin = bBox.getXMin()
+            ymin = bBox.getYMin()
+            zmin = bBox.getZMin()
+            
+            x = max(abs(xmin),abs(xmax))
+            y = max(abs(ymin),abs(ymax))
+            z = max(abs(zmin),abs(zmax))
             
             radius = max(x,y,z)
             self.camera().setSceneRadius(radius*1.1)
