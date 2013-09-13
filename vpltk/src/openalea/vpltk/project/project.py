@@ -155,35 +155,30 @@ class Project(object):
             temp_path = self.path/self.name/"scripts"
             cwd = os.getcwd()
             os.chdir(temp_path)
-            for script in self.scripts:
-                if str(script) == str(old_name):
-                    os.remove(script)
+            os.remove(str(old_name))
             os.chdir(cwd) 
         
         if (categorie == "control") or (categorie == "Controls"):
             # Remove in project
             self.controls[str(new_name)] = self.controls[str(old_name)]
             del self.controls[str(old_name)]
+            
             # Remove on disk
             temp_path = self.path/self.name/"data"/"controls"
             cwd = os.getcwd()
             os.chdir(temp_path)
-            for ctrl in self.controls:
-                if str(ctrl) == str(old_name):
-                    os.remove(ctrl)
+            os.remove(str(ctrl))
             os.chdir(cwd) 
             
         if (categorie == "scene") or (categorie == "Scene"):
              # Remove in project
             self.scene[str(new_name)] = self.scene[str(old_name)]
             del self.scene[str(old_name)]
+            
             # Remove on disk
             temp_path = self.path/self.name/"data"/"scene"
             cwd = os.getcwd()
-            os.chdir(temp_path)
-            for s in self.scene:
-                if str(s) == str(old_name):
-                    os.remove(s)
+            os.remove(str(s))
             os.chdir(cwd) 
         
     #----------------------------------------
