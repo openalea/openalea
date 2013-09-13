@@ -30,6 +30,7 @@ class LPyApplet(object):
         self.session = session
         self.name = name
 
+        script = self.filter_old_lpy_file(script)
         self.widget().set_text(script)
 
         self.lsys = Lsystem()
@@ -38,6 +39,18 @@ class LPyApplet(object):
         self.axialtree = AxialTree()
         
         self.lastIter = -1
+        
+    def filter_old_lpy_file(self, script):
+        """
+        Permit to open old LPy in removing initialisation part
+        
+        :param: script to filter (str)
+        :return: lpy script (str) without end begining with "###### INITIALISATION ######"
+        """
+        if not "###### INITIALISATION ######" in script:
+            return str(script)
+        else:
+            return str(script).split("###### INITIALISATION ######")[0]
 
     def widget(self):
         """

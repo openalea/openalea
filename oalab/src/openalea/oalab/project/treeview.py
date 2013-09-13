@@ -408,7 +408,16 @@ class PrjctModel(QtGui.QStandardItemModel):
         parentItem = rootItem.child(0)
         for name in self.proj.scripts:
             item = QtGui.QStandardItem(name)
-            item.setIcon(QtGui.QIcon(":/images/resources/openalea_icon2.png"))
+            if name.split(".")[-1] == "wpy":
+                item.setIcon(QtGui.QIcon(":/images/resources/openalealogo.png"))
+            elif name.split(".")[-1] == "py":
+                item.setIcon(QtGui.QIcon(":/images/resources/Python-logo.png"))
+            elif name.split(".")[-1] == "r":
+                item.setIcon(QtGui.QIcon(":/images/resources/RLogo.png"))
+            elif name.split(".")[-1] == "lpy":
+                item.setIcon(QtGui.QIcon(":/lpy_images/resources/lpy/logo.png"))
+            else:
+                item.setIcon(QtGui.QIcon(":/images/resources/openalea_icon2.png"))
             parentItem.appendRow(item)
             self.old_models.append(name)
         

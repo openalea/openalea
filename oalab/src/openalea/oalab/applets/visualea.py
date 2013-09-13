@@ -84,8 +84,9 @@ def mainMenu(self):
     return "Simulation"
 
 class VisualeaApplet(object):
-    def __init__(self, session, name="workflow.wpy", repr_model = None):
+    def __init__(self, session, name="workflow.wpy", script=None):
         super(VisualeaApplet, self).__init__() 
+        repr_model = script
         self.name = name
         self.session = session
 
@@ -168,7 +169,7 @@ class VisualeaApplet(object):
 
 def adapt_widget(widget, methods):
     method_list = ['actions', 
-                   #'save', 
+                   'save', 
                    'repr_workflow', 'get_text', 'mainMenu']
     def check():
         for m in method_list:
