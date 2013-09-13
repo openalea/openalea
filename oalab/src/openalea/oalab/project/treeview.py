@@ -333,32 +333,38 @@ class PrjctModel(QtGui.QStandardItemModel):
         QtCore.QObject.connect(self,QtCore.SIGNAL('dataChanged( const QModelIndex &, const QModelIndex &)'),self.renamed)
         
     def renamed(self,x,y):
+        # Get item and his parent
         parent = self.item(x.parent().row())
-        item = parent.child(x.row())
+        # Check if you have the right to rename
+        if parent:
+            item = parent.child(x.row())
         
-        children = list()
-        raw = parent.rowCount()
-        for i in range(raw):
-            child = parent.child(i)
-            children.append(child.text())
+            # List brothers of item
+            children = list()
+            raw = parent.rowCount()
+            for i in range(raw):
+                child = parent.child(i)
+                children.append(child.text())
+            
+            # Search which is the old_item which was changed and rename it
+            if parent.text() == "Models":
+                for i in self.old_models:
+                    if i not in children:
+                        self.proj.rename(categorie=parent.text(), old_name=i, new_name= item.text())
+
+            if parent.text() == "Controls":
+                for i in children:
+                    if i not in self.old_controls:
+                        self.proj.rename(categorie=parent.text(), old_name=i, new_name= item.text())
+
+            if parent.text() == "Scene":
+                for i in children:
+                    if i not in self.old_scene:
+                        self.proj.rename(categorie=parent.text(), old_name=i, new_name= item.text())
+                        
+            # Save project
+            self.proj.save()
         
-        if parent.text() == "Models":
-            for i in self.old_models:
-                if i not in children:
-                    #print parent.text(), i, item.text()
-                    self.proj.rename(categorie=parent.text(), old_name=i, new_name= item.text())
-
-        if parent.text() == "Controls":
-            for i in children:
-                if i not in self.old_controls:
-                    #print parent.text(), i, item.text()
-                    self.proj.rename(categorie=parent.text(), old_name=i, new_name= item.text())
-
-        if parent.text() == "Scene":
-            for i in children:
-                if i not in self.old_scene:
-                    #print parent.text(), i, item.text()
-                    self.proj.rename(categorie=parent.text(), old_name=i, new_name= item.text())
 
     def set_proj(self, proj=None):
         self.clear()
@@ -369,7 +375,8 @@ class PrjctModel(QtGui.QStandardItemModel):
             self._set_level_1()
 
     def _set_level_0(self):
-        level0 = ["Controls", "Models", "Scene"]
+        #level0 = ["Controls", "Models", "Scene"]       
+        level0 = ["Models", "Scene"]
                             
         for name in level0:
             parentItem = self.invisibleRootItem()
@@ -389,15 +396,15 @@ class PrjctModel(QtGui.QStandardItemModel):
         rootItem = self.invisibleRootItem()
         
         # Controls
-        parentItem = rootItem.child(0)
+        parentItem = rootItem.child(2)
         for name in self.proj.controls:
             item = QtGui.QStandardItem(name)
             item.setIcon(QtGui.QIcon(":/images/resources/bool.png"))
-            parentItem.appendRow(item)    
+            #parentItem.appendRow(item)    
             self.old_controls.append(name)
              
         # Models
-        parentItem = rootItem.child(1)
+        parentItem = rootItem.child(0)
         for name in self.proj.scripts:
             item = QtGui.QStandardItem(name)
             item.setIcon(QtGui.QIcon(":/images/resources/openalea_icon2.png"))
@@ -405,7 +412,7 @@ class PrjctModel(QtGui.QStandardItemModel):
             self.old_models.append(name)
         
         # Scene
-        parentItem = rootItem.child(2)
+        parentItem = rootItem.child(1)
         for name in self.proj.scene:
             item = QtGui.QStandardItem(name)
             item.setIcon(QtGui.QIcon(":/images/resources/plant.png"))
