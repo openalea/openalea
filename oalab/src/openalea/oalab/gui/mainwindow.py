@@ -102,19 +102,19 @@ class MainWindow(QtGui.QMainWindow):
         self.viewerDockWidget.setWidget(session.viewer)
         self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.viewerDockWidget)
         
-        # Help
-        self.helpDockWidget = QtGui.QDockWidget("Help", self)     
-        self.helpDockWidget.setObjectName("Help")
-        self.helpDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
-        self.helpDockWidget.setWidget(session.help)
-        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.helpDockWidget)         
+        ## Help
+        #self.helpDockWidget = QtGui.QDockWidget("Help", self)     
+        #self.helpDockWidget.setObjectName("Help")
+        #self.helpDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
+        #self.helpDockWidget.setWidget(session.help)
+        #self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.helpDockWidget)         
 
-        # Logger
-        self.loggerDockWidget = QtGui.QDockWidget("Logger", self)     
-        self.loggerDockWidget.setObjectName("Logger")
-        self.loggerDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
-        self.loggerDockWidget.setWidget(session.logger)
-        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.loggerDockWidget)  
+        ## Logger
+        #self.loggerDockWidget = QtGui.QDockWidget("Logger", self)     
+        #self.loggerDockWidget.setObjectName("Logger")
+        #self.loggerDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
+        #self.loggerDockWidget.setWidget(session.logger)
+        #self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.loggerDockWidget)  
         
         # Shell
         self.shellDockWidget = QtGui.QDockWidget("IPython Shell", self)     
@@ -123,14 +123,14 @@ class MainWindow(QtGui.QMainWindow):
         self.shellDockWidget.setWidget(session.shell)
         self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.shellDockWidget)          
         
-        # Store
-        self.storeDockWidget = QtGui.QDockWidget("OpenAlea Store", self)     
-        self.storeDockWidget.setObjectName("Store")
-        self.storeDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
-        self.storeDockWidget.setWidget(session.store)
-        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.storeDockWidget)  
-        self.storeDockWidget.hide()
-        session.storeDockWidget = self.storeDockWidget
+        ## Store
+        #self.storeDockWidget = QtGui.QDockWidget("OpenAlea Store", self)     
+        #self.storeDockWidget.setObjectName("Store")
+        #self.storeDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
+        #self.storeDockWidget.setWidget(session.store)
+        #self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.storeDockWidget)  
+        #self.storeDockWidget.hide()
+        #session.storeDockWidget = self.storeDockWidget
 
         # Central Widget
         self.setCentralWidget(session.applet_container)
@@ -148,9 +148,9 @@ class MainWindow(QtGui.QMainWindow):
         
         #self.tabifyDockWidget(self.obsDockWidget, self.controlDockWidget)
         #self.tabifyDockWidget(self.sceneMngDockWidget, self.viewerDockWidget)
-        self.tabifyDockWidget(self.viewerDockWidget, self.storeDockWidget)
-        self.tabifyDockWidget(self.helpDockWidget, self.loggerDockWidget)
-        self.tabifyDockWidget(self.helpDockWidget, self.shellDockWidget)
+        #self.tabifyDockWidget(self.viewerDockWidget, self.storeDockWidget)
+        #self.tabifyDockWidget(self.helpDockWidget, self.loggerDockWidget)
+        #self.tabifyDockWidget(self.helpDockWidget, self.shellDockWidget)
         
     def changeMenuTab(self, old, new):
         """

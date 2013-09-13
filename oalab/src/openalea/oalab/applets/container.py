@@ -96,15 +96,13 @@ class AppletContainer(QtGui.QTabWidget):
         """
         Open a tab with the widget 'applet_type'
         """
-        if applet_type in  ("wpy","visualea"):
-            self.newTab(applet_type, tab_name, script=script)
-        else:
-            self.newTab(applet_type, tab_name)
-            self.applets[-1].widget().set_script(script)
+        self.newTab(applet_type=applet_type, tab_name=tab_name, script=script)
             
     def newTab(self, applet_type, tab_name="", script=None):
         """
         Open a tab with the widget 'applet_type'
+        
+        # TODO : automatize with plugin system
         """
         self.rmDefaultTab()
         
@@ -113,7 +111,7 @@ class AppletContainer(QtGui.QTabWidget):
         elif applet_type == "lpy":
             self.applets.append(LPyApplet(self.session, name=tab_name, script=script))
         elif applet_type in ("wpy","visualea"):
-            self.applets.append(VisualeaApplet(self.session, name=tab_name,repr_model=script))
+            self.applets.append(VisualeaApplet(self.session, name=tab_name, script=script))
         elif applet_type in ("r","R"):
             self.applets.append(RApplet(self.session, name=tab_name, script=script))
     
