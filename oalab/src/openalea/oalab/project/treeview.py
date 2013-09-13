@@ -56,8 +56,8 @@ class ProjectTreeView(QtGui.QTreeView):
         self.create_menu_actions()
         self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         QtCore.QObject.connect(self,QtCore.SIGNAL('customContextMenuRequested(const QPoint&)'),self.showMenu)
-
-
+        #QtCore.QObject.connect(self,QtCore.SIGNAL('doubleClicked(const QModelIndex &)'),self.plop)
+        
     def reinit_treeview(self):
         """ Reinitialise project view """
         
@@ -71,15 +71,26 @@ class ProjectTreeView(QtGui.QTreeView):
 
 
     def create_menu_actions(self):
-        self.addPyAction = QtGui.QAction('Add Python Model',self)
-        QtCore.QObject.connect(self.addPyAction,QtCore.SIGNAL('triggered(bool)'),self._addPy)
-        self.addLPyAction = QtGui.QAction('Add L-System Model',self)
-        QtCore.QObject.connect(self.addLPyAction,QtCore.SIGNAL('triggered(bool)'),self._addLPy)
-        self.addWFAction = QtGui.QAction('Add Workflow Model',self)
-        QtCore.QObject.connect(self.addWFAction,QtCore.SIGNAL('triggered(bool)'),self._addWorkflow)        
+        self.newPyAction = QtGui.QAction('New Python Model',self)
+        QtCore.QObject.connect(self.newPyAction,QtCore.SIGNAL('triggered(bool)'),self.session.project_widget.newPython)
+        self.newLPyAction = QtGui.QAction('New L-System Model',self)
+        QtCore.QObject.connect(self.newLPyAction,QtCore.SIGNAL('triggered(bool)'),self.session.project_widget.newLpy)
+        self.newWFAction = QtGui.QAction('New Workflow Model',self)
+        QtCore.QObject.connect(self.newWFAction,QtCore.SIGNAL('triggered(bool)'),self.session.project_widget.newVisualea)
+        self.newRAction = QtGui.QAction('New R Model',self)
+        QtCore.QObject.connect(self.newRAction,QtCore.SIGNAL('triggered(bool)'),self.session.project_widget.newR)
         
-        self.renameAction = QtGui.QAction('Rename',self)
-        QtCore.QObject.connect(self.renameAction,QtCore.SIGNAL('triggered(bool)'),self.renameSelection)
+        self.addPyAction = QtGui.QAction('Import Python Model',self)
+        QtCore.QObject.connect(self.addPyAction,QtCore.SIGNAL('triggered(bool)'),self._addPy)
+        self.addLPyAction = QtGui.QAction('Import L-System Model',self)
+        QtCore.QObject.connect(self.addLPyAction,QtCore.SIGNAL('triggered(bool)'),self._addLPy)
+        self.addWFAction = QtGui.QAction('Import Workflow Model',self)
+        QtCore.QObject.connect(self.addWFAction,QtCore.SIGNAL('triggered(bool)'),self._addWorkflow)        
+        self.addRAction = QtGui.QAction('Import R Model',self)
+        QtCore.QObject.connect(self.addRAction,QtCore.SIGNAL('triggered(bool)'),self._addR)  
+                
+        #self.renameAction = QtGui.QAction('Rename',self)
+        #QtCore.QObject.connect(self.renameAction,QtCore.SIGNAL('triggered(bool)'),self.renameSelection)
         
 ##        # actions on Models
 ##        self.newAction = QtGui.QAction('New Model',self)
@@ -112,10 +123,17 @@ class ProjectTreeView(QtGui.QTreeView):
 
     def create_menu(self):
         menu = QtGui.QMenu(self)
+        menu.addAction(self.newPyAction)
+        menu.addAction(self.newLPyAction)
+        menu.addAction(self.newWFAction)
+        menu.addAction(self.newRAction)      
+        menu.addSeparator()
         menu.addAction(self.addPyAction)
         menu.addAction(self.addLPyAction)
-        menu.addAction(self.addWFAction)      
-        menu.addAction(self.renameAction)  
+        menu.addAction(self.addWFAction)   
+        menu.addAction(self.addRAction)   
+        #menu.addSeparator()
+        #menu.addAction(self.renameAction)  
         
         
 ##        menu.addAction(self.newAction)
@@ -138,12 +156,7 @@ class ProjectTreeView(QtGui.QTreeView):
     def showMenu(self, event):
         """ function defining actions to do according to the menu's button chosen"""
         menu = self.create_menu()
-        
-##        print self.selectionModel()
-##        print self.selectionModel()
-##        .itemFromIndex()
-        self.renameAction.setEnabled(self.hasSelection())        
-        
+        #self.renameAction.setEnabled(self.hasParent())        
         menu.exec_(self.mapToGlobal(event))
 
     def showFileDialog(self, format):
@@ -153,15 +166,34 @@ class ProjectTreeView(QtGui.QTreeView):
         return fname
 
 
-    def renameSelection(self):
-        """ rename an object in the list """
-        pass
-##        if self.hasSelection() :
-##            self.emit(QtCore.SIGNAL('renameRequest(int)'),self.selection)
+    #def renameSelection(self):
+        #""" rename an object in the list """
+        #index = self.selectedIndexes()[0]
+        #item = index.model().itemFromIndex(index)
+        #name = str(item.text())
+        
+        #parent = item.parent()
+        #parent_name = str(parent.text())
+
+        #print name, parent_name
+
+            
+        ##self.model().item...
+            
+        #self.emit(QtCore.SIGNAL('renameRequest(int)'),self.selection)
 
     def hasSelection(self):
         """function hasSelection: check if an object is selected, return True in this case"""
         return self.selectionModel().hasSelection()
+        
+    def hasParent(self):
+        if self.hasSelection():
+            index = self.selectedIndexes()[0]
+            item = index.model().itemFromIndex(index)
+            parent = item.parent()
+            return bool(parent)
+        else:
+            return False
 
     def _addPy(self):
         """
@@ -187,6 +219,20 @@ class ProjectTreeView(QtGui.QTreeView):
         Add lpy script in current project.
         """
         fname = self.showFileDialog("LPy file (*.lpy)")
+        if fname:
+            script = open(fname, 'rU').read()
+
+            name = os.path.split(fname)[1]
+            self.project.add_script(name, script)
+          
+            # TODO : Use signals !
+            self.session.project_widget._project_changed()
+            
+    def _addR(self):
+        """
+        Add R script in current project.
+        """
+        fname = self.showFileDialog("R file (*.r)")
         if fname:
             script = open(fname, 'rU').read()
 
@@ -276,8 +322,43 @@ class PrjctModel(QtGui.QStandardItemModel):
     def __init__(self, project, parent=None):
         super(PrjctModel, self).__init__(parent)
         
+        # Use it to store evrything to compare with new when a change occure
+        self.old_models = list()
+        self.old_controls = list()
+        self.old_scene = list()
+        
         self.proj = None
-        self.set_proj(project)
+        self.set_proj(project)      
+
+        QtCore.QObject.connect(self,QtCore.SIGNAL('dataChanged( const QModelIndex &, const QModelIndex &)'),self.renamed)
+        
+    def renamed(self,x,y):
+        parent = self.item(x.parent().row())
+        item = parent.child(x.row())
+        
+        children = list()
+        raw = parent.rowCount()
+        for i in range(raw):
+            child = parent.child(i)
+            children.append(child.text())
+        
+        if parent.text() == "Models":
+            for i in self.old_models:
+                if i not in children:
+                    #print parent.text(), i, item.text()
+                    self.proj.rename(categorie=parent.text(), old_name=i, new_name= item.text())
+
+        if parent.text() == "Controls":
+            for i in children:
+                if i not in self.old_controls:
+                    #print parent.text(), i, item.text()
+                    self.proj.rename(categorie=parent.text(), old_name=i, new_name= item.text())
+
+        if parent.text() == "Scene":
+            for i in children:
+                if i not in self.old_scene:
+                    #print parent.text(), i, item.text()
+                    self.proj.rename(categorie=parent.text(), old_name=i, new_name= item.text())
 
     def set_proj(self, proj=None):
         self.clear()
@@ -301,6 +382,10 @@ class PrjctModel(QtGui.QStandardItemModel):
 
             
     def _set_level_1(self):
+        self.old_models = list()
+        self.old_controls = list()
+        self.old_scene = list()
+        
         rootItem = self.invisibleRootItem()
         
         # Controls
@@ -309,6 +394,7 @@ class PrjctModel(QtGui.QStandardItemModel):
             item = QtGui.QStandardItem(name)
             item.setIcon(QtGui.QIcon(":/images/resources/bool.png"))
             parentItem.appendRow(item)    
+            self.old_controls.append(name)
              
         # Models
         parentItem = rootItem.child(1)
@@ -316,6 +402,7 @@ class PrjctModel(QtGui.QStandardItemModel):
             item = QtGui.QStandardItem(name)
             item.setIcon(QtGui.QIcon(":/images/resources/openalea_icon2.png"))
             parentItem.appendRow(item)
+            self.old_models.append(name)
         
         # Scene
         parentItem = rootItem.child(2)
@@ -323,3 +410,4 @@ class PrjctModel(QtGui.QStandardItemModel):
             item = QtGui.QStandardItem(name)
             item.setIcon(QtGui.QIcon(":/images/resources/plant.png"))
             parentItem.appendRow(item) 
+            self.old_scene.append(name)
