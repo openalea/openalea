@@ -29,7 +29,7 @@ class MainWindow(QtGui.QMainWindow):
     """
     def __init__(self, session):
         super(QtGui.QMainWindow, self).__init__()
-        self.setWidgets(session)       
+        self.setWidgets(session)  
     
     def setWidgets(self, session):
         # Menu
@@ -109,12 +109,12 @@ class MainWindow(QtGui.QMainWindow):
         #self.helpDockWidget.setWidget(session.help)
         #self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.helpDockWidget)         
 
-        ## Logger
-        #self.loggerDockWidget = QtGui.QDockWidget("Logger", self)     
-        #self.loggerDockWidget.setObjectName("Logger")
-        #self.loggerDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
-        #self.loggerDockWidget.setWidget(session.logger)
-        #self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.loggerDockWidget)  
+        # Logger
+        self.loggerDockWidget = QtGui.QDockWidget("Logger", self)     
+        self.loggerDockWidget.setObjectName("Logger")
+        self.loggerDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
+        self.loggerDockWidget.setWidget(session.logger)
+        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.loggerDockWidget)  
         
         # Shell
         self.shellDockWidget = QtGui.QDockWidget("IPython Shell", self)     
@@ -151,6 +151,7 @@ class MainWindow(QtGui.QMainWindow):
         #self.tabifyDockWidget(self.viewerDockWidget, self.storeDockWidget)
         #self.tabifyDockWidget(self.helpDockWidget, self.loggerDockWidget)
         #self.tabifyDockWidget(self.helpDockWidget, self.shellDockWidget)
+        self.tabifyDockWidget(self.loggerDockWidget, self.shellDockWidget)
         
     def changeMenuTab(self, old, new):
         """

@@ -31,7 +31,7 @@ from openalea.oalab.project.widgets import ProjectWidget
 from openalea.oalab.project.treeview import ProjectTreeView
 from openalea.oalab.package import PackageViewWidget, PackageCategorieViewWidget, PackageSearchWidget
 from openalea.oalab.gui.store import Store
-from openalea.vpltk.qt import QtCore
+from openalea.vpltk.qt import QtCore, QtGui
 
 class Session(object):
     """
@@ -66,6 +66,7 @@ class Session(object):
         #self.control_panel_manager = ControlPanelManager()
         #self.control_panel = ControlPanel()
         self.observer_panel = ObserverPanel()
+        
         self.logger = Logger()
         self.help = Help()
         

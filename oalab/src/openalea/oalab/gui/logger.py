@@ -15,14 +15,31 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-__revision__ = ""
+__revision__ = "$Id: $"
 
-from openalea.vpltk.qt import QtGui, QtCore
+from openalea.vpltk.qt import QtGui
+from openalea.core import logger
+from openalea.visualea.logger import LoggerView
 
-class Logger(QtGui.QWidget):
+class Logger(LoggerView):
     """
     Widget to check the log. Cf. Visualea
-    """
-    def __init__(self):
-        super(Logger, self).__init__() 
     
+    Just use it like that:
+    import Logger
+    widget_logger = Logger()
+    # Do what you want with the widget
+    
+    from openalea.core import logger 
+    logger.debug("my message")
+    logger.warning("Can't do that!")
+    logger.info("John is in the kitchen")
+    """
+    def __init__(self):         
+        # -- reconfigure LoggerOffice to use Qt log handler and a file handler --
+        logger.default_init(level=logger.DEBUG, handlers=["qt"]) #TODO get level from settings
+        logger.connect_loggers_to_handlers(logger.get_logger_names(), logger.get_handler_names())
+        model = logger.LoggerOffice().get_handler("qt")
+        super(Logger, self).__init__(parent=None,model=model)
+
+
