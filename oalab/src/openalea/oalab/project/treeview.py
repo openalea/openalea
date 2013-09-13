@@ -375,8 +375,9 @@ class PrjctModel(QtGui.QStandardItemModel):
             self._set_level_1()
 
     def _set_level_0(self):
+        ## TODO if you want to see all objects of the project
         #level0 = ["Controls", "Models", "Scene"]       
-        level0 = ["Models", "Scene"]
+        level0 = ["Models"]
                             
         for name in level0:
             parentItem = self.invisibleRootItem()
