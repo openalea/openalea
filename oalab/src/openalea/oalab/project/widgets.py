@@ -410,7 +410,7 @@ class ProjectWidget(QtGui.QWidget):
                 proj.controls[controlname] = newcontrols[controlname]
         
     def _current_proj_tree_view_change(self):
-        self.session.project_tree_view.reinit_treeview()
+        self.session.project_layout_widget.update()
         
     def _current_proj_script_change(self):
         if self.session.current_is_project():

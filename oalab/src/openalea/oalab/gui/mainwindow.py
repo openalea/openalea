@@ -47,7 +47,7 @@ class MainWindow(QtGui.QMainWindow):
         self.projectManagerDockWidget = QtGui.QDockWidget("Project", self)
         self.projectManagerDockWidget.setObjectName("ProjectPanel")
         self.projectManagerDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
-        self.projectManagerDockWidget.setWidget(session.project_tree_view)
+        self.projectManagerDockWidget.setWidget(session.project_layout_widget)
         self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.projectManagerDockWidget)   
         
         # Package Manager
@@ -144,7 +144,7 @@ class MainWindow(QtGui.QMainWindow):
         # Tabify docks
         self.tabifyDockWidget(self.packageManagerDockWidget, self.packageManagerCatDockWidget)
         self.tabifyDockWidget(self.packageManagerCatDockWidget, self.packageManagerSearchDockWidget)
-        self.tabifyDockWidget(self.packageManagerDockWidget, self.projectManagerDockWidget)
+        #self.tabifyDockWidget(self.packageManagerDockWidget, self.projectManagerDockWidget)
         
         #self.tabifyDockWidget(self.obsDockWidget, self.controlDockWidget)
         #self.tabifyDockWidget(self.sceneMngDockWidget, self.viewerDockWidget)

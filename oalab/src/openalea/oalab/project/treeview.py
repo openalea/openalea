@@ -29,10 +29,52 @@ from openalea.core.path import path
 from openalea.core import settings
 import os
 
+class ProjectLayoutWidget(QtGui.QWidget):
+    """
+    Widget to display the name of the current project AND the project
+    """
+    def __init__(self, session):
+        super(ProjectLayoutWidget, self).__init__(parent=None) 
+        self.session = session
+        self.treeview = ProjectTreeView(self.session)
+        self.label = ProjectLabel(self.session)
+        
+        layout = QtGui.QVBoxLayout()
+        layout.addWidget(self.label)
+        layout.addWidget(self.treeview)
+        
+        self.setLayout(layout)
+        
+    def update(self):
+        self.treeview.update()
+        self.label.update()
+        
+    def mainMenu(self):
+        """
+        :return: Name of menu tab to automatically set current when current widget
+        begin current.
+        """
+        return self.treeview.mainMenu()
+
+class ProjectLabel(QtGui.QLabel):
+    """
+    Widget to display the name of the current project.
+    """
+    def __init__(self, session):
+        super(ProjectLabel, self).__init__(parent=None) 
+        self.session = session
+        self.update()
+        
+    def update(self):    
+        if self.session.project:
+            label = self.session.project.name
+        else:
+            label = ""
+        self.setText(label)  
 
 class ProjectTreeView(QtGui.QTreeView):
     """
-    Tab Widget to display Tree View of project.
+    Widget to display Tree View of project.
     """
     def __init__(self, session):
         super(ProjectTreeView, self).__init__() 
@@ -57,6 +99,9 @@ class ProjectTreeView(QtGui.QTreeView):
         self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         QtCore.QObject.connect(self,QtCore.SIGNAL('customContextMenuRequested(const QPoint&)'),self.showMenu)
         #QtCore.QObject.connect(self,QtCore.SIGNAL('doubleClicked(const QModelIndex &)'),self.plop)
+        
+    def update(self):
+        self.reinit_treeview()
         
     def reinit_treeview(self):
         """ Reinitialise project view """

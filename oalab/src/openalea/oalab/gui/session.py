@@ -28,7 +28,7 @@ from openalea.vpltk.shell.shell import get_interpreter_class, get_shell_class
 from openalea.oalab.applets.container import AppletContainer
 from openalea.oalab.scene.vplscene import SceneWidget
 from openalea.oalab.project.widgets import ProjectWidget
-from openalea.oalab.project.treeview import ProjectTreeView
+from openalea.oalab.project.treeview import ProjectTreeView, ProjectLayoutWidget
 from openalea.oalab.package import PackageViewWidget, PackageCategorieViewWidget, PackageSearchWidget
 from openalea.oalab.gui.store import Store
 from openalea.vpltk.qt import QtCore, QtGui
@@ -57,7 +57,7 @@ class Session(object):
         self.pm = PackageManager()
         self.pm.init(verbose=False)
         
-        self.project_tree_view = ProjectTreeView(session=self)
+        self.project_layout_widget = ProjectLayoutWidget(session=self)
         
         self.package_manager_widget = PackageViewWidget(parent=self)
         self.package_manager_categorie_widget = PackageCategorieViewWidget(parent=self)
@@ -70,7 +70,7 @@ class Session(object):
         self.logger = Logger()
         self.help = Help()
         
-        self.interpreter.locals['tv'] = self.project_tree_view
+
         self.interpreter.locals['projects'] = self.projects
         self.interpreter.locals['session'] = self
         self.interpreter.locals['viewer'] = self.viewer
@@ -130,7 +130,7 @@ class Session(object):
         """
         if len(self.cprojname) ==0:
             # Nothing opened
-            return None
+            return ""
         elif self.cprojname.find("no-proj") == -1:
             # Script opened (no project)
             script = self.projects[self.cprojname]
