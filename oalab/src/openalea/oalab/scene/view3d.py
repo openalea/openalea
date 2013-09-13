@@ -49,7 +49,11 @@ class view3D(QGLViewer):
         self.connect(self,QtCore.SIGNAL("drawNeeded()"),self.draw)
         self.orientation_initiale = self.camera().orientation()
         self.position_initiale = self.camera().position()
-
+        # Block "*.xml" save
+        self.setStateFileName("") 
+        # Disable Quit in clicking on 'Escape'
+        # Set "show_axis" instead of "kill_application"
+        self.setShortcut(0,QtCore.Qt.Key_Escape)
 
     # Method for lpy.registerPlotter to "animate"
     def plot(self,scene):
