@@ -25,10 +25,12 @@ class Logger(LoggerView):
     """
     Widget to check the log. Cf. Visualea
     
-    Just use it like that:
+    Use it like that:
+    #################
     import Logger
     widget_logger = Logger()
-    # Do what you want with the widget
+    
+    # Put the widget in an QApplication
     
     from openalea.core import logger 
     logger.debug("my message")
