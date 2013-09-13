@@ -21,6 +21,7 @@ __revision__ = "$Id: "
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core.path import path
 from openalea.core import settings
+from openalea.core import logger
 from time import gmtime, strftime
 import warnings
 from openalea.vpltk.project.project import ProjectManager as PM
@@ -148,6 +149,7 @@ class ProjectWidget(QtGui.QWidget):
             self.parent.cprojname = proj.name
             
             self._project_changed()
+            logger.debug("Open Project named " + proj_name)
             
     def openSvn(self, name=None):
         """
@@ -210,14 +212,14 @@ class ProjectWidget(QtGui.QWidget):
                 try:
                     self.parent.applet_container.newTab(applet_type=ext, tab_name=tab_name, script=txt)
                     project.add_script(tab_name, txt)
+                    logger.debug("Import file named " + tab_name)
                 except:
                     print "File extension " +ext+ "not recognised"
-        
+                    logger.warning("Can't import file named " + filename + ". Unknow extension.")
         else:
             print "Doesn't work outside a project. Please create or open a project to continue."
-        
-            
-        
+            logger.warning("Can't import file. You are not inside project.")
+
         
     def new(self, name=None):
         """
