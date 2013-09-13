@@ -69,6 +69,7 @@ class Session(object):
         self.logger = Logger()
         self.help = Help()
         
+        self.interpreter.locals['tv'] = self.project_tree_view
         self.interpreter.locals['projects'] = self.projects
         self.interpreter.locals['session'] = self
         self.interpreter.locals['viewer'] = self.viewer
