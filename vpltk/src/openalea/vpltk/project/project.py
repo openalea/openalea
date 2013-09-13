@@ -136,6 +136,57 @@ class Project(object):
         self.scripts[str(name)] = str(script)
         
     #----------------------------------------
+    # Rename
+    #---------------------------------------- 
+    def rename(self, categorie, old_name, new_name):
+        """
+        Rename a script, a scene or a control in the project
+        
+        :param categorie: Can be "script", "control" or "scene" (str)
+        :param old_name: current name of thing to rename (str)
+        :param new_name: futur name of thing to rename (str)
+        """
+        if (categorie == "script") or (categorie == "Models"):
+            # Remove in project
+            self.scripts[str(new_name)] = self.scripts[str(old_name)]
+            del self.scripts[str(old_name)]
+            
+            # Remove on disk
+            temp_path = self.path/self.name/"scripts"
+            cwd = os.getcwd()
+            os.chdir(temp_path)
+            for script in self.scripts:
+                if str(script) == str(old_name):
+                    os.remove(script)
+            os.chdir(cwd) 
+        
+        if (categorie == "control") or (categorie == "Controls"):
+            # Remove in project
+            self.controls[str(new_name)] = self.controls[str(old_name)]
+            del self.controls[str(old_name)]
+            # Remove on disk
+            temp_path = self.path/self.name/"data"/"controls"
+            cwd = os.getcwd()
+            os.chdir(temp_path)
+            for ctrl in self.controls:
+                if str(ctrl) == str(old_name):
+                    os.remove(ctrl)
+            os.chdir(cwd) 
+            
+        if (categorie == "scene") or (categorie == "Scene"):
+             # Remove in project
+            self.scene[str(new_name)] = self.scene[str(old_name)]
+            del self.scene[str(old_name)]
+            # Remove on disk
+            temp_path = self.path/self.name/"data"/"scene"
+            cwd = os.getcwd()
+            os.chdir(temp_path)
+            for s in self.scene:
+                if str(s) == str(old_name):
+                    os.remove(s)
+            os.chdir(cwd) 
+        
+    #----------------------------------------
     # Protected 
     #---------------------------------------- 
     def _load_startup(self):
