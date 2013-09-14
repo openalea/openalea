@@ -49,6 +49,43 @@ import cPickle
 ##from openalea.vplab.scene.vplscene import VPLScene
 
 
+
+def check_if_name_is_unique(name, all_names):
+    """
+    Check if an object with the name 'name' is alreadey register
+    in 'all_names'.
+    
+    If it is the case, the name is changed ("_1" is append).
+    This is realize until the name becomes unique.
+    
+    :param name: name to check unicity (str)
+    :param all_names: list of other present objects (list)
+    
+    TODO : remove this method if we want unicity of name, 
+    like in a classical dict
+    """
+    while name in all_names:
+        namesplited = name.split(".")
+        if len(namesplited) == 2:
+            begin_name = namesplited[0]
+            extension = "." + namesplited[1]
+        else:
+            begin_name = name
+            extension = ""
+  
+        try:
+            end = begin_name.split("_")[-1]
+            l = len(end)
+            end = int(end)
+            end += 1
+            name = begin_name[0:-l] + str(end) + extension
+        except:    
+            name = begin_name + "_1" + extension
+            #print "ohoh"
+    return name
+
+
+
 class Script(object):
     def __init__(self,filename="", value=""):
         super(Script, self).__init__()
@@ -133,6 +170,11 @@ class Project(object):
         :param name: of the script to add (string)
         :param script: to add (string)
         """
+        all_names = list()
+        for n in self.scripts:
+            all_names.append(n)
+        name = check_if_name_is_unique(name, all_names)
+        
         self.scripts[str(name)] = str(script)
         
     #----------------------------------------
