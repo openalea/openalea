@@ -46,10 +46,6 @@ from openalea.core.path import path as _path
 from openalea.core import settings
 import cPickle
 
-##from openalea.vplab.scene.vplscene import VPLScene
-
-
-
 def check_if_name_is_unique(name, all_names):
     """
     Check if an object with the name 'name' is alreadey register
@@ -81,7 +77,6 @@ def check_if_name_is_unique(name, all_names):
             name = begin_name[0:-l] + str(end) + extension
         except:    
             name = begin_name + "_1" + extension
-            #print "ohoh"
     return name
 
 
