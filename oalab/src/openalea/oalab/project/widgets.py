@@ -195,7 +195,7 @@ class ProjectWidget(QtGui.QWidget):
         Import a file and add it in the project
         """
         project = self.session.project
-        if project is not None:
+        if project:
         
             if not filename:
                 filename = self.showOpenFileDialog()
@@ -219,7 +219,7 @@ class ProjectWidget(QtGui.QWidget):
         else:
             print "Doesn't work outside a project. Please create or open a project to continue."
             logger.warning("Can't import file. You are not inside project.")
-
+        self._project_changed()
         
     def new(self, name=None):
         """
@@ -271,43 +271,54 @@ class ProjectWidget(QtGui.QWidget):
 ##        app.setActiveWindow(window.centralWidget())
         """
         
-    def newPython(self):        
-        tab_name = "script.py"
-        self.parent.applet_container.newTab(applet_type="python", tab_name=tab_name)
-        
-        project = self.session.project
-        if project is not None:
+    def newPython(self):       
+        if self.session.project:
+            tab_name = "script.py"
+            self.parent.applet_container.newTab(applet_type="python", tab_name=tab_name)
             project.add_script(tab_name, self.session.applet_container.applets[-1].widget().get_text())  
-            
-    def newR(self):        
-        tab_name = "script.r"
-        self.parent.applet_container.newTab(applet_type="r", tab_name=tab_name)
+            self._project_changed()   
+        else:
+            print("Open or create a project before using models")
         
-        project = self.session.project
-        if project is not None:
+    def newR(self):    
+        if self.session.project:
+            tab_name = "script.r"
+            self.parent.applet_container.newTab(applet_type="r", tab_name=tab_name)
             project.add_script(tab_name, self.session.applet_container.applets[-1].widget().get_text())  
+            self._project_changed()
+        else:
+            print("Open or create a project before using models")
         
     def newLpy(self):
-        tab_name = "script.lpy"
-        self.parent.applet_container.newTab(applet_type="lpy", tab_name=tab_name)
-        
-        project = self.session.project
-        if project is not None:
+        if self.session.project:
+            tab_name = "script.lpy"
+            self.parent.applet_container.newTab(applet_type="lpy", tab_name=tab_name)
             project.add_script(tab_name, self.session.applet_container.applets[-1].widget().get_text())  
-        
+            self._project_changed()
+        else:
+            print("Open or create a project before using models")
+                    
     def newVisualea(self):
-        tab_name = "workflow.wpy"
-        self.parent.applet_container.newTab(applet_type="visualea",tab_name=tab_name)
-        
-        project = self.session.project
-        if project is not None:
+        if self.session.project:
+            tab_name = "workflow.wpy"
+            self.parent.applet_container.newTab(applet_type="visualea",tab_name=tab_name)
             project.add_script(tab_name, self.session.applet_container.applets[-1].widget().get_text())  
-    
+            self._project_changed()
+        else:
+            print("Open or create a project before using models")
+                    
+    def removeModel(self, model_name):
+        """
+        :param model_name: Name of the model to remove in the current project
+        """
+        # TODO
+        pass    
+        
     def openModel(self):
         """"
         Open a (script-type) file
         """
-        
+        pass
     
     def openPython(self, fname=None):
         """

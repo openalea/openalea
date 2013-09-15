@@ -32,6 +32,7 @@ class RApplet(object):
         self._animate = None
         self._init = None
         
+        # TODO : Do it only once
         self.session.shell.runcode(source="%load_ext rmagic")
         
         self.widget().set_text(script)

@@ -142,8 +142,8 @@ class MainWindow(QtGui.QMainWindow):
         self.statusBar().showMessage("OALab is ready!", 10000)   
         
         # Tabify docks
-        self.tabifyDockWidget(self.packageManagerDockWidget, self.packageManagerCatDockWidget)
-        self.tabifyDockWidget(self.packageManagerCatDockWidget, self.packageManagerSearchDockWidget)
+        self.tabifyDockWidget(self.packageManagerSearchDockWidget, self.packageManagerCatDockWidget)
+        self.tabifyDockWidget(self.packageManagerCatDockWidget, self.packageManagerDockWidget)
         #self.tabifyDockWidget(self.packageManagerDockWidget, self.projectManagerDockWidget)
         
         #self.tabifyDockWidget(self.obsDockWidget, self.controlDockWidget)
