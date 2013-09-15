@@ -47,6 +47,7 @@ class LPyApplet(object):
         :param: script to filter (str)
         :return: lpy script (str) without end begining with "###### INITIALISATION ######"
         """
+        if script is None: script = ""
         if not "###### INITIALISATION ######" in script:
             return str(script)
         else:

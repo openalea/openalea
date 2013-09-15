@@ -23,6 +23,7 @@ from openalea.oalab.applets.lpy import LPyApplet
 from openalea.oalab.applets.python import PythonApplet
 from openalea.oalab.applets.r import RApplet
 from openalea.oalab.applets.visualea import VisualeaApplet
+from openalea.core import logger
 
 class AppletContainer(QtGui.QTabWidget):
     """
@@ -104,7 +105,14 @@ class AppletContainer(QtGui.QTabWidget):
         
         # TODO : automatize with plugin system
         """
+        logger.debug("New tab. Type: " + applet_type + ". Name: " + tab_name)
         self.rmDefaultTab()
+        
+        # TODO : permit to add more than one script...
+        # existing_tabs = list()
+        # for name in self.session.project.scripts:
+        #    existing_tabs.append(name)
+        # tab_name = check_if_name_is_unique(tab_name, existing_tabs)
         
         if (applet_type == "python") or (applet_type == "py"):
             self.applets.append(PythonApplet(self.session, name=tab_name, script=script))
@@ -126,6 +134,7 @@ class AppletContainer(QtGui.QTabWidget):
         Close current tab
         """
         self.removeTab(self.currentIndex())
+        logger.debug("Close tab")
         
     def autoClose(self, n_tab):
         self.setCurrentIndex(n_tab)
@@ -148,12 +157,14 @@ class AppletContainer(QtGui.QTabWidget):
         """
         Save current script
         """ 
+        logger.debug("Save model " + name)
         self.currentWidget().save(name=name)
     
     def save_all(self):
         """
         Save all opened scripts
         """
+        logger.debug("Save all models")
         n = self.count()
         for i in range(n) :
             wid = self.widget(i)
@@ -162,19 +173,23 @@ class AppletContainer(QtGui.QTabWidget):
         
     def run(self):
         self.currentWidget().applet.run()
+        logger.debug("Run " + self.currentWidget().applet)
         
     def animate(self):
         self.currentWidget().applet.animate()
+        logger.debug("Animate " + self.currentWidget().applet)
         
     def step(self):
         self.currentWidget().applet.step()
+        logger.debug("Step " + self.currentWidget().applet)
         
     def stop(self):
         self.currentWidget().applet.stop()
+        logger.debug("Stop " + self.currentWidget().applet)
         
     def reinit(self):
         self.currentWidget().applet.reinit()
-
+        logger.debug("Reinit " + self.currentWidget().applet)
 
 class WelcomePage(QtGui.QWidget):
     """
@@ -250,8 +265,25 @@ class WelcomePage(QtGui.QWidget):
         
         self.setLayout(layout)
 
+        # fake methods, like if we have a real applet
+        class FakeApplet(object):
+            def run(self):
+                pass
+            def animate(self):
+                pass
+            def step(self):
+                pass
+            def stop(self):
+                pass
+            def reinit(self):
+                pass
+        self.applet = FakeApplet()        
+    
+        logger.debug("Open Welcome Page")
+    
     def new(self):
         self.session.project_widget.new()
+        logger.debug("New Project from welcome page")
         
     def newSvn(self):
         self.session.project_widget.newSvn()    
@@ -274,6 +306,7 @@ class WelcomePage(QtGui.QWidget):
           
     def open(self):
         self.session.project_widget.open()
+        logger.debug("Open Project from welcome page")
         
     def openSvn(self):
         self.session.project_widget.openSvn()
@@ -283,4 +316,3 @@ class WelcomePage(QtGui.QWidget):
 
     def openScript(self):
         self.session.project_widget.openPython()
-        
