@@ -275,7 +275,7 @@ class ProjectWidget(QtGui.QWidget):
         if self.session.project:
             tab_name = "script.py"
             self.parent.applet_container.newTab(applet_type="python", tab_name=tab_name)
-            project.add_script(tab_name, self.session.applet_container.applets[-1].widget().get_text())  
+            self.session.project.add_script(tab_name, self.session.applet_container.applets[-1].widget().get_text())  
             self._project_changed()   
         else:
             print("Open or create a project before using models")
@@ -284,7 +284,7 @@ class ProjectWidget(QtGui.QWidget):
         if self.session.project:
             tab_name = "script.r"
             self.parent.applet_container.newTab(applet_type="r", tab_name=tab_name)
-            project.add_script(tab_name, self.session.applet_container.applets[-1].widget().get_text())  
+            self.session.project.add_script(tab_name, self.session.applet_container.applets[-1].widget().get_text())  
             self._project_changed()
         else:
             print("Open or create a project before using models")
@@ -293,7 +293,7 @@ class ProjectWidget(QtGui.QWidget):
         if self.session.project:
             tab_name = "script.lpy"
             self.parent.applet_container.newTab(applet_type="lpy", tab_name=tab_name)
-            project.add_script(tab_name, self.session.applet_container.applets[-1].widget().get_text())  
+            self.session.project.add_script(tab_name, self.session.applet_container.applets[-1].widget().get_text())  
             self._project_changed()
         else:
             print("Open or create a project before using models")
@@ -302,7 +302,7 @@ class ProjectWidget(QtGui.QWidget):
         if self.session.project:
             tab_name = "workflow.wpy"
             self.parent.applet_container.newTab(applet_type="visualea",tab_name=tab_name)
-            project.add_script(tab_name, self.session.applet_container.applets[-1].widget().get_text())  
+            self.session.project.add_script(tab_name, self.session.applet_container.applets[-1].widget().get_text())  
             self._project_changed()
         else:
             print("Open or create a project before using models")

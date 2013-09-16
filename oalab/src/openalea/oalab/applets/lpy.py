@@ -21,6 +21,8 @@ __revision__ = ""
 
 from openalea.oalab.applets.texteditor import TextEditor
 from openalea.lpy import Lsystem, AxialTree, registerPlotter
+from openalea.lpy.gui import documentation as doc_lpy
+from openalea.vpltk.qt import QtCore
 
 class LPyApplet(object):
     def __init__(self, session, name="script.lpy", script=""):
@@ -39,6 +41,13 @@ class LPyApplet(object):
         self.axialtree = AxialTree()
         
         self.lastIter = -1
+        
+    def focus_change(self):
+        """
+        Set doc string in Help widget when focus changed
+        """
+        txt = doc_lpy.getSpecification()
+        self.session.help.setText(txt)
         
     def filter_old_lpy_file(self, script):
         """

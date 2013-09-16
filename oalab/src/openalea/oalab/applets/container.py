@@ -65,7 +65,7 @@ class AppletContainer(QtGui.QTabWidget):
                                     ["Play",self.actionInit,0]]]
                                     
         QtCore.QObject.connect(self, QtCore.SIGNAL('tabCloseRequested(int)'),self.autoClose)
-        
+
         self.addDefaultTab()
 
     def addDefaultTab(self):
@@ -128,6 +128,11 @@ class AppletContainer(QtGui.QTabWidget):
         self.applets[-1].widget().name = tab_name
         
         self.session.connect_actions(self.applets[-1].widget(), self.session.menu)
+        QtCore.QObject.connect(self, QtCore.SIGNAL('currentChanged(int)'),self.focusChange)
+        
+    def focusChange(self):
+        if self.currentWidget():
+            self.currentWidget().applet.focus_change()
         
     def closeTab(self):
         """
@@ -267,6 +272,8 @@ class WelcomePage(QtGui.QWidget):
 
         # fake methods, like if we have a real applet
         class FakeApplet(object):
+            def focus_change(self):
+                pass
             def run(self):
                 pass
             def animate(self):
