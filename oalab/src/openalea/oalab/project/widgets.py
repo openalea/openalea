@@ -24,23 +24,7 @@ from openalea.core import settings
 from openalea.core import logger
 from time import gmtime, strftime
 import warnings
-from openalea.vpltk.project.project import ProjectManager as PM
-
-class ProjectMenu(QtGui.QMenu):
-    def __init__(self, projects, parent):
-        QtGui.QMenu.__init__(self)
-        for proj in projects:
-            action = ProjectAction(str(proj),self, parent)
-            self.addAction(action)   
-    
-class ProjectAction(QtGui.QAction):
-    def __init__(self, name, wid, parent):
-        QtGui.QAction.__init__(self, name, wid)
-        self.name = name
-        self.parent = parent
-        QtCore.QObject.connect(self, QtCore.SIGNAL('triggered(bool)'), self.on_click)
-    def on_click(self):
-        self.parent.changeCurrent(self.name)       
+from openalea.vpltk.project.project import ProjectManager as PM   
 
 class ProjectWidget(QtGui.QWidget):
     """
@@ -454,8 +438,3 @@ class ProjectWidget(QtGui.QWidget):
             project = self.session.project
             for w in project.scene:
                 self.session.scene_widget.getScene().add(name=w,obj=project.scene[w])
-            
-    def _current_proj_btn_change(self):
-        self.menu = ProjectMenu(self.projectManager.projects, self)
-        self.currentProjBtn.setMenu(self.menu)
-        

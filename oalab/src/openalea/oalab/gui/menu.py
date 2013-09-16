@@ -21,6 +21,12 @@ __revision__ = ""
 
 from openalea.vpltk.qt import QtGui, QtCore
 
+"""
+# To generate images
+from openalea.lpy.gui.compile_ui import check_rc_generation
+check_rc_generation('resources.qrc')
+"""
+
 class PanedMenu(QtGui.QTabWidget):
     """
     A widget that tries to mimic menu of Microsoft Office 2010.
@@ -88,68 +94,6 @@ class PanedMenu(QtGui.QTabWidget):
         grp = pane.layout.itemAtPosition(0,index).widget()
         # Add Btn
         return grp.addBtnByAction(action, btn_type)
-        
-    def addDefault(self):
-        from openalea.lpy.gui.compile_ui import check_rc_generation, compile_rc
-        check_rc_generation('resources.qrc')
-
-        import resources_rc
-
-        self.addBtn(pane_name="Project", group_name="Project", btn_name="New Proj", btn_icon=QtGui.QIcon(":/images/resources/new.png"), btn_type=1)    
-        self.addBtn(pane_name="Project", group_name="Project", btn_name="Open", btn_icon=QtGui.QIcon(":/images/resources/open.png"), btn_type=1)    
-        self.addBtn(pane_name="Project", group_name="Project", btn_name="Save", btn_icon=QtGui.QIcon(":/images/resources/save.png"), btn_type=0)    
-        self.addBtn(pane_name="Project", group_name="Project", btn_name="Close", btn_icon=QtGui.QIcon(":/images/resources/closeButton.png"), btn_type=1)
-        
-        self.addBtn(pane_name="Project", group_name="New Model", btn_name="Python", btn_icon=QtGui.QIcon(":/images/resources/Python-logo.png"), btn_type=0)
-        self.addBtn(pane_name="Project", group_name="New Model", btn_name="L-System", btn_icon=QtGui.QIcon(":/lpy_images/resources/lpy/logo.png"), btn_type=0)
-        self.addBtn(pane_name="Project", group_name="New Model", btn_name="Workflow", btn_icon=QtGui.QIcon(":/images/resources/openalealogo.png"), btn_type=0)
-        
-        self.addBtn(pane_name="Project", group_name="New Control", btn_name="Int", btn_icon=QtGui.QIcon(":/images/resources/.png"), btn_type=1)
-        self.addBtn(pane_name="Project", group_name="New Control", btn_name="Float", btn_icon=QtGui.QIcon(":/images/resources/.png"), btn_type=1)
-        self.addBtn(pane_name="Project", group_name="New Control", btn_name="String", btn_icon=QtGui.QIcon(":/images/resources/.png"), btn_type=1)
-        self.addBtn(pane_name="Project", group_name="New Control", btn_name="Dict", btn_icon=QtGui.QIcon(":/images/resources/.png"), btn_type=1)
-        self.addBtn(pane_name="Project", group_name="New Control", btn_name="Bool", btn_icon=QtGui.QIcon(":/images/resources/.png"), btn_type=1)
-        self.addBtn(pane_name="Project", group_name="New Control", btn_name="Curve 2D", btn_icon=QtGui.QIcon(":/images/resources/.png"), btn_type=1)    
-        self.addBtn(pane_name="Project", group_name="New Control", btn_name="Function", btn_icon=QtGui.QIcon(":/images/resources/.png"), btn_type=1)    
-        self.addBtn(pane_name="Project", group_name="New Control", btn_name="Color Map", btn_icon=QtGui.QIcon(":/images/resources/.png"), btn_type=1)    
-
-
-        self.addBtn(pane_name="Edition", group_name="Edit", btn_name="Save", btn_icon=QtGui.QIcon(":/images/resources/save.png"), btn_type=0)
-        self.addBtn(pane_name="Edition", group_name="Edit", btn_name="Copy", btn_icon=QtGui.QIcon(":/lpy_images/resources/lpy/editcopy.png"), btn_type=1)
-        self.addBtn(pane_name="Edition", group_name="Edit", btn_name="Cut", btn_icon=QtGui.QIcon(":/lpy_images/resources/lpy/editcut.png"), btn_type=1)
-        self.addBtn(pane_name="Edition", group_name="Edit", btn_name="Paste", btn_icon=QtGui.QIcon(":/lpy_images/resources/lpy/editpaste.png"), btn_type=1)
-        self.addBtn(pane_name="Edition", group_name="Edit", btn_name="Find", btn_icon=QtGui.QIcon(":/lpy_images/resources/lpy/editfind.png"), btn_type=1)
-        self.addBtn(pane_name="Edition", group_name="Edit", btn_name="Replace", btn_icon=QtGui.QIcon(":/lpy_images/resources/lpy/editfind.png"), btn_type=1)
-        self.addBtn(pane_name="Edition", group_name="Edit", btn_name="Go to line", btn_icon=QtGui.QIcon(":/lpy_images/resources/lpy/next.png"), btn_type=1)
-        self.addBtn(pane_name="Edition", group_name="Edit", btn_name="Undo", btn_icon=QtGui.QIcon(":/lpy_images/resources/lpy/editundo.png"), btn_type=1)
-        self.addBtn(pane_name="Edition", group_name="Edit", btn_name="Redo", btn_icon=QtGui.QIcon(":/lpy_images/resources/lpy/editredo.png"), btn_type=1)
-        self.addBtn(pane_name="Edition", group_name="Edit", btn_name="Check Source", btn_icon=QtGui.QIcon(":/lpy_images/resources/lpy/warningsErrors.png"), btn_type=1)
-        self.addBtn(pane_name="Edition", group_name="Edit", btn_name="Indent", btn_icon=QtGui.QIcon(":/lpy_images/resources/lpy/next-green.png"), btn_type=1)
-        self.addBtn(pane_name="Edition", group_name="Edit", btn_name="Unindent", btn_icon=QtGui.QIcon(":/lpy_images/resources/lpy/prev-green.png"), btn_type=1)
-        self.addBtn(pane_name="Edition", group_name="Edit", btn_name="Close", btn_icon=QtGui.QIcon(":/images/resources/closeButton.png"), btn_type=1)
-        
-        self.addBtn(pane_name="Simulation", group_name="Play", btn_name="Run", btn_icon=QtGui.QIcon(":/lpy_images/resources/lpy/run.png"), btn_type=0)      
-        self.addBtn(pane_name="Simulation", group_name="Play", btn_name="Animate", btn_icon=QtGui.QIcon(":/lpy_images/resources/lpy/play.png"), btn_type=0)      
-        self.addBtn(pane_name="Simulation", group_name="Play", btn_name="Stop", btn_icon=QtGui.QIcon(":/lpy_images/resources/lpy/pause.png"), btn_type=0)      
-        self.addBtn(pane_name="Simulation", group_name="Play", btn_name="Rewind", btn_icon=QtGui.QIcon(":/lpy_images/resources/lpy/rewind.png"), btn_type=0)      
-        self.addBtn(pane_name="Simulation", group_name="Play", btn_name="Step", btn_icon=QtGui.QIcon(":/lpy_images/resources/lpy/step.png"), btn_type=0)      
-        self.addBtn(pane_name="Simulation", group_name="Play", btn_name="Debug", btn_icon=QtGui.QIcon(":/lpy_images/resources/lpy/play-green.png"), btn_type=1)      
-        self.addBtn(pane_name="Simulation", group_name="Play", btn_name="Profile", btn_icon=QtGui.QIcon(":/lpy_images/resources/lpy/play-yellow.png"), btn_type=1)      
-        
-        self.addBtn(pane_name="Exploration", group_name="New", btn_name="LPy", btn_icon=QtGui.QIcon(":/lpy_images/resources/lpy/logo.png"), btn_type=0)
-        self.addBtn(pane_name="Exploration", group_name="New", btn_name="Visualea", btn_icon=QtGui.QIcon(":/images/resources/openalealogo.png"), btn_type=0)   
-        self.addBtn(pane_name="Exploration", group_name="New", btn_name="Python", btn_icon=QtGui.QIcon(":/images/resources/Python-logo.png"), btn_type=0)
-        self.addBtn(pane_name="Exploration", group_name="New", btn_name="R", btn_icon=QtGui.QIcon(":/images/resources/RLogo.png"), btn_type=0)   
-
-
-        self.addBtn(pane_name="3D View", group_name="Zoom", btn_name="Reset Zoom", btn_icon=QtGui.QIcon(":/lpy_images/resources/lpy/resetzoom.png"), btn_type=1)    
-        self.addBtn(pane_name="3D View", group_name="Zoom", btn_name="Zoom Out", btn_icon=QtGui.QIcon(":/lpy_images/resources/lpy/zoomout.png"), btn_type=1)    
-        self.addBtn(pane_name="3D View", group_name="Zoom", btn_name="Zoom In", btn_icon=QtGui.QIcon(":/lpy_images/resources/lpy/zoomin.png"), btn_type=1)    
-        
-        self.addBtn(pane_name="--Debug--", group_name="Add", btn_name="Plant", btn_icon=QtGui.QIcon(":/images/resources/plant.png"), btn_type=0)    
-        self.addBtn(pane_name="--Debug--", group_name="Add", btn_name="Soil", btn_icon=QtGui.QIcon(":/images/resources/soil.png"), btn_type=0)    
-        self.addBtn(pane_name="--Debug--", group_name="Add", btn_name="Sky", btn_icon=QtGui.QIcon(":/images/resources/sky.png"), btn_type=0)    
-        
         
 class Pane(QtGui.QScrollArea):
     def __init__(self, parent=None):

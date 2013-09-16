@@ -48,7 +48,6 @@ class Session(object):
         self.viewer = Viewer(session=self)
         self.scene_widget = SceneWidget(session=self)
         
-        
         self.interpreter = get_interpreter_class()()
         self.shell = get_shell_class()(self.interpreter)        
         

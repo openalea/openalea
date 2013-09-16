@@ -1,3 +1,4 @@
+'''
 from openalea.oalab.control.controlmanager import ControlManager, ControlABC
 
 def test_create_controls():
@@ -15,4 +16,4 @@ def test_create_controls():
     assert len(CM.get_controls()) == 2
 
     
-
+'''

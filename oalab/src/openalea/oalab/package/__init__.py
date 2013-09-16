@@ -44,24 +44,6 @@ class OALabTreeView(NodeFactoryTreeView):
         elif (not isinstance(obj, Package)):
             self.open_node()
 
-class OALabSearchView(SearchListView):
-    def __init__(self, main_win, parent):
-        super(OALabSearchView, self).__init__(self, main_win) 
-        self.session = parent
-
-    def mouseDoubleClickEvent(self, event):
-
-        item = self.currentIndex()
-        obj =  item.internalPointer()
-
-        if(isinstance(obj, CompositeNodeFactory)):
-            session = self.session
-            session.applet_container.newTab('wpy',obj.name+'.wpy',obj)
-
-        elif (not isinstance(obj, Package)):
-            self.open_node()
-
-
 class PackageViewWidget(OALabTreeView):
     """
     Widget for Package Manager

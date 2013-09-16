@@ -199,7 +199,7 @@ class VPLScene(OrderedDict):
         self._valueChanged()
         
     def _valueChanged(self):
-        """ 
+        """  
         Emit Qt Signal when the dict change
         """
         if not self._block:

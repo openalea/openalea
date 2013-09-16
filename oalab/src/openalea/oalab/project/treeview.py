@@ -98,7 +98,6 @@ class ProjectTreeView(QtGui.QTreeView):
         self.create_menu_actions()
         self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         QtCore.QObject.connect(self,QtCore.SIGNAL('customContextMenuRequested(const QPoint&)'),self.showMenu)
-        #QtCore.QObject.connect(self,QtCore.SIGNAL('doubleClicked(const QModelIndex &)'),self.plop)
         
     def update(self):
         self.reinit_treeview()
@@ -301,6 +300,7 @@ class ProjectTreeView(QtGui.QTreeView):
             # TODO : Use signals !
             self.session.project_widget._project_changed()
 
+    """
     def _newModel(self):
         pass
 
@@ -334,7 +334,7 @@ class ProjectTreeView(QtGui.QTreeView):
         pass
 
     def _delSceneCpModel(self):
-        pass
+        pass"""
 
 
     def mainMenu(self):
