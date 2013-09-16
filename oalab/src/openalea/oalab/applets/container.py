@@ -178,23 +178,23 @@ class AppletContainer(QtGui.QTabWidget):
         
     def run(self):
         self.currentWidget().applet.run()
-        logger.debug("Run " + self.currentWidget().applet)
+        logger.debug("Run " + self.currentWidget().applet.name)
         
     def animate(self):
         self.currentWidget().applet.animate()
-        logger.debug("Animate " + self.currentWidget().applet)
+        logger.debug("Animate " + self.currentWidget().applet.name)
         
     def step(self):
         self.currentWidget().applet.step()
-        logger.debug("Step " + self.currentWidget().applet)
+        logger.debug("Step " + self.currentWidget().applet.name)
         
     def stop(self):
         self.currentWidget().applet.stop()
-        logger.debug("Stop " + self.currentWidget().applet)
+        logger.debug("Stop " + self.currentWidget().applet.name)
         
     def reinit(self):
         self.currentWidget().applet.reinit()
-        logger.debug("Reinit " + self.currentWidget().applet)
+        logger.debug("Reinit " + self.currentWidget().applet.name)
 
 class WelcomePage(QtGui.QWidget):
     """

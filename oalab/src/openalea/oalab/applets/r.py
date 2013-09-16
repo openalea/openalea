@@ -34,7 +34,7 @@ class RApplet(object):
         self._init = None
         
         # TODO : Do it only once
-        self.session.shell.runcode(source="%load_ext rmagic")
+        self.session.shell.runcode(source="%load_ext rmagic",hidden=True)
         
         self.widget().set_text(script)
         
@@ -80,7 +80,7 @@ more informations: http://www.r-project.org/
                     for i in range(5):
                         self._step()
                 self._animate = animate
-        
+            
     def step(self):
         # TODO : get function from the current widget!
         if self._step:

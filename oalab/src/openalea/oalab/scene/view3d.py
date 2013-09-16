@@ -85,6 +85,7 @@ class view3D(QGLViewer):
             self.scene += scenes[s]
         self.draw()
 
+
     def getScene(self):
         """
         :return: the scene (orderedDict)
@@ -248,6 +249,21 @@ class Viewer(view3D):
         except:
             pass
         
+    def setScene(self, scenes):
+        """
+        Set the scene
+        (erase old scene if necessary)
+        
+        Class overloaded to use an autofocus if you add a first object in the scene
+        
+        :param scene: dict with every sub-scenes to add
+        """
+        autofocus = False
+        if len(self.scene) == 0:
+            autofocus = True
+        super(Viewer, self).setScene(scenes)
+        if autofocus:
+            self.update_radius()    
         
 def main():
         app = QApplication(sys.argv)
