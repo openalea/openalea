@@ -48,8 +48,8 @@ def has_new_ipython():
     """
     try:
         from IPython.kernel.inprocess.ipkernel import InProcessKernel
-        from IPython.frontend.qt.console.rich_ipython_widget import RichIPythonWidget
-        from IPython.frontend.qt.inprocess import QtInProcessKernelManager
+        from IPython.qt.console.rich_ipython_widget import RichIPythonWidget
+        from IPython.qt.inprocess import QtInProcessKernelManager
         return True
     except ImportError:
         return False   

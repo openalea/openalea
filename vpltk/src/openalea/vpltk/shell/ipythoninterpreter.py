@@ -15,6 +15,7 @@ class Interpreter(InProcessKernel):
         if locals is not None:
             for l in locals:
                 self.locals += l  
+        self.user_ns = self.shell.user_ns
 
                 
 def main():

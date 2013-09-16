@@ -1,5 +1,5 @@
 from streamredirection import GraphicalStreamRedirection
-from IPython.frontend.qt.console.rich_ipython_widget import RichIPythonWidget
+from IPython.qt.console.rich_ipython_widget import RichIPythonWidget
 
 class ShellWidget(RichIPythonWidget, GraphicalStreamRedirection):
     """
@@ -38,17 +38,18 @@ class ShellWidget(RichIPythonWidget, GraphicalStreamRedirection):
 
         # Set kernel manager
         try:
-            from IPython.frontend.qt.inprocess import QtInProcessKernelManager
+            from IPython.qt.inprocess import QtInProcessKernelManager
 
             km = QtInProcessKernelManager()
             km.kernel = self.interpreter
+            km.kernel.gui = 'qt4'
 
             kernel_client = km.client()
             kernel_client.start_channels()
 
             self.kernel_manager = km
             self.kernel_client = kernel_client
-        
+
         except ImportError:
             # DEPRECATED !
             from IPython.frontend.qt.inprocess_kernelmanager import QtInProcessKernelManager
