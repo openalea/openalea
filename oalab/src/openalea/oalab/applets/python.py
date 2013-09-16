@@ -20,6 +20,7 @@
 __revision__ = ""
 
 from openalea.oalab.applets.texteditor import TextEditor
+from openalea.vpltk.qt import QtCore
     
 class PythonApplet(object):
     def __init__(self, session, name="script.py", script=""):
@@ -33,6 +34,17 @@ class PythonApplet(object):
         self._init = None
         
         self.widget().set_text(script)
+        
+    def focus_change(self):
+        """
+        Set doc string in Help widget when focus changed
+        """
+        txt = """
+<H1>Python</H1>
+
+more informations: http://www.python.org/
+"""
+        self.session.help.setText(txt)
         
     def widget(self):
         """

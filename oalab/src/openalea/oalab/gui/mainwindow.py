@@ -102,12 +102,12 @@ class MainWindow(QtGui.QMainWindow):
         self.viewerDockWidget.setWidget(session.viewer)
         self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.viewerDockWidget)
         
-        ## Help
-        #self.helpDockWidget = QtGui.QDockWidget("Help", self)     
-        #self.helpDockWidget.setObjectName("Help")
-        #self.helpDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
-        #self.helpDockWidget.setWidget(session.help)
-        #self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.helpDockWidget)         
+        # Help
+        self.helpDockWidget = QtGui.QDockWidget("Help", self)     
+        self.helpDockWidget.setObjectName("Help")
+        self.helpDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
+        self.helpDockWidget.setWidget(session.help)
+        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.helpDockWidget)         
 
         # Logger
         self.loggerDockWidget = QtGui.QDockWidget("Logger", self)     
@@ -150,7 +150,7 @@ class MainWindow(QtGui.QMainWindow):
         #self.tabifyDockWidget(self.sceneMngDockWidget, self.viewerDockWidget)
         #self.tabifyDockWidget(self.viewerDockWidget, self.storeDockWidget)
         #self.tabifyDockWidget(self.helpDockWidget, self.loggerDockWidget)
-        #self.tabifyDockWidget(self.helpDockWidget, self.shellDockWidget)
+        #self.tabifyDockWidget(self.helpDockWidget, self.loggerDockWidget)
         self.tabifyDockWidget(self.loggerDockWidget, self.shellDockWidget)
         
     def changeMenuTab(self, old, new):

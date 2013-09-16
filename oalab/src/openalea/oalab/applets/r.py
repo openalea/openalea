@@ -20,6 +20,7 @@
 __revision__ = ""
 
 from openalea.oalab.applets.texteditor import TextEditor
+from openalea.vpltk.qt import QtCore
     
 class RApplet(object):
     def __init__(self, session, name="script.R", script=""):
@@ -36,6 +37,17 @@ class RApplet(object):
         self.session.shell.runcode(source="%load_ext rmagic")
         
         self.widget().set_text(script)
+        
+    def focus_change(self):
+        """
+        Set doc string in Help widget when focus changed
+        """
+        txt = """
+<H1>R language</H1>
+
+more informations: http://www.r-project.org/
+"""
+        self.session.help.setText(txt)
         
     def widget(self):
         """

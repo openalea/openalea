@@ -21,6 +21,7 @@ from openalea.vpltk.qt import qt
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.package import Package
+from openalea.core.node import NodeFactory
 
 from openalea.visualea.node_treeview import NodeFactoryView, NodeFactoryTreeView, PkgModel, CategoryModel
 from openalea.visualea.node_treeview import DataPoolListView, DataPoolModel
@@ -40,7 +41,6 @@ class OALabTreeView(NodeFactoryTreeView):
             session = self.session
             session.applet_container.newTab('wpy',obj.name+'.wpy',obj)
 
-            #self.edit_node()
         elif (not isinstance(obj, Package)):
             self.open_node()
 
@@ -58,7 +58,6 @@ class OALabSearchView(SearchListView):
             session = self.session
             session.applet_container.newTab('wpy',obj.name+'.wpy',obj)
 
-            #self.edit_node()
         elif (not isinstance(obj, Package)):
             self.open_node()
 
@@ -70,12 +69,24 @@ class PackageViewWidget(OALabTreeView):
     def __init__(self, parent):
         super(PackageViewWidget, self).__init__(self) 
         self.session = parent
-        pkgmanager = parent.pm
         
         # package tree view
-        self.pkg_model = PkgModel(pkgmanager)
+        self.pkg_model = PkgModel(self.session.pm)
         self.setModel(self.pkg_model)
         
+        self.clicked.connect(self.on_package_manager_focus_change)
+        
+    def on_package_manager_focus_change(self, item):
+        pkg_id, factory_id, mimetype = NodeFactoryView.get_item_info(item)
+        if len(pkg_id) and len(factory_id) and mimetype in [NodeFactory.mimetype,
+                                                            CompositeNodeFactory.mimetype]:
+            factory = self.session.pm[pkg_id][factory_id]
+            factoryDoc = factory.get_documentation()
+            txt = factory.get_tip(asRst=True) + "\n\n"
+            if factoryDoc is not None:
+                txt += "**Docstring:**\n" + factoryDoc
+            self.session.help.setText(txt)        
+
     def reinit_treeview(self):
         """ Reinitialise package and category views """
         self.pkg_model.reset()
@@ -86,12 +97,23 @@ class PackageCategorieViewWidget(OALabTreeView):
     """
     def __init__(self, parent):
         super(PackageCategorieViewWidget, self).__init__(self) 
-        pkgmanager = parent.pm
         self.session = parent
         # category tree view
-        self.cat_model = CategoryModel(pkgmanager)
+        self.cat_model = CategoryModel(self.session.pm)
         self.setModel(self.cat_model)
-
+        self.clicked.connect(self.on_package_manager_focus_change)
+        
+    def on_package_manager_focus_change(self, item):
+        pkg_id, factory_id, mimetype = NodeFactoryView.get_item_info(item)
+        if len(pkg_id) and len(factory_id) and mimetype in [NodeFactory.mimetype,
+                                                            CompositeNodeFactory.mimetype]:
+            factory = self.session.pm[pkg_id][factory_id]
+            factoryDoc = factory.get_documentation()
+            txt = factory.get_tip(asRst=True) + "\n\n"
+            if factoryDoc is not None:
+                txt += "**Docstring:**\n" + factoryDoc
+            self.session.help.setText(txt)   
+            
     def reinit_treeview(self):
         """ Reinitialise package and category views """
         self.cat_model.reset()
@@ -107,8 +129,7 @@ class PackageSearchWidget(QtGui.QWidget):
     """
     def __init__(self, parent):
         super(PackageSearchWidget, self).__init__()
-        
-        self.pkgmanager = parent.pm
+        self.session = parent
         
         self.searchview = QtGui.QWidget()
         self.result_widget = SearchListView(self.searchview)
@@ -124,9 +145,21 @@ class PackageSearchWidget(QtGui.QWidget):
         layout.addWidget(self.result_widget)
         
         self.setLayout(layout)
+        self.result_widget.clicked.connect(self.on_package_manager_focus_change)
         
+    def on_package_manager_focus_change(self, item):
+        pkg_id, factory_id, mimetype = NodeFactoryView.get_item_info(item)
+        if len(pkg_id) and len(factory_id) and mimetype in [NodeFactory.mimetype,
+                                                            CompositeNodeFactory.mimetype]:
+            factory = self.session.pm[pkg_id][factory_id]
+            factoryDoc = factory.get_documentation()
+            txt = factory.get_tip(asRst=True) + "\n\n"
+            if factoryDoc is not None:
+                txt += "**Docstring:**\n" + factoryDoc
+            self.session.help.setText(txt)   
+            
     def search_node(self):
         """ Activated when search line edit is validated """
         text = str(unicode(self.search_lineEdit.text()).encode('latin1'))
-        results = self.pkgmanager.search_node(text)
+        results = self.session.pm.search_node(text)
         self.search_model.set_results(results) ###result_model, result_widget

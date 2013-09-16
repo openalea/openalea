@@ -20,7 +20,13 @@ __revision__ = ""
 from openalea.vpltk.qt import QtGui, QtCore
 import webbrowser
 
-class Help(QtGui.QWidget):
+default_text = """
+<H1>Welcome in OpenAleaLab.</H1>
+
+To begin, create or open an existing project.
+"""
+
+class Help(QtGui.QTextBrowser):
     """
     Widget which permit to display informations/help.
     Usefull in visualea.
@@ -42,6 +48,7 @@ class Help(QtGui.QWidget):
                                     ["Website",actionHelpGForge,0],
                                     ["Website",actionHelpTasks,0],
                                     ["Website",actionHelpIntranet,0]]]
+        self.setText(default_text)                
 
     def actions(self):
         return self._actions

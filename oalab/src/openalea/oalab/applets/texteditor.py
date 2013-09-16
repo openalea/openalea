@@ -98,7 +98,7 @@ class TextEditor(_LpyCodeEditor):
         pass
 
     def focusInEvent ( self, event ):
-        return QtGui.QTextEdit.focusInEvent ( self, event )
+        return QtGui.QTextEdit.focusInEvent( self, event )
 
     def actions(self):
         """

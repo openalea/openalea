@@ -139,6 +139,28 @@ class VisualeaApplet(object):
 
         viewernode = sys.modules['openalea.plantgl.wralea.visualization.viewernode']
         viewernode.registerPlotter(self.session.viewer)
+        
+        #QtCore.QObject.connect(self.widget().scene(), QtCore.SIGNAL('focusedItemChanged(type?,type?)'), self.focus_change)
+        self.widget().scene().focusedItemChanged.connect(self.item_focus_change)
+        
+    def item_focus_change(self, scene, item):
+        """
+        Set doc string in Help widget when focus on node changed
+        """
+        assert isinstance(item, dataflowview.vertex.GraphicalVertex)
+        txt = item.vertex().get_tip()
+        self.session.help.setText(txt)
+    
+    def focus_change(self):
+        """
+        Set doc string in Help widget when focus changed
+        """
+        txt = """
+<H1>Visualea</H1>
+
+More informations: http://openalea.gforge.inria.fr/doc/openalea/visualea/doc/_build/html/contents.html        
+"""
+        self.session.help.setText(txt)
 
     def widget(self):
         """
