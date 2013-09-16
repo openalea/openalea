@@ -1,7 +1,7 @@
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.oalab.gui.menu import PanedMenu
 import sys
-
+"""
 def test_create_paned_menu():
     app = QtGui.QApplication(sys.argv)
     mainW = QtGui.QMainWindow()
@@ -13,4 +13,4 @@ def test_create_paned_menu():
     mainW.show()
 
     app.exit(0)
-
+"""

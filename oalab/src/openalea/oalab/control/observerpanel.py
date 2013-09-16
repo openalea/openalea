@@ -43,5 +43,5 @@ class ObserverPanel(QtGui.QWidget):
         - List controls
         - Call control.thumbnail() on each one
         """ 
-
+        pass
 

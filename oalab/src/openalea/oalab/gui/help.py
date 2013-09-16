@@ -29,7 +29,7 @@ To begin, create or open an existing project.
 class Help(QtGui.QTextBrowser):
     """
     Widget which permit to display informations/help.
-    Usefull in visualea.
+    Usefull in visualea or LPy.
     """
     def __init__(self):
         super(QtGui.QWidget, self).__init__() 
@@ -54,17 +54,19 @@ class Help(QtGui.QTextBrowser):
         return self._actions
     
     def openWebsiteOpenalea(self):
-        webbrowser.open('http://openalea.gforge.inria.fr/dokuwiki/doku.php')
+        self.openWeb('http://openalea.gforge.inria.fr/dokuwiki/doku.php')
         
     def openWebsiteIntranet(self):
-        webbrowser.open('http://www-sop.inria.fr/virtualplants/wiki/doku.php?id=intranet:oalab')
+        self.openWeb('http://www-sop.inria.fr/virtualplants/wiki/doku.php?id=intranet:oalab')
         
     def openOALabBugs(self):
-        webbrowser.open('https://gforge.inria.fr/tracker/?func=add&group_id=79&atid=13823')    
+        self.openWeb('https://gforge.inria.fr/tracker/?func=add&group_id=79&atid=13823')    
         
     def openOALabTasks(self):
-        webbrowser.open('https://gforge.inria.fr/pm/task.php?group_project_id=6971&group_id=79&func=browse')
+        self.openWeb('https://gforge.inria.fr/pm/task.php?group_project_id=6971&group_id=79&func=browse')
         
+    def openWeb(self, url):
+        webbrowser.open(url)
 
     def mainMenu(self):
         """

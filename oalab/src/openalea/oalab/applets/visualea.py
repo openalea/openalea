@@ -101,7 +101,7 @@ class VisualeaApplet(object):
             self._workflow = cnf.instantiate()
         else:
             _name = name.split('.wpy')[0]
-            if repr_model is None:
+            if ((repr_model is None) or (repr_model=="")):
                 self._workflow = CompositeNodeFactory(_name).instantiate()
             elif isinstance(repr_model, CompositeNodeFactory):
                 self._workflow = repr_model.instantiate()
