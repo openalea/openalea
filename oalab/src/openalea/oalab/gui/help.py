@@ -45,9 +45,9 @@ class Help(QtGui.QTextBrowser):
         QtCore.QObject.connect(actionHelpIntranet, QtCore.SIGNAL('triggered(bool)'),self.openWebsiteIntranet)
         
         self._actions = ["Help",[["Website",actionHelpOpenAlea,0],
-                                    ["Website",actionHelpGForge,0],
-                                    ["Website",actionHelpTasks,0],
-                                    ["Website",actionHelpIntranet,0]]]
+                                    ["Website",actionHelpGForge,1],
+                                    ["Website",actionHelpTasks,1],
+                                    ["Website",actionHelpIntranet,1]]]
         self.setText(default_text)                
 
     def actions(self):

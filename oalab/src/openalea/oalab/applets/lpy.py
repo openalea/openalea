@@ -113,6 +113,8 @@ class LPyApplet(object):
     def stop(self):
         # TODO : to implement
         # print "stop lpy"
+        #self.lsys.early_return = True
+        #self.lsys.forceRelease()
         pass
 
     def animate(self):

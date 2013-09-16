@@ -103,7 +103,7 @@ class Session(object):
         self.connect_actions(self.help, self.menu)
         
         # TODO: uncomment for store
-        # self.connect_actions(self.store, self.menu)
+        self.connect_actions(self.store, self.menu)
         
         # TODO:
         # connect control
