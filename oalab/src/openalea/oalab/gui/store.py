@@ -20,6 +20,7 @@
 ###############################################################################
 __revision__ = "$Id: $"
 
+from openalea.deploygui.alea_install_gui import MainWindow as MainWindowAleaInstall
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.plantgl.all import *
 from PyQGLViewer import *
@@ -29,7 +30,7 @@ import sys
 from openalea.deploygui.alea_install_gui import * 
 
 
-class Store(QtGui.QWidget):
+class Store(MainWindowAleaInstall):
     """
     This class is used to search, install and upgrade packages.
     
@@ -40,12 +41,9 @@ class Store(QtGui.QWidget):
         super(Store, self).__init__()
         self.show = False
         self.session = session
-        self.actionShowHide = QtGui.QAction(QtGui.QIcon(""),"Show", self)
-        self.actionLaunch = QtGui.QAction(QtGui.QIcon(""),"Launch", self)
+        self.actionShowHide = QtGui.QAction(QtGui.QIcon(":/images/resources/store.png"),"Show", self)
         QtCore.QObject.connect(self.actionShowHide, QtCore.SIGNAL('triggered(bool)'),self.showhide)
-        QtCore.QObject.connect(self.actionLaunch, QtCore.SIGNAL('triggered(bool)'),start_alea_install_gui)
-        self._actions = ["Package Store",[#["Show",self.actionShowHide,0],
-                                  ["Launch",self.actionLaunch,0]]]
+        self._actions = ["Help",[["Package Store",self.actionShowHide,0]]]
 
     def showhide(self):
         """
@@ -72,43 +70,3 @@ class Store(QtGui.QWidget):
         begin current.
         """
         return "Package Store" 
-        
-        
-def start_alea_install_gui():    
-    """
-    Start the GUI to install packages.
-    If the GUI use QT and a new version of QT has been installed, we need to start a new process
-    which setup the environment (shared libs and so on).
-
-    On darwin, for instance, the sudo command do not propagate the environment variables.
-    So to update the env variables dynamically, we restart a new python process with the OpenAlea environment.
-    
-    
-    
-    Warning!!! Will kill OALab!!!
-    
-    """
-    args = []
-    #status = main_app(args)
-
-    envdict = check_system_setuptools()
-
-    if sys.platform.lower().startswith('win'):
-        status = os.execle(sys.executable, sys.executable, "-c",
-                  '"import sys; from openalea.deploygui import alea_install_gui;sys.argv="'+str(args)+'";alea_install_gui.main_app(sys.argv)"',
-                  envdict)
-    else:
-        status = os.execle(sys.executable, sys.executable, "-c",
-                  'import sys; from openalea.deploygui import alea_install_gui;sys.argv='+str(args)+';alea_install_gui.main_app(sys.argv)',
-                  envdict)
-
-
-    print "Update environment"
-
-    if sys.platform.lower().startswith('win'):
-        os.execl(sys.executable, sys.executable, '-c',
-                  '"from openalea.deploy.command import set_env; set_env()"')
-    else:
-        os.execl(sys.executable, sys.executable, '-c',
-                  'from openalea.deploy.command import set_env; set_env()')
-    return status
