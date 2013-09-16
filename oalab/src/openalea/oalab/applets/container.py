@@ -58,6 +58,8 @@ class AppletContainer(QtGui.QTabWidget):
         QtCore.QObject.connect(self.actionStop, QtCore.SIGNAL('triggered(bool)'),self.stop)
         QtCore.QObject.connect(self.actionInit, QtCore.SIGNAL('triggered(bool)'),self.reinit)
         
+        self.actionStop.setEnabled(False)
+        
         self._actions = ["Simulation",[["Play",self.actionRun,0],
                                     ["Play",self.actionAnimate,0],
                                     ["Play",self.actionStep,0],
@@ -272,6 +274,8 @@ class WelcomePage(QtGui.QWidget):
 
         # fake methods, like if we have a real applet
         class FakeApplet(object):
+            def __init__(self):
+                self.name = "welcome_page"
             def focus_change(self):
                 pass
             def run(self):
