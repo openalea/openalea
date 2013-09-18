@@ -17,10 +17,9 @@
 ###############################################################################
 __revision__ = ""
 
-from openalea.vpltk.qt import QtCore, QtGui
+from openalea.vpltk.qt import QtGui
 
 from pygments.formatters.html import HtmlFormatter
-from pygments.lexer import RegexLexer, _TokenType, Text, Error
 from pygments.lexers import PythonLexer
 from pygments.styles import get_style_by_name
 
@@ -150,3 +149,20 @@ class Highlighter(QtGui.QSyntaxHighlighter):
                       int(color[2:4], base=16),
                       int(color[4:6], base=16))
         return qcolor
+
+class PygmentsBlockUserData(QtGui.QTextBlockUserData):
+    """ Storage for the user data associated with each line.
+    """
+
+    syntax_stack = ('root',)
+
+    def __init__(self, **kwds):
+        for key, value in kwds.iteritems():
+            setattr(self, key, value)
+        QtGui.QTextBlockUserData.__init__(self)
+
+    def __repr__(self):
+        attrs = ['syntax_stack']
+        kwds = ', '.join([ '%s=%r' % (attr, getattr(self, attr))
+                           for attr in attrs ])
+        return 'PygmentsBlockUserData(%s)' % kwds
