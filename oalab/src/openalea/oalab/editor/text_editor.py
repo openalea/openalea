@@ -20,6 +20,7 @@ __revision__ = ""
 from openalea.vpltk.qt import QtCore, QtGui
 from openalea.core.path import path
 from openalea.oalab.editor.search import SearchWidget
+from openalea.oalab.editor.completion import DictionaryCompleter
 from openalea.core import settings
 
 
@@ -36,6 +37,9 @@ class CompleteTextEditor(QtGui.QWidget):
         self.setLayout(self.layout)
         
         self.search_widget.hide()
+        
+        self.completer = DictionaryCompleter()
+        te.setCompleter(self.completer)
         
     def actions(self):
         """
@@ -90,6 +94,7 @@ class TextEditor(QtGui.QTextEdit):
         super(TextEditor, self).__init__(parent)
         self.session = session
         self.indentation = "    "
+        self.completer = None
 
     def actions(self):
         """
@@ -156,6 +161,55 @@ class TextEditor(QtGui.QTextEdit):
             f.close()
 
     def keyPressEvent(self,event):
+
+        if self.completer and self.completer.popup().isVisible():
+            if event.key() in (
+            QtCore.Qt.Key_Enter,
+            QtCore.Qt.Key_Return,
+            QtCore.Qt.Key_Escape,
+            QtCore.Qt.Key_Tab,
+            QtCore.Qt.Key_Backtab):
+                event.ignore()
+                return
+
+        ## has ctrl-E been pressed??
+        isShortcut = (event.modifiers() == QtCore.Qt.ControlModifier and
+                      event.key() == QtCore.Qt.Key_E)
+        if (not self.completer or not isShortcut):
+            QtGui.QTextEdit.keyPressEvent(self, event)
+
+        ## ctrl or shift key on it's own??
+        ctrlOrShift = event.modifiers() in (QtCore.Qt.ControlModifier ,
+                QtCore.Qt.ShiftModifier)
+        if ctrlOrShift and event.text().isEmpty():
+            # ctrl or shift key on it's own
+            return
+
+        eow = QtCore.QString("~!@#$%^&*()_+{}|:\"<>?,./;'[]\\-=") #end of word
+
+        hasModifier = ((event.modifiers() != QtCore.Qt.NoModifier) and
+                        not ctrlOrShift)
+
+        completionPrefix = self.textUnderCursor()
+
+        if (not isShortcut and (hasModifier or event.text().isEmpty() or
+        completionPrefix.length() < 3 or
+        eow.contains(event.text().right(1)))):
+            self.completer.popup().hide()
+            return
+
+        if (completionPrefix != self.completer.completionPrefix()):
+            self.completer.setCompletionPrefix(completionPrefix)
+            popup = self.completer.popup()
+            popup.setCurrentIndex(
+                self.completer.completionModel().index(0,0))
+
+        cr = self.cursorRect()
+        cr.setWidth(self.completer.popup().sizeHintForColumn(0)
+            + self.completer.popup().verticalScrollBar().sizeHint().width())
+        self.completer.complete(cr) ## popup it up!
+    
+        # Auto-indent
         super(TextEditor, self).keyPressEvent(event)
         if event.key() == QtCore.Qt.Key_Return or event.key() == QtCore.Qt.Key_Enter:
             self.returnEvent()
@@ -287,8 +341,41 @@ class TextEditor(QtGui.QTextEdit):
                 end-=1
         cursor.endEditBlock()
         cursor.setPosition(pos,QtGui.QTextCursor.MoveAnchor)
-        
-        
+
+    ####################################################################
+    #### Completer
+    ####################################################################
+    def setCompleter(self, completer):
+        if self.completer:
+            self.disconnect(self.completer, 0, self, 0)
+        if not completer:
+            return
+
+        completer.setWidget(self)
+        completer.setCompletionMode(QtGui.QCompleter.PopupCompletion)
+        completer.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
+        self.completer = completer
+        self.connect(self.completer,
+            QtCore.SIGNAL("activated(const QString&)"), self.insertCompletion)
+
+    def insertCompletion(self, completion):
+        tc = self.textCursor()
+        extra = (completion.length() -
+            self.completer.completionPrefix().length())
+        tc.movePosition(QtGui.QTextCursor.Left)
+        tc.movePosition(QtGui.QTextCursor.EndOfWord)
+        tc.insertText(completion.right(extra))
+        self.setTextCursor(tc)
+
+    def textUnderCursor(self):
+        tc = self.textCursor()
+        tc.select(QtGui.QTextCursor.WordUnderCursor)
+        return tc.selectedText()
+
+    def focusInEvent(self, event):
+        if self.completer:
+            self.completer.setWidget(self);
+        QtGui.QTextEdit.focusInEvent(self, event)
         
 #http://web.njit.edu/all_topics/Prog_Lang_Docs/html/qt/qtextbrowser.html
 #http://qt.developpez.com/doc/3.3/qtextbrowser/
