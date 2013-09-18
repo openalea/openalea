@@ -85,6 +85,11 @@ class TextEditor(QtGui.QTextEdit):
         self.session = session
         self.indentation = "    "
         
+        
+        self.actionComment = QtGui.QAction("Comment", self)
+        self.actionComment.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+D", None, QtGui.QApplication.UnicodeUTF8))
+        QtCore.QObject.connect(self.actionComment, QtCore.SIGNAL('triggered(bool)'),self.comment)
+        
     def set_text(self, txt):
         """
         Set text in the editor
@@ -183,6 +188,97 @@ class TextEditor(QtGui.QTextEdit):
             cursor.joinPreviousEditBlock()
             cursor.insertText(txt)
             cursor.endEditBlock()
+            
+    ####################################################################
+    #### (Un)Tab (cf lpycodeeditor)
+    ####################################################################
+    def tab(self, initcursor = None):
+        if initcursor == False:
+            initcursor = None
+        cursor = self.textCursor() if initcursor is None else initcursor
+        beg = cursor.selectionStart()
+        end = cursor.selectionEnd()
+        pos = cursor.position()
+        if not initcursor : cursor.beginEditBlock()
+        cursor.setPosition(beg,QtGui.QTextCursor.MoveAnchor)
+        cursor.movePosition(QtGui.QTextCursor.StartOfBlock,QtGui.QTextCursor.MoveAnchor)
+        while cursor.position() <= end :
+            if self.replaceTab:
+                cursor.insertText(self.indentation)
+                end+=len(self.indentation)
+            else:
+                cursor.insertText('\t')
+                end+=1
+            oldpos = cursor.position()
+            cursor.movePosition(QtGui.QTextCursor.NextBlock,QtGui.QTextCursor.MoveAnchor)
+            if cursor.position() == oldpos:
+                break
+        if not initcursor : cursor.endEditBlock()
+        cursor.setPosition(pos,QtGui.QTextCursor.MoveAnchor)
+    def untab(self):
+        cursor = self.textCursor()
+        beg = cursor.selectionStart()
+        end = cursor.selectionEnd()
+        pos = cursor.position()
+        cursor.beginEditBlock()
+        cursor.setPosition(beg,QtGui.QTextCursor.MoveAnchor)
+        cursor.movePosition(QtGui.QTextCursor.StartOfBlock,QtGui.QTextCursor.MoveAnchor)
+        while cursor.position() <= end:
+            m = cursor.movePosition(QtGui.QTextCursor.NextCharacter,QtGui.QTextCursor.KeepAnchor)
+            if cursor.selectedText() == '\t':
+                cursor.deleteChar()
+            else:
+                for i in xrange(len(self.indentation)-1):
+                    b = cursor.movePosition(QtGui.QTextCursor.NextCharacter,QtGui.QTextCursor.KeepAnchor)
+                    if not b : break
+                if cursor.selectedText() == self.indentation:
+                    cursor.removeSelectedText()                    
+            end-=1
+            cursor.movePosition(QtGui.QTextCursor.Down,QtGui.QTextCursor.MoveAnchor)
+            cursor.movePosition(QtGui.QTextCursor.StartOfBlock,QtGui.QTextCursor.MoveAnchor)
+        cursor.endEditBlock()
+        cursor.setPosition(pos,QtGui.QTextCursor.MoveAnchor)
+        
+    ####################################################################
+    #### (Un)Comment (cf lpycodeeditor)
+    ####################################################################
+    def comment(self):
+        cursor = self.textCursor()
+        beg = cursor.selectionStart()
+        end = cursor.selectionEnd()
+        pos = cursor.position()
+        cursor.beginEditBlock() 
+        cursor.setPosition(beg,QtGui.QTextCursor.MoveAnchor)
+        cursor.movePosition(QtGui.QTextCursor.StartOfBlock,QtGui.QTextCursor.MoveAnchor)
+        while cursor.position() <= end:
+            cursor.insertText('#')
+            oldpos = cursor.position()
+            cursor.movePosition(QtGui.QTextCursor.NextBlock,QtGui.QTextCursor.MoveAnchor)
+            if cursor.position() == oldpos:
+                break
+            end+=1
+        cursor.endEditBlock()
+        cursor.setPosition(pos,QtGui.QTextCursor.MoveAnchor)
+    def uncomment(self):
+        cursor = self.textCursor()
+        beg = cursor.selectionStart()
+        end = cursor.selectionEnd()
+        pos = cursor.position()
+        cursor.beginEditBlock()
+        cursor.setPosition(beg,QtGui.QTextCursor.MoveAnchor)
+        cursor.movePosition(QtGui.QTextCursor.StartOfBlock,QtGui.QTextCursor.MoveAnchor)
+        while cursor.position() <= end:
+            m = cursor.movePosition(QtGui.QTextCursor.NextCharacter,QtGui.QTextCursor.KeepAnchor)
+            if True:
+                if cursor.selectedText() == '#':
+                        cursor.deleteChar()
+                end-=1
+            cursor.movePosition(QtGui.QTextCursor.Down,QtGui.QTextCursor.MoveAnchor)
+            cursor.movePosition(QtGui.QTextCursor.Left,QtGui.QTextCursor.MoveAnchor)
+        cursor.endEditBlock()
+        cursor.setPosition(pos,QtGui.QTextCursor.MoveAnchor)
+        
+        
         
 #http://web.njit.edu/all_topics/Prog_Lang_Docs/html/qt/qtextbrowser.html
 #http://qt.developpez.com/doc/3.3/qtextbrowser/
