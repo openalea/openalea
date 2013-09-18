@@ -19,14 +19,17 @@
 ###############################################################################
 __revision__ = ""
 
-from openalea.oalab.applets.texteditor import TextEditor
+from openalea.oalab.editor.text_editor import CompleteTextEditor as Editor
+from openalea.oalab.editor.highlight import Highlighter
+from openalea.oalab.editor.lpy_lexer import LPyLexer
 from openalea.lpy import Lsystem, AxialTree, registerPlotter
 from openalea.lpy.gui import documentation as doc_lpy
 
 class LPyApplet(object):
     def __init__(self, session, name="script.lpy", script=""):
         super(LPyApplet, self).__init__()
-        self._widget = TextEditor(session=session)
+        self._widget = Editor(session=session)
+        Highlighter(self._widget.editor.document(), lexer=LPyLexer())
         self._widget.applet = self
         self.session = session
         self.name = name

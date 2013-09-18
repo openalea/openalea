@@ -19,13 +19,15 @@
 ###############################################################################
 __revision__ = ""
 
-from openalea.oalab.applets.texteditor import TextEditor
+from openalea.oalab.editor.text_editor import CompleteTextEditor as Editor
+from openalea.oalab.editor.highlight import Highlighter
 from openalea.vpltk.qt import QtCore
     
 class RApplet(object):
     def __init__(self, session, name="script.R", script=""):
         super(RApplet, self).__init__()
-        self._widget = TextEditor(session=session)
+        self._widget = Editor(session=session)
+        Highlighter(self._widget.editor.document())
         self._widget.applet = self
         self.session = session
         self.name = name

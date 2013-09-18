@@ -44,6 +44,13 @@ class AppletContainer(QtGui.QTabWidget):
         self.actionStop = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/pause.png"),"Stop", self)
         self.actionInit = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/rewind.png"),"Init", self)
         
+        
+        self.actionUndo = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/editundo.png"),"Undo", self)
+        self.actionRedo = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/editredo.png"),"Redo", self)
+        self.actionSearch = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/editfind.png"),"Search", self)
+
+        self.actionSearch.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+F", None, QtGui.QApplication.UnicodeUTF8))
+        
         #self.actionSave.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
         self.actionRun.setShortcut(QtGui.QApplication.translate("MainWindow", "F1", None, QtGui.QApplication.UnicodeUTF8))
         self.actionAnimate.setShortcut(QtGui.QApplication.translate("MainWindow", "F2", None, QtGui.QApplication.UnicodeUTF8))
@@ -58,13 +65,20 @@ class AppletContainer(QtGui.QTabWidget):
         QtCore.QObject.connect(self.actionStop, QtCore.SIGNAL('triggered(bool)'),self.stop)
         QtCore.QObject.connect(self.actionInit, QtCore.SIGNAL('triggered(bool)'),self.reinit)
         
+        QtCore.QObject.connect(self.actionUndo, QtCore.SIGNAL('triggered(bool)'),self.undo)
+        QtCore.QObject.connect(self.actionRedo, QtCore.SIGNAL('triggered(bool)'),self.redo)
+        QtCore.QObject.connect(self.actionSearch, QtCore.SIGNAL('triggered(bool)'),self.search)
+        
         self.actionStop.setEnabled(False)
         
         self._actions = ["Simulation",[["Play",self.actionRun,0],
                                     ["Play",self.actionAnimate,0],
                                     ["Play",self.actionStep,0],
                                     ["Play",self.actionStop,0],
-                                    ["Play",self.actionInit,0]]]
+                                    ["Play",self.actionInit,0],
+                                    ["Text Edit",self.actionUndo,0],
+                                    ["Text Edit",self.actionRedo,0],
+                                    ["Text Edit",self.actionSearch,0]]]
                                     
         QtCore.QObject.connect(self, QtCore.SIGNAL('tabCloseRequested(int)'),self.autoClose)
 
@@ -198,6 +212,24 @@ class AppletContainer(QtGui.QTabWidget):
         self.currentWidget().applet.reinit()
         logger.debug("Reinit " + self.currentWidget().applet.name)
 
+    def undo(self):
+        try:
+            self.currentWidget().undo()
+        except:
+            pass
+        logger.debug("Undo " + self.currentWidget().applet.name)
+        
+    def redo(self):
+        try:
+            self.currentWidget().redo()
+        except:
+            pass
+        logger.debug("Redo " + self.currentWidget().applet.name)
+        
+    def search(self):
+        self.currentWidget().search()
+        logger.debug("Search " + self.currentWidget().applet.name)
+        
 class WelcomePage(QtGui.QWidget):
     """
     Welcome page in the applet container.
