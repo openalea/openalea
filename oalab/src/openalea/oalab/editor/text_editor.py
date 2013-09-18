@@ -21,14 +21,18 @@ from openalea.vpltk.qt import QtCore, QtGui
 from openalea.core.path import path
 from openalea.oalab.editor.search import SearchWidget
 from openalea.oalab.editor.completion import DictionaryCompleter
+from openalea.core import logger
 from openalea.core import settings
 
 
 class CompleteTextEditor(QtGui.QWidget):
     def __init__(self, session, parent=None):
         super(CompleteTextEditor, self).__init__(parent)
-        
+        completer = DictionaryCompleter()
+        logger.debug("completer " + str(completer))
         self.editor = TextEditor(session=session, parent=self)
+        self.editor.setCompleter(completer)
+        logger.debug("setcompleter ")
         self.search_widget = SearchWidget(parent=self,session=session )
         
         self.layout = QtGui.QVBoxLayout()
@@ -37,10 +41,7 @@ class CompleteTextEditor(QtGui.QWidget):
         self.setLayout(self.layout)
         
         self.search_widget.hide()
-        
-        self.completer = DictionaryCompleter()
-        te.setCompleter(self.completer)
-        
+
     def actions(self):
         """
         :return: list of actions to set in the menu.
@@ -161,8 +162,13 @@ class TextEditor(QtGui.QTextEdit):
             f.close()
 
     def keyPressEvent(self,event):
-
-        if self.completer and self.completer.popup().isVisible():
+        # Auto-indent
+        if event.key() == QtCore.Qt.Key_Return or event.key() == QtCore.Qt.Key_Enter:
+            super(TextEditor, self).keyPressEvent(event)
+            self.returnEvent()
+            return
+        
+        elif self.completer and self.completer.popup().isVisible():
             if event.key() in (
             QtCore.Qt.Key_Enter,
             QtCore.Qt.Key_Return,
@@ -181,20 +187,25 @@ class TextEditor(QtGui.QTextEdit):
         ## ctrl or shift key on it's own??
         ctrlOrShift = event.modifiers() in (QtCore.Qt.ControlModifier ,
                 QtCore.Qt.ShiftModifier)
-        if ctrlOrShift and event.text().isEmpty():
+        if ctrlOrShift and event.text() is str():
             # ctrl or shift key on it's own
             return
 
-        eow = QtCore.QString("~!@#$%^&*()_+{}|:\"<>?,./;'[]\\-=") #end of word
+        eow = "~!@#$%^&*()_+{}|:\"<>?,./;'[]\\-=" #end of word
 
         hasModifier = ((event.modifiers() != QtCore.Qt.NoModifier) and
                         not ctrlOrShift)
 
         completionPrefix = self.textUnderCursor()
 
-        if (not isShortcut and (hasModifier or event.text().isEmpty() or
-        completionPrefix.length() < 3 or
-        eow.contains(event.text().right(1)))):
+        f = eow.find(event.text()[-1])
+        if f == -1:
+            finded = False
+        else:
+            finded = True
+
+        if (not isShortcut and (hasModifier or (event.text() is str()) or
+        len(completionPrefix) < 3 or finded)):
             self.completer.popup().hide()
             return
 
@@ -203,17 +214,12 @@ class TextEditor(QtGui.QTextEdit):
             popup = self.completer.popup()
             popup.setCurrentIndex(
                 self.completer.completionModel().index(0,0))
-
+         
         cr = self.cursorRect()
         cr.setWidth(self.completer.popup().sizeHintForColumn(0)
             + self.completer.popup().verticalScrollBar().sizeHint().width())
         self.completer.complete(cr) ## popup it up!
-    
-        # Auto-indent
-        super(TextEditor, self).keyPressEvent(event)
-        if event.key() == QtCore.Qt.Key_Return or event.key() == QtCore.Qt.Key_Enter:
-            self.returnEvent()
-    
+
     ####################################################################
     #### Auto Indent (cf lpycodeeditor)
     ####################################################################
@@ -346,26 +352,30 @@ class TextEditor(QtGui.QTextEdit):
     #### Completer
     ####################################################################
     def setCompleter(self, completer):
+        logger.debug("set completer " + str(completer))
         if self.completer:
             self.disconnect(self.completer, 0, self, 0)
         if not completer:
             return
-
+        
         completer.setWidget(self)
         completer.setCompletionMode(QtGui.QCompleter.PopupCompletion)
         completer.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
         self.completer = completer
-        self.connect(self.completer,
-            QtCore.SIGNAL("activated(const QString&)"), self.insertCompletion)
+        logger.debug("selfcompleter " + str(self.completer))
+        QtCore.QObject.connect(self.completer, QtCore.SIGNAL("activated(const QString&)"),self.insertCompletion)
+        logger.debug("completer connected")
 
     def insertCompletion(self, completion):
+        logger.debug("insert completion")
         tc = self.textCursor()
-        extra = (completion.length() -
-            self.completer.completionPrefix().length())
+        extra = (len(completion) -
+            len(self.completer.completionPrefix()))
         tc.movePosition(QtGui.QTextCursor.Left)
         tc.movePosition(QtGui.QTextCursor.EndOfWord)
-        tc.insertText(completion.right(extra))
+        tc.insertText(completion[-extra:])
         self.setTextCursor(tc)
+        logger.debug("inserted completion")
 
     def textUnderCursor(self):
         tc = self.textCursor()

@@ -18,7 +18,7 @@
 __revision__ = ""
 
 from pygments.lexers.agile import PythonLexer
-from pygments.token import Name, Keyword, Generic
+from pygments.token import Name, Generic
 
 class LPyLexer(PythonLexer):
     """
