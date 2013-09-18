@@ -20,7 +20,7 @@ __revision__ = ""
 from openalea.vpltk.qt import QtCore, QtGui
 from openalea.core.path import path
 from openalea.oalab.editor.search import SearchWidget
-from openalea.core import logger
+from openalea.core import settings
 
 
 class CompleteTextEditor(QtGui.QWidget):
@@ -83,16 +83,7 @@ class TextEditor(QtGui.QTextEdit):
     def __init__(self, session, parent=None):
         super(TextEditor, self).__init__(parent)
         self.session = session
-        self._actions = None
-
-    def actions(self):
-        """
-        :return: list of actions to set in the menu.
-        """
-        return self._actions
-        
-    def mainMenu(self):
-        return "Simulation"
+        self.indentation = "    "
         
     def set_text(self, txt):
         """
@@ -148,10 +139,50 @@ class TextEditor(QtGui.QTextEdit):
             code_enc = code.encode("utf8","ignore") 
             f.write(code_enc)
             f.close()
+
+    def keyPressEvent(self,event):
+        super(TextEditor, self).keyPressEvent(event)
+        if event.key() == QtCore.Qt.Key_Return or event.key() == QtCore.Qt.Key_Enter:
+            self.returnEvent()
     
-    #def search(self):
-        #self.searchWidget.show()
-        #self.searchWidget.raise_()
+    ####################################################################
+    #### Auto Indent (cf lpycodeeditor)
+    ####################################################################
+    def returnEvent(self):
+        cursor = self.textCursor()
+        beg = cursor.selectionStart()
+        end = cursor.selectionEnd()
+        if beg == end:
+            pos = cursor.position()
+            ok = cursor.movePosition(QtGui.QTextCursor.PreviousBlock,QtGui.QTextCursor.MoveAnchor)
+            if not ok: return
+            txtok = True
+            txt = ''
+            while txtok:
+                ok = cursor.movePosition(QtGui.QTextCursor.NextCharacter,QtGui.QTextCursor.KeepAnchor)
+                if not ok: break
+                txt2 = str(cursor.selection().toPlainText())
+                txtok = (txt2[-1] in ' \t')
+                if txtok:
+                    txt = txt2
+            cursor.setPosition(pos)
+            ok = cursor.movePosition(QtGui.QTextCursor.PreviousBlock,QtGui.QTextCursor.MoveAnchor)
+            if ok:
+                ok = cursor.movePosition(QtGui.QTextCursor.EndOfBlock,QtGui.QTextCursor.MoveAnchor)
+                if ok:
+                    txtok = True
+                    while txtok:
+                        ok = cursor.movePosition(QtGui.QTextCursor.PreviousCharacter,QtGui.QTextCursor.KeepAnchor)
+                        if not ok: break
+                        txt2 = str(cursor.selection().toPlainText())
+                        txtok = (txt2[0] in ' \t')
+                        if not txtok:
+                            if txt2[0] == ':':
+                                txt += self.indentation
+            cursor.setPosition(pos)
+            cursor.joinPreviousEditBlock()
+            cursor.insertText(txt)
+            cursor.endEditBlock()
         
 #http://web.njit.edu/all_topics/Prog_Lang_Docs/html/qt/qtextbrowser.html
 #http://qt.developpez.com/doc/3.3/qtextbrowser/
