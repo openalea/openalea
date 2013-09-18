@@ -2,7 +2,7 @@ from openalea.oalab.gui.session import Session
 from openalea.oalab.gui.menu import PanedMenu
 from openalea.oalab.gui.mainwindow import MainWindow
 from openalea.oalab.applets.container import AppletContainer
-from openalea.oalab.applets.texteditor import TextEditor
+from openalea.oalab.editor.text_editor import TextEditor
 
 from openalea.vpltk.qt import QtGui, QtCore
 import sys
@@ -33,27 +33,25 @@ def test_applet_container_reset():
     container = AppletContainer(session)
     container.reset()
     assert container.count() == 0
-''' 
-# /!\ The text editor will make a core dump!
+
 def test_text_edit():
     editor = TextEditor(session)
     assert editor is not None
-'''
+
 def test_applet_container_opentab():
     container = AppletContainer(session)
-    #### /!\ The text editor will make a core dump!
-    ####container.openTab(applet_type="py", tab_name="plop.py", script="print('hello world')")
-    ####container.openTab(applet_type="lpy", tab_name="plop.lpy", script="")
-    ####container.openTab(applet_type="r", tab_name="plop.r", script="")
+    container.openTab(applet_type="py", tab_name="plop.py", script="print('hello world')")
+    container.openTab(applet_type="lpy", tab_name="plop.lpy", script="")
+    container.openTab(applet_type="r", tab_name="plop.r", script="")
     container.openTab(applet_type="wpy", tab_name="plop.wpy", script="")
-    a = container.count() #1
+    a = container.count() #4
     container.closeTab()
-    a += container.count() #1
+    a += container.count() #7
     if type(session.help.actions()) == type(list()):
-        a += 1 #2
+        a += 1 #8
     if session.help.mainMenu() == "Help":
-        a += 1 #3
-    assert a == 3
+        a += 1 #9
+    assert a == 9
 
 def test_create_paned_menu():
     menu = PanedMenu()
