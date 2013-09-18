@@ -69,6 +69,12 @@ class CompleteTextEditor(QtGui.QWidget):
         
     def save(self, name=None):
         self.editor.save(name)
+    
+    def comment(self):
+        self.editor.comment()
+    
+    def uncomment(self):
+        self.editor.uncomment()
         
     def search(self):
         if self.search_widget.hiden:
@@ -84,11 +90,15 @@ class TextEditor(QtGui.QTextEdit):
         super(TextEditor, self).__init__(parent)
         self.session = session
         self.indentation = "    "
-        
-        
-        self.actionComment = QtGui.QAction("Comment", self)
-        self.actionComment.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+D", None, QtGui.QApplication.UnicodeUTF8))
-        QtCore.QObject.connect(self.actionComment, QtCore.SIGNAL('triggered(bool)'),self.comment)
+
+    def actions(self):
+        """
+        :return: list of actions to set in the menu.
+        """
+        return None
+
+    def mainMenu(self):
+        return "Simulation"        
         
     def set_text(self, txt):
         """
@@ -191,53 +201,54 @@ class TextEditor(QtGui.QTextEdit):
             
     ####################################################################
     #### (Un)Tab (cf lpycodeeditor)
+    #### TODO
     ####################################################################
-    def tab(self, initcursor = None):
-        if initcursor == False:
-            initcursor = None
-        cursor = self.textCursor() if initcursor is None else initcursor
-        beg = cursor.selectionStart()
-        end = cursor.selectionEnd()
-        pos = cursor.position()
-        if not initcursor : cursor.beginEditBlock()
-        cursor.setPosition(beg,QtGui.QTextCursor.MoveAnchor)
-        cursor.movePosition(QtGui.QTextCursor.StartOfBlock,QtGui.QTextCursor.MoveAnchor)
-        while cursor.position() <= end :
-            if self.replaceTab:
-                cursor.insertText(self.indentation)
-                end+=len(self.indentation)
-            else:
-                cursor.insertText('\t')
-                end+=1
-            oldpos = cursor.position()
-            cursor.movePosition(QtGui.QTextCursor.NextBlock,QtGui.QTextCursor.MoveAnchor)
-            if cursor.position() == oldpos:
-                break
-        if not initcursor : cursor.endEditBlock()
-        cursor.setPosition(pos,QtGui.QTextCursor.MoveAnchor)
-    def untab(self):
-        cursor = self.textCursor()
-        beg = cursor.selectionStart()
-        end = cursor.selectionEnd()
-        pos = cursor.position()
-        cursor.beginEditBlock()
-        cursor.setPosition(beg,QtGui.QTextCursor.MoveAnchor)
-        cursor.movePosition(QtGui.QTextCursor.StartOfBlock,QtGui.QTextCursor.MoveAnchor)
-        while cursor.position() <= end:
-            m = cursor.movePosition(QtGui.QTextCursor.NextCharacter,QtGui.QTextCursor.KeepAnchor)
-            if cursor.selectedText() == '\t':
-                cursor.deleteChar()
-            else:
-                for i in xrange(len(self.indentation)-1):
-                    b = cursor.movePosition(QtGui.QTextCursor.NextCharacter,QtGui.QTextCursor.KeepAnchor)
-                    if not b : break
-                if cursor.selectedText() == self.indentation:
-                    cursor.removeSelectedText()                    
-            end-=1
-            cursor.movePosition(QtGui.QTextCursor.Down,QtGui.QTextCursor.MoveAnchor)
-            cursor.movePosition(QtGui.QTextCursor.StartOfBlock,QtGui.QTextCursor.MoveAnchor)
-        cursor.endEditBlock()
-        cursor.setPosition(pos,QtGui.QTextCursor.MoveAnchor)
+    #def tab(self, initcursor = None):
+        #if initcursor == False:
+            #initcursor = None
+        #cursor = self.textCursor() if initcursor is None else initcursor
+        #beg = cursor.selectionStart()
+        #end = cursor.selectionEnd()
+        #pos = cursor.position()
+        #if not initcursor : cursor.beginEditBlock()
+        #cursor.setPosition(beg,QtGui.QTextCursor.MoveAnchor)
+        #cursor.movePosition(QtGui.QTextCursor.StartOfBlock,QtGui.QTextCursor.MoveAnchor)
+        #while cursor.position() <= end :
+            #if self.replaceTab:
+                #cursor.insertText(self.indentation)
+                #end+=len(self.indentation)
+            #else:
+                #cursor.insertText('\t')
+                #end+=1
+            #oldpos = cursor.position()
+            #cursor.movePosition(QtGui.QTextCursor.NextBlock,QtGui.QTextCursor.MoveAnchor)
+            #if cursor.position() == oldpos:
+                #break
+        #if not initcursor : cursor.endEditBlock()
+        #cursor.setPosition(pos,QtGui.QTextCursor.MoveAnchor)
+    #def untab(self):
+        #cursor = self.textCursor()
+        #beg = cursor.selectionStart()
+        #end = cursor.selectionEnd()
+        #pos = cursor.position()
+        #cursor.beginEditBlock()
+        #cursor.setPosition(beg,QtGui.QTextCursor.MoveAnchor)
+        #cursor.movePosition(QtGui.QTextCursor.StartOfBlock,QtGui.QTextCursor.MoveAnchor)
+        #while cursor.position() <= end:
+            #cursor.movePosition(QtGui.QTextCursor.NextCharacter,QtGui.QTextCursor.KeepAnchor)
+            #if cursor.selectedText() == '\t':
+                #cursor.deleteChar()
+            #else:
+                #for i in xrange(len(self.indentation)-1):
+                    #b = cursor.movePosition(QtGui.QTextCursor.NextCharacter,QtGui.QTextCursor.KeepAnchor)
+                    #if not b : break
+                #if cursor.selectedText() == self.indentation:
+                    #cursor.removeSelectedText()                    
+            #end-=1
+            #cursor.movePosition(QtGui.QTextCursor.Down,QtGui.QTextCursor.MoveAnchor)
+            #cursor.movePosition(QtGui.QTextCursor.StartOfBlock,QtGui.QTextCursor.MoveAnchor)
+        #cursor.endEditBlock()
+        #cursor.setPosition(pos,QtGui.QTextCursor.MoveAnchor)
         
     ####################################################################
     #### (Un)Comment (cf lpycodeeditor)
@@ -268,13 +279,12 @@ class TextEditor(QtGui.QTextEdit):
         cursor.setPosition(beg,QtGui.QTextCursor.MoveAnchor)
         cursor.movePosition(QtGui.QTextCursor.StartOfBlock,QtGui.QTextCursor.MoveAnchor)
         while cursor.position() <= end:
-            m = cursor.movePosition(QtGui.QTextCursor.NextCharacter,QtGui.QTextCursor.KeepAnchor)
+            cursor.movePosition(QtGui.QTextCursor.NextCharacter,QtGui.QTextCursor.KeepAnchor)
             if True:
                 if cursor.selectedText() == '#':
                         cursor.deleteChar()
+                        cursor.movePosition(QtGui.QTextCursor.NextBlock,QtGui.QTextCursor.MoveAnchor)
                 end-=1
-            cursor.movePosition(QtGui.QTextCursor.Down,QtGui.QTextCursor.MoveAnchor)
-            cursor.movePosition(QtGui.QTextCursor.Left,QtGui.QTextCursor.MoveAnchor)
         cursor.endEditBlock()
         cursor.setPosition(pos,QtGui.QTextCursor.MoveAnchor)
         
