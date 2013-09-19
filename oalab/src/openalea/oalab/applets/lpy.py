@@ -19,7 +19,7 @@
 ###############################################################################
 __revision__ = ""
 
-from openalea.oalab.editor.text_editor import CompleteTextEditor as Editor
+from openalea.oalab.editor.text_editor import RichTextEditor as Editor
 from openalea.oalab.editor.highlight import Highlighter
 from openalea.oalab.editor.lpy_lexer import LPyLexer
 from openalea.lpy import Lsystem, AxialTree, registerPlotter
