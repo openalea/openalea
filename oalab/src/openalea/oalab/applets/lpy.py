@@ -29,7 +29,7 @@ class LPyApplet(object):
     def __init__(self, session, name="script.lpy", script=""):
         super(LPyApplet, self).__init__()
         self._widget = Editor(session=session)
-        Highlighter(self._widget.editor.document(), lexer=LPyLexer())
+        Highlighter(self._widget.editor, lexer=LPyLexer())
         self._widget.applet = self
         self.session = session
         self.name = name
