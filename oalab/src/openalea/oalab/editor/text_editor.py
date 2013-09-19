@@ -25,14 +25,14 @@ from openalea.core import logger
 from openalea.core import settings
 
 
-class CompleteTextEditor(QtGui.QWidget):
+class RichTextEditor(QtGui.QWidget):
     def __init__(self, session, parent=None):
-        super(CompleteTextEditor, self).__init__(parent)
+        super(RichTextEditor, self).__init__(parent)
+        
         completer = DictionaryCompleter()
-        logger.debug("completer " + str(completer))
         self.editor = TextEditor(session=session, parent=self)
         self.editor.setCompleter(completer)
-        logger.debug("setcompleter ")
+        
         self.search_widget = SearchWidget(parent=self,session=session )
         
         self.layout = QtGui.QVBoxLayout()
