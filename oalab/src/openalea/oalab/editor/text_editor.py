@@ -29,9 +29,9 @@ class RichTextEditor(QtGui.QWidget):
     def __init__(self, session, parent=None):
         super(RichTextEditor, self).__init__(parent)
         
-        completer = DictionaryCompleter()
+        self.completer = DictionaryCompleter(session=session, parent=self)
         self.editor = TextEditor(session=session, parent=self)
-        self.editor.setCompleter(completer)
+        self.editor.setCompleter(self.completer)
         
         self.search_widget = SearchWidget(parent=self,session=session )
         

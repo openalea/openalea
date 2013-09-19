@@ -18,15 +18,27 @@
 __revision__ = ""
 
 from openalea.vpltk.qt import QtGui
+import keyword
+import __builtin__
 
 class DictionaryCompleter(QtGui.QCompleter):
-    def __init__(self, parent=None):
-        words = []
-        try:
-            f = open("/usr/share/dict/words","r")
-            for word in f:
-                words.append(word.strip())
-            f.close()
-        except IOError:
-            print "dictionary not in anticipated location"
-        QtGui.QCompleter.__init__(self, words, parent)
+    def __init__(self, session=None, parent=None):
+        self.parent = parent
+        self.basic_words = keyword.kwlist + __builtin__.__dict__.keys()
+        
+        self.update_dict()
+        
+    def update_dict(self):
+        """
+        Use it to add new words from locals() and globals()
+        """
+        words = self.basic_words + locals().keys() + globals().keys()
+        QtGui.QCompleter.__init__(self, words, self.parent)
+        
+    def add_words(self, words):
+        """
+        Add a list of words into dict
+        """
+        words = list(words)
+        self.words = self.words + words
+        self.update_dict()
