@@ -50,7 +50,7 @@ class Store(MainWindowAleaInstall):
         Show / Hide this widget
         """
         if self.show:
-            self.session.store.hide()
+            self.session.storeDockWidget.hide()
             self.show = False
         else:
             self.session.storeDockWidget.show()
