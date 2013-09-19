@@ -44,17 +44,19 @@ class AppletContainer(QtGui.QTabWidget):
         self.actionStop = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/pause.png"),"Stop", self)
         self.actionInit = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/rewind.png"),"Init", self)
         
+        self.actionRunSelection = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/run.png"),"Run selection", self)
         
         self.actionUndo = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/editundo.png"),"Undo", self)
         self.actionRedo = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/editredo.png"),"Redo", self)
         self.actionSearch = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/editfind.png"),"Search", self)
         
-        self.actionComment = QtGui.QAction(QtGui.QIcon(""),"Comment",self)
-        self.actionUnComment = QtGui.QAction(QtGui.QIcon(""),"Uncomment",self)
+        self.actionComment = QtGui.QAction(QtGui.QIcon(":/images/resources/commentOn.png"),"Comment",self)
+        self.actionUnComment = QtGui.QAction(QtGui.QIcon(":/images/resources/commentOff.png"),"Uncomment",self)
         
         self.actionComment.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+G", None, QtGui.QApplication.UnicodeUTF8)) 
         self.actionUnComment.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+H", None, QtGui.QApplication.UnicodeUTF8))
         
+        self.actionRunSelection.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+R", None, QtGui.QApplication.UnicodeUTF8))
 
         self.actionSearch.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+F", None, QtGui.QApplication.UnicodeUTF8))
         
@@ -71,6 +73,8 @@ class AppletContainer(QtGui.QTabWidget):
         QtCore.QObject.connect(self.actionStep, QtCore.SIGNAL('triggered(bool)'),self.step)
         QtCore.QObject.connect(self.actionStop, QtCore.SIGNAL('triggered(bool)'),self.stop)
         QtCore.QObject.connect(self.actionInit, QtCore.SIGNAL('triggered(bool)'),self.reinit)
+        
+        QtCore.QObject.connect(self.actionRunSelection, QtCore.SIGNAL('triggered(bool)'),self.run_selected_part)
         
         QtCore.QObject.connect(self.actionUndo, QtCore.SIGNAL('triggered(bool)'),self.undo)
         QtCore.QObject.connect(self.actionRedo, QtCore.SIGNAL('triggered(bool)'),self.redo)
@@ -89,7 +93,8 @@ class AppletContainer(QtGui.QTabWidget):
                                     ["Text Edit",self.actionRedo,1],
                                     ["Text Edit",self.actionSearch,1],
                                     ["Text Edit",self.actionComment,1],
-                                    ["Text Edit",self.actionUnComment,1]]]
+                                    ["Text Edit",self.actionUnComment,1],
+                                    ["Text Edit",self.actionRunSelection,1]]]
                                     
         QtCore.QObject.connect(self, QtCore.SIGNAL('tabCloseRequested(int)'),self.autoClose)
 
@@ -202,6 +207,13 @@ class AppletContainer(QtGui.QTabWidget):
             wid = self.widget(i)
             name = wid.applet.name
             wid.save(name=name)
+        
+    def run_selected_part(self):
+        try:
+            self.currentWidget().applet.run_selected_part()
+            logger.debug("Run selected part " + self.currentWidget().applet.name)
+        except:
+            logger.debug("Can't run selected part " + self.currentWidget().applet.name)
         
     def run(self):
         self.currentWidget().applet.run()

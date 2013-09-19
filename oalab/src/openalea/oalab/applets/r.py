@@ -57,6 +57,15 @@ more informations: http://www.r-project.org/
         """
         return self._widget
         
+    def run_selected_part(self):
+        code = self.widget().get_selected_text()
+        code = """%%R
+
+""" + code
+        interp = self.session.shell.get_interpreter()
+        user_ns = self.session.interpreter.user_ns
+        interp.runcode(code)    
+        
     def run(self):
         code = self.widget().get_text()
         code = """%%R

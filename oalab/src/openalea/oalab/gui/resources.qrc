@@ -36,6 +36,8 @@
         <file>resources/grid.png</file>
         <file>resources/import.png</file>
         <file>resources/store.png</file>
+        <file>resources/commentOff.png</file>
+        <file>resources/commentOn.png</file>
     </qresource>
     <qresource prefix="/lpy_images">
         <file>resources/lpy/book.png</file>

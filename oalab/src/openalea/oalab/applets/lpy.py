@@ -69,8 +69,20 @@ class LPyApplet(object):
         :return: the edition widget
         """
         return self._widget
+        
+    def run_selected_part(self):
+        """
+        Run selected code like a PYTHON code (not LPy code).
+        """
+        code = self.widget().get_selected_text()
+        interp = self.session.shell.get_interpreter()
+        user_ns = self.session.interpreter.user_ns
+        interp.runcode(code)
 
     def run(self):
+        """
+        Run/iterate all the code (LPy and not PYTHON).
+        """
         code = str(self.widget().get_text())
         # If code has changer since the last step
         if code != self.code:

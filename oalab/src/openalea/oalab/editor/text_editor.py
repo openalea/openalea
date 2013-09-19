@@ -62,6 +62,9 @@ class RichTextEditor(QtGui.QWidget):
         
     set_script = set_text
     
+    def get_selected_text(self):
+        return self.editor.get_selected_text()
+    
     def get_text(self, start='sof', end='eof'):
         """
         Return a part of the text.
@@ -70,7 +73,7 @@ class RichTextEditor(QtGui.QWidget):
         :param end: is the end of what you want to get
         :return: text which is contained in the editor between 'start' and 'end'
         """
-        self.editor.get_text(start='sof', end='eof')
+        return self.editor.get_text(start='sof', end='eof')
         
     def save(self, name=None):
         self.editor.save(name)
@@ -116,6 +119,11 @@ class TextEditor(QtGui.QTextEdit):
         
         
     set_script = set_text
+    
+    def get_selected_text(self):
+        cursor = self.textCursor()
+        txt = cursor.selectedText()
+        return txt
     
     def get_text(self, start='sof', end='eof'):
         """
