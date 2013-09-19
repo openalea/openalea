@@ -54,6 +54,12 @@ more informations: http://www.python.org/
         """
         return self._widget
         
+    def run_selected_part(self):
+        code = self.widget().get_selected_text()
+        interp = self.session.shell.get_interpreter()
+        user_ns = self.session.interpreter.user_ns
+        interp.runcode(code)
+        
     def run(self):
         code = self.widget().get_text()
         interp = self.session.shell.get_interpreter()
