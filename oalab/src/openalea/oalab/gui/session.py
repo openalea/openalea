@@ -96,22 +96,22 @@ class Session(object):
         """
         Connect actions of different widget to the menu
         """
-        self.connect_actions(self.project_widget, self.menu)
-        self.connect_actions(self.applet_container, self.menu)
-        self.connect_actions(self.viewer, self.menu)
-        self.connect_actions(self.help, self.menu)
-        
-        # TODO: uncomment for store
-        self.connect_actions(self.store, self.menu)
+        self.connect_actions(self.project_widget)
+        self.connect_actions(self.applet_container)
+        self.connect_actions(self.viewer)
+        self.connect_actions(self.help)
+        self.connect_actions(self.store)
         
         # TODO:
         # connect control
         # connect observer
 
-    def connect_actions(self, widget, menu):
+    def connect_actions(self, widget, menu=None):
         """
         Connect actions from 'widget' to 'menu'
         """
+        if not menu:
+            menu = self.menu
         actions = widget.actions()
         #connections = widget.connections()
         
