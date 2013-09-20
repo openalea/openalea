@@ -84,6 +84,12 @@ class RichTextEditor(QtGui.QWidget):
     def uncomment(self):
         self.editor.uncomment()
         
+    def undo(self):
+        self.editor.undo()
+    
+    def redo(self):
+        self.editor.redo()
+        
     def search(self):
         if self.search_widget.hiden:
             self.search_widget.show()
@@ -99,6 +105,21 @@ class TextEditor(QtGui.QTextEdit):
         self.session = session
         self.indentation = "    "
         self.completer = None
+        
+        self.set_tab_size()
+        
+    def set_tab_size(self):
+        # Set tab size : to fix 
+        try:
+            font = self.currentFont()
+            metrics = QtGui.QFontMetrics(font)
+            length = metrics.width(self.indentation)
+            if length > 0:
+                self.setTabStopWidth(length)
+            else:
+                self.setTabStopWidth(14)
+        except:
+            pass
 
     def actions(self):
         """
@@ -393,12 +414,4 @@ class TextEditor(QtGui.QTextEdit):
     def focusInEvent(self, event):
         if self.completer:
             self.completer.setWidget(self);
-        QtGui.QTextEdit.focusInEvent(self, event)
-        
-#http://web.njit.edu/all_topics/Prog_Lang_Docs/html/qt/qtextbrowser.html
-#http://qt.developpez.com/doc/3.3/qtextbrowser/
-
-# keep in mind QTextBrowser to embed notebook !!!!
-# cmd = "ipython notebook"
-# http://127.0.0.1:8888/
-        
+        QtGui.QTextEdit.focusInEvent(self, event)      

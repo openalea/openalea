@@ -22,6 +22,7 @@ __revision__ = ""
 
 from openalea.vpltk.qt import QtGui, QtCore
 #from openalea.lpy.gui.objectpanel import LpyObjectPanelDock
+from openalea.core import logger
 
 class MainWindow(QtGui.QMainWindow):
     """
@@ -70,7 +71,7 @@ class MainWindow(QtGui.QMainWindow):
         self.packageManagerSearchDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
         self.packageManagerSearchDockWidget.setWidget(session.package_manager_search_widget)
         self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.packageManagerSearchDockWidget)  
-        
+
         ## Scene_Widget
         #self.sceneMngDockWidget = QtGui.QDockWidget("Scene Components", self)     
         #self.sceneMngDockWidget.setObjectName("SceneManager")

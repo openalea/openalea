@@ -207,7 +207,7 @@ class AppletContainer(QtGui.QTabWidget):
             wid = self.widget(i)
             name = wid.applet.name
             wid.save(name=name)
-        
+                
     def run_selected_part(self):
         try:
             self.currentWidget().applet.run_selected_part()
