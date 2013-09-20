@@ -196,6 +196,9 @@ class ProjectWidget(QtGui.QWidget):
                 try:
                     self.parent.applet_container.newTab(applet_type=ext, tab_name=tab_name, script=txt)
                     project.add_script(tab_name, txt)
+                    self.parent._update_locals()
+                    self._current_proj_script_change()
+                    self._current_proj_tree_view_change()
                     logger.debug("Import file named " + tab_name)
                 except:
                     print "File extension " +ext+ "not recognised"
@@ -203,7 +206,6 @@ class ProjectWidget(QtGui.QWidget):
         else:
             print "Doesn't work outside a project. Please create or open a project to continue."
             logger.warning("Can't import file. You are not inside project.")
-        self._project_changed()
         
     def new(self, name=None):
         """
@@ -260,7 +262,10 @@ class ProjectWidget(QtGui.QWidget):
             tab_name = "script.py"
             self.parent.applet_container.newTab(applet_type="python", tab_name=tab_name)
             self.session.project.add_script(tab_name, self.session.applet_container.applets[-1].widget().get_text())  
-            self._project_changed()   
+
+            self.parent._update_locals()
+            self._current_proj_script_change()
+            self._current_proj_tree_view_change() 
         else:
             print("Open or create a project before using models")
         
@@ -269,7 +274,10 @@ class ProjectWidget(QtGui.QWidget):
             tab_name = "script.r"
             self.parent.applet_container.newTab(applet_type="r", tab_name=tab_name)
             self.session.project.add_script(tab_name, self.session.applet_container.applets[-1].widget().get_text())  
-            self._project_changed()
+            
+            self.parent._update_locals()
+            self._current_proj_script_change()
+            self._current_proj_tree_view_change()
         else:
             print("Open or create a project before using models")
         
@@ -278,7 +286,10 @@ class ProjectWidget(QtGui.QWidget):
             tab_name = "script.lpy"
             self.parent.applet_container.newTab(applet_type="lpy", tab_name=tab_name)
             self.session.project.add_script(tab_name, self.session.applet_container.applets[-1].widget().get_text())  
-            self._project_changed()
+            
+            self.parent._update_locals()
+            self._current_proj_script_change()
+            self._current_proj_tree_view_change()
         else:
             print("Open or create a project before using models")
                     
@@ -287,7 +298,11 @@ class ProjectWidget(QtGui.QWidget):
             tab_name = "workflow.wpy"
             self.parent.applet_container.newTab(applet_type="visualea",tab_name=tab_name)
             self.session.project.add_script(tab_name, self.session.applet_container.applets[-1].widget().get_text())  
-            self._project_changed()
+            
+            self.parent._update_locals()
+            self._current_proj_script_change()
+            self._current_proj_tree_view_change()
+            
         else:
             print("Open or create a project before using models")
                     
@@ -432,9 +447,8 @@ class ProjectWidget(QtGui.QWidget):
             self.session.applet_container.reset()
             
     def _current_proj_scene_change(self):
-        self.session.scene_widget.getScene().reset()
-        
         if self.session.current_is_project():
+            self.session.scene_widget.getScene().reset()
             project = self.session.project
             for w in project.scene:
                 self.session.scene_widget.getScene().add(name=w,obj=project.scene[w])
