@@ -38,6 +38,9 @@
         <file>resources/store.png</file>
         <file>resources/commentOff.png</file>
         <file>resources/commentOn.png</file>
+        <file>resources/layout_blue.png</file>
+        <file>resources/layout_green.png</file>
+        <file>resources/layout_red.png</file>
     </qresource>
     <qresource prefix="/lpy_images">
         <file>resources/lpy/book.png</file>

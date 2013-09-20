@@ -30,8 +30,96 @@ class MainWindow(QtGui.QMainWindow):
     """
     def __init__(self, session):
         super(QtGui.QMainWindow, self).__init__()
+        self.session = session
         self.setWidgets(session)  
+        self.readSettings()     
+        self.setSettingsInMenu()
+        
+    def closeEvent(self, event):
+        self.writeSettings()
+        super(QtGui.QMainWindow, self).closeEvent(event)
+
+    ####################################################################
+    ### Settings
+    ####################################################################
+    def writeSettings(self):
+        """
+        Register current settings (geometry and window state)
+        in a setting file
+        """
+        settings = QtCore.QSettings("OpenAlea", "OpenAleaLaboratory")
+        settings.setValue("geometry", self.saveGeometry())
+        settings.setValue("windowState", self.saveState())
+        
+    def readSettings(self):
+        """
+        Read a setting file and restore 
+        registered settings (geometry and window state)
+        """
+        settings = QtCore.QSettings("OpenAlea", "OpenAleaLaboratory")
+        try:
+            self.restoreGeometry(settings.value("geometry"))
+            self.restoreState(settings.value("windowState"))
+        except:
+            # if you launch application for the first time,
+            # it will save the default state
+            settings.setValue("defaultGeometry", self.saveGeometry())
+            settings.setValue("defaultWindowState", self.saveState())
+            logger.warning("Can t restore session")
+            
+    def setSettingsInMenu(self):
+        
+        class FakeWidget(object):
+            def __init__(self, parent):
+                super(FakeWidget, self).__init__()
+                self.mainwindow = parent
+            def actions(self):
+                actionDefault = QtGui.QAction(QtGui.QIcon(":/images/resources/layout_blue.png"),"Default",self.mainwindow)
+                actionRestorePref = QtGui.QAction(QtGui.QIcon(":/images/resources/layout_green.png"),"Prefered",self.mainwindow)
+                actionSetPref = QtGui.QAction(QtGui.QIcon(":/images/resources/layout_red.png"),"Save pref",self.mainwindow)
+
+                QtCore.QObject.connect(actionDefault, QtCore.SIGNAL('triggered(bool)'),self.mainwindow.defaultSettings)
+                QtCore.QObject.connect(actionRestorePref, QtCore.SIGNAL('triggered(bool)'),self.mainwindow.preferedSettings)
+                QtCore.QObject.connect(actionSetPref, QtCore.SIGNAL('triggered(bool)'),self.mainwindow.registerPreferedSettings)
+                
+                _actions = ["Help",[["Window Layout",actionDefault,1],
+                                    ["Window Layout",actionRestorePref,1],
+                                    ["Window Layout",actionSetPref,1]]]
+                return _actions
+                
+        settings = FakeWidget(parent=self)
+        self.session.connect_actions(settings)        
+            
+    def defaultSettings(self):
+        """
+        Restore default settings (geometry and window state)
+        """
+        settings = QtCore.QSettings("OpenAlea", "OpenAleaLaboratory")
+        self.restoreGeometry(settings.value("defaultGeometry"))
+        self.restoreState(settings.value("defaultWindowState"))
+        
+    def preferedSettings(self):
+        """
+        Get prefered settings and restore them
+        """
+        try:
+            settings = QtCore.QSettings("OpenAlea", "OpenAleaLaboratory")
+            self.restoreGeometry(settings.value("preferedGeometry"))
+            self.restoreState(settings.value("preferedWindowState"))
+        except:
+            logger.warning("Can t restore prefered session")
+        
+    def registerPreferedSettings(self):
+        """
+        Register current settings as preferd settings
+        """
+        settings = QtCore.QSettings("OpenAlea", "OpenAleaLaboratory")
+        settings.setValue("preferedGeometry", self.saveGeometry())
+        settings.setValue("preferedWindowState", self.saveState())
     
+    ####################################################################
+    ### Widgets
+    ####################################################################
     def setWidgets(self, session):
         # Menu
         self.menuDockWidget = QtGui.QDockWidget("Menu", self)
