@@ -105,7 +105,7 @@ class TextEditor(QtGui.QTextEdit):
         self.session = session
         self.indentation = "    "
         self.completer = None
-        
+        self.name = None
         self.set_tab_size()
         
     def set_tab_size(self):
@@ -165,21 +165,23 @@ class TextEditor(QtGui.QTextEdit):
         If self.name is not setted and name is not give in parameter,
         a File Dialog is opened.
         """
-        if name:
-            self.name = name
-            
-        if not self.name:
-            temp_path = path(settings.get_project_dir())
-            self.name = QtGui.QFileDialog.getSaveFileName(self, 'Select name to save the file', 
-                temp_path)
+        logger.debug("Try to save text")
 
-        # print "save text", name
-        txt = self.get_full_text()
+        if name is not None:
+            self.name = name
+
+        if self.name is None:
+            temp_path = path(settings.get_project_dir())
+            self.name = QtGui.QFileDialog.getSaveFileName(self, 'Select name to save the file', temp_path)
+
+        txt = self.get_text()
+
         project = self.session.project
         
         if self.session.current_is_project():
             project.scripts[self.name] = txt
             project._save_scripts()
+            logger.debug("Try to save script in project")
             
         elif self.session.current_is_script():
             # Save a script outside a project
@@ -189,6 +191,7 @@ class TextEditor(QtGui.QTextEdit):
             code_enc = code.encode("utf8","ignore") 
             f.write(code_enc)
             f.close()
+            logger.debug("Try to save file outside project")
 
     def keyPressEvent(self,event):
         # Auto-indent
@@ -391,9 +394,7 @@ class TextEditor(QtGui.QTextEdit):
         completer.setCompletionMode(QtGui.QCompleter.PopupCompletion)
         completer.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
         self.completer = completer
-        logger.debug("selfcompleter " + str(self.completer))
         QtCore.QObject.connect(self.completer, QtCore.SIGNAL("activated(const QString&)"),self.insertCompletion)
-        logger.debug("completer connected")
 
     def insertCompletion(self, completion):
         logger.debug("insert completion")
