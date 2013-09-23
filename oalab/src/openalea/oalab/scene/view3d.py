@@ -131,7 +131,7 @@ class Viewer(view3D):
     def __init__(self, session):
         super(Viewer, self).__init__() 
         
-        
+        self.autofocus = True
         self._fps = False
         self.axis = False
         self.grid = True
@@ -177,14 +177,12 @@ class Viewer(view3D):
         self.updateGL() 
         
     def zoomout(self):
-        #print "zoom out"
         cam = self.camera()
         new_position = (cam.position()-cam.sceneCenter())*2
         cam.setPosition(new_position)
         self.updateGL() 
         
     def zoomin(self):
-        #print "zoom in"
         cam = self.camera()
         new_position = (cam.position()-cam.sceneCenter())/2
         cam.setPosition(new_position)
@@ -258,12 +256,10 @@ class Viewer(view3D):
         
         :param scene: dict with every sub-scenes to add
         """
-        autofocus = False
-        if len(self.scene) == 0:
-            autofocus = True
         super(Viewer, self).setScene(scenes)
-        if autofocus:
+        if self.autofocus:
             self.update_radius()    
+            self.autofocus = False
         
 def main():
         app = QApplication(sys.argv)

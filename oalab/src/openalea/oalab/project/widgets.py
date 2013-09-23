@@ -375,7 +375,8 @@ class ProjectWidget(QtGui.QWidget):
         
             for i in range(container.count()):
                 container.setCurrentIndex(i)
-                container.widget(i).save()
+                name = container.tabText(i)
+                container.widget(i).save(name)
 
             current.save()
         

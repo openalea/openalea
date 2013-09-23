@@ -43,6 +43,7 @@ class LPyApplet(object):
         self.axialtree = AxialTree()
         
         self.lastIter = -1
+        registerPlotter(self.session.viewer)
         
     def focus_change(self):
         """
@@ -132,7 +133,6 @@ class LPyApplet(object):
         pass
 
     def animate(self):
-        registerPlotter(self.session.viewer)
         self.step()
         self.lsys.animate()
 
