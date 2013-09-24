@@ -230,7 +230,11 @@ class TextEditor(QtGui.QTextEdit):
 
         completionPrefix = self.textUnderCursor()
 
-        f = eow.find(event.text()[-1])
+        if len(event.text()) == 0:
+            f = -1
+        else:
+            f = eow.find(event.text()[-1])
+            
         if f == -1:
             finded = False
         else:
@@ -374,11 +378,10 @@ class TextEditor(QtGui.QTextEdit):
             cursor.movePosition(QtGui.QTextCursor.NextCharacter,QtGui.QTextCursor.KeepAnchor)
             if True:
                 if cursor.selectedText() == '#':
-                        cursor.deleteChar()
-                        cursor.movePosition(QtGui.QTextCursor.NextBlock,QtGui.QTextCursor.MoveAnchor)
+                    cursor.deleteChar()
+                    cursor.movePosition(QtGui.QTextCursor.NextBlock,QtGui.QTextCursor.MoveAnchor)
                 end-=1
         cursor.endEditBlock()
-        cursor.setPosition(pos,QtGui.QTextCursor.MoveAnchor)
 
     ####################################################################
     #### Completer
