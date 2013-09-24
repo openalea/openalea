@@ -97,11 +97,19 @@ class ShellWidget(RichIPythonWidget, GraphicalStreamRedirection):
             raise    
         finally: return executed
     
-    def loadcode(self, source=None):
+    def loadcode(self, source=None, namespace=None):
         """
-        TODO
+        Load 'source' and use 'namespace' if it is in parameter.
+        Else use locals.
+        
+        :param source: text (string) to load
+        :param namespace: dict to use to execute the source
         """
-        exec(source,self.interpreter.locals,self.interpreter.locals)
+        # Not multiligne
+        if namespace is None:
+            exec(source,namespace)
+        else:    
+            exec(source,self.interpreter.locals,self.interpreter.locals)
     
     def write(self, txt):    
         """
