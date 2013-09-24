@@ -38,7 +38,17 @@ class Store(MainWindowAleaInstall):
     """
     
     def __init__(self,session):
+        # Save stdout and stderr because MainWindowAleaInstall try to redirect it.
+        oldstdout = sys.stdout
+        oldstderr = sys.stderr
         super(Store, self).__init__()
+        # Restore stdout and stderr
+        sys.stdout = oldstdout
+        sys.stderr = oldstderr
+        # Hide old logger
+        self.logText.hide()
+        self.label_3.hide()        
+        
         self.show = False
         self.session = session
         self.actionShowHide = QtGui.QAction(QtGui.QIcon(":/images/resources/store.png"),"Show", self)
