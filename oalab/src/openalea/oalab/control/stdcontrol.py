@@ -24,7 +24,7 @@ __revision__ = "$Id: $"
 
 
 
-from openalea.vpltk.qt import QtGui, QtCore
+from openalea.vpltk.qt import QtGui
 
 class Control(object):
     """ ABC for controls """
@@ -63,7 +63,7 @@ class IntControl(Control):
         super(IntControl, self).__init__() 
     
     @classmethod
-    def default(cls):
+    def default(self):
         """
         Create a default control
         """

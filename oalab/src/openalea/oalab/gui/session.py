@@ -20,6 +20,7 @@ __revision__ = ""
 from openalea.core.pkgmanager import PackageManager
 from openalea.oalab.control.controlpanel import ControlPanel, ControlPanelManager
 from openalea.oalab.control.observerpanel import ObserverPanel
+#from openalea.oalab.control.mapper import Mapper
 from openalea.oalab.gui.logger import Logger
 from openalea.oalab.gui.help import Help
 from openalea.oalab.scene.view3d import Viewer
@@ -28,10 +29,9 @@ from openalea.vpltk.shell.shell import get_interpreter_class, get_shell_class
 from openalea.oalab.applets.container import AppletContainer
 from openalea.oalab.scene.vplscene import SceneWidget
 from openalea.oalab.project.widgets import ProjectWidget
-from openalea.oalab.project.treeview import ProjectTreeView, ProjectLayoutWidget
+from openalea.oalab.project.treeview import ProjectLayoutWidget
 from openalea.oalab.package import PackageViewWidget, PackageCategorieViewWidget, PackageSearchWidget
 from openalea.oalab.gui.store import Store
-from openalea.vpltk.qt import QtCore, QtGui
 
 class Session(object):
     """
@@ -45,6 +45,11 @@ class Session(object):
         self.menu = PanedMenu()
 
         # Docks
+        #self.control_panel_manager = ControlPanelManager()
+        self.control_panel = ControlPanel(self)
+        #self.observer_panel = ObserverPanel()
+        #self.mapper = Mapper(self)
+        
         self.viewer = Viewer(session=self)
         self.scene_widget = SceneWidget(session=self)
         
@@ -61,11 +66,7 @@ class Session(object):
         self.package_manager_widget = PackageViewWidget(parent=self)
         self.package_manager_categorie_widget = PackageCategorieViewWidget(parent=self)
         self.package_manager_search_widget = PackageSearchWidget(parent=self)
-        
-        #self.control_panel_manager = ControlPanelManager()
-        #self.control_panel = ControlPanel()
-        self.observer_panel = ObserverPanel()
-        
+
         self.logger = Logger()
         self.help = Help()
         
@@ -76,6 +77,7 @@ class Session(object):
         #self.interpreter.locals['ctrl'] = self.control_panel
         #self.interpreter.locals['ctrl_mng'] = self.control_panel_manager
         self.interpreter.locals['interp'] = self.interpreter
+        self.interpreter.locals['shell'] = self.shell
         self._update_locals()
         
         # Applet Container : can contain text editor or/and workflow editor

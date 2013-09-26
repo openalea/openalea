@@ -17,7 +17,7 @@
 ###############################################################################
 __revision__ = "$Id: $"
 
-from openalea.vpltk.qt import QtGui, QtCore
+from openalea.vpltk.qt import QtGui
 
 class ObserverPanel(QtGui.QWidget):
     """

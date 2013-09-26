@@ -19,7 +19,8 @@ __revision__ = "$Id: $"
 
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.vpltk import plugin
-
+from openalea.lpy.gui.materialeditor import MaterialEditor
+from openalea.lpy.gui.objectpanel import LpyObjectPanelDock
 from openalea.lpy.gui.objectpanel import ObjectPanelManager, TriggerParamFunc, ObjectListDisplay
 
 
@@ -111,14 +112,36 @@ class ControlPanelManager(ObjectPanelManager):
         return panelmenu
 
 
-class ControlPanel(QtGui.QWidget):
+class ControlPanel(QtGui.QTabWidget):
     """
     Widget to display controls of the current project.
     Permit to create new control and to delete.
     Double-clic permit to edit control
     """
-    def __init__(self):
+    def __init__(self, session):
         super(ControlPanel, self).__init__() 
+        
+        # Color Map
+        self.colormap_editor = MaterialEditor(self)
+        self.addTab(self.colormap_editor, "Color Map")
+        
+        # Geometry
+        control_panel_manager = ControlPanelManager(session)
+        dock = LpyObjectPanelDock(parent=None,name="Control Panel", panelmanager=control_panel_manager)
+        self.geometry_editor = dock.widget()
+        self.addTab(self.geometry_editor, "Geometry")
+        
+        # Scalars
+        self.scalars_editor = QtGui.QWidget()
+        self.addTab(self.scalars_editor, "Scalars")
+        
+        
+        
+        
+        
+        
+        
+'''
         # connected to current_project.control
         # and connect display_thumbnail
         
@@ -165,6 +188,7 @@ class ControlPanel(QtGui.QWidget):
         
         # Ask new name to the user
         # TODO
+        name = ""
         
         #Rename
         control.rename(name)
@@ -208,3 +232,4 @@ class ControlPanel(QtGui.QWidget):
         pass
 
 
+'''
