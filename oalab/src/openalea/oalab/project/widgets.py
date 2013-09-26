@@ -23,6 +23,7 @@ from openalea.core.path import path
 from openalea.core import settings
 from openalea.core import logger
 from time import gmtime, strftime
+from openalea.plantgl.all import PglTurtle
 import warnings
 from openalea.vpltk.project.project import ProjectManager as PM   
 
@@ -377,6 +378,9 @@ class ProjectWidget(QtGui.QWidget):
                 container.setCurrentIndex(i)
                 name = container.tabText(i)
                 container.widget(i).save(name)
+                
+            colors = self.session.control_panel.colormap_editor.getTurtle().getColorList()
+            current.controls["color map"] = colors
 
             current.save()
         
@@ -408,7 +412,7 @@ class ProjectWidget(QtGui.QWidget):
         current = self.session.project
         if current:
             self._current_proj_scene_change()
-            #self._current_proj_control_change()
+            self._current_proj_control_change()
             self._current_proj_script_change()
             self._current_proj_tree_view_change()
             
@@ -416,9 +420,19 @@ class ProjectWidget(QtGui.QWidget):
     def _current_proj_control_change(self):
         if self.session.current_is_project():
             proj = self.session.project
-            newcontrols = self.session.control_panel_manager.get_managers()
-            for controlname in newcontrols:
-                proj.controls[controlname] = newcontrols[controlname]
+            if not proj.controls.has_key("color map"):    
+                proj.controls["color map"] = PglTurtle().getColorList()
+            # Link with color map from application
+            i = 0
+            for color in proj.controls["color map"]:
+                self.session.control_panel.colormap_editor.getTurtle().setMaterial(i, color)
+                i += 1
+            
+            
+            #newcontrols = self.session.control_panel_manager.get_managers()
+            #for controlname in newcontrols:
+            #    proj.controls[controlname] = newcontrols[controlname]
+            
         
     def _current_proj_tree_view_change(self):
         self.session.project_layout_widget.update()

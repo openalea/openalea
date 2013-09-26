@@ -21,6 +21,7 @@ from openalea.vpltk.qt import QtCore, QtGui
 from openalea.core.path import path
 from openalea.oalab.editor.search import SearchWidget
 from openalea.oalab.editor.completion import DictionaryCompleter
+#from openalea.oalab.editor.line_number import LineNumberArea
 from openalea.core import logger
 from openalea.core import settings
 
@@ -108,6 +109,14 @@ class TextEditor(QtGui.QTextEdit):
         self.name = None
         self.set_tab_size()
         
+        # Line number area
+        #self.lineNumberArea = LineNumberArea(self)
+        #QtCore.QObject.connect(self.document(), QtCore.SIGNAL("blockCountChanged(int)"),self.updateLineNumberAreaWidth)
+        #QtCore.QObject.connect(self, QtCore.SIGNAL("updateRequest(QRect, int)"),self.updateLineNumberArea)
+        #QtCore.QObject.connect(self, QtCore.SIGNAL("cursorPositionChanged()"),self.highlightCurrentLine)
+        #self.updateLineNumberAreaWidth()
+        #self.highlightCurrentLine()
+        
     def set_tab_size(self):
         # Set tab size : to fix 
         try:
@@ -129,6 +138,9 @@ class TextEditor(QtGui.QTextEdit):
 
     def mainMenu(self):
         return "Simulation"        
+        
+    def setText(self, txt):   
+        self.setPlainText(txt)
         
     def set_text(self, txt):
         """
@@ -214,7 +226,7 @@ class TextEditor(QtGui.QTextEdit):
         isShortcut = (event.modifiers() == QtCore.Qt.ControlModifier and
                       event.key() == QtCore.Qt.Key_E)
         if (not self.completer or not isShortcut):
-            QtGui.QTextEdit.keyPressEvent(self, event)
+            super(TextEditor, self).keyPressEvent(event)
 
         ## ctrl or shift key on it's own??
         ctrlOrShift = event.modifiers() in (QtCore.Qt.ControlModifier ,
@@ -370,7 +382,6 @@ class TextEditor(QtGui.QTextEdit):
         cursor = self.textCursor()
         beg = cursor.selectionStart()
         end = cursor.selectionEnd()
-        pos = cursor.position()
         cursor.beginEditBlock()
         cursor.setPosition(beg,QtGui.QTextCursor.MoveAnchor)
         cursor.movePosition(QtGui.QTextCursor.StartOfBlock,QtGui.QTextCursor.MoveAnchor)
@@ -418,4 +429,69 @@ class TextEditor(QtGui.QTextEdit):
     def focusInEvent(self, event):
         if self.completer:
             self.completer.setWidget(self);
-        QtGui.QTextEdit.focusInEvent(self, event)      
+        super(TextEditor, self).focusInEvent(event)   
+
+    ####################################################################
+    #### Line Number Area
+    ####################################################################
+    #def lineNumberAreaWidth(self):
+        #digits = 1
+        #_max = max(1, self.document().blockCount())
+        #while (_max >= 10):
+            #_max /= 10
+            #digits += 1                                      
+        ##font = self.currentFont()
+        ##metrics = QtGui.QFontMetrics(font)
+        #metrics=self.fontMetrics()
+        #space = 3 + metrics.width('9') * digits
+        #return space
+        
+    #def updateLineNumberAreaWidth(self):
+        #self.setViewportMargins(self.lineNumberAreaWidth(), 0, 0, 0)
+        
+    #def updateLineNumberArea(self, rect, dy=None):
+        #if dy is not None:
+            #self.lineNumberArea.scroll(0, dy)
+        #else:
+            #self.lineNumberArea.update(0, rect.y(), self.lineNumberArea.width(), rect.height())
+
+        #if (rect.contains(self.viewport().rect())):
+            #self.updateLineNumberAreaWidth()
+
+    #def resizeEvent(self, event):
+        #super(TextEditor, self).resizeEvent(event)
+        #cr = self.contentsRect()
+        #self.lineNumberArea.setGeometry(QtCore.QRect(cr.left(), cr.top(), self.lineNumberAreaWidth(), cr.height()))
+        
+    #def highlightCurrentLine(self):
+        #if not self.isReadOnly():
+            #lineColor = QtGui.QColor(QtCore.Qt.lightGray).lighter(125)
+            #selection = QtGui.QTextEdit.ExtraSelection()
+            #selection.format.setBackground(lineColor)
+            #selection.format.setProperty(QtGui.QTextFormat.FullWidthSelection, True)
+            #selection.cursor = self.textCursor()
+            #selection.cursor.clearSelection()
+            #self.setExtraSelections([selection])
+        
+    #def lineNumberAreaPaintEvent(self, event):
+        #painter = QtGui.QPainter(self.lineNumberArea)
+        #painter.fillRect(event.rect(), QtCore.Qt.lightGray)
+        #block = self.document().firstBlock()
+        #blockNumber = block.blockNumber()
+        #top = block.firstLineNumber()
+        #bottom = top + block.lineCount()
+        
+        #while (block.isValid() and top <= event.rect().bottom()):
+            #if (block.isVisible() and bottom >= event.rect().top()):
+                #number = int(blockNumber + 1)
+                #painter.setPen(QtCore.Qt.black)
+                ##font = self.currentFont()
+                ##metrics = QtGui.QFontMetrics(font).height()
+                #metrics = self.fontMetrics().height()
+                #painter.drawText(0, top*metrics, self.lineNumberArea.width(), metrics, QtCore.Qt.AlignRight, str(number))
+
+            #block = block.next()
+            #top = bottom
+            #bottom = top + block.lineCount()
+
+            #blockNumber += 1

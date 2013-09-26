@@ -17,3 +17,20 @@ def test_create_controls():
 
     
 '''
+
+
+from openalea.oalab.control.mapper import Mapper
+
+def test_mapper_filter():
+    mapper = Mapper()
+    assert mapper._filterType("color_map") == "colormap"
+
+def test_mapper_get_manager():
+    mapper = Mapper()
+    class Ctrl(object):
+        def __init__(self):
+            self.metatype = "color_map"
+    control = Ctrl()   
+    manag1 = mapper.getManager(control)
+    manag2 = mapper.getManagerByType("color_map")
+    assert manag1 == manag2

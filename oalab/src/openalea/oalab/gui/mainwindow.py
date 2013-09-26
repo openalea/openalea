@@ -167,15 +167,15 @@ class MainWindow(QtGui.QMainWindow):
         #self.sceneMngDockWidget.setWidget(session.scene_widget)
         #self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.sceneMngDockWidget)          
         
-        ## Control_Panel
+        # Control_Panel
         #self.controlDockWidget = LpyObjectPanelDock(parent=self,name="Control Panel", panelmanager=session.control_panel_manager)
         #self.controlDockWidget.setStatusBar(self.statusBar())
         #session.control_panel_manager.panels.append(self.controlDockWidget)
-        ##self.controlDockWidget = QtGui.QDockWidget("Control Panel", self)     
-        ##self.controlDockWidget.setObjectName("ControlPanel")
-        ##self.controlDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
-        ##self.controlDockWidget.setWidget(session.control_panel)
-        #self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.controlDockWidget)         
+        self.controlDockWidget = QtGui.QDockWidget("Control Panel", self)     
+        self.controlDockWidget.setObjectName("ControlPanel")
+        self.controlDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
+        self.controlDockWidget.setWidget(session.control_panel)
+        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.controlDockWidget)         
         
         ## Observer_Panel
         #self.obsDockWidget = QtGui.QDockWidget("Observer Panel", self)     

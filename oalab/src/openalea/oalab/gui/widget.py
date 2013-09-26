@@ -17,7 +17,6 @@
 ###############################################################################
 __revision__ = ""
 
-from openalea.vpltk.qt import QtGui, QtCore
 from openalea.oalab.gui.logger import Logger
 from openalea.oalab.applets.container import AppletContainer
 from openalea.oalab.project.widgets import ProjectWidget

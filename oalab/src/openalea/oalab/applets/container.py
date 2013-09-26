@@ -331,7 +331,7 @@ class WelcomePage(QtGui.QWidget):
         #layout.addWidget(openScriptBtn,5,1)
         
         layout.addWidget(newBtn,0,0)
-        layout.addWidget(openBtn,0,1)
+        layout.addWidget(openBtn,1,0)
         
         self.setLayout(layout)
 
