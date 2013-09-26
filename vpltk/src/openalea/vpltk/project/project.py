@@ -40,7 +40,6 @@ stored in your computer.
 
 """
 import os
-import openalea.core.path as module_path
 import warnings
 from openalea.core.path import path as _path
 from openalea.core import settings
@@ -127,11 +126,11 @@ class Project(object):
         self.scene = self._load_scene()
         
     def save(self):
-        self._save_startup()
+        #self._save_startup()
         self._save_scripts()
         self._save_controls()
-        self._save_cache()
-        self._save_scene()
+        #self._save_cache()
+        #self._save_scene()
         
     def set_ipython(self, shell=None):
         if not self.use_ipython():
@@ -192,7 +191,10 @@ class Project(object):
             temp_path = self.path/self.name/"scripts"
             cwd = os.getcwd()
             os.chdir(temp_path)
-            os.remove(str(old_name))
+            try:
+                os.remove(str(old_name))
+            except:
+                pass
             os.chdir(cwd) 
         
         if (categorie == "control") or (categorie == "Controls"):
@@ -204,7 +206,10 @@ class Project(object):
             temp_path = self.path/self.name/"data"/"controls"
             cwd = os.getcwd()
             os.chdir(temp_path)
-            os.remove(str(ctrl))
+            try:
+                os.remove(str(old_name))
+            except:
+                pass
             os.chdir(cwd) 
             
         if (categorie == "scene") or (categorie == "Scene"):
@@ -215,7 +220,10 @@ class Project(object):
             # Remove on disk
             temp_path = self.path/self.name/"data"/"scene"
             cwd = os.getcwd()
-            os.remove(str(s))
+            try:
+                os.remove(str(old_name))
+            except:
+                pass
             os.chdir(cwd) 
         
     #----------------------------------------
@@ -309,7 +317,6 @@ class Project(object):
     def _load_scene(self):
         try:
             from openalea.plantgl.all import Scene
-            import copy
             sc = Scene()
 ##            scene_struct = VPLScene()
 ##            scene = scene_struct.getScene()
@@ -457,7 +464,7 @@ class Project(object):
         try:
             os.mkdir(self.path/self.name)
         except OSError:
-            warning.warn("Directory %s alreay exits in %s" %(self.name,self.path))
+            warnings.warn("Directory %s alreay exits in %s" %(self.name,self.path))
             error = True
         
         folders = [self.path/self.name/'data', 
@@ -469,11 +476,11 @@ class Project(object):
         try:
             map(os.mkdir, folders)
         except OSError:
-            warning.warn("Directories %s alreay exits in %s\%s" %(folders,self.name,self.path))
+            warnings.warn("Directories %s alreay exits in %s\%s" %(folders,self.name,self.path))
             error = True
         
         if error:
-            warning.warn("---Warning!---\nPlease delete old directories before creating new!")
+            warnings.warn("---Warning!---\nPlease delete old directories before creating new!")
             raise OSError("Please delete old directories before creating new!")
         
 
