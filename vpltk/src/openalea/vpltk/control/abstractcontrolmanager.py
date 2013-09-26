@@ -1,5 +1,3 @@
-from openalea.vpltk.qt import QtCore
-
 def get_managers():
     managers = dict()
     
