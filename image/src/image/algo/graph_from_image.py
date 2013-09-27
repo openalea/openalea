@@ -17,7 +17,7 @@
 """This module helps to create PropertyGraph from SpatialImages."""
 
 from openalea.image.algo.analysis import SpatialImageAnalysis, AbstractSpatialImageAnalysis, DICT
-from openalea.image.spatial_image import  is2D
+from openalea.image.spatial_image import is2D
 from openalea.container import PropertyGraph
 import numpy as np
 
