@@ -313,7 +313,7 @@ def _graph_from_image(image, labels, background, default_properties,
             radius = [60]
 
         graph.add_graph_property('radius_local_principal_curvature_estimation',radius)
-        for radius in graph.graph_property('radius_local_principal_curvature_estimation',radius):
+        for radius in graph.graph_property('radius_local_principal_curvature_estimation'):
             print 'Computing local_principal_curvature property with radius = {}voxels...'.format(radius)
             print r"This represent a local curvature estimation area of {}$\mu.m^{2}$".format(math.pi*(radius*analysis.image.resolution[0])*(radius*analysis.image.resolution[1]))
             analysis.compute_principal_curvatures(radius=radius,verbose=True)
