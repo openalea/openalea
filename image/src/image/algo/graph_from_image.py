@@ -23,7 +23,7 @@ import numpy as np
 
 #~ default_properties2D = ['barycenter','boundingbox','border','L1','epidermis_surface','wall_surface','inertia_axis']
 default_properties2D = ['barycenter','boundingbox','border','L1','epidermis_surface','inertia_axis']
-default_properties3D = ['volume','barycenter','boundingbox','border','L1','epidermis_surface','wall_surface','inertia_axis', 'projected_anticlinal_wall_median', 'wall_median', 'wall_orientation']
+default_properties3D = ['volume','barycenter','boundingbox','border','L1','epidermis_surface','wall_surface','inertia_axis', 'projected_anticlinal_wall_median', 'wall_median', 'all_walls_orientation', 'epidermis_local_principal_curvature']
 
 def generate_graph_topology(labels, neighborhood):
     """
@@ -125,7 +125,7 @@ def _graph_from_image(image, labels, background, default_properties,
     if 'boundingbox' in default_properties : 
         print 'Extracting boundingbox...'
         add_vertex_property_from_dictionary(graph,'boundingbox',analysis.boundingbox(labels,real=bbox_as_real),mlabel2vertex=label2vertex)
-        #~ graph._graph_property("units").update( {"boundingbox":(u'\u03bcm'if bbox_as_real else 'voxels')} )
+        #~ graph._graph_property("units").update( {"boundingbox":(u'\u3bcm'if bbox_as_real else 'voxels')} )
 
     if 'volume' in default_properties and analysis.is3D(): 
         print 'Computing volume property...'
@@ -302,6 +302,47 @@ def _graph_from_image(image, labels, background, default_properties,
             if not 'wall_median' in graph.edge_properties():
                 add_vertex_property_from_dictionary(graph, 'epidermis_wall_principal_curvature_origin', epidermis_pc_origin)
 
+
+    if 'epidermis_local_principal_curvature' in default_properties:
+        index_radius = default_properties.index('epidermis_local_principal_curvature')+1
+        if isinstance(default_properties[index_radius],int):
+            radius = [default_properties[index_radius]]
+        elif isinstance(default_properties[index_radius],list):
+            radius = default_properties[index_radius]
+        else:
+            radius = [60]
+
+        graph.add_graph_property('radius_local_principal_curvature_estimation',radius)
+        for radius in graph.add_graph_property('radius_local_principal_curvature_estimation',radius):
+            print 'Computing local_principal_curvature property with radius = {}voxels...'.format(radius)
+            print r"This represent a local curvature estimation area of {}$\mu.m^{2}$".format(math.pi*(radius*analysis.image.resolution[0])*(radius*analysis.image.resolution[1]))
+            analysis.compute_principal_curvatures(radius=radius,verbose=True)
+            add_vertex_property_from_dictionary(graph, 'epidermis_local_principal_curvature_values_r'+str(radius), analysis.principal_curvatures)
+            add_vertex_property_from_dictionary(graph, 'epidermis_local_principal_curvature_normal_r'+str(radius), analysis.principal_curvatures_normal)
+            add_vertex_property_from_dictionary(graph, 'epidermis_local_principal_curvature_directions_r'+str(radius), analysis.principal_curvatures_directions)
+        if not 'wall_median' in graph.edge_properties():
+            add_vertex_property_from_dictionary(graph, 'epidermis_local_principal_curvature_origin', analysis.principal_curvatures_origin)
+
+    #~ if 'local_gaussian_curvature' in default_properties:
+        #~ print 'Computing local_gaussian_curvature with radius = {}voxels...'.format(radius)
+        #~ gaussian_curvature = analysis.gaussian_curvature_CGAL(radius=radius,verbose=True)
+        #~ add_vertex_property_from_dictionary(graph, 'local_gaussian_curvature_r'+str(radius), gaussian_curvature)
+#~ 
+    #~ if 'local_mean_curvature' in default_properties:
+        #~ print 'Computing local_mean_curvature property with radius = {}voxels...'.format(radius)
+        #~ mean_curvature = analysis.mean_curvature_CGAL(radius=radius,verbose=True)
+        #~ add_vertex_property_from_dictionary(graph, 'local_mean_curvature_r'+str(radius), mean_curvature)
+#~ 
+    #~ if 'local_curvature_ratio' in default_properties:
+        #~ print 'Computing local_curvature_ratio property with radius = {}voxels...'.format(radius)
+        #~ curvature_ratio = analysis.curvature_ratio_CGAL(radius=radius,verbose=True)
+        #~ add_vertex_property_from_dictionary(graph, 'local_curvature_ratio_r'+str(radius), curvature_ratio)
+#~ 
+    #~ if 'local_curvature_anisotropy' in default_properties:
+        #~ print 'Computing local_curvature_anisotropy property with radius = {}voxels...'.format(radius)
+        #~ curvature_anisotropy = analysis.curvature_anisotropy_CGAL(radius=radius,verbose=True)
+        #~ add_vertex_property_from_dictionary(graph, 'local_curvature_anisotropy_r'+str(radius), curvature_anisotropy)
+
     return graph
 
 
@@ -374,7 +415,6 @@ def labelpair2edge_map(graph):
     """
     mlabel2vertex = label2vertex_map(graph)
     return dict([((mlabel2vertex[graph.source(eid)],mlabel2vertex[graph.target(eid)]),eid) for eid in graph.edges()])
-
 
 def vertexpair2edge_map(graph):
     """

@@ -1487,7 +1487,7 @@ class SpatialImageAnalysis3D(AbstractSpatialImageAnalysis):
             if self._first_voxel_layer is not None and self.background() in self._first_voxel_layer:
                 self._first_voxel_layer[self._first_voxel_layer == self.background()]=0
             else:
-                self.first_voxel_layer(self.background(), keep_background = False)
+                self.first_voxel_layer(keep_background = False)
 
             # -- We make sure the radius hasn't been changed and if not defined, we save the value for further evaluation and information.
             try:
@@ -1578,7 +1578,7 @@ class SpatialImageAnalysis3D(AbstractSpatialImageAnalysis):
                 self.principal_curvatures
             except:
                 warnings.warn('Principal curvature not defined...')
-                self.compute_principal_curvatures(vids, verbose = True)
+                self.compute_principal_curvatures(vids, radius=radius, verbose = True)
 
             curvature = {}
             for n,vid in enumerate(vids):

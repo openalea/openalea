@@ -19,3 +19,5 @@ This module import functions to manipulate images
 
 __license__= "Cecill-C"
 __revision__ = " $Id$ "
+
+from analysis import AbstractSpatialImageAnalysis

@@ -272,7 +272,8 @@ def _temporal_properties_from_image(tp_graph, SpatialImageAnalysis, index, label
         n+=1
         
         if 'temporal_inertia_axis' in default_properties:
-            
+            pass
+
         if 'temporal_epidermis_inertia_axis' in default_properties:
             voxel_layer = copy.copy(analysis.first_voxel_layer(1))
             for label in analysis.layer1():
