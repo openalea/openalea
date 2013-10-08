@@ -1,7 +1,5 @@
 from openalea.release import Formula
-from openalea.release.utils import sh, apply_patch, checkout
-from os.path import join as pj, abspath, dirname
-
+from openalea.release.utils import sh, checkout
 
 ## Name is openalea_formula and not openalea to avoid namespace conflict!
 class openalea_formula(Formula):
@@ -18,14 +16,9 @@ class openalea_formula(Formula):
                   ## pywin32 only WINDOWS
                   ## old: "pyqt4", "numpy", "scipy", "matplotlib", 
                   ## "pyqscintilla", "setuptools", "pillow", "pylsm", "pylibtiff","soappy" , "pywin32"
+    DOWNLOAD = INSTALL = True
     
     def _download(self):
         checkout(self.download_url, self.sourcedir)
-    def setup(self):
-        return dict()
-    def configure(self):
-        return True
-    def make(self):
-        return True
     def install(self):
         return sh("python multisetup.py install")

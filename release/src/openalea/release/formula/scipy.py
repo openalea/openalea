@@ -1,5 +1,4 @@
 from openalea.release import Formula
-from openalea.release.utils import in_dir, install as util_install
 
 class scipy(Formula):
     license = "Scipy License"
@@ -10,19 +9,12 @@ class scipy(Formula):
     version = "0.12.0"       
     download_url = "http://freefr.dl.sourceforge.net/project/scipy/scipy/0.12.0/scipy-0.12.0-win32-superpack-python2.7.exe"
     download_name  = "scipy.exe"
+    DOWNLOAD = COPY_INSTALLER = True
+    # Here we can download, install and eggify the package for install it after like an egg
+    # with DOWNLOAD = INSTALL = EGGIFY = True
     
-    def unpack(self):
-        return True
-        
-    def configure(self):
-        return True
-        
-    def make(self):
-        return True
-        
-    @in_dir("dldir")
-    def install(self):
-        return util_install(self.download_name)   
+    # But we can use DOWNLOAD = COPY_INSTALLER = True
+    # So, we download the installer and copy it.
     
     def setup(self):
         return dict( VERSION = self.package.version.full_version )

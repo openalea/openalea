@@ -16,6 +16,7 @@ class pyqglviewer(Formula):
     arch_dependent = True
     download_url = "https://gforge.inria.fr/frs/download.php/28212/PyQGLViewer-0.9.1.zip"
     download_name  = "pyqglviewer_src.zip"
+    DOWNLOAD = UNPACK = CONFIGURE = MAKE = MAKE_INSTALL = EGGIFY = True
 
     def __init__(self, *args, **kwargs):
         super(pyqglviewer, self).__init__(*args, **kwargs)
@@ -30,7 +31,7 @@ class pyqglviewer(Formula):
         # sees any existing sip installation and can fail.
         return sh(sys.executable + " -S configure.py -Q %s "%self.qglbuilderbase) == 0
 
-    def install(self):
+    def make_install(self):
         """ pyqglviewer installs itself into the same directory as qglviewer """
         recursive_copy( pj(self.sourcedir, "build"), self.install_site_dir, Pattern.pyext, levels=1)
         recursive_copy( pj(self.sourcedir, "src", "sip"), self.install_sip_dir, Pattern.sipfiles, levels=1)

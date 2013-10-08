@@ -1,5 +1,4 @@
 from openalea.release import Formula
-from openalea.release.utils import in_dir, install as util_install
 
 class numpy(Formula):
     license = "Numpy License"
@@ -10,19 +9,12 @@ class numpy(Formula):
     arch_dependent = True      
     download_url = "http://freefr.dl.sourceforge.net/project/numpy/NumPy/1.7.1/numpy-1.7.1-win32-superpack-python2.7.exe"
     download_name  = "numpy.exe"
+    DOWNLOAD = COPY_INSTALLER = True
+    # Here we can download, install and eggify the package for install it after like an egg
+    # with DOWNLOAD = INSTALL = EGGIFY = True
     
-    def unpack(self):
-        return True
-        
-    def configure(self):
-        return True
-        
-    def make(self):
-        return True
-        
-    @in_dir("dldir")
-    def install(self):
-        return util_install(self.download_name)   
+    # But we can use DOWNLOAD = COPY_INSTALLER = True
+    # So, we download the installer and copy it.
     
     def setup(self):
         return dict( VERSION = self.package.version.full_version, )

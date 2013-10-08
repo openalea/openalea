@@ -4,7 +4,6 @@ from openalea.release.formula.qt4 import qt4
 from openalea.release.formula.pyqt4 import pyqt4
 from openalea.release.formula.sip import sip
 
-
 class qt4_dev(Formula):
     license = "General Public License V3"
     authors = "Riverbank Computing (Sip+PyQt4+QSCintilla) & Nokia (Qt4)"
@@ -12,16 +11,8 @@ class qt4_dev(Formula):
     py_dependent   = True
     arch_dependent = True
     dependencies = ["qt4", "pyqt4", "sip", "mingw_rt"]
-    
-    def configure(self):
-        return True
-        
-    def make(self):
-        return True
-        
-    def install(self):
-        return True
-    
+    EGGIFY = True
+
     def setup(self):
         qt4_   = qt4()
         pyqt4_ = pyqt4()

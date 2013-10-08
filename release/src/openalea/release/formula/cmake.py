@@ -9,20 +9,12 @@ class cmake(Formula):
     download_name  = "cmake_src.zip"
     py_dependent   = False
     arch_dependent = True
-    def configure(self):
-        return True
-    def make(self):
-        return True
-    def install(self):
-        return True
+    DOWNLOAD = UNPACK = EGGIFY = True
+    
     def setup(self):
         return dict(BIN_DIRS = {'bin' : pj(self.sourcedir,'bin') },
                     LIB_DIRS = None,
                     INC_DIRS = {'share' : pj(self.sourcedir,'share') },
                     )
-    # def post_install(self):
-        # egg = glob.glob( pj(self._get_dl_path(), "*.egg") )[0]
-        # cmd = "alea_install -H None -f . %s" %egg
-        # return sh(cmd)
     def extra_paths(self):
         return path(self.sourcedir)

@@ -1,5 +1,4 @@
 from openalea.release import Formula
-from openalea.release.utils import in_dir, pj, install as util_install
 
 class r(Formula):
     license = "GNU General Public License"
@@ -12,19 +11,8 @@ class r(Formula):
     homepage = "http://www.r-project.org/"
     download_name  = "r.exe"
     
-    def unpack(self):
-        return True
-        
-    def configure(self):
-        return True
-        
-    def make(self):
-        return True
-        
-    @in_dir("dldir")
-    def install(self):
-        return util_install(self.download_name)         
-        
+    DOWNLOAD = INSTALL = True        
+
     def extra_paths(self):
         # TODO :  add R's home to the path
         

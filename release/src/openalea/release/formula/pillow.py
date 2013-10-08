@@ -1,5 +1,4 @@
 from openalea.release import Formula
-from openalea.release.utils import in_dir, install as util_install
 
 class pillow(Formula):
     license = "Pillow License."
@@ -10,19 +9,12 @@ class pillow(Formula):
     py_dependent   = True
     arch_dependent = True  
     version = "2.1.0"       
-    download_url = "https://pypi.python.org/packages/2.7/P/Pillow/Pillow-2.1.0.win32-py2.7.exe"
+    download_url = "https://pypi.python.org/packages/2.7/P/Pillow/Pillow-"+version+".win32-py2.7.exe"
     homepage = "https://pypi.python.org/pypi/Pillow"
     download_name  = "pillow.exe"
+    DOWNLOAD = COPY_INSTALLER = True
+    # Here we can download, install and eggify the package for install it after like an egg
+    # with DOWNLOAD = INSTALL = EGGIFY = True
     
-    def unpack(self):
-        return True
-        
-    def configure(self):
-        return True
-        
-    def make(self):
-        return True
-        
-    @in_dir("dldir")
-    def install(self):
-        return util_install(self.download_name)   
+    # But we can use DOWNLOAD = COPY_INSTALLER = True
+    # So, we download the installer and copy it.

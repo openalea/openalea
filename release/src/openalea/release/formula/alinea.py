@@ -1,7 +1,5 @@
 from openalea.release import Formula
-from openalea.release.utils import sh, apply_patch, checkout
-from os.path import join as pj, abspath, dirname
-
+from openalea.release.utils import sh, checkout
 
 class alinea(Formula):
     version = '1.0'
@@ -12,15 +10,9 @@ class alinea(Formula):
     description = "Set of packages to simulate ecophysiological and agronomical processes (crop 3D development, light distribution, interactions with diseases…)"
     download_name  = "Alinea"
     dependencies = ["vplants", "openalea_formula"]
-
+    DOWNLOAD = INSTALL = True
+    
     def _download(self):
         checkout(self.download_url, self.sourcedir)
-    def setup(self):
-        return dict()
-    def configure(self):
-        return True
-    def make(self):
-        return True
     def install(self):
         return sh("python multisetup.py install")
-        

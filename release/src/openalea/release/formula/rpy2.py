@@ -24,6 +24,8 @@ class rpy2(Formula):
     
     dependencies = ["r"]
     
+    DOWNLOAD = UNPACK = PATCH = MAKE = MAKE_INSTALL = EGGIFY = True
+    
     def setup(self):
         from setuptools import find_packages
         return dict(URL          = self.homepage,
@@ -41,15 +43,12 @@ class rpy2(Formula):
         apply_patch( pj(PATCH_DIR,"rpy2.patch") )
         return True
         
-    def configure(self):
-        return True
-        
     @option_to_sys_path("R")
     def make(self):
         cmd = sys.executable + " setup.py build_ext --compiler=mingw32"
         return sh(cmd) == 0
         
     @option_to_sys_path("R")
-    def install(self):
+    def make_install(self):
         cmd = sys.executable + " setup.py install --install-lib=" + self.installdir
         return sh(cmd) == 0          

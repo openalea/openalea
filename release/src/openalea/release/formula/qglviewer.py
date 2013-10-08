@@ -4,6 +4,7 @@ from openalea.release.utils import recursive_copy, pj, sh, Pattern
 class qglviewer(Formula):
     download_url = "https://gforge.inria.fr/frs/download.php/28138/libQGLViewer-2.3.9-py.tgz"
     download_name  = "qglviewer_src.tgz"
+    DOWNLOAD = UNPACK = PATCH = CONFIGURE = MAKE = MAKE_INSTALL = EGGIFY = True
 
     def __init__(self, *args, **kwargs):
         super(qglviewer, self).__init__(*args, **kwargs)
@@ -18,7 +19,7 @@ class qglviewer(Formula):
         # by default, and since we do not use self.options yet, we build in release mode
         return sh("mingw32-make release") == 0
 
-    def install(self):
+    def make_install(self):
         # The install procedure will install qscintilla in qt's directories
         recursive_copy( self.sourcedir               , self.install_inc_dir, Pattern.include)
         recursive_copy( pj(self.sourcedir, "release"), self.install_lib_dir, Pattern.qtstalib)

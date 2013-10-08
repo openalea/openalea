@@ -3,6 +3,8 @@ from openalea.release.utils import option_to_python_path, option_to_sys_path, \
 sh, pj
 from openalea.release.formula.qt4 import qt4
 import sys
+import shutil
+import re
 
 class pyqt4(Formula):
     download_url = "http://sourceforge.net/projects/pyqt/files/PyQt4/PyQt-4.10.2/PyQt-win-gpl-4.10.2.zip"
@@ -10,13 +12,15 @@ class pyqt4(Formula):
     download_url = "http://pypi.python.jp/PyQt/PyQt-win-gpl-4.8.6.zip#md5=734bb1b8e6016866f4450211fc4770d9"
     url = "http://www.riverbankcomputing.co.uk/static/Downloads/PyQt4/PyQt-win-gpl-4.9.1.zip"
     '''
-    download_name  = "pyqt4_src.zip"
+    download_name  = "pyqt4.zip"
     
     dependencies = ["qt4", "sip"]
    
     cmd_options = [ ("siphome", None, "Path to sip.exe"),
                     ("sipsite", None, "Path(s) to sip modules (';' seperated)") ]
 
+    DOWNLOAD = UNPACK = PATCH = CONFIGURE = EGGIFY = True
+                    
     def __init__(self, *args, **kwargs):
         super(pyqt4, self).__init__(*args, **kwargs)
         # we install pyqt4 binaries in the qt bin installation directory to easily recover it
@@ -33,12 +37,6 @@ class pyqt4(Formula):
     def configure(self):
         return sh(sys.executable + \
                       " -S configure.py --confirm-license -w -b %s -d %s -v %s"%self.inst_paths) == 0
-        
-    def make(self):
-        return True
-        
-    def install(self):
-        return True
         
     def extra_paths(self):
         return self.install_bin_dir

@@ -15,6 +15,8 @@ class ann(Formula):
     py_dependent   = False
     arch_dependent = True
     patch_filename = pj(PATCH_DIR,"ann_mgw.patch")
+    DOWNLOAD = UNPACK = PATCH = MAKE_INSTALL = EGGIFY = True
+    
     def setup(self):
         return dict(DATA_FILES = [('doc' , [pj(self.sourcedir,'doc','ANNmanual.pdf')] )],
                     LIB_DIRS         = {'lib' : pj(self.sourcedir,'lib') },
@@ -23,10 +25,6 @@ class ann(Formula):
                     )
     def patch(self):
         return apply_patch(self.patch_filename)
-    def configure(self):
-        return True
-    def make(self):
+    def make_install(self):
         return sh("mingw32-make win32-g++") == 0
-    def install(self):
-        return True
         

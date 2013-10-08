@@ -1,89 +1,34 @@
 import sys, os
 import datetime
-import shutil
 import glob
+import shutil
 from os.path import abspath, dirname
-from os.path import join as pj, splitext, exists, split
+from os.path import join as pj, splitext, exists
 from path import path
-from collections import OrderedDict
-import warnings
-import platform
 
-from openalea.release.utils import make_silent, Later, url, unpack as utils_unpack, \
-in_dir, try_except, TemplateStr, sh, sj, makedirs, \
-Pattern, recursive_glob_as_dict, get_logger
+from openalea.release.utils import unpack as utils_unpack
+from openalea.release.utils import install as util_install
+from openalea.release.utils import in_dir, try_except, TemplateStr, sh, sj, makedirs
+from openalea.release.utils import Pattern, recursive_glob_as_dict, get_logger, url
 
 from openalea.release.aliases import dependency_filter
 
-logger = get_logger()
-
-# python: http://python.org/ftp/python/2.7.5/python-2.7.5.msi
-
-def build_formula(formula_name):
-    """
-    Build formula
-    :param formula_name: string name of the formula
-    :return: instance of the builded formula
-    """
-    formula_name = dependency_filter(formula_name)
+logger = get_logger()   
     
-    if isinstance(formula_name, list):
-        for form in formula_name:
-            build_formula(form)
-    else:
-    
-        logger.debug("Build formula %s" %formula_name)
-        
-        # import formula
-        cmd_import = "from openalea.release.formula.%s import %s" %(formula_name,formula_name)
-        exec(cmd_import, globals(), locals())
-        
-        # instanciate formula
-        cmd_instanciate = "%s()" %formula_name
-        formula = eval(cmd_instanciate)
-        
-        ret = formula.build()
-        
-        logger.debug("Build formula %s, success : %s" %(formula_name,ret))
-        
-        return formula, ret
-    # Cannot find file: QGLViewer*.pro.
-    # mingw32-make: *** No rule to make target `release'.  Stop.
-    
-    # No module named pyqglviewerboost
-    
-    # qt4 build manny times 
-    
-    
-to_build = [ "mingw_rt",
-             "qt4",
-             "sip",
-             "pyqt4",
-             "qscintilla",
-             "pyqscintilla",
-             "qglviewer",
-             "pyqglviewer"
-             "boost",
-             "ann",
-             "gnuplot",
-             "qhull",
-             "cgal",
-             "rpy2"
-             ]
-    
-def eggify_formula(formula_name):
+def eggify_formula(formula_name, dest_dir=None):
     """
     Build egg
-    :param formula_name: string name of the formula
+    :param formula_name: string name (or list of strings) of the formula
+    :param dest_dir: directory where to put the egg when it is created
     :return: instance of the eggified formula
     """
     formula_name = dependency_filter(formula_name)
     
     if isinstance(formula_name, list):
+        # Works with a list of formula
         for form in formula_name:
-            eggify_formula(form)
+            eggify_formula(form, dest_dir=dest_dir)
     else:    
-    
         # import formula
         cmd_import = "from openalea.release.formula.%s import %s" %(formula_name,formula_name)
         exec(cmd_import, globals(), locals())
@@ -91,50 +36,27 @@ def eggify_formula(formula_name):
         # instanciate formula
         cmd_instanciate = "%s()" %formula_name
         formula = eval(cmd_instanciate)
+
+        if dest_dir is not None:
+            formula.dist_dir = abspath(dest_dir)
         
-        ret = formula.eggify()
+        ret = True
+        ret = ret & formula._download()
+        ret = ret & formula._unpack()
+        ret = ret & formula._patch()
+        
+        ret = ret & formula._install()
+        
+        ret = ret & formula._configure()
+        ret = ret & formula._make()
+        ret = ret & formula._make_install()
+
+        ret = ret & formula._bdist_egg()
+        
+        ret = ret & formula._copy_installer()
         
         logger.debug("Eggify formula %s, success : %s" %(formula_name,ret))
         return formula, ret
-    
-    
-def install_runtime_formula(formula_name):
-    ##### TODO
-    pass
-    
-def install_dvlp_formula(formula_name):
-    ##### TODO
-    pass
-    
-def install_formula(formula_name):
-    """
-    Install formula
-    :param formula_name: string name of the formula
-    :return: instance of the installed formula
-    """
-    formula_name = dependency_filter(formula_name)
-    
-    if isinstance(formula_name, list):
-        for form in formula_name:
-            install_formula(form)
-    else:    
-        # import formula
-        cmd_import = "from openalea.release.formula.%s import %s" %(formula_name,formula_name)
-        exec(cmd_import, globals(), locals())
-        
-        # instanciate formula
-        cmd_instanciate = "%s()" %formula_name
-        formula = eval(cmd_instanciate)
-        
-        deploy = formula.deploy()
-        
-        if deploy == True:
-            print "Installation of the package " +formula_name+ " successfully completed."
-        else:
-            print "Installation of the package " +formula_name+ " NOT totally completed."
-        
-        return formula, deploy
-
 
 ############################################
 # Formula                                  #
@@ -144,7 +66,7 @@ class Formula(object):
     version = '1.0'
     description = ""
     homepage = ""
-    licence = ""
+    license = ""
     authors = ""
     # List of dependencies of the formula
     dependencies = ""
@@ -153,46 +75,28 @@ class Formula(object):
     download_url = None
     # Name of the  local archive
     download_name  = ""
-    #OrderedDict mapping of
-    # task id and (the name of the method to call, task can be skipped boolean)
-    # Task management:
-    all_tasks       = OrderedDict([ ("d",("download",True)),
-                                    ("a",("unpack",True)),
-                                    ("p",("patch", True)),
-                                    ("c",("configure",True)),
-                                    ("m",("make",True)),
-                                    ("i",("install",True)),
-                                    ("b",("bdist_egg",True)),
-                                    ("n",("install_egg",True)),
-
-                                    ("u",("upload_egg",True)),
-                                    ("g",("copy_egg",True)),
-                                    ])
-    #string of task ids that this particular builder supports (eg. "duf")
-    # Only execute these tasks:
-    supported_tasks = "".join(all_tasks.keys())
-    #string of tasks for which stdout can be decently swallowed
-    # swallow stdout for these tasks:
-    silent_tasks    = "fxy"
     # The egg depends on the Python version (allows correct egg naming)
     py_dependent   = True
     # The egg depends on the os and processor type (allows correct egg naming)
     arch_dependent = True 
-    # Only for package like Pillow wich use another name for import (<<import Pil>> and not <<import Pillow>>)
+    # Only for package like Pillow which use another name for import (<<import Pil>> and not <<import Pillow>>)
     __packagename__ = None
     working_path  = os.getcwd()
 
+    DOWNLOAD = UNPACK = PATCH = INSTALL = CONFIGURE = MAKE = MAKE_INSTALL = EGGIFY = COPY_INSTALLER = False
+    
     def __init__(self,**kwargs):
         logger.debug("__init__ %s" %self.__class__)
-        self.done_tasks = {}
+        #self.done_tasks = {}
         self.options = {} 
-        self.pending = None
+        #self.pending = None
         self.dldir = self._get_dl_path()
         self.archname  = pj( self._get_dl_path() , self.download_name)
         self.sourcedir = pj( self._get_src_path(), splitext(self.download_name)[0] )
         self.installdir = pj( self._get_install_path(), splitext(self.download_name)[0] )
         self.install_inc_dir = pj(self.installdir, "include")
         self.install_lib_dir = pj(self.installdir, "lib")        
+        self.dist_dir = self._get_dist_path()
         
         # Variable to check if the source directory is yet fixed
         self._source_dir_fixed = False
@@ -204,102 +108,17 @@ class Formula(object):
             self.eggdir         = pj(self._get_egg_path(), self.egg_name())
             self.setup_in_name  = pj(abspath(dirname(__file__)), "setup.py.in")
         self.setup_out_name = pj(self.eggdir, "setup.py")
-        self.use_cfg_login  = False
+        self.use_cfg_login  = False # ?
         
         makedirs(self._get_src_path())
         makedirs(self._get_install_path())
         makedirs(self.sourcedir)
         makedirs(self._get_dl_path())
+        makedirs(self.dist_dir)
         makedirs(self.eggdir)
         
-    def build(self):
-        """
-        Download, unpack, patch and compile (all in one!)
+        makedirs(self.installdir)
         
-        DO aproximatly the same thing that alea_dependency_builder PROJ_ACTION
-        
-        Use it for:
-            mingw_rt
-            ann
-            pyqt4
-            pyqscintilla
-            ...
-            
-        :return: True if everything is well done
-        """
-        ret = True
-        ret = ret & self._download()
-        ret = ret & self._unpack()
-        ret = ret & self._patch()
-        ret = ret & self._configure()
-        ret = ret & self._make()
-        ret = ret & self._install()
-        return ret
-        
-    def eggify(self):
-        """
-        Download, install and build egg (all in one!)
-        
-        DO aproximatly the same thing that alea_dependency_builder EGG_ACTION
-        
-        Use it for:
-            numpy
-            scipy
-            matplotlib
-            mingw_rt
-            mingw
-            qt4
-            qt4_dev
-            ...
-            
-        :return: True if everything is well done
-        """
-        ret = True
-        ret = ret & self._download()
-        ret = ret & self._unpack()
-        ret = ret & self._patch()
-        ret = ret & self._install()
-        ret = ret & self._bdist_egg()
-        ret = ret & self._upload_egg()
-        return ret
-        
-    def deploy(self):
-        """
-        Install formula. Try to do it in installing egg.
-        If doesn't work, try to install in downloading.
-        
-        DO aproximatly the same thing that deploy_system2
-        
-        :return: True if everything is well done
-        """
-        if not self.install_egg():
-            try:
-                ret = self._download()
-                ret = ret & self._unpack()
-                ret = ret & self._patch()
-                ret = ret & self._install()
-                return ret
-            except:
-                return False
-        else:
-            return True
-        
-    def get_platform_name(self):
-        """Creates a string out of the current platform with names seperated by whitespaces:
-        ex: "fedora 13 goddard" or "ubuntu 9.10 karmic"."""
-        _platform = None
-        system = platform.system().lower()
-        if system == "linux":
-            dist, number, name = platform.linux_distribution()
-            _platform = dist.lower() + " " + number.lower() + " " + name.lower()
-        elif system == "windows":
-            dist, host, name, number, proc, procinfo = platform.uname()
-            _platform = dist.lower() + " " + number.lower() + " " + name.lower() + " "+ proc.lower()
-        else:
-            warnings.warn("Currently unhandled system : " + system + ". Implement me please.")
-            
-        logger.debug("get_platform_name : %s" %_platform)
-        return _platform  
 
     def default_substitutions_setup_py(self):
         """
@@ -327,7 +146,7 @@ class Formula(object):
                    DESCRIPTION          = self.description,
                    HOMEPAGE             = self.homepage,
                    URL                  = self.download_url,
-                   LICENSE              = self.licence,
+                   LICENSE              = self.license,
 
                    ZIP_SAFE             = False,
                    PYTHON_MODS          = None,
@@ -352,12 +171,7 @@ class Formula(object):
         if bin.exists(): d['BIN_DIRS'] = {'bin' : pj(self.sourcedir,'bin') }
         
         return d
-                
-    def install_deps(self):
-        deps = self.get_dependencies()
-        for dep in deps:
-            install_formula(dep) 
-    
+
     def get_dependencies(self):
         """
         :return: list of dependencies of the formula 
@@ -369,129 +183,52 @@ class Formula(object):
     @property
     def name(self):
         return self.__class__.__name__
-
-    @property
-    def has_pending(self):
-        if self.pending is None:
-            self.__find_pending_tasks()
-        return len(self.pending) != 0
-
-    def get_task_restriction_projs(self):
-        return self.options.get("only_action_projs")
-        
-    def __find_pending_tasks(self):
-        tasks = []
-        name  = self.name
-        for task in self.supported_tasks:
-            task_func, skippable = self.all_tasks.get('_'+task, (None, None))
-            if task_func == skippable == None:
-            # This happens with the --no-upload option
-            # that removes tasks from all_tasks
-                continue
-            done   = self.is_task_done(name, task)
-            forced = False
-            restriction = self.get_task_restriction_projs()
-            if restriction != None:
-                forced = task in restriction
-            else:
-                forced = self.is_task_forced(name, task)
-            skip = done and not forced and skippable
-            if not skip:
-                tasks.append((task, task_func, skippable))
-        self.pending = tasks
-
-    def __has_pending_verbose_tasks(self):
-        for task, func, skippable in self.pending:
-            if task not in self.silent_tasks:
-                return True
-        return False
-        
+    
     @classmethod
     def egg_name(cls):
         return cls.__name__.split("egg_")[-1]
-
-    def get_task_restriction_eggs(self):
-        return self.options.get("only_action_eggs")
-
-    def process_me(self, only):
-        should_process = only is None or self.name in only
-        make_silent( not self.__has_pending_verbose_tasks() or \
-                              not should_process )
-
-        # forced_tasks is a string containing self.all_tasks keys.
-        # if a process is in forced_tasks it gets forced.
-        forced_tasks = self.options.get(self.name, "")
-        proc_str  = "Processing " + self.name
-        message = "%s = %s. Forced tasks are: %s" %(proc_str,len(proc_str),forced_tasks)
-        logger.debug(message)   
-        for task, task_func, skippable in self.pending:
-            if skippable and not should_process:
-                continue
-            # doing unskippable actions like extending python or env PATH.
-            # or we should_process is True
-            nice_func = task_func.strip("_")
-            message = "\t-->performing %s for %s"%(nice_func, self.name)
-            logger.debug(message) 
-            success = getattr(self, task_func)()
-            if success == Later:
-                message = "\t-->%s for %s we be done later"%(nice_func, self.name)
-                logger.debug(message) 
-            elif success == False:
-                message = "\t-->%s for %s failed"%(nice_func, self.name)
-                logger.debug(message)
-                if not should_process:
-                    message = "-o %s was specified, ignoring error on package %s"% \
-                         (self.options.get("only"), self.name)
-                    logger.debug(message)
-                    continue
-                return False
-            else:
-                self.task_is_done(self.name, task)
-        make_silent(False)
-        return True
-
+        
     def _download(self):
-        # a proj with a none url implicitely means
-        # the sources are already here because some
-        # other proj installed it.
-        if self.download_url is None:
-            return True    
-        dir=self._get_dl_path()
-        if self.download_name in os.listdir(dir):
-            message = "%s already downloaded!" %self.download_name
-            logger.debug(message) 
-            return True
-        else:
-            ret = url(self.download_url, dir=self._get_dl_path(), dl_name=self.download_name)
-            logger.debug("Download %s" %ret)
-            return bool(ret)
+        if self.DOWNLOAD:
+            # a proj with a none url implicitely means
+            # the sources are already here because some
+            # other proj installed it.
+            if self.download_url is None:
+                return True    
+            dir=self._get_dl_path()
+            if self.download_name in os.listdir(dir):
+                message = "%s already downloaded!" %self.download_name
+                logger.debug(message) 
+                return True
+            else:
+                ret = url(self.download_url, dir=self._get_dl_path(), dl_name=self.download_name)
+                logger.debug("Download %s" %ret)
+                return bool(ret)
+        return True
     
     def _unpack(self):
-        # a proj with a none url implicitely means
-        # the sources are already here because some
-        # other proj installed it.
-        if self.download_url is None:
-            logger.debug("No url")
-            ret = True
-        if exists(self.sourcedir):
-            if os.path.getsize(self.sourcedir) > 0:
-                message =  'already unpacked in %s' %repr(self.sourcedir)
-                logger.debug(message)
+        if self.UNPACK:
+            # a proj with a none url implicitely means
+            # the sources are already here because some
+            # other proj installed it.
+            if self.download_url is None:
+                logger.debug("No url")
                 ret = True
+            if exists(self.sourcedir):
+                if os.path.getsize(self.sourcedir) > 0:
+                    message =  'already unpacked in %s' %repr(self.sourcedir)
+                    logger.debug(message)
+                    ret = True
+                else:
+                    ret = self.unpack()
             else:
                 ret = self.unpack()
-        else:
-            ret = self.unpack()
-        logger.debug("Unpack %s" %ret)
-        return ret 
-
+            logger.debug("Unpack %s" %ret)
+            return ret 
+        return True
     
-    def _fix_source_dir(self):
-        """ Unused """
-        warnings.warn("_fix_source_dir is deprecated, please don't use it")
-
-    #### Do NOT USE "REG ADD..." !!!
     # def _permanent_extend_sys_path(self):
+        #### Do NOT USE "REG ADD..." !!!
         # """
         # Warnings: this method extend PERMANENTLY Path for WINDOWS (and only windows) and need a REBOOT of the computer
         
@@ -544,7 +281,6 @@ class Formula(object):
                 cmd = cmd + e + ";"
             cmd = cmd + "%PATH%\""            
             
-            
             # set temp PATH
             cmd1 = "SET" + cmd
             logger.debug( cmd1 )
@@ -589,32 +325,49 @@ class Formula(object):
     @in_dir("sourcedir")
     @try_except
     def _configure(self):
-        self._extend_sys_path()
-        self._extend_python_path()
-        ret = self.configure()
-        logger.debug("Configure %s" %ret)
-        return ret
+        if self.CONFIGURE:
+            self._extend_sys_path()
+            self._extend_python_path()
+            ret = self.configure()
+            logger.debug("Configure %s" %ret)
+            return ret
+        return True
         
     @in_dir("sourcedir")
     @try_except
     def _make(self):
-        ret = self.make()
-        logger.debug("Make %s" %ret)
-        return ret
-    
-    @in_dir("sourcedir")
-    @try_except
-    def _patch(self):
-        ret = self.patch()
-        logger.debug("Patch %s" %ret)
-        return ret
+        if self.MAKE:
+            ret = self.make()
+            logger.debug("Make %s" %ret)
+            return ret
+        return True
         
     @in_dir("sourcedir")
     @try_except
+    def _patch(self):
+        if self.PATCH:
+            ret = self.patch()
+            logger.debug("Patch %s" %ret)
+            return ret
+        return True
+        
+    @in_dir("sourcedir")
+    @try_except
+    def _make_install(self):
+        if self.MAKE_INSTALL:
+            ret = self.make_install()
+            logger.debug("Make_install %s" %ret)
+            return ret 
+        return True
+        
+    @in_dir("dldir") 
+    @try_except
     def _install(self):
-        ret = self.install()
-        logger.debug("Install %s" %ret)
-        return ret 
+        if self.INSTALL:
+            ret = self.install()
+            logger.debug("Install %s" %ret)
+            return ret
+        return True
         
     @try_except
     def _configure_script(self):
@@ -631,29 +384,17 @@ class Formula(object):
     @in_dir("eggdir")
     @try_except
     def _bdist_egg(self):
-        ret = self._configure_script()
-    
-        ret = ret & self.bdist_egg()
+        if self.EGGIFY:
+            ret = self._configure_script()     
+            ret = ret & self.bdist_egg()
+            logger.debug("Bdist_egg %s" %ret)
+            return ret
+        return True
         
-        # -- fix file name --
-        eggname = self._glob_egg()
-        dir_, filename = split(eggname)
-        pyver   = "-py"+sys.winver
-        archver = "-"+sys.platform
-        if not self.py_dependent:
-            filename = filename.replace(pyver, "")
-        if not self.arch_dependent:
-            filename = filename.replace(archver, "")
-        os.rename(eggname, pj(dir_, filename))
-        
-        logger.debug("Bdist_egg %s" %ret)
-        return ret
-
     @in_dir("eggdir")
     @try_except
     def _upload_egg(self):
         return True
-    
         # if not self.options["login"] or not self.options["passwd"]:
             # self.use_cfg_login = True
             # ret = self.upload_egg()
@@ -663,24 +404,12 @@ class Formula(object):
                 # return Later
             # return ret
         # return self.upload_egg()
-        
-    @in_dir("eggdir")
-    @try_except
-    def _copy_egg(self, dest_dir=None):
-        if not dest_dir :
-            dest_dir = self.options.get("dest_egg_dir")
-        if not dest_dir:
-            warnings.warn("Will not place egg in a directory")
-            logger.warn("Will not place egg in a directory")
-            return True
-
-        eggname  = self._glob_egg()
-        destname = pj(dest_dir, split(eggname)[1])
-        if exists(destname):
-            logger.debug( "removing", destname )
-            os.remove(destname)
-        logger.debug(  "copying", eggname, "to", destname )
-        shutil.copyfile(eggname, destname)
+    
+    @in_dir("dldir") 
+    @try_except    
+    def _copy_installer(self):
+        if self.COPY_INSTALLER:
+            return self.copy_installer()
         return True
 
     def unpack(self):
@@ -690,6 +419,10 @@ class Formula(object):
         return(dict())
 
     # -- The ones you can override are these ones --
+    def copy_installer(self):
+        shutil.copy(self.download_name, pj(self.dist_dir, self.download_name))
+        return True
+    
     def extra_paths(self):
         return None
         
@@ -698,6 +431,9 @@ class Formula(object):
         
     def patch(self):
         return True        
+        
+    def install(self):
+        return util_install(self.download_name)
 
     def configure(self):
         return True
@@ -715,24 +451,19 @@ class Formula(object):
         logger.debug(cmd)  
         return sh( cmd ) == 0
 
-    def install(self):
+    def make_install(self):
         return sh("mingw32-make install") == 0
 
     def _glob_egg(self):
-        eggs = glob.glob( pj(self.eggdir, "dist", "*.egg") )
-        if len(eggs) == 0:
-            raise Exception("No egg found for "+self.egg_name())
-        elif len(eggs) > 1:
-            raise Exception("Found multiple eggs for "+self.egg_name()+reduce(lambda x,y:x+"\t->%s\n"%y, eggs, "\n"))
-        return eggs[0]    
+        eggs = glob.glob( pj(self.dist_dir, self.egg_name()+"*.egg") )
+        return None if not eggs else eggs[0]    
         
     def bdist_egg(self):
-        #ret0 = sh(sys.executable + " setup.py egg_info --egg-base=%s"%self.eggdir ) == 0
-        return sh(sys.executable + " setup.py bdist_egg") == 0
+        return sh(sys.executable + " setup.py bdist_egg -d %s"%(self.dist_dir,)) == 0
         
     def install_egg(self):
         # Try to install egg (to call after bdist_egg)
-        egg = glob.glob( pj(self.eggdir, "dist", "*.egg") )
+        egg = glob.glob( pj(self.dist_dir, self.egg_name()) )
         if egg:
             egg = egg[0]
         else: 
@@ -755,12 +486,7 @@ class Formula(object):
     @property
     def package(self):
         return __import__(self.packagename)
-        
-    @property
-    def module(self):
-        if self.__modulename__:
-            return __import__(".".join([self.packagename,self.__modulename__]),
-                              fromlist=[self.__modulename__])
+
     @property
     def packagename(self):
         return self.__packagename__ or self.egg_name()
@@ -784,16 +510,15 @@ class Formula(object):
         for pk in pkgs:
             dirs[pk] =  pj(base, pk.replace(".", os.sep))
         return pkgs, dirs          
-
             
     #################################
-    ## Come from BuildEnvironment
+    ## Get PATHs
     #################################
     def get_working_path(self):
         return self.working_path
         
     def _get_dl_path(self):
-        return pj( self.get_working_path(), "cache")
+        return pj( self.get_working_path(), "download")
     
     def _get_src_path(self):
         return pj( self.get_working_path(), "src")
@@ -804,27 +529,5 @@ class Formula(object):
     def _get_egg_path(self):
         return pj( self.get_working_path(), "egg")
         
-    def set_options(self, options):
-        # TODO : to test if it works
-        # maybe need to uncomment the 2 lines
-        self.options = options.copy()
-        self.tools = options.get("tools",[])[:]
-        # Compiler.set_options(options) 
-        # self.init()  
-        
-    def task_is_done(self, name, task):
-        """ Marks that the `task` step has been accomplished for `proj`.
-         - name is a key from M(Project|Egg)Builders.builders
-         - task is a task identifier
-        """
-        if task not in self.done_tasks.setdefault(name, ""):
-            self.done_tasks[name] += task
-
-    def is_task_done(self, name, task):
-        """ Tells is a task is finished. """
-        return task in self.done_tasks.setdefault(name, "")
-
-    def is_task_forced(self, name, task):
-        """ Tells is the user forced this task. """
-        return task in self.options.setdefault(name, "")
-   
+    def _get_dist_path(self):
+        return pj( self.get_working_path(), "dist")

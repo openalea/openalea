@@ -1,11 +1,8 @@
 from openalea.release import Formula
 from openalea.release.utils import sh, apply_patch, pj, option_to_sys_path
 from openalea.release.formula.qt4 import qt4
-from openalea.release.formula.bisonflex import bisonflex
 import sys
-import os
-import re
-import shutil
+
 from os.path import abspath, dirname, exists
 
 PATCH_DIR = abspath(dirname(__file__))
@@ -18,6 +15,8 @@ class sip(Formula):
     download_name  = "sip_src.zip"
     
     required_tools = ['bisonflex']
+    
+    DOWNLOAD = UNPACK = PATCH = CONFIGURE = MAKE = MAKE_INSTALL = EGGIFY = True
 
     def __init__(self, *args, **kwargs):
         super(sip, self).__init__(*args, **kwargs)

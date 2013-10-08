@@ -8,6 +8,7 @@ import sys
 class pyqscintilla(Formula):
     download_url = None # shares the same as qscintilla
     download_name  = "qscintilla_src.zip"
+    CONFIGURE = MAKE = MAKE_INSTALL = EGGIFY = True
 
     def __init__(self, *args, **kwargs):
         super(pyqscintilla, self).__init__(*args, **kwargs)

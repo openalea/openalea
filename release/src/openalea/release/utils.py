@@ -19,9 +19,30 @@ from openalea.release import patch as release_patch
 from setuptools.package_index import PackageIndex
 import logging
 
+from os.path import abspath, dirname
+
+def get_formulas():
+    """
+    Return the list of formula available.
+    """
+    path_ = abspath(dirname(__file__))
+    formula_list = glob.glob(pj(path_,"formula","*.py"))
+
+    short_list = list()
+    for formu in formula_list:
+        formu = formu.split("\\")[-1]
+        formu = formu.split(".py")[0]
+        formu = formu.split("_formula")[0]
+        short_list.append(formu)
+        
+    if short_list.count("__init__") > 0:
+        short_list.remove("__init__")
+        
+    return short_list
+
 __oldsyspath__ = sys.path[:]
 
-
+'''
 OPENALEA_PI = "http://openalea.gforge.inria.fr/pi"
 OPENALEA_REPOLIST = "http://openalea.gforge.inria.fr/repolist"
 def get_repo_list():
@@ -40,7 +61,7 @@ def get_repo_list():
 
 pi = PackageIndex(search_path=[])
 pi.add_find_links(get_repo_list())
-
+'''
 sj = os.pathsep.join
 
 def uj(*args):
@@ -244,6 +265,12 @@ def get_dirs():
        ]
     return dirs
 
+def safe_rmdir(dirname, listdir):
+    """ Remove dirname only if exists in listdir
+    """
+    if dirname in listdir:
+        listdir.remove(dirname)    
+    
 def rm_temp_dirs():
     """ Remove old directories."""
     dirs = get_dirs()

@@ -8,6 +8,8 @@ class qscintilla(Formula):
     download_url = "http://sourceforge.net/projects/pyqt/files/QScintilla2/QScintilla-2.7.2/QScintilla-gpl-2.7.2.zip"
     download_name  = "qscintilla_src.zip"
     dependencies = ["qt4", "mingw"]  
+    
+    DOWNLOAD = UNPACK = CONFIGURE = MAKE = MAKE_INSTALL = EGGIFY = True
 
     def configure(self):
         # The install procedure will install qscintilla in qt's installation directories
@@ -18,7 +20,7 @@ class qscintilla(Formula):
     
         return ret
     
-    def install(self):
+    def make_install(self):
         ret = super(qscintilla, self).install()
         qt4_ = qt4()
         try:

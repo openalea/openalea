@@ -15,17 +15,17 @@ PATCH_DIR = abspath(dirname(__file__))
 
 # Warning: really long compiling...
 class qt4(Formula):
-    #version = "4.7.4"
     version = "4.8.5"
     #download_url = "http://get.qt.nokia.com/qt/source/qt-everywhere-opensource-src-"+version+".zip"
     download_url = "http://download.qt-project.org/official_releases/qt/4.8/4.8.5/qt-everywhere-opensource-src-"+version+".zip"
-    download_name  = "qt4_src.zip"
+    download_name  = "qt4.zip"
 
     license = "General Public License V3"
     authors = "Riverbank Computing (Sip+PyQt4+QSCintilla) & Nokia (Qt4)"
     description = "Sip+PyQt4+QScintilla Runtime packaged as an egg for windows-gcc"
     py_dependent   = True
     arch_dependent = True
+    DOWNLOAD = UNPACK = PATCH = CONFIGURE = MAKE = MAKE_INSTALL = EGGIFY = True
     
     def __init__(self, *args, **kwargs):
         super(qt4, self).__init__(*args, **kwargs)
@@ -76,7 +76,7 @@ class qt4(Formula):
         pop.communicate("y\r")
         return pop.returncode == 0
         
-    def install(self):
+    def make_install(self):
         # create the installation directories
         for pth in self.inst_paths:
             makedirs(pth)

@@ -1,10 +1,9 @@
 from openalea.release import Formula
-from openalea.release.utils import in_dir, install as util_install
 
 class svn(Formula):
-    license = "Apache License, Version 2.0"
-    authors = "The Apache Software Foundation"
-    description = "The R Project for Statistical Computing"  
+    license = ""
+    authors = ""
+    description = ""  
     py_dependent   = True
     arch_dependent = True 
     version = "1.8.0-1"       
@@ -12,15 +11,4 @@ class svn(Formula):
     homepage = "http://subversion.apache.org/"
     download_name  = "svn.msi"
     
-    def unpack(self):
-        return True
-        
-    def configure(self):
-        return True
-        
-    def make(self):
-        return True
-        
-    @in_dir("dldir")
-    def install(self):
-        return util_install(self.download_name)         
+    DOWNLOAD = INSTALL = True 

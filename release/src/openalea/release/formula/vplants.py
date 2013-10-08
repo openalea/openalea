@@ -1,7 +1,5 @@
 from openalea.release import Formula
-from openalea.release.utils import sh, apply_patch, checkout
-from os.path import join as pj, abspath, dirname
-
+from openalea.release.utils import sh, checkout
 
 class vplants(Formula):
     version = '1.0'
@@ -38,16 +36,11 @@ class vplants(Formula):
                     "scons-dev",
                     "sip4-dev",
                     "svn-dev",
-                    ]
-
+                    ]           
+    DOWNLOAD = INSTALL = True
+                    
     def _download(self):
         checkout(self.download_url, self.sourcedir)
-    def setup(self):
-        return dict()
-    def configure(self):
-        return True
-    def make(self):
-        return True
     def install(self):
         return sh("python multisetup.py install")
         

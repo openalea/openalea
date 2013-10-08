@@ -12,9 +12,12 @@ class cgal(Formula):
     arch_dependent = True  
     homepage = "http://www.cgal.org/"
     download_url = "https://gforge.inria.fr/frs/download.php/30390/CGAL-4.0.zip"
+    #download_url = "https://gforge.inria.fr/frs/download.php/32358/CGAL-4.2.zip"
     download_name  = "cgal_src.zip"
     required_tools = ["cmake"]
     version = "4.0"
+    DOWNLOAD = UNPACK = CONFIGURE = MAKE = MAKE_INSTALL = EGGIFY = True
+    
     def setup(self):
         return dict( 
                     VERSION          = self.version,
