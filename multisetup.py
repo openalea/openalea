@@ -60,6 +60,7 @@ pkg_builder
 image
 numpy
 pylab
+release
 openalea_meta
 """.split()
 #openalea_meta
