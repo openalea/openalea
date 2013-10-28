@@ -6,6 +6,12 @@ import os
 
 def load_qt():
     from PyQt4 import QtCore, QtGui, QtSvg
+	try:
+		# Try to set api of QString at 2 to have the same thing if user have IPython or not
+		import sip
+		sip.setapi("QString",2)
+	except:
+		pass
     return QtCore, QtGui, QtSvg
 
 try: 
