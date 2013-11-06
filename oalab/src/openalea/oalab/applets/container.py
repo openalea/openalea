@@ -18,7 +18,6 @@
 __revision__ = ""
 
 from openalea.vpltk.qt import QtCore, QtGui
-from openalea.vpltk.project.project import Script
 from openalea.oalab.applets.lpy import LPyApplet
 from openalea.oalab.applets.python import PythonApplet
 from openalea.oalab.applets.r import RApplet
@@ -131,7 +130,7 @@ class AppletContainer(QtGui.QTabWidget):
         """
         self.newTab(applet_type=applet_type, tab_name=tab_name, script=script)
             
-    def newTab(self, applet_type, tab_name="", script=None):
+    def newTab(self, applet_type, tab_name="", script=""):
         """
         Open a tab with the widget 'applet_type'
         
@@ -203,10 +202,11 @@ class AppletContainer(QtGui.QTabWidget):
         """
         logger.debug("Save all models")
         n = self.count()
-        for i in range(n) :
+        for i in range(n):
             wid = self.widget(i)
             name = wid.applet.name
             wid.save(name=name)
+            self.setTabText(i, self.widget(i).editor.name)
                 
     def run_selected_part(self):
         try:
@@ -278,9 +278,9 @@ class WelcomePage(QtGui.QWidget):
         max_size = QtCore.QSize(200,60)
         min_size = QtCore.QSize(200,60)
         
-        messageBegin = QtGui.QLabel("Would you like")
-        messageNew = QtGui.QLabel("* to create a new:")
-        messageOpen =QtGui.QLabel("* to open an existing:")        
+        #messageBegin = QtGui.QLabel("Would you like")
+        #messageNew = QtGui.QLabel("* to create a new:")
+        #messageOpen =QtGui.QLabel("* to open an existing:")        
         
         newBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/openalealogo.png"),"New Project")
         newBtn.setMaximumSize(max_size)  
@@ -291,7 +291,7 @@ class WelcomePage(QtGui.QWidget):
         newGitBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/git.png"),"Versionned Project (Git)")
         newGitBtn.setMaximumSize(max_size)  
         newGitBtn.setMinimumSize(min_size)  
-        newScriptBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/Python-logo.png"),"Script")
+        newScriptBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/Python-logo.png"),"New File")
         newScriptBtn.setMaximumSize(max_size)  
         newScriptBtn.setMinimumSize(min_size)
         
@@ -304,7 +304,7 @@ class WelcomePage(QtGui.QWidget):
         openGitBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/git.png"),"Versionned Project (Git)")
         openGitBtn.setMaximumSize(max_size) 
         openGitBtn.setMinimumSize(min_size)
-        openScriptBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/Python-logo.png"),"Script")
+        openScriptBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/Python-logo.png"),"Open File")
         openScriptBtn.setMaximumSize(max_size)  
         openScriptBtn.setMinimumSize(min_size)
                 
@@ -333,6 +333,9 @@ class WelcomePage(QtGui.QWidget):
         layout.addWidget(newBtn,0,0)
         layout.addWidget(openBtn,1,0)
         
+        layout.addWidget(newScriptBtn,0,1)
+        layout.addWidget(openScriptBtn,1,1)
+        
         self.setLayout(layout)
 
         # fake methods, like if we have a real applet
@@ -356,6 +359,8 @@ class WelcomePage(QtGui.QWidget):
         logger.debug("Open Welcome Page")
     
     def new(self):
+        self.session._is_proj = True
+        self.session._is_script = False
         self.session.project_widget.new()
         logger.debug("New Project from welcome page")
         
@@ -366,19 +371,14 @@ class WelcomePage(QtGui.QWidget):
         self.session.project_widget.newGit()   
         
     def newScript(self):
-        #self.session.project_widget.newPython()
-        script = Script()
-        #script.filename = ""
-        #script.value = ""
-        tab_name = ""
-        
-        self.session.cprojname = "no-proj_%s" %tab_name
-        self.session.projects[self.session.cprojname] = script
-        
-        self.session.applet_container.newTab(applet_type="python", tab_name=script.filename)
-        self.session.project_widget._project_changed()
+        self.session._is_proj = False
+        self.session._is_script = True
+        self.session.project_widget.newPython()
+        logger.debug("New Script from welcome page")
           
     def open(self):
+        self.session._is_proj = True
+        self.session._is_script = False
         self.session.project_widget.open()
         logger.debug("Open Project from welcome page")
         
@@ -389,4 +389,7 @@ class WelcomePage(QtGui.QWidget):
         self.session.project_widget.openGit()
 
     def openScript(self):
+        self.session._is_proj = False
+        self.session._is_script = True
         self.session.project_widget.openPython()
+        logger.debug("Open Script from welcome page")
