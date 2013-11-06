@@ -14,7 +14,7 @@ def test_session_and_mainwindow():
     mw = MainWindow(session)
     session.store.showhide()
     session.store.showhide()
-    ret = bool(session.projects == dict())
+    ret = bool(session.project == None)
     ret2 = bool(session.store.mainMenu() == "Package Store" )
     assert (ret and ret2)
 
