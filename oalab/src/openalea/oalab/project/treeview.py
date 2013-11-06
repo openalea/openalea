@@ -43,6 +43,10 @@ class ProjectLayoutWidget(QtGui.QWidget):
         
         self.setLayout(layout)
         
+    def clear(self):
+        self.treeview.reinit_treeview()
+        self.label.setText("")  
+        
     def update(self):
         self.treeview.update()
         self.label.update()
@@ -64,7 +68,7 @@ class ProjectLabel(QtGui.QLabel):
         self.update()
         
     def update(self):    
-        if self.session.project:
+        if self.session.current_is_project():
             label = self.session.project.name
         else:
             label = ""
@@ -419,8 +423,7 @@ class PrjctModel(QtGui.QStandardItemModel):
 
     def _set_level_0(self):
         ## TODO if you want to see all objects of the project
-        #level0 = ["Controls", "Models", "Scene"]       
-        level0 = ["Models"]
+        level0 = ["Models", "Controls", "Scene"]       
                             
         for name in level0:
             parentItem = self.invisibleRootItem()
@@ -440,7 +443,7 @@ class PrjctModel(QtGui.QStandardItemModel):
         rootItem = self.invisibleRootItem()
         
         # Controls
-        parentItem = rootItem.child(2)
+        parentItem = rootItem.child(1)
         for name in self.proj.controls:
             item = QtGui.QStandardItem(name)
             item.setIcon(QtGui.QIcon(":/images/resources/bool.png"))
@@ -465,7 +468,7 @@ class PrjctModel(QtGui.QStandardItemModel):
             self.old_models.append(name)
         
         # Scene
-        parentItem = rootItem.child(1)
+        parentItem = rootItem.child(2)
         for name in self.proj.scene:
             item = QtGui.QStandardItem(name)
             item.setIcon(QtGui.QIcon(":/images/resources/plant.png"))
