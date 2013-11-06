@@ -24,6 +24,7 @@ from openalea.oalab.editor.completion import DictionaryCompleter
 #from openalea.oalab.editor.line_number import LineNumberArea
 from openalea.core import logger
 from openalea.core import settings
+from copy import deepcopy
 
 
 class RichTextEditor(QtGui.QWidget):
@@ -187,23 +188,28 @@ class TextEditor(QtGui.QTextEdit):
             self.name = QtGui.QFileDialog.getSaveFileName(self, 'Select name to save the file', temp_path)
 
         txt = self.get_text()
-
-        project = self.session.project
         
         if self.session.current_is_project():
+            project = self.session.project
             project.scripts[self.name] = txt
             project._save_scripts()
             logger.debug("Try to save script in project")
             
         elif self.session.current_is_script():
-            # Save a script outside a project
-            fname = project.fname
-            f = open(fname, "w")
-            code = project.value
+            # Save a script outside a project  
+            project = self.session.project         
+            if self.name == u"script.py":
+                new_fname = QtGui.QFileDialog.getSaveFileName(self, 'Select name to save the file')
+                project[new_fname] = txt
+                del project[self.name]
+                self.name = new_fname
+                
+            f = open(self.name, "w")
+            code = txt
             code_enc = code.encode("utf8","ignore") 
             f.write(code_enc)
             f.close()
-            logger.debug("Try to save file outside project")
+            logger.debug("Try to save file "+self.name+" outside project")
 
     def keyPressEvent(self,event):
         # Auto-indent
