@@ -23,7 +23,7 @@ import webbrowser
 default_text = """
 <H1>Welcome in OpenAleaLab.</H1>
 
-To begin, create or open an existing project.
+To begin, create or open an existing file or project.
 """
 
 class Help(QtGui.QTextBrowser):
