@@ -56,6 +56,8 @@ more informations: http://www.python.org/
         
     def run_selected_part(self):
         code = self.widget().get_selected_text()
+        if len(code) == 0:
+            code = self.widget().get_text()
         interp = self.session.shell.get_interpreter()
         user_ns = self.session.interpreter.user_ns
         interp.runcode(code)
