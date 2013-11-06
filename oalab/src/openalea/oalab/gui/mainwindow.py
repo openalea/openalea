@@ -21,7 +21,6 @@
 __revision__ = ""
 
 from openalea.vpltk.qt import QtGui, QtCore
-#from openalea.lpy.gui.objectpanel import LpyObjectPanelDock
 from openalea.core import logger
 
 class MainWindow(QtGui.QMainWindow):
@@ -159,22 +158,14 @@ class MainWindow(QtGui.QMainWindow):
         self.packageManagerSearchDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
         self.packageManagerSearchDockWidget.setWidget(session.package_manager_search_widget)
         self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.packageManagerSearchDockWidget)  
-
-        ## Scene_Widget
-        #self.sceneMngDockWidget = QtGui.QDockWidget("Scene Components", self)     
-        #self.sceneMngDockWidget.setObjectName("SceneManager")
-        #self.sceneMngDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
-        #self.sceneMngDockWidget.setWidget(session.scene_widget)
-        #self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.sceneMngDockWidget)          
+       
         
         # Control_Panel
-        #self.controlDockWidget = LpyObjectPanelDock(parent=self,name="Control Panel", panelmanager=session.control_panel_manager)
-        #self.controlDockWidget.setStatusBar(self.statusBar())
-        #session.control_panel_manager.panels.append(self.controlDockWidget)
         self.controlDockWidget = QtGui.QDockWidget("Control Panel", self)     
         self.controlDockWidget.setObjectName("ControlPanel")
         self.controlDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
         self.controlDockWidget.setWidget(session.control_panel)
+        session.control_panel.geometry_editor.setStatusBar(self.statusBar())
         self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.controlDockWidget)         
         
         ## Observer_Panel
@@ -233,18 +224,16 @@ class MainWindow(QtGui.QMainWindow):
         # Tabify docks
         self.tabifyDockWidget(self.packageManagerSearchDockWidget, self.packageManagerCatDockWidget)
         self.tabifyDockWidget(self.packageManagerCatDockWidget, self.packageManagerDockWidget)
-        #self.tabifyDockWidget(self.packageManagerDockWidget, self.projectManagerDockWidget)
-        
-        #self.tabifyDockWidget(self.obsDockWidget, self.controlDockWidget)
-        #self.tabifyDockWidget(self.sceneMngDockWidget, self.viewerDockWidget)
+
         self.tabifyDockWidget(self.viewerDockWidget, self.storeDockWidget)
-        #self.tabifyDockWidget(self.helpDockWidget, self.loggerDockWidget)
-        #self.tabifyDockWidget(self.helpDockWidget, self.loggerDockWidget)
         self.tabifyDockWidget(self.loggerDockWidget, self.shellDockWidget)
         
     def changeMenuTab(self, old, new):
         """
         Set tab of 'new' current in the menu
+        
+        :param old: old current widget. Not used.
+        :param new: current widget to check if we have to change menu
         """
         try:
             # Get Tab Name
@@ -258,4 +247,3 @@ class MainWindow(QtGui.QMainWindow):
                     menu.setCurrentIndex(index)
         except:
             pass
-            

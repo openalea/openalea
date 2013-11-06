@@ -18,9 +18,7 @@
 __revision__ = ""
 
 from openalea.core.pkgmanager import PackageManager
-from openalea.oalab.control.controlpanel import ControlPanel, ControlPanelManager
-from openalea.oalab.control.observerpanel import ObserverPanel
-#from openalea.oalab.control.mapper import Mapper
+from openalea.oalab.control.controlpanel import ControlPanel
 from openalea.oalab.gui.logger import Logger
 from openalea.oalab.gui.help import Help
 from openalea.oalab.scene.view3d import Viewer
@@ -32,23 +30,24 @@ from openalea.oalab.project.widgets import ProjectWidget
 from openalea.oalab.project.treeview import ProjectLayoutWidget
 from openalea.oalab.package import PackageViewWidget, PackageCategorieViewWidget, PackageSearchWidget
 from openalea.oalab.gui.store import Store
+import warnings
 
 class Session(object):
     """
     Manage session and instanciate all widgets.
+    
+    MainWindow works thanks to the session
     """
     def __init__(self):
-
-        self.cprojname = ""
-        self.projects = dict()
+        self._project = None
+        self._is_proj = False
+        self._is_script = False
+        
         # Menu
         self.menu = PanedMenu()
 
         # Docks
-        #self.control_panel_manager = ControlPanelManager()
         self.control_panel = ControlPanel(self)
-        #self.observer_panel = ObserverPanel()
-        #self.mapper = Mapper(self)
         
         self.viewer = Viewer(session=self)
         self.scene_widget = SceneWidget(session=self)
@@ -69,13 +68,10 @@ class Session(object):
 
         self.logger = Logger()
         self.help = Help()
-        
 
-        self.interpreter.locals['projects'] = self.projects
         self.interpreter.locals['session'] = self
         self.interpreter.locals['viewer'] = self.viewer
-        #self.interpreter.locals['ctrl'] = self.control_panel
-        #self.interpreter.locals['ctrl_mng'] = self.control_panel_manager
+        self.interpreter.locals['ctrl'] = self.control_panel
         self.interpreter.locals['interp'] = self.interpreter
         self.interpreter.locals['shell'] = self.shell
         self._update_locals()
@@ -102,8 +98,7 @@ class Session(object):
         self.connect_actions(self.applet_container)
         self.connect_actions(self.viewer)
         self.connect_actions(self.help)
-        self.connect_actions(self.store)
-        
+        self.connect_actions(self.store)        
         # TODO:
         # connect control
         # connect observer
@@ -115,61 +110,32 @@ class Session(object):
         if not menu:
             menu = self.menu
         actions = widget.actions()
-        #connections = widget.connections()
         
         if actions is not None:
             pane_name = actions[0]
             actions = actions[1]
             for action in actions:
-                btn = menu.addBtnByAction(pane_name=pane_name, group_name=action[0], action=action[1],btn_type=action[2])
-                #QtCore.QObject.connect(btn, QtCore.SIGNAL('pressed()'),connection)
+                menu.addBtnByAction(pane_name=pane_name, group_name=action[0], action=action[1],btn_type=action[2])
 
     @property
     def project(self):
         """
         :return: current project if one is opened. Else return None.
         """
-        if len(self.cprojname) ==0:
-            # Nothing opened
-            return ""
-        elif self.cprojname.find("no-proj") == -1:
-            # Script opened (no project)
-            script = self.projects[self.cprojname]
-            return script
-        else:
-            # Project opened
-            proj = self.projects[self.cprojname]
-            return proj
+        return self._project
             
     def current_is_project(self):
         """
         :return: True if current document is a project
         """
-        if len(self.cprojname) == 0:
-            # Nothing opened
-            return False
-        elif bool(self.cprojname.find("no-proj") > -1):
-            # Script opened (no project)
-            return False
-        else:
-            # Project opened
-            return True
-            
+        return bool(self._is_proj)
+
     def current_is_script(self):
         """
         :return: True if current document is a script (not a project!)
         """
-        if len(self.cprojname) ==0:
-            # Nothing opened
-            return False
-        elif bool(self.cprojname.find("no-proj") == -1):
-            # Script opened (no project)
-            return False
-        else:
-            # Project opened
-            return True
+        return bool(self._is_script)
 
     def get_project(self):
-        from warnings import warn
-        warn('Deprecated get_project -> project')
+        warnings.warn('Deprecated get_project -> project')
         return self.project
