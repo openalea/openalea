@@ -135,8 +135,6 @@ class Viewer(view3D):
         self._fps = False
         self.axis = False
         self.grid = True
-        # TODO
-        'connected to current_project.scene'
         
         actionResetZoom = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/resetzoom.png"),"Reset Zoom", self)
         actionZoomOut = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/zoomout.png"),"Zoom Out", self)
