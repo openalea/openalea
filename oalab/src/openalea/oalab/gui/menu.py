@@ -27,6 +27,12 @@ from openalea.lpy.gui.compile_ui import check_rc_generation
 check_rc_generation('resources.qrc')
 """
 
+big_btn_size = QtCore.QSize(80,55)
+small_btn_size = QtCore.QSize(130,20)
+big_icon_size = QtCore.QSize(30,30)
+small_icon_size = QtCore.QSize(20,20)
+
+
 class PanedMenu(QtGui.QTabWidget):
     """
     A widget that tries to mimic menu of Microsoft Office 2010.
@@ -126,7 +132,7 @@ class Group(QtGui.QGroupBox):
         self.setFlat(False)
         
         self.layout = QtGui.QHBoxLayout()
-        self.layout.setMargin(4)
+        self.layout.setMargin(6)
         self.layout.setSpacing(0)
         self.layout.setAlignment(QtCore.Qt.AlignLeft)
         self.setLayout(self.layout)
@@ -257,9 +263,9 @@ class BigBtn(QtGui.QToolButton):
         self.setAutoRaise(True)
         self.setIcon(icon)
         self.setText(str(label))
-        self.setIconSize(QtCore.QSize(35,35))
-        self.setMinimumSize(QtCore.QSize(80,60))
-        self.setMaximumSize(QtCore.QSize(80,60))
+        self.setIconSize(big_icon_size)
+        self.setMinimumSize(big_btn_size)
+        self.setMaximumSize(big_btn_size)
 
 class SmallBtn(QtGui.QToolButton):
     def __init__(self, label, icon):
@@ -268,19 +274,19 @@ class SmallBtn(QtGui.QToolButton):
         self.setAutoRaise(True)
         self.setIcon(icon)
         self.setText(str(label))
-        self.setIconSize(QtCore.QSize(20,20))
-        self.setMinimumSize(QtCore.QSize(130,20))
-        self.setMaximumSize(QtCore.QSize(130,20))
-        
+        self.setIconSize(small_icon_size)
+        self.setMinimumSize(small_btn_size)
+        self.setMaximumSize(small_btn_size)
+
 class BigBtnByAction(QtGui.QToolButton):
     def __init__(self, action):
         super(QtGui.QToolButton, self).__init__()
         self.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
         self.setAutoRaise(True)
         self.setDefaultAction(action)
-        self.setIconSize(QtCore.QSize(35,35))
-        self.setMinimumSize(QtCore.QSize(80,60))
-        self.setMaximumSize(QtCore.QSize(80,60))
+        self.setIconSize(big_icon_size)
+        self.setMinimumSize(big_btn_size)
+        self.setMaximumSize(big_btn_size)
 
 class SmallBtnByAction(QtGui.QToolButton):
     def __init__(self, action):
@@ -288,6 +294,6 @@ class SmallBtnByAction(QtGui.QToolButton):
         self.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
         self.setAutoRaise(True)
         self.setDefaultAction(action)
-        self.setIconSize(QtCore.QSize(20,20))
-        self.setMinimumSize(QtCore.QSize(130,20))
-        self.setMaximumSize(QtCore.QSize(130,20))
+        self.setIconSize(small_icon_size)
+        self.setMinimumSize(small_btn_size)
+        self.setMaximumSize(small_btn_size)
