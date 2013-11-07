@@ -207,6 +207,8 @@ class AppletContainer(QtGui.QTabWidget):
         """
         Save current script
         """ 
+        if name in (False, None):
+            name = self.tabText(self.currentIndex())
         logger.debug("Save model " + str(name))
         self.currentWidget().save(name=name)
     

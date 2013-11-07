@@ -202,9 +202,9 @@ class TextEditor(QtGui.QTextEdit):
             # Save a script outside a project  
             logger.debug("Will save script outside project")
             project = self.session.project
-            if self.name is None or False:
+            if self.name is None or self.name is False:
                     self.name = u"script.py"      
-            if self.name is u"script.py" or u"script.lpy" or u"script.r" or u"workflow.wpy" or u"" or "None" or "False":
+            if self.name in (u"script.py", u"script.lpy", u"script.r", u"workflow.wpy", u"", "None", "False"):
                 new_fname = QtGui.QFileDialog.getSaveFileName(self, 'Select name to save the file %s'%str(self.name),str(self.name))
                 if new_fname != u"":
                     project[new_fname] = txt
@@ -213,7 +213,7 @@ class TextEditor(QtGui.QTextEdit):
                     except:
                         pass
                     self.name = new_fname
-            if str(self.name) == u"script.py" or u"script.lpy" or u"script.r" or u"workflow.wpy" or u"" or "None" or "False":
+            if self.name in (u"script.py", u"script.lpy", u"script.r", u"workflow.wpy", u"", "None", "False"):
                 logger.debug("Can't save file because name is None")
             else:
                 f = open(self.name, "w")
