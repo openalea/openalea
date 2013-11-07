@@ -25,6 +25,19 @@ from openalea.oalab.editor.lpy_lexer import LPyLexer
 from openalea.lpy import Lsystem, AxialTree, registerPlotter
 from openalea.lpy.gui import documentation as doc_lpy
 
+def get_default_text():
+    return """Axiom: 
+
+derivation length: 1
+
+production:
+
+interpretation:
+
+endlsystem
+"""
+
+
 class LPyApplet(object):
     def __init__(self, session, name="script.lpy", script=""):
         super(LPyApplet, self).__init__()
@@ -38,6 +51,9 @@ class LPyApplet(object):
         # Usefull if you want change scene_name inside application
         self.context = dict()
         self.context["scene_name"] = "lpy_scene"
+        
+        if script == "":
+            script = get_default_text()
 
         script, self.parameters = self.filter_old_lpy_file(script)
         self.widget().set_text(script)
