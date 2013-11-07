@@ -18,11 +18,148 @@
 __revision__ = "$Id: $"
 
 from openalea.vpltk.qt import QtGui, QtCore
-from openalea.vpltk import plugin
+#from openalea.vpltk import plugin
 from openalea.lpy.gui.materialeditor import MaterialEditor
-from openalea.lpy.gui.objectpanel import LpyObjectPanelDock
+#from openalea.lpy.gui.objectpanel import LpyObjectPanelDock
 from openalea.lpy.gui.objectpanel import ObjectPanelManager, TriggerParamFunc, ObjectListDisplay
 
+
+
+class LPyPanelWidget(QtGui.QWidget):
+    def __init__(self,parent,name,panelmanager = None):       
+        super(LPyPanelWidget, self).__init__(parent)  
+        self.panelmanager = panelmanager
+        self.setObjectName(name.replace(' ','_'))
+        self.setName(name)
+        self.verticalLayout = QtGui.QVBoxLayout(parent)
+        self.verticalLayout.setSpacing(0)
+        self.verticalLayout.setMargin(0)
+        self.verticalLayout.setObjectName(name+"verticalLayout")              
+
+        self.objectpanel = QtGui.QScrollArea(parent)
+        self.view = ObjectListDisplay(self,panelmanager)
+        self.view.dock = self # ?
+        self.objectpanel.setWidget(self.view)
+        self.objectpanel.setWidgetResizable(True)
+        self.objectpanel.setObjectName(name+"panelarea")
+
+        self.verticalLayout.addWidget(self.objectpanel)
+        self.objectNameEdit = QtGui.QLineEdit(self)
+        self.objectNameEdit.setObjectName(name+"NameEdit")
+        self.verticalLayout.addWidget(self.objectNameEdit)        
+        self.objectNameEdit.hide()
+        self.setLayout(self.verticalLayout)
+        
+        QtCore.QObject.connect(self.view,QtCore.SIGNAL('valueChanged(int)'),self.__updateStatus)
+        QtCore.QObject.connect(self.view,QtCore.SIGNAL('AutomaticUpdate()'),self.__transmit_autoupdate)
+        QtCore.QObject.connect(self.view,QtCore.SIGNAL('selectionChanged(int)'),self.endNameEditing)
+        QtCore.QObject.connect(self.view,QtCore.SIGNAL('renameRequest(int)'),self.displayName)
+        QtCore.QObject.connect(self.objectNameEdit,QtCore.SIGNAL('editingFinished()'),self.updateName)
+        self.dockNameEdition = False
+        self.nameEditorAutoHide = True
+        self.setAcceptDrops(True)   
+        
+    def dragEnterEvent(self,event):
+        event.acceptProposedAction()
+
+    def dropEvent(self,event):
+        if event.mimeData().hasUrls() :
+            self.fileDropEvent(str(event.mimeData().urls()[0].toLocalFile()))
+
+    def fileDropEvent(self,fname):
+        for manager in self.view.managers.itervalues():
+            if manager.canImportData(fname):
+                objects = manager.importData(fname)
+                self.view.appendObjects([(manager,i) for i in objects])    
+                self.showMessage('import '+str(len(objects))+" object(s) from '"+fname+"'.",5000)
+                return
+
+    def endNameEditing(self,id):
+        if id != -1 and self.objectNameEdit.isVisible():
+            self.displayName(-1)
+    
+    def displayName(self,id):
+        if id == -1:
+            self.objectNameEdit.clear()
+            if self.nameEditorAutoHide : 
+                self.objectNameEdit.hide()
+        else:
+            if self.nameEditorAutoHide : 
+                self.objectNameEdit.show()
+            self.objectNameEdit.setText(self.view.getSelectedObjectName())
+            self.objectNameEdit.setFocus()
+
+    def updateName(self):
+        if not self.dockNameEdition :
+            if self.view.hasSelection():
+                self.view.setSelectedObjectName(str(self.objectNameEdit.text()))
+                self.view.updateGL()
+                if self.nameEditorAutoHide : 
+                    self.objectNameEdit.hide()
+        else :
+            self.setName(self.objectNameEdit.text())
+            if self.nameEditorAutoHide : 
+                self.objectNameEdit.hide()            
+            self.dockNameEdition = False
+        
+    def setObjects(self,objects):
+        self.view.setObjects(objects)
+
+    def appendObjects(self,objects):
+        self.view.appendObjects(objects)
+
+    def getObjects(self):
+        return self.view.objects
+
+    def getObjectsCopy(self):
+        return self.view.getObjectsCopy()
+
+    def setStatusBar(self,st):
+        self.objectpanel.statusBar = st
+        self.view.statusBar = st
+
+    def showMessage(self,msg,timeout):
+        if hasattr(self,'statusBar'):
+            self.statusBar.showMessage(msg,timeout)
+        else:
+            print(msg)    
+            
+    def __updateStatus(self,i=None):
+        if not i is None and i >= 0 and self.view.objects[i][0].managePrimitive():
+            self.emit(QtCore.SIGNAL('valueChanged(bool)'),True)
+        else:
+            self.emit(QtCore.SIGNAL('valueChanged(bool)'),False)
+
+    def __transmit_autoupdate(self):
+        self.emit(QtCore.SIGNAL('AutomaticUpdate()'))
+        
+    def setName(self,name):
+        self.name = name
+        self.setWindowTitle(name)
+        
+    def rename(self):
+        self.dockNameEdition = True
+        if self.nameEditorAutoHide : 
+            self.objectNameEdit.show()
+        self.objectNameEdit.setText(self.name)
+        self.objectNameEdit.setFocus()
+    
+    def getInfo(self):
+        visibility = True
+        if not self.isVisible() :
+            if self.parent().isVisible() :
+                visibility = False
+            else:
+                visibility = getattr(self,'previousVisibility',True)
+        return {'name':str(self.name),'active':bool(self.view.isActive()),'visible':visibility }
+        
+    def setInfo(self,info):
+        self.setName(info['name'])
+        if info.has_key('active'):
+            self.view.setActive(info['active'])        
+        if info.has_key('visible'):
+            self.previousVisibility = info['visible']
+            self.setVisible(info['visible'])     
 
 # Add a dict interface
 class ControlPanelManager(ObjectPanelManager):
@@ -32,8 +169,11 @@ class ControlPanelManager(ObjectPanelManager):
         parent.vparameterView = QtGui.QMenu()
         super(ControlPanelManager, self).__init__(parent)
         self.session = session
+        #for themename,value in ObjectListDisplay.THEMES.iteritems():
+            #if themename == "White":
+                #panel.view.applyTheme(value)
         
-     
+    '''
     ##################################
     # Block save state in an xml file
     # TODO : do the same thing in a more beautiful way
@@ -54,7 +194,7 @@ class ControlPanelManager(ObjectPanelManager):
         for panel in self.getObjectPanels():
             for manager,obj in panel.getObjects():
                 del(manager, obj)
-
+    
     def get_controls_and_managers(self):
         """
         :return: two Dict. Controls and Managers associated to controls.
@@ -94,7 +234,7 @@ class ControlPanelManager(ObjectPanelManager):
         return controls
 
     def get_panel(self):
-        return self.getObjectPanels()
+        return self.getObjectPanels()'''
     
     def completeMenu(self,menu,panel):
         panelmenu = QtGui.QMenu("Panel",menu)
@@ -126,20 +266,44 @@ class ControlPanel(QtGui.QTabWidget):
         self.addTab(self.colormap_editor, "Color Map")
         
         # Geometry
-        control_panel_manager = ControlPanelManager(session)
-        dock = LpyObjectPanelDock(parent=None,name="Control Panel", panelmanager=control_panel_manager)
-        self.geometry_editor = dock.widget()
+        self.control_panel_manager = ControlPanelManager(session)
+        self.geometry_editor = LPyPanelWidget(parent=None,name="Control Panel", panelmanager=self.control_panel_manager)
+        # objects = self.geometry_editor.getObjects()
+        # for object in objects:
+            # object[1].name, object
+        
+        #o = self.geometry_editor.getObjectsCopy()
+        #self.geometry_editor.setObjects(o)
+        
+        #from copy import copy
+        #objects = self.geometry_editor.getObjects()
+        #objects = copy(objects)
+        #self.geometry_editor.setObjects(objects)
+        
+
+        # Print Warning in PlantGL/src/plantg/gui/curve2deditor.py l.227
+        """
+        Edit curve
+        Ok
+        Edit Function
+        Apply
+        Ok --> error
+        
+        Traceback (most recent call last):
+            
+        File "/home/julien/dev/vplants_trunk/lpy/src/openalea/lpy/gui/objectpanel.py", line 64, in __transmit_valueChanged__
+            self.panel.retrieveObject(self)
+            
+        File "/home/julien/dev/vplants_trunk/lpy/src/openalea/lpy/gui/objectpanel.py", line 397, in retrieveObject
+            object,objectid = managerDialog.getEditedObject()
+            
+        TypeError: 'NoneType' object is not iterable
+        """
         self.addTab(self.geometry_editor, "Geometry")
         
         # Scalars
         self.scalars_editor = QtGui.QWidget()
-        self.addTab(self.scalars_editor, "Scalars")
-        
-        
-        
-        
-        
-        
+        self.addTab(self.scalars_editor, "Scalars")   
         
 '''
         # connected to current_project.control

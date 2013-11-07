@@ -206,7 +206,12 @@ class AppletContainer(QtGui.QTabWidget):
             wid = self.widget(i)
             name = wid.applet.name
             wid.save(name=name)
-            self.setTabText(i, self.widget(i).editor.name)
+            try:
+                name = self.widget(i).editor.name
+            except:
+                name = self.widget(i).name
+            logger.debug("%s saved."%name)
+            self.setTabText(i, name)
                 
     def run_selected_part(self):
         try:
