@@ -39,6 +39,7 @@ class LPyPanelWidget(QtGui.QWidget):
         self.objectpanel = QtGui.QScrollArea(parent)
         self.view = ObjectListDisplay(self,panelmanager)
         self.view.dock = self # ?
+        
         self.objectpanel.setWidget(self.view)
         self.objectpanel.setWidgetResizable(True)
         self.objectpanel.setObjectName(name+"panelarea")
@@ -58,7 +59,7 @@ class LPyPanelWidget(QtGui.QWidget):
         self.dockNameEdition = False
         self.nameEditorAutoHide = True
         self.setAcceptDrops(True)   
-        
+
     def dragEnterEvent(self,event):
         event.acceptProposedAction()
 
@@ -169,10 +170,7 @@ class ControlPanelManager(ObjectPanelManager):
         parent.vparameterView = QtGui.QMenu()
         super(ControlPanelManager, self).__init__(parent)
         self.session = session
-        #for themename,value in ObjectListDisplay.THEMES.iteritems():
-            #if themename == "White":
-                #panel.view.applyTheme(value)
-        
+
     '''
     ##################################
     # Block save state in an xml file
@@ -268,6 +266,7 @@ class ControlPanel(QtGui.QTabWidget):
         # Geometry
         self.control_panel_manager = ControlPanelManager(session)
         self.geometry_editor = LPyPanelWidget(parent=None,name="Control Panel", panelmanager=self.control_panel_manager)
+        self.geometry_editor.view.setTheme(self.geometry_editor.view.WHITE_THEME)
         # objects = self.geometry_editor.getObjects()
         # for object in objects:
             # object[1].name, object
