@@ -49,6 +49,7 @@ class MainWindow(QtGui.QMainWindow):
         settings = QtCore.QSettings("OpenAlea", "OpenAleaLaboratory")
         settings.setValue("geometry", self.saveGeometry())
         settings.setValue("windowState", self.saveState())
+        settings.setValue("session", self.session.project)
         
     def readSettings(self):
         """

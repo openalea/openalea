@@ -130,8 +130,9 @@ class ProjectWidget(QtGui.QWidget):
             proj_path = path(name).abspath()
             proj_name = proj_path.basename()
             proj_path = proj_path.dirname()
-            if self.session.current_is_project():
-                self.projectManager.close(self.session.project.name)
+            if self.session.project is not None:
+                if self.session.current_is_project():
+                    self.projectManager.close(self.session.project.name)
             self.session._project = self.projectManager.load(proj_name,proj_path)
             self.session._is_script = False
             self.session._is_proj = True
