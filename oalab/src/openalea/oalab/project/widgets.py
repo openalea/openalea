@@ -108,6 +108,7 @@ class ProjectWidget(QtGui.QWidget):
             my_path = path(where).abspath().splitpath()[0]
         else:
             my_path = path(settings.get_project_dir())
+        logger.debug("Search to open file with extension "+extension+" from "+my_path)
         fname = QtGui.QFileDialog.getOpenFileName(self, 'Select File to open', 
                 my_path, "Scripts Files (%s);;All (*)"%extension)
         return fname
@@ -193,12 +194,12 @@ class ProjectWidget(QtGui.QWidget):
         else:
             self.session._is_script = True
             self.session._is_proj = False
-            where = None
-            if len(self.scriptManager) != 0:
+            where_ = None
+            if len(self.session.project) != 0:
                 i = self.session.applet_container.currentIndex()
-                where = self.session.applet_container.tabText(i)
+                where_ = self.session.applet_container.tabText(i)
             if not filename:
-                filename = self.showOpenFileDialog(extension=extension, where=where)
+                filename = self.showOpenFileDialog(extension=extension, where=where_)
             if filename:
                 f = open(filename, "r")
                 txt = f.read() 
