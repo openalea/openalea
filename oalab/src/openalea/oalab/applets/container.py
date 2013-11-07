@@ -23,6 +23,7 @@ from openalea.oalab.applets.python import PythonApplet
 from openalea.oalab.applets.r import RApplet
 from openalea.oalab.applets.visualea import VisualeaApplet
 from openalea.core import logger
+from openalea.core.path import path
 
 class AppletContainer(QtGui.QTabWidget):
     """
@@ -312,6 +313,10 @@ class WelcomePage(QtGui.QWidget):
         openScriptBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/Python-logo.png"),"Open File")
         openScriptBtn.setMaximumSize(max_size)  
         openScriptBtn.setMinimumSize(min_size)
+        
+        restoreSessionBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/open.png"),"Restore Previous Session")
+        restoreSessionBtn.setMaximumSize(QtCore.QSize(412,60))  
+        restoreSessionBtn.setMinimumSize(QtCore.QSize(412,60))
                 
         QtCore.QObject.connect(newBtn, QtCore.SIGNAL("clicked()"),self.new)
         QtCore.QObject.connect(newSvnBtn, QtCore.SIGNAL("clicked()"),self.newSvn)
@@ -321,7 +326,9 @@ class WelcomePage(QtGui.QWidget):
         QtCore.QObject.connect(openSvnBtn, QtCore.SIGNAL("clicked()"),self.openSvn)
         QtCore.QObject.connect(openGitBtn, QtCore.SIGNAL("clicked()"),self.openGit)
         QtCore.QObject.connect(openScriptBtn, QtCore.SIGNAL("clicked()"),self.openScript)
-            
+        
+        QtCore.QObject.connect(restoreSessionBtn, QtCore.SIGNAL("clicked()"),self.restoreSession)
+        
         #layout.addWidget(messageBegin,0,0,1,1)
         #layout.addWidget(messageNew,1,0)
         #layout.addWidget(newBtn,2,0)
@@ -340,6 +347,8 @@ class WelcomePage(QtGui.QWidget):
         
         layout.addWidget(newScriptBtn,0,1)
         layout.addWidget(openScriptBtn,1,1)
+        
+        layout.addWidget(restoreSessionBtn,2,0,2,2)
         
         self.setLayout(layout)
 
@@ -398,3 +407,17 @@ class WelcomePage(QtGui.QWidget):
         self.session._is_script = True
         self.session.project_widget.openPython()
         logger.debug("Open Script from welcome page")
+        
+    def restoreSession(self):
+        settings = QtCore.QSettings("OpenAlea", "OpenAleaLaboratory")
+        proj = settings.value("session")
+        if proj is None:
+            pass
+        elif proj.is_project():
+            name = path(proj.path).abspath()/proj.name
+            print name
+            self.session.project_widget.open(name)
+        elif proj.is_script():
+            self.session._project = proj
+            #self.session.project_widget.importFile(filename=fname, extension="*.py")
+        print proj
