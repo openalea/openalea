@@ -36,7 +36,7 @@ class RichTextEditor(QtGui.QWidget):
         self.editor.setCompleter(self.completer)
         
         self.search_widget = SearchWidget(parent=self,session=session )
-        
+
         self.layout = QtGui.QVBoxLayout()
         self.layout.addWidget(self.editor)
         self.layout.addWidget(self.search_widget)
@@ -109,7 +109,7 @@ class TextEditor(QtGui.QTextEdit):
         self.completer = None
         self.name = None
         self.set_tab_size()
-        
+
         # Line number area
         #self.lineNumberArea = LineNumberArea(self)
         #QtCore.QObject.connect(self.document(), QtCore.SIGNAL("blockCountChanged(int)"),self.updateLineNumberAreaWidth)
@@ -167,8 +167,11 @@ class TextEditor(QtGui.QTextEdit):
         :param end: is the end of what you want to get
         :return: text which is contained in the editor between 'start' and 'end'
         """
-        return self.toPlainText()
-        
+        txt = self.toPlainText()
+        if txt is None:
+            txt = ""
+        return txt
+
     def save(self, name=None):
         """
         Save current file.
@@ -179,37 +182,46 @@ class TextEditor(QtGui.QTextEdit):
         a File Dialog is opened.
         """
         logger.debug("Try to save text")
+        
+        txt = self.get_text()
 
         if name is not None:
             self.name = name
 
-        if self.name is None:
-            temp_path = path(settings.get_project_dir())
-            self.name = QtGui.QFileDialog.getSaveFileName(self, 'Select name to save the file', temp_path)
-
-        txt = self.get_text()
-        
         if self.session.current_is_project():
-            project = self.session.project
-            project.scripts[self.name] = txt
-            project._save_scripts()
-            logger.debug("Try to save script in project")
+            if self.name is None:
+                temp_path = path(settings.get_project_dir())
+                self.name = QtGui.QFileDialog.getSaveFileName(self, 'Select name to save the file', temp_path)
+            if self.name is not None:
+			    project = self.session.project
+			    project.scripts[self.name] = txt
+			    project._save_scripts()
+			    logger.debug("Try to save script in project")
             
         elif self.session.current_is_script():
             # Save a script outside a project  
-            project = self.session.project         
-            if self.name == (u"script.py" or u"script.lpy" or u"script.r" or u"workflow.wpy"):
-                new_fname = QtGui.QFileDialog.getSaveFileName(self, 'Select name to save the file %s'%self.name,self.name)
-                project[new_fname] = txt
-                del project[self.name]
-                self.name = new_fname
-                
-            f = open(self.name, "w")
-            code = txt
-            code_enc = code.encode("utf8","ignore") 
-            f.write(code_enc)
-            f.close()
-            logger.debug("Try to save file "+self.name+" outside project")
+            logger.debug("Will save script outside project")
+            project = self.session.project
+            if self.name is None or False:
+                    self.name = u"script.py"      
+            if self.name is u"script.py" or u"script.lpy" or u"script.r" or u"workflow.wpy" or u"" or "None" or "False":
+                new_fname = QtGui.QFileDialog.getSaveFileName(self, 'Select name to save the file %s'%str(self.name),str(self.name))
+                if new_fname != u"":
+                    project[new_fname] = txt
+                    try:
+                        del project[self.name]
+                    except:
+                        pass
+                    self.name = new_fname
+            if str(self.name) == u"script.py" or u"script.lpy" or u"script.r" or u"workflow.wpy" or u"" or "None" or "False":
+                logger.debug("Can't save file because name is None")
+            else:
+                f = open(self.name, "w")
+                code = txt
+                code_enc = code.encode("utf8","ignore")
+                f.write(code_enc)
+                f.close()
+                logger.debug("Save file "+str(self.name)+" outside project")
 
     def keyPressEvent(self,event):
         # Auto-indent

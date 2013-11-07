@@ -51,16 +51,16 @@ class AppletContainer(QtGui.QTabWidget):
         self.actionSearch = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/editfind.png"),"Search", self)
         
         self.actionComment = QtGui.QAction(QtGui.QIcon(":/images/resources/commentOn.png"),"Comment",self)
-        self.actionUnComment = QtGui.QAction(QtGui.QIcon(":/images/resources/commentOff.png"),"Uncomment",self)
-        
-        self.actionComment.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+G", None, QtGui.QApplication.UnicodeUTF8)) 
-        self.actionUnComment.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+H", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionUnComment = QtGui.QAction(QtGui.QIcon(":/images/resources/commentOff.png"),"Uncomment",self) 
+       
+        self.actionComment.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+W", None, QtGui.QApplication.UnicodeUTF8)) 
+        self.actionUnComment.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Q", None, QtGui.QApplication.UnicodeUTF8))
         
         self.actionRunSelection.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+R", None, QtGui.QApplication.UnicodeUTF8))
 
         self.actionSearch.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+F", None, QtGui.QApplication.UnicodeUTF8))
         
-        #self.actionSave.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionSave.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
         self.actionRun.setShortcut(QtGui.QApplication.translate("MainWindow", "F1", None, QtGui.QApplication.UnicodeUTF8))
         self.actionAnimate.setShortcut(QtGui.QApplication.translate("MainWindow", "F2", None, QtGui.QApplication.UnicodeUTF8))
         self.actionStep.setShortcut(QtGui.QApplication.translate("MainWindow", "F3", None, QtGui.QApplication.UnicodeUTF8))
@@ -94,12 +94,13 @@ class AppletContainer(QtGui.QTabWidget):
                                     ["Text Edit",self.actionSearch,1],
                                     ["Text Edit",self.actionComment,1],
                                     ["Text Edit",self.actionUnComment,1],
-                                    ["Text Edit",self.actionRunSelection,1]]]
+                                    ["Text Edit",self.actionRunSelection,1],
+                                    ["Text Edit",self.actionSave,1]]]
                                     
         QtCore.QObject.connect(self, QtCore.SIGNAL('tabCloseRequested(int)'),self.autoClose)
 
         self.addDefaultTab()
-
+	    
     def addDefaultTab(self):
         """
         Display a welcom tab if nothing is opened
@@ -206,7 +207,7 @@ class AppletContainer(QtGui.QTabWidget):
         """
         Save current script
         """ 
-        logger.debug("Save model " + name)
+        logger.debug("Save model " + str(name))
         self.currentWidget().save(name=name)
     
     def save_all(self):
