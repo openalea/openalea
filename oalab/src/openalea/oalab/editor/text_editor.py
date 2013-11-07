@@ -198,8 +198,8 @@ class TextEditor(QtGui.QTextEdit):
         elif self.session.current_is_script():
             # Save a script outside a project  
             project = self.session.project         
-            if self.name == u"script.py":
-                new_fname = QtGui.QFileDialog.getSaveFileName(self, 'Select name to save the file')
+            if self.name == (u"script.py" or u"script.lpy" or u"script.r" or u"workflow.wpy"):
+                new_fname = QtGui.QFileDialog.getSaveFileName(self, 'Select name to save the file %s'%self.name,self.name)
                 project[new_fname] = txt
                 del project[self.name]
                 self.name = new_fname

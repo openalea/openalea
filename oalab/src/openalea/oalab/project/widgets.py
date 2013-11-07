@@ -214,7 +214,7 @@ class ProjectWidget(QtGui.QWidget):
                     logger.debug("Import file named " + tab_name + " outside project")
                 except:
                     print "File extension " +ext+ "not recognised"
-                    logger.warning("Can't import file named " + filename + " outside project. Unknow extension.")
+                    logger.warning("Can't import file named " + filename + " outside project. Unknow extension: " + ext + " .")
         
     def new(self, name=None):
         """
@@ -256,15 +256,16 @@ class ProjectWidget(QtGui.QWidget):
             self.session._update_locals()
             self._script_change()
             self._tree_view_change() 
-        elif self.session.current_is_script():
+        else:
+            self.session._is_script = True
+            self.session._is_proj = False
             tab_name = "script.py"
             self.scriptManager.add_script(tab_name, "") 
             self.session._project = self.scriptManager
             self.session.applet_container.newTab(applet_type="python", tab_name=tab_name)
             self.session._update_locals()
             self._script_change()
-        else:
-            print("Open or create a project before using models")
+            self._tree_view_change()
         
     def newR(self):    
         if self.session.current_is_project():
@@ -276,7 +277,15 @@ class ProjectWidget(QtGui.QWidget):
             self._script_change()
             self._tree_view_change()
         else:
-            print("Open or create a project before using models")
+            self.session._is_script = True
+            self.session._is_proj = False
+            tab_name = "script.r"
+            self.scriptManager.add_script(tab_name, "") 
+            self.session._project = self.scriptManager
+            self.session.applet_container.newTab(applet_type="r", tab_name=tab_name)
+            self.session._update_locals()
+            self._script_change()
+            self._tree_view_change()
         
     def newLpy(self):
         if self.session.current_is_project():
@@ -288,7 +297,15 @@ class ProjectWidget(QtGui.QWidget):
             self._script_change()
             self._tree_view_change()
         else:
-            print("Open or create a project before using models")
+            self.session._is_script = True
+            self.session._is_proj = False
+            tab_name = "script.lpy"
+            self.scriptManager.add_script(tab_name, "") 
+            self.session._project = self.scriptManager
+            self.session.applet_container.newTab(applet_type="lpy", tab_name=tab_name)
+            self.session._update_locals()
+            self._script_change()
+            self._tree_view_change()
                     
     def newVisualea(self):
         if self.session.current_is_project():
@@ -299,9 +316,16 @@ class ProjectWidget(QtGui.QWidget):
             self.session._update_locals()
             self._script_change()
             self._tree_view_change()
-            
         else:
-            print("Open or create a project before using models")
+            self.session._is_script = True
+            self.session._is_proj = False
+            tab_name = "workflow.wpy"
+            self.scriptManager.add_script(tab_name, "") 
+            self.session._project = self.scriptManager
+            self.session.applet_container.newTab(applet_type="visualea", tab_name=tab_name)
+            self.session._update_locals()
+            self._script_change()
+            self._tree_view_change()
                     
     def removeModel(self, model_name):
         """
@@ -372,6 +396,7 @@ class ProjectWidget(QtGui.QWidget):
             #current = self.session.project
             #container = 
             self.session.applet_container.save_all()
+            self._tree_view_change()
         
             #for i in range(container.count()):
                 #container.setCurrentIndex(i)
@@ -407,6 +432,8 @@ class ProjectWidget(QtGui.QWidget):
             self._scene_change()
             self._control_change()
             self._script_change()
+            self._tree_view_change()
+        elif self.session.current_is_project():
             self._tree_view_change()
             
     def _control_change(self):

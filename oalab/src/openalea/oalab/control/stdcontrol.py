@@ -23,23 +23,26 @@ Control classes for standard python types
 __revision__ = "$Id: $"
 
 
-
+from cPickle import loads, dumps
 from openalea.vpltk.qt import QtGui
 
 class Control(object):
-    """ ABC for controls """
+    """ Base Class for controls """
     
-    def __init__(self):
+    def __init__(self, name=None, value=None):
         super(Control, self).__init__() 
-        self.name = ""
-        self.value = ""
+        self.default()
+        if name:
+            self.name = name
+        if value:
+            self.value = value
         
     def save(self):
         """
         
         """
         return repr(self.value)
-    
+            
     def default(self):
         """
         Fill fields 'name' and ''value' with default values
@@ -59,8 +62,8 @@ class Control(object):
         raise NotImplementedError
 
 class IntControl(Control):
-    def __init__(self):
-        super(IntControl, self).__init__() 
+    def __init__(self, name=None, value=None):
+        super(IntControl, self).__init__(name, value) 
     
     @classmethod
     def default(self):
@@ -84,8 +87,8 @@ class IntControl(Control):
 
 
 class BoolControl(Control):
-    def __init__(self):
-        super(BoolControl, self).__init__() 
+    def __init__(self, name=None, value=None):
+        super(BoolControl, self).__init__(name, value) 
     
     @classmethod
     def default(self):
@@ -111,8 +114,8 @@ class BoolControl(Control):
 
         
 class FloatControl(Control):
-    def __init__(self):
-        super(FloatControl, self).__init__() 
+    def __init__(self, name=None, value=None):
+        super(FloatControl, self).__init__(name, value) 
     
     @classmethod
     def default(self):
@@ -134,4 +137,18 @@ class FloatControl(Control):
         """
         pass
 
-        
+
+
+
+#def main():
+    #"""
+    #OpenAleaLaboratory starts here
+    #"""
+    #app = QtGui.QApplication(sys.argv)
+    #app.set
+    #app.exec_()
+
+    
+#if( __name__ == "__main__"):
+    #main()
+

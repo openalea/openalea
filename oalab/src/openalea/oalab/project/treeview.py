@@ -70,6 +70,8 @@ class ProjectLabel(QtGui.QLabel):
     def update(self):    
         if self.session.current_is_project():
             label = self.session.project.name
+        elif self.session.current_is_script():
+            label = "Files"
         else:
             label = ""
         self.setText(label)  
@@ -84,6 +86,8 @@ class ProjectTreeView(QtGui.QTreeView):
         self.session = session
         
         if self.session.current_is_project():
+            self.project = self.session.project
+        elif self.session.current_is_script():
             self.project = self.session.project
         else:
             self.project = None
@@ -108,6 +112,8 @@ class ProjectTreeView(QtGui.QTreeView):
         """ Reinitialise project view """
         
         if self.session.current_is_project():
+            self.project = self.session.project
+        elif self.session.current_is_script():
             self.project = self.session.project
         else:
             self.project = None
@@ -380,37 +386,38 @@ class PrjctModel(QtGui.QStandardItemModel):
         QtCore.QObject.connect(self,QtCore.SIGNAL('dataChanged( const QModelIndex &, const QModelIndex &)'),self.renamed)
         
     def renamed(self,x,y):
-        # Get item and his parent
-        parent = self.item(x.parent().row())
-        # Check if you have the right to rename
-        if parent:
-            item = parent.child(x.row())
-        
-            # List brothers of item
-            children = list()
-            raw = parent.rowCount()
-            for i in range(raw):
-                child = parent.child(i)
-                children.append(child.text())
+        if self.session.current_is_project():
+            # Get item and his parent
+            parent = self.item(x.parent().row())
+            # Check if you have the right to rename
+            if parent:
+                item = parent.child(x.row())
             
-            # Search which is the old_item which was changed and rename it
-            if parent.text() == "Models":
-                for i in self.old_models:
-                    if i not in children:
-                        self.proj.rename(categorie=parent.text(), old_name=i, new_name= item.text())
+                # List brothers of item
+                children = list()
+                raw = parent.rowCount()
+                for i in range(raw):
+                    child = parent.child(i)
+                    children.append(child.text())
+                
+                # Search which is the old_item which was changed and rename it
+                if parent.text() == "Models":
+                    for i in self.old_models:
+                        if i not in children:
+                            self.proj.rename(categorie=parent.text(), old_name=i, new_name= item.text())
 
-            if parent.text() == "Controls":
-                for i in children:
-                    if i not in self.old_controls:
-                        self.proj.rename(categorie=parent.text(), old_name=i, new_name= item.text())
+                if parent.text() == "Controls":
+                    for i in children:
+                        if i not in self.old_controls:
+                            self.proj.rename(categorie=parent.text(), old_name=i, new_name= item.text())
 
-            if parent.text() == "Scene":
-                for i in children:
-                    if i not in self.old_scene:
-                        self.proj.rename(categorie=parent.text(), old_name=i, new_name= item.text())
-                        
-            # Save project
-            self.proj.save()
+                if parent.text() == "Scene":
+                    for i in children:
+                        if i not in self.old_scene:
+                            self.proj.rename(categorie=parent.text(), old_name=i, new_name= item.text())
+                            
+                # Save project
+                self.proj.save()
         
 
     def set_proj(self, proj=None):
@@ -423,54 +430,74 @@ class PrjctModel(QtGui.QStandardItemModel):
 
     def _set_level_0(self):
         ## TODO if you want to see all objects of the project
-        level0 = ["Models", "Controls", "Scene"]       
-                            
-        for name in level0:
-            parentItem = self.invisibleRootItem()
-            item = QtGui.QStandardItem(name)
-            if name == "Controls": icon = QtGui.QIcon(":/images/resources/node.png")
-            elif name == "Scene": icon = QtGui.QIcon(":/images/resources/flower.ico")
-            elif name == "Models": icon = QtGui.QIcon(":/images/resources/package.png")
-            item.setIcon(icon)
-            parentItem.appendRow(item)
+        
+        if self.proj.is_project():
+            level0 = ["Models", "Controls", "Scene"]       
+                                
+            for name in level0:
+                parentItem = self.invisibleRootItem()
+                item = QtGui.QStandardItem(name)
+                if name == "Controls": icon = QtGui.QIcon(":/images/resources/node.png")
+                elif name == "Scene": icon = QtGui.QIcon(":/images/resources/flower.ico")
+                elif name == "Models": icon = QtGui.QIcon(":/images/resources/package.png")
+                item.setIcon(icon)
+                parentItem.appendRow(item)
 
-            
+        elif self.proj.is_script():
+            rootItem = self.invisibleRootItem()
+            for name in self.proj:
+                item = QtGui.QStandardItem(name)
+                if name.split(".")[-1] == "wpy":
+                    item.setIcon(QtGui.QIcon(":/images/resources/openalealogo.png"))
+                elif name.split(".")[-1] == "py":
+                    item.setIcon(QtGui.QIcon(":/images/resources/Python-logo.png"))
+                elif name.split(".")[-1] == "r":
+                    item.setIcon(QtGui.QIcon(":/images/resources/RLogo.png"))
+                elif name.split(".")[-1] == "lpy":
+                    item.setIcon(QtGui.QIcon(":/lpy_images/resources/lpy/logo.png"))
+                else:
+                    item.setIcon(QtGui.QIcon(":/images/resources/openalea_icon2.png"))
+                rootItem.appendRow(item)    
+
     def _set_level_1(self):
-        self.old_models = list()
-        self.old_controls = list()
-        self.old_scene = list()
-        
-        rootItem = self.invisibleRootItem()
-        
-        # Controls
-        parentItem = rootItem.child(1)
-        for name in self.proj.controls:
-            item = QtGui.QStandardItem(name)
-            item.setIcon(QtGui.QIcon(":/images/resources/bool.png"))
-            #parentItem.appendRow(item)    
-            self.old_controls.append(name)
-             
-        # Models
-        parentItem = rootItem.child(0)
-        for name in self.proj.scripts:
-            item = QtGui.QStandardItem(name)
-            if name.split(".")[-1] == "wpy":
-                item.setIcon(QtGui.QIcon(":/images/resources/openalealogo.png"))
-            elif name.split(".")[-1] == "py":
-                item.setIcon(QtGui.QIcon(":/images/resources/Python-logo.png"))
-            elif name.split(".")[-1] == "r":
-                item.setIcon(QtGui.QIcon(":/images/resources/RLogo.png"))
-            elif name.split(".")[-1] == "lpy":
-                item.setIcon(QtGui.QIcon(":/lpy_images/resources/lpy/logo.png"))
-            else:
-                item.setIcon(QtGui.QIcon(":/images/resources/openalea_icon2.png"))
-            parentItem.appendRow(item)
-            self.old_models.append(name)
-        
-        # Scene
-        parentItem = rootItem.child(2)
-        for name in self.proj.scene:
-            item = QtGui.QStandardItem(name)
-            item.setIcon(QtGui.QIcon(":/images/resources/plant.png"))
-            parentItem.appendRow(item) 
-            self.old_scene.append(name)
+        if self.proj.is_project():
+            self.old_models = list()
+            self.old_controls = list()
+            self.old_scene = list()
+            
+            rootItem = self.invisibleRootItem()
+            
+            # Controls
+            parentItem = rootItem.child(1)
+            for name in self.proj.controls:
+                item = QtGui.QStandardItem(name)
+                item.setIcon(QtGui.QIcon(":/images/resources/bool.png"))
+                #parentItem.appendRow(item)    
+                self.old_controls.append(name)
+                 
+            # Models
+            parentItem = rootItem.child(0)
+            for name in self.proj.scripts:
+                item = QtGui.QStandardItem(name)
+                if name.split(".")[-1] == "wpy":
+                    item.setIcon(QtGui.QIcon(":/images/resources/openalealogo.png"))
+                elif name.split(".")[-1] == "py":
+                    item.setIcon(QtGui.QIcon(":/images/resources/Python-logo.png"))
+                elif name.split(".")[-1] == "r":
+                    item.setIcon(QtGui.QIcon(":/images/resources/RLogo.png"))
+                elif name.split(".")[-1] == "lpy":
+                    item.setIcon(QtGui.QIcon(":/lpy_images/resources/lpy/logo.png"))
+                else:
+                    item.setIcon(QtGui.QIcon(":/images/resources/openalea_icon2.png"))
+                parentItem.appendRow(item)
+                self.old_models.append(name)
+            
+            # Scene
+            parentItem = rootItem.child(2)
+            for name in self.proj.scene:
+                item = QtGui.QStandardItem(name)
+                item.setIcon(QtGui.QIcon(":/images/resources/plant.png"))
+                parentItem.appendRow(item) 
+                self.old_scene.append(name)
+        else:
+            pass

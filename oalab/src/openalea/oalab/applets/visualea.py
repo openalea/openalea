@@ -73,8 +73,24 @@ def save(self, name=None):
     # print "save wf", name
     wf_str = self.repr_workflow(name)
 
-    project.scripts[name] = wf_str
-    project._save_scripts()
+    if project.is_project():
+        project.scripts[name] = wf_str
+        project._save_scripts()
+    elif project.is_script():
+        project[name] = wf_str
+        if name == (u"workflow.wpy"):
+            new_fname = QtGui.QFileDialog.getSaveFileName(self, 'Select name to save the file %s'%name,name)
+            if new_fname == u"":
+                new_fname = name
+            project[new_fname] = wf_str
+            del project[name]
+            self.name = new_fname
+            
+        f = open(self.name, "w")
+        code = wf_str
+        code_enc = code.encode("utf8","ignore") 
+        f.write(code_enc)
+        f.close()
 
 def mainMenu(self):
     """
