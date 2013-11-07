@@ -170,12 +170,24 @@ class AppletContainer(QtGui.QTabWidget):
         """
         Close current tab
         """
+        if self.session.current_is_script():
+            fname = self.tabText(self.currentIndex())
+            del self.session.project[fname]
+            self.session.project_widget._tree_view_change()
+        
         self.removeTab(self.currentIndex())
+        if self.count() == 0:
+            self.addDefaultTab()
         logger.debug("Close tab")
         
     def autoClose(self, n_tab):
         self.setCurrentIndex(n_tab)
         self.closeTab()   
+        
+    def closeAll(self):
+        n = self.count()
+        for i in range(n):
+            self.closeTab()
         
     def actions(self):
         """
@@ -414,10 +426,15 @@ class WelcomePage(QtGui.QWidget):
         if proj is None:
             pass
         elif proj.is_project():
+            self.session._is_proj = True
+            self.session._is_script = False
             name = path(proj.path).abspath()/proj.name
-            print name
             self.session.project_widget.open(name)
         elif proj.is_script():
+            self.session._is_proj = False
+            self.session._is_script = True
             self.session._project = proj
+            
+            self.session.project_widget._project_changed()
             #self.session.project_widget.importFile(filename=fname, extension="*.py")
-        print proj
+

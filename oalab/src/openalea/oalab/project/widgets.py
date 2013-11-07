@@ -70,12 +70,12 @@ class ProjectWidget(QtGui.QWidget):
         self.actionOpenProj.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+O", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSaveProj = QtGui.QAction(QtGui.QIcon(":/images/resources/save.png"),"Save", self)
         self.actionSaveProj.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
-        #self.actionCloseProj = QtGui.QAction(QtGui.QIcon(":/images/resources/closeButton.png"),"Close", self)
+        self.actionCloseProj = QtGui.QAction(QtGui.QIcon(":/images/resources/closeButton.png"),"Close All", self)
         
         QtCore.QObject.connect(self.actionNewProj, QtCore.SIGNAL('triggered(bool)'),self.new)
         QtCore.QObject.connect(self.actionOpenProj, QtCore.SIGNAL('triggered(bool)'),self.open)
         QtCore.QObject.connect(self.actionSaveProj, QtCore.SIGNAL('triggered(bool)'),self.saveCurrent)
-        #QtCore.QObject.connect(self.actionCloseProj, QtCore.SIGNAL('triggered(bool)'),self.closeCurrent)
+        QtCore.QObject.connect(self.actionCloseProj, QtCore.SIGNAL('triggered(bool)'),self.closeCurrent)
         
         QtCore.QObject.connect(self.actionNewPython, QtCore.SIGNAL('triggered(bool)'),self.newPython)
         QtCore.QObject.connect(self.actionNewR, QtCore.SIGNAL('triggered(bool)'),self.newR)
@@ -87,7 +87,7 @@ class ProjectWidget(QtGui.QWidget):
         self._actions = ["Project",[["Manage Project",self.actionNewProj,0],
                                     ["Manage Project",self.actionOpenProj,0],
                                     ["Manage Project",self.actionSaveProj,0],
-                                    #["Manage Project",self.actionCloseProj,0],
+                                    ["Manage Project",self.actionCloseProj,0],
                                     ["New Model",self.actionNewPython,0],
                                     ["New Model",self.actionNewR,0],
                                     ["New Model",self.actionNewLPy,0],
@@ -103,9 +103,12 @@ class ProjectWidget(QtGui.QWidget):
                 my_path)
         return fname
         
-    def showOpenFileDialog(self, extension="*.py *.lpy *.r *.wpy"):
-        my_path = path(settings.get_project_dir())
-        fname = QtGui.QFileDialog.getOpenFileName(self, 'Select File to import in the project', 
+    def showOpenFileDialog(self, extension="*.py *.lpy *.r *.wpy", where=None):
+        if where is not None: 
+            my_path = path(where).abspath().splitpath()[0]
+        else:
+            my_path = path(settings.get_project_dir())
+        fname = QtGui.QFileDialog.getOpenFileName(self, 'Select File to open', 
                 my_path, "Scripts Files (%s);;All (*)"%extension)
         return fname
 
@@ -157,7 +160,7 @@ class ProjectWidget(QtGui.QWidget):
         """
         pass
 
-    def importFile(self, filename=None, extension=None):
+    def importFile(self, filename=None, extension="*.py *.lpy *.r *.wpy"):
         """
         Import a file and add it in the project
         """
@@ -190,11 +193,12 @@ class ProjectWidget(QtGui.QWidget):
         else:
             self.session._is_script = True
             self.session._is_proj = False
+            where = None
+            if len(self.scriptManager) != 0:
+                i = self.session.applet_container.currentIndex()
+                where = self.session.applet_container.tabText(i)
             if not filename:
-                if extension:
-                    filename = self.showOpenFileDialog(extension)
-                else:
-                    filename = self.showOpenFileDialog()
+                filename = self.showOpenFileDialog(extension=extension, where=where)
             if filename:
                 f = open(filename, "r")
                 txt = f.read() 
@@ -404,7 +408,26 @@ class ProjectWidget(QtGui.QWidget):
                 #name = container.tabText(i)
                 #container.save_all()
                 #container.setTabText(i, container.widget(i).applet.name)
+                
+    def closeCurrent(self):
+        """
+        Close current project or scripts.
+        """
+        if self.session.current_is_project():
+            self.projectManager.close(self.session.project.name)
+            logger.debug("Close Project")
+        elif self.session.current_is_script():
+            logger.debug("Close Scripts")
+            
+        self.session._project = None
+        self.session._is_script = False
+        self.session._is_proj = False
         
+        self._scene_change()
+        self._control_change()
+        self._script_change()
+        self._tree_view_change()
+            
     def displayCurrentName(self):
         """
         Display name of the current project
@@ -427,17 +450,21 @@ class ProjectWidget(QtGui.QWidget):
         """
         Update what is needed when the current project is changed
         """
+        logger.debug("Project changed")
         self.session._update_locals()
         if self.session.current_is_project():
-            current = self.session.project
             self._scene_change()
             self._control_change()
             self._script_change()
             self._tree_view_change()
-        elif self.session.current_is_project():
+        elif self.session.current_is_script():
             self._tree_view_change()
+            self._script_change()
+        else:
+            pass
             
     def _control_change(self):
+        logger.debug("Control changed")
         if self.session.current_is_project():
             proj = self.session.project
             if not proj.controls.has_key("color map"):    
@@ -463,9 +490,11 @@ class ProjectWidget(QtGui.QWidget):
             
         
     def _tree_view_change(self):
+        logger.debug("Tree View changed")
         self.session.project_layout_widget.update()
         
     def _script_change(self):
+        logger.debug("Script changed")
         if self.session.current_is_project():
             # If project
             project = self.session.project
@@ -475,25 +504,23 @@ class ProjectWidget(QtGui.QWidget):
                 self.session.applet_container.openTab(language, script, project.scripts[script])
             
         elif self.session.current_is_script():
-            pass
+            # If script
+            self.session.applet_container.reset()
+            scripts = self.session.project
             
-            ## If script
-            #self.session.applet_container.reset()
-            
-            #script = self.session.project
-            #name = script.name
-            #language = str(name).split('.')[-1]
-            #txt = script.value
-            
-            #self.session.applet_container.openTab(language, name, txt)
-            
+            for script_name in scripts:
+                language = str(script_name).split('.')[-1]
+                txt = scripts[script_name]
+                self.session.applet_container.openTab(language, script_name, txt)
         else:
             # If nothing opened
-            self.session.applet_container.reset()
+            #self.session.applet_container.reset()
+            self.session.applet_container.closeAll()
             
     def _scene_change(self):
+        logger.debug("Scene changed")
+        self.session.scene_widget.getScene().reset()
         if self.session.current_is_project():
-            self.session.scene_widget.getScene().reset()
             project = self.session.project
             for w in project.scene:
                 self.session.scene_widget.getScene().add(name=w,obj=project.scene[w])
