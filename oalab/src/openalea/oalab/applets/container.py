@@ -173,7 +173,10 @@ class AppletContainer(QtGui.QTabWidget):
         """
         if self.session.current_is_script():
             fname = self.tabText(self.currentIndex())
-            del self.session.project[fname]
+            try:
+                del self.session.project[fname]
+            except:
+                pass
             self.session.project_widget._tree_view_change()
         
         self.removeTab(self.currentIndex())
