@@ -53,7 +53,7 @@ class AppletContainer(QtGui.QTabWidget):
         
         self.actionComment = QtGui.QAction(QtGui.QIcon(":/images/resources/commentOn.png"),"Comment",self)
         self.actionUnComment = QtGui.QAction(QtGui.QIcon(":/images/resources/commentOff.png"),"Uncomment",self) 
-        self.actionGoto = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/greenarrow16.png.png"),"Go To",self) 
+        self.actionGoto = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/next-green.png"),"Go To",self) 
        
         self.actionComment.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+W", None, QtGui.QApplication.UnicodeUTF8)) 
         self.actionUnComment.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Q", None, QtGui.QApplication.UnicodeUTF8))
