@@ -53,6 +53,7 @@ class AppletContainer(QtGui.QTabWidget):
         
         self.actionComment = QtGui.QAction(QtGui.QIcon(":/images/resources/commentOn.png"),"Comment",self)
         self.actionUnComment = QtGui.QAction(QtGui.QIcon(":/images/resources/commentOff.png"),"Uncomment",self) 
+        self.actionGoto = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/greenarrow16.png.png"),"Go To",self) 
        
         self.actionComment.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+W", None, QtGui.QApplication.UnicodeUTF8)) 
         self.actionUnComment.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Q", None, QtGui.QApplication.UnicodeUTF8))
@@ -60,7 +61,7 @@ class AppletContainer(QtGui.QTabWidget):
         self.actionRunSelection.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+R", None, QtGui.QApplication.UnicodeUTF8))
 
         self.actionSearch.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+F", None, QtGui.QApplication.UnicodeUTF8))
-        
+        self.actionGoto.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+G", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSave.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
         self.actionRun.setShortcut(QtGui.QApplication.translate("MainWindow", "F1", None, QtGui.QApplication.UnicodeUTF8))
         self.actionAnimate.setShortcut(QtGui.QApplication.translate("MainWindow", "F2", None, QtGui.QApplication.UnicodeUTF8))
@@ -80,6 +81,7 @@ class AppletContainer(QtGui.QTabWidget):
         QtCore.QObject.connect(self.actionUndo, QtCore.SIGNAL('triggered(bool)'),self.undo)
         QtCore.QObject.connect(self.actionRedo, QtCore.SIGNAL('triggered(bool)'),self.redo)
         QtCore.QObject.connect(self.actionSearch, QtCore.SIGNAL('triggered(bool)'),self.search)
+        QtCore.QObject.connect(self.actionGoto, QtCore.SIGNAL('triggered(bool)'),self.goto)
         QtCore.QObject.connect(self.actionComment, QtCore.SIGNAL('triggered(bool)'),self.comment)
         QtCore.QObject.connect(self.actionUnComment, QtCore.SIGNAL('triggered(bool)'),self.uncomment)
         
@@ -96,7 +98,8 @@ class AppletContainer(QtGui.QTabWidget):
                                     ["Text Edit",self.actionComment,1],
                                     ["Text Edit",self.actionUnComment,1],
                                     ["Text Edit",self.actionRunSelection,1],
-                                    ["Text Edit",self.actionSave,1]]]
+                                    ["Text Edit",self.actionSave,1],
+                                    ["Text Edit",self.actionGoto,1]]]
                                     
         QtCore.QObject.connect(self, QtCore.SIGNAL('tabCloseRequested(int)'),self.autoClose)
 
@@ -302,6 +305,10 @@ class AppletContainer(QtGui.QTabWidget):
     def uncomment(self):
         self.currentWidget().uncomment()
         logger.debug("uncomment " + self.currentWidget().applet.name)
+        
+    def goto(self):
+        self.currentWidget().goto()
+        logger.debug("Goto " + self.currentWidget().applet.name)
         
 class WelcomePage(QtGui.QWidget):
     """

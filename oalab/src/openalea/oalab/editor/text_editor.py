@@ -22,6 +22,7 @@ from openalea.core.path import path
 from openalea.oalab.editor.search import SearchWidget
 from openalea.oalab.editor.completion import DictionaryCompleter
 from openalea.oalab.editor.line_number import Margin
+from openalea.oalab.editor.goto import GoToWidget
 from openalea.core import logger
 from openalea.core import settings
 from copy import deepcopy
@@ -35,6 +36,7 @@ class RichTextEditor(QtGui.QWidget):
         self.editor = TextEditor(session=session, parent=self)
         self.editor.setCompleter(self.completer)
         
+        self.goto_widget = GoToWidget(parent=self.editor)
         self.search_widget = SearchWidget(parent=self,session=session )
 
         self.layout = QtGui.QVBoxLayout()
@@ -79,6 +81,9 @@ class RichTextEditor(QtGui.QWidget):
         
     def save(self, name=None):
         self.editor.save(name)
+    
+    def goto(self):
+        self.goto_widget.show()
     
     def comment(self):
         self.editor.comment()
@@ -219,6 +224,8 @@ class TextEditor(QtGui.QTextEdit):
                     except:
                         pass
                     self.name = new_fname
+                    self.session.applet_container.setTabText(self.session.applet_container.currentIndex(),self.name)
+                    
             if self.name in (u"script.py", u"script.lpy", u"script.r", u"workflow.wpy", u"", "None", "False"):
                 logger.debug("Can't save file because name is None")
             else:
@@ -472,3 +479,13 @@ class TextEditor(QtGui.QTextEdit):
         lineno = self.textCursor().blockNumber()+1
         columnno = self.textCursor().columnNumber()
         self.session.statusBar.showMessage("Cursor at line %s, column %s"%(lineno,columnno), 2000) 
+
+    ####################################################################
+    #### Line Number Area
+    ####################################################################   
+    def go_to_line(self,lineno):
+        cursor = self.textCursor()
+        cursor.setPosition(0)
+        cursor.movePosition(QtGui.QTextCursor.NextBlock,QtGui.QTextCursor.MoveAnchor,lineno-1)
+        self.setTextCursor(cursor)
+        self.ensureCursorVisible()
