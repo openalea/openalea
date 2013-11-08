@@ -198,7 +198,8 @@ class ProjectWidget(QtGui.QWidget):
             if self.session.project is not None:
                 if len(self.session.project) != 0:
                     i = self.session.applet_container.currentIndex()
-                    where_ = self.session.applet_container.tabText(i)
+                    tab_text = self.session.applet_container.tabText(i)
+                    where_ = self.session.project.get_name_by_ez_name(tab_text)
             if not filename:
                 filename = self.showOpenFileDialog(extension=extension, where=where_)
             if filename:
@@ -206,12 +207,12 @@ class ProjectWidget(QtGui.QWidget):
                 txt = f.read() 
                 f.close()
                 
-                tab_name = str(filename)
+                self.scriptManager.add_script(filename, txt) 
+                self.session._project = self.scriptManager
+                
+                tab_name = self.session.project.get_ez_name_by_name(filename)
                 ext = str(path(filename).splitext()[-1])
                 ext = ext.split(".")[-1]
-                
-                self.scriptManager.add_script(tab_name, txt) 
-                self.session._project = self.scriptManager
 
                 try:
                     self.session.applet_container.newTab(applet_type=ext, tab_name=tab_name, script=txt)
@@ -271,7 +272,7 @@ class ProjectWidget(QtGui.QWidget):
             self.session._project = self.scriptManager
             self.session.applet_container.newTab(applet_type="python", tab_name=tab_name)
             self.session._update_locals()
-            self._script_change()
+            #self._script_change()
             self._tree_view_change()
         
     def newR(self):    
@@ -291,7 +292,7 @@ class ProjectWidget(QtGui.QWidget):
             self.session._project = self.scriptManager
             self.session.applet_container.newTab(applet_type="r", tab_name=tab_name)
             self.session._update_locals()
-            self._script_change()
+            #self._script_change()
             self._tree_view_change()
         
     def newLpy(self):
@@ -311,7 +312,7 @@ class ProjectWidget(QtGui.QWidget):
             self.session._project = self.scriptManager
             self.session.applet_container.newTab(applet_type="lpy", tab_name=tab_name)
             self.session._update_locals()
-            self._script_change()
+            #self._script_change()
             self._tree_view_change()
                     
     def newVisualea(self):
@@ -331,7 +332,7 @@ class ProjectWidget(QtGui.QWidget):
             self.session._project = self.scriptManager
             self.session.applet_container.newTab(applet_type="visualea", tab_name=tab_name)
             self.session._update_locals()
-            self._script_change()
+            #self._script_change()
             self._tree_view_change()
                     
     def removeModel(self, model_name):
@@ -461,7 +462,7 @@ class ProjectWidget(QtGui.QWidget):
             self._tree_view_change()
         elif self.session.current_is_script():
             self._tree_view_change()
-            self._script_change()
+            #self._script_change()
         else:
             pass
             
