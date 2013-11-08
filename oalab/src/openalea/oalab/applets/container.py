@@ -92,14 +92,14 @@ class AppletContainer(QtGui.QTabWidget):
                                     ["Play",self.actionStep,0],
                                     ["Play",self.actionStop,0],
                                     ["Play",self.actionInit,0],
+                                    ["Text Edit",self.actionSave,1], 
                                     ["Text Edit",self.actionUndo,1],
                                     ["Text Edit",self.actionRedo,1],
+                                    ["Text Edit",self.actionRunSelection,1], 
                                     ["Text Edit",self.actionSearch,1],
+                                    ["Text Edit",self.actionGoto,1],          
                                     ["Text Edit",self.actionComment,1],
-                                    ["Text Edit",self.actionUnComment,1],
-                                    ["Text Edit",self.actionRunSelection,1],
-                                    ["Text Edit",self.actionSave,1],
-                                    ["Text Edit",self.actionGoto,1]]]
+                                    ["Text Edit",self.actionUnComment,1]]]
                                     
         QtCore.QObject.connect(self, QtCore.SIGNAL('tabCloseRequested(int)'),self.autoClose)
 
@@ -193,11 +193,8 @@ class AppletContainer(QtGui.QTabWidget):
         Close current tab
         """
         if self.session.current_is_script():
-            fname = self.tabText(self.currentIndex())
-            try:
-                del self.session.project[fname]
-            except:
-                pass
+            ez_name = self.tabText(self.currentIndex())
+            self.session.project.rm_script_by_ez_name(ez_name)
             self.session.project_widget._tree_view_change()
         
         self.removeTab(self.currentIndex())

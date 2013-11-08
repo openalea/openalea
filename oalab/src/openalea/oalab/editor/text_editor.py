@@ -218,13 +218,10 @@ class TextEditor(QtGui.QTextEdit):
             if self.name in (u"script.py", u"script.lpy", u"script.r", u"workflow.wpy", u"", "None", "False"):
                 new_fname = QtGui.QFileDialog.getSaveFileName(self, 'Select name to save the file %s'%str(self.name),str(self.name))
                 if new_fname != u"":
-                    project[new_fname] = txt
-                    try:
-                        del project[self.name]
-                    except:
-                        pass
+                    project.rename_script(self.name, new_fname)
                     self.name = new_fname
-                    self.session.applet_container.setTabText(self.session.applet_container.currentIndex(),self.name)
+                    project[self.name] = txt
+                    self.session.applet_container.setTabText(self.session.applet_container.currentIndex(),project.ez_name[self.name])
                     
             if self.name in (u"script.py", u"script.lpy", u"script.r", u"workflow.wpy", u"", "None", "False"):
                 logger.debug("Can't save file because name is None")
