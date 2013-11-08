@@ -1,4 +1,4 @@
-# -*- python -*-
+ # -*- python -*-
 # 
 #       OpenAlea.OALab: Multi-Paradigm GUI
 #
@@ -24,6 +24,7 @@ from openalea.oalab.applets.r import RApplet
 from openalea.oalab.applets.visualea import VisualeaApplet
 from openalea.core import logger
 from openalea.core.path import path
+from openalea.vpltk.project.project import Scripts
 
 class AppletContainer(QtGui.QTabWidget):
     """
@@ -111,7 +112,7 @@ class AppletContainer(QtGui.QTabWidget):
         if index is None:
             index = self.currentIndex()
         if index is not -1:
-            self.tabBar().setTabTextColor(index, QtCore.Qt.red)
+            self.tabBar().setTabTextColor(index, QtCore.Qt.black)
             
     def setAllTabBlack(self):
         for index in range(self.count()):
@@ -178,6 +179,7 @@ class AppletContainer(QtGui.QTabWidget):
         
         self.session.connect_actions(self.applets[-1].widget(), self.session.menu)
         QtCore.QObject.connect(self, QtCore.SIGNAL('currentChanged(int)'),self.focusChange)
+        self.setTabBlack()
         
     def focusChange(self):
         if self.currentWidget():
@@ -455,7 +457,9 @@ class WelcomePage(QtGui.QWidget):
         elif proj.is_script():
             self.session._is_proj = False
             self.session._is_script = True
-            self.session._project = proj
+            self.session._project = Scripts()
+            for p in proj:
+                self.session.project_widget.importFile(filename=p)
             
             self.session.project_widget._project_changed()
             #self.session.project_widget.importFile(filename=fname, extension="*.py")

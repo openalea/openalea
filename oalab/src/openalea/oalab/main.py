@@ -17,7 +17,6 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-
 import sys
 from openalea.oalab.gui.app import OALab
 

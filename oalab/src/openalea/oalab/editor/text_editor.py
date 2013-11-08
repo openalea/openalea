@@ -201,8 +201,8 @@ class TextEditor(QtGui.QTextEdit):
 			    project = self.session.project
 			    project.scripts[self.name] = txt
 			    project._save_scripts()
-                            self.session.applet_container.setAllTabBlack()
-                            logger.debug("Try to save script in project")
+			    self.session.applet_container.setAllTabBlack()
+			    logger.debug("Try to save script in project")
             
         elif self.session.current_is_script():
             # Save a script outside a project  
