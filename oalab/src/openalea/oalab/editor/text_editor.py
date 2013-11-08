@@ -119,6 +119,7 @@ class TextEditor(QtGui.QTextEdit):
         self.sidebar.setGeometry(0,0,50,100)
         self.sidebar.show() 
         QtCore.QObject.connect(self, QtCore.SIGNAL("cursorPositionChanged()"),self.display_line_number)
+        QtCore.QObject.connect(self, QtCore.SIGNAL("textChanged()"),self.session.applet_container.setTabRed)
         #QtCore.QObject.connect(self, QtCore.SIGNAL("cursorPositionChanged()"),self.highlightCurrentLine)
         
     def set_tab_size(self):
@@ -145,6 +146,7 @@ class TextEditor(QtGui.QTextEdit):
         
     def setText(self, txt):   
         self.setPlainText(txt)
+        self.session.applet_container.setTabBlack()
         
     def set_text(self, txt):
         """
@@ -199,7 +201,8 @@ class TextEditor(QtGui.QTextEdit):
 			    project = self.session.project
 			    project.scripts[self.name] = txt
 			    project._save_scripts()
-			    logger.debug("Try to save script in project")
+                            self.session.applet_container.setAllTabBlack()
+                            logger.debug("Try to save script in project")
             
         elif self.session.current_is_script():
             # Save a script outside a project  
@@ -224,6 +227,7 @@ class TextEditor(QtGui.QTextEdit):
                 code_enc = code.encode("utf8","ignore")
                 f.write(code_enc)
                 f.close()
+                self.session.applet_container.setTabBlack()
                 logger.debug("Save file "+str(self.name)+" outside project")
 
     def keyPressEvent(self,event):

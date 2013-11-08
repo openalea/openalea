@@ -101,6 +101,22 @@ class AppletContainer(QtGui.QTabWidget):
 
         self.addDefaultTab()
 	    
+    def setTabRed(self, index=None):
+        if index is None:
+            index = self.currentIndex()
+        if index is not -1:
+            self.tabBar().setTabTextColor(index, QtCore.Qt.red)
+            
+    def setTabBlack(self, index=None):
+        if index is None:
+            index = self.currentIndex()
+        if index is not -1:
+            self.tabBar().setTabTextColor(index, QtCore.Qt.red)
+            
+    def setAllTabBlack(self):
+        for index in range(self.count()):
+            self.setTabBlack(index)
+    
     def addDefaultTab(self):
         """
         Display a welcom tab if nothing is opened
