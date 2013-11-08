@@ -86,7 +86,15 @@ class Script(object):
         self.filename = filename
         self.value = value
 
-
+class Scripts(dict):
+    def add_script(self, name, script):
+        self[str(name)] = str(script)
+        
+    def is_project(self):
+        return False
+        
+    def is_script(self):
+        return True
 
 class Project(object):
     def __init__(self,project_name, project_path):
@@ -105,6 +113,11 @@ class Project(object):
 ##        self.scene = self.scene_struct.getScene()
         self.scene = dict()
     
+    def is_project(self):
+        return True
+        
+    def is_script(self):
+        return False
     #----------------------------------------
     # Public API
     #----------------------------------------    
