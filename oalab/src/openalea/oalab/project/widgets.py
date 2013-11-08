@@ -195,9 +195,10 @@ class ProjectWidget(QtGui.QWidget):
             self.session._is_script = True
             self.session._is_proj = False
             where_ = None
-            if len(self.session.project) != 0:
-                i = self.session.applet_container.currentIndex()
-                where_ = self.session.applet_container.tabText(i)
+            if self.session.project is not None:
+                if len(self.session.project) != 0:
+                    i = self.session.applet_container.currentIndex()
+                    where_ = self.session.applet_container.tabText(i)
             if not filename:
                 filename = self.showOpenFileDialog(extension=extension, where=where_)
             if filename:
