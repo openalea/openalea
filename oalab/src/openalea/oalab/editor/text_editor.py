@@ -96,6 +96,9 @@ class RichTextEditor(QtGui.QWidget):
         if self.search_widget.hiden:
             self.search_widget.show()
             #self.search_widget.raise_()
+            self.search_widget.lineEdit.setFocus()
+            txt = self.get_selected_text()
+            self.search_widget.lineEdit.setText(txt)
             self.search_widget.hiden = False
         else:
             self.search_widget.hide()
