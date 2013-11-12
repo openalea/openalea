@@ -101,18 +101,21 @@ class Scripts(dict):
         self.name[name] = ez_n
 
     def get_ez_name_by_name(self, name):
+        name = str(name)
         if name in self.name.keys(): 
             return self.name[name]
         else:           
             return False   
         
     def get_name_by_ez_name(self, ez_name):
+        ez_name = str(ez_name)
         if ez_name in self.ez_name.keys():        
             return self.ez_name[ez_name]
         else:
             return False
                 
     def rm_script(self,name):
+        name = str(name)
         if name in self.keys():
             del self[name]
             ez_name =str( self.name[name])
@@ -120,13 +123,13 @@ class Scripts(dict):
             del self.name[name]
             
     def rm_script_by_ez_name(self,ez_name):
+        ez_name = str(ez_name)
         if ez_name in self.ez_name.keys():
             self.rm_script(self.ez_name[ez_name])
-            name =str( self.ez_name[ez_name])
-            del self.ez_name[ez_name]
-            del self.name[name]
             
     def rename_script(self, old_name, new_name):
+        old_name = str(old_name)
+        new_name = str(new_name)
         self.add_script(new_name, self[old_name])
         self.rm_script(old_name)
         
@@ -598,6 +601,11 @@ class ProjectManager(object):
             raise IOError('Project %s in repository %s does not exist' %(project_name,project_path))
             return -1
 
+    def close(self, project_name):
+        if project_name in self.projects.keys():
+            del self.projects[project_name]
+            self.cproject = self.empty()
+            
     def __getitem__(self, project_name):
         try:
             proj = self.load(project_name)
