@@ -105,7 +105,7 @@ class ProjectWidget(QtGui.QWidget):
         
     def showOpenFileDialog(self, extension="*.py *.lpy *.r *.wpy", where=None):
         if where is not None: 
-            my_path = path(where).abspath().splitpath()[0]
+            my_path = path(str(where)).abspath().splitpath()[0]
         else:
             my_path = path(settings.get_project_dir())
         logger.debug("Search to open file with extension "+extension+" from "+my_path)

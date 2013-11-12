@@ -25,7 +25,6 @@ from openalea.oalab.editor.line_number import Margin
 from openalea.oalab.editor.goto import GoToWidget
 from openalea.core import logger
 from openalea.core import settings
-from copy import deepcopy
 
 
 class RichTextEditor(QtGui.QWidget):
@@ -195,10 +194,9 @@ class TextEditor(QtGui.QTextEdit):
         
         txt = self.get_text()
 
-        if name is not None:
-            self.name = name
-
         if self.session.current_is_project():
+            if name is not None:
+                self.name = name
             if self.name is None:
                 temp_path = path(settings.get_project_dir())
                 self.name = QtGui.QFileDialog.getSaveFileName(self, 'Select name to save the file', temp_path)
@@ -210,12 +208,14 @@ class TextEditor(QtGui.QTextEdit):
 			    logger.debug("Try to save script in project")
             
         elif self.session.current_is_script():
-            # Save a script outside a project  
             logger.debug("Will save script outside project")
             project = self.session.project
+            
+            if name is not None:
+                self.name = project.get_name_by_ez_name(name)
             if self.name is None or self.name is False:
                     self.name = u"script.py"      
-            if self.name in (u"script.py", u"script.lpy", u"script.r", u"workflow.wpy", u"", "None", "False"):
+            if str(self.name) in ("script.py", "script.lpy", "script.r", "workflow.wpy", "", "None", "False"):
                 new_fname = QtGui.QFileDialog.getSaveFileName(self, 'Select name to save the file %s'%str(self.name),str(self.name))
                 if new_fname != u"":
                     project.rename_script(self.name, new_fname)
@@ -223,7 +223,7 @@ class TextEditor(QtGui.QTextEdit):
                     project[self.name] = txt
                     self.session.applet_container.setTabText(self.session.applet_container.currentIndex(),project.ez_name[self.name])
                     
-            if self.name in (u"script.py", u"script.lpy", u"script.r", u"workflow.wpy", u"", "None", "False"):
+            if str(self.name) in ("script.py", "script.lpy", "script.r", "workflow.wpy", "", "None", "False"):
                 logger.debug("Can't save file because name is None")
             else:
                 f = open(self.name, "w")
