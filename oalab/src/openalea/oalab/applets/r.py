@@ -59,6 +59,8 @@ more informations: http://www.r-project.org/
         
     def run_selected_part(self):
         code = self.widget().get_selected_text()
+        if len(code) == 0:
+            code = self.widget().get_text()
         code = """%%R
 
 """ + code
