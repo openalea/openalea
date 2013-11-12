@@ -26,7 +26,10 @@ from time import gmtime, strftime
 from openalea.plantgl.all import PglTurtle
 from openalea.vpltk.project.project import ProjectManager as PM   
 from openalea.vpltk.project.project import Script, Scripts
-
+from openalea.plantgl.all import BezierCurve2D, NurbsCurve2D, Polyline2D, NurbsPatch
+from openalea.oalab.control.picklable_curves import RedNurbs2D, RedBezierNurbs2D, RedPolyline2D, RedNurbsPatch
+from openalea.lpy.gui.objectmanagers import get_managers
+            
 class ProjectWidget(QtGui.QWidget):
     """
     Widget which permit to manage projects.
@@ -379,6 +382,7 @@ class ProjectWidget(QtGui.QWidget):
         """
         if self.session.current_is_project():
             current = self.session.project
+            current.controls = dict()
             container = self.session.applet_container
         
             for i in range(container.count()):
@@ -391,11 +395,27 @@ class ProjectWidget(QtGui.QWidget):
             
             geoms = self.session.control_panel.geometry_editor.getObjects()
             
-            current.controls["geometry"] = geoms
-            for manager, geom in geoms:
+            #current.controls["geometry"] = geoms
+            for (manager, geom) in geoms:
+                name = str(geom.getName())
+                if isinstance(geom, BezierCurve2D):
+                    geom = RedBezierNurbs2D(geom.ctrlPointList)
+                    logger.debug("Transform BezierCurve2D into RedBezierNurbs2D")
+                elif  isinstance(geom, NurbsCurve2D):
+                    geom = RedNurbs2D(geom.ctrlPointList)
+                    logger.debug("Transform NurbsCurve2D into RedNurbs2D")
+                elif isinstance(geom, Polyline2D):
+                    geom = RedPolyline2D(geom.pointList)
+                    logger.debug("Transform Polyline2D into RedPolyline2D")
+                elif isinstance(geom, NurbsPatch):
+                    geom = RedNurbsPatch(geom.ctrlPointMatrix)
+                    logger.debug("Transform NurbsPatch into RedNurbsPatch")
+                else:
+                    logger.debug("Transform Nothing %s"%str(geom))
                 
-                current.controls[geom.name] = manager, geom
-            
+                logger.debug("Save control geometry_%s_%s"%(manager.typename,name))
+
+                current.controls["geometry_%s_%s"%(manager.typename,name)] = geom
             #scalars = self.session.control_panel.scalars_editor
             #current.controls["scalars"] = scalars
 
@@ -474,15 +494,27 @@ class ProjectWidget(QtGui.QWidget):
             proj = self.session.project
             if not proj.controls.has_key("color map"):    
                 proj.controls["color map"] = PglTurtle().getColorList()
+                logger.debug("Load colormap %s"%(geom))
             # Link with color map from application
             i = 0
             for color in proj.controls["color map"]:
                 self.session.control_panel.colormap_editor.getTurtle().setMaterial(i, color)
                 i += 1
             
-            if proj.controls.has_key("geometry"): 
-                geom = proj.controls["geometry"]
-                self.session.control_panel.geometry_editor.setObjects(geom)
+            managers = get_managers()
+            geom = self.session.control_panel.geometry_editor.getObjects()
+            
+            for control in proj.controls:
+                if "geometry" in str(control).split("_")[0]:
+                    type_name = str(control).split("_")[1]
+                    manager = managers[type_name]
+                    proj.controls[control].name = str(control).split("_")[-1]
+                    geom.append((manager,proj.controls[control]))
+
+            self.session.control_panel.geometry_editor.setObjects(geom)
+            logger.debug("Load controls %s"%(geom))
+
+            
             
             #i = 0
             #for scalar in proj.controls["scalars"]:
