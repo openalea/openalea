@@ -126,8 +126,14 @@ class LPyPanelWidget(QtGui.QWidget):
             print(msg)    
             
     def __updateStatus(self,i=None):
-        if not i is None and i >= 0 and self.view.objects[i][0].managePrimitive():
-            self.emit(QtCore.SIGNAL('valueChanged(bool)'),True)
+        if not i is None and i >= 0:
+            if int(i) < int(len(self.view.objects)):
+                if self.view.objects[i][0].managePrimitive():
+                    self.emit(QtCore.SIGNAL('valueChanged(bool)'),True)
+                else:
+                    self.emit(QtCore.SIGNAL('valueChanged(bool)'),False)
+            else:
+                self.emit(QtCore.SIGNAL('valueChanged(bool)'),False)
         else:
             self.emit(QtCore.SIGNAL('valueChanged(bool)'),False)
 
