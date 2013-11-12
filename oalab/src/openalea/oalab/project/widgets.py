@@ -229,10 +229,11 @@ class ProjectWidget(QtGui.QWidget):
         Create an empty project with a default name.
         """
         if not name:
-            date = strftime("%Y-%m-%d_%H:%M:%S", gmtime())
+            date = strftime("%Y-%m-%d_%H-%M-%S", gmtime())
             name = 'project_%s' %date
         if self.session.current_is_project():
-            self.projectManager.close(self.session.project.name)
+            if self.session.project is not None:
+            	self.projectManager.close(self.session.project.name)
         self.session._project = self.projectManager.create(name)
         self.session._is_script = False
         self.session._is_proj = True
@@ -391,8 +392,9 @@ class ProjectWidget(QtGui.QWidget):
             geoms = self.session.control_panel.geometry_editor.getObjects()
             
             current.controls["geometry"] = geoms
-            for geom in geoms:
-                current.controls[geom[1].name] = geom[1]
+            for manager, geom in geoms:
+                
+                current.controls[geom.name] = manager, geom
             
             #scalars = self.session.control_panel.scalars_editor
             #current.controls["scalars"] = scalars
