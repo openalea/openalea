@@ -251,6 +251,7 @@ class AppletContainer(QtGui.QTabWidget):
             self.setTabText(i, name)
                 
     def run_selected_part(self):
+        self.session.project_widget.update_from_widgets()
         try:
             self.currentWidget().applet.run_selected_part()
             logger.debug("Run selected part " + self.currentWidget().applet.name)
@@ -258,22 +259,27 @@ class AppletContainer(QtGui.QTabWidget):
             logger.debug("Can't run selected part " + self.currentWidget().applet.name)
         
     def run(self):
+        self.session.project_widget.update_from_widgets()
         self.currentWidget().applet.run()
         logger.debug("Run " + self.currentWidget().applet.name)
         
     def animate(self):
+        self.session.project_widget.update_from_widgets()
         self.currentWidget().applet.animate()
         logger.debug("Animate " + self.currentWidget().applet.name)
         
     def step(self):
+        self.session.project_widget.update_from_widgets()
         self.currentWidget().applet.step()
         logger.debug("Step " + self.currentWidget().applet.name)
         
     def stop(self):
+        self.session.project_widget.update_from_widgets()
         self.currentWidget().applet.stop()
         logger.debug("Stop " + self.currentWidget().applet.name)
         
     def reinit(self):
+        self.session.project_widget.update_from_widgets()
         self.currentWidget().applet.reinit()
         logger.debug("Reinit " + self.currentWidget().applet.name)
 

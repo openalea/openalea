@@ -106,6 +106,8 @@ class LPyApplet(object):
         context["context"] = self.context
         context["cache"] = ns
         context["scene"] = self.session.scene_widget.getScene()
+        context["controls"] = self.session.project.controls
+        
         if script is None: script = ""
         if not "###### INITIALISATION ######" in script:
             return str(script), context
@@ -123,25 +125,26 @@ class LPyApplet(object):
     def run_selected_part(self):
         """
         Run selected code like a PYTHON code (not LPy code).
+        If nothing selected, run like LPy (not Python).
         """       
         code = self.widget().get_selected_text()
         if len(code) == 0:
-            code = self.widget().get_text()
-        interp = self.session.shell.get_interpreter()
-        user_ns = self.session.interpreter.user_ns
-        interp.runcode(code)
+            self.run()
+        else:
+            interp = self.session.shell.get_interpreter()
+            user_ns = self.session.interpreter.user_ns
+            interp.runcode(code)
 
     def run(self):
         """
         Run/iterate all the code (LPy and not PYTHON).
         """
+        # Get code from application
         code = str(self.widget().get_text())
-        # If code has changer since the last step
-        if code != self.code:
-            # setCode method set the lastIterationNb to zero
-            # So, if you change code, next step will do a 'reinit()'
-            self.lsys.setCode(code, self.parameters)
-            self.code = code
+        # Get controls
+        self.parameters["controls"] = self.session.project.controls
+        # set code (so reinit: step = 0)
+        self.lsys.setCode(code, self.parameters)
             
         self.axialtree = self.lsys.iterate()
         new_scene = self.lsys.sceneInterpretation(self.axialtree)
@@ -150,7 +153,8 @@ class LPyApplet(object):
     def step(self):
         # Get code from application
         code = str(self.widget().get_text())
-        # If code has changer since the last step
+
+        # If code has changed since the last step
         if code != self.code:
             # /!\ setCode method set the lastIterationNb to zero
             # So, if you change code, next step will do a 'reinit()'
@@ -183,10 +187,15 @@ class LPyApplet(object):
         pass
 
     def animate(self):
+        # Get code from application
+        code = str(self.widget().get_text())
+        self.parameters["controls"] = self.session.project.controls
+        self.lsys.setCode(code, self.parameters)
         self.step()
         self.lsys.animate()
 
     def reinit(self):
+        self.parameters["controls"] = self.session.project.controls
         self.lastIter = -1
         self.code = str(self.widget().get_text())
         # setCode set lastIterationNb to zero

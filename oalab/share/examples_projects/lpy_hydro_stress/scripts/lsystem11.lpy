@@ -1,0 +1,55 @@
+from random import randint,seed
+from openalea.plantgl.all import *
+from math import degrees
+
+context["scene_name"] = "lsystem11_scene"
+
+profile = controls["geometry_Curve2D_profile"]
+leafwidth = QuantisedFunction(controls["geometry_Function_leafwidth"])
+  
+def retrieveCurves():
+    name = "geometry_Curve2D_axis"
+    curves = [controls[name+str(i)] for i in range(1,6)]
+    return curves
+  
+def ProfileInterpolation(curves,knotlist = None,degree = 3):
+    nbcurves = len(curves)
+    if knotlist is None: knotlist = [i/float(nbcurves-1) for i in xrange(nbcurves)]
+    k = [knotlist[0] for i in xrange(degree-1)]+knotlist+[knotlist[-1] for i in xrange(degree-1)]
+    pts = [[(i.x,i.y,0,1) for i in c.ctrlPointList] for c in curves]
+    ppts = Point4Matrix(pts)
+    p = NurbsPatch(ctrlPointList=ppts,udegree=degree,vdegree=curves[0].degree)
+    def getSectionAt(t): 
+      section = p.getIsoUSectionAt(t)
+      return NurbsCurve2D([(i.x,i.y,i.w) for i in section.ctrlPointList], section.knotList,section.degree)
+    p.getAt = getSectionAt
+    return p
+
+curves = retrieveCurves()
+axisfunc = ProfileInterpolation(curves)
+
+#time between each curve
+curvedelay = 30
+#total time
+timerange = (len(curves)-1)*curvedelay
+
+#nb of step to do on the axis
+steps = timerange
+dt = 1/float(steps)
+
+Axiom:     /(-90) &(90)  _(0.01) F(0.1,0.005)  SetColor(2) _(leafwidth(0)) Leaf(0) 
+
+derivation length: timerange
+production:
+
+# Leaf growth for one time step each step
+Leaf(t) --> Leaf(t+dt)
+
+homomorphism:
+maximum depth:  steps 
+
+Leaf(t) :
+    #identify the axis to use
+    produce @Gc Sweep(axisfunc.getAt(t), profile, 1.0,dt,1.0, leafwidth) 
+
+endlsystem
