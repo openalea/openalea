@@ -144,6 +144,7 @@ class ProjectWidget(QtGui.QWidget):
             self.session._is_script = False
             self.session._is_proj = True
             self._project_changed()
+            self._load_control()
             logger.debug("Open Project named " + proj_name)
             
     def openSvn(self, name=None):
@@ -242,6 +243,7 @@ class ProjectWidget(QtGui.QWidget):
         self.session._is_proj = True
 
         self._project_changed()
+        self._load_control()
 
     def newSvn(self, name=None):
         """
@@ -395,27 +397,10 @@ class ProjectWidget(QtGui.QWidget):
             
             geoms = self.session.control_panel.geometry_editor.getObjects()
             
-            #current.controls["geometry"] = geoms
-            for (manager, geom) in geoms:
-                name = str(geom.getName())
-                if isinstance(geom, BezierCurve2D):
-                    geom = RedBezierNurbs2D(geom.ctrlPointList)
-                    logger.debug("Transform BezierCurve2D into RedBezierNurbs2D")
-                elif  isinstance(geom, NurbsCurve2D):
-                    geom = RedNurbs2D(geom.ctrlPointList)
-                    logger.debug("Transform NurbsCurve2D into RedNurbs2D")
-                elif isinstance(geom, Polyline2D):
-                    geom = RedPolyline2D(geom.pointList)
-                    logger.debug("Transform Polyline2D into RedPolyline2D")
-                elif isinstance(geom, NurbsPatch):
-                    geom = RedNurbsPatch(geom.ctrlPointMatrix)
-                    logger.debug("Transform NurbsPatch into RedNurbsPatch")
-                else:
-                    logger.debug("Transform Nothing %s"%str(geom))
-                
-                logger.debug("Save control geometry_%s_%s"%(manager.typename,name))
 
-                current.controls["geometry_%s_%s"%(manager.typename,name)] = geom
+            for (manager, geom) in geoms:
+                new_obj,new_name = self.geometry_2_piklable_geometry(manager, geom)
+                current.controls[new_name] = new_obj
             #scalars = self.session.control_panel.scalars_editor
             #current.controls["scalars"] = scalars
 
@@ -433,6 +418,37 @@ class ProjectWidget(QtGui.QWidget):
                 #name = container.tabText(i)
                 #container.save_all()
                 #container.setTabText(i, container.widget(i).applet.name)
+             
+    def geometry_2_piklable_geometry(self, manager, obj):
+        """
+        Transform a geometry object from PlantGL in picklable object.
+        :param manager: manager of object to transform
+        :param obj: object to transform
+        :return: tuple(transformed object, name_of_new_object)
+        """         
+        geom = obj
+        name = str(geom.getName())
+        if isinstance(geom, NurbsPatch):
+            new_obj = RedNurbsPatch(geom.ctrlPointMatrix)
+            logger.debug("Transform NurbsPatch into RedNurbsPatch")
+        elif isinstance(geom, Polyline2D):
+            new_obj = RedPolyline2D(geom.pointList)
+            logger.debug("Transform Polyline2D into RedPolyline2D")
+        elif isinstance(geom, NurbsCurve2D):
+            new_obj = RedNurbs2D(geom.ctrlPointList)
+            logger.debug("Transform NurbsCurve2D into RedNurbs2D")
+        elif isinstance(geom, BezierCurve2D):
+            new_obj = RedBezierNurbs2D(geom.ctrlPointList)
+            logger.debug("Transform BezierCurve2D into RedBezierNurbs2D")
+        else:
+            new_obj = obj
+            new_name = name
+            logger.debug("Transform Nothing %s"%str(geom))
+
+        new_name = "geometry_%s_%s"%(manager.typename,name)
+        logger.debug("Save control geometry_%s"%(new_name))
+        
+        return(new_obj,new_name)
                 
     def closeCurrent(self):
         """
@@ -449,7 +465,7 @@ class ProjectWidget(QtGui.QWidget):
         self.session._is_proj = False
         
         self._scene_change()
-        self._control_change()
+        #self._control_change()
         self._script_change()
         self._tree_view_change()
             
@@ -479,7 +495,7 @@ class ProjectWidget(QtGui.QWidget):
         self.session._update_locals()
         if self.session.current_is_project():
             self._scene_change()
-            self._control_change()
+            #self._control_change()
             self._script_change()
             self._tree_view_change()
         elif self.session.current_is_script():
@@ -488,32 +504,79 @@ class ProjectWidget(QtGui.QWidget):
         else:
             pass
             
-    def _control_change(self):
-        logger.debug("Control changed")
+    def update_from_widgets(self):
+        self._update_control()
+    
+    def _load_control(self):
+        """
+        Get controls from project and put them into widgets
+        """
+        logger.debug("Load Controls")
         if self.session.current_is_project():
             proj = self.session.project
             if not proj.controls.has_key("color map"):    
                 proj.controls["color map"] = PglTurtle().getColorList()
-                logger.debug("Load colormap %s"%(geom))
-            # Link with color map from application
             i = 0
             for color in proj.controls["color map"]:
                 self.session.control_panel.colormap_editor.getTurtle().setMaterial(i, color)
                 i += 1
-            
+                
             managers = get_managers()
-            geom = self.session.control_panel.geometry_editor.getObjects()
-            
+            geom = []
             for control in proj.controls:
                 if "geometry" in str(control).split("_")[0]:
                     type_name = str(control).split("_")[1]
-                    manager = managers[type_name]
                     proj.controls[control].name = str(control).split("_")[-1]
+                    manager = managers[type_name]
                     geom.append((manager,proj.controls[control]))
+            if geom is not list():
+                self.session.control_panel.geometry_editor.setObjects(geom)
+        
+    def _update_control(self):
+        """
+        Get controls from widget and put them into project
+        """
+        logger.debug("Update Controls")
+        if self.session.current_is_project():
+            #self.session.project.controls = dict()
+            
+            self.session.project.controls["color map"] = PglTurtle().getColorList()
+            
+            objects = self.session.control_panel.geometry_editor.getObjects()
+            for (manager,obj) in objects:
+                obj, name = self.geometry_2_piklable_geometry(manager,obj)
+                self.session.project.controls[unicode(name)] = obj
+    
+    def _control_change(self):
+        pass
+        #logger.debug("Control changed")
+        #if self.session.current_is_project():
+            #proj = self.session.project
+            #if not proj.controls.has_key("color map"):    
+                #proj.controls["color map"] = PglTurtle().getColorList()
+                #logger.debug("Load colormap %s"%(geom))
+            ## Link with color map from application
+            #i = 0
+            #for color in proj.controls["color map"]:
+                #self.session.control_panel.colormap_editor.getTurtle().setMaterial(i, color)
+                #i += 1
+            
+            #managers = get_managers()
+            #geom = self.session.control_panel.geometry_editor.getObjects()
+            
+            #for control in proj.controls:
+                #if "geometry" in str(control).split("_")[0]:
+                    #type_name = str(control).split("_")[1]
+                    #manager = managers[type_name]
+                    #proj.controls[control].name = str(control).split("_")[-1]
+                    #geom.append((manager,proj.controls[control]))
 
-            self.session.control_panel.geometry_editor.setObjects(geom)
-            logger.debug("Load controls %s"%(geom))
+            #self.session.control_panel.geometry_editor.setObjects(geom)
+            #logger.debug("Load controls %s"%(geom))
 
+            
+            
+            
             
             
             #i = 0
