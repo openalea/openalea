@@ -20,7 +20,8 @@ __license__ = "CeCILL V2"
 __revision__ = " $Id: shell.py 3672 2012-12-05 12:28:19Z jcoste $"
 
 from openalea.vpltk.qt import qt
-from openalea.vpltk.shell.check_ipython import has_full_ipython
+from openalea.vpltk.shell.check.ipython import has_ipython
+from openalea.vpltk.shell.check.ipython_deps import has_full_deps
 import os, sys
 from streamredirection import *
 
@@ -29,7 +30,7 @@ def get_shell_class():
     :return: the shell class to instantiate
     """
 
-    if has_full_ipython():
+    if has_ipython() and has_full_deps():
         # Test IPython
         from openalea.vpltk.shell.ipythonshell import ShellWidget
         return ShellWidget
@@ -49,7 +50,7 @@ def get_interpreter_class():
     :return: the interpreter class to instantiate the shell
     """
     
-    if has_full_ipython():
+    if has_ipython() and has_full_deps():
         # Test IPython
         from openalea.vpltk.shell.ipythoninterpreter import Interpreter
         return Interpreter
