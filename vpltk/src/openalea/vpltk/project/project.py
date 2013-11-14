@@ -95,7 +95,7 @@ class Scripts(dict):
         
         # easy_name is used to display file_name
         # Thanks to self.ez_name, we can found the real name to save file.
-        ez_n =str( _path(name).splitpath()[-1])
+        ez_n = str(_path(name).splitpath()[-1])
         ez_n = check_if_name_is_unique(name=ez_n, all_names=self.ez_name.values())
         self.ez_name[ez_n] = name
         self.name[name] = ez_n
@@ -118,7 +118,7 @@ class Scripts(dict):
         name = str(name)
         if name in self.keys():
             del self[name]
-            ez_name =str( self.name[name])
+            ez_name = str(self.name[name])
             del self.ez_name[ez_name]
             del self.name[name]
             

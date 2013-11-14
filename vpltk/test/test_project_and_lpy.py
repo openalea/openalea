@@ -1,5 +1,3 @@
-from openalea.vpltk.qt import qt
-
 from openalea.lpy import Lsystem,AxialTree,generateScene
 from openalea.lpy_wralea.lpy_nodes import run_lpy
 from openalea.vpltk.project.project import ProjectManager
