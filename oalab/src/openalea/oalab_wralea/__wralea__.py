@@ -31,7 +31,7 @@ __all__.append('scenereader')
 
 scenewriter = Factory(name="scene writer",
              description="Write data to the data scene.",
-             category="flow control",
+             category="oalab control",
              nodemodule="openalea.oalab_wralea.oalabnode",
              nodeclass="SceneWriter",
              inputs = (dict(name='Key', interface=IStr),
@@ -44,7 +44,7 @@ __all__.append('scenewriter')
 
 scene_rw = Factory(name="scene setdefault",
              description="scene.setdefault(key,value).",
-             category="flow control",
+             category="oalab control",
              nodemodule="openalea.oalab_wralea.oalabnode",
              nodeclass="SceneDefault",
              inputs = (dict(name='Key', interface=IStr),
@@ -55,6 +55,26 @@ scene_rw = Factory(name="scene setdefault",
 
 __all__.append('scene_rw')
 
+scene_2_geom = Factory(name='Scene to Geometry',
+                authors='F. Boudon, C. Pradal, J. Coste(wralea authors)',
+                description='Extract geometry from scene',
+                category='Data I/O',
+                nodemodule='openalea.oalab_wralea.oalabnode',
+                nodeclass='Scene2Geom',
+                inputs=None,
+                outputs=None,
+               )
+               
+__all__.append('scene_2_geom')
 
-    
-
+geom_2_scene = Factory(name='Geometry to Scene',
+                authors='F. Boudon, C. Pradal, J. Coste(wralea authors)',
+                description='Create scene from geometry',
+                category='Data I/O',
+                nodemodule='openalea.oalab_wralea.oalabnode',
+                nodeclass='Geom2Scene',
+                inputs=(dict(name='geometry', interface=IStr)),
+                outputs=(dict(name='Scene', interface=IStr)),
+               )
+               
+__all__.append('geom_2_scene')
