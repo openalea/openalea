@@ -25,6 +25,7 @@ Visual Programming nodes define to interact with the oalab application component
 __revision__ = '$Id$'
 
 from openalea.core import *
+from openalea.plantgl.all import Scene as PglScene
 from openalea.oalab.scene import Scene
 
 # Nodes for read/write in scene
@@ -83,3 +84,27 @@ class SceneDefault(AbstractScene):
         self.set_caption("%s"%(key,))
         return (obj, )
 
+class Scene2Geom(Node):
+    def __init__(self):
+        Node.__init__(self)
+        self.add_input( name = "scene", interface = None)
+        self.add_output( name = "geom", interface = None)
+        #self.add_output( name = "geom2", interface = None)
+        #self.add_output( name = "geom3", interface = None)
+
+    def __call__(self, inputs):
+        scene = inputs[0]
+        geom = scene[0].geometry
+        #geom2 = scene[1].geometry
+        #geom3 = scene[2].geometry
+        return (geom,)
+
+class Geom2Scene(Node):
+    def __init__(self):
+        Node.__init__(self)
+        self.add_input( name = "geom", interface = None)
+        self.add_output( name = "scene", interface = None)
+    def __call__(self, inputs):
+        geometry = inputs[0]
+        scene = PglScene([geometry])
+        return (scene   , )

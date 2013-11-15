@@ -386,38 +386,39 @@ class PrjctModel(QtGui.QStandardItemModel):
         QtCore.QObject.connect(self,QtCore.SIGNAL('dataChanged( const QModelIndex &, const QModelIndex &)'),self.renamed)
         
     def renamed(self,x,y):
-        if self.session.current_is_project():
-            # Get item and his parent
-            parent = self.item(x.parent().row())
-            # Check if you have the right to rename
-            if parent:
-                item = parent.child(x.row())
-            
-                # List brothers of item
-                children = list()
-                raw = parent.rowCount()
-                for i in range(raw):
-                    child = parent.child(i)
-                    children.append(child.text())
+        if self.proj is not None:
+            if self.proj.is_project():
+                # Get item and his parent
+                parent = self.item(x.parent().row())
+                # Check if you have the right to rename
+                if parent:
+                    item = parent.child(x.row())
                 
-                # Search which is the old_item which was changed and rename it
-                if parent.text() == "Models":
-                    for i in self.old_models:
-                        if i not in children:
-                            self.proj.rename(categorie=parent.text(), old_name=i, new_name= item.text())
+                    # List brothers of item
+                    children = list()
+                    raw = parent.rowCount()
+                    for i in range(raw):
+                        child = parent.child(i)
+                        children.append(child.text())
+                    
+                    # Search which is the old_item which was changed and rename it
+                    if parent.text() == "Models":
+                        for i in self.old_models:
+                            if i not in children:
+                                self.proj.rename(categorie=parent.text(), old_name=i, new_name= item.text())
 
-                if parent.text() == "Controls":
-                    for i in children:
-                        if i not in self.old_controls:
-                            self.proj.rename(categorie=parent.text(), old_name=i, new_name= item.text())
+                    if parent.text() == "Controls":
+                        for i in children:
+                            if i not in self.old_controls:
+                                self.proj.rename(categorie=parent.text(), old_name=i, new_name= item.text())
 
-                if parent.text() == "Scene":
-                    for i in children:
-                        if i not in self.old_scene:
-                            self.proj.rename(categorie=parent.text(), old_name=i, new_name= item.text())
-                            
-                # Save project
-                self.proj.save()
+                    if parent.text() == "Scene":
+                        for i in children:
+                            if i not in self.old_scene:
+                                self.proj.rename(categorie=parent.text(), old_name=i, new_name= item.text())
+                                
+                    # Save project
+                    self.proj.save()
         
 
     def set_proj(self, proj=None):
