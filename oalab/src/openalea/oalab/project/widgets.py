@@ -456,6 +456,7 @@ class ProjectWidget(QtGui.QWidget):
         """
         if self.session.current_is_project():
             self.projectManager.close(self.session.project.name)
+            self._clear_control()
             logger.debug("Close Project")
         elif self.session.current_is_script():
             logger.debug("Close Scripts")
@@ -546,7 +547,10 @@ class ProjectWidget(QtGui.QWidget):
             for (manager,obj) in objects:
                 obj, name = self.geometry_2_piklable_geometry(manager,obj)
                 self.session.project.controls[unicode(name)] = obj
-    
+                
+    def _clear_control(self):
+            self.session.control_panel.geometry_editor.clear()
+            
     def _control_change(self):
         pass
         #logger.debug("Control changed")

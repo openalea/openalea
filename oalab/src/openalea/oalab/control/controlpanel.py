@@ -60,6 +60,9 @@ class LPyPanelWidget(QtGui.QWidget):
         self.nameEditorAutoHide = True
         self.setAcceptDrops(True)   
 
+    def clear(self):
+        self.setObjects([])
+
     def dragEnterEvent(self,event):
         event.acceptProposedAction()
 
