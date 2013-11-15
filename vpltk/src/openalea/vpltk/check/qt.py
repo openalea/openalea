@@ -10,4 +10,4 @@ def has_pyqt4():
     except ImportError:
         return False  
 	
-print has_pyqt4()
+has_pyqt4()

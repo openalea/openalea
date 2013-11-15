@@ -36,4 +36,4 @@ def has_new_ipython():
     except ImportError:
         return False   
 		
-print has_ipython()
+has_ipython()

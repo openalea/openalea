@@ -32,11 +32,9 @@ def has_full_deps():
     """
     # Check Python ZeroMQ
     zmq = has_zmq()
-    print("ZMQ: %s"%zmq)
     # Check Pygments
     pgm = has_pygments()
-    print("Pygments: %s"%pgm)
 	
     return zmq & pgm
 
-print has_full_deps()
+has_full_deps()
