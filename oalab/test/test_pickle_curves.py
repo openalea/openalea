@@ -24,14 +24,16 @@ def test_pickle_newcrv2D():
     assert repr(crv) == repr(loaded_curve), "%s != %s"%(repr(crv), repr(loaded_curve))
     
 def test_pickle_newbezier():
-    crv = RedBezierNurbs2D([(-0.5,0,1),(-0.198198,0.40991,1),(0.198198,-0.220721,1),(0.5,0,1)])
+    pointlist = [(-0.5,0,1),(-0.198198,0.40991,1),(0.198198,-0.220721,1),(0.5,0,1)]
+    crv = RedBezierNurbs2D(pointlist)
     saved_curve = dumps(crv)
     loaded_curve = loads(saved_curve)
     # Check
     assert repr(crv) == repr(loaded_curve), "%s != %s"%(repr(crv), repr(loaded_curve))
     
 def test_pickle_newpolyline():
-    crv = RedPolyline2D([(-0.5,0,1),(-0.198198,0.40991,1),(0.198198,-0.220721,1),(0.5,0,1)])
+    pointlist = [(-0.5,0),(-0.198198,0.40991),(0.198198,-0.220721),(0.5,0)]
+    crv = RedPolyline2D(pointlist)
     saved_curve = dumps(crv)
     loaded_curve = loads(saved_curve)
     # Check
