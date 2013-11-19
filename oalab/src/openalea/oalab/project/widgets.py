@@ -401,8 +401,10 @@ class ProjectWidget(QtGui.QWidget):
             for (manager, geom) in geoms:
                 new_obj,new_name = self.geometry_2_piklable_geometry(manager, geom)
                 current.controls[new_name] = new_obj
-            #scalars = self.session.control_panel.scalars_editor
-            #current.controls["scalars"] = scalars
+            
+            scalars = self.session.control_panel.scalars_editor.getScalars()
+            for scalar in scalars:
+                current.controls[scalar.name] = scalar
 
             current.save()
             
@@ -524,14 +526,19 @@ class ProjectWidget(QtGui.QWidget):
                 
             managers = get_managers()
             geom = []
+            scalars = []
             for control in proj.controls:
                 if "geometry" in str(control).split("_")[0]:
                     type_name = str(control).split("_")[1]
                     proj.controls[control].name = str(control).split("_")[-1]
                     manager = managers[type_name]
                     geom.append((manager,proj.controls[control]))
+                elif str(control) != "color map":
+                    scalars.append(proj.controls[control])
             if geom is not list():
                 self.session.control_panel.geometry_editor.setObjects(geom)
+            	if scalars is not list():
+            	    self.session.control_panel.scalars_editor.setScalars(scalars)
         
     def _update_control(self):
         """
@@ -548,8 +555,16 @@ class ProjectWidget(QtGui.QWidget):
                 obj, name = self.geometry_2_piklable_geometry(manager,obj)
                 self.session.project.controls[unicode(name)] = obj
                 
+            scalars = self.session.control_panel.scalars_editor.getScalars()
+            for scalar in scalars:
+                self.session.project.controls[unicode(scalar.name)] = scalar
+                
     def _clear_control(self):
             self.session.control_panel.geometry_editor.clear()
+            n = len(self.session.control_panel.scalars_editor.getScalars())
+            for scalar in range(n):
+            	    self.session.control_panel.scalars_editor.deleteScalars()
+
             
     def _control_change(self):
         pass
