@@ -22,6 +22,7 @@ from openalea.vpltk.qt import QtGui, QtCore
 from openalea.lpy.gui.materialeditor import MaterialEditor
 #from openalea.lpy.gui.objectpanel import LpyObjectPanelDock
 from openalea.lpy.gui.objectpanel import ObjectPanelManager, TriggerParamFunc, ObjectListDisplay
+from openalea.lpy.gui.scalareditor import ScalarEditor
 
 
 
@@ -276,19 +277,6 @@ class ControlPanel(QtGui.QTabWidget):
         self.control_panel_manager = ControlPanelManager(session)
         self.geometry_editor = LPyPanelWidget(parent=None,name="Control Panel", panelmanager=self.control_panel_manager)
         self.geometry_editor.view.setTheme(self.geometry_editor.view.WHITE_THEME)
-        # objects = self.geometry_editor.getObjects()
-        # for object in objects:
-            # object[1].name, object
-        
-        #o = self.geometry_editor.getObjectsCopy()
-        #self.geometry_editor.setObjects(o)
-        
-        #from copy import copy
-        #objects = self.geometry_editor.getObjects()
-        #objects = copy(objects)
-        #self.geometry_editor.setObjects(objects)
-        
-
         # Print Warning in PlantGL/src/plantg/gui/curve2deditor.py l.227
         """
         Edit curve
@@ -310,7 +298,14 @@ class ControlPanel(QtGui.QTabWidget):
         self.addTab(self.geometry_editor, "Geometry")
         
         # Scalars
-        self.scalars_editor = QtGui.QWidget()
+        self.scalars_editor = ScalarEditor(self)
+        # scalars = self.scalars_editor.getScalars()
+		# for scalar in scalars:
+		# cPickle.dump(scalar)
+		
+		#cPcikle.load(scalar)
+		# self.scalars_editor.setScalars([scalar,,,])
+
         self.addTab(self.scalars_editor, "Scalars")   
         
 '''

@@ -108,13 +108,13 @@ class AppletContainer(QtGui.QTabWidget):
     def setTabRed(self, index=None):
         if index is None:
             index = self.currentIndex()
-        if index is not -1:
+        if index != -1:
             self.tabBar().setTabTextColor(index, QtCore.Qt.red)
             
     def setTabBlack(self, index=None):
         if index is None:
             index = self.currentIndex()
-        if index is not -1:
+        if index != -1:
             self.tabBar().setTabTextColor(index, QtCore.Qt.black)
             
     def setAllTabBlack(self):
