@@ -29,7 +29,7 @@ curves = retrieveCurves()
 axisfunc = ProfileInterpolation(curves)
 
 #time between each curve
-curvedelay = 30
+curvedelay = controls["curve_delay"].value #30
 #total time
 timerange = (len(curves)-1)*curvedelay
 
