@@ -772,7 +772,7 @@ class ComboDelegate(qt.QtGui.QItemDelegate):
         """ Accessor """
 
         if index.column() == 1:
-            value = str(index.data().toString())
+            value = str(index.data())
             i = editor.findText(value)
             editor.setCurrentIndex (i)
         else:
