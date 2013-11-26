@@ -2,19 +2,19 @@ from openalea.plantgl.all import *
 
 class RedNurbs2D(NurbsCurve2D):
     def __reduce__(self):
-        return (NurbsCurve2D, (self.ctrlPointList,))
+        return (RedNurbs2D, (self.ctrlPointList,))
         
 class RedBezierNurbs2D(BezierCurve2D):
     def __reduce__(self):
-        return (BezierCurve2D, (self.ctrlPointList,))
+        return (RedBezierNurbs2D, (self.ctrlPointList,))
         
 class RedPolyline2D(Polyline2D):
     def __reduce__(self):
-        return (Polyline2D, (self.pointList,))
+        return (RedPolyline2D, (self.pointList,))
         
 class RedNurbsPatch(NurbsPatch):
     def __reduce__(self):
-        return (NurbsPatch, (self.ctrlPointMatrix,))
+        return (RedNurbsPatch, (self.ctrlPointMatrix,))
 
 
 """
