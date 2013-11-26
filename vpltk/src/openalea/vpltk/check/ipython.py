@@ -6,7 +6,10 @@ def has_ipython():
     
     :return: True if user can use IPython. Else False.
     """
-    return has_deprecated_ipython() | has_new_ipython()
+    if has_new_ipython():
+        return True
+    else:
+        return has_deprecated_ipython()
 
 def has_deprecated_ipython():
     """

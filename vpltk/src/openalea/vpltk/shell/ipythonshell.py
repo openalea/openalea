@@ -51,17 +51,16 @@ class ShellWidget(RichIPythonWidget, GraphicalStreamRedirection):
             self.kernel_client = kernel_client
 
         except ImportError:
+            import warnings
+            message = "You are using a deprecated version of IPython (please update)."
+            warnings.warn(message)
+            
             # DEPRECATED !
             from IPython.frontend.qt.inprocess_kernelmanager import QtInProcessKernelManager
             km = QtInProcessKernelManager(kernel=self.interpreter)
             km.start_channels()
             self.interpreter.frontends.append(km)
             self.kernel_manager = km
-            
-            import warnings
-            message = "You are using a deprecated version of IPython (please update)."
-            warnings.warn(message)
-
         # # For Debug Only
         # self.interpreter.locals['shell'] = self 
         
