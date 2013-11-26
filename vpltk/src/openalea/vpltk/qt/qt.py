@@ -4,21 +4,22 @@ The goal is to have the same version of QString and QVariant in all OpenAlea
 """
 import os
 
-def load_qt():
-    from PyQt4 import QtCore, QtGui, QtSvg
-    try:
-    # Try to set api of QString at 2 to have the same thing if user have IPython or not
-        import sip
-        sip.setapi("QString",2)
-    except:
-        pass
-    return QtCore, QtGui, QtSvg
-
 try: 
     from IPython.external.qt import QtCore, QtGui, QtSvg, QT_API
 except ImportError:
-    QT_API = 'pyqt'
-    QtCore, QtGui, QtSvg = load_qt()
+    # Use local IPython qt loader
+    from qt_loaders import (load_qt, QT_API_PYSIDE, QT_API_PYQT)
+    
+    QT_API = os.environ.get('QT_API', None)
+    if QT_API not in [QT_API_PYSIDE, QT_API_PYQT, None]:
+        raise RuntimeError("Invalid Qt API %r, valid values are: %r, %r" %
+                           (QT_API, QT_API_PYSIDE, QT_API_PYQT))
+    if QT_API is None:
+        api_opts = [QT_API_PYSIDE, QT_API_PYQT]
+    else:
+        api_opts = [QT_API]
+    
+    QtCore, QtGui, QtSvg, QT_API = load_qt(api_opts)    
 except:
     import warnings
     message = """
