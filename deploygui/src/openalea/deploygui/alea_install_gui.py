@@ -477,7 +477,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         """ Select a dirname for local custom package """
 
         init_path = ''
-        if not widget_to_fill.text().isEmpty() :
+        if len(widget_to_fill.text()) > 0 :
             init_path = str(widget_to_fill.text())
 
         if not widget_to_use_to_start is None:
@@ -517,7 +517,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         """ update cpp information frame of custom package """
 
         if enabled:
-            if not self.customPackageDirEdit.text().isEmpty():
+            if len(self.customPackageDirEdit.text()) > 0:
                 self.customPackageIncludeEdit.setText(
                     os.path.join(str(self.customPackageDirEdit.text()),'include'))
                 self.customPackageLibEdit.setText(
