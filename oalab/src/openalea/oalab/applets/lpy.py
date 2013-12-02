@@ -106,7 +106,8 @@ class LPyApplet(object):
         context["context"] = self.context
         context["cache"] = ns
         context["scene"] = self.session.scene_widget.getScene()
-        context["controls"] = self.session.project.controls
+        if self.session.project.is_project():
+            context["controls"] = self.session.project.controls
         
         if script is None: script = ""
         if not "###### INITIALISATION ######" in script:
@@ -142,7 +143,8 @@ class LPyApplet(object):
         # Get code from application
         code = str(self.widget().get_text())
         # Get controls
-        self.parameters["controls"] = self.session.project.controls
+        if self.session.project.is_project():
+            self.parameters["controls"] = self.session.project.controls
         # set code (so reinit: step = 0)
         self.lsys.setCode(code, self.parameters)
             
@@ -189,13 +191,15 @@ class LPyApplet(object):
     def animate(self):
         # Get code from application
         code = str(self.widget().get_text())
-        self.parameters["controls"] = self.session.project.controls
+        if self.session.project.is_project():        
+            self.parameters["controls"] = self.session.project.controls
         self.lsys.setCode(code, self.parameters)
         self.step()
         self.lsys.animate()
 
     def reinit(self):
-        self.parameters["controls"] = self.session.project.controls
+        if self.session.project.is_project():
+            self.parameters["controls"] = self.session.project.controls
         self.lastIter = -1
         self.code = str(self.widget().get_text())
         # setCode set lastIterationNb to zero

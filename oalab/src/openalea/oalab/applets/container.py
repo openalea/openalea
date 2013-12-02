@@ -56,7 +56,7 @@ class AppletContainer(QtGui.QTabWidget):
         self.actionGoto = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/next-green.png"),"Go To",self) 
        
         self.actionComment.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+W", None, QtGui.QApplication.UnicodeUTF8)) 
-        self.actionUnComment.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Q", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionUnComment.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+J", None, QtGui.QApplication.UnicodeUTF8))
         
         self.actionRunSelection.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+R", None, QtGui.QApplication.UnicodeUTF8))
 
@@ -286,33 +286,45 @@ class AppletContainer(QtGui.QTabWidget):
     def undo(self):
         try:
             self.currentWidget().undo()
+            logger.debug("Undo " + self.currentWidget().applet.name)
         except:
-            pass
-        logger.debug("Undo " + self.currentWidget().applet.name)
+            logger.warning("Can't use method Undo in " + self.currentWidget().applet.name)
         
     def redo(self):
         try:
             self.currentWidget().redo()
+            logger.debug("Redo " + self.currentWidget().applet.name)
         except:
-            pass
-        logger.debug("Redo " + self.currentWidget().applet.name)
+            logger.warning("Can't use method Redo in " + self.currentWidget().applet.name)
         
     def search(self):
-        self.currentWidget().search()
-        logger.debug("Search " + self.currentWidget().applet.name)
+        try:        
+            self.currentWidget().search()
+            logger.debug("Search " + self.currentWidget().applet.name)
+        except:
+            logger.warning("Can't use method search in " + self.currentWidget().applet.name)
         
     def comment(self):
-        self.currentWidget().comment()
-        logger.debug("comment " + self.currentWidget().applet.name)
+        try:
+            self.currentWidget().comment()
+            logger.debug("comment " + self.currentWidget().applet.name)
+        except:
+            logger.warning("Can't use method comment in " + self.currentWidget().applet.name)
 
     def uncomment(self):
-        self.currentWidget().uncomment()
-        logger.debug("uncomment " + self.currentWidget().applet.name)
+        try:
+            self.currentWidget().uncomment()
+            logger.debug("uncomment " + self.currentWidget().applet.name)
+        except:
+            logger.warning("Can't use method uncomment in " + self.currentWidget().applet.name)
         
     def goto(self):
-        self.currentWidget().goto()
-        logger.debug("Goto " + self.currentWidget().applet.name)
-        
+        try:
+            self.currentWidget().goto()
+            logger.debug("Goto " + self.currentWidget().applet.name)
+        except:
+            logger.warning("Can't use method Goto in " + self.currentWidget().applet.name)
+            
 class WelcomePage(QtGui.QWidget):
     """
     Welcome page in the applet container.
