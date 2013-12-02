@@ -33,7 +33,7 @@ class RichTextEditor(QtGui.QWidget):
         
         self.completer = DictionaryCompleter(session=session, parent=self)
         self.editor = TextEditor(session=session, parent=self)
-        self.editor.setCompleter(self.completer)
+        #self.editor.setCompleter(self.completer)
         
         self.goto_widget = GoToWidget(parent=self.editor)
         self.search_widget = SearchWidget(parent=self,session=session )
@@ -221,7 +221,8 @@ class TextEditor(QtGui.QTextEdit):
                     project.rename_script(self.name, new_fname)
                     self.name = new_fname
                     project[self.name] = txt
-                    self.session.applet_container.setTabText(self.session.applet_container.currentIndex(),project.ez_name[self.name])
+                    ez = project.get_ez_name_by_name(self.name)
+                    self.session.applet_container.setTabText(self.session.applet_container.currentIndex(),ez)
                     
             if str(self.name) in ("script.py", "script.lpy", "script.r", "workflow.wpy", "", "None", "False"):
                 logger.debug("Can't save file because name is None")
@@ -281,21 +282,22 @@ class TextEditor(QtGui.QTextEdit):
         else:
             finded = True
 
-        if (not isShortcut and (hasModifier or (event.text() is str()) or
-        len(completionPrefix) < 3 or finded)):
-            self.completer.popup().hide()
-            return
+        if self.completer is not None:
+            
+            if (not isShortcut and (hasModifier or (event.text() is str()) or
+            len(completionPrefix) < 3 or finded)):
+                self.completer.popup().hide()
+                return
 
-        if (completionPrefix != self.completer.completionPrefix()):
-            self.completer.setCompletionPrefix(completionPrefix)
-            popup = self.completer.popup()
-            popup.setCurrentIndex(
-                self.completer.completionModel().index(0,0))
+            if (completionPrefix != self.completer.completionPrefix()):
+                self.completer.setCompletionPrefix(completionPrefix)
+                popup = self.completer.popup()
+                popup.setCurrentIndex(self.completer.completionModel().index(0,0))
          
-        cr = self.cursorRect()
-        cr.setWidth(self.completer.popup().sizeHintForColumn(0)
-            + self.completer.popup().verticalScrollBar().sizeHint().width())
-        self.completer.complete(cr) ## popup it up!
+            cr = self.cursorRect()
+            cr.setWidth(self.completer.popup().sizeHintForColumn(0)
+                + self.completer.popup().verticalScrollBar().sizeHint().width())
+            self.completer.complete(cr) ## popup it up!
 
     ####################################################################
     #### Auto Indent (cf lpycodeeditor)
