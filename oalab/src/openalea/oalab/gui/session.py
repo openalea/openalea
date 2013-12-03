@@ -18,8 +18,8 @@
 __revision__ = ""
 
 from openalea.core.pkgmanager import PackageManager
-from openalea.oalab.control.controlpanel import ControlPanel
 from openalea.oalab.gui.logger import Logger
+from openalea.oalab.control.controlpanel import ControlPanel
 from openalea.oalab.gui.help import Help
 from openalea.oalab.scene.view3d import Viewer
 from openalea.oalab.gui.menu import PanedMenu
@@ -71,8 +71,8 @@ class Session(object):
 
         self.interpreter.locals['session'] = self
         self.interpreter.locals['viewer'] = self.viewer
-        self.interpreter.locals['ctrl'] = self.control_panel
-        self.interpreter.locals['interp'] = self.interpreter
+        #self.interpreter.locals['ctrl'] = self.control_panel
+        #self.interpreter.locals['interp'] = self.interpreter
         self.interpreter.locals['shell'] = self.shell
         self._update_locals()
         

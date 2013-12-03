@@ -20,22 +20,29 @@ __revision__ = ""
 from pygments.lexers.agile import PythonLexer
 from pygments.token import Name, Generic
 
+"""
+:TODO: search from pygments.lexer.RegexLexer or ExtendedRegexLexer
+Pygments repo: https://bitbucket.org/birkenfeld/pygments-main
+Fork: https://bitbucket.org/jcoste/pygments-main
+Regexp reader: http://www.regexper.com
+"""
+
 class LPyLexer(PythonLexer):
     """
     LPy lexer extend Python lexer for syntax coloring with Pygments
     """
     name = 'LPy'
-    aliases = ['lpy']
+    aliases = ['lpy','Lpy','LPy','l-py','L-py','L-Py',]
     filenames = ['*.lpy']
     
     LPY_KEYWORDS = ['Axiom','production','homomorphism','interpretation',
                             'decomposition','endlsystem','group','endgroup',
                             'derivation', 'length','maximum depth','produce','nproduce','nsproduce','makestring','-->',
-                            'consider:','ignore','forward','backward','isForward',
+                            'consider','ignore','forward','backward','isForward',
                             'Start','End','StartEach','EndEach','getGroup','useGroup','getIterationNb',
                             'module','-static->','@static','lpyimport']
     
-    PROD_KEYWORDS = ['Axiom','module','produce','nproduce','nsproduce','makestring','-->','-static->','ignore:','consider']
+    PROD_KEYWORDS = ['Axiom','module','produce','nproduce','nsproduce','makestring','-->','-static->','ignore','consider']
 
     DELIMITERS_KEYWORDS = '[](){}+-*/:<>='
 
