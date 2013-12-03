@@ -57,7 +57,7 @@ def import_lpy_file(script):
     if script is None: script = ""
     beginTag = LpyParsing.InitialisationBeginTag
     if not beginTag in script:
-        return str(script), new_context, controls
+        return str(script), controls
     else:
         txts = str(script).split(beginTag)
         new_script = txts[0]
@@ -133,9 +133,10 @@ class LPyApplet(object):
         logger.debug("Convert lpy file inside LPyApplet")
         script, controls = import_lpy_file(script)
         logger.debug("New controls: %s"%str(controls))
-        session.project.controls.update(controls)
-        logger.debug("Update controls inside LPyApplet")
-        session.project_widget._load_control()
+        if self.session.project is not None:
+            self.session.project.controls.update(controls)
+            logger.debug("Update controls inside LPyApplet")
+            session.project_widget._load_control()
         
         self.widget().set_text(script)
 
