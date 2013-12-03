@@ -18,7 +18,7 @@ def test_create_controls():
     
 '''
 
-
+"""
 from openalea.oalab.control.mapper import Mapper
 
 def test_mapper_filter():
@@ -33,4 +33,4 @@ def test_mapper_get_manager():
     control = Ctrl()   
     manag1 = mapper.getManager(control)
     manag2 = mapper.getManagerByType("color_map")
-    assert manag1 == manag2
+    assert manag1 == manag2"""
