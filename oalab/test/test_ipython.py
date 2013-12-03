@@ -1,4 +1,4 @@
-from openalea.vpltk.shell.check_ipython import has_full_ipython
+from openalea.vpltk.check.ipython import has_ipython
 from openalea.vpltk.shell.shell import get_interpreter_class, get_shell_class
 from openalea.vpltk.qt import QtGui, QtCore
 import sys
@@ -8,7 +8,7 @@ def test_has_qt():
     assert QtCore.QObject()
 
 def test_has_ipython():
-    assert has_full_ipython()
+    assert has_ipython()
     
 
 def test_get_interpreter():  

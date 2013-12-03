@@ -14,32 +14,27 @@ def test_session_and_mainwindow():
     mw = MainWindow(session)
     session.store.showhide()
     session.store.showhide()
-    ret = bool(session.project == None)
-    ret2 = bool(session.store.mainMenu() == "Package Store" )
-    assert (ret and ret2)
+    assert session.project == None
+    assert session.store.mainMenu() == "Package Store" 
 
 def test_applet_container():
     container = AppletContainer(session)
-    ret = (type(container.applets) == type(list()))
-    ret = ret and (container.count() == 1)
-    assert ret
-
-def test_applet_container_rm_tab():
-    container = AppletContainer(session)
+    assert type(container.applets) == type(list())
+    assert container.count() == 1
     container.rmDefaultTab()
-    assert container.count() == 0
-
-def test_applet_container_reset():
-    container = AppletContainer(session)
-    container.reset()
     assert container.count() == 0
 
 def test_text_edit():
     editor = TextEditor(session)
     assert editor is not None
-
+"""
 def test_applet_container_opentab():
     container = AppletContainer(session)
+    assert type(container.applets) == type(list())
+    assert container.count() == 1
+    container.rmDefaultTab()
+    assert container.count() == 0
+
     container.openTab(applet_type="py", tab_name="plop.py", script="print('hello world')")
     container.openTab(applet_type="lpy", tab_name="plop.lpy", script="")
     container.openTab(applet_type="r", tab_name="plop.r", script="")
@@ -52,6 +47,9 @@ def test_applet_container_opentab():
     if session.help.mainMenu() == "Help":
         a += 1 #9
     assert a == 9
+    
+    container.reset()
+    assert container.count() == 0"""
 
 def test_create_paned_menu():
     menu = PanedMenu()
@@ -62,4 +60,3 @@ def test_create_paned_menu():
     menu.addSpecialTab(label="specialtab", widget=QtGui.QWidget())
     assert len(menu.tab_name) == 3
     
-
