@@ -107,7 +107,7 @@ setup(
 
     # Declare scripts and wralea as entry_points (extensions) of your package 
     entry_points = { 
-        'wralea' : ['vpltk = openalea.vpltk_wralea' if has_project else 'vpltk = vpltk_wralea' ],
+        #'wralea' : ['vpltk = openalea.vpltk_wralea' if has_project else 'vpltk = vpltk_wralea' ],
         #'console_scripts': [
         #       'fake_script = openalea.fakepackage.amodule:console_script', ],
         # 'gui_scripts': [
