@@ -22,8 +22,13 @@ __revision__ = ""
 from openalea.oalab.editor.text_editor import RichTextEditor as Editor
 from openalea.oalab.editor.highlight import Highlighter
 from openalea.oalab.editor.lpy_lexer import LPyLexer
+from openalea.oalab.project.widgets import geometry_2_piklable_geometry
 from openalea.lpy import Lsystem, AxialTree, registerPlotter
 from openalea.lpy.gui import documentation as doc_lpy
+from openalea.lpy.__lpy_kernel__ import LpyParsing
+from openalea.lpy.gui.objectmanagers import get_managers
+from openalea.lpy.gui.scalar import ProduceScalar
+from openalea.core import logger
 
 def get_default_text():
     return """Axiom: 
@@ -37,12 +42,81 @@ interpretation:
 endlsystem
 """
 
+def import_lpy_file(script):
+    """
+    Extract from an "old style" LPy file script part (str) and associated controls (dict).
+    Permit compatibility between LPy and OALab.
+    
+    :param: script to filter (str)
+    :return: lpy script (str) without end begining with "###### INITIALISATION ######"
+    and a dict which contain the controls (dict)
+    """
+    new_context = dict()
+    controls = dict()
+
+    if script is None: script = ""
+    beginTag = LpyParsing.InitialisationBeginTag
+    if not beginTag in script:
+        return str(script), new_context, controls
+    else:
+        txts = str(script).split(beginTag)
+        new_script = txts[0]
+        context_to_translate = txts[1]
+        context = Lsystem().context()
+        try:
+            context.initialiseFrom(beginTag+context_to_translate)
+        except:
+            logger.warning("Can't decode lpy file")
+           
+        managers = get_managers()
+        visualparameters = []
+        scalars = []
+        functions = []
+        curves = []
+        geoms = []
+        
+        lpy_code_version = 1.0
+        if context.has_key('__lpy_code_version__'):
+            lpy_code_version = context['__lpy_code_version__']
+        if context.has_key('__scalars__'):
+            scalars_ = context['__scalars__']   
+            scalars = [ ProduceScalar(v) for v in scalars_ ]            
+        if context.has_key('__functions__') and lpy_code_version <= 1.0 :
+            functions_ = context['__functions__']
+            for n,c in functions_: c.name = n
+            functions = [ c for n,c in functions ]
+            funcmanager = managers['Function']
+            geoms +=  [ ({'name':'Functions'}, [(funcmanager,func) for n,func in functions]) ]
+        if context.has_key('__curves__') and lpy_code_version <= 1.0 :
+            curves_ = context['__curves__']
+            for n,c in curves_: c.name = n
+            curves = [ c for n,c in curves ]
+            curvemanager = managers['Curve2D']
+            geoms += [ ({'name':'Curve2D'}, [(curvemanager,curve) for n,curve in curves]) ]
+        if context.has_key('__parameterset__'):
+            for panelinfo,objects in context['__parameterset__']:
+                for typename,obj in objects:
+                    visualparameters.append((managers[typename],obj))
+        
+        controls["color map"] = context.turtle.getColorList()
+        for scalar in scalars:
+        	controls[unicode(scalar.name)] = scalar
+        for (manager, geom) in geoms:
+            new_obj,new_name = geometry_2_piklable_geometry(manager, geom)
+            controls[new_name] = new_obj
+        for (manager, geom) in visualparameters:
+            new_obj,new_name = geometry_2_piklable_geometry(manager, geom)
+            controls[new_name] = new_obj
+                
+        return new_script, controls
 
 class LPyApplet(object):
     def __init__(self, session, name="script.lpy", script=""):
         super(LPyApplet, self).__init__()
+        logger.debug("init LPyApplet")
         self._widget = Editor(session=session)
         Highlighter(self._widget.editor, lexer=LPyLexer())
+        logger.debug("Begin Highlight inside LPyApplet")
         self._widget.applet = self
         self.session = session
         self.name = name
@@ -55,7 +129,14 @@ class LPyApplet(object):
         if script == "":
             script = get_default_text()
 
-        script, self.parameters = self.filter_old_lpy_file(script)
+        #script, self.parameters = self.filter_old_lpy_file(script)
+        logger.debug("Convert lpy file inside LPyApplet")
+        script, controls = import_lpy_file(script)
+        logger.debug("New controls: %s"%str(controls))
+        session.project.controls.update(controls)
+        logger.debug("Update controls inside LPyApplet")
+        session.project_widget._load_control()
+        
         self.widget().set_text(script)
 
         self.lsys = Lsystem()
@@ -133,7 +214,7 @@ class LPyApplet(object):
             self.run()
         else:
             interp = self.session.shell.get_interpreter()
-            user_ns = self.session.interpreter.user_ns
+            #user_ns = self.session.interpreter.user_ns
             interp.runcode(code)
 
     def run(self):

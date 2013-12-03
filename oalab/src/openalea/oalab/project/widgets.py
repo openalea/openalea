@@ -30,6 +30,36 @@ from openalea.plantgl.all import BezierCurve2D, NurbsCurve2D, Polyline2D, NurbsP
 from openalea.oalab.control.picklable_curves import RedNurbs2D, RedBezierNurbs2D, RedPolyline2D, RedNurbsPatch
 from openalea.lpy.gui.objectmanagers import get_managers
             
+            
+def geometry_2_piklable_geometry(manager, obj):
+    """
+    Transform a geometry object from PlantGL in picklable object.
+    :param manager: manager of object to transform
+    :param obj: object to transform
+    :return: tuple(transformed object, name_of_new_object)
+    """         
+    geom = obj
+    name = str(geom.getName())
+    if isinstance(geom, NurbsPatch):
+        new_obj = RedNurbsPatch(geom.ctrlPointMatrix)
+        logger.debug("Transform NurbsPatch into RedNurbsPatch")
+    elif isinstance(geom, Polyline2D):
+        new_obj = RedPolyline2D(geom.pointList)
+        logger.debug("Transform Polyline2D into RedPolyline2D")
+    elif isinstance(geom, NurbsCurve2D):
+        new_obj = RedNurbs2D(geom.ctrlPointList)
+        logger.debug("Transform NurbsCurve2D into RedNurbs2D")
+    elif isinstance(geom, BezierCurve2D):
+        new_obj = RedBezierNurbs2D(geom.ctrlPointList)
+        logger.debug("Transform BezierCurve2D into RedBezierNurbs2D")
+    else:
+        new_obj = obj
+        new_name = name
+        logger.debug("Transform Nothing %s"%str(geom))
+    new_name = "geometry_%s_%s"%(manager.typename,name)
+    logger.debug("Save control geometry_%s"%(new_name))
+    return(new_obj,new_name)            
+            
 class ProjectWidget(QtGui.QWidget):
     """
     Widget which permit to manage projects.
@@ -193,7 +223,7 @@ class ProjectWidget(QtGui.QWidget):
                     self._tree_view_change()
                     logger.debug("Import file named " + tab_name)
                 except:
-                    print "File extension " +ext+ "not recognised"
+                    print "File extension " +ext+ " not recognised"
                     logger.warning("Can't import file named " + filename + " in current project. Unknow extension.")
         else:
             self.session._is_script = True
@@ -225,7 +255,7 @@ class ProjectWidget(QtGui.QWidget):
                     self._tree_view_change()
                     logger.debug("Import file named " + tab_name + " outside project")
                 except:
-                    print "File extension " +ext+ "not recognised"
+                    print "File extension " +ext+ " not recognised"
                     logger.warning("Can't import file named " + filename + " outside project. Unknow extension: " + ext + " .")
         
     def new(self, name=None):
@@ -399,7 +429,7 @@ class ProjectWidget(QtGui.QWidget):
             
 
             for (manager, geom) in geoms:
-                new_obj,new_name = self.geometry_2_piklable_geometry(manager, geom)
+                new_obj,new_name = geometry_2_piklable_geometry(manager, geom)
                 current.controls[new_name] = new_obj
             
             scalars = self.session.control_panel.scalars_editor.getScalars()
@@ -420,37 +450,6 @@ class ProjectWidget(QtGui.QWidget):
                 #name = container.tabText(i)
                 #container.save_all()
                 #container.setTabText(i, container.widget(i).applet.name)
-             
-    def geometry_2_piklable_geometry(self, manager, obj):
-        """
-        Transform a geometry object from PlantGL in picklable object.
-        :param manager: manager of object to transform
-        :param obj: object to transform
-        :return: tuple(transformed object, name_of_new_object)
-        """         
-        geom = obj
-        name = str(geom.getName())
-        if isinstance(geom, NurbsPatch):
-            new_obj = RedNurbsPatch(geom.ctrlPointMatrix)
-            logger.debug("Transform NurbsPatch into RedNurbsPatch")
-        elif isinstance(geom, Polyline2D):
-            new_obj = RedPolyline2D(geom.pointList)
-            logger.debug("Transform Polyline2D into RedPolyline2D")
-        elif isinstance(geom, NurbsCurve2D):
-            new_obj = RedNurbs2D(geom.ctrlPointList)
-            logger.debug("Transform NurbsCurve2D into RedNurbs2D")
-        elif isinstance(geom, BezierCurve2D):
-            new_obj = RedBezierNurbs2D(geom.ctrlPointList)
-            logger.debug("Transform BezierCurve2D into RedBezierNurbs2D")
-        else:
-            new_obj = obj
-            new_name = name
-            logger.debug("Transform Nothing %s"%str(geom))
-
-        new_name = "geometry_%s_%s"%(manager.typename,name)
-        logger.debug("Save control geometry_%s"%(new_name))
-        
-        return(new_obj,new_name)
                 
     def closeCurrent(self):
         """
@@ -515,49 +514,47 @@ class ProjectWidget(QtGui.QWidget):
         Get controls from project and put them into widgets
         """
         logger.debug("Load Controls")
-        if self.session.current_is_project():
-            proj = self.session.project
-            if not proj.controls.has_key("color map"):    
-                proj.controls["color map"] = PglTurtle().getColorList()
-            i = 0
-            for color in proj.controls["color map"]:
-                self.session.control_panel.colormap_editor.getTurtle().setMaterial(i, color)
-                i += 1
-                
-            managers = get_managers()
-            geom = []
-            scalars = []
-            for control in proj.controls:
-                if "geometry" in str(control).split("_")[0]:
-                    type_name = str(control).split("_")[1]
-                    proj.controls[control].name = str(control).split("_")[-1]
-                    manager = managers[type_name]
-                    geom.append((manager,proj.controls[control]))
-                elif str(control) != "color map":
-                    scalars.append(proj.controls[control])
-            if geom is not list():
-                self.session.control_panel.geometry_editor.setObjects(geom)
-            	if scalars is not list():
-            	    self.session.control_panel.scalars_editor.setScalars(scalars)
+        proj = self.session.project
+        if not proj.controls.has_key("color map"):    
+            proj.controls["color map"] = PglTurtle().getColorList()
+        i = 0
+        for color in proj.controls["color map"]:
+            self.session.control_panel.colormap_editor.getTurtle().setMaterial(i, color)
+            i += 1
+            
+        managers = get_managers()
+        geom = []
+        scalars = []
+        for control in proj.controls:
+            if "geometry" in str(control).split("_")[0]:
+                type_name = str(control).split("_")[1]
+                proj.controls[control].name = str(control).split("_")[-1]
+                manager = managers[type_name]
+                geom.append((manager,proj.controls[control]))
+            elif str(control) != "color map":
+                scalars.append(proj.controls[control])
+        if geom is not list():
+            self.session.control_panel.geometry_editor.setObjects(geom)
+            if scalars is not list():
+                self.session.control_panel.scalars_editor.setScalars(scalars)
         
     def _update_control(self):
         """
         Get controls from widget and put them into project
         """
         logger.debug("Update Controls")
-        if self.session.current_is_project():
-            #self.session.project.controls = dict()
+        #self.session.project.controls = dict()
+        
+        self.session.project.controls["color map"] = PglTurtle().getColorList()
+        
+        objects = self.session.control_panel.geometry_editor.getObjects()
+        for (manager,obj) in objects:
+            obj, name = geometry_2_piklable_geometry(manager,obj)
+            self.session.project.controls[unicode(name)] = obj
             
-            self.session.project.controls["color map"] = PglTurtle().getColorList()
-            
-            objects = self.session.control_panel.geometry_editor.getObjects()
-            for (manager,obj) in objects:
-                obj, name = self.geometry_2_piklable_geometry(manager,obj)
-                self.session.project.controls[unicode(name)] = obj
-                
-            scalars = self.session.control_panel.scalars_editor.getScalars()
-            for scalar in scalars:
-                self.session.project.controls[unicode(scalar.name)] = scalar
+        scalars = self.session.control_panel.scalars_editor.getScalars()
+        for scalar in scalars:
+            self.session.project.controls[unicode(scalar.name)] = scalar
                 
     def _clear_control(self):
             self.session.control_panel.geometry_editor.clear()
