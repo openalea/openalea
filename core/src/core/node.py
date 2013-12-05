@@ -99,8 +99,6 @@ class AbstractNode(Observed, HasAdHoc):
     def set_id(self, id):
         self.__id = id
         self.internal_data["id"] = self.__id
-        if(self.factory):
-            self.internal_data["factory"] = str(self.factory) + " : \"" + self.factory.get_id() + "\""
 
     def _init_internal_data(self, d):
         self.internal_data.update(d)

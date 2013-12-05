@@ -585,10 +585,10 @@ class CompositeNode(Node, DataFlow):
             self._compute_inout_connection(vertex_selection, is_input=False)
 
         in_edges = \
-            self._compute_outside_connection(vertex_selection, in_edges, \
+            self._compute_outside_connection(vertex_selection, in_edges, 
                 new_vid, is_input=True)
         out_edges = \
-            self._compute_outside_connection(vertex_selection, out_edges,\
+            self._compute_outside_connection(vertex_selection, out_edges,
                 new_vid, is_input=False)
 
         return in_edges + out_edges
