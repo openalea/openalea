@@ -18,59 +18,62 @@
 __revision__ = ""
 
 from pygments.lexers.agile import PythonLexer
-from pygments.token import Name, Generic
-
-"""
-:TODO: search from pygments.lexer.RegexLexer or ExtendedRegexLexer
-Pygments repo: https://bitbucket.org/birkenfeld/pygments-main
-Fork: https://bitbucket.org/jcoste/pygments-main
-Regexp reader: http://www.regexper.com
-"""
+from pygments.lexer import inherit, include
+from pygments.token import Text, Keyword, Name, Generic
 
 class LPyLexer(PythonLexer):
     """
-    LPy lexer extend Python lexer for syntax coloring with Pygments
+    LPy lexer extend Python lexer for syntax coloring with Pygments.
     """
     name = 'LPy'
     aliases = ['lpy','Lpy','LPy','l-py','L-py','L-Py',]
     filenames = ['*.lpy']
+    mimetypes = ['text/x-python', 'application/x-python']
     
-    LPY_KEYWORDS = ['Axiom','production','homomorphism','interpretation',
-                            'decomposition','endlsystem','group','endgroup',
-                            'derivation', 'length','maximum depth','produce','nproduce','nsproduce','makestring','-->',
-                            'consider','ignore','forward','backward','isForward',
-                            'Start','End','StartEach','EndEach','getGroup','useGroup','getIterationNb',
-                            'module','-static->','@static','lpyimport']
+    def module_callback(lexer, match):
+        """
+        Permit to detect and stock words after special words "axiom" and "module".
+        This words are then colourized like other keywords.
+        """
+        possible_words = match.group().split(" ")
+        for possible_word in possible_words:
+            w = possible_word.split("(")[0]
+            if w is not u"":
+                # Stock "lpy modules"
+                lexer.lpy_modules.append(w)
+        # Colourize words after "axiom" and "module" in the same line.
+        yield match.start(), Keyword, match.group()
     
-    PROD_KEYWORDS = ['Axiom','module','produce','nproduce','nsproduce','makestring','-->','-static->','ignore','consider']
-
-    DELIMITERS_KEYWORDS = '[](){}+-*/:<>='
-
+    tokens = {
+        'root':[
+          include('lpykeywords'), 
+          inherit #inherit from PythonLexer
+          ],
+        'lpykeywords': [
+            (r'(^Axiom|^module)', Generic.Subheading, 'module'),
+            (r'(^derivation length|-->|-static->|decomposition|'
+             r'^production|produce|homomorphism|^interpretation|group|'
+             r'^endlsystem|endgroup|maximum depth|nproduce|nsproduce|'
+             r'makestring|consider|ignore|forward|backward|isForward|'
+             r'StartEach|EndEach|Start|End|getGroup|useGroup|getIterationNb|'
+             r'module|@static|lpyimport)', Generic.Subheading),
+            ],
+        'module':[
+            (r'(\w*)(\(.*\))',module_callback),
+            (r'( )(\w*)( |$)',module_callback),
+            (r'(:| )',Text),
+        ]
+        }
+        
+    def __init__(self, **options):
+        super(LPyLexer, self).__init__(**options)
+        # Add list to stock "lpy modules"
+        self.lpy_modules = list()
+     
     def get_tokens_unprocessed(self, text):
         for index, token, value in PythonLexer.get_tokens_unprocessed(self, text):
-            #if token is Name and value in self.PROD_KEYWORDS:
-            #    yield index, Generic.Heading, value
-            if token is Name and value in self.LPY_KEYWORDS:
-                yield index, Generic.Subheading, value
+            if token is Name and value in self.lpy_modules:
+               # Colourize previously detected modules
+               yield index, Keyword, value
             else:
-                yield index, token, value
-
-'''
-from pygments.lexer import RegexLexer
-from pygments.lexers import PythonLexer
-class LPyLexer(RegexLexer):
-    name = 'LPy'
-    aliases = ['lpy']
-    filenames = ['*.lpy']
-
-    tokens = {
-        'root': [
-            (r' .*\n', Text),
-            (r'\+.*\n', Generic.Inserted),
-            (r'-.*\n', Generic.Deleted),
-            (r'@.*\n', Generic.Subheading),
-            (r'Axiom.*\n', Generic.Heading),
-            (r'=.*\n', Generic.Heading),
-            (r'.*\n', Text),
-        ]
-    }'''
+               yield index, token, value
