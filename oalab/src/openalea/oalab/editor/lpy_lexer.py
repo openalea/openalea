@@ -1,29 +1,25 @@
-# -*- python -*-
-# 
-#       OpenAlea.OALab: Multi-Paradigm GUI
-#
-#       Copyright 2013 INRIA - CIRAD - INRA
-#
-#       File author(s): Julien Coste <julien.coste@inria.fr>
-#
-#       File contributor(s):
-#
-#       Distributed under the Cecill-C License.
-#       See accompanying file LICENSE.txt or copy at
-#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
-#
-#       OpenAlea WebSite : http://openalea.gforge.inria.fr
-#
-###############################################################################
-__revision__ = ""
+# -*- coding: utf-8 -*-
+"""
+    pygments.lexers.lpy
+    ~~~~~~~~~~~~~~~~~~~~~
+
+    Lexers for L-Py language.
+
+    :copyright: Copyright 2006-2013 by the Pygments team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
+    :authors: Julien COSTE, Guillaume BATY, Frederic BOUDON, Christophe PRADAL
+    :homepage: http://openalea.gforge.inria.fr/wiki/doku.php?id=packages:vplants:lpy:main
+"""
 
 from pygments.lexers.agile import PythonLexer
 from pygments.lexer import inherit, include
 from pygments.token import Text, Keyword, Name, Generic
 
+__all__ = ['LPyLexer']
+
 class LPyLexer(PythonLexer):
     """
-    LPy lexer extend Python lexer for syntax coloring with Pygments.
+    Lexer for LPy language.
     """
     name = 'LPy'
     aliases = ['lpy','Lpy','LPy','l-py','L-py','L-Py',]
@@ -47,7 +43,7 @@ class LPyLexer(PythonLexer):
     tokens = {
         'root':[
           include('lpykeywords'), 
-          inherit #inherit from PythonLexer
+          inherit
           ],
         'lpykeywords': [
             (r'(^Axiom|^module)', Generic.Subheading, 'module'),
