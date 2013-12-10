@@ -295,7 +295,7 @@ class Project(object):
         cwd = os.getcwd()
         os.chdir(temp_path)
         
-        temp_files = os.listdir(temp_path)
+        temp_files = temp_path.files()
         for file in temp_files:
             startup[file] = open(file).read()
             
@@ -312,7 +312,7 @@ class Project(object):
         cwd = os.getcwd()
         os.chdir(temp_path)
         
-        temp_files = os.listdir(temp_path)
+        temp_files = temp_path.files()
         for filename in temp_files:
             if not filename.endswith('~') and not filename.endswith('.xml'):
                 scripts[filename] = open(filename, 'rU').read()
@@ -336,7 +336,7 @@ class Project(object):
         cwd = os.getcwd()
         os.chdir(temp_path)
         
-        temp_files = os.listdir(temp_path)
+        temp_files = temp_path.files()
         for filename in temp_files:
             if not filename.endswith('~') and not filename.endswith('.xml'):
                 f = open(filename, 'rU')
@@ -356,8 +356,9 @@ class Project(object):
         os.chdir(temp_path)
         
         # Load Cache
-        temp_files = os.listdir(temp_path)
+        temp_files = temp_path.files()
         for file in temp_files:
+            # TODO: Use the with expr: this may return in error for several reasons.
             if not file.endswith('~'):
                 cache[file] = open(file).read()
 
@@ -382,7 +383,7 @@ class Project(object):
             cwd = os.getcwd()
             os.chdir(temp_path)
             
-            temp_files = os.listdir(temp_path)
+            temp_files = temp_path.files()
             for file in temp_files:
                 if not file.endswith('~'):
                     fileName, fileExtension = os.path.splitext(str(file))
@@ -472,7 +473,7 @@ class Project(object):
         
         cwd = os.getcwd()
         os.chdir(temp_path)
-        files = os.listdir(temp_path)
+        files = temp_path.files()
         for file in files:
             os.remove(file)
            
