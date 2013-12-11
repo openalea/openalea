@@ -47,7 +47,7 @@ import cPickle
 
 def check_if_name_is_unique(name, all_names):
     """
-    Check if an object with the name 'name' is alreadey register
+    Check if an object with the name 'name' is already register
     in 'all_names'.
     
     If it is the case, the name is changed ("_1" is append).
@@ -59,6 +59,9 @@ def check_if_name_is_unique(name, all_names):
     TODO : remove this method if we want unicity of name, 
     like in a classical dict
     """
+    #BUG: if toto and toto_1 exists why not toto_2, and so on?
+    #REVIEW: remove try catch
+
     while name in all_names:
         namesplited = name.split(".")
         if len(namesplited) == 2:
@@ -284,6 +287,7 @@ class Project(object):
         
     #----------------------------------------
     # Protected 
+    # REVIEW: Write a load method
     #---------------------------------------- 
     def _load_startup(self):
         startup = dict()
@@ -292,14 +296,15 @@ class Project(object):
         if not temp_path.exists():
             return startup
 
-        cwd = os.getcwd()
-        os.chdir(temp_path)
+        #cwd = os.getcwd()
+        #os.chdir(temp_path)
         
-        temp_files = temp_path.files()
+        temp_files = temp_path.files('*.py')
         for file in temp_files:
-            startup[file] = open(file).read()
+            filename = file.basename()
+            startup[filename] = open(file).read()
             
-        os.chdir(cwd)    
+        #os.chdir(cwd)    
             
         return startup
         
@@ -309,16 +314,16 @@ class Project(object):
         
         if not temp_path.exists():
             return scripts
-        cwd = os.getcwd()
-        os.chdir(temp_path)
+        #cwd = os.getcwd()
+        #os.chdir(temp_path)
         
         temp_files = temp_path.files()
         for filename in temp_files:
             if not filename.endswith('~') and not filename.endswith('.xml'):
-                scripts[filename] = open(filename, 'rU').read()
+                scripts[filename.basename()] = open(filename, 'rU').read()
 ##                scripts[file] = file(filename,'rU').read()
             
-        os.chdir(cwd)    
+        #os.chdir(cwd)    
             
         return scripts
         
@@ -327,22 +332,22 @@ class Project(object):
         Struct of controls:
         dict 'dict(Names : Values)'
         """
-        cwd = os.getcwd()
-        os.chdir(cwd) 
+        #cwd = os.getcwd()
+        #os.chdir(cwd) 
         
         ctrls = dict()
         temp_path = self.path/self.name/"data"/"controls"
         
-        cwd = os.getcwd()
-        os.chdir(temp_path)
+        #cwd = os.getcwd()
+        #os.chdir(temp_path)
         
         temp_files = temp_path.files()
         for filename in temp_files:
             if not filename.endswith('~') and not filename.endswith('.xml'):
                 f = open(filename, 'rU')
-                ctrls[filename] = cPickle.load(f)
+                ctrls[filename.basename()] = cPickle.load(f)
                 f.close()
-        os.chdir(cwd)    
+        #os.chdir(cwd)    
             
         return ctrls
         
@@ -352,22 +357,22 @@ class Project(object):
         if not temp_path.exists():
             return cache
 
-        cwd = os.getcwd()
-        os.chdir(temp_path)
+        #cwd = os.getcwd()
+        #os.chdir(temp_path)
         
         # Load Cache
-        temp_files = temp_path.files()
+        temp_files = temp_path.files('*.py')
         for file in temp_files:
             # TODO: Use the with expr: this may return in error for several reasons.
             if not file.endswith('~'):
-                cache[file] = open(file).read()
+                cache[file.basename()] = open(file).read()
 
         # Add cache in namespace
         for cache_dict in cache:
             for key in eval(cache[cache_dict], self.ns):
                 self.ns[key] = eval(cache[cache_dict], self.ns)[key]
         
-        os.chdir(cwd)    
+        #os.chdir(cwd)    
             
         return cache
         
@@ -380,8 +385,8 @@ class Project(object):
             scene = dict()
             temp_path = self.path/self.name/"data"/"scene"
             
-            cwd = os.getcwd()
-            os.chdir(temp_path)
+            #cwd = os.getcwd()
+            #os.chdir(temp_path)
             
             temp_files = temp_path.files()
             for file in temp_files:
@@ -389,14 +394,15 @@ class Project(object):
                     fileName, fileExtension = os.path.splitext(str(file))
                     sc.clear()
                     sc.read(fileName, "BGEOM")
-                    scene[fileName] = sc.deepcopy()
+                    scene[fileName.basename()] = sc.deepcopy()
 ##                    scene_struct.add(name=fileName, obj=sc.deepcopy())
-            os.chdir(cwd)          
+            #os.chdir(cwd)          
                     
         except ImportError:
             scene = dict()
             warnings.warn("You must install PlantGL if you want to load scene in project.")
-        except:
+        except Exception, e:
+            print e
             scene = dict()
             warnings.warn("Impossible to load the scene")
         return scene    
@@ -404,34 +410,34 @@ class Project(object):
     def _save_startup(self):
         temp_path = self.path/self.name/"startup"
         
-        cwd = os.getcwd()
-        os.chdir(temp_path)
+        #cwd = os.getcwd()
+        #os.chdir(temp_path)
         
         for unit_startup in self.startup:
-            file = open(unit_startup, "w")
+            file = open(temp_path/unit_startup, "w")
             code = str(self.startup[unit_startup])
             code_enc = code.encode("utf8","ignore") 
             file.write(code_enc)
             file.close()
        
-        os.chdir(cwd) 
+        #os.chdir(cwd) 
         
     def _save_scripts(self):
         temp_path = self.path/self.name/"scripts"
         
-        cwd = os.getcwd()
-        os.chdir(temp_path)
+        #cwd = os.getcwd()
+        #os.chdir(temp_path)
         
         for script in self.scripts:
             if isinstance(script,bool):
                 continue
-            f = open(script, "w")
+            f = open(temp_path/script, "w")
             code = str(self.scripts[script])
             code_enc = code.encode("utf8","ignore") 
             f.write(code_enc)
             f.close()
        
-        os.chdir(cwd) 
+        #os.chdir(cwd) 
         
     def _save_controls(self):
         """
@@ -441,38 +447,38 @@ class Project(object):
         """
         temp_path = self.path/self.name/"data"/"controls"
         
-        cwd = os.getcwd()
-        os.chdir(temp_path)
+        #cwd = os.getcwd()
+        #os.chdir(temp_path)
         
         for ctrl in self.controls:
             if isinstance(ctrl,bool):
                 continue   
-            f = open(ctrl, 'w')
+            f = open(temp_path/ctrl, 'w')
             cPickle.dump(self.controls[ctrl],f,0)
             f.close()    
-        os.chdir(cwd) 
+        #os.chdir(cwd) 
         
         
     def _save_cache(self):
         temp_path = self.path/self.name/"data"/"cache"
         
-        cwd = os.getcwd()
-        os.chdir(temp_path)
+        #cwd = os.getcwd()
+        #os.chdir(temp_path)
         
         for unit_cache in self.cache:
-            file = open(unit_cache, "w")
+            file = open(temp_path/unit_cache, "w")
             code = str(self.cache[unit_cache])
             code_enc = code.encode("utf8","ignore") 
             file.write(code_enc)
             file.close()
        
-        os.chdir(cwd)    
+        #os.chdir(cwd)    
 
     def _save_scene(self):
         temp_path = self.path/self.name/"data"/"scene"     
         
-        cwd = os.getcwd()
-        os.chdir(temp_path)
+        #cwd = os.getcwd()
+        #os.chdir(temp_path)
         files = temp_path.files()
         for file in files:
             os.remove(file)
@@ -482,7 +488,7 @@ class Project(object):
             name = str("%s/%s" %(temp_path,sub_scene_name))
             scene[sub_scene_name].save(name, "BGEOM")
         
-        os.chdir(cwd) 
+        #os.chdir(cwd) 
         
 ##        TODO
 ##        temp_path = self.path/self.name/"data"/"scene" 
