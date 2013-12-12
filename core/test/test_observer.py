@@ -24,7 +24,7 @@ class mylistener(AbstractListener):
     def notify(self, *args):
         global notified
         notified = True
-        raise NotifyException()
+        #raise NotifyException()
 
     def __del__(self):
         global destroyflag
