@@ -1,10 +1,12 @@
+"""
+Decorators to attach signature information to functions
+"""
+
 import sys
 
 def factory(f):
     '''
-    Function decorator: if the list __factories__ exists in the module which 
-    defines f, then add f to __factories__, else, create the list __factories__ 
-    which contains f.
+    Flag tthe given function `f` as a factory.
     '''
     f.__factory__ = True
     mod = sys.modules[f.__module__]
@@ -17,7 +19,12 @@ def factory(f):
 
 class inputs(object):
     '''
-    Add inputs.
+    Add inputs information to a function
+    
+    Example:
+       >>> @inputs('a:int=1,b:list=[]')
+       def fct(*args):
+           pass
     '''
     def __init__(self, *args):
         self.args = args
@@ -29,7 +36,12 @@ class inputs(object):
 
 class outputs(object):
     '''
-    Add outputs.
+    Add outputs information to a function
+    
+    Example:
+       >>> @outputs('first:int,remainder:list')
+       def fct(*args):
+           return int(args[0]), args[1:]
     '''
     def __init__(self, *args):
         self.args = args
