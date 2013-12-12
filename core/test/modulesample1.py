@@ -66,7 +66,7 @@ def f9():
     return (1,1)
 
 """
-
+"""
 @factory
 class A(object):
     def f(self,a):
@@ -74,6 +74,8 @@ class A(object):
     @inputs('a:A', b=[])
     def g(self, b=[]):
         self.b = b
+
+"""
 
 """
 ###############################################################################

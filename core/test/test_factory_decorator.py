@@ -1,4 +1,4 @@
-    import modulesample1
+import modulesample1
     
 def test_module_info():
     assert modulesample1.__doc__ == 'Module documentation'
