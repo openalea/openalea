@@ -88,7 +88,8 @@ def sign_from_string(f, string):
             # Case "a=4"
             if len(inpsplit2) == 1:
                 n = inpsplit2[0]
-                interface = TypeInterfaceMap().get(type(v),None)
+                p = eval(v)
+                interface = TypeInterfaceMap().get(type(p),None)
             # Case "a:int=4"
             elif len(inpsplit2) == 2:
                 n = inpsplit2[0]
