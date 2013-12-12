@@ -62,24 +62,24 @@ def parse_module(module, module_dir=None):
     pkg = DynamicPackage(name=module_name,metainfo=info)
     
     for fct in getattr(module, '__factories__', []):
-        pass
+        add_factory(pkg,fct)
 
     return pkg     
     
-def make_factory(fct, pkg_info={}, base_dir=None):
+def add_factory(pkg, fct, base_dir=None):
     """
-    Create a (Node) Factory from function `fct`
+    Add a (Node) Factory for function `fct` into package `pkg`
     
     If function does not contain suitable meta_info, try to take it from `pkg_info`
     """
     s = Signature(fct)
     base_dir = [base_dir] if base_dir else None
     
-    fac = Factory(self, s.name, description=s.get_doc(), inputs=s.parameters, outputs=None,
-                  nodemodule=fct.__module__, nodeclass=s.name, search_path=base_dir, authors=pkg_info.get('authors',None))
+    fac = Factory(s.name, description=s.get_doc(), inputs=s.parameters, outputs=None,
+                  nodemodule=fct.__module__, nodeclass=s.name, search_path=base_dir, authors=pkg.metainfo.get('authors',None))
         ##, category='', widgetmodule=None, widgetclass=None, **kargs
-    return fac
-    
+
+    pkg[s.name] = fac
     
 def import_module(module_name, search_path=[]):
     """
