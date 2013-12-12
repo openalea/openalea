@@ -12,6 +12,16 @@ def g():
 g.__inputs__ = "a=42"
 g.__outputs__ = "result=True"
 
+def h():
+    pass
+g.__inputs__ = "a:int"
+g.__outputs__ = "result:bool"
+
+def i():
+    pass
+g.__inputs__ = "a"
+g.__outputs__ = "result"
+
 def test_inputs_outputs():
     #assert sign_inputs(f) == [{'interface': openalea.core.interface.IInt, 'name': 'a', 'value': '42'}]
     #assert sign_outputs(f) == [{'interface': openalea.core.interface.IBool, 'name': 'result', 'value': 'True'}]
@@ -38,5 +48,10 @@ def test_inputs_outputs2():
     assert out_['value'] == 'True'
     assert out_['interface'] == IBool
 
-test_inputs_outputs()
-test_inputs_outputs2()
+def test_inputs_outputs3():
+    # TODO with h
+    pass
+    
+def test_inputs_outputs4():
+    # TODO with i
+    pass
