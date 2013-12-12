@@ -51,4 +51,42 @@ def f8():
 def f9():
     return (1,1)
 
+@factory
+class A(object):
+    def f(self,a):
+        return a
+    @inputs('a:A', b=[])
+    def g(self, b=[]):
+        self.b = b
 
+"""
+###############################################################################
+# STUB
+
+# Stages
+
+# 1. import module and found factories
+
+def f(a=1, b=2.3):
+    return a+b
+f.__factory__ = True
+
+def g(a=1, b=2.3):
+    return a+b
+g.__outputs__ = ['res:IFloat']
+
+def h(a=1, b=2.3):
+    return a+b
+h.__inputs__ = ['a','b']
+
+# Add a class factory??
+
+# 2. Write factory decorator
+# 2.1 on Python functions, on classes, on __builtin__
+# @ factory, @inputs, @outputs
+
+# 3. Build an OpenAlea package from the NodeFactories
+
+# 4. Instantiate : use the __factory__, __inputs__, __outputs__ and signature to instantiate a node
+ 
+"""
