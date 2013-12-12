@@ -39,7 +39,7 @@ class Signature(OldSignature):
 """
         
 
-def sign(f):
+def sign_inputs(f):
     new_inputs = []
     if hasattr(f, "__inputs__"):
         inputs = f.__inputs__
@@ -59,15 +59,15 @@ def sign(f):
                     if len(inpsplit2) == 1:
                         n = inpsplit2[0]
                         interface = TypeInterfaceMap().get(type(v),None)
-
                     # Case "a:int=4"
                     elif len(inpsplit2) == 2:
                         n = inpsplit2[0]
                         interface = inpsplit2[1]
-                        
-                        #interface = TypeNameInterfaceMap().get(interface,None)
-
-                
+                        #try:
+                            #typ = eval(interface)
+                            #interface = TypeNameInterfaceMap().get(typ,None)
+                        #except:
+                            #print interface
                 else:
                     inpsplit = inp.split(":")
                     # Cases "a"
@@ -75,18 +75,16 @@ def sign(f):
                         n = inpsplit[0]
                         v = None
                         interface = TypeInterfaceMap().get(type(v),None)
-
                     # Cases "a:int"
                     elif len(inpsplit) == 2:
                         n = inpsplit[0]
                         v = None
                         interface = inpsplit[1]
 
-
-                new_input = dict(name=n, interface=interface, value=v)
-                new_inputs.append(new_input)
+                new_inputs.append(dict(name=n, interface=interface, value=v))
 
         if isinstance(inputs, list):
+            # TODO
             pass
             
     return new_inputs
