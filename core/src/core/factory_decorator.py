@@ -10,7 +10,7 @@ def factory(f):
     '''
     f.__factory__ = True
     mod = sys.modules[f.__module__]
-    if not hasattr(f, '__factories__'):
+    if not hasattr(mod, '__factories__'):
         mod.__factories__ = [f]
     else:
         mod.__factories__.append(f)
@@ -23,8 +23,8 @@ class inputs(object):
     
     Example:
        >>> @inputs('a:int=1,b:list=[]')
-       def fct(*args):
-           pass
+       >>> def fct(*args):
+       >>>     pass
     '''
     def __init__(self, *args):
         self.args = args
@@ -34,21 +34,16 @@ class inputs(object):
         return f
 
 
-class outputs(object):
+class outputs(inputs):
     '''
     Add outputs information to a function
     
     Example:
        >>> @outputs('first:int,remainder:list')
-       def fct(*args):
-           return int(args[0]), args[1:]
+       >>> def fct(*args):
+       >>>     return int(args[0]), args[1:]
     '''
-    def __init__(self, *args):
-        self.args = args
-        
-    def __call__(self, f):
-        f.__outputs__ = self.args
-        return f
+    pass
 
 
 
