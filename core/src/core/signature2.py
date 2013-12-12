@@ -40,52 +40,76 @@ class Signature(OldSignature):
         
 
 def sign_inputs(f):
+    """
+    Return list of inputs detected from f.__inputs__
+    """
     new_inputs = []
     if hasattr(f, "__inputs__"):
         inputs = f.__inputs__
         if isinstance(inputs, str):
-            inps = inputs.split(",")
-            for inp in inps:
-                n = ""
-                v = None
-                interface = None
-                
-                inpsplit = inp.split("=")
-                
-                if len(inpsplit) == 2:
-                    v = inpsplit[1]
-                    inpsplit2 = inpsplit[0].split(":")
-                    # Case "a=4"
-                    if len(inpsplit2) == 1:
-                        n = inpsplit2[0]
-                        interface = TypeInterfaceMap().get(type(v),None)
-                    # Case "a:int=4"
-                    elif len(inpsplit2) == 2:
-                        n = inpsplit2[0]
-                        interface = inpsplit2[1]
-                        try:
-                            p = eval("%s()"%interface)
-                            interface = TypeInterfaceMap().get(type(p),None)
-                        except:
-                            pass
-                else:
-                    inpsplit = inp.split(":")
-                    # Cases "a"
-                    if len(inpsplit) == 1:
-                        n = inpsplit[0]
-                        v = None
-                        interface = TypeInterfaceMap().get(type(v),None)
-                    # Cases "a:int"
-                    elif len(inpsplit) == 2:
-                        n = inpsplit[0]
-                        v = None
-                        interface = inpsplit[1]
-
-                new_inputs.append(dict(name=n, interface=interface, value=v))
+            new_inputs += sign_from_string(f, f.__inputs__)
 
         if isinstance(inputs, list):
-            # TODO
-            pass
+            for input_ in inputs:
+                new_inputs += sign_from_string(f, input_)
             
     return new_inputs
+    
+def sign_outputs(f):
+    """
+    Return list of outputs detected from f.__outputs__
+    """
+    new_outputs = []
+    if hasattr(f, "__outputs__"):
+        inputs = f.__outputs__
+        if isinstance(outputs, str):
+            new_outputs += sign_from_string(f, f.__outputs__)
 
+        if isinstance(outputs, list):
+            for output in outputs:
+                new_outputs += sign_from_string(f, output)
+            
+    return new_outputs
+
+def sign_from_string(f, string):
+    new_inputs = []
+    inps = inputs.split(",")
+    for inp in inps:
+        n = ""
+        v = None
+        interface = None
+        
+        inpsplit = inp.split("=")
+        
+        if len(inpsplit) == 2:
+            v = inpsplit[1]
+            inpsplit2 = inpsplit[0].split(":")
+            # Case "a=4"
+            if len(inpsplit2) == 1:
+                n = inpsplit2[0]
+                interface = TypeInterfaceMap().get(type(v),None)
+            # Case "a:int=4"
+            elif len(inpsplit2) == 2:
+                n = inpsplit2[0]
+                interface = inpsplit2[1]
+                try:
+                    p = eval("%s()"%interface)
+                    interface = TypeInterfaceMap().get(type(p),None)
+                except:
+                    pass
+        else:
+            inpsplit = inp.split(":")
+            # Cases "a"
+            if len(inpsplit) == 1:
+                n = inpsplit[0]
+                v = None
+                interface = TypeInterfaceMap().get(type(v),None)
+            # Cases "a:int"
+            elif len(inpsplit) == 2:
+                n = inpsplit[0]
+                v = None
+                interface = inpsplit[1]
+
+        new_inputs.append(dict(name=n, interface=interface, value=v))
+            
+    return new_inputs
