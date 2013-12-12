@@ -64,10 +64,10 @@ def sign_inputs(f):
                         n = inpsplit2[0]
                         interface = inpsplit2[1]
                         try:
-                            p = eval(interface)
+                            p = eval("%s()"%interface)
                             interface = TypeInterfaceMap().get(type(p),None)
                         except:
-                            print "warn"
+                            pass
                 else:
                     inpsplit = inp.split(":")
                     # Cases "a"
