@@ -9,7 +9,7 @@ def test_signatures():
     p = s.parameters
     
     assert len(p)==4
-    assert p.keys==['a','b','args','kargs']
+    assert p.keys()==['a','b','args','kargs']
     assert [pi.kind for pi in p.values()]==[1,1,2,4]
     assert p['b'].default==2
     
