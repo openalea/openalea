@@ -14,10 +14,26 @@ __icon__ = 'icon.png'
 
 from openalea.core.factory_decorator import factory, inputs, outputs
 
+def f():
+    pass
+
 @factory
 def f1():
     pass
 
+@inputs()
+def f2():
+    pass
+
+@outputs()
+def f3():
+    pass
+
+@outputs()
+def f4():
+    pass
+
+"""
 @factory
 def f2(a):
     pass
@@ -41,8 +57,6 @@ def f6(*args):
 def f7(**kwargs):
     pass
 
-
-
 @factory
 def f8():
     return 1
@@ -50,6 +64,8 @@ def f8():
 @factory
 def f9():
     return (1,1)
+
+"""
 
 @factory
 class A(object):
