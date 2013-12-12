@@ -33,10 +33,10 @@ def test_inputs_outputs2():
     
     assert in_['name'] == 'a'
     assert in_['value'] == '42'
-    #assert in_['interface'] == IInt
+    assert in_['interface'] == IInt
     assert out_['name'] == 'result'
     assert out_['value'] == 'True'
-    #assert out_['interface'] == IBool
+    assert out_['interface'] == IBool
 
 test_inputs_outputs()
 test_inputs_outputs2()
