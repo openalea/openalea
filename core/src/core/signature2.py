@@ -61,7 +61,7 @@ def sign_outputs(f):
     """
     new_outputs = []
     if hasattr(f, "__outputs__"):
-        inputs = f.__outputs__
+        outputs = f.__outputs__
         if isinstance(outputs, str):
             new_outputs += sign_from_string(f, f.__outputs__)
 
@@ -72,6 +72,7 @@ def sign_outputs(f):
     return new_outputs
 
 def sign_from_string(f, string):
+    inputs = string
     new_inputs = []
     inps = inputs.split(",")
     for inp in inps:
