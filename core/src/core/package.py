@@ -54,8 +54,15 @@ class FactoryExistsError(Exception):
     pass
 
 ###############################################################################
-
-
+class DynamicPackage(PackageDict):
+    """
+    Package for dynamical parsing of python file
+    """
+    def __init__(self, name, metainfo):
+        self.metainfo = metainfo
+        self.name = name
+        
+        
 class Package(PackageDict):
     """
     A Package is a dictionnary of node factory.

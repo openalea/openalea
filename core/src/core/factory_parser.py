@@ -24,34 +24,40 @@ TODO:
   - parse package (hierarchically)
   
 """
-from openalea.core.package import PackageDict
+import sys
+from openalea.core.package import DynamicPackage
 
-
-def parse_module(module_name):
+def parse_module(module, module_dir=None):
     """
     Create an openalea package from a python module
     
     :Inputs::
-      `module_name`: 
+      `module`: 
         - either a python module
         - or the *full* name of the module to parse (i.e. 'pck.sub_pck.module')
+      `module_dir`:
+        Base directory of `module` if it is not in the python path. 
     """
     if isinstance(module,type(sys)):
-        modulename = module.__name__
+        module_name = module.__name__
     else:
-        modulename = module                           
-        module = import_module(modulename, [])
+        module_name = module                           
+        module = import_module(module_name, [module_dir] if module_dir else [])
     
     info = dict()
-    info['license']     = getattr(module,'__license__',    'not licensed')
-    info['version']     = getattr(module,'__version__',    '0.1.0')
-    info['authors']     = getattr(module,'__authors__',    '')
+    info['editable']    = getattr(module,'__editable__', True)
+    info['icon']        = getattr(module,'__icon__',    '')
+    info['license']     = getattr(module,'__license__', 'not licensed')
+    info['version']     = getattr(module,'__version__', '0.1.0')
+    info['authors']     = getattr(module,'__authors__', '')
     info['institutes']  = getattr(module,'__institutes__', '')
     info['url']         = getattr(module,'__url__',        '')
-    info['description'] = getattr(module,'__description__',module.__doc__)
+    info['doc']         = getattr(module,'__doc__')
+    info['description'] = getattr(module,'__description__','')
     info['publication'] = getattr(module,'__publication__','')
     
-    pck = package.PackageDict(name=modulename,metainfo=info)
+
+    pck = DynamicPackage(name=module_name,metainfo=info)
     
     ##todo: for all fct in module.__factories__: pck.add_factory
     
