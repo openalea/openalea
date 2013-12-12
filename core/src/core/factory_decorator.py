@@ -6,7 +6,7 @@ import sys
 
 def factory(f):
     '''
-    Flag tthe given function `f` as a factory.
+    Flag the given function `f` as an openalea factory.
     '''
     f.__factory__ = True
     mod = sys.modules[f.__module__]
