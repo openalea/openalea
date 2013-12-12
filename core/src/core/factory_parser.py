@@ -25,7 +25,9 @@ TODO:
   
 """
 import sys
-from openalea.core.package import DynamicPackage
+from openalea.core.package   import DynamicPackage
+from openalea.core.node      import Factory
+from openalea.core.signature import Signature
 
 def parse_module(module, module_dir=None):
     """
@@ -62,12 +64,21 @@ def parse_module(module, module_dir=None):
     for fct in getattr(module, '__factories__', []):
         pass
 
-    ##todo: for all fct in module.__factories__: pck.add_factory
+    return pkg     
     
+def make_factory(fct, pkg_info={}, base_dir=None):
+    """
+    Create a (Node) Factory from function `fct`
     
+    If function does not contain suitable meta_info, try to take it from `pkg_info`
+    """
+    s = Signature(fct)
+    base_dir = [base_dir] if base_dir else None
     
-    
-    return pkg    
+    fac = Factory(self, s.name, description=s.get_doc(), inputs=s.parameters, outputs=None,
+                  nodemodule=fct.__module__, nodeclass=s.name, search_path=base_dir, authors=pkg_info.get('authors',None))
+        ##, category='', widgetmodule=None, widgetclass=None, **kargs
+    return fac
     
     
 def import_module(module_name, search_path=[]):
