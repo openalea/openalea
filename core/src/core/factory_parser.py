@@ -59,7 +59,7 @@ def parse_module(module, module_dir=None):
 
     pck = DynamicPackage(name=module_name,metainfo=info)
     
-    for fct in getattr(module,'__factories__',[]):
+    for fct in getattr(module,'__factories__',[]): pass
     ##todo: for all fct in module.__factories__: pck.add_factory
     
     return pck    
