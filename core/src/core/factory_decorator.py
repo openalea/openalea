@@ -1,10 +1,8 @@
 import sys
 
-__factories__ = []
-
 def factory(f):
     '''
-    Fonction decorator: if the list __factories__ exists in the module which 
+    Function decorator: if the list __factories__ exists in the module which 
     defines f, then add f to __factories__, else, create the list __factories__ 
     which contains f.
     '''
