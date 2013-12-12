@@ -45,24 +45,29 @@ def parse_module(module, module_dir=None):
         module = import_module(module_name, [module_dir] if module_dir else [])
     
     info = dict()
-    info['editable']    = getattr(module,'__editable__', True)
-    info['icon']        = getattr(module,'__icon__',    '')
-    info['license']     = getattr(module,'__license__', 'not licensed')
-    info['version']     = getattr(module,'__version__', '0.1.0')
-    info['authors']     = getattr(module,'__authors__', '')
-    info['institutes']  = getattr(module,'__institutes__', '')
-    info['url']         = getattr(module,'__url__',        '')
-    info['doc']         = getattr(module,'__doc__')
-    info['description'] = getattr(module,'__description__','')
-    info['publication'] = getattr(module,'__publication__','')
+    info['editable']    = getattr(module, '__editable__', True)
+    info['icon']        = getattr(module, '__icon__', '')
+    info['license']     = getattr(module, '__license__', 'not licensed')
+    info['version']     = getattr(module, '__version__', '0.1.0')
+    info['authors']     = getattr(module, '__authors__', '')
+    info['institutes']  = getattr(module, '__institutes__', '')
+    info['url']         = getattr(module, '__url__', '')
+    info['doc']         = getattr(module, '__doc__')
+    info['description'] = getattr(module, '__description__', '')
+    info['publication'] = getattr(module, '__publication__', '')
     
 
-    pck = DynamicPackage(name=module_name,metainfo=info)
+    pkg = DynamicPackage(name=module_name,metainfo=info)
     
-    for fct in getattr(module,'__factories__',[]): pass
+    for fct in getattr(module, '__factories__', []):
+        pass
+
     ##todo: for all fct in module.__factories__: pck.add_factory
     
-    return pck    
+    
+    
+    
+    return pkg    
     
     
 def import_module(module_name, search_path=[]):
