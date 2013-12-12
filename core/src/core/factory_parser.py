@@ -8,7 +8,7 @@ TODO:
   - parse package (hierarchically)
   
 """
-from openalea.core.package import Package
+from openalea.core.package import PackageDict
 
 
 def parse_module(module_name):
@@ -24,7 +24,7 @@ def parse_module(module_name):
         modulename = module.__name__
     else:
         modulename = module                           
-        module = load_module(modulename, [])
+        module = import_module(modulename, [])
     
     info = dict()
     info['license']     = getattr(module,'__license__',    'not licensed')
@@ -35,13 +35,14 @@ def parse_module(module_name):
     info['description'] = getattr(module,'__description__',module.__doc__)
     info['publication'] = getattr(module,'__publication__','')
     
-    pck = package.Package(name=modulename,metainfo=info)
+    pck = package.PackageDict(name=modulename,metainfo=info)
     
     ##todo: for all fct in module.__factories__: pck.add_factory
     
     return pck    
     
-def load_module(module_name, search_path=[]):
+    
+def import_module(module_name, search_path=[]):
     """
     load `module_name`
     
