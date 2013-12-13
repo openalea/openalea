@@ -61,6 +61,7 @@ class DynamicPackage(PackageDict):
     def __init__(self, name, metainfo):
         self.metainfo = metainfo
         self.name = name
+        PackageDict.__init__(self)
         
         
 class Package(PackageDict):
