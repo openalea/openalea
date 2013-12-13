@@ -17,11 +17,13 @@
 ###############################################################################
 """
 Automatical extraction of openalea factories for python modules and packages  
+
+TODO: bad name. The module is not parsed but imported.
 """
 """
 TODO:
   - remove all ##
-  - parse package (hierarchically)
+  - parse package (hierarchically)a. REVIEW: Replace parse by traverse.
   
 """
 import sys
@@ -36,7 +38,7 @@ def parse_module(module, module_dir=None):
     :Inputs::
       `module`: 
         - either a python module
-        - or the *full* name of the module to parse (i.e. 'pck.sub_pck.module')
+        - or the *full* name of the module to parse (e.g. 'pkg.sub_pkg.module')
       `module_dir`:
         Base directory of `module` if it is not in the python path. 
     """
