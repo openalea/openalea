@@ -21,14 +21,17 @@ def f():
 def f1():
     pass
 
+@factory
 @inputs()
 def f2():
     pass
 
+@factory
 @outputs()
 def f3():
     pass
 
+@factory
 @outputs()
 def f4():
     pass

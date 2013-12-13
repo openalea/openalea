@@ -43,7 +43,9 @@ class outputs(inputs):
        >>> def fct(*args):
        >>>     return int(args[0]), args[1:]
     '''
-    pass
+    def __call__(self, f):
+        f.__inputs__ = self.args
+        return f
 
 
 
