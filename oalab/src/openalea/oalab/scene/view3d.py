@@ -122,6 +122,30 @@ class view3D(QGLViewer):
         """    
         scene = Scene()
         return scene
+        
+    def update_radius(self):
+        """
+        Set the scene radius to 110% of the max size in the scene
+        """
+        try:
+            bBox = BoundingBox(self.scene)
+            xmax = bBox.getXMax()
+            ymax = bBox.getYMax()
+            zmax = bBox.getZMax()
+            
+            xmin = bBox.getXMin()
+            ymin = bBox.getYMin()
+            zmin = bBox.getZMin()
+            
+            x = max(abs(xmin),abs(xmax))
+            y = max(abs(ymin),abs(ymax))
+            z = max(abs(zmin),abs(zmax))
+            
+            radius = max(x,y,z)
+            self.camera().setSceneRadius(radius*1.1)
+            self.show_entire_scene()
+        except:
+            pass
 
 
 class Viewer(view3D):
@@ -220,30 +244,6 @@ class Viewer(view3D):
     def show_entire_scene(self):
         self.camera().showEntireScene()
         self.updateGL()  
-
-    def update_radius(self):
-        """
-        Set the scene radius to 110% of the max size in the scene
-        """
-        try:
-            bBox = BoundingBox(self.scene)
-            xmax = bBox.getXMax()
-            ymax = bBox.getYMax()
-            zmax = bBox.getZMax()
-            
-            xmin = bBox.getXMin()
-            ymin = bBox.getYMin()
-            zmin = bBox.getZMin()
-            
-            x = max(abs(xmin),abs(xmax))
-            y = max(abs(ymin),abs(ymax))
-            z = max(abs(zmin),abs(zmax))
-            
-            radius = max(x,y,z)
-            self.camera().setSceneRadius(radius*1.1)
-            self.show_entire_scene()
-        except:
-            pass
         
     def setScene(self, scenes):
         """
