@@ -30,6 +30,8 @@ from openalea.lpy.gui.objectmanagers import get_managers
 from openalea.lpy.gui.scalar import ProduceScalar
 from openalea.core import logger
 
+from copy import deepcopy
+
 def get_default_text():
     return """Axiom: 
 
@@ -123,19 +125,19 @@ class LPyApplet(object):
         
         # dict is mutable =D
         # Usefull if you want change scene_name inside application
+        self.parameters = dict()
         self.context = dict()
         self.context["scene_name"] = "lpy_scene"
         
         if script == "":
             script = get_default_text()
 
-        #script, self.parameters = self.filter_old_lpy_file(script)
-        logger.debug("Convert lpy file inside LPyApplet")
         script, controls = import_lpy_file(script)
-        logger.debug("New controls: %s"%str(controls))
         if self.session.project is not None:
             self.session.project.controls.update(controls)
-            logger.debug("Update controls inside LPyApplet")
+            # for parameter in self.parameters:
+                # if hasattr(self.parameters[parameter], "value"):
+                    # self.parameters[parameter] = self.parameters[parameter].value
             session.project_widget._load_control()
         
         self.widget().set_text(script)
@@ -158,13 +160,11 @@ class LPyApplet(object):
         registerPlotter(self.session.viewer)
         
         # Link with color map from application
-        if self.session.current_is_project():
-            proj = self.session.project
-            if proj.controls.has_key("color map"):    
-                i = 0
-                for color in self.session.project.controls["color map"] :
-                    self.lsys.context().turtle.setMaterial(i, color)
-                    i += 1
+        if self.session.project.controls.has_key("color map"):    
+            i = 0
+            for color in self.session.project.controls["color map"] :
+                self.lsys.context().turtle.setMaterial(i, color)
+                i += 1
         
     def focus_change(self):
         """
@@ -173,32 +173,6 @@ class LPyApplet(object):
         txt = doc_lpy.getSpecification()
         self.session.help.setText(txt)
          
-        
-    def filter_old_lpy_file(self, script):
-        """
-        Permit to open old LPy in removing initialisation part
-        
-        :param: script to filter (str)
-        :return: lpy script (str) without end begining with "###### INITIALISATION ######"
-        and a dict which contain the context
-        """
-        ns = self.session.interpreter.user_ns
-        context = dict()
-
-        context["context"] = self.context
-        context["cache"] = ns
-        context["scene"] = self.session.scene_widget.getScene()
-        if self.session.project.is_project():
-            context["controls"] = self.session.project.controls
-        
-        if script is None: script = ""
-        if not "###### INITIALISATION ######" in script:
-            return str(script), context
-        else:
-            new_script = str(script).split("###### INITIALISATION ######")[0]
-            #context = dict()
-            return new_script, context
-
     def widget(self):
         """
         :return: the edition widget
@@ -225,11 +199,11 @@ class LPyApplet(object):
         # Get code from application
         code = str(self.widget().get_text())
         # Get controls
-        if self.session.project.is_project():
-            self.parameters["controls"] = self.session.project.controls
-        # set code (so reinit: step = 0)
+        self.parameters.update(self.session.project.controls)
+        for parameter in self.parameters:
+            if hasattr(self.parameters[parameter], "value"):
+                self.parameters[parameter] = self.parameters[parameter].value
         self.lsys.setCode(code, self.parameters)
-            
         self.axialtree = self.lsys.iterate()
         new_scene = self.lsys.sceneInterpretation(self.axialtree)
         self.session.scene_widget.getScene()[self.context["scene_name"]] = new_scene
@@ -242,6 +216,10 @@ class LPyApplet(object):
         if code != self.code:
             # /!\ setCode method set the lastIterationNb to zero
             # So, if you change code, next step will do a 'reinit()'
+            self.parameters.update(self.session.project.controls)
+            for parameter in self.parameters:
+                if hasattr(self.parameters[parameter], "value"):
+                    self.parameters[parameter] = self.parameters[parameter].value
             self.lsys.setCode(code, self.parameters)
             self.code = code
             
@@ -273,15 +251,19 @@ class LPyApplet(object):
     def animate(self):
         # Get code from application
         code = str(self.widget().get_text())
-        if self.session.project.is_project():        
-            self.parameters["controls"] = self.session.project.controls
+        self.parameters.update(self.session.project.controls)
+        for parameter in self.parameters:
+            if hasattr(self.parameters[parameter], "value"):
+                self.parameters[parameter] = self.parameters[parameter].value    
         self.lsys.setCode(code, self.parameters)
         self.step()
         self.lsys.animate()
 
     def reinit(self):
-        if self.session.project.is_project():
-            self.parameters["controls"] = self.session.project.controls
+        self.parameters.update(self.session.project.controls)
+        for parameter in self.parameters:
+            if hasattr(self.parameters[parameter], "value"):
+                self.parameters[parameter] = self.parameters[parameter].value    
         self.lastIter = -1
         self.code = str(self.widget().get_text())
         # setCode set lastIterationNb to zero

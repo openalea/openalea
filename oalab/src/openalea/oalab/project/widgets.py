@@ -34,6 +34,8 @@ from openalea.lpy.gui.objectmanagers import get_managers
 def geometry_2_piklable_geometry(manager, obj):
     """
     Transform a geometry object from PlantGL in picklable object.
+    
+    Rem: name of object is not changed
     :param manager: manager of object to transform
     :param obj: object to transform
     :return: tuple(transformed object, name_of_new_object)
@@ -42,23 +44,30 @@ def geometry_2_piklable_geometry(manager, obj):
     name = str(geom.getName())
     if isinstance(geom, NurbsPatch):
         new_obj = RedNurbsPatch(geom.ctrlPointMatrix)
+        new_obj.is_geometry = True
+        new_obj.typename = str(manager.typename)
         logger.debug("Transform NurbsPatch into RedNurbsPatch")
     elif isinstance(geom, Polyline2D):
         new_obj = RedPolyline2D(geom.pointList)
+        new_obj.is_geometry = True
+        new_obj.typename = str(manager.typename)
         logger.debug("Transform Polyline2D into RedPolyline2D")
     elif isinstance(geom, NurbsCurve2D):
         new_obj = RedNurbs2D(geom.ctrlPointList)
+        new_obj.is_geometry = True
+        new_obj.typename = str(manager.typename)
         logger.debug("Transform NurbsCurve2D into RedNurbs2D")
     elif isinstance(geom, BezierCurve2D):
         new_obj = RedBezierNurbs2D(geom.ctrlPointList)
+        new_obj.is_geometry = True
+        new_obj.typename = str(manager.typename)
         logger.debug("Transform BezierCurve2D into RedBezierNurbs2D")
     else:
         new_obj = obj
-        new_name = name
         logger.debug("Transform Nothing %s"%str(geom))
-    new_name = "geometry_%s_%s"%(manager.typename,name)
-    logger.debug("Save control geometry_%s"%(new_name))
-    return(new_obj,new_name)            
+    
+    # new_name = "geometry_%s_%s"%(manager.typename,name)
+    return(new_obj,name,)         
             
 class ProjectWidget(QtGui.QWidget):
     """
@@ -224,7 +233,7 @@ class ProjectWidget(QtGui.QWidget):
                     logger.debug("Import file named " + tab_name)
                 except:
                     print "File extension " +ext+ " not recognised"
-                    logger.warning("Can't import file named " + filename + " in current project. Unknow extension.")
+                    logger.warning("Can't import file named %s in current project. Unknow extension."%filename)
         else:
             self.session._is_script = True
             self.session._is_proj = False
@@ -248,15 +257,16 @@ class ProjectWidget(QtGui.QWidget):
                 ext = str(path(filename).splitext()[-1])
                 ext = ext.split(".")[-1]
 
+                
+                self.session.applet_container.newTab(applet_type=ext, tab_name=tab_name, script=txt)
                 try:
-                    self.session.applet_container.newTab(applet_type=ext, tab_name=tab_name, script=txt)
                     self.session._update_locals()
                     #self._script_change()
                     self._tree_view_change()
-                    logger.debug("Import file named " + tab_name + " outside project")
+                    logger.debug("Import file named %s outside project"%tab_name)
                 except:
                     print "File extension " +ext+ " not recognised"
-                    logger.warning("Can't import file named " + filename + " outside project. Unknow extension: " + ext + " .")
+                    logger.warning("Can't import file named %s outside project. Unknow extension: %s ."%(tab_name,ext))
         
     def new(self, name=None):
         """
@@ -524,15 +534,16 @@ class ProjectWidget(QtGui.QWidget):
             
         managers = get_managers()
         geom = []
-        scalars = []
+        scalars = []   
+    
         for control in proj.controls:
-            if "geometry" in str(control).split("_")[0]:
-                type_name = str(control).split("_")[1]
-                proj.controls[control].name = str(control).split("_")[-1]
-                manager = managers[type_name]
+            if hasattr(proj.controls[control], "is_geometry"):
+                typename = proj.controls[control].typename
+                proj.controls[control].name = str(control)
+                manager = managers[typename]
                 geom.append((manager,proj.controls[control]))
             elif str(control) != "color map":
-                scalars.append(proj.controls[control])
+                scalars.append(proj.controls[control])    
         if geom is not list():
             self.session.control_panel.geometry_editor.setObjects(geom)
             if scalars is not list():
