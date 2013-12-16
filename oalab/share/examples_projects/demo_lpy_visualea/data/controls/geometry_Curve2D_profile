@@ -1,5 +1,5 @@
-copenalea.plantgl.scenegraph._pglsg
-BezierCurve2D
+copenalea.oalab.control.picklable_curves
+RedBezierNurbs2D
 p1
 (copenalea.plantgl.scenegraph._pglsg
 Point3Array
