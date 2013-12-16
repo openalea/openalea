@@ -92,6 +92,7 @@ class Scripts(dict):
         super(Scripts, self).__init__()
         self.ez_name = dict()
         self.name = dict()
+        self.controls = dict()
         
     def add_script(self, name, script):
         self[str(name)] = str(script)
