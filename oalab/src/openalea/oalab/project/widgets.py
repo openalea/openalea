@@ -38,6 +38,7 @@ def geometry_2_piklable_geometry(manager, obj):
     Rem: name of object is not changed
     :param manager: manager of object to transform
     :param obj: object to transform
+    
     :return: tuple(transformed object, name_of_new_object)
     """         
     geom = obj
@@ -439,8 +440,9 @@ class ProjectWidget(QtGui.QWidget):
             
 
             for (manager, geom) in geoms:
-                new_obj,new_name = geometry_2_piklable_geometry(manager, geom)
-                current.controls[new_name] = new_obj
+                if geom != list():
+                    new_obj,new_name = geometry_2_piklable_geometry(manager, geom)
+                    current.controls[new_name] = new_obj
             
             scalars = self.session.control_panel.scalars_editor.getScalars()
             for scalar in scalars:
@@ -560,8 +562,9 @@ class ProjectWidget(QtGui.QWidget):
         
         objects = self.session.control_panel.geometry_editor.getObjects()
         for (manager,obj) in objects:
-            obj, name = geometry_2_piklable_geometry(manager,obj)
-            self.session.project.controls[unicode(name)] = obj
+            if obj != list():
+                obj, name = geometry_2_piklable_geometry(manager,obj)
+                self.session.project.controls[unicode(name)] = obj
             
         scalars = self.session.control_panel.scalars_editor.getScalars()
         for scalar in scalars:

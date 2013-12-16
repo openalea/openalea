@@ -30,8 +30,6 @@ from openalea.lpy.gui.objectmanagers import get_managers
 from openalea.lpy.gui.scalar import ProduceScalar
 from openalea.core import logger
 
-from copy import deepcopy
-
 def get_default_text():
     return """Axiom: 
 
@@ -53,7 +51,6 @@ def import_lpy_file(script):
     :return: lpy script (str) without end begining with "###### INITIALISATION ######"
     and a dict which contain the controls (dict)
     """
-    new_context = dict()
     controls = dict()
 
     if script is None: script = ""
@@ -84,17 +81,17 @@ def import_lpy_file(script):
             scalars_ = context['__scalars__']   
             scalars = [ ProduceScalar(v) for v in scalars_ ]            
         if context.has_key('__functions__') and lpy_code_version <= 1.0 :
-            functions_ = context['__functions__']
-            for n,c in functions_: c.name = n
+            functions = context['__functions__']
+            for n,c in functions: c.name = n
             functions = [ c for n,c in functions ]
             funcmanager = managers['Function']
-            geoms +=  [ ({'name':'Functions'}, [(funcmanager,func) for n,func in functions]) ]
+            geoms +=  [(funcmanager,func) for func in functions]
         if context.has_key('__curves__') and lpy_code_version <= 1.0 :
-            curves_ = context['__curves__']
-            for n,c in curves_: c.name = n
+            curves = context['__curves__']
+            for n,c in curves: c.name = n
             curves = [ c for n,c in curves ]
             curvemanager = managers['Curve2D']
-            geoms += [ ({'name':'Curve2D'}, [(curvemanager,curve) for n,curve in curves]) ]
+            geoms += [ (curvemanager,curve) for curve in curves ]
         if context.has_key('__parameterset__'):
             for panelinfo,objects in context['__parameterset__']:
                 for typename,obj in objects:
@@ -104,11 +101,13 @@ def import_lpy_file(script):
         for scalar in scalars:
         	controls[unicode(scalar.name)] = scalar
         for (manager, geom) in geoms:
-            new_obj,new_name = geometry_2_piklable_geometry(manager, geom)
-            controls[new_name] = new_obj
+            if geom != list():
+                new_obj,new_name = geometry_2_piklable_geometry(manager, geom)
+                controls[new_name] = new_obj
         for (manager, geom) in visualparameters:
-            new_obj,new_name = geometry_2_piklable_geometry(manager, geom)
-            controls[new_name] = new_obj
+            if geom != list():
+                new_obj,new_name = geometry_2_piklable_geometry(manager, geom)
+                controls[new_name] = new_obj
                 
         return new_script, controls
 
@@ -203,10 +202,16 @@ class LPyApplet(object):
         for parameter in self.parameters:
             if hasattr(self.parameters[parameter], "value"):
                 self.parameters[parameter] = self.parameters[parameter].value
+                
+        #print self.parameters.keys()
+        #print self.parameters.items()
+        
         self.lsys.setCode(code, self.parameters)
         self.axialtree = self.lsys.iterate()
         new_scene = self.lsys.sceneInterpretation(self.axialtree)
-        self.session.scene_widget.getScene()[self.context["scene_name"]] = new_scene
+        scene_name = self.context["scene_name"]
+        self.session.scene_widget.getScene()[scene_name] = new_scene
+        self.session.viewer.update_radius()
         
     def step(self):
         # Get code from application
@@ -258,6 +263,7 @@ class LPyApplet(object):
         self.lsys.setCode(code, self.parameters)
         self.step()
         self.lsys.animate()
+        self.session.viewer.update_radius()
 
     def reinit(self):
         self.parameters.update(self.session.project.controls)
