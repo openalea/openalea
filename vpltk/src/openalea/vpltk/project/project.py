@@ -30,10 +30,9 @@ stored in your computer.
 
 /project_name
     /scripts          (Files sources, Script Python, LPy...)
-    /data               (Data Files)
-        /controls       (Controls, like color map or curve)
-        /scene          (scene, scene 3D)
-        /cache          (Intermediary saved objects)
+    /controls       (Controls, like color map or curve)
+    /scene          (scene, scene 3D)
+    /cache          (Intermediary saved objects)
     /startup          (Preprocessing scripts)
         *.py            (Preprocessing scripts)
         *import*.py     (Libs and packages to import in preprocessing)
@@ -43,9 +42,11 @@ import os
 import warnings
 from openalea.core.path import path as _path
 from openalea.core import settings
+from openalea.vpltk.qt import QtCore
 import cPickle
+from configobj import ConfigObj
 
-def check_if_name_is_unique(name, all_names):
+def check_unicity(name, all_names):
     """
     Check if an object with the name 'name' is already register
     in 'all_names'.
@@ -59,7 +60,6 @@ def check_if_name_is_unique(name, all_names):
     TODO : remove this method if we want unicity of name, 
     like in a classical dict
     """
-    #BUG: if toto and toto_1 exists why not toto_2, and so on?
     #REVIEW: remove try catch
 
     while name in all_names:
@@ -81,13 +81,9 @@ def check_if_name_is_unique(name, all_names):
             name = begin_name + "_1" + extension
     return name
 
-class Script(object):
-    def __init__(self,filename="", value=""):
-        super(Script, self).__init__()
-        self.filename = filename
-        self.value = value
-
 class Scripts(dict):
+    """ Hack if we works outside of project
+    """
     def __init__(self):
         super(Scripts, self).__init__()
         self.ez_name = dict()
@@ -100,7 +96,7 @@ class Scripts(dict):
         # easy_name is used to display file_name
         # Thanks to self.ez_name, we can found the real name to save file.
         ez_n = str(_path(name).splitpath()[-1])
-        ez_n = check_if_name_is_unique(name=ez_n, all_names=self.ez_name.values())
+        ez_n = check_unicity(name=ez_n, all_names=self.ez_name.values())
         self.ez_name[ez_n] = name
         self.name[name] = ez_n
 
@@ -156,9 +152,8 @@ class Project(object):
         self.scripts = dict()
         self.controls = dict()
         self.cache = dict()
-##        self.scene_struct = VPLScene()
-##        self.scene = self.scene_struct.getScene()
         self.scene = dict()
+        self.startup = dict()
     
     def is_project(self):
         return True
@@ -174,23 +169,20 @@ class Project(object):
         
     def start(self):
         # Load in object
-        self.startup = self._load_startup()
-
+        self._load("startup")
         # Load in shell
         self._startup_import()
         self._startup_run()
         
-        self.scripts = self._load_scripts()
-        self.controls = self._load_controls()
-        self.cache = self._load_cache()
-        self.scene = self._load_scene()
+        self.load()
         
     def save(self):
-        #self._save_startup()
-        self._save_scripts()
-        self._save_controls()
-        #self._save_cache()
-        #self._save_scene()
+        self._save("scripts")
+        self._save("controls")
+        self._save("startup")
+        self._save("cache")
+        self._save("scene")
+        self._save_manifest()
         
     def set_ipython(self, shell=None):
         if not self.use_ipython():
@@ -227,7 +219,7 @@ class Project(object):
         all_names = list()
         for n in self.scripts:
             all_names.append(n)
-        name = check_if_name_is_unique(name, all_names)
+        name = check_unicity(name, all_names)
         
         self.scripts[str(name)] = str(script)
         
@@ -242,7 +234,7 @@ class Project(object):
         :param old_name: current name of thing to rename (str)
         :param new_name: futur name of thing to rename (str)
         """
-        if (categorie == "script") or (categorie == "Models"):
+        if (categorie == "script") or (categorie == "scripts") or (categorie == "Models"):
             # Remove in project
             self.scripts[str(new_name)] = self.scripts[str(old_name)]
             del self.scripts[str(old_name)]
@@ -263,7 +255,7 @@ class Project(object):
             del self.controls[str(old_name)]
             
             # Remove on disk
-            temp_path = self.path/self.name/"data"/"controls"
+            temp_path = self.path/self.name/"controls"
             cwd = os.getcwd()
             os.chdir(temp_path)
             try:
@@ -278,228 +270,124 @@ class Project(object):
             del self.scene[str(old_name)]
             
             # Remove on disk
-            temp_path = self.path/self.name/"data"/"scene"
+            temp_path = self.path/self.name/"scene"
             cwd = os.getcwd()
             try:
                 os.remove(str(old_name))
             except:
                 pass
             os.chdir(cwd) 
+            
+    def load(self):
+        self.scripts = self._load("scripts")
+        self.controls = self._load("controls")
+        self.cache = self._load("cache")
+        self.scene = self._load("scene")
+        self.startup = self._load("startup")
         
     #----------------------------------------
     # Protected 
-    # REVIEW: Write a load method
     #---------------------------------------- 
-    def _load_startup(self):
-        startup = dict()
-        temp_path = self.path/self.name/"startup"
+    def _load(self, object_type):
+        object_type = str(object_type)
+        if object_type == "scene":
+            return self._load_scene()
         
-        if not temp_path.exists():
-            return startup
+        return_object = dict()
+        manifest = self._load_manifest()
+        
+        if manifest.has_key(object_type):
+            temp_path = self.path/self.name/object_type
+            if not temp_path.exists():
+                return return_object
+            files = manifest[object_type]
+            for filename in files:
+                filename = temp_path/filename
+                return_object[filename.basename()] = open(filename, 'rU').read()
+                
+        # hack to add cache in namespace
+        if object_type == "cache":
+            for cache_name in return_object:
+                self.ns[cache_name] = eval(return_object[cache_name], self.ns)
+        # hack for controls
+        # controls were Pickle.dumped so we need to cPickle.loads
+        if object_type == "controls":
+            for obj in return_object:
+                return_object[obj] = cPickle.loads(return_object[obj])
+            
+        return return_object
 
-        #cwd = os.getcwd()
-        #os.chdir(temp_path)
-        
-        temp_files = temp_path.files('*.py')
-        for file in temp_files:
-            filename = file.basename()
-            startup[filename] = open(file).read()
-            
-        #os.chdir(cwd)    
-            
-        return startup
-        
-    def _load_scripts(self):
-        scripts = dict()
-        temp_path = self.path/self.name/"scripts"
-        
-        if not temp_path.exists():
-            return scripts
-        #cwd = os.getcwd()
-        #os.chdir(temp_path)
-        
-        temp_files = temp_path.files()
-        for filename in temp_files:
-            if not filename.endswith('~') and not filename.endswith('.xml'):
-                scripts[filename.basename()] = open(filename, 'rU').read()
-##                scripts[file] = file(filename,'rU').read()
-            
-        #os.chdir(cwd)    
-            
-        return scripts
-        
-    def _load_controls(self):
-        """
-        Struct of controls:
-        dict 'dict(Names : Values)'
-        """
-        #cwd = os.getcwd()
-        #os.chdir(cwd) 
-        
-        ctrls = dict()
-        temp_path = self.path/self.name/"data"/"controls"
-        
-        #cwd = os.getcwd()
-        #os.chdir(temp_path)
-        
-        temp_files = temp_path.files()
-        for filename in temp_files:
-            if not filename.endswith('~') and not filename.endswith('.xml'):
-                f = open(filename, 'rU')
-                ctrls[filename.basename()] = cPickle.load(f)
-                f.close()
-        #os.chdir(cwd)    
-            
-        return ctrls
-        
-    def _load_cache(self):
-        cache = dict()
-        temp_path = self.path/self.name/"data"/"cache"
-        if not temp_path.exists():
-            return cache
-
-        #cwd = os.getcwd()
-        #os.chdir(temp_path)
-        
-        # Load Cache
-        temp_files = temp_path.files('*.py')
-        for file in temp_files:
-            # TODO: Use the with expr: this may return in error for several reasons.
-            if not file.endswith('~'):
-                cache[file.basename()] = open(file).read()
-
-        # Add cache in namespace
-        for cache_dict in cache:
-            for key in eval(cache[cache_dict], self.ns):
-                self.ns[key] = eval(cache[cache_dict], self.ns)[key]
-        
-        #os.chdir(cwd)    
-            
-        return cache
-        
     def _load_scene(self):
+        return_object = dict()
+        object_type = "scene"
         try:
             from openalea.plantgl.all import Scene
             sc = Scene()
-##            scene_struct = VPLScene()
-##            scene = scene_struct.getScene()
-            scene = dict()
-            temp_path = self.path/self.name/"data"/"scene"
+            manifest = self._load_manifest()
+        
+            if manifest.has_key(object_type):
+                temp_path = self.path/self.name/object_type
+                if not temp_path.exists():
+                    return return_object
+                files = manifest[object_type]
             
-            #cwd = os.getcwd()
-            #os.chdir(temp_path)
-            
-            temp_files = temp_path.files()
-            for file in temp_files:
-                if not file.endswith('~'):
-                    fileName, fileExtension = os.path.splitext(str(file))
+                for filename in files:
+                    fileName, fileExtension = os.path.splitext(str(filename))
                     sc.clear()
                     sc.read(fileName, "BGEOM")
-                    scene[fileName.basename()] = sc.deepcopy()
-##                    scene_struct.add(name=fileName, obj=sc.deepcopy())
-            #os.chdir(cwd)          
+                    return_object[fileName.basename()] = sc.deepcopy()
                     
         except ImportError:
-            scene = dict()
             warnings.warn("You must install PlantGL if you want to load scene in project.")
         except Exception, e:
             print e
-            scene = dict()
             warnings.warn("Impossible to load the scene")
-        return scene    
+        return return_object    
         
-    def _save_startup(self):
-        temp_path = self.path/self.name/"startup"
+    def _save(self, object_type):
+        object_type = str(object_type)
+        object_ = eval("self.%s"%object_type)
+        temp_path = self.path/self.name/object_type
         
-        #cwd = os.getcwd()
-        #os.chdir(temp_path)
-        
-        for unit_startup in self.startup:
-            file = open(temp_path/unit_startup, "w")
-            code = str(self.startup[unit_startup])
-            code_enc = code.encode("utf8","ignore") 
-            file.write(code_enc)
-            file.close()
-       
-        #os.chdir(cwd) 
-        
-    def _save_scripts(self):
-        temp_path = self.path/self.name/"scripts"
-        
-        #cwd = os.getcwd()
-        #os.chdir(temp_path)
-        
-        for script in self.scripts:
-            if isinstance(script,bool):
-                continue
-            f = open(temp_path/script, "w")
-            code = str(self.scripts[script])
-            code_enc = code.encode("utf8","ignore") 
-            f.write(code_enc)
-            f.close()
-       
-        #os.chdir(cwd) 
-        
-    def _save_controls(self):
+        # Hack to save plantgl object
+        if object_type == "scene":
+            for sub_object in object_:
+                name = str("%s/%s" %(temp_path,sub_object))
+                object_[sub_object].save(name, "BGEOM")
+        else:
+            for sub_object in object_:
+                file = open(temp_path/sub_object, "w")
+                # Hack to save controls with cPickle
+                if object_type == "controls":
+                    cPickle.dump(object_[sub_object],file,0)
+                else:
+                    code = str(object_[sub_object])
+                    code_enc = code.encode("utf8","ignore") 
+                    file.write(code_enc)
+                file.close()
+     
+    def _save_manifest(self):
         """
-        Struct of controls:
-        dict(Names : Values)
-
+        Save in a manifest file what is present inside a project
         """
-        temp_path = self.path/self.name/"data"/"controls"
-        
-        #cwd = os.getcwd()
-        #os.chdir(temp_path)
-        
-        for ctrl in self.controls:
-            if isinstance(ctrl,bool):
-                continue   
-            f = open(temp_path/ctrl, 'w')
-            cPickle.dump(self.controls[ctrl],f,0)
-            f.close()    
-        #os.chdir(cwd) 
-        
-        
-    def _save_cache(self):
-        temp_path = self.path/self.name/"data"/"cache"
-        
-        #cwd = os.getcwd()
-        #os.chdir(temp_path)
-        
-        for unit_cache in self.cache:
-            file = open(temp_path/unit_cache, "w")
-            code = str(self.cache[unit_cache])
-            code_enc = code.encode("utf8","ignore") 
-            file.write(code_enc)
-            file.close()
-       
-        #os.chdir(cwd)    
+        config = ConfigObj()
+        config.filename = self.path/self.name/".conf"
 
-    def _save_scene(self):
-        temp_path = self.path/self.name/"data"/"scene"     
+        config['scripts'] = self.scripts.keys()
+        config['controls'] = self.controls.keys()
+        config['scene'] = self.scene.keys()
+        config['cache'] = self.cache.keys()
+        config['startup'] = self.startup.keys()
+
+        config.write()
         
-        #cwd = os.getcwd()
-        #os.chdir(temp_path)
-        files = temp_path.files()
-        for file in files:
-            os.remove(file)
-           
-        scene = self.scene
-        for sub_scene_name in scene:
-            name = str("%s/%s" %(temp_path,sub_scene_name))
-            scene[sub_scene_name].save(name, "BGEOM")
-        
-        #os.chdir(cwd) 
-        
-##        TODO
-##        temp_path = self.path/self.name/"data"/"scene" 
-##        filename = '%s/scene' %temp_path
-##        
-##        file = open(filename, 'w')
-##        
-##        cPickle.dump(self.scene,file,0)
-##        
-##        file.close()
+    def _load_manifest(self):
+        """
+        Load a project from a manifest file
+        """
+        config = ConfigObj(self.path/self.name/".conf")
+        return config
+
         
     def _startup_import(self): 
         use_ip = self.use_ipython()
@@ -516,6 +404,9 @@ class Project(object):
         for s in self.startup:
             if s.find('import') == -1:
                 exec(self.startup[s],self.ns)
+                print
+                print self.ns
+                print
                 if use_ip:
                     self.shell.runcode(self.startup[s])
         
@@ -531,12 +422,11 @@ class Project(object):
             warnings.warn("Directory %s alreay exits in %s" %(self.name,self.path))
             error = True
         
-        folders = [self.path/self.name/'data', 
-                   self.path/self.name/'scripts',
+        folders = [self.path/self.name/'scripts',
                    self.path/self.name/'startup',
-                   self.path/self.name/'data'/'controls', 
-                   self.path/self.name/'data'/'cache', 
-                   self.path/self.name/'data'/'scene' ]
+                   self.path/self.name/'controls', 
+                   self.path/self.name/'cache', 
+                   self.path/self.name/'scene' ]
         try:
             map(os.mkdir, folders)
         except OSError:
