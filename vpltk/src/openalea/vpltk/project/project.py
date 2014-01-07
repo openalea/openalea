@@ -312,7 +312,7 @@ class Project(object):
         Save in a manifest file what is present inside a project
         """
         config = ConfigObj()
-        config.filename = self.path/self.name/".conf"
+        config.filename = self.path/self.name/".cfg"
 
         config['scripts'] = self.scripts.keys()
         config['controls'] = self.controls.keys()
@@ -326,7 +326,7 @@ class Project(object):
         """
         Load a project from a manifest file
         """
-        config = ConfigObj(self.path/self.name/".conf")
+        config = ConfigObj(self.path/self.name/".cfg")
         return config
 
         
