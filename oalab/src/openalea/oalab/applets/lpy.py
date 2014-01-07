@@ -143,8 +143,7 @@ class LPyApplet(object):
         self.lsystem = Lsystem()
         self.code = str()
         self.axialtree = AxialTree()
-        
-        self.lastIter = -1
+
         registerPlotter(self.session.viewer)
         
         # Link with color map from application
@@ -207,13 +206,18 @@ class LPyApplet(object):
         self.session.scene_widget.getScene()[scene_name] = new_scene
         self.session.viewer.update_radius()
         
-    def step(self):
+    def step(self, i=None):
+        """
+        Increase current lsystem from one step
+        If you set i, lsystem will go to step number i.
+        """
+        
         # Get code from application
         code = str(self.widget().get_text())
 
         # If code has changed since the last step
         if code != self.code:
-            # /!\ setCode method set the lastIterationNb to zero
+            # /!\ setCode method set the getLastIterationNb to zero
             # So, if you change code, next step will do a 'reinit()'
             self.parameters.update(self.session.project.controls)
             for parameter in self.parameters:
@@ -222,20 +226,17 @@ class LPyApplet(object):
             self.lsystem.setCode(code, self.parameters)
             self.code = code
             
-        if self.lsystem.getLastIterationNb() == 0:
-            # If step 0 : print axiom
-            if self.lastIter == -1:
-                self.axialtree = self.lsystem.axiom
-            # If step 1 : print pre step but lastIterationNb is still to 0
-            elif self.lastIter == 0:
-                self.axialtree = self.lsystem.iterate(1)
-            # If step 2 : print real first step and lastIterationNb go to 1
-            else :        
-                self.axialtree = self.lsystem.iterate(self.lsystem.getLastIterationNb()+2)
-        # If step > 2
+        # if you are at derivation length, reinit
+        if self.lsystem.getLastIterationNb() >= self.lsystem.derivationLength -1 :
+            i = 0
+        # clasical case: evolve one step
+        if i is None:
+            self.axialtree = self.lsystem.iterate(self.lsystem.getLastIterationNb()+2)    
+        # if you set i to a number, directly go to this step.
+        # it is used with i=0 to reinit
         else:
-            self.axialtree = self.lsystem.iterate(self.lsystem.getLastIterationNb()+2)
-        self.lastIter = self.lastIter + 1
+            self.axialtree = self.lsystem.iterate(i)    
+
         new_scene = self.lsystem.sceneInterpretation(self.axialtree)
         if new_scene:
             self.session.scene_widget.getScene()[self.context["scene_name"]] = new_scene
@@ -260,33 +261,23 @@ class LPyApplet(object):
         self.session.viewer.update_radius()
 
     def reinit(self):
-        self.parameters.update(self.session.project.controls)
-        for parameter in self.parameters:
-            if hasattr(self.parameters[parameter], "value"):
-                self.parameters[parameter] = self.parameters[parameter].value    
-        self.lastIter = -1
-        self.code = str(self.widget().get_text())
-        # setCode set lastIterationNb to zero
-        self.lsystem.setCode(self.code, self.parameters)
-        self.step()
+        self.step(0)
 
 class LPyApplet2(object):
     def __init__(self, intrepreter, name="script.lpy", script=""):
         super(LPyApplet2, self).__init__()
         logger.debug("init LPyApplet")
         self.name = name
-        
+        self.intrepreter = intrepreter
         # dict is mutable =D
         # Usefull if you want change scene_name inside application
-        self.intrepreter = intrepreter
         self.parameters = dict()
         self.parameters["scene_name"] = "lpy_scene"
-        self.code = script
         self.lsystem = Lsystem()
         self.axialtree = AxialTree()
-        self.lastIter = -1
         
         script, controls = import_lpy_file(script)
+        self.code = script
         if self.code == "":
             self.code = get_default_text()
         self.parameters.update(controls)   
@@ -323,26 +314,28 @@ class LPyApplet2(object):
         
         return scene_name, new_scene
         
-    def step(self):
+    def step(self, i=None):
+        """
+        Increase current lsystem from one step
+        If you set i, lsystem will go to step number i.
+        """
         for parameter in self.parameters:
             if hasattr(self.parameters[parameter], "value"):
                 self.parameters[parameter] = self.parameters[parameter].value
 
         self.lsystem.setCode(self.code, self.parameters)
-        if self.lsystem.getLastIterationNb() == 0:
-            # If step 0 : print axiom
-            if self.lastIter == -1:
-                self.axialtree = self.lsystem.axiom
-            # If step 1 : print pre step but lastIterationNb is still to 0
-            elif self.lastIter == 0:
-                self.axialtree = self.lsystem.iterate(1)
-            # If step 2 : print real first step and lastIterationNb go to 1
-            else :        
-                self.axialtree = self.lsystem.iterate(self.lsystem.getLastIterationNb()+2)
-        # If step > 2
+
+        # if you are at derivation length, reinit
+        if self.lsystem.getLastIterationNb() >= self.lsystem.derivationLength -1 :
+            i = 0
+        # clasical case: evolve one step
+        if i is None:
+            self.axialtree = self.lsystem.iterate(self.lsystem.getLastIterationNb()+2)    
+        # if you set i to a number, directly go to this step.
+        # it is used with i=0 to reinit
         else:
-            self.axialtree = self.lsystem.iterate(self.lsystem.getLastIterationNb()+2)
-        self.lastIter = self.lastIter + 1
+            self.axialtree = self.lsystem.iterate(i)                
+
         new_scene = self.lsystem.sceneInterpretation(self.axialtree)
         scene_name = self.parameters["scene_name"]
         
@@ -366,10 +359,4 @@ class LPyApplet2(object):
         return scene_name, new_scene
 
     def reinit(self):
-        for parameter in self.parameters:
-            if hasattr(self.parameters[parameter], "value"):
-                self.parameters[parameter] = self.parameters[parameter].value    
-        self.lastIter = -1
-        # setCode set lastIterationNb to zero
-        self.lsystem.setCode(self.code, self.parameters)
-        return self.step()
+        return self.step(0)
