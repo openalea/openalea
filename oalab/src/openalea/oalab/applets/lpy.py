@@ -140,18 +140,7 @@ class LPyApplet(object):
             session.project_widget._load_control()
         
         self.widget().set_text(script)
-
-        self.lsys = Lsystem()
-
-        self.session.interpreter.locals['lsys'] = self.lsys
-        self.session.interpreter.locals['turtle'] = self.session.control_panel.colormap_editor.getTurtle() 
-        #self.lsys.context().turtle = self.session.control_panel.colormap_editor.getTurtle() 
-        #from openalea.lpy.gui.materialeditor import MaterialEditor
-        #from openalea.plantgl.all import Material,Color3
-        #self.lsys.context().turtle.setMaterial(0,Material('Yellow',Color3(60,60,15),3,Color3(40,40,40),Color3(0,0,0),1,0))        
-        #self.lsys.context().turtle.getColorList()
-        #self.lsys.context().turtle = project.control.colormap   # material_editor = MaterialEditor(parent) material_editor.getTurtle(), material_editor.setTurtle(project.control.colormap)
-        
+        self.lsystem = Lsystem()
         self.code = str()
         self.axialtree = AxialTree()
         
@@ -162,8 +151,13 @@ class LPyApplet(object):
         if self.session.project.controls.has_key("color map"):    
             i = 0
             for color in self.session.project.controls["color map"] :
-                self.lsys.context().turtle.setMaterial(i, color)
+                self.lsystem.context().turtle.setMaterial(i, color)
                 i += 1
+        
+        self.session.interpreter.locals['lsystem'] = self.lsystem
+
+        ## TODO : 
+        #self.session.interpreter.locals['lstring'] =       
         
     def focus_change(self):
         """
@@ -206,9 +200,9 @@ class LPyApplet(object):
         #print self.parameters.keys()
         #print self.parameters.items()
         
-        self.lsys.setCode(code, self.parameters)
-        self.axialtree = self.lsys.iterate()
-        new_scene = self.lsys.sceneInterpretation(self.axialtree)
+        self.lsystem.setCode(code, self.parameters)
+        self.axialtree = self.lsystem.iterate()
+        new_scene = self.lsystem.sceneInterpretation(self.axialtree)
         scene_name = self.context["scene_name"]
         self.session.scene_widget.getScene()[scene_name] = new_scene
         self.session.viewer.update_radius()
@@ -225,32 +219,32 @@ class LPyApplet(object):
             for parameter in self.parameters:
                 if hasattr(self.parameters[parameter], "value"):
                     self.parameters[parameter] = self.parameters[parameter].value
-            self.lsys.setCode(code, self.parameters)
+            self.lsystem.setCode(code, self.parameters)
             self.code = code
             
-        if self.lsys.getLastIterationNb() == 0:
+        if self.lsystem.getLastIterationNb() == 0:
             # If step 0 : print axiom
             if self.lastIter == -1:
-                self.axialtree = self.lsys.axiom
+                self.axialtree = self.lsystem.axiom
             # If step 1 : print pre step but lastIterationNb is still to 0
             elif self.lastIter == 0:
-                self.axialtree = self.lsys.iterate(1)
+                self.axialtree = self.lsystem.iterate(1)
             # If step 2 : print real first step and lastIterationNb go to 1
             else :        
-                self.axialtree = self.lsys.iterate(self.lsys.getLastIterationNb()+2)
+                self.axialtree = self.lsystem.iterate(self.lsystem.getLastIterationNb()+2)
         # If step > 2
         else:
-            self.axialtree = self.lsys.iterate(self.lsys.getLastIterationNb()+2)
+            self.axialtree = self.lsystem.iterate(self.lsystem.getLastIterationNb()+2)
         self.lastIter = self.lastIter + 1
-        new_scene = self.lsys.sceneInterpretation(self.axialtree)
+        new_scene = self.lsystem.sceneInterpretation(self.axialtree)
         if new_scene:
             self.session.scene_widget.getScene()[self.context["scene_name"]] = new_scene
         
     def stop(self):
         # TODO : to implement
         # print "stop lpy"
-        #self.lsys.early_return = True
-        #self.lsys.forceRelease()
+        #self.lsystem.early_return = True
+        #self.lsystem.forceRelease()
         pass
 
     def animate(self):
@@ -260,9 +254,9 @@ class LPyApplet(object):
         for parameter in self.parameters:
             if hasattr(self.parameters[parameter], "value"):
                 self.parameters[parameter] = self.parameters[parameter].value    
-        self.lsys.setCode(code, self.parameters)
+        self.lsystem.setCode(code, self.parameters)
         self.step()
-        self.lsys.animate()
+        self.lsystem.animate()
         self.session.viewer.update_radius()
 
     def reinit(self):
@@ -273,5 +267,109 @@ class LPyApplet(object):
         self.lastIter = -1
         self.code = str(self.widget().get_text())
         # setCode set lastIterationNb to zero
-        self.lsys.setCode(self.code, self.parameters)
+        self.lsystem.setCode(self.code, self.parameters)
         self.step()
+
+class LPyApplet2(object):
+    def __init__(self, intrepreter, name="script.lpy", script=""):
+        super(LPyApplet2, self).__init__()
+        logger.debug("init LPyApplet")
+        self.name = name
+        
+        # dict is mutable =D
+        # Usefull if you want change scene_name inside application
+        self.intrepreter = intrepreter
+        self.parameters = dict()
+        self.parameters["scene_name"] = "lpy_scene"
+        self.code = script
+        self.lsystem = Lsystem()
+        self.axialtree = AxialTree()
+        self.lastIter = -1
+        
+        script, controls = import_lpy_file(script)
+        if self.code == "":
+            self.code = get_default_text()
+        self.parameters.update(controls)   
+        
+    def focus_change(self):
+        """
+        Set doc string in Help widget when focus changed
+        """
+        txt = doc_lpy.getSpecification()
+        return txt
+        
+    def run_selected_part(self, txt):
+        """
+        Run selected code like a PYTHON code (not LPy code).
+        If nothing selected, run like LPy (not Python).
+        """       
+        if len(txt) == 0:
+            self.run()
+        else:
+            self.interpreter.runcode(txt)
+
+    def run(self):
+        """
+        Run/iterate all the code (LPy and not PYTHON).
+        """
+        for parameter in self.parameters:
+            if hasattr(self.parameters[parameter], "value"):
+                self.parameters[parameter] = self.parameters[parameter].value
+        
+        self.lsystem.setCode(self.code, self.parameters)
+        self.axialtree = self.lsystem.iterate()
+        new_scene = self.lsystem.sceneInterpretation(self.axialtree)
+        scene_name = self.parameters["scene_name"]
+        
+        return scene_name, new_scene
+        
+    def step(self):
+        for parameter in self.parameters:
+            if hasattr(self.parameters[parameter], "value"):
+                self.parameters[parameter] = self.parameters[parameter].value
+
+        self.lsystem.setCode(self.code, self.parameters)
+        if self.lsystem.getLastIterationNb() == 0:
+            # If step 0 : print axiom
+            if self.lastIter == -1:
+                self.axialtree = self.lsystem.axiom
+            # If step 1 : print pre step but lastIterationNb is still to 0
+            elif self.lastIter == 0:
+                self.axialtree = self.lsystem.iterate(1)
+            # If step 2 : print real first step and lastIterationNb go to 1
+            else :        
+                self.axialtree = self.lsystem.iterate(self.lsystem.getLastIterationNb()+2)
+        # If step > 2
+        else:
+            self.axialtree = self.lsystem.iterate(self.lsystem.getLastIterationNb()+2)
+        self.lastIter = self.lastIter + 1
+        new_scene = self.lsystem.sceneInterpretation(self.axialtree)
+        scene_name = self.parameters["scene_name"]
+        
+        return scene_name, new_scene
+        
+    def stop(self):
+        # TODO : to implement
+        # print "stop lpy"
+        #self.lsystem.early_return = True
+        #self.lsystem.forceRelease()
+        pass
+
+    def animate(self):
+        # Get code from application
+        for parameter in self.parameters:
+            if hasattr(self.parameters[parameter], "value"):
+                self.parameters[parameter] = self.parameters[parameter].value    
+        self.lsystem.setCode(code, self.parameters)
+        scene_name, new_scene = self.step()
+        self.lsystem.animate()
+        return scene_name, new_scene
+
+    def reinit(self):
+        for parameter in self.parameters:
+            if hasattr(self.parameters[parameter], "value"):
+                self.parameters[parameter] = self.parameters[parameter].value    
+        self.lastIter = -1
+        # setCode set lastIterationNb to zero
+        self.lsystem.setCode(self.code, self.parameters)
+        return self.step()

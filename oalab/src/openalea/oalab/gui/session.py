@@ -79,6 +79,8 @@ class Session(object):
         # Applet Container : can contain text editor or/and workflow editor
         self.applet_container = AppletContainer(session=self)
         
+        self.interpreter.locals['applets'] = self.applet_container
+        
         self.store = Store(session=self)
         
         self.connect_all_actions()
@@ -86,6 +88,7 @@ class Session(object):
     def _update_locals(self):
         try:
             self.interpreter.locals['project'] = self.project
+            self.interpreter.locals['controls'] = self.project.controls
             self.interpreter.locals['scene'] = self.scene_widget.getScene()
         except:
             pass

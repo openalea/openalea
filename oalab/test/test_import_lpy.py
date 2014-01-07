@@ -71,5 +71,5 @@ def test_import_lpy():
     assert controls["FORCE_COMPARE"].value == False
     assert controls["FORCE_COMPARE"].name == "FORCE_COMPARE"
     assert controls.has_key("color map")
-    assert controls.has_key("geometry_Curve2D_profile")
+    assert controls.has_key("profile")
     assert len(code) > 0

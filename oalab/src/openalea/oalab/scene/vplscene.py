@@ -159,6 +159,9 @@ class VPLScene(OrderedDict):
         TODO : remove this method if we want unicity of name, 
         like in a classical dict
         """
+        return name
+        
+        '''
         while name in self:
             try:
                 end = name.split("_")[-1]
@@ -169,7 +172,8 @@ class VPLScene(OrderedDict):
             except:    
                 name += "_1"
         return name  
-    
+        '''
+        
     def __setitem__(self, key, value):
         super(VPLScene, self).__setitem__(key, value)
         self._valueChanged()

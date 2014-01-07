@@ -9,7 +9,7 @@ import sys
 
 app = QtGui.QApplication(sys.argv)
 session = Session()
-
+"""
 def test_applet_container_opentab():
     container = AppletContainer(session)
     assert type(container.applets) == type(list())
@@ -27,7 +27,7 @@ def test_applet_container_opentab():
     assert session.help.mainMenu() == "Help"
     container.reset()
     assert container.count() == 0
-
+"""
 def test_session_and_mainwindow():
     mw = MainWindow(session)
     session.store.showhide()
