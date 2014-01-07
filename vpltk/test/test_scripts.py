@@ -1,4 +1,4 @@
-from openalea.vpltk.project.project import Scripts
+from openalea.vpltk.project.script import Scripts
 from openalea.core.path import path
 
 def test_add_script():
