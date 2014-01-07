@@ -40,9 +40,8 @@ stored in your computer.
 """
 import os
 import warnings
-from openalea.core.path import path as _path
+from path import path as _path
 from openalea.core import settings
-from openalea.vpltk.qt import QtCore
 import cPickle
 from configobj import ConfigObj
 
@@ -80,64 +79,6 @@ def check_unicity(name, all_names):
         except:    
             name = begin_name + "_1" + extension
     return name
-
-class Scripts(dict):
-    """ Hack if we works outside of project
-    """
-    def __init__(self):
-        super(Scripts, self).__init__()
-        self.ez_name = dict()
-        self.name = dict()
-        self.controls = dict()
-        
-    def add_script(self, name, script):
-        self[str(name)] = str(script)
-        
-        # easy_name is used to display file_name
-        # Thanks to self.ez_name, we can found the real name to save file.
-        ez_n = str(_path(name).splitpath()[-1])
-        ez_n = check_unicity(name=ez_n, all_names=self.ez_name.values())
-        self.ez_name[ez_n] = name
-        self.name[name] = ez_n
-
-    def get_ez_name_by_name(self, name):
-        name = str(name)
-        if name in self.name.keys(): 
-            return self.name[name]
-        else:           
-            return False   
-        
-    def get_name_by_ez_name(self, ez_name):
-        ez_name = str(ez_name)
-        if ez_name in self.ez_name.keys():        
-            return self.ez_name[ez_name]
-        else:
-            return False
-                
-    def rm_script(self,name):
-        name = str(name)
-        if name in self.keys():
-            del self[name]
-            ez_name = str(self.name[name])
-            del self.ez_name[ez_name]
-            del self.name[name]
-            
-    def rm_script_by_ez_name(self,ez_name):
-        ez_name = str(ez_name)
-        if ez_name in self.ez_name.keys():
-            self.rm_script(self.ez_name[ez_name])
-            
-    def rename_script(self, old_name, new_name):
-        old_name = str(old_name)
-        new_name = str(new_name)
-        self.add_script(new_name, self[old_name])
-        self.rm_script(old_name)
-        
-    def is_project(self):
-        return False
-        
-    def is_script(self):
-        return True
 
 class Project(object):
     def __init__(self,project_name, project_path):
