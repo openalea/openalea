@@ -19,7 +19,7 @@ __revision__ = "$Id: "
 
 
 from openalea.vpltk.qt import QtGui, QtCore
-from openalea.core.path import path
+from path import path
 from openalea.core import settings
 from openalea.core import logger
 from time import gmtime, strftime

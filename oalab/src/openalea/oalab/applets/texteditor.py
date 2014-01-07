@@ -23,7 +23,7 @@ from openalea.vpltk.qt import QtCore, QtGui
 from openalea.lpy.gui.lpycodeeditor import LpyCodeEditor as _LpyCodeEditor, Margin      
 from openalea.lpy.gui.lpystudio import LPyWindow
 
-from openalea.core.path import path
+from path import path
 from openalea.core import settings
 
 ErrorMarker,BreakPointMarker,CodePointMarker = range(3)

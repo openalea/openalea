@@ -199,6 +199,9 @@ class LPyApplet(object):
         #print self.parameters.keys()
         #print self.parameters.items()
         
+        # for param in self.parameters:
+            # print "-", param, ":", self.parameters[param]
+            # BUUUUUUUUUUUUUUUUGGGGGGGGGGGGGGGGGGGG
         self.lsystem.setCode(code, self.parameters)
         self.axialtree = self.lsystem.iterate()
         new_scene = self.lsystem.sceneInterpretation(self.axialtree)

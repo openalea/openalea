@@ -18,12 +18,13 @@
 __revision__ = ""
 
 from openalea.vpltk.qt import QtCore, QtGui
+from openalea.vpltk.qt.compat import from_qvariant, to_qvariant
 from openalea.oalab.applets.lpy import LPyApplet
 from openalea.oalab.applets.python import PythonApplet
 from openalea.oalab.applets.r import RApplet
 from openalea.oalab.applets.visualea import VisualeaApplet
 from openalea.core import logger
-from openalea.core.path import path
+from path import path
 from openalea.vpltk.project.script import Scripts
 
 class AppletContainer(QtGui.QTabWidget):
@@ -468,14 +469,15 @@ class WelcomePage(QtGui.QWidget):
         
     def restoreSession(self):
         settings = QtCore.QSettings("OpenAlea", "OpenAleaLaboratory")
-        proj = settings.value("session")
+        proj = from_qvariant(settings.value("session"))
         if proj is None:
-            pass
+            logger.debug("Can't restore previous session. May be it is empty")
         elif proj.is_project():
             self.session._is_proj = True
             self.session._is_script = False
             name = path(proj.path).abspath()/proj.name
             self.session.project_widget.open(name)
+            logger.debug("Restore previous session. (project)")
         elif proj.is_script():
             self.session._is_proj = False
             self.session._is_script = True
@@ -485,4 +487,5 @@ class WelcomePage(QtGui.QWidget):
             
             self.session.project_widget._project_changed()
             #self.session.project_widget.importFile(filename=fname, extension="*.py")
+            logger.debug("Restore previous session. (scripts)")
 
