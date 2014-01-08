@@ -346,7 +346,6 @@ class LPyApplet2(object):
         
     def stop(self):
         # TODO : to implement
-        # print "stop lpy"
         #self.lsystem.early_return = True
         #self.lsystem.forceRelease()
         pass
