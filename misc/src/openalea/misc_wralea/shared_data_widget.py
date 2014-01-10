@@ -149,7 +149,7 @@ class SharedDataBrowser(NodeWidget, QtGui.QDialog):
         self.updating = True
         self.filenames_combobox.clear()
         datadir = self.datadir_lineedit.text()
-        if not datadir.isEmpty():
+        if datadir != '':
             datadir = str(datadir)
             filenames = glob.glob(pj(datadir, globpattern))
             basenames = [bname(filename) for filename in filenames]
