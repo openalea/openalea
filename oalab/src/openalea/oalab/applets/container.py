@@ -46,7 +46,7 @@ class AppletContainer(QtGui.QTabWidget):
         self.actionStop = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/pause.png"),"Stop", self)
         self.actionInit = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/rewind.png"),"Init", self)
         
-        self.actionRunSelection = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/run.png"),"Run selection", self)
+        self.actionRunSelection = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/run.png"),"Run subpart", self)
         
         self.actionUndo = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/editundo.png"),"Undo", self)
         self.actionRedo = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/editredo.png"),"Redo", self)
@@ -93,10 +93,10 @@ class AppletContainer(QtGui.QTabWidget):
                                     ["Play",self.actionStep,0],
                                     ["Play",self.actionStop,0],
                                     ["Play",self.actionInit,0],
-                                    ["Text Edit",self.actionSave,1], 
+                                    ["Text Edit",self.actionSave,0], 
                                     ["Text Edit",self.actionUndo,1],
                                     ["Text Edit",self.actionRedo,1],
-                                    ["Text Edit",self.actionRunSelection,1], 
+                                    ["Text Edit",self.actionRunSelection,0], 
                                     ["Text Edit",self.actionSearch,1],
                                     ["Text Edit",self.actionGoto,1],          
                                     ["Text Edit",self.actionComment,1],
