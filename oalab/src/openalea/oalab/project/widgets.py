@@ -153,7 +153,7 @@ class ProjectWidget(QtGui.QWidget):
             my_path = path(settings.get_project_dir())
         logger.debug("Search to open file with extension "+extension+" from "+my_path)
         fname = QtGui.QFileDialog.getOpenFileName(self, 'Select File to open', 
-                my_path, "Scripts Files (%s);;All (*)"%extension)
+                my_path, "All (*);;Scripts Files (%s)"%extension)
         return fname
 
     def actions(self):
