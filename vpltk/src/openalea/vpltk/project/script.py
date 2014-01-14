@@ -85,3 +85,6 @@ class Scripts(dict):
         
     def is_script(self):
         return True
+
+    def __repr__(self):
+        return "Scripts short-named " + str(self.name.values()) + " . Complete names: " + str(self.name.keys())

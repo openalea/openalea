@@ -378,6 +378,8 @@ class Project(object):
             warnings.warn("---Warning!---\nPlease delete old directories before creating new!")
             raise OSError("Please delete old directories before creating new!")
         
+    def __repr__(self):
+        return "Project named " + str(self.name) + " in path " + str(self.path) + " . Scripts: " + str(self.scripts.keys()) + " . Controls: " + str(self.controls.keys()) + " . Scene: " + str(self.scene.keys())
 
 class ProjectManager(object):
     """
