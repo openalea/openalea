@@ -5,7 +5,7 @@
 
 .. module:: oalab
 
-OpenAlea OALab documentation
+OpenAlea Lab (OALab) documentation
 #########################################################################
 
 Module description
