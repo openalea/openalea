@@ -312,7 +312,7 @@ class Project(object):
         Save in a manifest file what is present inside a project
         """
         config = ConfigObj()
-        config.filename = self.path/self.name/".cfg"
+        config.filename = self.path/self.name/"oaproject.cfg"
 
         config['scripts'] = self.scripts.keys()
         config['controls'] = self.controls.keys()
@@ -326,7 +326,7 @@ class Project(object):
         """
         Load a project from a manifest file
         """
-        config = ConfigObj(self.path/self.name/".cfg")
+        config = ConfigObj(self.path/self.name/"oaproject.cfg")
         return config
 
         
@@ -345,9 +345,6 @@ class Project(object):
         for s in self.startup:
             if s.find('import') == -1:
                 exec(self.startup[s],self.ns)
-                print
-                print self.ns
-                print
                 if use_ip:
                     self.shell.runcode(self.startup[s])
         
@@ -440,6 +437,7 @@ class ProjectManager(object):
             return proj
         else:
             raise IOError('Project %s in repository %s does not exist' %(project_name,project_path))
+            print 'Project %s in repository %s does not exist' %(project_name,project_path)
             return -1
 
     def close(self, project_name):
