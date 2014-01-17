@@ -439,7 +439,7 @@ class PrjctModel(QtGui.QStandardItemModel):
                 parentItem = self.invisibleRootItem()
                 item = QtGui.QStandardItem(name)
                 if name == "Controls": icon = QtGui.QIcon(":/images/resources/node.png")
-                elif name == "Scene": icon = QtGui.QIcon(":/images/resources/flower.ico")
+                elif name == "Scene": icon = QtGui.QIcon(":/images/resources/plant.png")
                 elif name == "Models": icon = QtGui.QIcon(":/images/resources/package.png")
                 item.setIcon(icon)
                 parentItem.appendRow(item)
