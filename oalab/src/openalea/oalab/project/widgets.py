@@ -172,6 +172,7 @@ class ProjectWidget(QtGui.QWidget):
             if self.session.project is not None:
                 if self.session.current_is_project():
                     self.projectManager.close(self.session.project.name)
+            
             self.session._project = self.projectManager.load(proj_name,proj_path)
             self.session._is_script = False
             self.session._is_proj = True

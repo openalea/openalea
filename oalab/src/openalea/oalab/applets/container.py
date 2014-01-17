@@ -146,6 +146,7 @@ class AppletContainer(QtGui.QTabWidget):
             self.removeTab(0)
             del wid
         self.clear()
+        self.addDefaultTab()
     
     def openTab(self, applet_type, tab_name, script):
         """
