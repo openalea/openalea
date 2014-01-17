@@ -169,6 +169,7 @@ class ProjectWidget(QtGui.QWidget):
             proj_path = path(name).abspath()
             proj_name = proj_path.basename()
             proj_path = proj_path.dirname()
+            logger.debug("Open Project named " + proj_name)
             if self.session.project is not None:
                 if self.session.current_is_project():
                     self.projectManager.close(self.session.project.name)
@@ -178,7 +179,8 @@ class ProjectWidget(QtGui.QWidget):
             self.session._is_proj = True
             self._project_changed()
             self._load_control()
-            logger.debug("Open Project named " + proj_name)
+            
+            logger.debug("Project opened: " + str(self.session._project))
             
     def openSvn(self, name=None):
         """
