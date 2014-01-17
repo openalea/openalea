@@ -44,31 +44,23 @@ def geometry_2_piklable_geometry(manager, obj):
     geom = obj
     name = str(geom.getName())
     if isinstance(geom, NurbsPatch):
-        new_obj = RedNurbsPatch(geom.ctrlPointMatrix)
-        new_obj.is_geometry = True
-        new_obj.typename = str(manager.typename)
+        new_obj = RedNurbsPatch(geom.ctrlPointMatrix, manager.typename)
         logger.debug("Transform NurbsPatch into RedNurbsPatch")
     elif isinstance(geom, Polyline2D):
-        new_obj = RedPolyline2D(geom.pointList)
-        new_obj.is_geometry = True
-        new_obj.typename = str(manager.typename)
+        new_obj = RedPolyline2D(geom.pointList, manager.typename)
         logger.debug("Transform Polyline2D into RedPolyline2D")
     elif isinstance(geom, NurbsCurve2D):
-        new_obj = RedNurbs2D(geom.ctrlPointList)
-        new_obj.is_geometry = True
-        new_obj.typename = str(manager.typename)
+        new_obj = RedNurbs2D(geom.ctrlPointList, manager.typename)
         logger.debug("Transform NurbsCurve2D into RedNurbs2D")
     elif isinstance(geom, BezierCurve2D):
-        new_obj = RedBezierNurbs2D(geom.ctrlPointList)
-        new_obj.is_geometry = True
-        new_obj.typename = str(manager.typename)
+        new_obj = RedBezierNurbs2D(geom.ctrlPointList, manager.typename)
         logger.debug("Transform BezierCurve2D into RedBezierNurbs2D")
     else:
         new_obj = obj
+        new_obj.typename = manager.typename
         logger.debug("Transform Nothing %s"%str(geom))
     
-    # new_name = "geometry_%s_%s"%(manager.typename,name)
-    return(new_obj,name,)         
+    return(new_obj,name)         
             
 class ProjectWidget(QtGui.QWidget):
     """
@@ -224,6 +216,7 @@ class ProjectWidget(QtGui.QWidget):
                 tab_name = str(path(filename).splitpath()[-1])
                 ext = str(path(filename).splitext()[-1])
                 ext = ext.split(".")[-1]
+                logger.debug("Try to import file named " + tab_name + " . With applet_type " + ext)
 
                 try:
                     self.session.applet_container.newTab(applet_type=ext, tab_name=tab_name, script=txt)
@@ -390,7 +383,7 @@ class ProjectWidget(QtGui.QWidget):
         """
         pass    
         
-    def openModel(self):
+    def openModel(self, fname=None):
         """"
         Open a (script-type) file
         
@@ -530,6 +523,7 @@ class ProjectWidget(QtGui.QWidget):
         if not proj.controls.has_key("color map"):    
             proj.controls["color map"] = PglTurtle().getColorList()
         i = 0
+        logger.debug("Load Controls color map: %s "%str(proj.controls["color map"]))
         for color in proj.controls["color map"]:
             self.session.control_panel.colormap_editor.getTurtle().setMaterial(i, color)
             i += 1
@@ -539,17 +533,23 @@ class ProjectWidget(QtGui.QWidget):
         scalars = []   
     
         for control in proj.controls:
-            if hasattr(proj.controls[control], "is_geometry"):
-                typename = proj.controls[control].typename
-                proj.controls[control].name = str(control)
-                manager = managers[typename]
-                geom.append((manager,proj.controls[control]))
+            logger.debug(str(proj.controls[control]))
+            if hasattr(proj.controls[control], "__module__"):
+                if proj.controls[control].__module__ == "openalea.oalab.control.picklable_curves":
+                    typename = proj.controls[control].typename
+                    proj.controls[control].name = str(control)
+                    manager = managers[typename]
+                    geom.append((manager,proj.controls[control]))
+                elif str(control) != "color map":
+                    scalars.append(proj.controls[control])   
             elif str(control) != "color map":
                 scalars.append(proj.controls[control])    
         if geom is not list():
+            logger.debug("Load Controls Geom: %s "%str(geom))
             self.session.control_panel.geometry_editor.setObjects(geom)
-            if scalars is not list():
-                self.session.control_panel.scalars_editor.setScalars(scalars)
+        if scalars is not list():
+            logger.debug("Load Controls Scalars: %s "%str(scalars))
+            self.session.control_panel.scalars_editor.setScalars(scalars)
         
     def _update_control(self):
         """
@@ -565,7 +565,7 @@ class ProjectWidget(QtGui.QWidget):
             if obj != list():
                 obj, name = geometry_2_piklable_geometry(manager,obj)
                 self.session.project.controls[unicode(name)] = obj
-            
+                
         scalars = self.session.control_panel.scalars_editor.getScalars()
         for scalar in scalars:
             self.session.project.controls[unicode(scalar.name)] = scalar
