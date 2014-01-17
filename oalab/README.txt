@@ -39,10 +39,6 @@ Go to http://gforge.inria.fr/frs/?group_id=79
 
 === Installation ===
 
-
-=== Utilisation ===
-
-
 <code>
 python setup.py install
 </code>
