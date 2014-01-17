@@ -40,7 +40,7 @@ stored in your computer.
 """
 import os
 import warnings
-from path import path as _path
+from openalea.core.path import path as _path
 from openalea.core import settings
 import cPickle
 from configobj import ConfigObj
