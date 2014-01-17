@@ -18,7 +18,7 @@
 __revision__ = ""
 
 from openalea.vpltk.qt import QtCore, QtGui
-from path import path
+from openalea.core.path import path
 from openalea.oalab.editor.search import SearchWidget
 from openalea.oalab.editor.completion import DictionaryCompleter
 from openalea.oalab.editor.line_number import Margin
