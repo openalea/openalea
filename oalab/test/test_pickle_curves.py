@@ -17,11 +17,13 @@ def test_pickle_crv2D():
     assert repr(new_curve) == repr(crv)
 
 def test_pickle_newcrv2D():
-    crv = RedNurbs2D([(-0.5,0,1),(-0.198198,0.40991,1),(0.198198,-0.220721,1),(0.5,0,1)])
+    crv = RedNurbs2D([(-0.5,0,1),(-0.198198,0.40991,1),(0.198198,-0.220721,1),(0.5,0,1)], "Curve2D")
     saved_curve = dumps(crv)
     loaded_curve = loads(saved_curve)
     # Check
     assert repr(crv) == repr(loaded_curve), "%s != %s"%(repr(crv), repr(loaded_curve))
+    assert crv.typename == loaded_curve.typename
+    assert loaded_curve.typename == "Curve2D"
     
 def test_pickle_newbezier():
     pointlist = [(-0.5,0,1),(-0.198198,0.40991,1),(0.198198,-0.220721,1),(0.5,0,1)]
@@ -53,8 +55,22 @@ def test_pickle_newcrv2Dbis():
     # Check
     assert repr(crv) == repr(loaded_curve), "%s != %s"%(repr(crv), repr(loaded_curve))
     
+def test_pickle_typename():
+    crv = PickableNurbsCurve2D_bis([(-0.5,0,1),(-0.198198,0.40991,1),(0.198198,-0.220721,1),(0.5,0,1)])
+    crv.typename = "Curve2D"
+    saved_curve = dumps(crv)
+    loaded_curve = loads(saved_curve)
+    assert loaded_curve.typename == "Curve2D"
     
-    
+class PickableNurbsCurve2D_bis(NurbsCurve2D):
+    def __init__(self, ctrlPointList, typename=""):
+        super(PickableNurbsCurve2D_bis, self).__init__(ctrlPointList)
+        self.typename = typename
+        
+    def __reduce__(self):
+        return (PickableNurbsCurve2D_bis, (self.ctrlPointList, self.typename,))
+
+        
 class PickableNurbsCurve2D(object):
     def __init__(self, *args, **kwds):
         self.crv = NurbsCurve2D(*args, **kwds)
@@ -81,4 +97,6 @@ if( __name__ == "__main__"):
     test_pickle_newbezier()
     test_pickle_newpolyline()
     test_pickle_newnurbspatch()
+    
+    test_pickle_typename()
     
