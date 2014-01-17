@@ -1,6 +1,6 @@
 from math import degrees, atan2
 from openalea.plantgl.all import cross, dot
-length = 5 
+
 dl = 0.5 
 Axiom : FFF [ \(90) &(90) SetGuide(curve,length) M(0)] FF 
 production: 
