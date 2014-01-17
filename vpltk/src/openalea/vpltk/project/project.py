@@ -125,6 +125,9 @@ class Project(object):
         self._save("scene")
         self._save_manifest()
         
+    def _save_scripts(self):
+        self._save("scripts")
+        
     def set_ipython(self, shell=None):
         if not self.use_ipython():
             try:
