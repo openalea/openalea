@@ -36,7 +36,7 @@ package_dir = dict( [('',pkg_root_dir)] + [(namespace + "." + pkg, pkg_root_dir 
 
 
 # List of top level wralea packages (directories with __wralea__.py) 
-#wralea_entry_points = ['%s = %s'%(pkg,namespace + '.' + pkg) for pkg in top_pkgs]
+# wralea_entry_points = ['%s = %s'%(pkg,namespace + '.' + pkg) for pkg in top_pkgs]
 
 # dependencies to other eggs
 setup_requires = ['openalea.deploy']
@@ -89,12 +89,12 @@ setup(
 						'openalealab = openalea.oalab.main:main'],
         'oalab.control': ['IntControl = openalea.oalab.control.stdcontrol:IntControl',
             'BoolControl = openalea.oalab.control.stdcontrol:BoolControl',
-            'FloatControl = openalea.oalab.control.stdcontrol:FloatControl']
+            'FloatControl = openalea.oalab.control.stdcontrol:FloatControl'],
         #'console_scripts': [
         #       'fake_script = openalea.fakepackage.amodule:console_script', ],
         # 'gui_scripts': [
         #      'fake_gui = openalea.fakepackage.amodule:gui_script',],
-        #	'wralea': wralea_entry_points
+        'wralea' : ['oalab = openalea.oalab_wralea']
         },
     )
 
