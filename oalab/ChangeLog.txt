@@ -4,3 +4,4 @@
 * 15/09/13 Add Logger
 * 16/09/13 Add Help
 * 16/09/13 Embed alea_install_gui in OALab. Rename it in "Store".
+* 17-18/01/14 Prepare first pre-release
