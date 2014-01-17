@@ -17,7 +17,7 @@
 ###############################################################################
 __revision__ = "$Id: $"
 
-from path import path
+from openalea.core.path import path
 from openalea.vpltk.project.project import check_unicity
 
 class Scripts(dict):
