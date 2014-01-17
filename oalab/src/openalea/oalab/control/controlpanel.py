@@ -187,7 +187,6 @@ class ControlPanelManager(ObjectPanelManager):
     # TODO : do the same thing in a more beautiful way
     def restoreState(self, obj=None):
         controls = self.session.project().controls
-        print controls
             
     def saveState(self, obj=None):
         self.session.project().controls = self.get_controls()
@@ -344,7 +343,6 @@ class ControlPanel(QtGui.QTabWidget):
         
         # Add it into the current project.
         # TODO
-##        print new_control.value
         
     def rename(self):
         """
