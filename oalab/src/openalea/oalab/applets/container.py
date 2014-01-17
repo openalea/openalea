@@ -24,7 +24,7 @@ from openalea.oalab.applets.python import PythonApplet
 from openalea.oalab.applets.r import RApplet
 from openalea.oalab.applets.visualea import VisualeaApplet
 from openalea.core import logger
-from path import path
+from openalea.core.path import path
 from openalea.vpltk.project.script import Scripts
 
 class AppletContainer(QtGui.QTabWidget):

@@ -196,14 +196,24 @@ class LPyApplet(object):
             if hasattr(self.parameters[parameter], "value"):
                 self.parameters[parameter] = self.parameters[parameter].value
                 
-        #print self.parameters.keys()
-        #print self.parameters.items()
+        print 1, self.parameters.keys()
+        print 2, self.parameters.items()
+        
+        if "path" in self.parameters.keys():
+            print 3, self.parameters["path"]
         
         # for param in self.parameters:
             # print "-", param, ":", self.parameters[param]
             # BUUUUUUUUUUUUUUUUGGGGGGGGGGGGGGGGGGGG
+            
         self.lsystem.setCode(code, self.parameters)
+        print self.lsystem.parameters
         self.axialtree = self.lsystem.iterate()
+        
+        print 4,self.axialtree
+        print 5
+        print 6, self.lsystem.sceneInterpretation(self.axialtree)
+        
         new_scene = self.lsystem.sceneInterpretation(self.axialtree)
         scene_name = self.context["scene_name"]
         self.session.scene_widget.getScene()[scene_name] = new_scene
