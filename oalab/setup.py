@@ -40,10 +40,7 @@ package_dir = dict( [('',pkg_root_dir)] + [(namespace + "." + pkg, pkg_root_dir 
 
 # dependencies to other eggs
 setup_requires = ['openalea.deploy']
-if("win32" in sys.platform):
-    install_requires = []
-else:
-    install_requires = []
+install_requires = []
 
 # web sites where to find eggs
 dependency_links = ['http://openalea.gforge.inria.fr/pi']
@@ -64,6 +61,7 @@ setup(
     package_dir= package_dir,
 
     # Namespace packages creation by deploy
+    py_modules = ['oalab_postinstall'],
     #namespace_packages = [namespace],
     #create_namespaces = False,
     zip_safe= False,
@@ -81,8 +79,9 @@ setup(
     # alternatively to global inclusion, list the file to include   
     #package_data = {'' : ['*.pyd', '*.so'],},
 
-    # postinstall_scripts = ['',],
-
+    postinstall_scripts = ['oalab_postinstall'],
+    share_dirs = { 'share' : 'share' },
+    
     # Declare scripts and wralea as entry_points (extensions) of your package 
     entry_points = { 
         'gui_scripts': ['oalab = openalea.oalab.main:main',
