@@ -1,5 +1,5 @@
 from openalea.vpltk.project.project import ProjectManager
-from path import path
+from openalea.core.path import path
 import shutil
 import os
 

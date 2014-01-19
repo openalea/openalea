@@ -1,7 +1,7 @@
 from openalea.lpy import Lsystem,AxialTree,generateScene
 from openalea.lpy_wralea.lpy_nodes import run_lpy
 from openalea.vpltk.project.project import ProjectManager
-from path import path
+from openalea.core.path import path
 import os
 import shutil
 
