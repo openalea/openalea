@@ -1,0 +1,17 @@
+
+Declarative Language to Design GUI
+##################################
+
+Overview of existing technologies
+=================================
+
+
+.. todo::
+
+   Read and summarize ...
+   
+     - http://docs.enthought.com/traitsui/traitsui_user_manual/view.html
+     - http://docs.enthought.com/enaml
+     - https://docs.djangoproject.com/en/1.6/intro/tutorial03/
+     - https://qt-project.org/doc/qt-5/qmlapplications.html
+   
