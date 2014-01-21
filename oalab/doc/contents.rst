@@ -6,7 +6,7 @@
 .. module:: oalab
 
 OpenAlea Lab (OALab) documentation
-#########################################################################
+##################################
 
 Module description
 ==================
@@ -31,6 +31,7 @@ Documentation
 
     User Guide<user/index.rst>   
     Reference Guide<user/autosum.rst>
+    Developper Guide<devel/index.rst>
 
 - A `PDF <../latex/oalab.pdf>`_ version of |oalab| documentation is 
   available.
