@@ -22,6 +22,10 @@ __revision__ = ""
 
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core import logger
+from openalea.core.path import path
+from openalea.core.settings import get_openalea_home_dir
+
+from openalea.oalab.config.gui import MainConfig
 
 class MainWindow(QtGui.QMainWindow):
     """
@@ -30,7 +34,19 @@ class MainWindow(QtGui.QMainWindow):
     def __init__(self, session):
         super(QtGui.QMainWindow, self).__init__()
         self.session = session
-        self.setWidgets(session)  
+        
+        self._dockwidgets = {}
+        self._config = MainConfig()
+        self._config.initialize()
+
+        conf = path(get_openalea_home_dir()) / 'oalab.cfg'
+        if conf.exists():
+            self._config.load_config_file(conf)
+        else :
+            with conf.open() as f:
+                f.write(self._config.generate_config_file())
+        
+        self.setWidgets(session)
         self.readSettings()     
         self.setSettingsInMenu()
         
@@ -57,6 +73,7 @@ class MainWindow(QtGui.QMainWindow):
         registered settings (geometry and window state)
         """
         settings = QtCore.QSettings("OpenAlea", "OpenAleaLaboratory")
+        '''
         try:
             self.restoreGeometry(settings.value("geometry"))
             self.restoreState(settings.value("windowState"))
@@ -66,6 +83,7 @@ class MainWindow(QtGui.QMainWindow):
             settings.setValue("defaultGeometry", self.saveGeometry())
             settings.setValue("defaultWindowState", self.saveState())
             logger.warning("Can t restore session")
+        '''
             
     def setSettingsInMenu(self):
         
@@ -120,98 +138,48 @@ class MainWindow(QtGui.QMainWindow):
     ####################################################################
     ### Widgets
     ####################################################################
+    
+    def _dockWidget(self, identifier, widget, name=None, allowed_area=None, position=None):
+        if name is None :
+            name = identifier.capitalize()
+        if allowed_area is None:
+            allowed_area = QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea
+        if position is None:
+            position = QtCore.Qt.LeftDockWidgetArea
+    
+        dock_widget = QtGui.QDockWidget(name, self)
+        dock_widget.setObjectName("%sPanel" % identifier)
+        dock_widget.setAllowedAreas(allowed_area)
+        dock_widget.setWidget(widget)
+        self.addDockWidget(position, dock_widget)
+        self._dockwidgets[identifier] = dock_widget
+        
+        display = self._config.config.MainWindowConfig.get(identifier.lower(), False)
+        dock_widget.setVisible(display)
+        
+        return dock_widget
+    
     def setWidgets(self, session):
         # Menu
-        self.menuDockWidget = QtGui.QDockWidget("Menu", self)
+        dock_menu = self._dockWidget("Menu", session.menu, allowed_area=QtCore.Qt.TopDockWidgetArea, position=QtCore.Qt.TopDockWidgetArea)
         # Hide title bar
-        self.menuDockWidget.setTitleBarWidget( QtGui.QWidget() ) 
-        self.menuDockWidget.setObjectName("Menu")
-        self.menuDockWidget.setAllowedAreas(QtCore.Qt.TopDockWidgetArea)
-        self.menuDockWidget.setWidget(session.menu)
-        self.menuDockWidget.setMinimumSize(10,10)
-        self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.menuDockWidget)
+        dock_menu.setTitleBarWidget( QtGui.QWidget() ) 
+        dock_menu.setMinimumSize(10,10)
 
         # Docks
-        # Project Manager
-        self.projectManagerDockWidget = QtGui.QDockWidget("Project", self)
-        self.projectManagerDockWidget.setObjectName("ProjectPanel")
-        self.projectManagerDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
-        self.projectManagerDockWidget.setWidget(session.project_layout_widget)
-        self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.projectManagerDockWidget)   
-        
-        # Package Manager
-        self.packageManagerDockWidget = QtGui.QDockWidget("Packages", self)
-        self.packageManagerDockWidget.setObjectName("PackagePanel")
-        self.packageManagerDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
-        self.packageManagerDockWidget.setWidget(session.package_manager_widget)
-        self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.packageManagerDockWidget)   
-        
-        # Package Manager Categorie
-        self.packageManagerCatDockWidget = QtGui.QDockWidget("Pkg Categories", self)
-        self.packageManagerCatDockWidget.setObjectName("PackagePanel")
-        self.packageManagerCatDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
-        self.packageManagerCatDockWidget.setWidget(session.package_manager_categorie_widget)
-        self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.packageManagerCatDockWidget)  
-        
-        # Package Manager Search
-        self.packageManagerSearchDockWidget = QtGui.QDockWidget("Search Pkg", self)
-        self.packageManagerSearchDockWidget.setObjectName("PackagePanel")
-        self.packageManagerSearchDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
-        self.packageManagerSearchDockWidget.setWidget(session.package_manager_search_widget)
-        self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.packageManagerSearchDockWidget)  
-       
-        
-        # Control_Panel
-        self.controlDockWidget = QtGui.QDockWidget("Control Panel", self)     
-        self.controlDockWidget.setObjectName("ControlPanel")
-        self.controlDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
-        self.controlDockWidget.setWidget(session.control_panel)
-        session.control_panel.geometry_editor.setStatusBar(self.statusBar())
-        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.controlDockWidget)         
-        
-        ## Observer_Panel
-        #self.obsDockWidget = QtGui.QDockWidget("Observer Panel", self)     
-        #self.obsDockWidget.setObjectName("ObserverPanel")
-        #self.obsDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
-        #self.obsDockWidget.setWidget(session.observer_panel)
-        #self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.obsDockWidget)  
-        
-        # Viewer
-        self.viewerDockWidget = QtGui.QDockWidget("3D Viewer", self)
-        self.viewerDockWidget.setObjectName("Viewer")
-        self.viewerDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
-        self.viewerDockWidget.setWidget(session.viewer)
-        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.viewerDockWidget)
-        
-        # Help
-        self.helpDockWidget = QtGui.QDockWidget("Help", self)     
-        self.helpDockWidget.setObjectName("Help")
-        self.helpDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
-        self.helpDockWidget.setWidget(session.help)
-        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.helpDockWidget)         
+        self._dockWidget("Project", session.project_layout_widget) # Project Manager
+        self._dockWidget("Packages", session.package_manager_widget)
+        self._dockWidget("PkgCategories", session.package_manager_categorie_widget, name="Package Categories")
+        self._dockWidget("PackageSearch", session.package_manager_search_widget, name="Package Search")
+        self._dockWidget("ControlPanel", session.control_panel, name="Control Panel", position=QtCore.Qt.BottomDockWidgetArea)
+        self._dockWidget("3DViewer", session.viewer, name="3D Viewer", position=QtCore.Qt.RightDockWidgetArea)
+        self._dockWidget("Help", session.help, position=QtCore.Qt.BottomDockWidgetArea)
+        self._dockWidget("Logger", session.logger, position=QtCore.Qt.BottomDockWidgetArea)
+        self._dockWidget("Shell", session.shell, name="IPython Shell", position=QtCore.Qt.BottomDockWidgetArea)
+        self._dockWidget("Store", session.store, name="OpenAlea Store", position=QtCore.Qt.RightDockWidgetArea)
 
-        # Logger
-        self.loggerDockWidget = QtGui.QDockWidget("Logger", self)     
-        self.loggerDockWidget.setObjectName("Logger")
-        self.loggerDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
-        self.loggerDockWidget.setWidget(session.logger)
-        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.loggerDockWidget)  
-        
-        # Shell
-        self.shellDockWidget = QtGui.QDockWidget("IPython Shell", self)     
-        self.shellDockWidget.setObjectName("Shell")
-        self.shellDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
-        self.shellDockWidget.setWidget(session.shell)
-        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.shellDockWidget)          
-        
-        # Store
-        self.storeDockWidget = QtGui.QDockWidget("OpenAlea Store", self)     
-        self.storeDockWidget.setObjectName("Store")
-        self.storeDockWidget.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea)
-        self.storeDockWidget.setWidget(session.store)
-        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.storeDockWidget)  
-        self.storeDockWidget.hide()
-        session.storeDockWidget = self.storeDockWidget
+        session.control_panel.geometry_editor.setStatusBar(self.statusBar())
+        self._dockwidgets['Store'].hide()
 
         # Central Widget
         self.setCentralWidget(session.applet_container)
@@ -223,11 +191,10 @@ class MainWindow(QtGui.QMainWindow):
         self.statusBar().showMessage("OALab is ready!", 10000)   
         
         # Tabify docks
-        self.tabifyDockWidget(self.packageManagerSearchDockWidget, self.packageManagerCatDockWidget)
-        self.tabifyDockWidget(self.packageManagerCatDockWidget, self.packageManagerDockWidget)
-
-        self.tabifyDockWidget(self.viewerDockWidget, self.storeDockWidget)
-        self.tabifyDockWidget(self.loggerDockWidget, self.shellDockWidget)
+        self.tabifyDockWidget(self._dockwidgets['PackageSearch'], self._dockwidgets['PkgCategories'])
+        self.tabifyDockWidget(self._dockwidgets['PkgCategories'], self._dockwidgets['Packages'])
+        #self.tabifyDockWidget(self._dockwidgets['3DViewer'], self._dockwidgets['Store'])
+        self.tabifyDockWidget(self._dockwidgets['Logger'], self._dockwidgets['Shell'])
         
     def changeMenuTab(self, old, new):
         """
@@ -240,7 +207,7 @@ class MainWindow(QtGui.QMainWindow):
             # Get Tab Name
             name = new.mainMenu()
             # Get Menu
-            menu = self.menuDockWidget.widget()
+            menu = self._dockwidgets['Menu'].widget()
             # Find tab named 'name'
             for index in range(menu.count()):
                 if menu.tabText(index) == name:
