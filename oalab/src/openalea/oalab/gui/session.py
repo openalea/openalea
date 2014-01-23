@@ -25,7 +25,7 @@ from openalea.oalab.scene.view3d import Viewer
 from openalea.oalab.gui.menu import PanedMenu
 from openalea.vpltk.shell.shell import get_interpreter_class, get_shell_class
 from openalea.oalab.applets.container import AppletContainer
-from openalea.oalab.scene.vplscene import SceneWidget
+from openalea.oalab.scene.vplscene import VPLScene
 from openalea.oalab.project.widgets import ProjectWidget
 from openalea.oalab.project.treeview import ProjectLayoutWidget
 from openalea.oalab.package import PackageViewWidget, PackageCategorieViewWidget, PackageSearchWidget
@@ -42,6 +42,7 @@ class Session(object):
         self._project = None
         self._is_proj = False
         self._is_script = False
+        self.scene = VPLScene()
         
         # Menu
         self.menu = PanedMenu()
@@ -50,7 +51,6 @@ class Session(object):
         self.control_panel = ControlPanel(self)
         
         self.viewer = Viewer(session=self)
-        self.scene_widget = SceneWidget(session=self)
         
         self.interpreter = get_interpreter_class()()
         self.shell = get_shell_class()(self.interpreter)        
@@ -89,7 +89,7 @@ class Session(object):
         try:
             self.interpreter.locals['project'] = self.project
             self.interpreter.locals['controls'] = self.project.controls
-            self.interpreter.locals['scene'] = self.scene_widget.getScene()
+            self.interpreter.locals['scene'] = self.scene
         except:
             pass
         

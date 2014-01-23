@@ -201,7 +201,7 @@ class LPyApplet(object):
         
         new_scene = self.lsystem.sceneInterpretation(self.axialtree)
         scene_name = self.context["scene_name"]
-        self.session.scene_widget.getScene()[scene_name] = new_scene
+        self.session.scene[scene_name] = new_scene
         self.session.viewer.update_radius()
         
     def step(self, i=None):
@@ -237,7 +237,7 @@ class LPyApplet(object):
 
         new_scene = self.lsystem.sceneInterpretation(self.axialtree)
         if new_scene:
-            self.session.scene_widget.getScene()[self.context["scene_name"]] = new_scene
+            self.session.scene[self.context["scene_name"]] = new_scene
         
     def stop(self):
         # TODO : to implement

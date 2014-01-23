@@ -652,8 +652,8 @@ class ProjectWidget(QtGui.QWidget):
             
     def _scene_change(self):
         logger.debug("Scene changed")
-        self.session.scene_widget.getScene().reset()
+        self.session.scene.reset()
         if self.session.current_is_project():
             project = self.session.project
             for w in project.scene:
-                self.session.scene_widget.getScene().add(name=w,obj=project.scene[w])
+                self.session.scene.add(name=w,obj=project.scene[w])
