@@ -197,7 +197,7 @@ class AppletContainer(QtGui.QTabWidget):
         if self.session.current_is_script():
             ez_name = self.tabText(self.currentIndex())
             self.session.project.rm_script_by_ez_name(ez_name)
-            self.session.project_widget._tree_view_change()
+            self.session.project_manager._tree_view_change()
         
         self.removeTab(self.currentIndex())
         if self.count() == 0:
@@ -253,7 +253,7 @@ class AppletContainer(QtGui.QTabWidget):
             self.setTabText(i, name)
                 
     def run_selected_part(self):
-        self.session.project_widget.update_from_widgets()
+        self.session.project_manager.update_from_widgets()
         try:
             self.currentWidget().applet.run_selected_part()
             logger.debug("Run selected part " + self.currentWidget().applet.name)
@@ -261,27 +261,27 @@ class AppletContainer(QtGui.QTabWidget):
             logger.debug("Can't run selected part " + self.currentWidget().applet.name)
         
     def run(self):
-        self.session.project_widget.update_from_widgets()
+        self.session.project_manager.update_from_widgets()
         self.currentWidget().applet.run()
         logger.debug("Run " + self.currentWidget().applet.name)
         
     def animate(self):
-        self.session.project_widget.update_from_widgets()
+        self.session.project_manager.update_from_widgets()
         self.currentWidget().applet.animate()
         logger.debug("Animate " + self.currentWidget().applet.name)
         
     def step(self):
-        self.session.project_widget.update_from_widgets()
+        self.session.project_manager.update_from_widgets()
         self.currentWidget().applet.step()
         logger.debug("Step " + self.currentWidget().applet.name)
         
     def stop(self):
-        self.session.project_widget.update_from_widgets()
+        self.session.project_manager.update_from_widgets()
         self.currentWidget().applet.stop()
         logger.debug("Stop " + self.currentWidget().applet.name)
         
     def reinit(self):
-        self.session.project_widget.update_from_widgets()
+        self.session.project_manager.update_from_widgets()
         self.currentWidget().applet.reinit()
         logger.debug("Reinit " + self.currentWidget().applet.name)
 
@@ -435,37 +435,37 @@ class WelcomePage(QtGui.QWidget):
     def new(self):
         self.session._is_proj = True
         self.session._is_script = False
-        self.session.project_widget.new()
+        self.session.project_manager.new()
         logger.debug("New Project from welcome page")
         
     def newSvn(self):
-        self.session.project_widget.newSvn()    
+        self.session.project_manager.newSvn()    
         
     def newGit(self):
-        self.session.project_widget.newGit()   
+        self.session.project_manager.newGit()   
         
     def newScript(self):
         self.session._is_proj = False
         self.session._is_script = True
-        self.session.project_widget.newPython()
+        self.session.project_manager.newPython()
         logger.debug("New Script from welcome page")
           
     def open(self):
         self.session._is_proj = True
         self.session._is_script = False
-        self.session.project_widget.open()
+        self.session.project_manager.open()
         logger.debug("Open Project from welcome page")
         
     def openSvn(self):
-        self.session.project_widget.openSvn()
+        self.session.project_manager.openSvn()
         
     def openGit(self):
-        self.session.project_widget.openGit()
+        self.session.project_manager.openGit()
 
     def openScript(self):
         self.session._is_proj = False
         self.session._is_script = True
-        self.session.project_widget.openPython()
+        self.session.project_manager.openPython()
         logger.debug("Open Script from welcome page")
         
     def restoreSession(self):
@@ -477,16 +477,16 @@ class WelcomePage(QtGui.QWidget):
             self.session._is_proj = True
             self.session._is_script = False
             name = path(proj.path).abspath()/proj.name
-            self.session.project_widget.open(name)
+            self.session.project_manager.open(name)
             logger.debug("Restore previous session. (project)")
         elif proj.is_script():
             self.session._is_proj = False
             self.session._is_script = True
             self.session._project = Scripts()
             for p in proj:
-                self.session.project_widget.importFile(filename=p)
+                self.session.project_manager.importFile(filename=p)
             
-            self.session.project_widget._project_changed()
-            #self.session.project_widget.importFile(filename=fname, extension="*.py")
+            self.session.project_manager._project_changed()
+            #self.session.project_manager.importFile(filename=fname, extension="*.py")
             logger.debug("Restore previous session. (scripts)")
 

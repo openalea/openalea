@@ -22,7 +22,7 @@ __revision__ = ""
 from openalea.oalab.editor.text_editor import RichTextEditor as Editor
 from openalea.oalab.editor.highlight import Highlighter
 from openalea.oalab.editor.lpy_lexer import LPyLexer
-from openalea.oalab.project.widgets import geometry_2_piklable_geometry
+from openalea.oalab.control.picklable_curves import geometry_2_piklable_geometry
 from openalea.lpy import Lsystem, AxialTree, registerPlotter
 from openalea.lpy.gui import documentation as doc_lpy
 from openalea.lpy.__lpy_kernel__ import LpyParsing
@@ -137,7 +137,7 @@ class LPyApplet(object):
             # for parameter in self.parameters:
                 # if hasattr(self.parameters[parameter], "value"):
                     # self.parameters[parameter] = self.parameters[parameter].value
-            session.project_widget._load_control()
+            session.project_manager._load_control()
         
         self.widget().set_text(script)
         self.lsystem = Lsystem()

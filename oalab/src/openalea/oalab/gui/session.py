@@ -26,7 +26,7 @@ from openalea.oalab.gui.menu import PanedMenu
 from openalea.vpltk.shell.shell import get_interpreter_class, get_shell_class
 from openalea.oalab.applets.container import AppletContainer
 from openalea.oalab.scene.vplscene import VPLScene
-from openalea.oalab.project.widgets import ProjectWidget
+from openalea.oalab.project.manager import ProjectManager
 from openalea.oalab.project.treeview import ProjectLayoutWidget
 from openalea.oalab.package import PackageViewWidget, PackageCategorieViewWidget, PackageSearchWidget
 from openalea.oalab.gui.store import Store
@@ -55,7 +55,7 @@ class Session(object):
         self.interpreter = get_interpreter_class()()
         self.shell = get_shell_class()(self.interpreter)        
         
-        self.project_widget = ProjectWidget(parent=self)
+        self.project_manager = ProjectManager(parent=self)
         
         self.pm = PackageManager()
         self.pm.init(verbose=False)
@@ -97,7 +97,7 @@ class Session(object):
         """
         Connect actions of different widget to the menu
         """
-        self.connect_actions(self.project_widget)
+        self.connect_actions(self.project_manager)
         self.connect_actions(self.applet_container)
         self.connect_actions(self.viewer)
         self.connect_actions(self.help)

@@ -26,66 +26,18 @@ from time import gmtime, strftime
 from openalea.plantgl.all import PglTurtle
 from openalea.vpltk.project.project import ProjectManager as PM   
 from openalea.vpltk.project.script import Scripts
-from openalea.plantgl.all import BezierCurve2D, NurbsCurve2D, Polyline2D, NurbsPatch
-from openalea.oalab.control.picklable_curves import RedNurbs2D, RedBezierNurbs2D, RedPolyline2D, RedNurbsPatch
 from openalea.lpy.gui.objectmanagers import get_managers
+from openalea.oalab.control.picklable_curves import geometry_2_piklable_geometry
             
-            
-def geometry_2_piklable_geometry(manager, obj):
+class ProjectManager(object):
     """
-    Transform a geometry object from PlantGL in picklable object.
-    
-    Rem: name of object is not changed
-    :param manager: manager of object to transform
-    :param obj: object to transform
-    
-    :return: tuple(transformed object, name_of_new_object)
-    """         
-    geom = obj
-    name = str(geom.getName())
-    if isinstance(geom, NurbsPatch):
-        new_obj = RedNurbsPatch(geom.ctrlPointMatrix, manager.typename)
-        logger.debug("Transform NurbsPatch into RedNurbsPatch")
-    elif isinstance(geom, Polyline2D):
-        new_obj = RedPolyline2D(geom.pointList, manager.typename)
-        logger.debug("Transform Polyline2D into RedPolyline2D")
-    elif isinstance(geom, NurbsCurve2D):
-        new_obj = RedNurbs2D(geom.ctrlPointList, manager.typename)
-        logger.debug("Transform NurbsCurve2D into RedNurbs2D")
-    elif isinstance(geom, BezierCurve2D):
-        new_obj = RedBezierNurbs2D(geom.ctrlPointList, manager.typename)
-        logger.debug("Transform BezierCurve2D into RedBezierNurbs2D")
-    else:
-        new_obj = obj
-        new_obj.typename = manager.typename
-        logger.debug("Transform Nothing %s"%str(geom))
-    
-    return(new_obj,name)         
-            
-class ProjectWidget(QtGui.QWidget):
-    """
-    Widget which permit to manage projects.
-    
-    Permit to change current project and display what is inside current_project
+    Object which permit to manage projects.
     """
     def __init__(self, parent):
         super(ProjectWidget, self).__init__() 
         self.session = parent
         self.parent = self.session
-        layout = QtGui.QVBoxLayout()
-                
-        self.currentProjBtn = QtGui.QPushButton(self)
-        self.currentProjBtn.setText("Select Project")
 
-        self.currentProjWid = QtGui.QToolBar(self)
-        self.currentProjWid.setOrientation(QtCore.Qt.Vertical)
-        self.currentProjWid.setToolButtonStyle(QtCore.Qt.ToolButtonTextOnly)
-
-        self.currentProjWid.addWidget(self.currentProjBtn)
-       
-        layout.addWidget(self.currentProjWid)
-        
-        self.setLayout(layout)
         self.projectManager = PM()
         self.scriptManager = Scripts()
         
@@ -151,13 +103,6 @@ class ProjectWidget(QtGui.QWidget):
     def actions(self):
         return self._actions
     
-    def mainMenu(self):
-        """
-        :return: Name of menu tab to automatically set current when current widget
-        begin current.
-        """
-        return "Project"  
-    
     def open(self, name=False):
         """
         Display a widget to choose project to open.
@@ -181,24 +126,6 @@ class ProjectWidget(QtGui.QWidget):
             self._load_control()
             
             logger.debug("Project opened: " + str(self.session._project))
-            
-    def openSvn(self, name=None):
-        """
-        Display a widget to choose project versionned thx to SVN to open.
-        Then open project.
-        
-        TODO
-        """
-        pass
-        
-    def openGit(self, name=None):
-        """
-        Display a widget to choose project versionned thx to Git to open.
-        Then open project.
-        
-        TODO
-        """
-        pass
 
     def importFile(self, filename=None, extension="*.py *.lpy *.r *.wpy"):
         """
@@ -281,22 +208,6 @@ class ProjectWidget(QtGui.QWidget):
 
         self._project_changed()
         self._load_control()
-
-    def newSvn(self, name=None):
-        """
-        Create an empty project versionned thx to SVN with a default name.
-        
-        TODO
-        """
-        pass
-        
-    def newGit(self, name=None):
-        """
-        Create an empty project versionned thx to Git with a default name.
-        
-        TODO
-        """
-        pass
         
     def newPython(self):       
         if self.session.current_is_project():
@@ -578,49 +489,9 @@ class ProjectWidget(QtGui.QWidget):
             n = len(self.session.control_panel.scalars_editor.getScalars())
             for scalar in range(n):
             	    self.session.control_panel.scalars_editor.deleteScalars()
-
             
     def _control_change(self):
-        pass
-        #logger.debug("Control changed")
-        #if self.session.current_is_project():
-            #proj = self.session.project
-            #if not proj.controls.has_key("color map"):    
-                #proj.controls["color map"] = PglTurtle().getColorList()
-                #logger.debug("Load colormap %s"%(geom))
-            ## Link with color map from application
-            #i = 0
-            #for color in proj.controls["color map"]:
-                #self.session.control_panel.colormap_editor.getTurtle().setMaterial(i, color)
-                #i += 1
-            
-            #managers = get_managers()
-            #geom = self.session.control_panel.geometry_editor.getObjects()
-            
-            #for control in proj.controls:
-                #if "geometry" in str(control).split("_")[0]:
-                    #type_name = str(control).split("_")[1]
-                    #manager = managers[type_name]
-                    #proj.controls[control].name = str(control).split("_")[-1]
-                    #geom.append((manager,proj.controls[control]))
-
-            #self.session.control_panel.geometry_editor.setObjects(geom)
-            #logger.debug("Load controls %s"%(geom))
-
-            
-            
-            
-            
-            
-            #i = 0
-            #for scalar in proj.controls["scalars"]:
-            #    self.session.control_panel.scalars_editor
-            #    i += 1
-            
-            #newcontrols = self.session.control_panel_manager.get_managers()
-            #for controlname in newcontrols:
-            #    proj.controls[controlname] = newcontrols[controlname]
-            
+        pass           
         
     def _tree_view_change(self):
         logger.debug("Tree View changed")
