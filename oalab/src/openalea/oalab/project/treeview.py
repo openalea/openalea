@@ -124,13 +124,13 @@ class ProjectTreeView(QtGui.QTreeView):
 
     def create_menu_actions(self):
         self.newPyAction = QtGui.QAction('New Python Model',self)
-        QtCore.QObject.connect(self.newPyAction,QtCore.SIGNAL('triggered(bool)'),self.session.project_widget.newPython)
+        QtCore.QObject.connect(self.newPyAction,QtCore.SIGNAL('triggered(bool)'),self.session.project_manager.newPython)
         self.newLPyAction = QtGui.QAction('New L-System Model',self)
-        QtCore.QObject.connect(self.newLPyAction,QtCore.SIGNAL('triggered(bool)'),self.session.project_widget.newLpy)
+        QtCore.QObject.connect(self.newLPyAction,QtCore.SIGNAL('triggered(bool)'),self.session.project_manager.newLpy)
         self.newWFAction = QtGui.QAction('New Workflow Model',self)
-        QtCore.QObject.connect(self.newWFAction,QtCore.SIGNAL('triggered(bool)'),self.session.project_widget.newVisualea)
+        QtCore.QObject.connect(self.newWFAction,QtCore.SIGNAL('triggered(bool)'),self.session.project_manager.newVisualea)
         self.newRAction = QtGui.QAction('New R Model',self)
-        QtCore.QObject.connect(self.newRAction,QtCore.SIGNAL('triggered(bool)'),self.session.project_widget.newR)
+        QtCore.QObject.connect(self.newRAction,QtCore.SIGNAL('triggered(bool)'),self.session.project_manager.newR)
         
         self.addPyAction = QtGui.QAction('Import Python Model',self)
         QtCore.QObject.connect(self.addPyAction,QtCore.SIGNAL('triggered(bool)'),self._addPy)
@@ -264,7 +264,7 @@ class ProjectTreeView(QtGui.QTreeView):
             self.project.add_script(name, script)
           
             # TODO : Use signals !
-            self.session.project_widget._project_changed()
+            self.session.project_manager._project_changed()
 
     def _addLPy(self):
         """
@@ -278,7 +278,7 @@ class ProjectTreeView(QtGui.QTreeView):
             self.project.add_script(name, script)
           
             # TODO : Use signals !
-            self.session.project_widget._project_changed()
+            self.session.project_manager._project_changed()
             
     def _addR(self):
         """
@@ -292,7 +292,7 @@ class ProjectTreeView(QtGui.QTreeView):
             self.project.add_script(name, script)
           
             # TODO : Use signals !
-            self.session.project_widget._project_changed()
+            self.session.project_manager._project_changed()
 
     def _addWorkflow(self):
         """
@@ -306,7 +306,7 @@ class ProjectTreeView(QtGui.QTreeView):
             self.project.add_script(name, script)
           
             # TODO : Use signals !
-            self.session.project_widget._project_changed()
+            self.session.project_manager._project_changed()
 
     """
     def _newModel(self):
