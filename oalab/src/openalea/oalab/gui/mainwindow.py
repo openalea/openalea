@@ -49,7 +49,7 @@ class MainWindow(QtGui.QMainWindow):
         self.setWidgets(session)
         self.readSettings()     
         self.setSettingsInMenu()
-        
+
     def closeEvent(self, event):
         self.writeSettings()
         super(QtGui.QMainWindow, self).closeEvent(event)
