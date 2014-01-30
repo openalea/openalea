@@ -183,7 +183,7 @@ class Viewer(view3D):
         QtCore.QObject.connect(actionShowFps, QtCore.SIGNAL('triggered(bool)'),self.show_fps)
         
         QtCore.QObject.connect(session.scene.signaler, QtCore.SIGNAL('SceneChanged'),self.setScene)
-        QtCore.QObject.connect(session.scene.signaler, QtCore.SIGNAL('SceneChanged'),self.viewer.updateGL)        
+        QtCore.QObject.connect(session.scene.signaler, QtCore.SIGNAL('SceneChanged'),self.updateGL)        
         
         self._actions = ["3D View",[["Zoom",actionResetZoom,0],
                                     ["Zoom",actionZoomOut,0],
