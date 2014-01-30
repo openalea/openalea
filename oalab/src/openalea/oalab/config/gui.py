@@ -12,6 +12,8 @@ class MainWindowConfig(Configurable):
     shell_priority = List(['oalab:IPythonShell', 'oalab:BuiltinShell'], config=True, help="List of graphical Python interpreters, sorted by preference")
 
     project = Bool(True, config=True, help="Display project tree view")
+    
+    menu = Bool(True, config=True, help="Display menu bar")
 
 class MainConfig(Application):
     classes = List([MainWindowConfig])
