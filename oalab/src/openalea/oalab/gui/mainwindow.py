@@ -43,7 +43,7 @@ class MainWindow(QtGui.QMainWindow):
         if conf.exists():
             self._config.load_config_file(conf)
         else :
-            with conf.open() as f:
+            with conf.open('w') as f:
                 f.write(self._config.generate_config_file())
         
         self.setWidgets(session)
