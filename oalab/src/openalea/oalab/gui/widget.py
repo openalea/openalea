@@ -19,7 +19,7 @@ __revision__ = ""
 
 from openalea.oalab.gui.logger import Logger
 from openalea.oalab.applets.container import AppletContainer
-from openalea.oalab.project.widgets import ProjectWidget
+from openalea.oalab.project.widgets import ProjectManager
 # from openalea.oalab.scene.vplscene import SceneWidget
 from openalea.oalab.scene.view3d import Viewer
 from openalea.oalab.gui.help import Help
@@ -44,7 +44,7 @@ class WidgetABC:
         """
         return False    
 
-WidgetABC.register(ProjectWidget)
+WidgetABC.register(ProjectManager)
 # WidgetABC.register(SceneWidget)
 WidgetABC.register(ControlPanel)
 WidgetABC.register(ObserverPanel)

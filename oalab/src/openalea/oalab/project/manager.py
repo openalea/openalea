@@ -29,12 +29,12 @@ from openalea.vpltk.project.script import Scripts
 from openalea.lpy.gui.objectmanagers import get_managers
 from openalea.oalab.control.picklable_curves import geometry_2_piklable_geometry
             
-class ProjectManager(object):
+class ProjectManager(QtGui.QWidget):
     """
     Object which permit to manage projects.
     """
     def __init__(self, parent):
-        super(ProjectWidget, self).__init__() 
+        super(ProjectManager, self).__init__() 
         self.session = parent
         self.parent = self.session
 
