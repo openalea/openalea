@@ -102,14 +102,13 @@ class Session(object):
         self.connect_actions(self.viewer)
         self.connect_actions(self.help)
         self.connect_actions(self.store)        
-        # TODO:
-        # connect control
-        # connect observer
 
     def connect_actions(self, widget, menu=None):
         """
         Connect actions from 'widget' to 'menu'
         """
+        # TODO : add "show/hide widget" button in menu ribbon bar
+        # Maybe do it in mainwindow class to show/hide dockwidget and not widget in dock
         if not menu:
             menu = self.menu
         actions = widget.actions()

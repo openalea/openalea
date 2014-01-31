@@ -51,7 +51,7 @@ class Store(MainWindowAleaInstall):
         
         self.show = False
         self.session = session
-        self.actionShowHide = QtGui.QAction(QtGui.QIcon(":/images/resources/store.png"),"Show", self)
+        self.actionShowHide = QtGui.QAction(QtGui.QIcon(":/images/resources/store.png"),"Show/Hide", self)
         QtCore.QObject.connect(self.actionShowHide, QtCore.SIGNAL('triggered(bool)'),self.showhide)
         self._actions = ["Help",[["Package Store",self.actionShowHide,0]]]
 
@@ -59,14 +59,9 @@ class Store(MainWindowAleaInstall):
         """
         Show / Hide this widget
         """
-        if self.show:
-            self.session.storeDockWidget.hide()
-            self.show = False
-        else:
-            self.session.storeDockWidget.show()
-            self.session.storeDockWidget.raise_()
-            self.show = True 
-            
+        # TODO : do the "setVisible" on the dock widget and not on the widget inside the dock (cf mainwindow._dockwidgets["Store"])
+        self.setVisible(self.show)
+        self.show = not self.show
             
     def actions(self):
         """
