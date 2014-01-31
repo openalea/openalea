@@ -37,17 +37,13 @@ class Help(QtGui.QTextBrowser):
         actionHelpOpenAlea = QtGui.QAction(QtGui.QIcon(":/images/resources/openalealogo.png"),"OpenAlea", self)
         actionHelpGForge = QtGui.QAction(QtGui.QIcon(":/images/resources/gforge.png"),"Submit Bug", self)
         actionHelpTasks = QtGui.QAction(QtGui.QIcon(":/images/resources/gforge.png"),"See Tasks", self)
-        actionHelpIntranet = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/logo.png"),"Intranet", self)
         
         QtCore.QObject.connect(actionHelpOpenAlea, QtCore.SIGNAL('triggered(bool)'),self.openWebsiteOpenalea)
         QtCore.QObject.connect(actionHelpGForge, QtCore.SIGNAL('triggered(bool)'),self.openOALabBugs)
         QtCore.QObject.connect(actionHelpTasks, QtCore.SIGNAL('triggered(bool)'),self.openOALabTasks)
-        QtCore.QObject.connect(actionHelpIntranet, QtCore.SIGNAL('triggered(bool)'),self.openWebsiteIntranet)
         
         self._actions = ["Help",[["Website",actionHelpOpenAlea,0],
-                                    ["Website",actionHelpGForge,1],
-                                    ["Website",actionHelpTasks,1],
-                                    ["Website",actionHelpIntranet,1]]]
+                                    ["Website",actionHelpGForge,0]]]
         self.setText(default_text)                
 
     def actions(self):
@@ -55,9 +51,6 @@ class Help(QtGui.QTextBrowser):
     
     def openWebsiteOpenalea(self):
         self.openWeb('http://openalea.gforge.inria.fr/dokuwiki/doku.php')
-        
-    def openWebsiteIntranet(self):
-        self.openWeb('http://www-sop.inria.fr/virtualplants/wiki/doku.php?id=intranet:oalab')
         
     def openOALabBugs(self):
         self.openWeb('https://gforge.inria.fr/tracker/?func=add&group_id=79&atid=13823')    
