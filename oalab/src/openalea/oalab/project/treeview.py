@@ -433,7 +433,9 @@ class PrjctModel(QtGui.QStandardItemModel):
         ## TODO if you want to see all objects of the project
         
         if self.proj.is_project():
-            level0 = ["Models", "Controls", "Scene"]       
+            #level0 = ["Models", "Controls", "Scene"]
+            # TODO : add controls, scene, import, ...
+            level0 = ["Models"]
                                 
             for name in level0:
                 parentItem = self.invisibleRootItem()
