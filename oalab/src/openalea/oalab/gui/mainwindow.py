@@ -180,7 +180,7 @@ class MainWindow(QtGui.QMainWindow):
         self._dockWidget("Store", session.store, name="OpenAlea Store", position=QtCore.Qt.RightDockWidgetArea)
 
         session.control_panel.geometry_editor.setStatusBar(self.statusBar())
-        self._dockwidgets['Store'].hide()
+        self._dockwidgets['Store'].widget().hide()
 
         # Central Widget
         self.setCentralWidget(session.applet_container)
@@ -196,6 +196,8 @@ class MainWindow(QtGui.QMainWindow):
         self.tabifyDockWidget(self._dockwidgets['PackageCategories'], self._dockwidgets['Packages'])
         #self.tabifyDockWidget(self._dockwidgets['3DViewer'], self._dockwidgets['Store'])
         self.tabifyDockWidget(self._dockwidgets['Logger'], self._dockwidgets['Shell'])
+        
+        self._dockwidgets['Store'].setTitleBarWidget(QtGui.QWidget())
         
     def changeMenuTab(self, old, new):
         """
