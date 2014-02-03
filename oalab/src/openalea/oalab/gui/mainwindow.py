@@ -25,7 +25,7 @@ from openalea.core import logger
 from openalea.core.path import path
 from openalea.core.settings import get_openalea_home_dir
 
-from openalea.oalab.config.gui import MainConfig
+from openalea.oalab.config.gui import MainConfig, default_config_file
 
 class MainWindow(QtGui.QMainWindow):
     """
@@ -44,7 +44,11 @@ class MainWindow(QtGui.QMainWindow):
             self._config.load_config_file(conf)
         else :
             with conf.open('w') as f:
-                f.write(self._config.generate_config_file())
+                """
+                TODO : auto generate config file
+                """
+                # f.write(self._config.generate_config_file())
+                f.write(default_config_file)
         
         self.setWidgets(session)
         self.readSettings()     
@@ -169,10 +173,10 @@ class MainWindow(QtGui.QMainWindow):
         # Docks
         self._dockWidget("Project", session.project_layout_widget) # Project Manager
         self._dockWidget("Packages", session.package_manager_widget)
-        self._dockWidget("PkgCategories", session.package_manager_categorie_widget, name="Package Categories")
+        self._dockWidget("PackageCategories", session.package_manager_categorie_widget, name="Package Categories")
         self._dockWidget("PackageSearch", session.package_manager_search_widget, name="Package Search")
         self._dockWidget("ControlPanel", session.control_panel, name="Control Panel", position=QtCore.Qt.BottomDockWidgetArea)
-        self._dockWidget("3DViewer", session.viewer, name="3D Viewer", position=QtCore.Qt.RightDockWidgetArea)
+        self._dockWidget("Viewer3D", session.viewer, name="3D Viewer", position=QtCore.Qt.RightDockWidgetArea)
         self._dockWidget("Help", session.help, position=QtCore.Qt.BottomDockWidgetArea)
         self._dockWidget("Logger", session.logger, position=QtCore.Qt.BottomDockWidgetArea)
         self._dockWidget("Shell", session.shell, name="IPython Shell", position=QtCore.Qt.BottomDockWidgetArea)
@@ -191,8 +195,8 @@ class MainWindow(QtGui.QMainWindow):
         self.statusBar().showMessage("OALab is ready!", 10000)   
         
         # Tabify docks
-        self.tabifyDockWidget(self._dockwidgets['PackageSearch'], self._dockwidgets['PkgCategories'])
-        self.tabifyDockWidget(self._dockwidgets['PkgCategories'], self._dockwidgets['Packages'])
+        self.tabifyDockWidget(self._dockwidgets['PackageSearch'], self._dockwidgets['PackageCategories'])
+        self.tabifyDockWidget(self._dockwidgets['PackageCategories'], self._dockwidgets['Packages'])
         #self.tabifyDockWidget(self._dockwidgets['3DViewer'], self._dockwidgets['Store'])
         self.tabifyDockWidget(self._dockwidgets['Logger'], self._dockwidgets['Shell'])
         
