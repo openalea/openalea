@@ -20,6 +20,8 @@
 ###############################################################################
 __revision__ = ""
 
+import types
+
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core import logger
 from openalea.core.path import path
@@ -67,6 +69,7 @@ class MainWindow(QtGui.QMainWindow):
         self.setWidgets(session)
         self.readSettings()     
         self.setSettingsInMenu()
+        self.setShowDockInMenu()
 
     def closeEvent(self, event):
         self.writeSettings()
@@ -106,12 +109,15 @@ class MainWindow(QtGui.QMainWindow):
         
         class FakeWidget(object):
             def __init__(self, parent):
+                """
+                Use it to add features like setting widgets layout
+                """
                 super(FakeWidget, self).__init__()
                 self.mainwindow = parent
             def actions(self):
-                actionDefault = QtGui.QAction(QtGui.QIcon(":/images/resources/layout_blue.png"),"Default",self.mainwindow)
-                actionRestorePref = QtGui.QAction(QtGui.QIcon(":/images/resources/layout_green.png"),"Prefered",self.mainwindow)
-                actionSetPref = QtGui.QAction(QtGui.QIcon(":/images/resources/layout_red.png"),"Save pref",self.mainwindow)
+                actionDefault = QtGui.QAction(QtGui.QIcon(":/images/resources/layout_blue.png"),"Load Default",self.mainwindow)
+                actionRestorePref = QtGui.QAction(QtGui.QIcon(":/images/resources/layout_green.png"),"Load Prefered",self.mainwindow)
+                actionSetPref = QtGui.QAction(QtGui.QIcon(":/images/resources/layout_red.png"),"Save Prefered",self.mainwindow)
 
                 QtCore.QObject.connect(actionDefault, QtCore.SIGNAL('triggered(bool)'),self.mainwindow.defaultSettings)
                 QtCore.QObject.connect(actionRestorePref, QtCore.SIGNAL('triggered(bool)'),self.mainwindow.preferedSettings)
@@ -123,7 +129,30 @@ class MainWindow(QtGui.QMainWindow):
                 return _actions
                 
         settings = FakeWidget(parent=self)
-        self.session.connect_actions(settings)        
+        self.session.connect_actions(settings)       
+        
+    def setShowDockInMenu(self):
+        """
+        Use it to add show/hide dockwidget in menu
+        """
+        children = self.findChildren(QtGui.QDockWidget)
+        
+        for child in children:
+            name = child.windowTitle()
+            actionShow = QtGui.QAction(QtGui.QIcon(":/images/resources/layout_green.png"),name,self)
+            actionHide = QtGui.QAction(QtGui.QIcon(":/images/resources/layout_red.png"),name,self)
+            
+            QtCore.QObject.connect(actionShow, QtCore.SIGNAL('triggered(bool)'),child.show)
+            QtCore.QObject.connect(actionHide, QtCore.SIGNAL('triggered(bool)'),child.hide)
+            
+            child._actions = [["View","Show",actionShow,1],
+                             ["View","Hide",actionHide,1]]
+            def actions(self):
+                return self._actions
+            
+            child.actions = types.MethodType( actions, child)
+            self.session.connect_actions(child) 
+            
             
     def defaultSettings(self):
         """
@@ -196,7 +225,7 @@ class MainWindow(QtGui.QMainWindow):
         self._dockWidget("Store", session.store, name="OpenAlea Store", position=QtCore.Qt.RightDockWidgetArea)
 
         session.control_panel.geometry_editor.setStatusBar(self.statusBar())
-        self._dockwidgets['Store'].widget().hide()
+        self._dockwidgets['Store'].hide()
 
         # Central Widget
         self.setCentralWidget(session.applet_container)

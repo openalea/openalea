@@ -37,6 +37,7 @@ class ProjectManager(QtGui.QWidget):
         super(ProjectManager, self).__init__() 
         self.session = parent
         self.parent = self.session
+        self.setAccessibleName("Project Manager")
 
         self.projectManager = PM()
         self.scriptManager = Scripts()

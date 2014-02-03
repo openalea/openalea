@@ -33,6 +33,7 @@ class Help(QtGui.QTextBrowser):
     """
     def __init__(self):
         super(QtGui.QWidget, self).__init__() 
+        self.setAccessibleName("Help")
         
         actionHelpOpenAlea = QtGui.QAction(QtGui.QIcon(":/images/resources/openalealogo.png"),"OpenAlea", self)
         actionHelpGForge = QtGui.QAction(QtGui.QIcon(":/images/resources/gforge.png"),"Submit Bug", self)

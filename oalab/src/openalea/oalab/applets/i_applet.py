@@ -7,6 +7,8 @@ class IApplet(object):
     
     def __init__(self):
         pass
+        
+        # self.setAccessibleName("Editor")
        
     def actions(self):
         """

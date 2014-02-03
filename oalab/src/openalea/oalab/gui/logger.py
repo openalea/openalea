@@ -43,5 +43,6 @@ class Logger(LoggerView):
         logger.connect_loggers_to_handlers(logger.get_logger_names(), logger.get_handler_names())
         model = logger.LoggerOffice().get_handler("qt")
         super(Logger, self).__init__(parent=None,model=model)
+        self.setAccessibleName("Logger")
 
 

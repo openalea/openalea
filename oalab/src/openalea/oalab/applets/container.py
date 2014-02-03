@@ -38,6 +38,7 @@ class AppletContainer(QtGui.QTabWidget):
         self.setTabsClosable(True)
         self.setMinimumSize(100, 100)
         self.applets = list()
+        self.setAccessibleName("Container")
         
         self.actionSave = QtGui.QAction(QtGui.QIcon(":/images/resources/save.png"),"Save", self)
         self.actionRun = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/run.png"),"Run", self)

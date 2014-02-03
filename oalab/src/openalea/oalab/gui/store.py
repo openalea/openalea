@@ -42,6 +42,8 @@ class Store(MainWindowAleaInstall):
         oldstdout = sys.stdout
         oldstderr = sys.stderr
         super(Store, self).__init__()
+        
+        self.setAccessibleName("Store")
         # Restore stdout and stderr
         sys.stdout = oldstdout
         sys.stderr = oldstderr
@@ -51,17 +53,19 @@ class Store(MainWindowAleaInstall):
         
         self.show = False
         self.session = session
-        self.actionShowHide = QtGui.QAction(QtGui.QIcon(":/images/resources/store.png"),"Show/Hide", self)
-        QtCore.QObject.connect(self.actionShowHide, QtCore.SIGNAL('triggered(bool)'),self.showhide)
-        self._actions = [["Help","Package Store",self.actionShowHide,0]]
+        #self.actionShowHide = QtGui.QAction(QtGui.QIcon(":/images/resources/store.png"),"Show/Hide", self)
+        #QtCore.QObject.connect(self.actionShowHide, QtCore.SIGNAL('triggered(bool)'),self.showhide)
+        #self._actions = [["Help","Package Store",self.actionShowHide,0]]
+        self._actions = None
 
+    '''
     def showhide(self):
         """
         Show / Hide this widget
         """
         # TODO : do the "setVisible" on the dock widget and not on the widget inside the dock (cf mainwindow._dockwidgets["Store"])
         self.setVisible(self.show)
-        self.show = not self.show
+        self.show = not self.show'''
             
     def actions(self):
         """
