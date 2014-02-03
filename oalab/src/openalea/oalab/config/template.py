@@ -127,7 +127,7 @@ c.MainWindowConfig.help = False
 c.MainWindowConfig.viewer3d = False
 
 # Display menu bar
-c.MainWindowConfig.menu = False
+c.MainWindowConfig.menu = True
 
 # Display project tree view
 c.MainWindowConfig.project = False
