@@ -39,7 +39,7 @@ class OALab(QtGui.QApplication):
         #self.setStyle('cleanlooks')
         # -- main window --
         session = Session()
-        self.win = MainWindow(session)
+        self.win = MainWindow(session, args)
         self.win.setMinimumSize(800,400)
         self.win.showMaximized()
         self.win.setWindowTitle("OpenAlea Laboratory")

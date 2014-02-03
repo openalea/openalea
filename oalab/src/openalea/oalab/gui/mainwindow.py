@@ -25,13 +25,14 @@ from openalea.core import logger
 from openalea.core.path import path
 from openalea.core.settings import get_openalea_home_dir
 
-from openalea.oalab.config.gui import MainConfig, default_config_file
+from openalea.oalab.config.gui import MainConfig
+from openalea.oalab.config.template import config_file_default, config_file_mini, config_file_3d, config_file_tissue, config_file_plant
 
 class MainWindow(QtGui.QMainWindow):
     """
     Main Window Class
     """
-    def __init__(self, session):
+    def __init__(self, session, args=None):
         super(QtGui.QMainWindow, self).__init__()
         self.session = session
         
@@ -40,13 +41,28 @@ class MainWindow(QtGui.QMainWindow):
         self._config.initialize()
 
         conf = path(get_openalea_home_dir()) / 'oalab.cfg'
-        if conf.exists():
-            self._config.load_config_file(conf)
-        else:
+
+        if "-e" or "--extension" in args:
+            extension = args[-1]
+            if extension in ["mini", "3d", "tissue", "plant"]:
+                conf = path(get_openalea_home_dir()) / ('oalab_' + extension + '.cfg')
+
+        if not conf.exists():
             with conf.open('w') as f:
                 # TODO : auto generate config file
                 # f.write(self._config.generate_config_file())
-                f.write(default_config_file)
+                if extension == "mini":
+                    f.write(config_file_mini)
+                elif extension == "3d":
+                    f.write(config_file_3d)
+                elif extension == "tissue":
+                    f.write(config_file_tissue)
+                elif extension == "plant":
+                    f.write(config_file_plant)
+                else:
+                    f.write(config_file_default)
+        
+        self._config.load_config_file(conf)
         
         self.setWidgets(session)
         self.readSettings()     
