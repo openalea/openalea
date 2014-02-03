@@ -121,7 +121,7 @@ c.MainWindowConfig.packages = False
 c.MainWindowConfig.controlpanel = False
 
 # Display Help widget
-c.MainWindowConfig.help = False
+c.MainWindowConfig.help = True
 
 # Display 3D Viewer
 c.MainWindowConfig.viewer3d = False
