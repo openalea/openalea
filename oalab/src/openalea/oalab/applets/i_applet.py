@@ -16,9 +16,7 @@ class IApplet(object):
         Example::
         
             def actions(self):
-                return self._actions = ["Python IDE", [
-                                           ["Text Edit", self.actionUndo,0],
-                                           ["Text Edit", self.actionRedo,0]
+                return self._actions = [["Python IDE","Text Edit", self.actionUndo,0],
+                                        ["Python IDE","Text Edit", self.actionRedo,0]
                                        ]
-                                    ]
         """

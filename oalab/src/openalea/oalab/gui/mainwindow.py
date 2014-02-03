@@ -101,9 +101,9 @@ class MainWindow(QtGui.QMainWindow):
                 QtCore.QObject.connect(actionRestorePref, QtCore.SIGNAL('triggered(bool)'),self.mainwindow.preferedSettings)
                 QtCore.QObject.connect(actionSetPref, QtCore.SIGNAL('triggered(bool)'),self.mainwindow.registerPreferedSettings)
                 
-                _actions = ["Help",[["Window Layout",actionDefault,1],
-                                    ["Window Layout",actionRestorePref,1],
-                                    ["Window Layout",actionSetPref,1]]]
+                _actions = [["Help","Window Layout",actionDefault,1],
+                            ["Help","Window Layout",actionRestorePref,1],
+                            ["Help","Window Layout",actionSetPref,1]]
                 return _actions
                 
         settings = FakeWidget(parent=self)

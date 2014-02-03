@@ -88,19 +88,19 @@ class AppletContainer(QtGui.QTabWidget):
         
         self.actionStop.setEnabled(False)
         
-        self._actions = ["Simulation",[["Play",self.actionRun,0],
-                                    ["Play",self.actionAnimate,0],
-                                    ["Play",self.actionStep,0],
-                                    ["Play",self.actionStop,0],
-                                    ["Play",self.actionInit,0],
-                                    ["Text Edit",self.actionSave,0], 
-                                    ["Text Edit",self.actionUndo,1],
-                                    ["Text Edit",self.actionRedo,1],
-                                    ["Text Edit",self.actionRunSelection,0], 
-                                    ["Text Edit",self.actionSearch,1],
-                                    ["Text Edit",self.actionGoto,1],          
-                                    ["Text Edit",self.actionComment,1],
-                                    ["Text Edit",self.actionUnComment,1]]]
+        self._actions = [["Simulation","Play",self.actionRun,0],
+                         ["Simulation","Play",self.actionAnimate,0],
+                         ["Simulation","Play",self.actionStep,0],
+                         ["Simulation","Play",self.actionStop,0],
+                         ["Simulation","Play",self.actionInit,0],
+                         ["Simulation","Text Edit",self.actionSave,0], 
+                         ["Simulation","Text Edit",self.actionUndo,1],
+                         ["Simulation","Text Edit",self.actionRedo,1],
+                         ["Simulation","Text Edit",self.actionRunSelection,0], 
+                         ["Simulation","Text Edit",self.actionSearch,1],
+                         ["Simulation","Text Edit",self.actionGoto,1],          
+                         ["Simulation","Text Edit",self.actionComment,1],
+                         ["Simulation","Text Edit",self.actionUnComment,1]]
                                     
         QtCore.QObject.connect(self, QtCore.SIGNAL('tabCloseRequested(int)'),self.autoClose)
 

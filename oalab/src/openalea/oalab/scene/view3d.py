@@ -185,13 +185,13 @@ class Viewer(view3D):
         QtCore.QObject.connect(session.scene.signaler, QtCore.SIGNAL('SceneChanged'),self.setScene)
         QtCore.QObject.connect(session.scene.signaler, QtCore.SIGNAL('SceneChanged'),self.updateGL)        
         
-        self._actions = ["3D View",[["Zoom",actionResetZoom,0],
-                                    ["Zoom",actionZoomOut,0],
-                                    ["Zoom",actionZoomIn,0],
-                                    ["Camera",actionShowAxis,1],
-                                    ["Camera",actionShowGrid,1],
-                                    ["Camera",actionRadius,1],
-                                    ["Informations",actionShowFps,1]]]
+        self._actions = [["3D View","Zoom",actionResetZoom,0],
+                        ["3D View","Zoom",actionZoomOut,0],
+                        ["3D View","Zoom",actionZoomIn,0],
+                        ["3D View","Camera",actionShowAxis,1],
+                        ["3D View","Camera",actionShowGrid,1],
+                        ["3D View","Camera",actionRadius,1],
+                        ["3D View","Informations",actionShowFps,1]]
 
     def actions(self):
         return self._actions

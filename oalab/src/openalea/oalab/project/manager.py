@@ -71,15 +71,15 @@ class ProjectManager(QtGui.QWidget):
         
         QtCore.QObject.connect(self.actionImportFile, QtCore.SIGNAL('triggered(bool)'),self.importFile)
         
-        self._actions = ["Project",[["Manage Project",self.actionNewProj,0],
-                                    ["Manage Project",self.actionOpenProj,0],
-                                    ["Manage Project",self.actionSaveProj,0],
-                                    ["Manage Project",self.actionCloseProj,0],
-                                    ["New Model",self.actionNewPython,0],
-                                    ["New Model",self.actionNewR,0],
-                                    ["New Model",self.actionNewLPy,0],
-                                    ["New Model",self.actionNewWorkflow,0],
-                                    ["New Model",self.actionImportFile,0]]]
+        self._actions = [["Project","Manage Project",self.actionNewProj,0],
+                         ["Project","Manage Project",self.actionOpenProj,0],
+                         ["Project","Manage Project",self.actionSaveProj,0],
+                         ["Project","Manage Project",self.actionCloseProj,0],
+                         ["Model","New Model",self.actionNewPython,0],
+                         ["Model","New Model",self.actionNewR,0],
+                         ["Model","New Model",self.actionNewLPy,0],
+                         ["Model","New Model",self.actionNewWorkflow,0],
+                         ["Model","New Model",self.actionImportFile,0]]
 
         self._project_changed()
 
