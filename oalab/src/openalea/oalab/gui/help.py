@@ -20,12 +20,27 @@ __revision__ = ""
 from openalea.vpltk.qt import QtGui, QtCore
 import webbrowser
 
+default_text2 = """
+<H1>Welcome in OpenAleaLab.</H1>
+
+To begin, <b>choose your lab</b> or open an existing file or project:
+<ul>
+<li>  <b>MiniLab</b> is a minimal environnement with only a text editor and a shell.</li>
+<li>  <b>3DLab</b> is an environnement to work on 3D Objects.</li>
+<li>  <b>PlantLab</b> is an environnement to work on entire plant.</li>
+<li>  <b>TissueLab</b>is an environnement to work on tissue part of plants.</li>
+<li>  Open an existing project.</li>
+<li>  Restore previous session.</li>
+</ul>
+"""
+
 default_text = """
 <H1>Welcome in OpenAleaLab.</H1>
 
 To begin, create or open an existing file or project.
 """
 
+        
 class Help(QtGui.QTextBrowser):
     """
     Widget which permit to display informations/help.

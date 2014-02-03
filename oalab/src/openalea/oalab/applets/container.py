@@ -491,3 +491,66 @@ class WelcomePage(QtGui.QWidget):
             #self.session.project_manager.importFile(filename=fname, extension="*.py")
             logger.debug("Restore previous session. (scripts)")
 
+class WelcomePage2(QtGui.QWidget):
+    """
+    Welcome page in the applet container.
+    Permit to open an existing project,
+    or to create a new one,
+    or to work on scripts outside projects.
+    """
+    def __init__(self, session, parent=None):
+        super(WelcomePage2, self).__init__()
+        
+        self.session = session
+        layout = QtGui.QGridLayout()
+        layout.setAlignment(QtCore.Qt.AlignCenter)
+
+        minilab = QtGui.QPushButton(QtGui.QIcon(":/images/resources/openalealogo.png"),"MiniLab")
+        messageminilab = QtGui.QLabel("MiniLab is a minimal environnement with only a text editor and a shell.")
+        lab3d = QtGui.QPushButton(QtGui.QIcon(":/images/resources/openalealogo.png"),"3DLab")
+        messagelab3d = QtGui.QLabel("3DLab is an environnement to work on 3D Objects.")
+        plantlab = QtGui.QPushButton(QtGui.QIcon(":/images/resources/openalealogo.png"),"PlantLab")
+        messageplantlab = QtGui.QLabel("PlantLab is an environnement to work on entire plant.")
+        tissuelab = QtGui.QPushButton(QtGui.QIcon(":/images/resources/openalealogo.png"),"TissueLab")
+        messagetissuelab = QtGui.QLabel("TissueLab is an environnement to work on tissue part of plants.")
+        openproject = QtGui.QPushButton(QtGui.QIcon(":/images/resources/open.png"),"Open Project")
+        messageopenproject = QtGui.QLabel("Open an existing project.")
+        restoresession = QtGui.QPushButton(QtGui.QIcon(":/images/resources/open.png"),"Restore Session")
+        messagerestoresession = QtGui.QLabel("Restore previous session.")
+                
+        
+        layout.addWidget(minilab,0,0)
+        #layout.addWidget(messageminilab,0,1)
+        layout.addWidget(lab3d,0,1)
+        #layout.addWidget(messagelab3d,1,1)
+        layout.addWidget(plantlab,2,0)
+        #layout.addWidget(messageplantlab,2,1)
+        layout.addWidget(tissuelab,2,1)
+        #layout.addWidget(messagetissuelab,3,1)
+        layout.addWidget(openproject,4,0)
+        #layout.addWidget(messageopenproject,4,1)
+        layout.addWidget(restoresession,4,1)
+        #layout.addWidget(messagerestoresession,5,1)
+        
+        self.setLayout(layout)
+
+        # fake methods, like if we have a real applet
+        class FakeApplet(object):
+            def __init__(self):
+                self.name = "welcome_page"
+            def focus_change(self):
+                pass
+            def run(self):
+                pass
+            def animate(self):
+                pass
+            def step(self):
+                pass
+            def stop(self):
+                pass
+            def reinit(self):
+                pass
+        self.applet = FakeApplet()        
+    
+        logger.debug("Open Welcome Page")
+
