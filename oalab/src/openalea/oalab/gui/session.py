@@ -24,6 +24,7 @@ from openalea.oalab.gui.help import Help
 from openalea.oalab.scene.view3d import Viewer
 from openalea.oalab.gui.menu import PanedMenu
 from openalea.vpltk.shell.shell import get_interpreter_class, get_shell_class
+from openalea.vpltk.qt import QtGui, QtCore
 from openalea.oalab.applets.container import AppletContainer
 from openalea.oalab.scene.vplscene import VPLScene
 from openalea.oalab.project.manager import ProjectManager

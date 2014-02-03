@@ -155,6 +155,8 @@ class Viewer(view3D):
     def __init__(self, session):
         super(Viewer, self).__init__() 
         
+        self.setAccessibleName("3DViewer")
+        
         self.autofocus = True
         self._fps = False
         self.axis = False

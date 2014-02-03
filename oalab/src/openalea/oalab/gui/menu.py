@@ -40,6 +40,7 @@ class PanedMenu(QtGui.QTabWidget):
     """
     def __init__(self, parent=None):
         super(QtGui.QTabWidget, self).__init__() 
+        self.setAccessibleName("Menu")
         self.setMinimumSize(1,120)
         self.setMaximumSize(10000,120)
         self.tab_name = list()
