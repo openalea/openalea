@@ -42,8 +42,8 @@ class Help(QtGui.QTextBrowser):
         QtCore.QObject.connect(actionHelpGForge, QtCore.SIGNAL('triggered(bool)'),self.openOALabBugs)
         QtCore.QObject.connect(actionHelpTasks, QtCore.SIGNAL('triggered(bool)'),self.openOALabTasks)
         
-        self._actions = ["Help",[["Website",actionHelpOpenAlea,0],
-                                    ["Website",actionHelpGForge,0]]]
+        self._actions = [["Help","Website",actionHelpOpenAlea,0],
+                         ["Help","Website",actionHelpGForge,0]]
         self.setText(default_text)                
 
     def actions(self):

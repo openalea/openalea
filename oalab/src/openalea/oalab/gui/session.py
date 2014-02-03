@@ -113,11 +113,9 @@ class Session(object):
             menu = self.menu
         actions = widget.actions()
         
-        if actions is not None:
-            pane_name = actions[0]
-            actions = actions[1]
+        if actions:
             for action in actions:
-                menu.addBtnByAction(pane_name=pane_name, group_name=action[0], action=action[1],btn_type=action[2])
+                menu.addBtnByAction(pane_name=action[0], group_name=action[1], action=action[2],btn_type=action[3])
 
     @property
     def project(self):

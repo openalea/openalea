@@ -53,7 +53,7 @@ class Store(MainWindowAleaInstall):
         self.session = session
         self.actionShowHide = QtGui.QAction(QtGui.QIcon(":/images/resources/store.png"),"Show/Hide", self)
         QtCore.QObject.connect(self.actionShowHide, QtCore.SIGNAL('triggered(bool)'),self.showhide)
-        self._actions = ["Help",[["Package Store",self.actionShowHide,0]]]
+        self._actions = [["Help","Package Store",self.actionShowHide,0]]
 
     def showhide(self):
         """
