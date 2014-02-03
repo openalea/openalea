@@ -42,12 +42,10 @@ class MainWindow(QtGui.QMainWindow):
         conf = path(get_openalea_home_dir()) / 'oalab.cfg'
         if conf.exists():
             self._config.load_config_file(conf)
-        else :
+        else:
             with conf.open('w') as f:
-                """
-                TODO : auto generate config file
-                """
-                # f.write(self._config.generate_config_file())
+                # TODO : auto generate config file
+                # f.write(self._config.generate_config_file())
                 f.write(default_config_file)
         
         self.setWidgets(session)
@@ -77,17 +75,16 @@ class MainWindow(QtGui.QMainWindow):
         registered settings (geometry and window state)
         """
         settings = QtCore.QSettings("OpenAlea", "OpenAleaLaboratory")
-        '''
+
         try:
             self.restoreGeometry(settings.value("geometry"))
-            self.restoreState(settings.value("windowState"))
+            # self.restoreState(settings.value("windowState"))
         except:
             # if you launch application for the first time,
             # it will save the default state
             settings.setValue("defaultGeometry", self.saveGeometry())
-            settings.setValue("defaultWindowState", self.saveState())
+            # settings.setValue("defaultWindowState", self.saveState())
             logger.warning("Can t restore session")
-        '''
             
     def setSettingsInMenu(self):
         
