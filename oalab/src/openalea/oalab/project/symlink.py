@@ -19,6 +19,7 @@ __revision__ = ""
 
 import os
 from openalea.core.settings import get_project_dir
+from openalea.core.path import path
 from openalea.deploy.shared_data import shared_data
 from openalea import oalab
 
@@ -48,4 +49,7 @@ def create_project_shortcut():
     """
     project_dir = get_project_dir()
     oalab_dir = shared_data(oalab)
-    symlink(oalab_dir,project_dir+"/oalab_examples")
+    
+    project_link_name = path(project_dir)/"oalab_examples"
+    if not project_link_name.exists():
+        symlink(oalab_dir,project_link_name)
