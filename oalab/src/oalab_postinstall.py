@@ -7,7 +7,9 @@ def install():
     from openalea.deploy import get_base_dir
     import sys
     from os.path import join as pj
+    
     from openalea.oalab.project.symlink import create_project_shortcut
+    create_project_shortcut()
 
     # Get the location of the installed egg
     base_dir = get_base_dir('openalea.oalab')
@@ -26,7 +28,7 @@ def install():
                         description = "OpenAlea Laboratory",
                         menugroup = "OpenAlea")
                         
-    create_project_shortcut()
+    
 
 def uninstall():
     pass

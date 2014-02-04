@@ -61,7 +61,7 @@ setup(
     package_dir= package_dir,
 
     # Namespace packages creation by deploy
-    py_modules = ['openalealab_postinstall'],
+    py_modules = ['oalab_postinstall'],
     #namespace_packages = [namespace],
     #create_namespaces = False,
     zip_safe= False,
@@ -79,7 +79,7 @@ setup(
     # alternatively to global inclusion, list the file to include   
     #package_data = {'' : ['*.pyd', '*.so'],},
 
-    postinstall_scripts = ['openalealab_postinstall'],
+    postinstall_scripts = ['oalab_postinstall'],
     share_dirs = { 'share' : 'share' },
     
     # Declare scripts and wralea as entry_points (extensions) of your package 
@@ -87,8 +87,8 @@ setup(
         'gui_scripts': ['oalab = openalea.oalab.main:main',
 						'openalealab = openalea.oalab.main:main'],
         'oalab.control': ['IntControl = openalea.oalab.control.stdcontrol:IntControl',
-            'BoolControl = openalea.oalab.control.stdcontrol:BoolControl',
-            'FloatControl = openalea.oalab.control.stdcontrol:FloatControl'],
+                          'BoolControl = openalea.oalab.control.stdcontrol:BoolControl',
+                          'FloatControl = openalea.oalab.control.stdcontrol:FloatControl'],
         #'console_scripts': [
         #       'fake_script = openalea.fakepackage.amodule:console_script', ],
         # 'gui_scripts': [
