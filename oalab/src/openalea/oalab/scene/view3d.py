@@ -187,13 +187,13 @@ class Viewer(view3D):
         QtCore.QObject.connect(session.scene.signaler, QtCore.SIGNAL('SceneChanged'),self.setScene)
         QtCore.QObject.connect(session.scene.signaler, QtCore.SIGNAL('SceneChanged'),self.updateGL)        
         
-        self._actions = [["3D View","Zoom",actionResetZoom,0],
-                        ["3D View","Zoom",actionZoomOut,0],
-                        ["3D View","Zoom",actionZoomIn,0],
-                        ["3D View","Camera",actionShowAxis,1],
-                        ["3D View","Camera",actionShowGrid,1],
-                        ["3D View","Camera",actionRadius,1],
-                        ["3D View","Informations",actionShowFps,1]]
+        self._actions = [["3D Viewer","Zoom",actionResetZoom,0],
+                        ["3D Viewer","Zoom",actionZoomOut,0],
+                        ["3D Viewer","Zoom",actionZoomIn,0],
+                        ["3D Viewer","Camera",actionShowAxis,1],
+                        ["3D Viewer","Camera",actionShowGrid,1],
+                        ["3D Viewer","Camera",actionRadius,1],
+                        ["3D Viewer","Informations",actionShowFps,1]]
 
     def actions(self):
         return self._actions
@@ -228,7 +228,7 @@ class Viewer(view3D):
         :return: Name of menu tab to automatically set current when current widget
         begin current.
         """
-        return "3D View"  
+        return "3D Viewer"  
 
     def show_hide_axis(self):
         if self.axis:

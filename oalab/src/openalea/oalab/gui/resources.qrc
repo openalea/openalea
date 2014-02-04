@@ -41,6 +41,8 @@
         <file>resources/layout_blue.png</file>
         <file>resources/layout_green.png</file>
         <file>resources/layout_red.png</file>
+        <file>resources/hide.png</file>
+        <file>resources/show.png</file>
     </qresource>
     <qresource prefix="/lpy_images">
         <file>resources/lpy/book.png</file>

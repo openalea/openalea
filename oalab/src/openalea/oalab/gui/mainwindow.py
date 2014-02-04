@@ -139,8 +139,8 @@ class MainWindow(QtGui.QMainWindow):
         
         for child in children:
             name = child.windowTitle()
-            actionShow = QtGui.QAction(QtGui.QIcon(":/images/resources/layout_green.png"),name,self)
-            actionHide = QtGui.QAction(QtGui.QIcon(":/images/resources/layout_red.png"),name,self)
+            actionShow = QtGui.QAction(QtGui.QIcon(":/images/resources/show.png"),name,self)
+            actionHide = QtGui.QAction(QtGui.QIcon(":/images/resources/hide.png"),name,self)
             
             QtCore.QObject.connect(actionShow, QtCore.SIGNAL('triggered(bool)'),child.show)
             QtCore.QObject.connect(actionHide, QtCore.SIGNAL('triggered(bool)'),child.hide)
