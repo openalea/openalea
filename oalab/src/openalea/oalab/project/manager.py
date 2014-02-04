@@ -221,6 +221,8 @@ class ProjectManager(QtGui.QWidget):
         self._project_changed()
         self._load_control()
         
+        self.session.applet_container.addCreateFileTab()
+        
     def newPython(self):       
         if self.session.current_is_project():
             tab_name = "script.py"

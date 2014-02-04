@@ -125,10 +125,18 @@ class AppletContainer(QtGui.QTabWidget):
     
     def addDefaultTab(self):
         """
-        Display a welcom tab if nothing is opened
+        Display a welcome tab if nothing is opened
         """
         welcomePage = WelcomePage(session = self.session)
         self.addTab(welcomePage, "Welcome")
+        
+    def addCreateFileTab(self):
+        """
+        Display a tab to select type of file that you can create
+        """
+        page = CreateFilePage(session = self.session)
+        self.addTab(page, "Create File")
+        self.rmDefaultTab()
         
     def rmDefaultTab(self):
         """
@@ -136,6 +144,14 @@ class AppletContainer(QtGui.QTabWidget):
         """
         for i in range(self.count()):
             if self.tabText(i) == "Welcome":
+                self.removeTab(i)
+                
+    def rmCreateFileTab(self):
+        """
+        Remove the welcome tab
+        """
+        for i in range(self.count()):
+            if self.tabText(i) == "Create File":
                 self.removeTab(i)
     
     def reset(self):
@@ -163,6 +179,7 @@ class AppletContainer(QtGui.QTabWidget):
         """
         logger.debug("New tab. Type: " + applet_type + ". Name: " + tab_name)
         self.rmDefaultTab()
+        self.rmCreateFileTab()
         
         # TODO : permit to add more than one script...
         # existing_tabs = list()
@@ -327,7 +344,85 @@ class AppletContainer(QtGui.QTabWidget):
             logger.debug("Goto " + self.currentWidget().applet.name)
         except:
             logger.warning("Can't use method Goto in " + self.currentWidget().applet.name)
-            
+
+
+class CreateFilePage(QtGui.QWidget):
+    """
+    Welcome page in the applet container.
+    Permit to open an existing project,
+    or to create a new one,
+    or to work on scripts outside projects.
+    """
+    def __init__(self, session, parent=None):
+        super(CreateFilePage, self).__init__()
+        
+        self.session = session
+        layout = QtGui.QGridLayout()
+        layout.setAlignment(QtCore.Qt.AlignCenter)
+        
+        max_size = QtCore.QSize(100,80)
+        min_size = QtCore.QSize(100,80)
+              
+        text = QtGui.QLabel("Select type of file to add:")
+        newPython = QtGui.QToolButton()
+        newPython.setDefaultAction(self.session.project_manager.actionNewPython)
+        newPython.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
+        #newPython.setMaximumSize(max_size)  
+        newPython.setMinimumSize(min_size)         
+        newR = QtGui.QToolButton()
+        newR.setDefaultAction(self.session.project_manager.actionNewR)
+        newR.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
+        #newR.setMaximumSize(max_size)  
+        newR.setMinimumSize(min_size) 
+        newLPy = QtGui.QToolButton()
+        newLPy.setDefaultAction(self.session.project_manager.actionNewLPy)
+        newLPy.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
+        #newLPy.setMaximumSize(max_size)  
+        newLPy.setMinimumSize(min_size)         
+        newWorkflow = QtGui.QToolButton()
+        newWorkflow.setDefaultAction(self.session.project_manager.actionNewWorkflow)
+        newWorkflow.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
+        #newWorkflow.setMaximumSize(max_size)  
+        newWorkflow.setMinimumSize(min_size)       
+        text2 = QtGui.QLabel("You can add a file from your computer:")  
+        importFile = QtGui.QToolButton()
+        importFile.setDefaultAction(self.session.project_manager.actionImportFile)
+        importFile.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
+        #importFile.setMaximumSize(max_size)  
+        importFile.setMinimumSize(min_size)         
+        
+        layout.addWidget(text,0,0)
+        layout.addWidget(newPython,1,0)
+        layout.addWidget(newLPy,2,0)
+        layout.addWidget(newWorkflow,1,1)
+        layout.addWidget(newR,2,1)
+        layout.addWidget(text2,3,0)
+        layout.addWidget(importFile,4,0,4,2)
+        
+        self.setLayout(layout)
+
+        # fake methods, like if we have a real applet
+        class FakeApplet(object):
+            def __init__(self):
+                self.name = "create_file_page"
+            def focus_change(self):
+                pass
+            def run(self):
+                pass
+            def animate(self):
+                pass
+            def step(self):
+                pass
+            def stop(self):
+                pass
+            def reinit(self):
+                pass
+        self.applet = FakeApplet()        
+    
+        logger.debug("Open create_file Page")
+
+
+
 class WelcomePage(QtGui.QWidget):
     """
     Welcome page in the applet container.
