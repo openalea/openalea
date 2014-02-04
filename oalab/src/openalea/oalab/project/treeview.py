@@ -141,8 +141,8 @@ class ProjectTreeView(QtGui.QTreeView):
         self.addRAction = QtGui.QAction('Import R Model',self)
         QtCore.QObject.connect(self.addRAction,QtCore.SIGNAL('triggered(bool)'),self._addR)  
                 
-        #self.renameAction = QtGui.QAction('Rename',self)
-        #QtCore.QObject.connect(self.renameAction,QtCore.SIGNAL('triggered(bool)'),self.renameSelection)
+        self.renameAction = QtGui.QAction('Rename Project',self)
+        QtCore.QObject.connect(self.renameAction,QtCore.SIGNAL('triggered(bool)'),self.renameProject)
         
 ##        # actions on Models
 ##        self.newAction = QtGui.QAction('New Model',self)
@@ -184,8 +184,8 @@ class ProjectTreeView(QtGui.QTreeView):
         menu.addAction(self.addLPyAction)
         menu.addAction(self.addWFAction)   
         menu.addAction(self.addRAction)   
-        #menu.addSeparator()
-        #menu.addAction(self.renameAction)  
+        menu.addSeparator()
+        menu.addAction(self.renameAction)  
         
         
 ##        menu.addAction(self.newAction)
@@ -217,6 +217,16 @@ class ProjectTreeView(QtGui.QTreeView):
                 my_path, format)
         return fname
 
+    def renameProject(self):
+        """
+        Rename current project
+        """
+        if self.session.current_is_project():
+            name = self.session.project.name
+            new_name = self.session.project_manager.showNewProjectDialog(default_name=path(name)/"..", text='Select new name to save project')
+            self.session.project.rename(categorie="project", old_name="name", new_name=new_name)
+        else:
+            print("This is not a project, so you can't use 'rename project'")
 
     #def renameSelection(self):
         #""" rename an object in the list """

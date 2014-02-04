@@ -163,7 +163,11 @@ class AppletContainer(QtGui.QTabWidget):
             self.removeTab(0)
             del wid
         self.clear()
-        self.addDefaultTab()
+        
+        if self.session.project:
+            self.addCreateFileTab()
+        else:
+            self.addDefaultTab()
     
     def openTab(self, applet_type, tab_name, script):
         """
@@ -391,13 +395,13 @@ class CreateFilePage(QtGui.QWidget):
         #importFile.setMaximumSize(max_size)  
         importFile.setMinimumSize(min_size)         
         
-        layout.addWidget(text,0,0)
+        layout.addWidget(text,0,0,1,-1)
         layout.addWidget(newPython,1,0)
         layout.addWidget(newLPy,2,0)
         layout.addWidget(newWorkflow,1,1)
         layout.addWidget(newR,2,1)
-        layout.addWidget(text2,3,0)
-        layout.addWidget(importFile,4,0,4,2)
+        layout.addWidget(text2,3,0,1,-1)
+        layout.addWidget(importFile,4,0,1,-1)
         
         self.setLayout(layout)
 

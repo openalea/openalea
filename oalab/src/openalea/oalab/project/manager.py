@@ -85,11 +85,13 @@ class ProjectManager(QtGui.QWidget):
         self._project_changed()
 
            
-    def showNewProjectDialog(self, default_name=None):
+    def showNewProjectDialog(self, default_name=None, text=None):
         my_path = path(settings.get_project_dir())
         if default_name:
             my_path = my_path/default_name
-        fname = QtGui.QFileDialog.getSaveFileName(self, 'Select name to create project', 
+        if not text:
+            text = 'Select name to create project'
+        fname = QtGui.QFileDialog.getSaveFileName(self, text, 
                 my_path)
         return fname       
             
