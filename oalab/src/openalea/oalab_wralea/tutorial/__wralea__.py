@@ -4,7 +4,7 @@
 from openalea.core import *
 
 
-__name__ = 'oalab.tutorial'
+__name__ = 'openalea.oalab.tutorial'
 
 __editable__ = True
 __description__ = ''
@@ -33,8 +33,8 @@ caribu = CompositeNodeFactory(name='caribu',
    5: ('alinea.caribu', 'Caribu'),
    6: ('alinea.caribu', 'selectOutput'),
    7: ('alinea.caribu.visualisation', 'ViewMapOnCan'),
-   8: ('OALab', 'scene reader'),
-   9: ('OALab', 'scene writer')},
+   8: ('openalea.OALab', 'scene reader'),
+   9: ('openalea.OALab', 'scene writer')},
                              elt_connections={  4298191808: (3, 0, 4, 1),
    4298191832: (2, 2, 3, 1),
    4298191856: (2, 0, 3, 0),
