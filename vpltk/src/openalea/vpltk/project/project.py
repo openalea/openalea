@@ -172,9 +172,9 @@ class Project(object):
     #---------------------------------------- 
     def rename(self, categorie, old_name, new_name):
         """
-        Rename a script, a scene or a control in the project
+        Rename a script, a scene or a control in the project. Can rename the project too.
         
-        :param categorie: Can be "script", "control" or "scene" (str)
+        :param categorie: Can be "script", "control", "scene" or "project" (str)
         :param old_name: current name of thing to rename (str)
         :param new_name: futur name of thing to rename (str)
         """
@@ -221,6 +221,15 @@ class Project(object):
             except:
                 pass
             os.chdir(cwd) 
+            
+        if (categorie == "project"):
+            self.name = new_name
+            self.save()
+            try:
+                (self.path/old_name).removedirs()
+            except:
+                pass
+            
             
     def load(self):
         self.scripts = self._load("scripts")
