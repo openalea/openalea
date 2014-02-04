@@ -97,4 +97,6 @@ setup(
         },
     )
 
+from openalea.oalab.project.symlink import create_project_shortcut
+create_project_shortcut()
 
