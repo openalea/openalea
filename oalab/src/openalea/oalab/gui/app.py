@@ -19,27 +19,30 @@ __revision__ = ""
 
 
 from openalea.vpltk.qt import QtGui, QtCore
-
-from session import Session
 from mainwindow import MainWindow
+from openalea.oalab import metainfo
+from session import Session
 
 from openalea.oalab.gui import resources_rc
-from openalea.oalab import metainfo
 
 import sys
 
 
 class OALab(QtGui.QApplication):
-    def __init__(self, args):
+    def __init__(self, args, session=None):
         QtGui.QApplication.__init__(self, args)
+
+        if session is None :
+            session = Session()
 
         # -- show the splash screen --
         self.splash = show_splash_screen()
         
         #self.setStyle('cleanlooks')
         # -- main window --
-        session = Session()
+
         self.win = MainWindow(session, args)
+        
         self.win.setMinimumSize(800,400)
         self.win.showMaximized()
         self.win.setWindowTitle("OpenAlea Laboratory")
@@ -71,5 +74,7 @@ def show_splash_screen():
         
         
 if( __name__ == "__main__"):
-    app = OALab(sys.argv)
+    from session import Session
+    session = Session()
+    app = OALab(sys.argv, session=session)
     app.exec_()

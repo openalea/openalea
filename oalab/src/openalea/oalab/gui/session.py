@@ -54,6 +54,8 @@ class Session(object):
         self.applets = {}
 
         self._config = MainConfig()
+        
+        self.extension = None
 
         self.scene = VPLScene()
         
