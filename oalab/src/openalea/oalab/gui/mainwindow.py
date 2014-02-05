@@ -43,13 +43,17 @@ class MainWindow(QtGui.QMainWindow):
         self._config.initialize()
         
         extension = None
-        if "-e" or "--extension" in args:
+        if "-e" in args or "--extension" in args:
             extension = args[-1]
         self.changeExtension(extension=extension)
+            
+        # Central Widget
+        self.setCentralWidget(session.applet_container)
 
         self.readSettings()     
         self.setSettingsInMenu()
         self.setShowDockInMenu()
+        self.setSelectLabInMenu()
         
     def changeExtension(self, extension=None):
         """
@@ -57,6 +61,8 @@ class MainWindow(QtGui.QMainWindow):
         
         :param extension: can be "mini", "3d", "tissue", "plant"
         """
+        self.removeDocksWidgets()
+        
         conf = path(get_openalea_home_dir()) / 'oalab.cfg'
         if extension in ["mini", "3d", "tissue", "plant"]:
             conf = path(get_openalea_home_dir()) / ('oalab_' + extension + '.cfg')
@@ -161,7 +167,34 @@ class MainWindow(QtGui.QMainWindow):
             child.actions = types.MethodType( actions, child)
             self.session.connect_actions(child) 
             
-            
+    def setSelectLabInMenu(self):
+        class FakeWidget(object):
+            def __init__(self, parent):
+                """
+                Use it to add features like setting widgets layout
+                """
+                super(FakeWidget, self).__init__()
+                self.mainwindow = parent
+            def actions(self):
+                minilab = QtGui.QAction(QtGui.QIcon(":/images/resources/openalealogo.png"),"MiniLab", self.mainwindow)
+                lab3d = QtGui.QAction(QtGui.QIcon(":/images/resources/openalealogo.png"),"3DLab", self.mainwindow)
+                plantlab = QtGui.QAction(QtGui.QIcon(":/images/resources/openalealogo.png"),"PlantLab", self.mainwindow)
+                tissuelab = QtGui.QAction(QtGui.QIcon(":/images/resources/openalealogo.png"),"TissueLab", self.mainwindow)
+
+                QtCore.QObject.connect(minilab, QtCore.SIGNAL('triggered(bool)'),self.mainwindow._mini)
+                QtCore.QObject.connect(lab3d, QtCore.SIGNAL('triggered(bool)'),self.mainwindow._lab3d)
+                QtCore.QObject.connect(plantlab, QtCore.SIGNAL('triggered(bool)'),self.mainwindow._plant)
+                QtCore.QObject.connect(tissuelab, QtCore.SIGNAL('triggered(bool)'),self.mainwindow._tissue)
+                
+                _actions = [["Extension","Select an Extension",minilab,0],
+                            ["Extension","Select an Extension",lab3d,0],
+                            ["Extension","Select an Extension",plantlab,0],
+                            ["Extension","Select an Extension",tissuelab,0]]
+                return _actions
+                
+        settings = FakeWidget(parent=self)
+        self.session.connect_actions(settings)  
+    
     def defaultSettings(self):
         """
         Restore default settings (geometry and window state)
@@ -235,9 +268,6 @@ class MainWindow(QtGui.QMainWindow):
         session.control_panel.geometry_editor.setStatusBar(self.statusBar())
         self._dockwidgets['Store'].hide()
 
-        # Central Widget
-        self.setCentralWidget(session.applet_container)
-
         # Status bar
         status = self.statusBar()     
         status.setSizeGripEnabled(False)  
@@ -251,6 +281,12 @@ class MainWindow(QtGui.QMainWindow):
         self.tabifyDockWidget(self._dockwidgets['Logger'], self._dockwidgets['Shell'])
         
         self._dockwidgets['Store'].setTitleBarWidget(QtGui.QWidget())
+        
+    def removeDocksWidgets(self):
+        children = self.findChildren(QtGui.QDockWidget)
+        
+        for child in children:
+            self.removeDockWidget(child)
         
     def changeMenuTab(self, old, new):
         """
@@ -271,3 +307,15 @@ class MainWindow(QtGui.QMainWindow):
                     menu.setCurrentIndex(index)
         except:
             pass
+            
+    def _mini(self):
+        self.changeExtension("mini")      
+          
+    def _lab3d(self):
+        self.changeExtension("3d")     
+                  
+    def _plant(self):
+        self.changeExtension("plant")   
+        
+    def _tissue(self):
+        self.changeExtension("tissue")           

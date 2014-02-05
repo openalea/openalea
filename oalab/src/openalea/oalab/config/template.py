@@ -50,31 +50,31 @@ c = get_config()
 #------------------------------------------------------------------------------
 
 # Display package manager
-c.MainWindowConfig.packages = True
+c.MainWindowConfig.packages = False
 
 # Display control panel
-c.MainWindowConfig.controlpanel = True
+c.MainWindowConfig.controlpanel = False
 
 # Display Help widget
-c.MainWindowConfig.help = True
+c.MainWindowConfig.help = False
 
 # Display 3D Viewer
-c.MainWindowConfig.viewer3d = True
+c.MainWindowConfig.viewer3d = False
 
 # Display menu bar
 c.MainWindowConfig.menu = True
 
 # Display project tree view
-c.MainWindowConfig.project = True
+c.MainWindowConfig.project = False
 
 # Display graphical Python interpreter
-c.MainWindowConfig.shell = True
+c.MainWindowConfig.shell = False
 
 # Display search widget for package manager
-c.MainWindowConfig.packagesearch = True
+c.MainWindowConfig.packagesearch = False
 
 # Display logger (usefull to debug)
-c.MainWindowConfig.logger = True
+c.MainWindowConfig.logger = False
 
 # List of graphical Python interpreters, sorted by preference
 c.MainWindowConfig.shell_priority = ['oalab:IPythonShell', 'oalab:BuiltinShell']
@@ -83,7 +83,7 @@ c.MainWindowConfig.shell_priority = ['oalab:IPythonShell', 'oalab:BuiltinShell']
 c.MainWindowConfig.store = False
 
 # Display package manager sorted by categories
-c.MainWindowConfig.packagecategories = True"""
+c.MainWindowConfig.packagecategories = False"""
 
 config_file_mini = """
 # Configuration file for application.
