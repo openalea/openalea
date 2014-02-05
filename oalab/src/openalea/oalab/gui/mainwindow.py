@@ -41,14 +41,25 @@ class MainWindow(QtGui.QMainWindow):
         self._dockwidgets = {}
         self._config = MainConfig()
         self._config.initialize()
-
-        conf = path(get_openalea_home_dir()) / 'oalab.cfg'
-
+        
+        extension = None
         if "-e" or "--extension" in args:
             extension = args[-1]
-            if extension in ["mini", "3d", "tissue", "plant"]:
-                conf = path(get_openalea_home_dir()) / ('oalab_' + extension + '.cfg')
+        self.changeExtension(extension=extension)
 
+        self.readSettings()     
+        self.setSettingsInMenu()
+        self.setShowDockInMenu()
+        
+    def changeExtension(self, extension=None):
+        """
+        Change to a new extension.
+        
+        :param extension: can be "mini", "3d", "tissue", "plant"
+        """
+        conf = path(get_openalea_home_dir()) / 'oalab.cfg'
+        if extension in ["mini", "3d", "tissue", "plant"]:
+            conf = path(get_openalea_home_dir()) / ('oalab_' + extension + '.cfg')
         if not conf.exists():
             with conf.open('w') as f:
                 # TODO : auto generate config file
@@ -63,14 +74,11 @@ class MainWindow(QtGui.QMainWindow):
                     f.write(config_file_plant)
                 else:
                     f.write(config_file_default)
-        
         self._config.load_config_file(conf)
         
-        self.setWidgets(session)
-        self.readSettings()     
-        self.setSettingsInMenu()
-        self.setShowDockInMenu()
-
+        self.setWidgets(self.session)
+                
+                
     def closeEvent(self, event):
         self.writeSettings()
         super(QtGui.QMainWindow, self).closeEvent(event)
