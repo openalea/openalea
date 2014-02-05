@@ -85,7 +85,7 @@ class Session(object):
 
         self.interpreter.locals['session'] = self
         
-        #self.interpreter.locals['ctrl'] = self.control_panel
+        #self.interpreter.locals['ctrl'] = self.applets['ControlPanel']
         #self.interpreter.locals['interp'] = self.interpreter
         self.interpreter.locals['shell'] = self.shell
         self._update_locals()

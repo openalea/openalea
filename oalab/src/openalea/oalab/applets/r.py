@@ -49,7 +49,7 @@ class RApplet(object):
 
 more informations: http://www.r-project.org/
 """
-        self.session.help.setText(txt)
+        self.session.applets['Help'].setText(txt)
         
     def widget(self):
         """

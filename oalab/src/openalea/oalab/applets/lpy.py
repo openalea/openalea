@@ -145,7 +145,7 @@ class LPyApplet(object):
         self.code = str()
         self.axialtree = AxialTree()
 
-        registerPlotter(self.session.viewer)
+        registerPlotter(self.session.applets['Viewer3D'])
         
         # Link with color map from application
         if self.session.project.controls.has_key("color map"):    
@@ -164,7 +164,7 @@ class LPyApplet(object):
         Set doc string in Help widget when focus changed
         """
         txt = doc_lpy.getSpecification()
-        self.session.help.setText(txt)
+        self.session.applets['Help'].setText(txt)
          
     def widget(self):
         """
@@ -203,7 +203,7 @@ class LPyApplet(object):
         new_scene = self.lsystem.sceneInterpretation(self.axialtree)
         scene_name = self.context["scene_name"]
         self.session.scene[scene_name] = new_scene
-        self.session.viewer.update_radius()
+        self.session.applets['Viewer3D'].update_radius()
         
     def step(self, i=None):
         """
@@ -257,7 +257,7 @@ class LPyApplet(object):
         self.lsystem.setCode(code, self.parameters)
         self.step()
         self.lsystem.animate()
-        self.session.viewer.update_radius()
+        self.session.applets['Viewer3D'].update_radius()
 
     def reinit(self):
         self.step(0)

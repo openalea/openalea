@@ -30,10 +30,9 @@ def test_applet_container_opentab():
 """
 def test_session_and_mainwindow():
     mw = MainWindow(session)
-    session.store.showhide()
-    session.store.showhide()
     assert session.project == None
-    assert session.store.mainMenu() == "Package Store" 
+    assert session.applets['Store'].actions() == None
+    assert session.applets['Store'].mainMenu() == "Package Store" 
     
 def test_text_edit():
     editor = TextEditor(session)
