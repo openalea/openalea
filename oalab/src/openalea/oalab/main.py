@@ -19,7 +19,9 @@
 ###############################################################################
 import sys
 from openalea.oalab.gui.app import OALab
+from openalea.oalab.cli.parser import CommandLineParser
 from openalea.oalab.project.symlink import create_project_shortcut
+from openalea.oalab.gui.session import Session
 
 def main():
     """
@@ -28,6 +30,10 @@ def main():
     # Create shortcut in project dir to oalab.share dir (only if necessary)
     create_project_shortcut()
     # Launch app
+    
+    #session = Session()
+    #cli = CommandLineParser(sys.argv)
+
     app = OALab(sys.argv)
     app.exec_()
     
