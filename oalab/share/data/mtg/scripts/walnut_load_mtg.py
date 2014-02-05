@@ -13,5 +13,3 @@ scene['lpy_scene'] = pf.plot(gc=True, display=False)
 
 def init():
   del scene['lpy_scene']
-  
-viewer.update_radius()
