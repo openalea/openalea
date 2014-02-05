@@ -48,8 +48,7 @@ def create_project_shortcut():
     Permit to access to oalab examples simpler.
     """
     project_dir = get_project_dir()
-    oalab_dir = shared_data(oalab)
-    
     project_link_name = path(project_dir)/"oalab_examples"
     if not project_link_name.exists():
+        oalab_dir = shared_data(oalab)
         symlink(oalab_dir,project_link_name)
