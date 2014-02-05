@@ -19,11 +19,15 @@
 ###############################################################################
 import sys
 from openalea.oalab.gui.app import OALab
+from openalea.oalab.project.symlink import create_project_shortcut
 
 def main():
     """
     OpenAleaLaboratory starts here
     """
+    # Create shortcut in project dir to oalab.share dir (only if necessary)
+    create_project_shortcut()
+    # Launch app
     app = OALab(sys.argv)
     app.exec_()
 
