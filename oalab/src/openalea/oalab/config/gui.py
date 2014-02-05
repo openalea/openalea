@@ -1,13 +1,14 @@
+# -*- coding: utf-8 -*-
 
 __all__ = ['MainWindowConfig']
 
-import sys
-
 from IPython.config.configurable import Configurable
-from IPython.config.application import Application
-from IPython.utils.traitlets import List, Bool, Unicode
+from IPython.utils.traitlets import List, Bool, Enum
+
+enum_position = Enum(['top', 'bottom']) # TODO: check trait declaration
 
 class MainWindowConfig(Configurable):
+
     project = Bool(True, config=True, help="Display project tree view")
     packages = Bool(True, config=True, help="Display package manager")
     packagecategories = Bool(True, config=True, help="Display package manager sorted by categories")
@@ -23,12 +24,3 @@ class MainWindowConfig(Configurable):
     store = Bool(True, config=True, help="Display alea_install_gui")
     
     menu = Bool(True, config=True, help="Display menu bar")
-
-    
-class MainConfig(Application):
-    classes = List([MainWindowConfig])
-    config_file = Unicode(u'', config=True,
-                  help="Load this config file")
-
-    def initialize(self):
-        self.mainwindow_config = MainWindowConfig(config=self.config)

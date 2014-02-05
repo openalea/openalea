@@ -34,7 +34,8 @@ class ProjectManager(QtGui.QWidget):
     Object which permit to manage projects.
     """
     def __init__(self, parent):
-        super(ProjectManager, self).__init__() 
+        super(ProjectManager, self).__init__()
+
         self.session = parent
         self.parent = self.session
         self.setAccessibleName("Project Manager")

@@ -34,7 +34,7 @@ class LPyPanelWidget(QtGui.QWidget):
         self.setName(name)
         self.verticalLayout = QtGui.QVBoxLayout(parent)
         self.verticalLayout.setSpacing(0)
-        self.verticalLayout.setMargin(0)
+        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout.setObjectName(name+"verticalLayout")              
 
         self.objectpanel = QtGui.QScrollArea(parent)

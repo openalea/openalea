@@ -111,7 +111,8 @@ def import_lpy_file(script):
                 
         return new_script, controls
 
-class LPyApplet(object):
+class LPyApplet(object):   
+    
     def __init__(self, session, name="script.lpy", script=""):
         super(LPyApplet, self).__init__()
         logger.debug("init LPyApplet")

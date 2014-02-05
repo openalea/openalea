@@ -32,6 +32,9 @@ class AppletContainer(QtGui.QTabWidget):
     Contains applets.
     Each tab is an applet.
     """
+    identifier = "WidgetEditorContainer"
+    name = "Editor Container"    
+    
     def __init__(self, session):
         super(AppletContainer, self).__init__()
         self.session = session # session
@@ -106,7 +109,7 @@ class AppletContainer(QtGui.QTabWidget):
         QtCore.QObject.connect(self, QtCore.SIGNAL('tabCloseRequested(int)'),self.autoClose)
 
         self.reset()
-	    
+
     def setTabRed(self, index=None):
         if index is None:
             index = self.currentIndex()
