@@ -154,7 +154,7 @@ class VisualeaApplet(object):
         QtCore.QObject.connect(self._widget.actionSave, QtCore.SIGNAL('triggered(bool)'),self.session.applet_container.save)        
 
         viewernode = sys.modules['openalea.plantgl.wralea.visualization.viewernode']
-        viewernode.registerPlotter(self.session.viewer)
+        viewernode.registerPlotter(self.session.applets['Viewer3D'])
         
         #QtCore.QObject.connect(self.widget().scene(), QtCore.SIGNAL('focusedItemChanged(type?,type?)'), self.focus_change)
         self.widget().scene().focusedItemChanged.connect(self.item_focus_change)
@@ -165,7 +165,7 @@ class VisualeaApplet(object):
         """
         assert isinstance(item, dataflowview.vertex.GraphicalVertex)
         txt = item.vertex().get_tip()
-        self.session.help.setText(txt)
+        self.session.applets['Help'].setText(txt)
     
     def focus_change(self):
         """
@@ -176,7 +176,7 @@ class VisualeaApplet(object):
 
 More informations: http://openalea.gforge.inria.fr/doc/openalea/visualea/doc/_build/html/contents.html        
 """
-        self.session.help.setText(txt)
+        self.session.applets['Help'].setText(txt)
 
     def widget(self):
         """
@@ -186,12 +186,12 @@ More informations: http://openalea.gforge.inria.fr/doc/openalea/visualea/doc/_bu
         
     def run(self):
         viewernode = sys.modules['openalea.plantgl.wralea.visualization.viewernode']
-        viewernode.registerPlotter(self.session.viewer)
+        viewernode.registerPlotter(self.session.applets['Viewer3D'])
         self._workflow.eval()
 
     def animate(self):
         viewernode = sys.modules['openalea.plantgl.wralea.visualization.viewernode']
-        viewernode.registerPlotter(self.session.viewer)
+        viewernode.registerPlotter(self.session.applets['Viewer3D'])
         self._workflow.eval()
         
     def step(self):

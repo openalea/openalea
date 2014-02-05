@@ -46,7 +46,7 @@ class PythonApplet(object):
 
 more informations: http://www.python.org/
 """
-        self.session.help.setText(txt)
+        self.session.applets['Help'].setText(txt)
         
     def widget(self):
         """

@@ -41,8 +41,9 @@ class MainWindow(QtGui.QMainWindow):
         
         self._dockwidgets = {}
 
-        if "-e" in args or "--extension" in args:
-            self.session.extension = args[-1]
+        if args:
+            if "-e" in args or "--extension" in args:
+                self.session.extension = args[-1]
         self.changeExtension(extension=self.session.extension)
             
         # Central Widget

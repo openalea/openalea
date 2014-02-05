@@ -357,10 +357,10 @@ class ProjectManager(QtGui.QWidget):
                 name = container.tabText(i)
                 container.widget(i).save(name)
                 
-            colors = self.session.control_panel.colormap_editor.getTurtle().getColorList()
+            colors = self.session.applets['ControlPanel'].colormap_editor.getTurtle().getColorList()
             current.controls["color map"] = colors
             
-            geoms = self.session.control_panel.geometry_editor.getObjects()
+            geoms = self.session.applets['ControlPanel'].geometry_editor.getObjects()
             
 
             for (manager, geom) in geoms:
@@ -368,7 +368,7 @@ class ProjectManager(QtGui.QWidget):
                     new_obj,new_name = geometry_2_piklable_geometry(manager, geom)
                     current.controls[new_name] = new_obj
             
-            scalars = self.session.control_panel.scalars_editor.getScalars()
+            scalars = self.session.applets['ControlPanel'].scalars_editor.getScalars()
             for scalar in scalars:
                 current.controls[scalar.name] = scalar
 
@@ -456,7 +456,7 @@ class ProjectManager(QtGui.QWidget):
         i = 0
         logger.debug("Load Controls color map: %s "%str(proj.controls["color map"]))
         for color in proj.controls["color map"]:
-            self.session.control_panel.colormap_editor.getTurtle().setMaterial(i, color)
+            self.session.applets['ControlPanel'].colormap_editor.getTurtle().setMaterial(i, color)
             i += 1
             
         managers = get_managers()
@@ -477,10 +477,10 @@ class ProjectManager(QtGui.QWidget):
                 scalars.append(proj.controls[control])    
         if geom is not list():
             logger.debug("Load Controls Geom: %s "%str(geom))
-            self.session.control_panel.geometry_editor.setObjects(geom)
+            self.session.applets['ControlPanel'].geometry_editor.setObjects(geom)
         if scalars is not list():
             logger.debug("Load Controls Scalars: %s "%str(scalars))
-            self.session.control_panel.scalars_editor.setScalars(scalars)
+            self.session.applets['ControlPanel'].scalars_editor.setScalars(scalars)
         
     def _update_control(self):
         """
@@ -491,28 +491,28 @@ class ProjectManager(QtGui.QWidget):
         
         self.session.project.controls["color map"] = PglTurtle().getColorList()
         
-        objects = self.session.control_panel.geometry_editor.getObjects()
+        objects = self.session.applets['ControlPanel'].geometry_editor.getObjects()
         for (manager,obj) in objects:
             if obj != list():
                 obj, name = geometry_2_piklable_geometry(manager,obj)
                 self.session.project.controls[unicode(name)] = obj
                 
-        scalars = self.session.control_panel.scalars_editor.getScalars()
+        scalars = self.session.applets['ControlPanel'].scalars_editor.getScalars()
         for scalar in scalars:
             self.session.project.controls[unicode(scalar.name)] = scalar
                 
     def _clear_control(self):
-            self.session.control_panel.geometry_editor.clear()
-            n = len(self.session.control_panel.scalars_editor.getScalars())
+            self.session.applets['ControlPanel'].geometry_editor.clear()
+            n = len(self.session.applets['ControlPanel'].scalars_editor.getScalars())
             for scalar in range(n):
-            	    self.session.control_panel.scalars_editor.deleteScalars()
+            	    self.session.applets['ControlPanel'].scalars_editor.deleteScalars()
             
     def _control_change(self):
         pass           
         
     def _tree_view_change(self):
         logger.debug("Tree View changed")
-        self.session.project_layout_widget.update()
+        self.session.applets['Project'].update()
         
     def _script_change(self):
         logger.debug("Script changed")
