@@ -1,7 +1,8 @@
+# -*- coding: utf-8 -*-
 # -*- python -*-
 #
 #       Main Window class
-#       VPlantsLab GUI is create here
+#       VPlantsLab GUI is created here
 # 
 #       OpenAlea.OALab: Multi-Paradigm GUI
 #
@@ -27,7 +28,7 @@ from openalea.core import logger
 from openalea.core.path import path
 from openalea.core.settings import get_openalea_home_dir
 
-from openalea.oalab.config.gui import MainConfig
+from openalea.oalab.config.main import MainConfig
 from openalea.oalab.config.template import config_file_default, config_file_mini, config_file_3d, config_file_tissue, config_file_plant
 
 class MainWindow(QtGui.QMainWindow):
@@ -39,8 +40,6 @@ class MainWindow(QtGui.QMainWindow):
         self.session = session
         
         self._dockwidgets = {}
-        self._config = MainConfig()
-        self._config.initialize()
         
         extension = None
         if "-e" in args or "--extension" in args:
@@ -80,7 +79,7 @@ class MainWindow(QtGui.QMainWindow):
                     f.write(config_file_plant)
                 else:
                     f.write(config_file_default)
-        self._config.load_config_file(conf)
+        self.session.load_config_file(conf)
         
         self.setWidgets(self.session)
                 
@@ -241,7 +240,7 @@ class MainWindow(QtGui.QMainWindow):
         self.addDockWidget(position, dock_widget)
         self._dockwidgets[identifier] = dock_widget
         
-        display = self._config.config.MainWindowConfig.get(identifier.lower(), False)
+        display = self.session.config.MainWindowConfig.get(identifier.lower(), False)
         dock_widget.setVisible(display)
         
         return dock_widget
@@ -254,18 +253,18 @@ class MainWindow(QtGui.QMainWindow):
         dock_menu.setMinimumSize(10,10)
 
         # Docks
-        self._dockWidget("Project", session.project_layout_widget) # Project Manager
-        self._dockWidget("Packages", session.package_manager_widget)
-        self._dockWidget("PackageCategories", session.package_manager_categorie_widget, name="Package Categories")
-        self._dockWidget("PackageSearch", session.package_manager_search_widget, name="Package Search")
-        self._dockWidget("ControlPanel", session.control_panel, name="Control Panel", position=QtCore.Qt.BottomDockWidgetArea)
-        self._dockWidget("Viewer3D", session.viewer, name="3D Viewer", position=QtCore.Qt.RightDockWidgetArea)
-        self._dockWidget("Help", session.help, position=QtCore.Qt.BottomDockWidgetArea)
-        self._dockWidget("Logger", session.logger, position=QtCore.Qt.BottomDockWidgetArea)
+        self._dockWidget("Project", session.applets["Project"]) # Project Manager
+        self._dockWidget("Packages", session.applets["Packages"])
+        self._dockWidget("PackageCategories", session.applets["PackageCategories"], name="Package Categories")
+        self._dockWidget("PackageSearch", session.applets["PackageSearch"], name="Package Search")
+        self._dockWidget("ControlPanel", session.applets["ControlPanel"], name="Control Panel", position=QtCore.Qt.BottomDockWidgetArea)
+        self._dockWidget("Viewer3D", session.applets["Viewer3D"], name="3D Viewer", position=QtCore.Qt.RightDockWidgetArea)
+        self._dockWidget("Help", session.applets["Help"], position=QtCore.Qt.BottomDockWidgetArea)
+        self._dockWidget("Logger", session.applets["Logger"], position=QtCore.Qt.BottomDockWidgetArea)
+        self._dockWidget("Store", session.applets["Store"], name="OpenAlea Store", position=QtCore.Qt.RightDockWidgetArea)
         self._dockWidget("Shell", session.shell, name="IPython Shell", position=QtCore.Qt.BottomDockWidgetArea)
-        self._dockWidget("Store", session.store, name="OpenAlea Store", position=QtCore.Qt.RightDockWidgetArea)
 
-        session.control_panel.geometry_editor.setStatusBar(self.statusBar())
+        session.applets['ControlPanel'].geometry_editor.setStatusBar(self.statusBar())
         self._dockwidgets['Store'].hide()
 
         # Status bar
@@ -277,7 +276,7 @@ class MainWindow(QtGui.QMainWindow):
         # Tabify docks
         self.tabifyDockWidget(self._dockwidgets['PackageSearch'], self._dockwidgets['PackageCategories'])
         self.tabifyDockWidget(self._dockwidgets['PackageCategories'], self._dockwidgets['Packages'])
-        #self.tabifyDockWidget(self._dockwidgets['3DViewer'], self._dockwidgets['Store'])
+        self.tabifyDockWidget(self._dockwidgets['Viewer3D'], self._dockwidgets['Store'])
         self.tabifyDockWidget(self._dockwidgets['Logger'], self._dockwidgets['Shell'])
         
         self._dockwidgets['Store'].setTitleBarWidget(QtGui.QWidget())

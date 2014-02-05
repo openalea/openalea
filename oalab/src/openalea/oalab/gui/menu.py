@@ -39,7 +39,7 @@ class PanedMenu(QtGui.QTabWidget):
     Cf. Ribbon Bar.
     """
     def __init__(self, parent=None):
-        super(QtGui.QTabWidget, self).__init__() 
+        super(PanedMenu, self).__init__() 
         self.setAccessibleName("Menu")
         self.setMinimumSize(1,120)
         self.setMaximumSize(10000,120)
@@ -114,7 +114,7 @@ class Pane(QtGui.QScrollArea):
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.group_name = list()
         self.layout = QtGui.QGridLayout()
-        self.layout.setMargin(0)
+        self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setSpacing(0)
         
         self.layout.setAlignment(QtCore.Qt.AlignLeft)
@@ -133,7 +133,7 @@ class Group(QtGui.QGroupBox):
         self.setFlat(False)
         
         self.layout = QtGui.QHBoxLayout()
-        self.layout.setMargin(6)
+        self.layout.setContentsMargins(6, 6, 6, 6)
         self.layout.setSpacing(0)
         self.layout.setAlignment(QtCore.Qt.AlignLeft)
         self.setLayout(self.layout)
@@ -234,7 +234,7 @@ class SubGroupH(QtGui.QWidget):
     def __init__(self):
         super(QtGui.QWidget, self).__init__()       
         self.layout = QtGui.QHBoxLayout()
-        self.layout.setMargin(0)
+        self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setSpacing(0)
         self.layout.setAlignment(QtCore.Qt.AlignLeft)
         self.setLayout(self.layout)
@@ -243,7 +243,7 @@ class SubGroupV(QtGui.QWidget):
     def __init__(self):
         super(QtGui.QWidget, self).__init__()
         self.layout = QtGui.QVBoxLayout()
-        self.layout.setMargin(2)
+        self.layout.setContentsMargins(2, 2, 2, 2)
         self.layout.setSpacing(0)
         self.layout.setAlignment(QtCore.Qt.AlignTop)
         self.setLayout(self.layout)
@@ -252,7 +252,7 @@ class SubGroupGrid(QtGui.QWidget):
     def __init__(self):
         super(QtGui.QWidget, self).__init__()
         self.layout = QtGui.QGridLayout()
-        self.layout.setMargin(0)
+        self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setSpacing(0)
         self.layout.setAlignment(QtCore.Qt.AlignLeft)
         self.setLayout(self.layout)

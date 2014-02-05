@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # -*- python -*-
 #
 #       OpenAlea.OALab: Multi-Paradigm GUI
@@ -17,11 +18,12 @@
 ###############################################################################
 __revision__ = ""
 
+import warnings
+
 from openalea.core.pkgmanager import PackageManager
 from openalea.oalab.gui.logger import Logger
 from openalea.oalab.control.controlpanel import ControlPanel
 from openalea.oalab.gui.help import Help
-from openalea.oalab.scene.view3d import Viewer
 from openalea.oalab.gui.menu import PanedMenu
 from openalea.vpltk.shell.shell import get_interpreter_class, get_shell_class
 from openalea.vpltk.qt import QtGui, QtCore
@@ -31,11 +33,16 @@ from openalea.oalab.project.manager import ProjectManager
 from openalea.oalab.project.treeview import ProjectLayoutWidget
 from openalea.oalab.package import PackageViewWidget, PackageCategorieViewWidget, PackageSearchWidget
 from openalea.oalab.gui.store import Store
-import warnings
+from openalea.core.path import path
+from openalea.core.settings import get_openalea_home_dir
+from openalea.oalab.scene.view3d import Viewer
+
+from openalea.oalab.config.main import MainConfig
+  
 
 class Session(object):
     """
-    Manage session and instanciate all widgets.
+    Manage session and instantiate all widgets.
     
     MainWindow works thanks to the session
     """
@@ -43,46 +50,49 @@ class Session(object):
         self._project = None
         self._is_proj = False
         self._is_script = False
+
+        self.applets = {}
+
+        self._config = MainConfig()
+
         self.scene = VPLScene()
         
         # Menu
         self.menu = PanedMenu()
 
         # Docks
-        self.control_panel = ControlPanel(self)
-        
-        self.viewer = Viewer(session=self)
+        self.applets['ControlPanel'] = ControlPanel(self)
+        self.applets['Viewer3D'] = Viewer(session=self)
         
         self.interpreter = get_interpreter_class()()
         self.shell = get_shell_class()(self.interpreter)        
         
         self.project_manager = ProjectManager(parent=self)
-        
+
         self.pm = PackageManager()
         self.pm.init(verbose=False)
         
-        self.project_layout_widget = ProjectLayoutWidget(session=self)
+        self.applets['Project'] = ProjectLayoutWidget(session=self)
         
-        self.package_manager_widget = PackageViewWidget(parent=self)
-        self.package_manager_categorie_widget = PackageCategorieViewWidget(parent=self)
-        self.package_manager_search_widget = PackageSearchWidget(parent=self)
+        self.applets['Packages'] = PackageViewWidget(parent=self)
+        self.applets['PackageCategories'] = PackageCategorieViewWidget(parent=self)
+        self.applets['PackageSearch'] = PackageSearchWidget(parent=self)
 
-        self.logger = Logger()
-        self.help = Help()
+        self.applets['Logger'] = Logger()
+        self.applets['Help'] = Help()
 
         self.interpreter.locals['session'] = self
-        self.interpreter.locals['viewer'] = self.viewer
+        
         #self.interpreter.locals['ctrl'] = self.control_panel
         #self.interpreter.locals['interp'] = self.interpreter
         self.interpreter.locals['shell'] = self.shell
         self._update_locals()
         
         # Applet Container : can contain text editor or/and workflow editor
-        self.applet_container = AppletContainer(session=self)
-        
+        self.applet_container = AppletContainer(session=self)        
         self.interpreter.locals['applets'] = self.applet_container
         
-        self.store = Store(session=self)
+        self.applets['Store'] = Store(session=self)
         
         self.connect_all_actions()
     
@@ -100,9 +110,9 @@ class Session(object):
         """
         self.connect_actions(self.project_manager)
         self.connect_actions(self.applet_container)
-        self.connect_actions(self.viewer)
-        self.connect_actions(self.help)
-        self.connect_actions(self.store)        
+
+        for applet in self.applets.values():
+            self.connect_actions(applet)
 
     def connect_actions(self, widget, menu=None):
         """
@@ -113,7 +123,7 @@ class Session(object):
         if not menu:
             menu = self.menu
         actions = widget.actions()
-        
+
         if actions:
             for action in actions:
                 menu.addBtnByAction(pane_name=action[0], group_name=action[1], action=action[2],btn_type=action[3])
@@ -140,3 +150,10 @@ class Session(object):
     def get_project(self):
         warnings.warn('Deprecated get_project -> project')
         return self.project
+    
+    def load_config_file(self, filename, path=None):
+        self._config.load_config_file(filename, path)
+                
+    config = property(fget=lambda self:self._config.config)
+    
+    
