@@ -105,7 +105,7 @@ class AppletContainer(QtGui.QTabWidget):
                                     
         QtCore.QObject.connect(self, QtCore.SIGNAL('tabCloseRequested(int)'),self.autoClose)
 
-        self.addDefaultTab()
+        self.reset()
 	    
     def setTabRed(self, index=None):
         if index is None:
@@ -122,7 +122,7 @@ class AppletContainer(QtGui.QTabWidget):
     def setAllTabBlack(self):
         for index in range(self.count()):
             self.setTabBlack(index)
-    
+        
     def addDefaultTab(self):
         """
         Display a welcome tab if nothing is opened
@@ -136,23 +136,17 @@ class AppletContainer(QtGui.QTabWidget):
         """
         page = CreateFilePage(session = self.session)
         self.addTab(page, "Create File")
-        self.rmDefaultTab()
+        self.rmTab("Welcome")
+    
+    def rmTab(self, tabname="Welcome"):
+        """
+        Remove the tab named "tabname"
         
-    def rmDefaultTab(self):
-        """
-        Remove the welcome tab
+        :param tabname: name of the tab to remove. Default: "Welcome"
         """
         for i in range(self.count()):
-            if self.tabText(i) == "Welcome":
-                self.removeTab(i)
-                
-    def rmCreateFileTab(self):
-        """
-        Remove the welcome tab
-        """
-        for i in range(self.count()):
-            if self.tabText(i) == "Create File":
-                self.removeTab(i)
+            if self.tabText(i) == tabname:
+                self.removeTab(i) 
     
     def reset(self):
         """
@@ -163,7 +157,7 @@ class AppletContainer(QtGui.QTabWidget):
             self.removeTab(0)
             del wid
         self.clear()
-        
+
         if self.session.project:
             self.addCreateFileTab()
         else:
@@ -182,8 +176,8 @@ class AppletContainer(QtGui.QTabWidget):
         # TODO : automatize with plugin system
         """
         logger.debug("New tab. Type: " + applet_type + ". Name: " + tab_name)
-        self.rmDefaultTab()
-        self.rmCreateFileTab()
+        self.rmTab("Welcome")
+        self.rmTab("Create File")
         
         # TODO : permit to add more than one script...
         # existing_tabs = list()
@@ -348,7 +342,6 @@ class AppletContainer(QtGui.QTabWidget):
             logger.debug("Goto " + self.currentWidget().applet.name)
         except:
             logger.warning("Can't use method Goto in " + self.currentWidget().applet.name)
-
 
 class CreateFilePage(QtGui.QWidget):
     """
@@ -590,20 +583,22 @@ class WelcomePage(QtGui.QWidget):
             #self.session.project_manager.importFile(filename=fname, extension="*.py")
             logger.debug("Restore previous session. (scripts)")
 
-class WelcomePage2(QtGui.QWidget):
+class SelectExtensionPage(QtGui.QWidget):
     """
     Welcome page in the applet container.
-    Permit to open an existing project,
-    or to create a new one,
-    or to work on scripts outside projects.
+    Permit to select the extension to work with. 
+    
+    
+    UNUSED today
     """
     def __init__(self, session, parent=None):
-        super(WelcomePage2, self).__init__()
+        super(SelectExtensionPage, self).__init__()
         
         self.session = session
         layout = QtGui.QGridLayout()
         layout.setAlignment(QtCore.Qt.AlignCenter)
 
+        text = QtGui.QLabel("Select an extension")
         minilab = QtGui.QPushButton(QtGui.QIcon(":/images/resources/openalealogo.png"),"MiniLab")
         messageminilab = QtGui.QLabel("MiniLab is a minimal environnement with only a text editor and a shell.")
         lab3d = QtGui.QPushButton(QtGui.QIcon(":/images/resources/openalealogo.png"),"3DLab")
@@ -612,23 +607,31 @@ class WelcomePage2(QtGui.QWidget):
         messageplantlab = QtGui.QLabel("PlantLab is an environnement to work on entire plant.")
         tissuelab = QtGui.QPushButton(QtGui.QIcon(":/images/resources/openalealogo.png"),"TissueLab")
         messagetissuelab = QtGui.QLabel("TissueLab is an environnement to work on tissue part of plants.")
-        openproject = QtGui.QPushButton(QtGui.QIcon(":/images/resources/open.png"),"Open Project")
-        messageopenproject = QtGui.QLabel("Open an existing project.")
-        restoresession = QtGui.QPushButton(QtGui.QIcon(":/images/resources/open.png"),"Restore Session")
-        messagerestoresession = QtGui.QLabel("Restore previous session.")
-                
         
-        layout.addWidget(minilab,0,0)
+        #text2 = QtGui.QLabel("You can restore your previous session or open an existing project:")
+        #openproject = QtGui.QPushButton(QtGui.QIcon(":/images/resources/open.png"),"Open Project")
+        #messageopenproject = QtGui.QLabel("Open an existing project.")
+        #restoresession = QtGui.QPushButton(QtGui.QIcon(":/images/resources/open.png"),"Restore Session")
+        #messagerestoresession = QtGui.QLabel("Restore previous session.")
+        
+        
+        QtCore.QObject.connect(minilab, QtCore.SIGNAL("clicked()"),self.mini)
+        QtCore.QObject.connect(lab3d, QtCore.SIGNAL("clicked()"),self.lab3d)
+        QtCore.QObject.connect(plantlab, QtCore.SIGNAL("clicked()"),self.plant)
+        QtCore.QObject.connect(tissuelab, QtCore.SIGNAL("clicked()"),self.tissue)
+                
+        layout.addWidget(text,0,0,1,-1)
+        layout.addWidget(minilab,1,0)
         #layout.addWidget(messageminilab,0,1)
-        layout.addWidget(lab3d,0,1)
+        layout.addWidget(lab3d,1,1)
         #layout.addWidget(messagelab3d,1,1)
         layout.addWidget(plantlab,2,0)
         #layout.addWidget(messageplantlab,2,1)
         layout.addWidget(tissuelab,2,1)
         #layout.addWidget(messagetissuelab,3,1)
-        layout.addWidget(openproject,4,0)
+        #layout.addWidget(openproject,4,0)
         #layout.addWidget(messageopenproject,4,1)
-        layout.addWidget(restoresession,4,1)
+        #layout.addWidget(restoresession,4,1)
         #layout.addWidget(messagerestoresession,5,1)
         
         self.setLayout(layout)
@@ -651,5 +654,21 @@ class WelcomePage2(QtGui.QWidget):
                 pass
         self.applet = FakeApplet()        
     
-        logger.debug("Open Welcome Page")
+        logger.debug("Open Select Extension Page")
 
+    def mini(self):
+        # TODO
+        print "mini"
+        #mainwindow.changeExtension(self, extension="mini")
+    
+    def lab3d(self):
+        # TODO
+        print "lab3d"
+        
+    def plant(self):
+        # TODO
+        print "plant"
+        
+    def tissue(self):
+        # TODO
+        print "tissue"
