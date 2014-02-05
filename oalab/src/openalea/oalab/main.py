@@ -30,6 +30,46 @@ def main():
     # Launch app
     app = OALab(sys.argv)
     app.exec_()
+    
+def main_plantlab():
+    """
+    OpenAleaLaboratory starts here
+    """
+    # Create shortcut in project dir to oalab.share dir (only if necessary)
+    create_project_shortcut()
+    # Launch app
+    app = OALab(["-e", "plant"])
+    app.exec_()
+    
+def main_tissuelab():
+    """
+    OpenAleaLaboratory starts here
+    """
+    # Create shortcut in project dir to oalab.share dir (only if necessary)
+    create_project_shortcut()
+    # Launch app
+    app = OALab(["-e", "tissue"])
+    app.exec_()
+    
+def main_3dlab():
+    """
+    OpenAleaLaboratory starts here
+    """
+    # Create shortcut in project dir to oalab.share dir (only if necessary)
+    create_project_shortcut()
+    # Launch app
+    app = OALab(["-e", "3d"])
+    app.exec_()
+    
+def main_minilab():
+    """
+    OpenAleaLaboratory starts here
+    """
+    # Create shortcut in project dir to oalab.share dir (only if necessary)
+    create_project_shortcut()
+    # Launch app
+    app = OALab(["-e", "mini"])
+    app.exec_()
 
     
 if( __name__ == "__main__"):

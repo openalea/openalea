@@ -85,7 +85,11 @@ setup(
     # Declare scripts and wralea as entry_points (extensions) of your package 
     entry_points = { 
         'gui_scripts': ['oalab = openalea.oalab.main:main',
-						'openalealab = openalea.oalab.main:main'],
+						'openalealab = openalea.oalab.main:main',
+                        'plantlab = openalea.oalab.main:main_plantlab',
+                        'tissuelab = openalea.oalab.main:main_tissuelab',
+                        '3dlab = openalea.oalab.main:main_3dlab',
+                        'minilab = openalea.oalab.main:main_minilab'],
         'oalab.control': ['IntControl = openalea.oalab.control.stdcontrol:IntControl',
                           'BoolControl = openalea.oalab.control.stdcontrol:BoolControl',
                           'FloatControl = openalea.oalab.control.stdcontrol:FloatControl'],
