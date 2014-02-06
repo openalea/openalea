@@ -5,10 +5,12 @@ class IApplet(object):
     identifier = '' # Unique identifier
     name = '' # Human readable name
     
-    def __init__(self):
-        pass
-        
-        # self.setAccessibleName("Editor")
+    def __init__(self, session, controller, parent=None):
+        """
+        :param session: unique instance (kernel) managing configuration and plugins
+        :param controller: instance that modify and manage data
+        :param parent: parent widget, used by Qt for layout, memory management, ...
+        """
        
     def actions(self):
         """
