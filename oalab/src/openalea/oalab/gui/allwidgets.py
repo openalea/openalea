@@ -64,11 +64,12 @@ class AllWidgets(QtGui.QWidget):
         self.connect_all_actions()
     
     def _update_locals(self):
+        self.session.interpreter.locals['project'] = self.session.project
+        self.session.interpreter.locals['scene'] = self.scene
+        
         try:
-            self.interpreter.locals['project'] = self.project
-            self.interpreter.locals['controls'] = self.project.controls
-            self.interpreter.locals['scene'] = self.scene
-        except:
+            self.session.interpreter.locals['controls'] = self.session.project.controls
+        except AttributeError:
             pass
         
     def connect_all_actions(self):
