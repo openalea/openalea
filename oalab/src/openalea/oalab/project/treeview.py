@@ -96,7 +96,7 @@ class ProjectTreeView(QtGui.QTreeView):
         self.projectview = QtGui.QWidget()
         
         # project tree view
-        self.proj_model = PrjctModel(self.project, controller, parent)
+        self.proj_model = PrjctModel(self.project)
         
         self.setHeaderHidden(True)
         self.setModel(self.proj_model)
@@ -285,8 +285,8 @@ class PrjctModel(QtGui.QStandardItemModel):
     # Display
     treeView.show()
     """
-    def __init__(self, session, controller, parent=None):
-        super(PrjctModel, self).__init__(session, controller, parent)
+    def __init__(self, project, parent=None):
+        super(PrjctModel, self).__init__(parent)
         
         # Use it to store evrything to compare with new when a change occure
         self.old_models = list()

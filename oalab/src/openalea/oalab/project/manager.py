@@ -33,11 +33,11 @@ class ProjectManager(QtGui.QWidget):
     """
     Object which permit to manage projects.
     """
-    def __init__(self, parent):
+    def __init__(self, session, controller, parent=None):
         super(ProjectManager, self).__init__()
 
-        self.session = parent
-        self.parent = self.session
+        self.session = session
+        self.controller = controller
         self.setAccessibleName("Project Manager")
 
         self.projectManager = PM()
@@ -161,9 +161,9 @@ class ProjectManager(QtGui.QWidget):
                 logger.debug("Try to import file named " + tab_name + " . With applet_type " + ext)
 
                 try:
-                    self.session.applet_container.newTab(applet_type=ext, tab_name=tab_name, script=txt)
+                    self.controller.applet_container.newTab(applet_type=ext, tab_name=tab_name, script=txt)
                     project.add_script(tab_name, txt)
-                    self.session._update_locals()
+                    self.controller._update_locals()
                     self._script_change()
                     self._tree_view_change()
                     logger.debug("Import file named " + tab_name)
@@ -176,8 +176,8 @@ class ProjectManager(QtGui.QWidget):
             where_ = None
             if self.session.project is not None:
                 if len(self.session.project) != 0:
-                    i = self.session.applet_container.currentIndex()
-                    tab_text = self.session.applet_container.tabText(i)
+                    i = self.controller.applet_container.currentIndex()
+                    tab_text = self.controller.applet_container.tabText(i)
                     where_ = self.session.project.get_name_by_ez_name(tab_text)
             if not filename:
                 filename = self.showOpenFileDialog(extension=extension, where=where_)
@@ -194,9 +194,9 @@ class ProjectManager(QtGui.QWidget):
                 ext = ext.split(".")[-1]
 
                 
-                self.session.applet_container.newTab(applet_type=ext, tab_name=tab_name, script=txt)
+                self.controller.applet_container.newTab(applet_type=ext, tab_name=tab_name, script=txt)
                 try:
-                    self.session._update_locals()
+                    self.controller._update_locals()
                     #self._script_change()
                     self._tree_view_change()
                     logger.debug("Import file named %s outside project"%tab_name)
@@ -216,7 +216,7 @@ class ProjectManager(QtGui.QWidget):
             name = 'project_%s' %date
         if self.session.current_is_project():
             if self.session.project is not None:
-            	self.projectManager.close(self.session.project.name)
+                self.projectManager.close(self.session.project.name)
         self.session._project = self.projectManager.create(name)
         self.session._is_script = False
         self.session._is_proj = True
@@ -224,13 +224,13 @@ class ProjectManager(QtGui.QWidget):
         self._project_changed()
         self._load_control()
         
-        self.session.applet_container.addCreateFileTab()
+        self.controller.applet_container.addCreateFileTab()
         
     def newPython(self):       
         if self.session.current_is_project():
             tab_name = "script.py"
-            self.session.applet_container.newTab(applet_type="python", tab_name=tab_name)
-            self.session.project.add_script(tab_name, self.session.applet_container.applets[-1].widget().get_text())  
+            self.controller.applet_container.newTab(applet_type="python", tab_name=tab_name)
+            self.session.project.add_script(tab_name, self.controller.applet_container.applets[-1].widget().get_text())  
 
             self.session._update_locals()
             self._script_change()
@@ -241,7 +241,7 @@ class ProjectManager(QtGui.QWidget):
             tab_name = "script.py"
             self.scriptManager.add_script(tab_name, "") 
             self.session._project = self.scriptManager
-            self.session.applet_container.newTab(applet_type="python", tab_name=tab_name)
+            self.controller.applet_container.newTab(applet_type="python", tab_name=tab_name)
             self.session._update_locals()
             #self._script_change()
             self._tree_view_change()
@@ -249,8 +249,8 @@ class ProjectManager(QtGui.QWidget):
     def newR(self):    
         if self.session.current_is_project():
             tab_name = "script.r"
-            self.session.applet_container.newTab(applet_type="r", tab_name=tab_name)
-            self.session.project.add_script(tab_name, self.session.applet_container.applets[-1].widget().get_text())  
+            self.controller.applet_container.newTab(applet_type="r", tab_name=tab_name)
+            self.session.project.add_script(tab_name, self.controller.applet_container.applets[-1].widget().get_text())  
             
             self.session._update_locals()
             self._script_change()
@@ -261,7 +261,7 @@ class ProjectManager(QtGui.QWidget):
             tab_name = "script.r"
             self.scriptManager.add_script(tab_name, "") 
             self.session._project = self.scriptManager
-            self.session.applet_container.newTab(applet_type="r", tab_name=tab_name)
+            self.controller.applet_container.newTab(applet_type="r", tab_name=tab_name)
             self.session._update_locals()
             #self._script_change()
             self._tree_view_change()
@@ -269,8 +269,8 @@ class ProjectManager(QtGui.QWidget):
     def newLpy(self):
         if self.session.current_is_project():
             tab_name = "script.lpy"
-            self.session.applet_container.newTab(applet_type="lpy", tab_name=tab_name)
-            self.session.project.add_script(tab_name, self.session.applet_container.applets[-1].widget().get_text())  
+            self.controller.applet_container.newTab(applet_type="lpy", tab_name=tab_name)
+            self.session.project.add_script(tab_name, self.controller.applet_container.applets[-1].widget().get_text())  
             
             self.session._update_locals()
             self._script_change()
@@ -281,7 +281,7 @@ class ProjectManager(QtGui.QWidget):
             tab_name = "script.lpy"
             self.scriptManager.add_script(tab_name, "") 
             self.session._project = self.scriptManager
-            self.session.applet_container.newTab(applet_type="lpy", tab_name=tab_name)
+            self.controller.applet_container.newTab(applet_type="lpy", tab_name=tab_name)
             self.session._update_locals()
             #self._script_change()
             self._tree_view_change()
@@ -289,8 +289,8 @@ class ProjectManager(QtGui.QWidget):
     def newVisualea(self):
         if self.session.current_is_project():
             tab_name = "workflow.wpy"
-            self.session.applet_container.newTab(applet_type="visualea",tab_name=tab_name)
-            self.session.project.add_script(tab_name, self.session.applet_container.applets[-1].widget().get_text())  
+            self.controller.applet_container.newTab(applet_type="visualea",tab_name=tab_name)
+            self.session.project.add_script(tab_name, self.controller.applet_container.applets[-1].widget().get_text())  
             
             self.session._update_locals()
             self._script_change()
@@ -301,7 +301,7 @@ class ProjectManager(QtGui.QWidget):
             tab_name = "workflow.wpy"
             self.scriptManager.add_script(tab_name, "") 
             self.session._project = self.scriptManager
-            self.session.applet_container.newTab(applet_type="visualea", tab_name=tab_name)
+            self.controller.applet_container.newTab(applet_type="visualea", tab_name=tab_name)
             self.session._update_locals()
             #self._script_change()
             self._tree_view_change()
@@ -350,17 +350,17 @@ class ProjectManager(QtGui.QWidget):
         if self.session.current_is_project():
             current = self.session.project
             current.controls = dict()
-            container = self.session.applet_container
+            container = self.controller.applet_container
         
             for i in range(container.count()):
                 container.setCurrentIndex(i)
                 name = container.tabText(i)
                 container.widget(i).save(name)
                 
-            colors = self.session.applets['ControlPanel'].colormap_editor.getTurtle().getColorList()
+            colors = self.controller.applets['ControlPanel'].colormap_editor.getTurtle().getColorList()
             current.controls["color map"] = colors
             
-            geoms = self.session.applets['ControlPanel'].geometry_editor.getObjects()
+            geoms = self.controller.applets['ControlPanel'].geometry_editor.getObjects()
             
 
             for (manager, geom) in geoms:
@@ -368,7 +368,7 @@ class ProjectManager(QtGui.QWidget):
                     new_obj,new_name = geometry_2_piklable_geometry(manager, geom)
                     current.controls[new_name] = new_obj
             
-            scalars = self.session.applets['ControlPanel'].scalars_editor.getScalars()
+            scalars = self.controller.applets['ControlPanel'].scalars_editor.getScalars()
             for scalar in scalars:
                 current.controls[scalar.name] = scalar
 
@@ -378,7 +378,7 @@ class ProjectManager(QtGui.QWidget):
             ## TODO : Warning! Save all not just current
             #current = self.session.project
             #container = 
-            self.session.applet_container.save_all()
+            self.controller.applet_container.save_all()
             self._tree_view_change()
         
             #for i in range(container.count()):
@@ -430,7 +430,7 @@ class ProjectManager(QtGui.QWidget):
         Update what is needed when the current project is changed
         """
         logger.debug("Project changed")
-        self.session._update_locals()
+        self.controller._update_locals()
         if self.session.current_is_project():
             self._scene_change()
             #self._control_change()
@@ -456,7 +456,7 @@ class ProjectManager(QtGui.QWidget):
         i = 0
         logger.debug("Load Controls color map: %s "%str(proj.controls["color map"]))
         for color in proj.controls["color map"]:
-            self.session.applets['ControlPanel'].colormap_editor.getTurtle().setMaterial(i, color)
+            self.controller.applets['ControlPanel'].colormap_editor.getTurtle().setMaterial(i, color)
             i += 1
             
         managers = get_managers()
@@ -477,10 +477,10 @@ class ProjectManager(QtGui.QWidget):
                 scalars.append(proj.controls[control])    
         if geom is not list():
             logger.debug("Load Controls Geom: %s "%str(geom))
-            self.session.applets['ControlPanel'].geometry_editor.setObjects(geom)
+            self.controller.applets['ControlPanel'].geometry_editor.setObjects(geom)
         if scalars is not list():
             logger.debug("Load Controls Scalars: %s "%str(scalars))
-            self.session.applets['ControlPanel'].scalars_editor.setScalars(scalars)
+            self.controller.applets['ControlPanel'].scalars_editor.setScalars(scalars)
         
     def _update_control(self):
         """
@@ -491,57 +491,57 @@ class ProjectManager(QtGui.QWidget):
         
         self.session.project.controls["color map"] = PglTurtle().getColorList()
         
-        objects = self.session.applets['ControlPanel'].geometry_editor.getObjects()
+        objects = self.controller.applets['ControlPanel'].geometry_editor.getObjects()
         for (manager,obj) in objects:
             if obj != list():
                 obj, name = geometry_2_piklable_geometry(manager,obj)
                 self.session.project.controls[unicode(name)] = obj
                 
-        scalars = self.session.applets['ControlPanel'].scalars_editor.getScalars()
+        scalars = self.controller.applets['ControlPanel'].scalars_editor.getScalars()
         for scalar in scalars:
             self.session.project.controls[unicode(scalar.name)] = scalar
                 
     def _clear_control(self):
-            self.session.applets['ControlPanel'].geometry_editor.clear()
-            n = len(self.session.applets['ControlPanel'].scalars_editor.getScalars())
+            self.controller.applets['ControlPanel'].geometry_editor.clear()
+            n = len(self.controller.applets['ControlPanel'].scalars_editor.getScalars())
             for scalar in range(n):
-            	    self.session.applets['ControlPanel'].scalars_editor.deleteScalars()
+            	    self.controller.applets['ControlPanel'].scalars_editor.deleteScalars()
             
     def _control_change(self):
         pass           
         
     def _tree_view_change(self):
         logger.debug("Tree View changed")
-        self.session.applets['Project'].update()
+        self.controller.applets['Project'].update()
         
     def _script_change(self):
         logger.debug("Script changed")
         if self.session.current_is_project():
             # If project
             project = self.session.project
-            self.session.applet_container.reset()
+            self.controller.applet_container.reset()
             for script in project.scripts:
                 language = str(script).split('.')[-1]
-                self.session.applet_container.openTab(language, script, project.scripts[script])
+                self.controller.applet_container.openTab(language, script, project.scripts[script])
             
         elif self.session.current_is_script():
             # If script
-            self.session.applet_container.reset()
+            self.controller.applet_container.reset()
             scripts = self.session.project
             
             for script_name in scripts:
                 language = str(script_name).split('.')[-1]
                 txt = scripts[script_name]
-                self.session.applet_container.openTab(language, script_name, txt)
+                self.controller.applet_container.openTab(language, script_name, txt)
         else:
             # If nothing opened
-            #self.session.applet_container.reset()
-            self.session.applet_container.closeAll()
+            #self.controller.applet_container.reset()
+            self.controller.applet_container.closeAll()
             
     def _scene_change(self):
         logger.debug("Scene changed")
-        self.session.scene.reset()
+        self.controller.scene.reset()
         if self.session.current_is_project():
             project = self.session.project
             for w in project.scene:
-                self.session.scene.add(name=w,obj=project.scene[w])
+                self.controller.scene.add(name=w,obj=project.scene[w])

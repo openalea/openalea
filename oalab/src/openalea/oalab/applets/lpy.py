@@ -146,7 +146,7 @@ class LPyApplet(object):
         self.code = str()
         self.axialtree = AxialTree()
 
-        registerPlotter(self.session.applets['Viewer3D'])
+        registerPlotter(self.controller.applets['Viewer3D'])
         
         # Link with color map from application
         if self.session.project.controls.has_key("color map"):    
@@ -155,7 +155,7 @@ class LPyApplet(object):
                 self.lsystem.context().turtle.setMaterial(i, color)
                 i += 1
         
-        self.controller.interpreter.locals['lsystem'] = self.lsystem
+        self.session.interpreter.locals['lsystem'] = self.lsystem
 
         ## TODO : 
         #self.session.interpreter.locals['lstring'] =       
@@ -268,7 +268,7 @@ class LPyApplet2(object):
         super(LPyApplet2, self).__init__()
         logger.debug("init LPyApplet")
         self.name = name
-        self.intrepreter = intrepreter
+        self.intrepreter = session.interpreter
         # dict is mutable =D
         # Usefull if you want change scene_name inside application
         self.parameters = dict()

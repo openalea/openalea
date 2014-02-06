@@ -21,7 +21,9 @@ __revision__ = ""
 from openalea.vpltk.qt import QtGui, QtCore
 from mainwindow import MainWindow
 from openalea.oalab import metainfo
-from session import Session
+
+from openalea.oalab.session.all import Session
+from openalea.oalab.gui.allwidgets import AllWidgets
 
 from openalea.oalab.gui import resources_rc
 
@@ -41,7 +43,8 @@ class OALab(QtGui.QApplication):
         #self.setStyle('cleanlooks')
         # -- main window --
 
-        self.win = MainWindow(session, args)
+        controller = AllWidgets(session)
+        self.win = MainWindow(session, controller, parent=None, args=args)
         
         self.win.setMinimumSize(800,400)
         self.win.showMaximized()

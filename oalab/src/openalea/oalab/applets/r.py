@@ -66,7 +66,7 @@ more informations: http://www.r-project.org/
 
 """ + code
         interp = self.controller.shell.get_interpreter()
-        user_ns = self.controller.interpreter.user_ns
+        user_ns = self.session.interpreter.user_ns
         interp.runcode(code)    
         
     def run(self):
@@ -75,7 +75,7 @@ more informations: http://www.r-project.org/
 
 """ + code
         interp = self.controller.shell.get_interpreter()
-        user_ns = self.controller.interpreter.user_ns
+        user_ns = self.session.interpreter.user_ns
         interp.runcode(code)
         
         self._init = user_ns.get("init")

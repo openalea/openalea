@@ -21,7 +21,7 @@ import sys
 from openalea.oalab.gui.app import OALab
 from openalea.oalab.cli.parser import CommandLineParser
 from openalea.oalab.project.symlink import create_project_shortcut
-from openalea.oalab.gui.session import Session
+from openalea.oalab.session.all import Session
 
 def main():
     """
@@ -31,10 +31,10 @@ def main():
     create_project_shortcut()
     # Launch app
     
-    #session = Session()
-    #cli = CommandLineParser(sys.argv)
+    session = Session()
+    cli = CommandLineParser(sys.argv, session)
 
-    app = OALab(sys.argv)
+    app = OALab(sys.argv, session)
     app.exec_()
     
 def main_plantlab():
@@ -43,8 +43,12 @@ def main_plantlab():
     """
     # Create shortcut in project dir to oalab.share dir (only if necessary)
     create_project_shortcut()
+
+    session = Session()
+    session.extension = 'plant'  
+    
     # Launch app
-    app = OALab(["-e", "plant"])
+    app = OALab(sys.argv, session)
     app.exec_()
     
 def main_tissuelab():
@@ -53,8 +57,12 @@ def main_tissuelab():
     """
     # Create shortcut in project dir to oalab.share dir (only if necessary)
     create_project_shortcut()
+
+    session = Session()
+    session.extension = 'tissue'     
+    
     # Launch app
-    app = OALab(["-e", "tissue"])
+    app = OALab(sys.argv, session)
     app.exec_()
     
 def main_3dlab():
@@ -63,8 +71,12 @@ def main_3dlab():
     """
     # Create shortcut in project dir to oalab.share dir (only if necessary)
     create_project_shortcut()
+
+    session = Session()
+    session.extension = '3d'     
+    
     # Launch app
-    app = OALab(["-e", "3d"])
+    app = OALab(sys.argv, session)
     app.exec_()
     
 def main_minilab():
@@ -73,8 +85,12 @@ def main_minilab():
     """
     # Create shortcut in project dir to oalab.share dir (only if necessary)
     create_project_shortcut()
+
+    session = Session()
+    session.extension = 'mini'     
+    
     # Launch app
-    app = OALab(["-e", "mini"])
+    app = OALab(sys.argv, session)
     app.exec_()
 
     

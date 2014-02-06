@@ -24,7 +24,7 @@ __all__ = ['CommandLineParser']
 
 import argparse
 
-from openalea.oalab.gui.session import Session
+from openalea.oalab.session.all import Session
 
 class CommandLineParser(object):
     def __init__(self, args, session=None):
@@ -34,5 +34,5 @@ class CommandLineParser(object):
         self.parser = argparse.ArgumentParser(description='OALab Command Line')
         self.parser.add_argument('-e', '--extension', metavar='extension', type=str, default="mini",
                                  help='Lab extension to launch')
-        args = self.parser.parse_args(args)
+        args = self.parser.parse_args()
         self.session.extension = args.extension

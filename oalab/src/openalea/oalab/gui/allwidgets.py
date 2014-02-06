@@ -1,0 +1,97 @@
+
+from openalea.core.pkgmanager import PackageManager
+from openalea.oalab.gui.logger import Logger
+from openalea.oalab.control.controlpanel import ControlPanel
+from openalea.oalab.gui.help import Help
+from openalea.oalab.gui.menu import PanedMenu
+from openalea.vpltk.shell.shell import get_shell_class
+from openalea.oalab.applets.container import AppletContainer
+from openalea.oalab.scene.vplscene import VPLScene
+from openalea.oalab.project.manager import ProjectManager
+from openalea.oalab.project.treeview import ProjectLayoutWidget
+from openalea.oalab.package import PackageViewWidget, PackageCategorieViewWidget, PackageSearchWidget
+from openalea.oalab.gui.store import Store
+from openalea.core.path import path
+from openalea.core.settings import get_openalea_home_dir
+from openalea.oalab.scene.view3d import Viewer
+from openalea.vpltk.qt import QtCore, QtGui
+
+class AllWidgets(QtGui.QWidget):
+    """
+    TODO:  This class must be replaces by independent widgets !
+    """
+    def __init__(self, session):
+
+        super(AllWidgets, self).__init__()
+
+        self.applets = {}
+        self.session = session
+
+        self.scene = VPLScene()
+        
+        # Menu
+        self.menu = PanedMenu()
+
+        # Docks
+        self.applets['ControlPanel'] = ControlPanel(session=self.session, controller=self, parent=self)
+        self.applets['Viewer3D'] = Viewer(session=self.session, controller=self, parent=self)
+        
+        self.shell = get_shell_class()(self.session.interpreter)     
+        
+        self.project_manager = ProjectManager(session=self.session, controller=self, parent=self)
+        
+        self.applets['Project'] = ProjectLayoutWidget(session=self.session, controller=self, parent=self)
+        
+        self.applets['Packages'] = PackageViewWidget(session=self.session, controller=self, parent=self)
+        self.applets['PackageCategories'] = PackageCategorieViewWidget(session=self.session, controller=self, parent=self)
+        self.applets['PackageSearch'] = PackageSearchWidget(session=self.session, controller=self, parent=self)
+
+        self.applets['Logger'] = Logger(session=self.session, controller=self, parent=self)
+        self.applets['Help'] = Help(session=self.session, controller=self, parent=self)
+
+        #self.interpreter.locals['ctrl'] = self.applets['ControlPanel']
+        #self.interpreter.locals['interp'] = self.interpreter
+        self.session.interpreter.locals['shell'] = self.shell
+        self.session.interpreter.locals['controller'] = self
+        self._update_locals()
+        
+        # Applet Container : can contain text editor or/and workflow editor
+        self.applet_container = AppletContainer(session=self.session, controller=self, parent=self)        
+        self.session.interpreter.locals['applets'] = self.applet_container
+        
+        self.applets['Store'] = Store(session=self.session, controller=self, parent=self)
+        
+        self.connect_all_actions()
+    
+    def _update_locals(self):
+        try:
+            self.interpreter.locals['project'] = self.project
+            self.interpreter.locals['controls'] = self.project.controls
+            self.interpreter.locals['scene'] = self.scene
+        except:
+            pass
+        
+    def connect_all_actions(self):
+        """
+        Connect actions of different widget to the menu
+        """
+        self.connect_actions(self.project_manager)
+        self.connect_actions(self.applet_container)
+
+        for applet in self.applets.values():
+            self.connect_actions(applet)
+
+    def connect_actions(self, widget, menu=None):
+        """
+        Connect actions from 'widget' to 'menu'
+        """
+        # TODO : add "show/hide widget" button in menu ribbon bar
+        # Maybe do it in mainwindow class to show/hide dockwidget and not widget in dock
+        if not menu:
+            menu = self.menu
+        actions = widget.actions()
+
+        if actions:
+            for action in actions:
+                menu.addBtnByAction(pane_name=action[0], group_name=action[1], action=action[2],btn_type=action[3])
+
