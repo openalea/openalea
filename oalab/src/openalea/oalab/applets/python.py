@@ -24,12 +24,13 @@ from openalea.oalab.editor.highlight import Highlighter
 from openalea.vpltk.qt import QtCore
     
 class PythonApplet(object):
-    def __init__(self, session, name="script.py", script=""):
+    def __init__(self, session, controller, parent=None, name="script.py", script=""):
         super(PythonApplet, self).__init__()
-        self._widget = Editor(session=session)
+        self._widget = Editor(session=session, controller=controller, parent=parent)
         Highlighter(self._widget.editor)
         self._widget.applet = self
         self.session = session
+        self.controller = controller
         self.name = name
         self._step = None
         self._animate = None
@@ -46,7 +47,7 @@ class PythonApplet(object):
 
 more informations: http://www.python.org/
 """
-        self.session.applets['Help'].setText(txt)
+        self.controller.applets['Help'].setText(txt)
         
     def widget(self):
         """
@@ -58,14 +59,14 @@ more informations: http://www.python.org/
         code = self.widget().get_selected_text()
         if len(code) == 0:
             code = self.widget().get_text()
-        interp = self.session.shell.get_interpreter()
-        user_ns = self.session.interpreter.user_ns
+        interp = self.controller.shell.get_interpreter()
+        user_ns = self.controller.interpreter.user_ns
         interp.runcode(code)
         
     def run(self):
         code = self.widget().get_text()
-        interp = self.session.shell.get_interpreter()
-        user_ns = self.session.interpreter.user_ns
+        interp = self.controller.shell.get_interpreter()
+        user_ns = self.controller.interpreter.user_ns
         interp.runcode(code)
         
         self._init = user_ns.get("init")

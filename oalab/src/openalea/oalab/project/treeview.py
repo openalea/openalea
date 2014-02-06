@@ -31,11 +31,11 @@ class ProjectLayoutWidget(QtGui.QWidget):
     """
     Widget to display the name of the current project AND the project
     """
-    def __init__(self, session):
-        super(ProjectLayoutWidget, self).__init__(parent=None) 
+    def __init__(self, session, controller, parent=None):
+        super(ProjectLayoutWidget, self).__init__(parent=parent) 
         self.session = session
-        self.treeview = ProjectTreeView(self.session)
-        self.label = ProjectLabel(self.session)
+        self.treeview = ProjectTreeView(self.session, controller, parent)
+        self.label = ProjectLabel(self.session, controller, parent)
         
         layout = QtGui.QVBoxLayout()
         layout.addWidget(self.label)
@@ -62,7 +62,7 @@ class ProjectLabel(QtGui.QLabel):
     """
     Widget to display the name of the current project.
     """
-    def __init__(self, session):
+    def __init__(self, session, controller, parent=None):
         super(ProjectLabel, self).__init__(parent=None) 
         self.session = session
         self.update()
@@ -80,10 +80,11 @@ class ProjectTreeView(QtGui.QTreeView):
     """
     Widget to display Tree View of project.
     """
-    def __init__(self, session):
-        super(ProjectTreeView, self).__init__() 
+    def __init__(self, session, controller, parent=None):
+        super(ProjectTreeView, self).__init__(parent) 
         #self.setIconSize(QtCore.QSize(30,30))
         self.session = session
+        self.controller = controller
         
         if self.session.current_is_project():
             self.project = self.session.project
@@ -95,7 +96,7 @@ class ProjectTreeView(QtGui.QTreeView):
         self.projectview = QtGui.QWidget()
         
         # project tree view
-        self.proj_model = PrjctModel(self.project)
+        self.proj_model = PrjctModel(self.project, controller, parent)
         
         self.setHeaderHidden(True)
         self.setModel(self.proj_model)
@@ -124,13 +125,13 @@ class ProjectTreeView(QtGui.QTreeView):
 
     def create_menu_actions(self):
         self.newPyAction = QtGui.QAction('New Python Model',self)
-        QtCore.QObject.connect(self.newPyAction,QtCore.SIGNAL('triggered(bool)'),self.session.project_manager.newPython)
+        QtCore.QObject.connect(self.newPyAction,QtCore.SIGNAL('triggered(bool)'),self.controller.project_manager.newPython)
         self.newLPyAction = QtGui.QAction('New L-System Model',self)
-        QtCore.QObject.connect(self.newLPyAction,QtCore.SIGNAL('triggered(bool)'),self.session.project_manager.newLpy)
+        QtCore.QObject.connect(self.newLPyAction,QtCore.SIGNAL('triggered(bool)'),self.controller.project_manager.newLpy)
         self.newWFAction = QtGui.QAction('New Workflow Model',self)
-        QtCore.QObject.connect(self.newWFAction,QtCore.SIGNAL('triggered(bool)'),self.session.project_manager.newVisualea)
+        QtCore.QObject.connect(self.newWFAction,QtCore.SIGNAL('triggered(bool)'),self.controller.project_manager.newVisualea)
         self.newRAction = QtGui.QAction('New R Model',self)
-        QtCore.QObject.connect(self.newRAction,QtCore.SIGNAL('triggered(bool)'),self.session.project_manager.newR)
+        QtCore.QObject.connect(self.newRAction,QtCore.SIGNAL('triggered(bool)'),self.controller.project_manager.newR)
         
         self.addPyAction = QtGui.QAction('Import Python Model',self)
         QtCore.QObject.connect(self.addPyAction,QtCore.SIGNAL('triggered(bool)'),self._addPy)
@@ -144,35 +145,6 @@ class ProjectTreeView(QtGui.QTreeView):
         self.renameAction = QtGui.QAction('Rename Project',self)
         QtCore.QObject.connect(self.renameAction,QtCore.SIGNAL('triggered(bool)'),self.renameProject)
         
-##        # actions on Models
-##        self.newAction = QtGui.QAction('New Model',self)
-##        QtCore.QObject.connect(self.newAction,QtCore.SIGNAL('triggered(bool)'),self._newModel)
-##        self.editAction = QtGui.QAction('Edit Model',self)
-##        QtCore.QObject.connect(self.editAction,QtCore.SIGNAL('triggered(bool)'),self._editModel)
-##        self.renameAction = QtGui.QAction('Rename Model',self)
-##        QtCore.QObject.connect(self.renameAction,QtCore.SIGNAL('triggered(bool)'),self._renameModel)
-##        self.delAction = QtGui.QAction('Delete Model',self)
-##        QtCore.QObject.connect(self.delAction,QtCore.SIGNAL('triggered(bool)'),self._delModel)
-##
-##        # actions on Controls
-##        self.newCtrlAction = QtGui.QAction('New Control',self)
-##        QtCore.QObject.connect(self.newCtrlAction,QtCore.SIGNAL('triggered(bool)'),self._newCtrlModel)
-##        self.editCtrlAction = QtGui.QAction('Edit Control',self)
-##        QtCore.QObject.connect(self.editCtrlAction,QtCore.SIGNAL('triggered(bool)'),self._editCtrlModel)
-##        self.renameCtrlAction = QtGui.QAction('Rename Control',self)
-##        QtCore.QObject.connect(self.renameCtrlAction,QtCore.SIGNAL('triggered(bool)'),self._renameCtrlModel)
-##        self.delCtrlAction = QtGui.QAction('Delete Control',self)
-##        QtCore.QObject.connect(self.delCtrlAction,QtCore.SIGNAL('triggered(bool)'),self._delCtrlModel)
-##        
-##        # actions on Scene
-##        self.newSceneCpAction = QtGui.QAction('Hide/Show Scene Component',self)
-##        QtCore.QObject.connect(self.newSceneCpAction,QtCore.SIGNAL('triggered(bool)'),self._newSceneCpModel)
-##        self.renameSceneCpAction = QtGui.QAction('Rename Scene Component',self)
-##        QtCore.QObject.connect(self.renameSceneCpAction,QtCore.SIGNAL('triggered(bool)'),self._renameSceneCpModel)
-##        self.delSceneCpAction = QtGui.QAction('Delete Scene Component',self)
-##        QtCore.QObject.connect(self.delSceneCpAction,QtCore.SIGNAL('triggered(bool)'),self._delSceneCpModel)
-
-
     def create_menu(self):
         menu = QtGui.QMenu(self)
         menu.addAction(self.newPyAction)
@@ -187,23 +159,7 @@ class ProjectTreeView(QtGui.QTreeView):
         menu.addSeparator()
         menu.addAction(self.renameAction)  
         
-        
-##        menu.addAction(self.newAction)
-##        menu.addAction(self.editAction)
-##        menu.addAction(self.renameAction)
-##        menu.addAction(self.delAction)
-##        menu.addSeparator()
-##        menu.addAction(self.newCtrlAction)
-##        menu.addAction(self.editCtrlAction)
-##        menu.addAction(self.renameCtrlAction)
-##        menu.addAction(self.delCtrlAction)
-##        menu.addSeparator()
-##        menu.addAction(self.newSceneCpAction)
-##        menu.addAction(self.renameSceneCpAction)
-##        menu.addAction(self.delSceneCpAction)
-        
         return menu
-        
 
     def showMenu(self, event):
         """ function defining actions to do according to the menu's button chosen"""
@@ -223,26 +179,10 @@ class ProjectTreeView(QtGui.QTreeView):
         """
         if self.session.current_is_project():
             name = self.session.project.name
-            new_name = self.session.project_manager.showNewProjectDialog(default_name=path(name)/"..", text='Select new name to save project')
+            new_name = self.controller.project_manager.showNewProjectDialog(default_name=path(name)/"..", text='Select new name to save project')
             self.session.project.rename(categorie="project", old_name="name", new_name=new_name)
         else:
             print("This is not a project, so you can't use 'rename project'")
-
-    #def renameSelection(self):
-        #""" rename an object in the list """
-        #index = self.selectedIndexes()[0]
-        #item = index.model().itemFromIndex(index)
-        #name = str(item.text())
-        
-        #parent = item.parent()
-        #parent_name = str(parent.text())
-
-        #print name, parent_name
-
-            
-        ##self.model().item...
-            
-        #self.emit(QtCore.SIGNAL('renameRequest(int)'),self.selection)
 
     def hasSelection(self):
         """function hasSelection: check if an object is selected, return True in this case"""
@@ -274,7 +214,7 @@ class ProjectTreeView(QtGui.QTreeView):
             self.project.add_script(name, script)
           
             # TODO : Use signals !
-            self.session.project_manager._project_changed()
+            self.controller.project_manager._project_changed()
 
     def _addLPy(self):
         """
@@ -288,7 +228,7 @@ class ProjectTreeView(QtGui.QTreeView):
             self.project.add_script(name, script)
           
             # TODO : Use signals !
-            self.session.project_manager._project_changed()
+            self.controller.project_manager._project_changed()
             
     def _addR(self):
         """
@@ -302,7 +242,7 @@ class ProjectTreeView(QtGui.QTreeView):
             self.project.add_script(name, script)
           
             # TODO : Use signals !
-            self.session.project_manager._project_changed()
+            self.controller.project_manager._project_changed()
 
     def _addWorkflow(self):
         """
@@ -316,44 +256,7 @@ class ProjectTreeView(QtGui.QTreeView):
             self.project.add_script(name, script)
           
             # TODO : Use signals !
-            self.session.project_manager._project_changed()
-
-    """
-    def _newModel(self):
-        pass
-
-    def _editModel(self):
-        pass
-
-    def _renameModel(self):
-        pass
-
-    def _delModel(self):
-        pass
-
-
-    def _newCtrlModel(self):
-        pass
-
-    def _editCtrlModel(self):
-        pass
-
-    def _renameCtrlModel(self):
-        pass
-
-    def _delCtrlModel(self):
-        pass
-
-
-    def _newSceneCpModel(self):
-        pass
-
-    def _renameSceneCpModel(self):
-        pass
-
-    def _delSceneCpModel(self):
-        pass"""
-
+            self.controller.project_manager._project_changed()
 
     def mainMenu(self):
         """
@@ -382,8 +285,8 @@ class PrjctModel(QtGui.QStandardItemModel):
     # Display
     treeView.show()
     """
-    def __init__(self, project, parent=None):
-        super(PrjctModel, self).__init__(parent)
+    def __init__(self, session, controller, parent=None):
+        super(PrjctModel, self).__init__(session, controller, parent)
         
         # Use it to store evrything to compare with new when a change occure
         self.old_models = list()

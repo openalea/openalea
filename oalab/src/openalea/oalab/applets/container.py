@@ -35,9 +35,10 @@ class AppletContainer(QtGui.QTabWidget):
     identifier = "WidgetEditorContainer"
     name = "Editor Container"    
     
-    def __init__(self, session):
-        super(AppletContainer, self).__init__()
-        self.session = session # session
+    def __init__(self, session, controller, parent=None):
+        super(AppletContainer, self).__init__(parent=parent)
+        self.session = session
+        self.controller = controller
         self.setTabsClosable(True)
         self.setMinimumSize(100, 100)
         self.applets = list()
@@ -130,14 +131,14 @@ class AppletContainer(QtGui.QTabWidget):
         """
         Display a welcome tab if nothing is opened
         """
-        welcomePage = WelcomePage(session = self.session)
+        welcomePage = WelcomePage(session = self.session, controller=self.controller, parent=self.parent())
         self.addTab(welcomePage, "Welcome")
         
     def addCreateFileTab(self):
         """
         Display a tab to select type of file that you can create
         """
-        page = CreateFilePage(session = self.session)
+        page = CreateFilePage(session = self.session, controller=self.controller, parent=self.parent())
         self.addTab(page, "Create File")
         self.rmTab("Welcome")
     
@@ -189,19 +190,19 @@ class AppletContainer(QtGui.QTabWidget):
         # tab_name = check_if_name_is_unique(tab_name, existing_tabs)
         
         if (applet_type == "python") or (applet_type == "py"):
-            self.applets.append(PythonApplet(self.session, name=tab_name, script=script))
+            self.applets.append(PythonApplet(session=self.session, controller=self.controller, parent=self.parent(), name=tab_name, script=script))
         elif applet_type == "lpy":
-            self.applets.append(LPyApplet(self.session, name=tab_name, script=script))
+            self.applets.append(LPyApplet(session=self.session, controller=self.controller, parent=self.parent(), name=tab_name, script=script))
         elif applet_type in ("wpy","visualea"):
-            self.applets.append(VisualeaApplet(self.session, name=tab_name, script=script))
+            self.applets.append(VisualeaApplet(session=self.session, controller=self.controller, parent=self.parent(), name=tab_name, script=script))
         elif applet_type in ("r","R"):
-            self.applets.append(RApplet(self.session, name=tab_name, script=script))
+            self.applets.append(RApplet(session=self.session, controller=self.controller, parent=self.parent(), name=tab_name, script=script))
     
         self.addTab(self.applets[-1].widget(), tab_name)
         self.setCurrentWidget(self.applets[-1].widget())
         self.applets[-1].widget().name = tab_name
         
-        self.session.connect_actions(self.applets[-1].widget(), self.session.menu)
+        self.controller.connect_actions(self.applets[-1].widget(), self.controller.menu)
         QtCore.QObject.connect(self, QtCore.SIGNAL('currentChanged(int)'),self.focusChange)
         self.setTabBlack()
         
@@ -216,7 +217,7 @@ class AppletContainer(QtGui.QTabWidget):
         if self.session.current_is_script():
             ez_name = self.tabText(self.currentIndex())
             self.session.project.rm_script_by_ez_name(ez_name)
-            self.session.project_manager._tree_view_change()
+            self.controller.project_manager._tree_view_change()
         
         self.removeTab(self.currentIndex())
         if self.count() == 0:
@@ -272,7 +273,7 @@ class AppletContainer(QtGui.QTabWidget):
             self.setTabText(i, name)
                 
     def run_selected_part(self):
-        self.session.project_manager.update_from_widgets()
+        self.controller.project_manager.update_from_widgets()
         try:
             self.currentWidget().applet.run_selected_part()
             logger.debug("Run selected part " + self.currentWidget().applet.name)
@@ -280,27 +281,27 @@ class AppletContainer(QtGui.QTabWidget):
             logger.debug("Can't run selected part " + self.currentWidget().applet.name)
         
     def run(self):
-        self.session.project_manager.update_from_widgets()
+        self.controller.project_manager.update_from_widgets()
         self.currentWidget().applet.run()
         logger.debug("Run " + self.currentWidget().applet.name)
         
     def animate(self):
-        self.session.project_manager.update_from_widgets()
+        self.controller.project_manager.update_from_widgets()
         self.currentWidget().applet.animate()
         logger.debug("Animate " + self.currentWidget().applet.name)
         
     def step(self):
-        self.session.project_manager.update_from_widgets()
+        self.controller.project_manager.update_from_widgets()
         self.currentWidget().applet.step()
         logger.debug("Step " + self.currentWidget().applet.name)
         
     def stop(self):
-        self.session.project_manager.update_from_widgets()
+        self.controller.project_manager.update_from_widgets()
         self.currentWidget().applet.stop()
         logger.debug("Stop " + self.currentWidget().applet.name)
         
     def reinit(self):
-        self.session.project_manager.update_from_widgets()
+        self.controller.project_manager.update_from_widgets()
         self.currentWidget().applet.reinit()
         logger.debug("Reinit " + self.currentWidget().applet.name)
 
@@ -353,10 +354,11 @@ class CreateFilePage(QtGui.QWidget):
     or to create a new one,
     or to work on scripts outside projects.
     """
-    def __init__(self, session, parent=None):
-        super(CreateFilePage, self).__init__()
+    def __init__(self, session, controller, parent=None):
+        super(CreateFilePage, self).__init__(parent=parent)
         
         self.session = session
+        self.controller = controller
         layout = QtGui.QGridLayout()
         layout.setAlignment(QtCore.Qt.AlignCenter)
         
@@ -365,28 +367,28 @@ class CreateFilePage(QtGui.QWidget):
               
         text = QtGui.QLabel("Select type of file to add:")
         newPython = QtGui.QToolButton()
-        newPython.setDefaultAction(self.session.project_manager.actionNewPython)
+        newPython.setDefaultAction(self.controller.project_manager.actionNewPython)
         newPython.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
         #newPython.setMaximumSize(max_size)  
         newPython.setMinimumSize(min_size)         
         newR = QtGui.QToolButton()
-        newR.setDefaultAction(self.session.project_manager.actionNewR)
+        newR.setDefaultAction(self.controller.project_manager.actionNewR)
         newR.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
         #newR.setMaximumSize(max_size)  
         newR.setMinimumSize(min_size) 
         newLPy = QtGui.QToolButton()
-        newLPy.setDefaultAction(self.session.project_manager.actionNewLPy)
+        newLPy.setDefaultAction(self.controller.project_manager.actionNewLPy)
         newLPy.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
         #newLPy.setMaximumSize(max_size)  
         newLPy.setMinimumSize(min_size)         
         newWorkflow = QtGui.QToolButton()
-        newWorkflow.setDefaultAction(self.session.project_manager.actionNewWorkflow)
+        newWorkflow.setDefaultAction(self.controller.project_manager.actionNewWorkflow)
         newWorkflow.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
         #newWorkflow.setMaximumSize(max_size)  
         newWorkflow.setMinimumSize(min_size)       
         text2 = QtGui.QLabel("You can add a file from your computer:")  
         importFile = QtGui.QToolButton()
-        importFile.setDefaultAction(self.session.project_manager.actionImportFile)
+        importFile.setDefaultAction(self.controller.project_manager.actionImportFile)
         importFile.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
         #importFile.setMaximumSize(max_size)  
         importFile.setMinimumSize(min_size)         
@@ -430,10 +432,11 @@ class WelcomePage(QtGui.QWidget):
     or to create a new one,
     or to work on scripts outside projects.
     """
-    def __init__(self, session, parent=None):
-        super(WelcomePage, self).__init__()
+    def __init__(self, session, controller, parent=None):
+        super(WelcomePage, self).__init__(parent=parent)
         
         self.session = session
+        self.controller = controller
         layout = QtGui.QGridLayout()
         layout.setAlignment(QtCore.Qt.AlignCenter)
         
@@ -485,19 +488,6 @@ class WelcomePage(QtGui.QWidget):
         
         QtCore.QObject.connect(restoreSessionBtn, QtCore.SIGNAL("clicked()"),self.restoreSession)
         
-        #layout.addWidget(messageBegin,0,0,1,1)
-        #layout.addWidget(messageNew,1,0)
-        #layout.addWidget(newBtn,2,0)
-        #layout.addWidget(newSvnBtn,3,0)
-        #layout.addWidget(newGitBtn,4,0)
-        #layout.addWidget(newScriptBtn,5,0)
-        
-        #layout.addWidget(messageOpen,1,1)        
-        #layout.addWidget(openBtn,2,1)
-        #layout.addWidget(openSvnBtn,3,1)
-        #layout.addWidget(openGitBtn,4,1)
-        #layout.addWidget(openScriptBtn,5,1)
-        
         layout.addWidget(newBtn,0,0)
         layout.addWidget(openBtn,1,0)
         
@@ -531,37 +521,37 @@ class WelcomePage(QtGui.QWidget):
     def new(self):
         self.session._is_proj = True
         self.session._is_script = False
-        self.session.project_manager.new()
+        self.controller.project_manager.new()
         logger.debug("New Project from welcome page")
         
     def newSvn(self):
-        self.session.project_manager.newSvn()    
+        self.controller.project_manager.newSvn()    
         
     def newGit(self):
-        self.session.project_manager.newGit()   
+        self.controller.project_manager.newGit()   
         
     def newScript(self):
         self.session._is_proj = False
         self.session._is_script = True
-        self.session.project_manager.newPython()
+        self.controller.project_manager.newPython()
         logger.debug("New Script from welcome page")
           
     def open(self):
         self.session._is_proj = True
         self.session._is_script = False
-        self.session.project_manager.open()
+        self.controller.project_manager.open()
         logger.debug("Open Project from welcome page")
         
     def openSvn(self):
-        self.session.project_manager.openSvn()
+        self.controller.project_manager.openSvn()
         
     def openGit(self):
-        self.session.project_manager.openGit()
+        self.controller.project_manager.openGit()
 
     def openScript(self):
         self.session._is_proj = False
         self.session._is_script = True
-        self.session.project_manager.openPython()
+        self.controller.project_manager.openPython()
         logger.debug("Open Script from welcome page")
         
     def restoreSession(self):
@@ -573,17 +563,17 @@ class WelcomePage(QtGui.QWidget):
             self.session._is_proj = True
             self.session._is_script = False
             name = path(proj.path).abspath()/proj.name
-            self.session.project_manager.open(name)
+            self.controller.project_manager.open(name)
             logger.debug("Restore previous session. (project)")
         elif proj.is_script():
             self.session._is_proj = False
             self.session._is_script = True
             self.session._project = Scripts()
             for p in proj:
-                self.session.project_manager.importFile(filename=p)
+                self.controller.project_manager.importFile(filename=p)
             
-            self.session.project_manager._project_changed()
-            #self.session.project_manager.importFile(filename=fname, extension="*.py")
+            self.controller.project_manager._project_changed()
+            #self.controller.project_manager.importFile(filename=fname, extension="*.py")
             logger.debug("Restore previous session. (scripts)")
 
 class SelectExtensionPage(QtGui.QWidget):
@@ -594,10 +584,11 @@ class SelectExtensionPage(QtGui.QWidget):
     
     UNUSED today
     """
-    def __init__(self, session, parent=None):
-        super(SelectExtensionPage, self).__init__()
+    def __init__(self, session, controller, parent=None):
+        super(SelectExtensionPage, self).__init__(parent=parent)
         
         self.session = session
+        self.controller = controller
         layout = QtGui.QGridLayout()
         layout.setAlignment(QtCore.Qt.AlignCenter)
 
@@ -609,14 +600,7 @@ class SelectExtensionPage(QtGui.QWidget):
         plantlab = QtGui.QPushButton(QtGui.QIcon(":/images/resources/openalealogo.png"),"PlantLab")
         messageplantlab = QtGui.QLabel("PlantLab is an environnement to work on entire plant.")
         tissuelab = QtGui.QPushButton(QtGui.QIcon(":/images/resources/openalealogo.png"),"TissueLab")
-        messagetissuelab = QtGui.QLabel("TissueLab is an environnement to work on tissue part of plants.")
-        
-        #text2 = QtGui.QLabel("You can restore your previous session or open an existing project:")
-        #openproject = QtGui.QPushButton(QtGui.QIcon(":/images/resources/open.png"),"Open Project")
-        #messageopenproject = QtGui.QLabel("Open an existing project.")
-        #restoresession = QtGui.QPushButton(QtGui.QIcon(":/images/resources/open.png"),"Restore Session")
-        #messagerestoresession = QtGui.QLabel("Restore previous session.")
-        
+        messagetissuelab = QtGui.QLabel("TissueLab is an environnement to work on tissue part of plants.")        
         
         QtCore.QObject.connect(minilab, QtCore.SIGNAL("clicked()"),self.mini)
         QtCore.QObject.connect(lab3d, QtCore.SIGNAL("clicked()"),self.lab3d)
