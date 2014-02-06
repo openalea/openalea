@@ -152,8 +152,8 @@ class Viewer(view3D):
     """
     Widget of 3D Viewer to show the scene.
     """
-    def __init__(self, session):
-        super(Viewer, self).__init__() 
+    def __init__(self, session, controller, parent=None):
+        super(Viewer, self).__init__(parent=parent) 
         
         self.setAccessibleName("3DViewer")
         
@@ -184,8 +184,8 @@ class Viewer(view3D):
         
         QtCore.QObject.connect(actionShowFps, QtCore.SIGNAL('triggered(bool)'),self.show_fps)
         
-        QtCore.QObject.connect(session.scene.signaler, QtCore.SIGNAL('SceneChanged'),self.setScene)
-        QtCore.QObject.connect(session.scene.signaler, QtCore.SIGNAL('SceneChanged'),self.updateGL)        
+        QtCore.QObject.connect(controller.scene.signaler, QtCore.SIGNAL('SceneChanged'),self.setScene)
+        QtCore.QObject.connect(controller.scene.signaler, QtCore.SIGNAL('SceneChanged'),self.updateGL)        
         
         self._actions = [["3D Viewer","Zoom",actionResetZoom,0],
                         ["3D Viewer","Zoom",actionZoomOut,0],

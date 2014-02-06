@@ -113,14 +113,15 @@ def import_lpy_file(script):
 
 class LPyApplet(object):   
     
-    def __init__(self, session, name="script.lpy", script=""):
+    def __init__(self, session, controller, parent=None, name="script.lpy", script=""):
         super(LPyApplet, self).__init__()
         logger.debug("init LPyApplet")
-        self._widget = Editor(session=session)
+        self._widget = Editor(session=session, controller=controller, parent=parent)
         Highlighter(self._widget.editor, lexer=LPyLexer())
         logger.debug("Begin Highlight inside LPyApplet")
         self._widget.applet = self
         self.session = session
+        self.controller = controller
         self.name = name
         
         # dict is mutable =D
@@ -138,7 +139,7 @@ class LPyApplet(object):
             # for parameter in self.parameters:
                 # if hasattr(self.parameters[parameter], "value"):
                     # self.parameters[parameter] = self.parameters[parameter].value
-            session.project_manager._load_control()
+            controller.project_manager._load_control()
         
         self.widget().set_text(script)
         self.lsystem = Lsystem()
@@ -154,7 +155,7 @@ class LPyApplet(object):
                 self.lsystem.context().turtle.setMaterial(i, color)
                 i += 1
         
-        self.session.interpreter.locals['lsystem'] = self.lsystem
+        self.controller.interpreter.locals['lsystem'] = self.lsystem
 
         ## TODO : 
         #self.session.interpreter.locals['lstring'] =       
@@ -164,7 +165,7 @@ class LPyApplet(object):
         Set doc string in Help widget when focus changed
         """
         txt = doc_lpy.getSpecification()
-        self.session.applets['Help'].setText(txt)
+        self.controller.applets['Help'].setText(txt)
          
     def widget(self):
         """
@@ -181,7 +182,7 @@ class LPyApplet(object):
         if len(code) == 0:
             self.run()
         else:
-            interp = self.session.shell.get_interpreter()
+            interp = self.controller.shell.get_interpreter()
             #user_ns = self.session.interpreter.user_ns
             interp.runcode(code)
 
@@ -202,8 +203,8 @@ class LPyApplet(object):
         
         new_scene = self.lsystem.sceneInterpretation(self.axialtree)
         scene_name = self.context["scene_name"]
-        self.session.scene[scene_name] = new_scene
-        self.session.applets['Viewer3D'].update_radius()
+        self.controller.scene[scene_name] = new_scene
+        self.controller.applets['Viewer3D'].update_radius()
         
     def step(self, i=None):
         """
@@ -238,7 +239,7 @@ class LPyApplet(object):
 
         new_scene = self.lsystem.sceneInterpretation(self.axialtree)
         if new_scene:
-            self.session.scene[self.context["scene_name"]] = new_scene
+            self.controller.scene[self.context["scene_name"]] = new_scene
         
     def stop(self):
         # TODO : to implement
@@ -257,13 +258,13 @@ class LPyApplet(object):
         self.lsystem.setCode(code, self.parameters)
         self.step()
         self.lsystem.animate()
-        self.session.applets['Viewer3D'].update_radius()
+        self.controller.applets['Viewer3D'].update_radius()
 
     def reinit(self):
         self.step(0)
 
 class LPyApplet2(object):
-    def __init__(self, intrepreter, name="script.lpy", script=""):
+    def __init__(self, session, controller, parent=None, name="script.lpy", script=""):
         super(LPyApplet2, self).__init__()
         logger.debug("init LPyApplet")
         self.name = name

@@ -32,7 +32,7 @@ class Store(MainWindowAleaInstall):
     Warning!!! Will kill OALab!!!
     """
     
-    def __init__(self,session):
+    def __init__(self, session, controller, parent=None):
         # Save stdout and stderr because MainWindowAleaInstall try to redirect it.
         oldstdout = sys.stdout
         oldstderr = sys.stderr

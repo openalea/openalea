@@ -24,19 +24,20 @@ from openalea.oalab.editor.highlight import Highlighter
 from openalea.vpltk.qt import QtCore
     
 class RApplet(object):
-    def __init__(self, session, name="script.R", script=""):
+    def __init__(self, session, controller, parent=None, name="script.R", script=""):
         super(RApplet, self).__init__()
-        self._widget = Editor(session=session)
+        self._widget = Editor(session=session, controller=controller, parent=parent)
         Highlighter(self._widget.editor)
         self._widget.applet = self
         self.session = session
+        self.controller = controller
         self.name = name
         self._step = None
         self._animate = None
         self._init = None
         
         # TODO : Do it only once
-        self.session.shell.runcode(source="%load_ext rmagic",hidden=True)
+        self.controller.shell.runcode(source="%load_ext rmagic",hidden=True)
         
         self.widget().set_text(script)
         
@@ -49,7 +50,7 @@ class RApplet(object):
 
 more informations: http://www.r-project.org/
 """
-        self.session.applets['Help'].setText(txt)
+        self.controller.applets['Help'].setText(txt)
         
     def widget(self):
         """
@@ -64,8 +65,8 @@ more informations: http://www.r-project.org/
         code = """%%R
 
 """ + code
-        interp = self.session.shell.get_interpreter()
-        user_ns = self.session.interpreter.user_ns
+        interp = self.controller.shell.get_interpreter()
+        user_ns = self.controller.interpreter.user_ns
         interp.runcode(code)    
         
     def run(self):
@@ -73,8 +74,8 @@ more informations: http://www.r-project.org/
         code = """%%R
 
 """ + code
-        interp = self.session.shell.get_interpreter()
-        user_ns = self.session.interpreter.user_ns
+        interp = self.controller.shell.get_interpreter()
+        user_ns = self.controller.interpreter.user_ns
         interp.runcode(code)
         
         self._init = user_ns.get("init")
