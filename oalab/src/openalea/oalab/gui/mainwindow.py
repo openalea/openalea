@@ -35,19 +35,17 @@ class MainWindow(QtGui.QMainWindow):
     """
     Main Window Class
     """
-    def __init__(self, session, args=None):
+    def __init__(self, session, controller, parent=None, args=None):
         super(QtGui.QMainWindow, self).__init__()
         self.session = session
+        self.controller = controller
         
         self._dockwidgets = {}
 
-        if args:
-            if "-e" in args or "--extension" in args:
-                self.session.extension = args[-1]
         self.changeExtension(extension=self.session.extension)
             
         # Central Widget
-        self.setCentralWidget(session.applet_container)
+        self.setCentralWidget(self.controller.applet_container)
 
         self.readSettings()     
         self.setSettingsInMenu()
@@ -81,7 +79,7 @@ class MainWindow(QtGui.QMainWindow):
                     f.write(config_file_default)
         self.session.load_config_file(conf)
         
-        self.setWidgets(self.session)
+        self.setWidgets(self.controller)
                 
                 
     def closeEvent(self, event):
@@ -142,7 +140,7 @@ class MainWindow(QtGui.QMainWindow):
                 return _actions
                 
         settings = FakeWidget(parent=self)
-        self.session.connect_actions(settings)       
+        self.controller.connect_actions(settings)       
         
     def setShowDockInMenu(self):
         """
@@ -164,7 +162,7 @@ class MainWindow(QtGui.QMainWindow):
                 return self._actions
             
             child.actions = types.MethodType( actions, child)
-            self.session.connect_actions(child) 
+            self.controller.connect_actions(child) 
             
     def setSelectLabInMenu(self):
         class FakeWidget(object):
@@ -192,7 +190,7 @@ class MainWindow(QtGui.QMainWindow):
                 return _actions
                 
         settings = FakeWidget(parent=self)
-        self.session.connect_actions(settings)  
+        self.controller.connect_actions(settings)  
     
     def defaultSettings(self):
         """
@@ -245,32 +243,32 @@ class MainWindow(QtGui.QMainWindow):
         
         return dock_widget
     
-    def setWidgets(self, session):
+    def setWidgets(self, controller):
         # Menu
-        dock_menu = self._dockWidget("Menu", session.menu, allowed_area=QtCore.Qt.TopDockWidgetArea, position=QtCore.Qt.TopDockWidgetArea)
+        dock_menu = self._dockWidget("Menu", controller.menu, allowed_area=QtCore.Qt.TopDockWidgetArea, position=QtCore.Qt.TopDockWidgetArea)
         # Hide title bar
         dock_menu.setTitleBarWidget( QtGui.QWidget() ) 
         dock_menu.setMinimumSize(10,10)
 
         # Docks
-        self._dockWidget("Project", session.applets["Project"]) # Project Manager
-        self._dockWidget("Packages", session.applets["Packages"])
-        self._dockWidget("PackageCategories", session.applets["PackageCategories"], name="Package Categories")
-        self._dockWidget("PackageSearch", session.applets["PackageSearch"], name="Package Search")
-        self._dockWidget("ControlPanel", session.applets["ControlPanel"], name="Control Panel", position=QtCore.Qt.BottomDockWidgetArea)
-        self._dockWidget("Viewer3D", session.applets["Viewer3D"], name="3D Viewer", position=QtCore.Qt.RightDockWidgetArea)
-        self._dockWidget("Help", session.applets["Help"], position=QtCore.Qt.BottomDockWidgetArea)
-        self._dockWidget("Logger", session.applets["Logger"], position=QtCore.Qt.BottomDockWidgetArea)
-        self._dockWidget("Store", session.applets["Store"], name="OpenAlea Store", position=QtCore.Qt.RightDockWidgetArea)
-        self._dockWidget("Shell", session.shell, name="IPython Shell", position=QtCore.Qt.BottomDockWidgetArea)
+        self._dockWidget("Project", controller.applets["Project"]) # Project Manager
+        self._dockWidget("Packages", controller.applets["Packages"])
+        self._dockWidget("PackageCategories", controller.applets["PackageCategories"], name="Package Categories")
+        self._dockWidget("PackageSearch", controller.applets["PackageSearch"], name="Package Search")
+        self._dockWidget("ControlPanel", controller.applets["ControlPanel"], name="Control Panel", position=QtCore.Qt.BottomDockWidgetArea)
+        self._dockWidget("Viewer3D", controller.applets["Viewer3D"], name="3D Viewer", position=QtCore.Qt.RightDockWidgetArea)
+        self._dockWidget("Help", controller.applets["Help"], position=QtCore.Qt.BottomDockWidgetArea)
+        self._dockWidget("Logger", controller.applets["Logger"], position=QtCore.Qt.BottomDockWidgetArea)
+        self._dockWidget("Store", controller.applets["Store"], name="OpenAlea Store", position=QtCore.Qt.RightDockWidgetArea)
+        self._dockWidget("Shell", controller.shell, name="IPython Shell", position=QtCore.Qt.BottomDockWidgetArea)
 
-        session.applets['ControlPanel'].geometry_editor.setStatusBar(self.statusBar())
+        controller.applets['ControlPanel'].geometry_editor.setStatusBar(self.statusBar())
         self._dockwidgets['Store'].hide()
 
         # Status bar
         status = self.statusBar()     
         status.setSizeGripEnabled(False)  
-        session.statusBar = status
+        controller.statusBar = status
         self.statusBar().showMessage("OALab is ready!", 10000)   
         
         # Tabify docks

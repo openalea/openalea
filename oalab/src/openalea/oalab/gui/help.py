@@ -46,8 +46,8 @@ class Help(QtGui.QTextBrowser):
     Widget which permit to display informations/help.
     Usefull in visualea or LPy.
     """
-    def __init__(self):
-        super(QtGui.QWidget, self).__init__() 
+    def __init__(self, session, controller, parent=None):
+        super(Help, self).__init__(parent=parent) 
         self.setAccessibleName("Help")
         
         actionHelpOpenAlea = QtGui.QAction(QtGui.QIcon(":/images/resources/openalealogo.png"),"OpenAlea", self)

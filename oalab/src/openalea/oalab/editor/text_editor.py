@@ -28,11 +28,11 @@ from openalea.core import settings
 
 
 class RichTextEditor(QtGui.QWidget):
-    def __init__(self, session, parent=None):
+    def __init__(self, session, controller, parent=None):
         super(RichTextEditor, self).__init__(parent)
         
-        self.completer = DictionaryCompleter(session=session, parent=self)
-        self.editor = TextEditor(session=session, parent=self)
+        self.completer = DictionaryCompleter(parent=self)
+        self.editor = TextEditor(session=session, controller=controller, parent=self)
         #self.editor.setCompleter(self.completer)
         
         self.goto_widget = GoToWidget(parent=self.editor)
@@ -109,9 +109,10 @@ class RichTextEditor(QtGui.QWidget):
             self.search_widget.hiden = True
 
 class TextEditor(QtGui.QTextEdit):
-    def __init__(self, session, parent=None):
+    def __init__(self, session, controller, parent=None):
         super(TextEditor, self).__init__(parent)
         self.session = session
+        self.controller = controller
         self.indentation = "    "
         self.completer = None
         self.name = None
@@ -123,7 +124,7 @@ class TextEditor(QtGui.QTextEdit):
         self.sidebar.setGeometry(0,0,50,100)
         self.sidebar.show() 
         QtCore.QObject.connect(self, QtCore.SIGNAL("cursorPositionChanged()"),self.display_line_number)
-        QtCore.QObject.connect(self, QtCore.SIGNAL("textChanged()"),self.session.applet_container.setTabRed)
+        QtCore.QObject.connect(self, QtCore.SIGNAL("textChanged()"),self.controller.applet_container.setTabRed)
         #QtCore.QObject.connect(self, QtCore.SIGNAL("cursorPositionChanged()"),self.highlightCurrentLine)
         
     def set_tab_size(self):
@@ -150,7 +151,7 @@ class TextEditor(QtGui.QTextEdit):
         
     def setText(self, txt):   
         self.setPlainText(txt)
-        self.session.applet_container.setTabBlack()
+        self.controller.applet_container.setTabBlack()
         
     def set_text(self, txt):
         """
@@ -201,11 +202,11 @@ class TextEditor(QtGui.QTextEdit):
                 temp_path = path(settings.get_project_dir())
                 self.name = QtGui.QFileDialog.getSaveFileName(self, 'Select name to save the file', temp_path)
             if self.name is not None:
-			    project = self.session.project
-			    project.scripts[self.name] = txt
-			    project._save_scripts()
-			    self.session.applet_container.setAllTabBlack()
-			    logger.debug("Try to save script in project")
+                project = self.session.project
+                project.scripts[self.name] = txt
+                project._save_scripts()
+                self.controller.applet_container.setAllTabBlack()
+                logger.debug("Try to save script in project")
             
         elif self.session.current_is_script():
             logger.debug("Will save script outside project")
@@ -222,7 +223,7 @@ class TextEditor(QtGui.QTextEdit):
                     self.name = new_fname
                     project[self.name] = txt
                     ez = project.get_ez_name_by_name(self.name)
-                    self.session.applet_container.setTabText(self.session.applet_container.currentIndex(),ez)
+                    self.controller.applet_container.setTabText(self.controller.applet_container.currentIndex(),ez)
                     
             if str(self.name) in ("script.py", "script.lpy", "script.r", "workflow.wpy", "", "None", "False"):
                 logger.debug("Can't save file because name is None")
@@ -232,7 +233,7 @@ class TextEditor(QtGui.QTextEdit):
                 code_enc = code.encode("utf8","ignore")
                 f.write(code_enc)
                 f.close()
-                self.session.applet_container.setTabBlack()
+                self.controller.applet_container.setTabBlack()
                 logger.debug("Save file "+str(self.name)+" outside project")
 
     def keyPressEvent(self,event):

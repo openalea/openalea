@@ -60,13 +60,13 @@ more informations: http://www.python.org/
         if len(code) == 0:
             code = self.widget().get_text()
         interp = self.controller.shell.get_interpreter()
-        user_ns = self.controller.interpreter.user_ns
+        user_ns = self.session.interpreter.user_ns
         interp.runcode(code)
         
     def run(self):
         code = self.widget().get_text()
         interp = self.controller.shell.get_interpreter()
-        user_ns = self.controller.interpreter.user_ns
+        user_ns = self.session.interpreter.user_ns
         interp.runcode(code)
         
         self._init = user_ns.get("init")

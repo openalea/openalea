@@ -28,7 +28,7 @@ from openalea.lpy.gui.scalareditor import ScalarEditor
 
 class LPyPanelWidget(QtGui.QWidget):
     def __init__(self,parent,name,panelmanager = None):       
-        super(LPyPanelWidget, self).__init__(parent)  
+        super(LPyPanelWidget, self).__init__(None)  
         self.panelmanager = panelmanager
         self.setObjectName(name.replace(' ','_'))
         self.setName(name)
@@ -79,12 +79,12 @@ class LPyPanelWidget(QtGui.QWidget):
                 self.showMessage('import '+str(len(objects))+" object(s) from '"+fname+"'.",5000)
                 return
 
-    def endNameEditing(self,id):
-        if id != -1 and self.objectNameEdit.isVisible():
+    def endNameEditing(self, ident):
+        if ident != -1 and self.objectNameEdit.isVisible():
             self.displayName(-1)
     
-    def displayName(self,id):
-        if id == -1:
+    def displayName(self, ident):
+        if ident == -1:
             self.objectNameEdit.clear()
             if self.nameEditorAutoHide : 
                 self.objectNameEdit.hide()
@@ -174,7 +174,7 @@ class LPyPanelWidget(QtGui.QWidget):
 
 # Add a dict interface
 class ControlPanelManager(ObjectPanelManager):
-    def __init__(self, session):
+    def __init__(self, session, controller, parent=None):
         # Create unused menu to fit with original ObjectPanaleManager from lpy
         parent = QtCore.QObject()
         parent.vparameterView = QtGui.QMenu()
@@ -265,7 +265,7 @@ class ControlPanel(QtGui.QTabWidget):
     Permit to create new control and to delete.
     Double-clic permit to edit control
     """
-    def __init__(self, session):
+    def __init__(self, session, controller, parent=None):
         super(ControlPanel, self).__init__() 
         
         # Color Map
@@ -273,7 +273,7 @@ class ControlPanel(QtGui.QTabWidget):
         self.addTab(self.colormap_editor, "Color Map")
         
         # Geometry
-        self.control_panel_manager = ControlPanelManager(session)
+        self.control_panel_manager = ControlPanelManager(session, controller, parent=parent)
         self.geometry_editor = LPyPanelWidget(parent=None,name="Control Panel", panelmanager=self.control_panel_manager)
         self.geometry_editor.view.setTheme(self.geometry_editor.view.WHITE_THEME)
         # Print Warning in PlantGL/src/plantg/gui/curve2deditor.py l.227
@@ -299,11 +299,11 @@ class ControlPanel(QtGui.QTabWidget):
         # Scalars
         self.scalars_editor = ScalarEditor(self)
         # scalars = self.scalars_editor.getScalars()
-		# for scalar in scalars:
-		# cPickle.dump(scalar)
-		
-		#cPcikle.load(scalar)
-		# self.scalars_editor.setScalars([scalar,,,])
+        # for scalar in scalars:
+        # cPickle.dump(scalar)
+        
+        #cPcikle.load(scalar)
+        # self.scalars_editor.setScalars([scalar,,,])
 
         self.addTab(self.scalars_editor, "Scalars")   
         

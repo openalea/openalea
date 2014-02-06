@@ -28,9 +28,10 @@ from openalea.visualea.node_treeview import DataPoolListView, DataPoolModel
 from openalea.visualea.node_treeview import SearchListView, SearchModel
 
 class OALabTreeView(NodeFactoryTreeView):
-    def __init__(self, parent):
-        super(OALabTreeView, self).__init__(self) 
-        self.session = parent
+    def __init__(self, session, controller, parent=None):
+        super(OALabTreeView, self).__init__(controller) 
+        self.session = session
+        self.controller = controller
 
     def mouseDoubleClickEvent(self, event):
 
@@ -38,8 +39,7 @@ class OALabTreeView(NodeFactoryTreeView):
         obj =  item.internalPointer()
 
         if(isinstance(obj, CompositeNodeFactory)):
-            session = self.session
-            session.applet_container.newTab('wpy',obj.name+'.wpy',obj)
+            self.controller.applet_container.newTab('wpy',obj.name+'.wpy',obj)
 
         elif (not isinstance(obj, Package)):
             self.open_node()
@@ -48,9 +48,10 @@ class PackageViewWidget(OALabTreeView):
     """
     Widget for Package Manager
     """
-    def __init__(self, parent):
-        super(PackageViewWidget, self).__init__(self) 
-        self.session = parent
+    def __init__(self, session, controller, parent=None):
+        super(PackageViewWidget, self).__init__(session, controller, parent=parent) 
+        self.session = session
+        self.controller = controller
         
         # package tree view
         self.pkg_model = PkgModel(self.session.pm)
@@ -67,7 +68,7 @@ class PackageViewWidget(OALabTreeView):
             txt = factory.get_tip(asRst=True) + "\n\n"
             if factoryDoc is not None:
                 txt += "**Docstring:**\n" + factoryDoc
-            self.session.applets['Help'].setText(txt)        
+            self.controller.applets['Help'].setText(txt)        
 
     def reinit_treeview(self):
         """ Reinitialise package and category views """
@@ -77,9 +78,10 @@ class PackageCategorieViewWidget(OALabTreeView):
     """
     Widget for Package Manager Categories
     """
-    def __init__(self, parent):
-        super(PackageCategorieViewWidget, self).__init__(self) 
-        self.session = parent
+    def __init__(self, session, controller, parent=None):
+        super(PackageCategorieViewWidget, self).__init__(session, controller, parent=parent) 
+        self.session = session
+        self.controller = controller
         # category tree view
         self.cat_model = CategoryModel(self.session.pm)
         self.setModel(self.cat_model)
@@ -94,7 +96,7 @@ class PackageCategorieViewWidget(OALabTreeView):
             txt = factory.get_tip(asRst=True) + "\n\n"
             if factoryDoc is not None:
                 txt += "**Docstring:**\n" + factoryDoc
-            self.session.applets['Help'].setText(txt)   
+            self.controller.applets['Help'].setText(txt)   
             
     def reinit_treeview(self):
         """ Reinitialise package and category views """
@@ -109,9 +111,10 @@ class PackageSearchWidget(QtGui.QWidget):
     
     Widget with line edit (to search) and finding packages.
     """
-    def __init__(self, parent):
+    def __init__(self, session, controller, parent=None):
         super(PackageSearchWidget, self).__init__()
-        self.session = parent
+        self.session = session
+        self.controller = controller
         
         self.searchview = QtGui.QWidget()
         self.result_widget = SearchListView(self.searchview)
@@ -138,7 +141,7 @@ class PackageSearchWidget(QtGui.QWidget):
             txt = factory.get_tip(asRst=True) + "\n\n"
             if factoryDoc is not None:
                 txt += "**Docstring:**\n" + factoryDoc
-            self.session.applets['Help'].setText(txt)   
+            self.controller.applets['Help'].setText(txt)   
             
     def search_node(self):
         """ Activated when search line edit is validated """

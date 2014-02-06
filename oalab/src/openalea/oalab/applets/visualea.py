@@ -130,7 +130,7 @@ class VisualeaApplet(object):
         self._widget = dataflowview.GraphicalGraph.create_view(self._workflow, clone=True)
         self._clipboard = CompositeNodeFactory("Clipboard")
 
-        GraphOperator.globalInterpreter = self.controller.interpreter
+        GraphOperator.globalInterpreter = self.session.interpreter
         self._operator = GraphOperator(graph = self._workflow,
                                  graphScene = self._widget.scene(),
                                  clipboard  = self._clipboard,
