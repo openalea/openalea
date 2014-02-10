@@ -112,7 +112,7 @@ def import_lpy_file(script):
         return new_script, controls
 
 class LPyApplet(object):   
-    default_name = "L-System"
+    default_name = "LSystem"
     default_file_name = "script.lpy"
     pattern = "*.lpy"
     extension = "lpy"

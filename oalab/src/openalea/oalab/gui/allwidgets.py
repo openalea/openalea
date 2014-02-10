@@ -38,6 +38,10 @@ class AllWidgets(QtGui.QWidget):
         
         self.shell = get_shell_class()(self.session.interpreter)     
         
+        # Applet Container : can contain text editor or/and workflow editor
+        self.applet_container = AppletContainer(session=self.session, controller=self, parent=self)        
+        self.session.interpreter.locals['applets'] = self.applet_container
+        
         self.project_manager = ProjectManager(session=self.session, controller=self, parent=self)
         
         self.applets['Project'] = ProjectLayoutWidget(session=self.session, controller=self, parent=self)
@@ -54,10 +58,6 @@ class AllWidgets(QtGui.QWidget):
         self.session.interpreter.locals['shell'] = self.shell
         self.session.interpreter.locals['controller'] = self
         self._update_locals()
-        
-        # Applet Container : can contain text editor or/and workflow editor
-        self.applet_container = AppletContainer(session=self.session, controller=self, parent=self)        
-        self.session.interpreter.locals['applets'] = self.applet_container
         
         self.applets['Store'] = Store(session=self.session, controller=self, parent=self)
         

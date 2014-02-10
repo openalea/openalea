@@ -382,40 +382,29 @@ class CreateFilePage(QtGui.QWidget):
         min_size = QtCore.QSize(100,80)
               
         text = QtGui.QLabel("Select type of file to add:")
-        newPython = QtGui.QToolButton()
-        newPython.setDefaultAction(self.controller.project_manager.actionNewPython)
-        newPython.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
-        #newPython.setMaximumSize(max_size)  
-        newPython.setMinimumSize(min_size)         
-        newR = QtGui.QToolButton()
-        newR.setDefaultAction(self.controller.project_manager.actionNewR)
-        newR.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
-        #newR.setMaximumSize(max_size)  
-        newR.setMinimumSize(min_size) 
-        newLPy = QtGui.QToolButton()
-        newLPy.setDefaultAction(self.controller.project_manager.actionNewLPy)
-        newLPy.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
-        #newLPy.setMaximumSize(max_size)  
-        newLPy.setMinimumSize(min_size)         
-        newWorkflow = QtGui.QToolButton()
-        newWorkflow.setDefaultAction(self.controller.project_manager.actionNewWorkflow)
-        newWorkflow.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
-        #newWorkflow.setMaximumSize(max_size)  
-        newWorkflow.setMinimumSize(min_size)       
+        layout.addWidget(text,0,0,1,-1)
+        
+        i, j = 1, 0
+        for action in self.controller.project_manager.paradigms_actions:
+            newAction = QtGui.QToolButton()
+            newAction.setDefaultAction(action)
+            newAction.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
+            newAction.setMinimumSize(min_size)
+            layout.addWidget(newAction,i,j)
+            if j == 0:
+                j = 1
+            else:
+                j = 0
+                i += 1
+    
         text2 = QtGui.QLabel("You can add a file from your computer:")  
+        layout.addWidget(text2,10,0,1,-1)
         importFile = QtGui.QToolButton()
         importFile.setDefaultAction(self.controller.project_manager.actionImportFile)
         importFile.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
         #importFile.setMaximumSize(max_size)  
         importFile.setMinimumSize(min_size)         
-        
-        layout.addWidget(text,0,0,1,-1)
-        layout.addWidget(newPython,1,0)
-        layout.addWidget(newLPy,2,0)
-        layout.addWidget(newWorkflow,1,1)
-        layout.addWidget(newR,2,1)
-        layout.addWidget(text2,3,0,1,-1)
-        layout.addWidget(importFile,4,0,1,-1)
+        layout.addWidget(importFile,11,0,1,-1)
         
         self.setLayout(layout)
 
@@ -549,7 +538,7 @@ class WelcomePage(QtGui.QWidget):
     def newScript(self):
         self.session._is_proj = False
         self.session._is_script = True
-        self.controller.project_manager.newPython()
+        self.controller.project_manager.newModel("Python")
         logger.debug("New Script from welcome page")
           
     def open(self):
@@ -567,7 +556,7 @@ class WelcomePage(QtGui.QWidget):
     def openScript(self):
         self.session._is_proj = False
         self.session._is_script = True
-        self.controller.project_manager.openPython()
+        self.controller.project_manager.openModel()
         logger.debug("Open Script from welcome page")
         
     def restoreSession(self):

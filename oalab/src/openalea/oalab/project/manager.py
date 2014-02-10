@@ -36,6 +36,8 @@ class ProjectManager(QtGui.QWidget):
     def __init__(self, session, controller, parent=None):
         super(ProjectManager, self).__init__()
 
+        self._actions = []
+        self.paradigms_actions = []
         self.session = session
         self.controller = controller
         self.setAccessibleName("Project Manager")
@@ -45,12 +47,18 @@ class ProjectManager(QtGui.QWidget):
         
         for proj in self.projectManager.projects:
             self.session.project = proj
-               
-        self.actionNewPython = QtGui.QAction(QtGui.QIcon(":/images/resources/Python-logo.png"),"Python", self)
-        self.actionNewR = QtGui.QAction(QtGui.QIcon(":/images/resources/RLogo.png"),"R", self)
-        self.actionNewLPy = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/logo.png"),"L-System", self)
-        self.actionNewWorkflow = QtGui.QAction(QtGui.QIcon(":/images/resources/openalealogo.png"),"Workflow", self)
+            
+        self.extensions = ""
         
+        # Connect actions from applet_container.paradigms to menu (newPython, newLpy,...)       
+        for applet in self.controller.applet_container.paradigms.values():
+            action = QtGui.QAction(QtGui.QIcon(applet.icon),applet.default_name, self)
+            toconnect = "self.new%s"%applet.default_name
+            action.triggered.connect(eval(toconnect))
+            self._actions.append(["Model","New Model",action,0],)
+            self.paradigms_actions.append(action)
+            self.extensions = self.extensions + applet.pattern + " "
+                
         self.actionImportFile = QtGui.QAction(QtGui.QIcon(":/images/resources/import.png"),"Add file", self)
         
         self.actionNewProj = QtGui.QAction(QtGui.QIcon(":/images/resources/new.png"),"New", self)
@@ -66,21 +74,12 @@ class ProjectManager(QtGui.QWidget):
         QtCore.QObject.connect(self.actionSaveProj, QtCore.SIGNAL('triggered(bool)'),self.saveCurrent)
         QtCore.QObject.connect(self.actionCloseProj, QtCore.SIGNAL('triggered(bool)'),self.closeCurrent)
         
-        QtCore.QObject.connect(self.actionNewPython, QtCore.SIGNAL('triggered(bool)'),self.newPython)
-        QtCore.QObject.connect(self.actionNewR, QtCore.SIGNAL('triggered(bool)'),self.newR)
-        QtCore.QObject.connect(self.actionNewLPy, QtCore.SIGNAL('triggered(bool)'),self.newLpy)
-        QtCore.QObject.connect(self.actionNewWorkflow, QtCore.SIGNAL('triggered(bool)'),self.newVisualea)
-        
         QtCore.QObject.connect(self.actionImportFile, QtCore.SIGNAL('triggered(bool)'),self.importFile)
         
         self._actions = [["Project","Manage Project",self.actionNewProj,0],
                          ["Project","Manage Project",self.actionOpenProj,0],
                          ["Project","Manage Project",self.actionSaveProj,0],
                          ["Project","Manage Project",self.actionCloseProj,0],
-                         ["Model","New Model",self.actionNewPython,0],
-                         ["Model","New Model",self.actionNewR,0],
-                         ["Model","New Model",self.actionNewLPy,0],
-                         ["Model","New Model",self.actionNewWorkflow,0],
                          ["Model","New Model",self.actionImportFile,0]]
 
         self._project_changed()
@@ -102,7 +101,10 @@ class ProjectManager(QtGui.QWidget):
                 my_path)
         return fname
         
-    def showOpenFileDialog(self, extension="*.py *.lpy *.r *.wpy", where=None):
+    def showOpenFileDialog(self, extension=None, where=None):
+        if extension is None:
+            extension = self.extensions
+        
         if where is not None: 
             my_path = path(str(where)).abspath().splitpath()[0]
         else:
@@ -139,10 +141,13 @@ class ProjectManager(QtGui.QWidget):
             
             logger.debug("Project opened: " + str(self.session._project))
 
-    def importFile(self, filename=None, extension="*.py *.lpy *.r *.wpy"):
+    def importFile(self, filename=None, extension=None):
         """
         Import a file and add it in the project
         """
+        if extension is None:
+            extension = self.extensions
+            
         if self.session.current_is_project():
             project = self.session.project     
             if not filename:
@@ -223,14 +228,12 @@ class ProjectManager(QtGui.QWidget):
 
         self._project_changed()
         self._load_control()
-        
-        self.controller.applet_container.addCreateFileTab()
-        
+       
     def newModel(self, applet_type):
         """
         Create a new model of type 'zpplet_type
         
-        :param applet_type: can be Workflow, L-System, Python, R'
+        :param applet_type: can be Workflow, LSystem, Python, R'
         """
         Applet = self.controller.applet_container.paradigms[applet_type]
         tab_name = Applet.default_file_name
@@ -255,10 +258,10 @@ class ProjectManager(QtGui.QWidget):
     def newR(self):
         self.newModel(applet_type="R")  
         
-    def newLpy(self):
-        self.newModel(applet_type="L-System")  
+    def newLSystem(self):
+        self.newModel(applet_type="LSystem")  
                     
-    def newVisualea(self):
+    def newWorkflow(self):
         self.newModel(applet_type="Workflow")  
                     
     def removeModel(self, model_name):
@@ -269,26 +272,17 @@ class ProjectManager(QtGui.QWidget):
         """
         pass    
         
-    def openModel(self, fname=None):
+    def openModel(self, fname=None, extension="*"):
         """"
-        Open a (script-type) file
+        Open a (script-type) file named "fname".
+        If "fname"==None, display a dialog with filter "extension".
         
-        TODO
+        :param fname: filename to open. Default = None
+        :param extension: extension of file to open. Default = "*.*"
         """
         self.session._is_script = True
         self.session._is_proj = False
         self.importFile(filename=fname, extension="*")
-    
-    def openPython(self, fname=None):
-        """
-        Open a python script named "fname".
-        If "fname"==None, display a dialog
-        
-        TODO
-        """
-        self.session._is_script = True
-        self.session._is_proj = False
-        self.importFile(filename=fname, extension="*.py")
         
     def renameCurrent(self, name):
         """
