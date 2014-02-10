@@ -42,6 +42,16 @@ class AppletContainer(QtGui.QTabWidget):
         self.setTabsClosable(True)
         self.setMinimumSize(100, 100)
         self.applets = list()
+        
+        
+        self.paradigms = dict()
+        self.paradigms[PythonApplet.default_name] = PythonApplet
+        self.paradigms[LPyApplet.default_name] = LPyApplet
+        self.paradigms[VisualeaApplet.default_name] = VisualeaApplet
+        self.paradigms[RApplet.default_name] = RApplet
+        
+        
+        
         self.setAccessibleName("Container")
         
         self.actionSave = QtGui.QAction(QtGui.QIcon(":/images/resources/save.png"),"Save", self)
@@ -188,15 +198,21 @@ class AppletContainer(QtGui.QTabWidget):
         # for name in self.session.project.scripts:
         #    existing_tabs.append(name)
         # tab_name = check_if_name_is_unique(tab_name, existing_tabs)
+
+        Applet = None
         
-        if (applet_type == "python") or (applet_type == "py"):
-            self.applets.append(PythonApplet(session=self.session, controller=self.controller, parent=self.parent(), name=tab_name, script=script))
-        elif applet_type == "lpy":
-            self.applets.append(LPyApplet(session=self.session, controller=self.controller, parent=self.parent(), name=tab_name, script=script))
-        elif applet_type in ("wpy","visualea"):
-            self.applets.append(VisualeaApplet(session=self.session, controller=self.controller, parent=self.parent(), name=tab_name, script=script))
-        elif applet_type in ("r","R"):
-            self.applets.append(RApplet(session=self.session, controller=self.controller, parent=self.parent(), name=tab_name, script=script))
+        if self.paradigms.has_key(applet_type):
+            # Check in paradigm.default_name
+            Applet = self.paradigms[applet_type]
+        else:
+            # Check in paradigm.extension
+            for value in self.paradigms.values():
+                if value.extension == applet_type:
+                    Applet = value
+        
+        if Applet is not None:            
+            self.applets.append(Applet(session=self.session, controller=self.controller, parent=self.parent(), name=tab_name, script=script))
+            
     
         self.addTab(self.applets[-1].widget(), tab_name)
         self.setCurrentWidget(self.applets[-1].widget())
