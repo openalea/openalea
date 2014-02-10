@@ -101,6 +101,12 @@ def mainMenu(self):
     return "Simulation"
 
 class VisualeaApplet(object):
+    default_name = "Workflow"
+    default_file_name = "workflow.wpy"
+    pattern = "*.wpy"
+    extension = "wpy"
+    icon = ":/images/resources/openalealogo.png"
+    
     def __init__(self, session, controller, parent=None, name="workflow.wpy", script=None):
         super(VisualeaApplet, self).__init__() 
         repr_model = script

@@ -24,6 +24,12 @@ from openalea.oalab.editor.highlight import Highlighter
 from openalea.vpltk.qt import QtCore
     
 class PythonApplet(object):
+    default_name = "Python"
+    default_file_name = "script.py"
+    pattern = "*.py"
+    extension = "py"
+    icon = ":/images/resources/openalealogo.png"
+
     def __init__(self, session, controller, parent=None, name="script.py", script=""):
         super(PythonApplet, self).__init__()
         self._widget = Editor(session=session, controller=controller, parent=parent)
