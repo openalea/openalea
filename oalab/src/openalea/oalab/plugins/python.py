@@ -28,7 +28,7 @@ class PythonApplet(object):
     default_file_name = "script.py"
     pattern = "*.py"
     extension = "py"
-    icon = ":/images/resources/openalealogo.png"
+    icon = ":/images/resources/Python-logo.png"
 
     def __init__(self, session, controller, parent=None, name="script.py", script=""):
         super(PythonApplet, self).__init__()

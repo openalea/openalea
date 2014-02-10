@@ -47,17 +47,6 @@ class ProjectManager(QtGui.QWidget):
         
         for proj in self.projectManager.projects:
             self.session.project = proj
-            
-        self.extensions = ""
-        
-        # Connect actions from applet_container.paradigms to menu (newPython, newLpy,...)       
-        for applet in self.controller.applet_container.paradigms.values():
-            action = QtGui.QAction(QtGui.QIcon(applet.icon),applet.default_name, self)
-            toconnect = "self.new%s"%applet.default_name
-            action.triggered.connect(eval(toconnect))
-            self._actions.append(["Model","New Model",action,0],)
-            self.paradigms_actions.append(action)
-            self.extensions = self.extensions + applet.pattern + " "
                 
         self.actionImportFile = QtGui.QAction(QtGui.QIcon(":/images/resources/import.png"),"Add file", self)
         
@@ -81,6 +70,16 @@ class ProjectManager(QtGui.QWidget):
                          ["Project","Manage Project",self.actionSaveProj,0],
                          ["Project","Manage Project",self.actionCloseProj,0],
                          ["Model","New Model",self.actionImportFile,0]]
+                         
+        self.extensions = ""                 
+        # Connect actions from applet_container.paradigms to menu (newPython, newLpy,...)       
+        for applet in self.controller.applet_container.paradigms.values():
+            action = QtGui.QAction(QtGui.QIcon(applet.icon),applet.default_name, self)
+            toconnect = "self.new%s"%applet.default_name
+            action.triggered.connect(eval(toconnect))
+            self._actions.append(["Model","New Model",action,0],)
+            self.paradigms_actions.append(action)
+            self.extensions = self.extensions + applet.pattern + " "
 
         self._project_changed()
 

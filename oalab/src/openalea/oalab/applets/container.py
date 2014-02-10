@@ -19,10 +19,7 @@ __revision__ = ""
 
 from openalea.vpltk.qt import QtCore, QtGui
 from openalea.vpltk.qt.compat import from_qvariant, to_qvariant
-from openalea.oalab.applets.lpy import LPyApplet
-from openalea.oalab.applets.python import PythonApplet
-from openalea.oalab.applets.r import RApplet
-from openalea.oalab.applets.visualea import VisualeaApplet
+from openalea.vpltk.plugin import discover, Plugin
 from openalea.core import logger
 from openalea.core.path import path
 from openalea.vpltk.project.script import Scripts
@@ -43,15 +40,12 @@ class AppletContainer(QtGui.QTabWidget):
         self.setMinimumSize(100, 100)
         self.applets = list()
         
-        
         self.paradigms = dict()
-        self.paradigms[PythonApplet.default_name] = PythonApplet
-        self.paradigms[LPyApplet.default_name] = LPyApplet
-        self.paradigms[VisualeaApplet.default_name] = VisualeaApplet
-        self.paradigms[RApplet.default_name] = RApplet
-        
-        
-        
+        applets = discover("oalab.plugins")
+        for appl in applets.values():
+            applet = Plugin(appl).load()
+            self.paradigms[applet.default_name] = applet
+
         self.setAccessibleName("Container")
         
         self.actionSave = QtGui.QAction(QtGui.QIcon(":/images/resources/save.png"),"Save", self)

@@ -1,4 +1,4 @@
-from openalea.oalab.applets.lpy import import_lpy_file
+from openalea.oalab.plugins.lpy import import_lpy_file
 
 lpy_str = """
 Axiom: A
