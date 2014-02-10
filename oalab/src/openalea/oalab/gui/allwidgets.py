@@ -9,7 +9,7 @@ from openalea.oalab.applets.container import AppletContainer
 from openalea.oalab.scene.vplscene import VPLScene
 from openalea.oalab.project.manager import ProjectManager
 from openalea.oalab.project.treeview import ProjectLayoutWidget
-from openalea.oalab.package import PackageViewWidget, PackageCategorieViewWidget, PackageSearchWidget
+from openalea.oalab.package.widgets import PackageViewWidget, PackageCategorieViewWidget, PackageSearchWidget
 from openalea.oalab.gui.store import Store
 from openalea.core.path import path
 from openalea.core.settings import get_openalea_home_dir

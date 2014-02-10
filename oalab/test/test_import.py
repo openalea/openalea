@@ -11,6 +11,6 @@ def test_import():
     from openalea.oalab.scene.view3d import Viewer
     from openalea.oalab.project.manager import ProjectManager
     from openalea.oalab.project.treeview import ProjectTreeView, ProjectLayoutWidget
-    from openalea.oalab.package import PackageViewWidget, PackageCategorieViewWidget, PackageSearchWidget
+    from openalea.oalab.package.widgets import PackageViewWidget, PackageCategorieViewWidget, PackageSearchWidget
     from openalea.oalab.gui.store import Store
     from openalea.vpltk.qt import QtCore, QtGui
