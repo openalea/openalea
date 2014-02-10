@@ -24,3 +24,6 @@ class MainWindowConfig(Configurable):
     store = Bool(True, config=True, help="Display alea_install_gui")
     
     menu = Bool(True, config=True, help="Display menu bar")
+    
+    #paradigms_list = List(['oalab.plugins:PythonApplet', 'oalab.plugins:LPyApplet', 'oalab.plugins:RApplet', 'oalab.plugins:VisualeaApplet'], config=True, help="List of available paradigms")
+ 
