@@ -283,13 +283,17 @@ class ProjectManager(QtGui.QWidget):
         self.session._is_proj = False
         self.importFile(filename=fname, extension="*")
         
-    def renameCurrent(self, name):
+    def renameCurrent(self, new_name=None):
         """
         Rename current project.
-        
-        TODO
         """
-        pass
+        if self.session.current_is_project():
+            name = self.session.project.name
+            if not new_name:
+                new_name = self.showNewProjectDialog(default_name=path(name)/"..", text='Select new name to save project')
+            self.session.project.rename(categorie="project", old_name=name, new_name=new_name)
+        else:
+            print("This is not a project, so you can't use 'rename project'")
     
     def saveCurrent(self):
         """

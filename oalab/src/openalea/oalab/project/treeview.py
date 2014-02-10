@@ -100,9 +100,7 @@ class ProjectTreeView(QtGui.QTreeView):
         
         self.setHeaderHidden(True)
         self.setModel(self.proj_model)
-        
-        
-        self.create_menu_actions()
+
         self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         QtCore.QObject.connect(self,QtCore.SIGNAL('customContextMenuRequested(const QPoint&)'),self.showMenu)
         
@@ -120,69 +118,30 @@ class ProjectTreeView(QtGui.QTreeView):
             self.project = None
         self.proj_model.set_proj(self.project)
         self.expandAll()
-
-
-
-    def create_menu_actions(self):
-        self.newPyAction = QtGui.QAction('New Python Model',self)
-        QtCore.QObject.connect(self.newPyAction,QtCore.SIGNAL('triggered(bool)'),self.controller.project_manager.newPython)
-        self.newLPyAction = QtGui.QAction('New LSystem Model',self)
-        QtCore.QObject.connect(self.newLPyAction,QtCore.SIGNAL('triggered(bool)'),self.controller.project_manager.newLSystem)
-        self.newWFAction = QtGui.QAction('New Workflow Model',self)
-        QtCore.QObject.connect(self.newWFAction,QtCore.SIGNAL('triggered(bool)'),self.controller.project_manager.newWorkflow)
-        self.newRAction = QtGui.QAction('New R Model',self)
-        QtCore.QObject.connect(self.newRAction,QtCore.SIGNAL('triggered(bool)'),self.controller.project_manager.newR)
-        
-        self.addPyAction = QtGui.QAction('Import Python Model',self)
-        QtCore.QObject.connect(self.addPyAction,QtCore.SIGNAL('triggered(bool)'),self._addPy)
-        self.addLPyAction = QtGui.QAction('Import LSystem Model',self)
-        QtCore.QObject.connect(self.addLPyAction,QtCore.SIGNAL('triggered(bool)'),self._addLPy)
-        self.addWFAction = QtGui.QAction('Import Workflow Model',self)
-        QtCore.QObject.connect(self.addWFAction,QtCore.SIGNAL('triggered(bool)'),self._addWorkflow)        
-        self.addRAction = QtGui.QAction('Import R Model',self)
-        QtCore.QObject.connect(self.addRAction,QtCore.SIGNAL('triggered(bool)'),self._addR)  
-                
-        self.renameAction = QtGui.QAction('Rename Project',self)
-        QtCore.QObject.connect(self.renameAction,QtCore.SIGNAL('triggered(bool)'),self.renameProject)
         
     def create_menu(self):
         menu = QtGui.QMenu(self)
-        menu.addAction(self.newPyAction)
-        menu.addAction(self.newLPyAction)
-        menu.addAction(self.newWFAction)
-        menu.addAction(self.newRAction)      
+
+        for applet in self.controller.applet_container.paradigms.values():
+            action = QtGui.QAction('New %s Model'%applet.default_name,self)
+            toconnect = "self.controller.project_manager.new%s"%applet.default_name
+            action.triggered.connect(eval(toconnect))
+            menu.addAction(action)
         menu.addSeparator()
-        menu.addAction(self.addPyAction)
-        menu.addAction(self.addLPyAction)
-        menu.addAction(self.addWFAction)   
-        menu.addAction(self.addRAction)   
+        importAction = QtGui.QAction('Import Model',self)
+        importAction.triggered.connect(self.controller.project_manager.importFile)
+        menu.addAction(importAction)
         menu.addSeparator()
-        menu.addAction(self.renameAction)  
+        renameAction = QtGui.QAction('Rename Project',self)
+        renameAction.triggered.connect(self.controller.project_manager.renameCurrent)
+        menu.addAction(renameAction)  
         
         return menu
 
     def showMenu(self, event):
         """ function defining actions to do according to the menu's button chosen"""
         menu = self.create_menu()
-        #self.renameAction.setEnabled(self.hasParent())        
         menu.exec_(self.mapToGlobal(event))
-
-    def showFileDialog(self, format):
-        my_path = path(settings.get_project_dir())
-        fname = QtGui.QFileDialog.getOpenFileName(self, 'Select Project Directory', 
-                my_path, format)
-        return fname
-
-    def renameProject(self):
-        """
-        Rename current project
-        """
-        if self.session.current_is_project():
-            name = self.session.project.name
-            new_name = self.controller.project_manager.showNewProjectDialog(default_name=path(name)/"..", text='Select new name to save project')
-            self.session.project.rename(categorie="project", old_name="name", new_name=new_name)
-        else:
-            print("This is not a project, so you can't use 'rename project'")
 
     def hasSelection(self):
         """function hasSelection: check if an object is selected, return True in this case"""
@@ -196,67 +155,6 @@ class ProjectTreeView(QtGui.QTreeView):
             return bool(parent)
         else:
             return False
-
-    def _addPy(self):
-        """
-        Add python script in current project.
-        
-        1) Open File Dialog
-        2) Select File
-        3) Open File
-        4) Add file in project
-        """
-        fname = self.showFileDialog("Python file (*.py)")
-        if fname:
-            script = open(fname, 'rU').read()
-
-            name = os.path.split(fname)[1]
-            self.project.add_script(name, script)
-          
-            # TODO : Use signals !
-            self.controller.project_manager._project_changed()
-
-    def _addLPy(self):
-        """
-        Add lpy script in current project.
-        """
-        fname = self.showFileDialog("LPy file (*.lpy)")
-        if fname:
-            script = open(fname, 'rU').read()
-
-            name = os.path.split(fname)[1]
-            self.project.add_script(name, script)
-          
-            # TODO : Use signals !
-            self.controller.project_manager._project_changed()
-            
-    def _addR(self):
-        """
-        Add R script in current project.
-        """
-        fname = self.showFileDialog("R file (*.r)")
-        if fname:
-            script = open(fname, 'rU').read()
-
-            name = os.path.split(fname)[1]
-            self.project.add_script(name, script)
-          
-            # TODO : Use signals !
-            self.controller.project_manager._project_changed()
-
-    def _addWorkflow(self):
-        """
-        Add workflow in current project.
-        """
-        fname = self.showFileDialog("Visualea file (*.wpy)")
-        if fname:
-            script = open(fname, 'rU').read()
-
-            name = os.path.split(fname)[1]
-            self.project.add_script(name, script)
-          
-            # TODO : Use signals !
-            self.controller.project_manager._project_changed()
 
     def mainMenu(self):
         """
