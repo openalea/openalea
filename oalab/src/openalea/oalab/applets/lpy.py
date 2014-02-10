@@ -112,6 +112,11 @@ def import_lpy_file(script):
         return new_script, controls
 
 class LPyApplet(object):   
+    default_name = "L-System"
+    default_file_name = "script.lpy"
+    pattern = "*.lpy"
+    extension = "lpy"
+    icon = ":/lpy_images/resources/lpy/logo.png"
     
     def __init__(self, session, controller, parent=None, name="script.lpy", script=""):
         super(LPyApplet, self).__init__()

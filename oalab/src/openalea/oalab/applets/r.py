@@ -24,6 +24,12 @@ from openalea.oalab.editor.highlight import Highlighter
 from openalea.vpltk.qt import QtCore
     
 class RApplet(object):
+    default_name = "R"
+    default_file_name = "script.r"
+    pattern = "*.r"
+    extension = "r"
+    icon = ":/images/resources/RLogo.png"
+    
     def __init__(self, session, controller, parent=None, name="script.R", script=""):
         super(RApplet, self).__init__()
         self._widget = Editor(session=session, controller=controller, parent=parent)
