@@ -1,5 +1,11 @@
 from openalea.plantgl.all import NurbsCurve2D, BezierCurve2D, Polyline2D, NurbsPatch
-from openalea.core import logger
+
+try:
+    logger.DEBUG
+except NameError:
+    from openalea.core import logger
+    logger.default_init(level=logger.DEBUG, handlers=["qt"]) #TODO get level from settings
+    logger.connect_loggers_to_handlers(logger.get_logger_names(), logger.get_handler_names())
 
 class RedNurbs2D(NurbsCurve2D):
     def __init__(self, ctrlPoint, typename=""):
