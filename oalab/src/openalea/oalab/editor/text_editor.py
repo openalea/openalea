@@ -127,6 +127,8 @@ class TextEditor(QtGui.QTextEdit):
         QtCore.QObject.connect(self, QtCore.SIGNAL("textChanged()"),self.controller.applet_container.setTabRed)
         #QtCore.QObject.connect(self, QtCore.SIGNAL("cursorPositionChanged()"),self.highlightCurrentLine)
         
+        self.default_names = [applet.default_file_name for applet in self.controller.applet_container.paradigms.values()]
+        
     def set_tab_size(self):
         # Set tab size : to fix 
         try:
@@ -216,7 +218,7 @@ class TextEditor(QtGui.QTextEdit):
                 self.name = project.get_name_by_ez_name(name)
             if self.name is None or self.name is False:
                     self.name = u"script.py"      
-            if str(self.name) in ("script.py", "script.lpy", "script.r", "workflow.wpy", "", "None", "False"):
+            if str(self.name) in (self.default_names.split(), "", "None", "False"):
                 new_fname = QtGui.QFileDialog.getSaveFileName(self, 'Select name to save the file %s'%str(self.name),str(self.name))
                 if new_fname != u"":
                     project.rename_script(self.name, new_fname)
@@ -225,7 +227,7 @@ class TextEditor(QtGui.QTextEdit):
                     ez = project.get_ez_name_by_name(self.name)
                     self.controller.applet_container.setTabText(self.controller.applet_container.currentIndex(),ez)
                     
-            if str(self.name) in ("script.py", "script.lpy", "script.r", "workflow.wpy", "", "None", "False"):
+            if str(self.name) in (self.default_names.split(), "", "None", "False"):
                 logger.debug("Can't save file because name is None")
             else:
                 f = open(self.name, "w")
