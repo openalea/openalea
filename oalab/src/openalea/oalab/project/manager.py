@@ -226,85 +226,40 @@ class ProjectManager(QtGui.QWidget):
         
         self.controller.applet_container.addCreateFileTab()
         
-    def newPython(self):       
-        if self.session.current_is_project():
-            tab_name = "script.py"
-            self.controller.applet_container.newTab(applet_type="python", tab_name=tab_name)
-            self.session.project.add_script(tab_name, self.controller.applet_container.applets[-1].widget().get_text())  
-
-            self.session._update_locals()
-            self._script_change()
-            self._tree_view_change() 
-        else:
-            self.session._is_script = True
-            self.session._is_proj = False
-            tab_name = "script.py"
-            self.scriptManager.add_script(tab_name, "") 
-            self.session._project = self.scriptManager
-            self.controller.applet_container.newTab(applet_type="python", tab_name=tab_name)
-            self.session._update_locals()
-            #self._script_change()
-            self._tree_view_change()
+    def newModel(self, applet_type):
+        """
+        Create a new model of type 'zpplet_type
         
-    def newR(self):    
+        :param applet_type: can be Workflow, L-System, Python, R'
+        """
+        Applet = self.controller.applet_container.paradigms[applet_type]
+        tab_name = Applet.default_file_name
+        self.controller.applet_container.newTab(applet_type=applet_type, tab_name=tab_name)
+        
         if self.session.current_is_project():
-            tab_name = "script.r"
-            self.controller.applet_container.newTab(applet_type="r", tab_name=tab_name)
-            self.session.project.add_script(tab_name, self.controller.applet_container.applets[-1].widget().get_text())  
-            
-            self.session._update_locals()
+            text = self.controller.applet_container.applets[-1].widget().get_text()
+            self.session.project.add_script(tab_name, text)  
             self._script_change()
-            self._tree_view_change()
         else:
             self.session._is_script = True
             self.session._is_proj = False
-            tab_name = "script.r"
             self.scriptManager.add_script(tab_name, "") 
             self.session._project = self.scriptManager
-            self.controller.applet_container.newTab(applet_type="r", tab_name=tab_name)
-            self.session._update_locals()
-            #self._script_change()
-            self._tree_view_change()
+        
+        self.controller._update_locals()
+        self._tree_view_change()
+        
+    def newPython(self):
+        self.newModel(applet_type="Python")  
+        
+    def newR(self):
+        self.newModel(applet_type="R")  
         
     def newLpy(self):
-        if self.session.current_is_project():
-            tab_name = "script.lpy"
-            self.controller.applet_container.newTab(applet_type="lpy", tab_name=tab_name)
-            self.session.project.add_script(tab_name, self.controller.applet_container.applets[-1].widget().get_text())  
-            
-            self.session._update_locals()
-            self._script_change()
-            self._tree_view_change()
-        else:
-            self.session._is_script = True
-            self.session._is_proj = False
-            tab_name = "script.lpy"
-            self.scriptManager.add_script(tab_name, "") 
-            self.session._project = self.scriptManager
-            self.controller.applet_container.newTab(applet_type="lpy", tab_name=tab_name)
-            self.session._update_locals()
-            #self._script_change()
-            self._tree_view_change()
+        self.newModel(applet_type="L-System")  
                     
     def newVisualea(self):
-        if self.session.current_is_project():
-            tab_name = "workflow.wpy"
-            self.controller.applet_container.newTab(applet_type="visualea",tab_name=tab_name)
-            self.session.project.add_script(tab_name, self.controller.applet_container.applets[-1].widget().get_text())  
-            
-            self.session._update_locals()
-            self._script_change()
-            self._tree_view_change()
-        else:
-            self.session._is_script = True
-            self.session._is_proj = False
-            tab_name = "workflow.wpy"
-            self.scriptManager.add_script(tab_name, "") 
-            self.session._project = self.scriptManager
-            self.controller.applet_container.newTab(applet_type="visualea", tab_name=tab_name)
-            self.session._update_locals()
-            #self._script_change()
-            self._tree_view_change()
+        self.newModel(applet_type="Workflow")  
                     
     def removeModel(self, model_name):
         """
