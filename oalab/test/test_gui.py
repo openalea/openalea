@@ -1,14 +1,16 @@
-from openalea.oalab.gui.session import Session
+from openalea.oalab.session.session import Session
 from openalea.oalab.gui.menu import PanedMenu
 from openalea.oalab.gui.mainwindow import MainWindow
 from openalea.oalab.applets.container import AppletContainer
 from openalea.oalab.editor.text_editor import TextEditor
+from openalea.oalab.gui.allwidgets import AllWidgets
 
 from openalea.vpltk.qt import QtGui, QtCore
 import sys
 
 app = QtGui.QApplication(sys.argv)
 session = Session()
+controller = AllWidgets(session)
 """
 def test_applet_container_opentab():
     container = AppletContainer(session)
@@ -29,13 +31,15 @@ def test_applet_container_opentab():
     assert container.count() == 0
 """
 def test_session_and_mainwindow():
-    mw = MainWindow(session)
+
+        
+    mw = MainWindow(session, controller, parent=None)
     assert session.project == None
-    assert session.applets['Store'].actions() == None
-    assert session.applets['Store'].mainMenu() == "Package Store" 
+    assert controller.applets['Store'].actions() == None
+    assert controller.applets['Store'].mainMenu() == "Package Store" 
     
 def test_text_edit():
-    editor = TextEditor(session)
+    editor = TextEditor(session, controller, parent=None)
     assert editor is not None
     
 def test_create_paned_menu():
