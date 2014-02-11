@@ -442,21 +442,11 @@ class WelcomePage(QtGui.QWidget):
         layout.setAlignment(QtCore.Qt.AlignCenter)
         
         max_size = QtCore.QSize(200,60)
-        min_size = QtCore.QSize(200,60)
-        
-        #messageBegin = QtGui.QLabel("Would you like")
-        #messageNew = QtGui.QLabel("* to create a new:")
-        #messageOpen =QtGui.QLabel("* to open an existing:")        
+        min_size = QtCore.QSize(200,60)      
         
         newBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/openalealogo.png"),"New Project")
         newBtn.setMaximumSize(max_size)  
         newBtn.setMinimumSize(min_size)         
-        newSvnBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/svn.png"),"Versionned Project (SVN)")
-        newSvnBtn.setMaximumSize(max_size)  
-        newSvnBtn.setMinimumSize(min_size)  
-        newGitBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/git.png"),"Versionned Project (Git)")
-        newGitBtn.setMaximumSize(max_size)  
-        newGitBtn.setMinimumSize(min_size)  
         newScriptBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/import.png"),"Create or Open File")
         newScriptBtn.setMaximumSize(max_size)  
         newScriptBtn.setMinimumSize(min_size)
@@ -464,15 +454,6 @@ class WelcomePage(QtGui.QWidget):
         openBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/openalealogo.png"),"Open Project")
         openBtn.setMaximumSize(max_size)    
         openBtn.setMinimumSize(min_size)
-        openSvnBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/svn.png"),"Versionned Project (SVN)")
-        openSvnBtn.setMaximumSize(max_size) 
-        openSvnBtn.setMinimumSize(min_size)
-        openGitBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/git.png"),"Versionned Project (Git)")
-        openGitBtn.setMaximumSize(max_size) 
-        openGitBtn.setMinimumSize(min_size)
-        openScriptBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/Python-logo.png"),"Open File")
-        openScriptBtn.setMaximumSize(max_size)  
-        openScriptBtn.setMinimumSize(min_size)
         
         restoreSessionBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/open.png"),"Restore Previous Session")
         restoreSessionBtn.setMaximumSize(max_size)
@@ -481,13 +462,8 @@ class WelcomePage(QtGui.QWidget):
         #restoreSessionBtn.setMinimumSize(QtCore.QSize(412,60))
                 
         QtCore.QObject.connect(newBtn, QtCore.SIGNAL("clicked()"),self.new)
-        QtCore.QObject.connect(newSvnBtn, QtCore.SIGNAL("clicked()"),self.newSvn)
-        QtCore.QObject.connect(newGitBtn, QtCore.SIGNAL("clicked()"),self.newGit)
         QtCore.QObject.connect(newScriptBtn, QtCore.SIGNAL("clicked()"),self.newScript)
         QtCore.QObject.connect(openBtn, QtCore.SIGNAL("clicked()"),self.open)
-        QtCore.QObject.connect(openSvnBtn, QtCore.SIGNAL("clicked()"),self.openSvn)
-        QtCore.QObject.connect(openGitBtn, QtCore.SIGNAL("clicked()"),self.openGit)
-        QtCore.QObject.connect(openScriptBtn, QtCore.SIGNAL("clicked()"),self.openScript)
         
         QtCore.QObject.connect(restoreSessionBtn, QtCore.SIGNAL("clicked()"),self.restoreSession)
         
@@ -525,13 +501,7 @@ class WelcomePage(QtGui.QWidget):
         self.session._is_script = False
         self.controller.project_manager.new()
         logger.debug("New Project from welcome page")
-        
-    def newSvn(self):
-        self.controller.project_manager.newSvn()    
-        
-    def newGit(self):
-        self.controller.project_manager.newGit()   
-        
+
     def newScript(self):
         self.controller.applet_container.addCreateFileTab()
           
@@ -540,18 +510,6 @@ class WelcomePage(QtGui.QWidget):
         self.session._is_script = False
         self.controller.project_manager.open()
         logger.debug("Open Project from welcome page")
-        
-    def openSvn(self):
-        self.controller.project_manager.openSvn()
-        
-    def openGit(self):
-        self.controller.project_manager.openGit()
-
-    def openScript(self):
-        self.session._is_proj = False
-        self.session._is_script = True
-        self.controller.project_manager.openModel()
-        logger.debug("Open Script from welcome page")
         
     def restoreSession(self):
         settings = QtCore.QSettings("OpenAlea", "OpenAleaLaboratory")
