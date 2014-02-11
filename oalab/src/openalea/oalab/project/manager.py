@@ -214,28 +214,29 @@ class ProjectManager(QtGui.QWidget):
         if not name:
             date = strftime("%Y-%m-%d_%H-%M-%S", gmtime())
             name = self.showNewProjectDialog('project_%s' %date)
-        if not name:
-            date = strftime("%Y-%m-%d_%H-%M-%S", gmtime())
-            name = 'project_%s' %date
-        if self.session.current_is_project():
-            if self.session.project is not None:
-                self.projectManager.close(self.session.project.name)
-        self.session._project = self.projectManager.create(name)
-        self.session._is_script = False
-        self.session._is_proj = True
+        if name:
+            if self.session.current_is_project():
+                if self.session.project is not None:
+                    self.projectManager.close(self.session.project.name)
+            self.session._project = self.projectManager.create(name)
+            self.session._is_script = False
+            self.session._is_proj = True
 
-        self._project_changed()
-        self._load_control()
+            self._project_changed()
+            self._load_control()
        
-    def newModel(self):
+    def newModel(self, applet_type=None):
         """
         Create a new model of type 'applet_type
+        
+        :param applet_type: type of applet to add. Can be Workflow, LSystem, Python, R
         """
-        button = self.sender() 
-        applet_type = button.text() # can be Workflow, LSystem, Python, R
-        #TODO: this approach is not reliable. If a developer change action name, it breaks the system
-        # a better approach should be to define a "newModel" method in IApplet and call it directly
-        # for instance in __init__ : action.triggered.connect(applet.newModel)        
+        if not applet_type:
+            button = self.sender() 
+            applet_type = button.text() # can be Workflow, LSystem, Python, R
+            #TODO: this approach is not reliable. If a developer change action name, it breaks the system
+            # a better approach should be to define a "newModel" method in IApplet and call it directly
+            # for instance in __init__ : action.triggered.connect(applet.newModel)        
         Applet = self.controller.applet_container.paradigms[applet_type]
         tab_name = Applet.default_file_name
         self.controller.applet_container.newTab(applet_type=applet_type, tab_name=tab_name)
