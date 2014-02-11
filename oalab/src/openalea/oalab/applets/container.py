@@ -205,7 +205,8 @@ class AppletContainer(QtGui.QTabWidget):
                     Applet = value
         
         if Applet is not None:            
-            self.applets.append(Applet(session=self.session, controller=self.controller, parent=self.parent(), name=tab_name, script=script))
+            appl = Applet(session=self.session, controller=self.controller, parent=self.parent(), name=tab_name, script=script)
+            self.applets.append(appl)
             
     
         self.addTab(self.applets[-1].widget(), tab_name)
