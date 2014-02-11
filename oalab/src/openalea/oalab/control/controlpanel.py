@@ -180,68 +180,6 @@ class ControlPanelManager(ObjectPanelManager):
         parent.vparameterView = QtGui.QMenu()
         super(ControlPanelManager, self).__init__(parent)
         self.session = session
-
-    '''
-    ##################################
-    # Block save state in an xml file
-    # TODO : do the same thing in a more beautiful way
-    def restoreState(self, obj=None):
-        controls = self.session.project().controls
-            
-    def saveState(self, obj=None):
-        self.session.project().controls = self.get_controls()
-    ##################################
-
-    def clear(self):
-        """
-        Del all controls
-        """
-        
-        # Doesn't work...
-        for panel in self.getObjectPanels():
-            for manager,obj in panel.getObjects():
-                del(manager, obj)
-    
-    def get_controls_and_managers(self):
-        """
-        :return: two Dict. Controls and Managers associated to controls.
-        """
-        c = self.get_controls()
-        m = self.get_managers()
-        return c, m
-
-    def get_managers(self):
-        """
-        :return: dict of Managers (manager_name, manager) 
-        """
-        managers = dict()
-        
-        # Get panels
-        panels = self.get_panel()
-        
-        for panel in panels:
-            for manager,obj in panel.getObjects():
-                managers[obj.getName()] = manager
-            
-        return managers   
-
-    def get_controls(self):
-        """
-        :return: dict of Controls (control_name, control) 
-        """
-        controls = dict()
-        
-        # Get panels
-        panels = self.get_panel()
-        
-        for panel in panels:
-            for manager,obj in panel.getObjects():
-                controls[obj.getName()] = obj
-            
-        return controls
-
-    def get_panel(self):
-        return self.getObjectPanels()'''
     
     def completeMenu(self,menu,panel):
         panelmenu = QtGui.QMenu("Panel",menu)
@@ -277,23 +215,7 @@ class ControlPanel(QtGui.QTabWidget):
         self.geometry_editor = LPyPanelWidget(parent=None,name="Control Panel", panelmanager=self.control_panel_manager)
         self.geometry_editor.view.setTheme(self.geometry_editor.view.WHITE_THEME)
         # Print Warning in PlantGL/src/plantg/gui/curve2deditor.py l.227
-        """
-        Edit curve
-        Ok
-        Edit Function
-        Apply
-        Ok --> error
-        
-        Traceback (most recent call last):
-            
-        File "/home/julien/dev/vplants_trunk/lpy/src/openalea/lpy/gui/objectpanel.py", line 64, in __transmit_valueChanged__
-            self.panel.retrieveObject(self)
-            
-        File "/home/julien/dev/vplants_trunk/lpy/src/openalea/lpy/gui/objectpanel.py", line 397, in retrieveObject
-            object,objectid = managerDialog.getEditedObject()
-            
-        TypeError: 'NoneType' object is not iterable
-        """
+
         self.addTab(self.geometry_editor, "Geometry")
         
         # Scalars
@@ -306,95 +228,3 @@ class ControlPanel(QtGui.QTabWidget):
         # self.scalars_editor.setScalars([scalar,,,])
 
         self.addTab(self.scalars_editor, "Scalars")   
-        
-'''
-        # connected to current_project.control
-        # and connect display_thumbnail
-        
-        # TODO self.controls = current_project.control
-        self.discover_controls()
-    
-    def discover_controls(self):
-        """
-        Use a plugin system to discover all controls type available.
-        
-        :return: a dict name/controlManager
-        """
-        self.managers = plugin.discover("oalab.control")
-    
-    def new_control(self):
-        """
-        Find types available.
-        User choose a type.
-        Create a new control and add it to the current project.
-        """
-        # Discover control managers
-        self.discover_controls()
-
-        # User choose a type in self.managers
-        # TODO
-##        for p in self.managers: print p
-        #Here always Int
-        
-        # Create a new control
-        entry_point = self.managers['IntControl']
-        Control = plugin.Plugin(entry_point)
-        new_control = Control().load()
-        
-        # Add it into the current project.
-        # TODO
-        
-    def rename(self):
-        """
-        Rename current control in current project.
-        """
-        # Get Current
-        control = self.current()
-        
-        # Ask new name to the user
-        # TODO
-        name = ""
-        
-        #Rename
-        control.rename(name)
-        
-    def delete(self):
-        """
-        Delete current control.
-        Delete from current project.
-        """    
-        # Get Current
-        control = self.current()
-        
-        #Delete from current project
-        #TODO
-        
-    def edit(self):
-        """
-        Edit current control
-        - Call control.edit()
-        
-        Thumbnail widget become an editor widget
-        """    
-        # Get Current
-        control = self.current()
-        
-        #Edit
-        control.edit()
-        
-    def display_thumbnails(self):
-        """
-        Display thumbnails of all controls.
-        - List controls
-        - Call control.thumbnail() on each one
-        """
-        pass
-        
-    def current():
-        """
-        :return: current control
-        """
-        pass
-
-
-'''

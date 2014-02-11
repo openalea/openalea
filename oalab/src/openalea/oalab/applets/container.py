@@ -49,21 +49,21 @@ class AppletContainer(QtGui.QTabWidget):
         self.setAccessibleName("Container")
         
         self.actionSave = QtGui.QAction(QtGui.QIcon(":/images/resources/save.png"),"Save", self)
-        self.actionRun = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/run.png"),"Run", self)
-        self.actionAnimate = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/play.png"),"Animate", self)
-        self.actionStep = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/step.png"),"Step", self)
-        self.actionStop = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/pause.png"),"Stop", self)
-        self.actionInit = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/rewind.png"),"Init", self)
+        self.actionRun = QtGui.QAction(QtGui.QIcon(":/images/resources/run.png"),"Run", self)
+        self.actionAnimate = QtGui.QAction(QtGui.QIcon(":/images/resources/play.png"),"Animate", self)
+        self.actionStep = QtGui.QAction(QtGui.QIcon(":/images/resources/step.png"),"Step", self)
+        self.actionStop = QtGui.QAction(QtGui.QIcon(":/images/resources/pause.png"),"Stop", self)
+        self.actionInit = QtGui.QAction(QtGui.QIcon(":/images/resources/rewind.png"),"Init", self)
         
-        self.actionRunSelection = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/run.png"),"Run subpart", self)
+        self.actionRunSelection = QtGui.QAction(QtGui.QIcon(":/images/resources/run.png"),"Run subpart", self)
         
-        self.actionUndo = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/editundo.png"),"Undo", self)
-        self.actionRedo = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/editredo.png"),"Redo", self)
-        self.actionSearch = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/editfind.png"),"Search", self)
+        self.actionUndo = QtGui.QAction(QtGui.QIcon(":/images/resources/editundo.png"),"Undo", self)
+        self.actionRedo = QtGui.QAction(QtGui.QIcon(":/images/resources/editredo.png"),"Redo", self)
+        self.actionSearch = QtGui.QAction(QtGui.QIcon(":/images/resources/editfind.png"),"Search", self)
         
         self.actionComment = QtGui.QAction(QtGui.QIcon(":/images/resources/commentOn.png"),"Comment",self)
         self.actionUnComment = QtGui.QAction(QtGui.QIcon(":/images/resources/commentOff.png"),"Uncomment",self) 
-        self.actionGoto = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/next-green.png"),"Go To",self) 
+        self.actionGoto = QtGui.QAction(QtGui.QIcon(":/images/resources/next-green.png"),"Go To",self) 
        
         self.actionComment.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+W", None, QtGui.QApplication.UnicodeUTF8)) 
         self.actionUnComment.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+J", None, QtGui.QApplication.UnicodeUTF8))

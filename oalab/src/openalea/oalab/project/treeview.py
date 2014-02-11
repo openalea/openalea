@@ -96,7 +96,7 @@ class ProjectTreeView(QtGui.QTreeView):
         self.projectview = QtGui.QWidget()
         
         # project tree view
-        self.proj_model = PrjctModel(self.project)
+        self.proj_model = PrjctModel(session, controller, self.project)
         
         self.setHeaderHidden(True)
         self.setModel(self.proj_model)
@@ -183,10 +183,12 @@ class PrjctModel(QtGui.QStandardItemModel):
     # Display
     treeView.show()
     """
-    def __init__(self, project, parent=None):
+    def __init__(self, session, controller, project, parent=None):
         super(PrjctModel, self).__init__(parent)
         
         # Use it to store evrything to compare with new when a change occure
+        self.controller = controller
+        
         self.old_models = list()
         self.old_controls = list()
         self.old_scene = list()
@@ -195,6 +197,10 @@ class PrjctModel(QtGui.QStandardItemModel):
         self.set_proj(project)      
 
         QtCore.QObject.connect(self,QtCore.SIGNAL('dataChanged( const QModelIndex &, const QModelIndex &)'),self.renamed)
+        
+        self.icons = dict()
+        for applet in self.controller.applet_container.paradigms.values():
+            self.icons[applet.extension] = applet.icon
         
     def renamed(self,x,y):
         if self.proj is not None:
@@ -261,14 +267,9 @@ class PrjctModel(QtGui.QStandardItemModel):
             rootItem = self.invisibleRootItem()
             for name in self.proj:
                 item = QtGui.QStandardItem(name)
-                if name.split(".")[-1] == "wpy":
-                    item.setIcon(QtGui.QIcon(":/images/resources/openalealogo.png"))
-                elif name.split(".")[-1] == "py":
-                    item.setIcon(QtGui.QIcon(":/images/resources/Python-logo.png"))
-                elif name.split(".")[-1] == "r":
-                    item.setIcon(QtGui.QIcon(":/images/resources/RLogo.png"))
-                elif name.split(".")[-1] == "lpy":
-                    item.setIcon(QtGui.QIcon(":/lpy_images/resources/lpy/logo.png"))
+                ext = name.split(".")[-1]
+                if ext in self.icons.keys():
+                    item.setIcon(QtGui.QIcon(self.icons[ext]))
                 else:
                     item.setIcon(QtGui.QIcon(":/images/resources/openalea_icon2.png"))
                 rootItem.appendRow(item)    
@@ -293,14 +294,9 @@ class PrjctModel(QtGui.QStandardItemModel):
             parentItem = rootItem.child(0)
             for name in self.proj.scripts:
                 item = QtGui.QStandardItem(name)
-                if name.split(".")[-1] == "wpy":
-                    item.setIcon(QtGui.QIcon(":/images/resources/openalealogo.png"))
-                elif name.split(".")[-1] == "py":
-                    item.setIcon(QtGui.QIcon(":/images/resources/Python-logo.png"))
-                elif name.split(".")[-1] == "r":
-                    item.setIcon(QtGui.QIcon(":/images/resources/RLogo.png"))
-                elif name.split(".")[-1] == "lpy":
-                    item.setIcon(QtGui.QIcon(":/lpy_images/resources/lpy/logo.png"))
+                ext = name.split(".")[-1]
+                if ext in self.icons.keys():
+                    item.setIcon(QtGui.QIcon(self.icons[ext]))
                 else:
                     item.setIcon(QtGui.QIcon(":/images/resources/openalea_icon2.png"))
                 parentItem.appendRow(item)

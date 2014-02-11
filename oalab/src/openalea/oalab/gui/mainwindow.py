@@ -223,15 +223,20 @@ class MainWindow(QtGui.QMainWindow):
     ### Widgets
     ####################################################################
     
-    def _dockWidget(self, identifier, widget, name=None, allowed_area=None, position=None):
+    def _dockWidget(self, identifier, widget, name=None, allowed_area=None, position=None, alias=None):
         if name is None :
             name = identifier.capitalize()
+
         if allowed_area is None:
             allowed_area = QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | QtCore.Qt.TopDockWidgetArea | QtCore.Qt.BottomDockWidgetArea
         if position is None:
             position = QtCore.Qt.LeftDockWidgetArea
     
-        dock_widget = QtGui.QDockWidget(name, self)
+        if alias:
+            dock_widget = QtGui.QDockWidget(alias, self)
+        else:
+            dock_widget = QtGui.QDockWidget(name, self)
+            
         dock_widget.setObjectName("%sPanel" % identifier)
         dock_widget.setAllowedAreas(allowed_area)
         dock_widget.setWidget(widget)
@@ -257,7 +262,7 @@ class MainWindow(QtGui.QMainWindow):
         self._dockWidget("PackageSearch", controller.applets["PackageSearch"], name="Package Search")
         self._dockWidget("ControlPanel", controller.applets["ControlPanel"], name="Control Panel", position=QtCore.Qt.BottomDockWidgetArea)
         self._dockWidget("Viewer3D", controller.applets["Viewer3D"], name="3D Viewer", position=QtCore.Qt.RightDockWidgetArea)
-        self._dockWidget("Help", controller.applets["Help"], position=QtCore.Qt.BottomDockWidgetArea)
+        self._dockWidget("HelpWidget", controller.applets["HelpWidget"], position=QtCore.Qt.BottomDockWidgetArea, alias="Help")
         self._dockWidget("Logger", controller.applets["Logger"], position=QtCore.Qt.BottomDockWidgetArea)
         self._dockWidget("Store", controller.applets["Store"], name="OpenAlea Store", position=QtCore.Qt.RightDockWidgetArea)
         self._dockWidget("Shell", controller.shell, name="IPython Shell", position=QtCore.Qt.BottomDockWidgetArea)

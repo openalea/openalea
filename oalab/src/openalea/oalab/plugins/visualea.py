@@ -173,7 +173,7 @@ class VisualeaApplet(object):
         """
         assert isinstance(item, dataflowview.vertex.GraphicalVertex)
         txt = item.vertex().get_tip()
-        self.controller.applets['Help'].setText(txt)
+        self.controller.applets['HelpWidget'].setText(txt)
     
     def focus_change(self):
         """
@@ -184,7 +184,7 @@ class VisualeaApplet(object):
 
 More informations: http://openalea.gforge.inria.fr/doc/openalea/visualea/doc/_build/html/contents.html        
 """
-        self.controller.applets['Help'].setText(txt)
+        self.controller.applets['HelpWidget'].setText(txt)
 
     def widget(self):
         """

@@ -56,7 +56,7 @@ class RApplet(object):
 
 more informations: http://www.r-project.org/
 """
-        self.controller.applets['Help'].setText(txt)
+        self.controller.applets['HelpWidget'].setText(txt)
         
     def widget(self):
         """
