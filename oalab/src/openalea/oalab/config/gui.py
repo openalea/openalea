@@ -16,7 +16,7 @@ class MainWindowConfig(Configurable):
     controlpanel = Bool(True, config=True, help="Display control panel")
     viewer3d = Bool(True, config=True, help="Display 3D Viewer")
     logger = Bool(True, config=True, help="Display logger (usefull to debug)")
-    help = Bool(True, config=True, help="Display Help widget")
+    helpwidget = Bool(True, config=True, help="Display Help widget")
     
     shell = Bool(True, config=True, help="Display graphical Python interpreter")
     shell_priority = List(['oalab:IPythonShell', 'oalab:BuiltinShell'], config=True, help="List of graphical Python interpreters, sorted by preference")

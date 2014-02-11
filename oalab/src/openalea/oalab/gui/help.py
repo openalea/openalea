@@ -41,14 +41,14 @@ To begin, create or open an existing file or project.
 """
 
         
-class Help(QtGui.QTextBrowser):
+class HelpWidget(QtGui.QTextBrowser):
     """
     Widget which permit to display informations/help.
     Usefull in visualea or LPy.
     """
     def __init__(self, session, controller, parent=None):
-        super(Help, self).__init__(parent=parent) 
-        self.setAccessibleName("Help")
+        super(HelpWidget, self).__init__(parent=parent) 
+        self.setAccessibleName("HelpWidget")
         
         actionHelpOpenAlea = QtGui.QAction(QtGui.QIcon(":/images/resources/openalealogo.png"),"OpenAlea", self)
         actionHelpGForge = QtGui.QAction(QtGui.QIcon(":/images/resources/gforge.png"),"Submit Bug", self)

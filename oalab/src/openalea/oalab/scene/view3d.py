@@ -162,9 +162,9 @@ class Viewer(view3D):
         self.axis = False
         self.grid = True
         
-        actionResetZoom = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/resetzoom.png"),"Reset Zoom", self)
-        actionZoomOut = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/zoomout.png"),"Zoom Out", self)
-        actionZoomIn = QtGui.QAction(QtGui.QIcon(":/lpy_images/resources/lpy/zoomin.png"),"Zoom In", self)
+        actionResetZoom = QtGui.QAction(QtGui.QIcon(":/images/resources/resetzoom.png"),"Reset Zoom", self)
+        actionZoomOut = QtGui.QAction(QtGui.QIcon(":/images/resources/zoomout.png"),"Zoom Out", self)
+        actionZoomIn = QtGui.QAction(QtGui.QIcon(":/images/resources/zoomin.png"),"Zoom In", self)
         actionShowAxis = QtGui.QAction(QtGui.QIcon(":/images/resources/axis.png"),"Show Axis", self)
         actionShowGrid = QtGui.QAction(QtGui.QIcon(":/images/resources/grid.png"),"Show Grid", self)
         actionRadius = QtGui.QAction(QtGui.QIcon(":/images/resources/growth2.png"),"Focus", self)

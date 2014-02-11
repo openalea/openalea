@@ -56,7 +56,7 @@ c.MainWindowConfig.packages = False
 c.MainWindowConfig.controlpanel = False
 
 # Display Help widget
-c.MainWindowConfig.help = False
+c.MainWindowConfig.helpwidget = False
 
 # Display 3D Viewer
 c.MainWindowConfig.viewer3d = False
@@ -121,7 +121,7 @@ c.MainWindowConfig.packages = False
 c.MainWindowConfig.controlpanel = False
 
 # Display Help widget
-c.MainWindowConfig.help = True
+c.MainWindowConfig.helpwidget = True
 
 # Display 3D Viewer
 c.MainWindowConfig.viewer3d = False
@@ -186,7 +186,7 @@ c.MainWindowConfig.packages = False
 c.MainWindowConfig.controlpanel = False
 
 # Display Help widget
-c.MainWindowConfig.help = True
+c.MainWindowConfig.helpwidget = True
 
 # Display 3D Viewer
 c.MainWindowConfig.viewer3d = True
@@ -251,7 +251,7 @@ c.MainWindowConfig.packages = True
 c.MainWindowConfig.controlpanel = False
 
 # Display Help widget
-c.MainWindowConfig.help = True
+c.MainWindowConfig.helpwidget = True
 
 # Display 3D Viewer
 c.MainWindowConfig.viewer3d = False
@@ -316,7 +316,7 @@ c.MainWindowConfig.packages = True
 c.MainWindowConfig.controlpanel = True
 
 # Display Help widget
-c.MainWindowConfig.help = True
+c.MainWindowConfig.helpwidget = True
 
 # Display 3D Viewer
 c.MainWindowConfig.viewer3d = True

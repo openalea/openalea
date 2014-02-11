@@ -2,7 +2,7 @@
 from openalea.core.pkgmanager import PackageManager
 from openalea.oalab.gui.logger import Logger
 from openalea.oalab.control.controlpanel import ControlPanel
-from openalea.oalab.gui.help import Help
+from openalea.oalab.gui.help import HelpWidget
 from openalea.oalab.gui.menu import PanedMenu
 from openalea.vpltk.shell.shell import get_shell_class
 from openalea.oalab.applets.container import AppletContainer
@@ -51,7 +51,7 @@ class AllWidgets(QtGui.QWidget):
         self.applets['PackageSearch'] = PackageSearchWidget(session=self.session, controller=self, parent=self)
 
         self.applets['Logger'] = Logger(session=self.session, controller=self, parent=self)
-        self.applets['Help'] = Help(session=self.session, controller=self, parent=self)
+        self.applets['HelpWidget'] = HelpWidget(session=self.session, controller=self, parent=self)
 
         #self.interpreter.locals['ctrl'] = self.applets['ControlPanel']
         #self.interpreter.locals['interp'] = self.interpreter

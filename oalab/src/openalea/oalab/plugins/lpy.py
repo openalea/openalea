@@ -116,7 +116,7 @@ class LPyApplet(object):
     default_file_name = "script.lpy"
     pattern = "*.lpy"
     extension = "lpy"
-    icon = ":/lpy_images/resources/lpy/logo.png"
+    icon = ":/images/resources/logo.png"
     
     def __init__(self, session, controller, parent=None, name="script.lpy", script=""):
         super(LPyApplet, self).__init__()
@@ -170,7 +170,7 @@ class LPyApplet(object):
         Set doc string in Help widget when focus changed
         """
         txt = doc_lpy.getSpecification()
-        self.controller.applets['Help'].setText(txt)
+        self.controller.applets['HelpWidget'].setText(txt)
          
     def widget(self):
         """
@@ -269,6 +269,12 @@ class LPyApplet(object):
         self.step(0)
 
 class LPyApplet2(object):
+    default_name = "LSystem"
+    default_file_name = "script.lpy"
+    pattern = "*.lpy"
+    extension = "lpy"
+    icon = ":/images/resources/logo.png"
+    
     def __init__(self, session, controller, parent=None, name="script.lpy", script=""):
         super(LPyApplet2, self).__init__()
         logger.debug("init LPyApplet")
