@@ -154,11 +154,12 @@ class LPyApplet(object):
         registerPlotter(self.controller.applets['Viewer3D'])
         
         # Link with color map from application
-        if self.session.project.controls.has_key("color map"):    
-            i = 0
-            for color in self.session.project.controls["color map"] :
-                self.lsystem.context().turtle.setMaterial(i, color)
-                i += 1
+        if hasattr(self.session.project,"controls"):
+            if self.session.project.controls.has_key("color map"):    
+                i = 0
+                for color in self.session.project.controls["color map"] :
+                    self.lsystem.context().turtle.setMaterial(i, color)
+                    i += 1
         
         self.session.interpreter.locals['lsystem'] = self.lsystem
 
