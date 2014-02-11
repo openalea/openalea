@@ -74,9 +74,8 @@ class ProjectManager(QtGui.QWidget):
         self.extensions = ""                 
         # Connect actions from applet_container.paradigms to menu (newPython, newLpy,...)       
         for applet in self.controller.applet_container.paradigms.values():
-            action = QtGui.QAction(QtGui.QIcon(applet.icon),applet.default_name, self)
-            toconnect = "self.new%s"%applet.default_name
-            action.triggered.connect(eval(toconnect))
+            action = QtGui.QAction(QtGui.QIcon(applet.icon), applet.default_name, self)
+            action.triggered.connect(self.newModel)
             self._actions.append(["Model","New Model",action,0],)
             self.paradigms_actions.append(action)
             self.extensions = self.extensions + applet.pattern + " "
@@ -228,12 +227,15 @@ class ProjectManager(QtGui.QWidget):
         self._project_changed()
         self._load_control()
        
-    def newModel(self, applet_type):
+    def newModel(self):
         """
-        Create a new model of type 'zpplet_type
-        
-        :param applet_type: can be Workflow, LSystem, Python, R'
+        Create a new model of type 'applet_type
         """
+        button = self.sender() 
+        applet_type = button.text() # can be Workflow, LSystem, Python, R
+        #TODO: this approach is not reliable. If a developer change action name, it breaks the system
+        # a better approach should be to define a "newModel" method in IApplet and call it directly
+        # for instance in __init__ : action.triggered.connect(applet.newModel)        
         Applet = self.controller.applet_container.paradigms[applet_type]
         tab_name = Applet.default_file_name
         self.controller.applet_container.newTab(applet_type=applet_type, tab_name=tab_name)
@@ -250,19 +252,7 @@ class ProjectManager(QtGui.QWidget):
         
         self.controller._update_locals()
         self._tree_view_change()
-        
-    def newPython(self):
-        self.newModel(applet_type="Python")  
-        
-    def newR(self):
-        self.newModel(applet_type="R")  
-        
-    def newLSystem(self):
-        self.newModel(applet_type="LSystem")  
-                    
-    def newWorkflow(self):
-        self.newModel(applet_type="Workflow")  
-                    
+
     def removeModel(self, model_name):
         """
         :param model_name: Name of the model to remove in the current project
