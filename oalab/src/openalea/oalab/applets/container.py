@@ -225,10 +225,11 @@ class AppletContainer(QtGui.QTabWidget):
         """
         Close current tab
         """
-        if self.session.current_is_script():
-            ez_name = self.tabText(self.currentIndex())
-            self.session.project.rm_script_by_ez_name(ez_name)
-            self.controller.project_manager._tree_view_change()
+        if self.session.project:
+            if self.session.current_is_script():
+                ez_name = self.tabText(self.currentIndex())
+                self.session.project.rm_script_by_ez_name(ez_name)
+                self.controller.project_manager._tree_view_change()
         
         self.removeTab(self.currentIndex())
         if self.count() == 0:
@@ -376,7 +377,7 @@ class CreateFilePage(QtGui.QWidget):
         max_size = QtCore.QSize(100,80)
         min_size = QtCore.QSize(100,80)
               
-        text = QtGui.QLabel("Select type of file to add:")
+        text = QtGui.QLabel("Select type of file to create:")
         layout.addWidget(text,0,0,1,-1)
         
         i, j = 1, 0
@@ -456,7 +457,7 @@ class WelcomePage(QtGui.QWidget):
         newGitBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/git.png"),"Versionned Project (Git)")
         newGitBtn.setMaximumSize(max_size)  
         newGitBtn.setMinimumSize(min_size)  
-        newScriptBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/Python-logo.png"),"New File")
+        newScriptBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/import.png"),"Create or Open File")
         newScriptBtn.setMaximumSize(max_size)  
         newScriptBtn.setMinimumSize(min_size)
         
@@ -474,8 +475,10 @@ class WelcomePage(QtGui.QWidget):
         openScriptBtn.setMinimumSize(min_size)
         
         restoreSessionBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/open.png"),"Restore Previous Session")
-        restoreSessionBtn.setMaximumSize(QtCore.QSize(412,60))  
-        restoreSessionBtn.setMinimumSize(QtCore.QSize(412,60))
+        restoreSessionBtn.setMaximumSize(max_size)
+        restoreSessionBtn.setMinimumSize(min_size)
+        #restoreSessionBtn.setMaximumSize(QtCore.QSize(412,60))  
+        #restoreSessionBtn.setMinimumSize(QtCore.QSize(412,60))
                 
         QtCore.QObject.connect(newBtn, QtCore.SIGNAL("clicked()"),self.new)
         QtCore.QObject.connect(newSvnBtn, QtCore.SIGNAL("clicked()"),self.newSvn)
@@ -489,12 +492,11 @@ class WelcomePage(QtGui.QWidget):
         QtCore.QObject.connect(restoreSessionBtn, QtCore.SIGNAL("clicked()"),self.restoreSession)
         
         layout.addWidget(newBtn,0,0)
-        layout.addWidget(openBtn,1,0)
+        layout.addWidget(openBtn,0,1)
         
-        layout.addWidget(newScriptBtn,0,1)
-        layout.addWidget(openScriptBtn,1,1)
+        layout.addWidget(newScriptBtn,1,0)
         
-        layout.addWidget(restoreSessionBtn,2,0,2,2)
+        layout.addWidget(restoreSessionBtn,1,1)
         
         self.setLayout(layout)
 
@@ -531,10 +533,7 @@ class WelcomePage(QtGui.QWidget):
         self.controller.project_manager.newGit()   
         
     def newScript(self):
-        self.session._is_proj = False
-        self.session._is_script = True
-        self.controller.project_manager.newModel("Python")
-        logger.debug("New Script from welcome page")
+        self.controller.applet_container.addCreateFileTab()
           
     def open(self):
         self.session._is_proj = True
