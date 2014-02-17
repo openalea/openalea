@@ -150,14 +150,11 @@ class MainWindow(QtGui.QMainWindow):
         
         for child in children:
             name = child.windowTitle()
-            actionShow = QtGui.QAction(QtGui.QIcon(":/images/resources/show.png"),name,self)
-            actionHide = QtGui.QAction(QtGui.QIcon(":/images/resources/hide.png"),name,self)
-            
-            QtCore.QObject.connect(actionShow, QtCore.SIGNAL('triggered(bool)'),child.show)
-            QtCore.QObject.connect(actionHide, QtCore.SIGNAL('triggered(bool)'),child.hide)
-            
-            child._actions = [["View","Show",actionShow,1],
-                             ["View","Hide",actionHide,1]]
+            btn = QtGui.QCheckBox(name, self)
+            btn.setChecked(child.isVisibleTo(self))
+            QtCore.QObject.connect(btn, QtCore.SIGNAL('toggled(bool)'),child.setVisible)
+
+            child._actions = [["View","Show",btn,"smallwidget"],]
             def actions(self):
                 return self._actions
             
