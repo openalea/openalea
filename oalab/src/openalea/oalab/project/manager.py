@@ -329,7 +329,8 @@ You can rename/move this project thanks to the button "Save As" in menu.
         """
         name = self.showNewProjectDialog(default_name=None, text="Select name to save project")
         if name:
-            self.session.project.rename(categorie="project", old_name=self.session.project.name, new_name="name")
+            self.session.project.rename(categorie="project", old_name=self.session.project.name, new_name=name)
+            self._tree_view_change()
             self.saveCurrent()
     
     def saveCurrent(self):
@@ -337,31 +338,34 @@ You can rename/move this project thanks to the button "Save As" in menu.
         Save current project.
         """
         if self.session.current_is_project():
-            current = self.session.project
-            current.controls = dict()
-            container = self.controller.applet_container
-        
-            for i in range(container.count()):
-                container.setCurrentIndex(i)
-                name = container.tabText(i)
-                container.widget(i).save(name)
+            if self.session.project.name == "temp":
+                self.saveAs()
+            else:            
+                current = self.session.project
+                current.controls = dict()
+                container = self.controller.applet_container
+            
+                for i in range(container.count()):
+                    container.setCurrentIndex(i)
+                    name = container.tabText(i)
+                    container.widget(i).save(name)
+                    
+                colors = self.controller.applets['ControlPanel'].colormap_editor.getTurtle().getColorList()
+                current.controls["color map"] = colors
                 
-            colors = self.controller.applets['ControlPanel'].colormap_editor.getTurtle().getColorList()
-            current.controls["color map"] = colors
-            
-            geoms = self.controller.applets['ControlPanel'].geometry_editor.getObjects()
-            
+                geoms = self.controller.applets['ControlPanel'].geometry_editor.getObjects()
+                
 
-            for (manager, geom) in geoms:
-                if geom != list():
-                    new_obj,new_name = geometry_2_piklable_geometry(manager, geom)
-                    current.controls[new_name] = new_obj
-            
-            scalars = self.controller.applets['ControlPanel'].scalars_editor.getScalars()
-            for scalar in scalars:
-                current.controls[scalar.name] = scalar
+                for (manager, geom) in geoms:
+                    if geom != list():
+                        new_obj,new_name = geometry_2_piklable_geometry(manager, geom)
+                        current.controls[new_name] = new_obj
+                
+                scalars = self.controller.applets['ControlPanel'].scalars_editor.getScalars()
+                for scalar in scalars:
+                    current.controls[scalar.name] = scalar
 
-            current.save()
+                current.save()
             
         elif self.session.current_is_script():
             ## TODO : Warning! Save all not just current
