@@ -224,6 +224,7 @@ class Project(object):
             
         if (categorie == "project"):
             self.name = new_name
+            self._create_default_folders()
             self.save()
             try:
                 (self.path/old_name).removedirs()
@@ -408,7 +409,7 @@ class ProjectManager(object):
         :return: a fake empty project
         """
         project_path = _path(settings.get_project_dir())
-        proj = Project(project_name="fake", project_path=project_path)
+        proj = Project(project_name="temp", project_path=project_path)
         return proj
     
     def create(self, project_name, project_path=None):
@@ -435,7 +436,7 @@ class ProjectManager(object):
         Default=None means that the path is the openaelea.core.settings.get_project_dir()
         :return: Project
         """
-        if project_path is None:    
+        if not project_path:    
             project_path = _path(settings.get_project_dir())
         
         full_path = _path(project_path)/project_name
@@ -448,8 +449,8 @@ class ProjectManager(object):
             self.cproject = self.projects[proj.name]
             return proj
         else:
-            raise IOError('Project %s in repository %s does not exist' %(project_name,project_path))
-            print 'Project %s in repository %s does not exist' %(project_name,project_path)
+            #raise IOError('Project %s in repository %s does not exist' %(project_name,project_path))
+            #print 'Project %s in repository %s does not exist' %(project_name,project_path)
             return -1
 
     def close(self, project_name):
