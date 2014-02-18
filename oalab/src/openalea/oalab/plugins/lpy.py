@@ -171,6 +171,14 @@ class LPyApplet(object):
         Set doc string in Help widget when focus changed
         """
         txt = doc_lpy.getSpecification()
+        
+        txt = """
+<H1><IMG SRC=%s
+ ALT="icon"
+ HEIGHT=25
+ WIDTH=25
+ TITLE="LPy logo">L-Py</H1>"""%str(self.icon) + txt[13:]
+        
         self.controller.applets['HelpWidget'].setText(txt)
          
     def widget(self):

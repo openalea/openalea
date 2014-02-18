@@ -54,8 +54,8 @@ class RApplet(object):
         txt = """
 <H1><IMG SRC=%s
  ALT="icon"
- HEIGHT=20
- WIDTH=20
+ HEIGHT=25
+ WIDTH=25
  TITLE="R logo">R language</H1>
 
 more informations: http://www.r-project.org/

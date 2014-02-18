@@ -182,8 +182,8 @@ class VisualeaApplet(object):
         txt = """
 <H1><IMG SRC=%s
  ALT="icon"
- HEIGHT=20
- WIDTH=20
+ HEIGHT=25
+ WIDTH=25
  TITLE="Visualea logo">Visualea</H1>
 
 More informations: http://openalea.gforge.inria.fr/doc/openalea/visualea/doc/_build/html/contents.html        
