@@ -419,6 +419,7 @@ class ProjectManager(object):
         """
         project_path = _path(settings.get_project_dir())
         proj = Project(project_name="temp", project_path=project_path)
+        proj.centralized = False
         return proj
     
     def create(self, project_name, project_path=None):
