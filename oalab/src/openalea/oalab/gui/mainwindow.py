@@ -262,11 +262,11 @@ class MainWindow(QtGui.QMainWindow):
         self._dockWidget("PackageSearch", controller.applets["PackageSearch"], name="Package Search")
         self._dockWidget("ControlPanel", controller.applets["ControlPanel"], name="Control Panel", position=QtCore.Qt.BottomDockWidgetArea)
         self._dockWidget("Viewer3D", controller.applets["Viewer3D"], name="3D Viewer", position=QtCore.Qt.RightDockWidgetArea)
-        self._dockWidget("HelpWidget", controller.applets["HelpWidget"], position=QtCore.Qt.BottomDockWidgetArea, alias="Help")
         self._dockWidget("Logger", controller.applets["Logger"], position=QtCore.Qt.BottomDockWidgetArea)
         self._dockWidget("Store", controller.applets["Store"], name="OpenAlea Store", position=QtCore.Qt.RightDockWidgetArea)
         self._dockWidget("Shell", controller.shell, name="IPython Shell", position=QtCore.Qt.BottomDockWidgetArea)
-
+        self._dockWidget("HelpWidget", controller.applets["HelpWidget"], position=QtCore.Qt.BottomDockWidgetArea, alias="Help")
+        
         controller.applets['ControlPanel'].geometry_editor.setStatusBar(self.statusBar())
         self._dockwidgets['Store'].hide()
 
