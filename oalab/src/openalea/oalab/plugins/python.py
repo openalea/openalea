@@ -51,8 +51,8 @@ class PythonApplet(object):
         txt = """
 <H1><IMG SRC=%s
  ALT="icon"
- HEIGHT=20
- WIDTH=20
+ HEIGHT=25
+ WIDTH=25
  TITLE="Python logo">Python</H1>
 
 more informations: http://www.python.org/
