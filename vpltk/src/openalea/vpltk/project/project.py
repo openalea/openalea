@@ -87,6 +87,7 @@ class Project(object):
         self.ns = dict()
         self.controls = dict()
         
+        self.localized = True # Set to False if you want to work with files that are outside project
         self.shell = None
         self.set_ipython()
         
@@ -233,11 +234,17 @@ class Project(object):
             
             
     def load(self):
+        manifest = self._load_manifest()
+        if manifest.has_key("localized"):
+            self.localized = manifest["localized"][0]
+            
         self.scripts = self._load("scripts")
         self.controls = self._load("controls")
         self.cache = self._load("cache")
         self.scene = self._load("scene")
         self.startup = self._load("startup")
+        
+
         
     #----------------------------------------
     # Protected 
@@ -256,7 +263,8 @@ class Project(object):
                 return return_object
             files = manifest[object_type]
             for filename in files:
-                filename = temp_path/filename
+                if self.localized:
+                    filename = temp_path/filename
                 return_object[filename.basename()] = open(filename, 'rU').read()
                 
         # hack to add cache in namespace
@@ -332,6 +340,7 @@ class Project(object):
         config['scene'] = self.scene.keys()
         config['cache'] = self.cache.keys()
         config['startup'] = self.startup.keys()
+        config['localized'] = self.localized
 
         config.write()
         
