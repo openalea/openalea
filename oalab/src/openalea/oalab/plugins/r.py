@@ -52,10 +52,14 @@ class RApplet(object):
         Set doc string in Help widget when focus changed
         """
         txt = """
-<H1>R language</H1>
+<H1><IMG SRC=%s
+ ALT="icon"
+ HEIGHT=20
+ WIDTH=20
+ TITLE="R logo">R language</H1>
 
 more informations: http://www.r-project.org/
-"""
+"""%str(self.icon)
         self.controller.applets['HelpWidget'].setText(txt)
         
     def widget(self):

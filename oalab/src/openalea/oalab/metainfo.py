@@ -14,4 +14,4 @@ url = "http://openalea.gforge.inria.fr"
 
 def get_copyright():
 
-    return u"Copyright \xa9 2013 INRIA/CIRAD/INRA\n"
+    return u"Copyright \xa9 2014 Inria/CIRAD/INRA\n"

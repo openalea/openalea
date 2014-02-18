@@ -52,6 +52,9 @@ class MainWindow(QtGui.QMainWindow):
         self.setShowDockInMenu()
         self.setSelectLabInMenu()
         
+        #print self.controller.classical_menu.actions()
+        self.setMenuBar(self.controller.classical_menu)
+        
     def changeExtension(self, extension=None):
         """
         Change to a new extension.

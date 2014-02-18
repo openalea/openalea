@@ -46,7 +46,7 @@ class ProjectManager(QtGui.QWidget):
         self.scriptManager = Scripts()
         
         for proj in self.projectManager.projects:
-            self.session.project = proj
+            self.session._project = proj
                 
         self.actionImportFile = QtGui.QAction(QtGui.QIcon(":/images/resources/import.png"),"Add file", self)
         
@@ -55,20 +55,23 @@ class ProjectManager(QtGui.QWidget):
         self.actionOpenProj = QtGui.QAction(QtGui.QIcon(":/images/resources/open.png"),"Open", self)
         self.actionOpenProj.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+O", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSaveProj = QtGui.QAction(QtGui.QIcon(":/images/resources/save.png"),"Save", self)
+        self.actionSaveProjAs = QtGui.QAction(QtGui.QIcon(":/images/resources/save.png"),"Save As", self)
         #self.actionSaveProj.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
         self.actionCloseProj = QtGui.QAction(QtGui.QIcon(":/images/resources/closeButton.png"),"Close All", self)
         
         QtCore.QObject.connect(self.actionNewProj, QtCore.SIGNAL('triggered(bool)'),self.new)
         QtCore.QObject.connect(self.actionOpenProj, QtCore.SIGNAL('triggered(bool)'),self.open)
+        QtCore.QObject.connect(self.actionSaveProjAs, QtCore.SIGNAL('triggered(bool)'),self.saveAs)
         QtCore.QObject.connect(self.actionSaveProj, QtCore.SIGNAL('triggered(bool)'),self.saveCurrent)
         QtCore.QObject.connect(self.actionCloseProj, QtCore.SIGNAL('triggered(bool)'),self.closeCurrent)
         
         QtCore.QObject.connect(self.actionImportFile, QtCore.SIGNAL('triggered(bool)'),self.importFile)
         
-        self._actions = [["Project","Manage Project",self.actionNewProj,0],
+        self._actions = [["Project","Manage Project",self.actionNewProj,1],
                          ["Project","Manage Project",self.actionOpenProj,0],
                          ["Project","Manage Project",self.actionSaveProj,0],
-                         ["Project","Manage Project",self.actionCloseProj,0],
+                         ["Project","Manage Project",self.actionSaveProjAs,1],
+                         ["Project","Manage Project",self.actionCloseProj,1],
                          ["Model","New Model",self.actionImportFile,0]]
                          
         self.extensions = ""                 
@@ -81,6 +84,29 @@ class ProjectManager(QtGui.QWidget):
             self.extensions = self.extensions + applet.pattern + " "
 
         self._project_changed()
+        
+        self.defaultProj()
+        
+    def defaultProj(self):
+        proj = self.projectManager.empty()
+        self.session._project = proj
+        self.session._is_script = False
+        self.session._is_proj = True
+
+        self._project_changed()
+        self._load_control()
+
+        txt = '''# -*- coding: utf-8 -*-
+"""
+OpenAlea Lab editor
+
+This temporary script is saved in temporary project in 
+%s
+
+You can rename/move this project thanks to the button "Save As" in menu.
+"""'''%str(self.session.project.path/self.session.project.name)
+        
+        self.newModel(applet_type="Python",tab_name=".temp.py", script=txt)
 
            
     def showNewProjectDialog(self, default_name=None, text=None):
@@ -129,15 +155,25 @@ class ProjectManager(QtGui.QWidget):
             logger.debug("Open Project named " + proj_name)
             if self.session.project is not None:
                 if self.session.current_is_project():
+                    logger.debug("Close Project named " + self.session.project.name)
                     self.projectManager.close(self.session.project.name)
+                    logger.debug("Project named " + self.session.project.name + " closed.")
             
-            self.session._project = self.projectManager.load(proj_name,proj_path)
-            self.session._is_script = False
-            self.session._is_proj = True
-            self._project_changed()
-            self._load_control()
+            proj = self.projectManager.load(proj_name,proj_path)
+            logger.debug("Project " + str(proj) + " loaded")
             
-            logger.debug("Project opened: " + str(self.session._project))
+            if proj == -1 :
+                logger.warning("Project was not loaded...")
+                return -1
+            else:
+                self.session._project = proj
+                self.session._is_script = False
+                self.session._is_proj = True
+                self._project_changed()
+                self._load_control()
+                
+                logger.debug("Project opened: " + str(self.session._project))
+                return self.session._project
 
     def importFile(self, filename=None, extension=None):
         """
@@ -225,7 +261,7 @@ class ProjectManager(QtGui.QWidget):
             self._project_changed()
             self._load_control()
        
-    def newModel(self, applet_type=None):
+    def newModel(self, applet_type=None, tab_name=None, script=""):
         """
         Create a new model of type 'applet_type
         
@@ -238,8 +274,9 @@ class ProjectManager(QtGui.QWidget):
             # a better approach should be to define a "newModel" method in IApplet and call it directly
             # for instance in __init__ : action.triggered.connect(applet.newModel)        
         Applet = self.controller.applet_container.paradigms[applet_type]
-        tab_name = Applet.default_file_name
-        self.controller.applet_container.newTab(applet_type=applet_type, tab_name=tab_name)
+        if not tab_name:
+            tab_name = Applet.default_file_name
+        self.controller.applet_container.newTab(applet_type=applet_type, tab_name=tab_name, script=script)
         
         if self.session.current_is_project():
             text = self.controller.applet_container.applets[-1].widget().get_text()
@@ -285,6 +322,15 @@ class ProjectManager(QtGui.QWidget):
             self.session.project.rename(categorie="project", old_name=name, new_name=new_name)
         else:
             print("This is not a project, so you can't use 'rename project'")
+    
+    def saveAs(self):
+        """
+        Save current project but permit to rename and move it..
+        """
+        name = self.showNewProjectDialog(default_name=None, text="Select name to save project")
+        if name:
+            self.session.project.rename(categorie="project", old_name=self.session.project.name, new_name="name")
+            self.saveCurrent()
     
     def saveCurrent(self):
         """

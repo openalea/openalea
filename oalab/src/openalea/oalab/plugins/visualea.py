@@ -180,10 +180,14 @@ class VisualeaApplet(object):
         Set doc string in Help widget when focus changed
         """
         txt = """
-<H1>Visualea</H1>
+<H1><IMG SRC=%s
+ ALT="icon"
+ HEIGHT=20
+ WIDTH=20
+ TITLE="Visualea logo">Visualea</H1>
 
 More informations: http://openalea.gforge.inria.fr/doc/openalea/visualea/doc/_build/html/contents.html        
-"""
+"""%str(self.icon)
         self.controller.applets['HelpWidget'].setText(txt)
 
     def widget(self):
