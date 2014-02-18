@@ -31,6 +31,9 @@ class AllWidgets(QtGui.QWidget):
         
         # Menu
         self.menu = PanedMenu()
+        self.classical_menu = QtGui.QMenuBar()
+
+        self.applets['HelpWidget'] = HelpWidget(session=self.session, controller=self, parent=self)
 
         # Docks
         self.applets['ControlPanel'] = ControlPanel(session=self.session, controller=self, parent=self)
@@ -42,16 +45,15 @@ class AllWidgets(QtGui.QWidget):
         self.applet_container = AppletContainer(session=self.session, controller=self, parent=self)        
         self.session.interpreter.locals['applets'] = self.applet_container
         
-        self.project_manager = ProjectManager(session=self.session, controller=self, parent=self)
-        
         self.applets['Project'] = ProjectLayoutWidget(session=self.session, controller=self, parent=self)
         
+        self.project_manager = ProjectManager(session=self.session, controller=self, parent=self)
+
         self.applets['Packages'] = PackageViewWidget(session=self.session, controller=self, parent=self)
         self.applets['PackageCategories'] = PackageCategorieViewWidget(session=self.session, controller=self, parent=self)
         self.applets['PackageSearch'] = PackageSearchWidget(session=self.session, controller=self, parent=self)
 
         self.applets['Logger'] = Logger(session=self.session, controller=self, parent=self)
-        self.applets['HelpWidget'] = HelpWidget(session=self.session, controller=self, parent=self)
 
         #self.interpreter.locals['ctrl'] = self.applets['ControlPanel']
         #self.interpreter.locals['interp'] = self.interpreter
@@ -95,4 +97,17 @@ class AllWidgets(QtGui.QWidget):
         if actions:
             for action in actions:
                 menu.addBtnByAction(pane_name=action[0], group_name=action[1], action=action[2],btn_type=action[3])
-
+                
+                
+                #### Add a classical menu too
+                """
+                if isinstance(action[2], QtGui.QAction):
+                    menus = [men.text() for men in self.classical_menu.actions()]
+                    if not action[0] in menus:
+                        print [men.text() for men in self.classical_menu.actions()]
+                        
+                        submenu = self.classical_menu.addMenu(action[0])
+                        submenu.addAction(action[2])
+                    else:
+                        #get menu
+                        #add action in menu"""

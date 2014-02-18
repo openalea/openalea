@@ -23,6 +23,7 @@ from openalea.vpltk.plugin import discover, Plugin
 from openalea.core import logger
 from openalea.core.path import path
 from openalea.vpltk.project.script import Scripts
+from openalea.oalab.gui.pages import WelcomePage, SelectExtensionPage, CreateFilePage
 
 class AppletContainer(QtGui.QTabWidget):
     """
@@ -166,10 +167,10 @@ class AppletContainer(QtGui.QTabWidget):
             del wid
         self.clear()
 
-        if self.session.project:
-            self.addCreateFileTab()
-        else:
-            self.addDefaultTab()
+        #if self.session.project:
+            #self.addCreateFileTab()
+        #else:
+            #self.addDefaultTab()
     
     def openTab(self, applet_type, tab_name, script):
         """
@@ -185,7 +186,7 @@ class AppletContainer(QtGui.QTabWidget):
         """
         logger.debug("New tab. Type: " + applet_type + ". Name: " + tab_name)
         self.rmTab("Welcome")
-        self.rmTab("Create File")
+        #self.rmTab("Create File")
         
         # TODO : permit to add more than one script...
         # existing_tabs = list()
@@ -204,12 +205,14 @@ class AppletContainer(QtGui.QTabWidget):
                 if value.extension == applet_type:
                     Applet = value
         
+        icon = ""
         if Applet is not None:            
             appl = Applet(session=self.session, controller=self.controller, parent=self.parent(), name=tab_name, script=script)
             self.applets.append(appl)
+            icon = Applet.icon
             
     
-        self.addTab(self.applets[-1].widget(), tab_name)
+        self.addTab(self.applets[-1].widget(), QtGui.QIcon(icon), tab_name)
         self.setCurrentWidget(self.applets[-1].widget())
         self.applets[-1].widget().name = tab_name
         
@@ -358,261 +361,3 @@ class AppletContainer(QtGui.QTabWidget):
             logger.debug("Goto " + self.currentWidget().applet.name)
         except:
             logger.warning("Can't use method Goto in " + self.currentWidget().applet.name)
-
-class CreateFilePage(QtGui.QWidget):
-    """
-    Welcome page in the applet container.
-    Permit to open an existing project,
-    or to create a new one,
-    or to work on scripts outside projects.
-    """
-    def __init__(self, session, controller, parent=None):
-        super(CreateFilePage, self).__init__(parent=parent)
-        
-        self.session = session
-        self.controller = controller
-        layout = QtGui.QGridLayout()
-        layout.setAlignment(QtCore.Qt.AlignCenter)
-        
-        max_size = QtCore.QSize(100,80)
-        min_size = QtCore.QSize(100,80)
-              
-        text = QtGui.QLabel("Select type of file to create:")
-        layout.addWidget(text,0,0,1,-1)
-        
-        i, j = 1, 0
-        for action in self.controller.project_manager.paradigms_actions:
-            newAction = QtGui.QToolButton()
-            newAction.setDefaultAction(action)
-            newAction.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
-            newAction.setMinimumSize(min_size)
-            layout.addWidget(newAction,i,j)
-            if j == 0:
-                j = 1
-            else:
-                j = 0
-                i += 1
-    
-        text2 = QtGui.QLabel("You can add a file from your computer:")  
-        layout.addWidget(text2,10,0,1,-1)
-        importFile = QtGui.QToolButton()
-        importFile.setDefaultAction(self.controller.project_manager.actionImportFile)
-        importFile.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
-        #importFile.setMaximumSize(max_size)  
-        importFile.setMinimumSize(min_size)         
-        layout.addWidget(importFile,11,0,1,-1)
-        
-        self.setLayout(layout)
-
-        # fake methods, like if we have a real applet
-        class FakeApplet(object):
-            def __init__(self):
-                self.name = "create_file_page"
-            def focus_change(self):
-                pass
-            def run(self):
-                pass
-            def animate(self):
-                pass
-            def step(self):
-                pass
-            def stop(self):
-                pass
-            def reinit(self):
-                pass
-        self.applet = FakeApplet()        
-    
-        logger.debug("Open create_file Page")
-
-
-
-class WelcomePage(QtGui.QWidget):
-    """
-    Welcome page in the applet container.
-    Permit to open an existing project,
-    or to create a new one,
-    or to work on scripts outside projects.
-    """
-    def __init__(self, session, controller, parent=None):
-        super(WelcomePage, self).__init__(parent=parent)
-        
-        self.session = session
-        self.controller = controller
-        layout = QtGui.QGridLayout()
-        layout.setAlignment(QtCore.Qt.AlignCenter)
-        
-        max_size = QtCore.QSize(200,60)
-        min_size = QtCore.QSize(200,60)      
-        
-        newBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/openalealogo.png"),"New Project")
-        newBtn.setMaximumSize(max_size)  
-        newBtn.setMinimumSize(min_size)         
-        newScriptBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/import.png"),"Create or Open File")
-        newScriptBtn.setMaximumSize(max_size)  
-        newScriptBtn.setMinimumSize(min_size)
-        
-        openBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/openalealogo.png"),"Open Project")
-        openBtn.setMaximumSize(max_size)    
-        openBtn.setMinimumSize(min_size)
-        
-        restoreSessionBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/open.png"),"Restore Previous Session")
-        restoreSessionBtn.setMaximumSize(max_size)
-        restoreSessionBtn.setMinimumSize(min_size)
-        #restoreSessionBtn.setMaximumSize(QtCore.QSize(412,60))  
-        #restoreSessionBtn.setMinimumSize(QtCore.QSize(412,60))
-                
-        QtCore.QObject.connect(newBtn, QtCore.SIGNAL("clicked()"),self.new)
-        QtCore.QObject.connect(newScriptBtn, QtCore.SIGNAL("clicked()"),self.newScript)
-        QtCore.QObject.connect(openBtn, QtCore.SIGNAL("clicked()"),self.open)
-        
-        QtCore.QObject.connect(restoreSessionBtn, QtCore.SIGNAL("clicked()"),self.restoreSession)
-        
-        layout.addWidget(newBtn,0,0)
-        layout.addWidget(openBtn,0,1)
-        
-        layout.addWidget(newScriptBtn,1,0)
-        
-        layout.addWidget(restoreSessionBtn,1,1)
-        
-        self.setLayout(layout)
-
-        # fake methods, like if we have a real applet
-        class FakeApplet(object):
-            def __init__(self):
-                self.name = "welcome_page"
-            def focus_change(self):
-                pass
-            def run(self):
-                pass
-            def animate(self):
-                pass
-            def step(self):
-                pass
-            def stop(self):
-                pass
-            def reinit(self):
-                pass
-        self.applet = FakeApplet()        
-    
-        logger.debug("Open Welcome Page")
-    
-    def new(self):
-        self.session._is_proj = True
-        self.session._is_script = False
-        self.controller.project_manager.new()
-        logger.debug("New Project from welcome page")
-
-    def newScript(self):
-        self.controller.applet_container.addCreateFileTab()
-          
-    def open(self):
-        self.session._is_proj = True
-        self.session._is_script = False
-        self.controller.project_manager.open()
-        logger.debug("Open Project from welcome page")
-        
-    def restoreSession(self):
-        settings = QtCore.QSettings("OpenAlea", "OpenAleaLaboratory")
-        proj = from_qvariant(settings.value("session"))
-        if proj is None:
-            logger.debug("Can't restore previous session. May be it is empty")
-        elif proj.is_project():
-            self.session._is_proj = True
-            self.session._is_script = False
-            name = path(proj.path).abspath()/proj.name
-            self.controller.project_manager.open(name)
-            logger.debug("Restore previous session. (project)")
-        elif proj.is_script():
-            self.session._is_proj = False
-            self.session._is_script = True
-            self.session._project = Scripts()
-            for p in proj:
-                self.controller.project_manager.importFile(filename=p)
-            
-            self.controller.project_manager._project_changed()
-            #self.controller.project_manager.importFile(filename=fname, extension="*.py")
-            logger.debug("Restore previous session. (scripts)")
-
-class SelectExtensionPage(QtGui.QWidget):
-    """
-    Welcome page in the applet container.
-    Permit to select the extension to work with. 
-    
-    
-    UNUSED today
-    """
-    def __init__(self, session, controller, parent=None):
-        super(SelectExtensionPage, self).__init__(parent=parent)
-        
-        self.session = session
-        self.controller = controller
-        layout = QtGui.QGridLayout()
-        layout.setAlignment(QtCore.Qt.AlignCenter)
-
-        text = QtGui.QLabel("Select an extension")
-        minilab = QtGui.QPushButton(QtGui.QIcon(":/images/resources/openalealogo.png"),"MiniLab")
-        messageminilab = QtGui.QLabel("MiniLab is a minimal environnement with only a text editor and a shell.")
-        lab3d = QtGui.QPushButton(QtGui.QIcon(":/images/resources/openalealogo.png"),"3DLab")
-        messagelab3d = QtGui.QLabel("3DLab is an environnement to work on 3D Objects.")
-        plantlab = QtGui.QPushButton(QtGui.QIcon(":/images/resources/openalealogo.png"),"PlantLab")
-        messageplantlab = QtGui.QLabel("PlantLab is an environnement to work on entire plant.")
-        tissuelab = QtGui.QPushButton(QtGui.QIcon(":/images/resources/openalealogo.png"),"TissueLab")
-        messagetissuelab = QtGui.QLabel("TissueLab is an environnement to work on tissue part of plants.")        
-        
-        QtCore.QObject.connect(minilab, QtCore.SIGNAL("clicked()"),self.mini)
-        QtCore.QObject.connect(lab3d, QtCore.SIGNAL("clicked()"),self.lab3d)
-        QtCore.QObject.connect(plantlab, QtCore.SIGNAL("clicked()"),self.plant)
-        QtCore.QObject.connect(tissuelab, QtCore.SIGNAL("clicked()"),self.tissue)
-                
-        layout.addWidget(text,0,0,1,-1)
-        layout.addWidget(minilab,1,0)
-        #layout.addWidget(messageminilab,0,1)
-        layout.addWidget(lab3d,1,1)
-        #layout.addWidget(messagelab3d,1,1)
-        layout.addWidget(plantlab,2,0)
-        #layout.addWidget(messageplantlab,2,1)
-        layout.addWidget(tissuelab,2,1)
-        #layout.addWidget(messagetissuelab,3,1)
-        #layout.addWidget(openproject,4,0)
-        #layout.addWidget(messageopenproject,4,1)
-        #layout.addWidget(restoresession,4,1)
-        #layout.addWidget(messagerestoresession,5,1)
-        
-        self.setLayout(layout)
-
-        # fake methods, like if we have a real applet
-        class FakeApplet(object):
-            def __init__(self):
-                self.name = "welcome_page"
-            def focus_change(self):
-                pass
-            def run(self):
-                pass
-            def animate(self):
-                pass
-            def step(self):
-                pass
-            def stop(self):
-                pass
-            def reinit(self):
-                pass
-        self.applet = FakeApplet()        
-    
-        logger.debug("Open Select Extension Page")
-
-    def mini(self):
-        # TODO
-        print "mini"
-        #mainwindow.changeExtension(self, extension="mini")
-    
-    def lab3d(self):
-        # TODO
-        print "lab3d"
-        
-    def plant(self):
-        # TODO
-        print "plant"
-        
-    def tissue(self):
-        # TODO
-        print "tissue"

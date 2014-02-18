@@ -49,10 +49,14 @@ class PythonApplet(object):
         Set doc string in Help widget when focus changed
         """
         txt = """
-<H1>Python</H1>
+<H1><IMG SRC=%s
+ ALT="icon"
+ HEIGHT=20
+ WIDTH=20
+ TITLE="Python logo">Python</H1>
 
 more informations: http://www.python.org/
-"""
+"""%str(self.icon)
         self.controller.applets['HelpWidget'].setText(txt)
         
     def widget(self):

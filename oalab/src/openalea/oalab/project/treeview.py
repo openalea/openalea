@@ -124,9 +124,8 @@ class ProjectTreeView(QtGui.QTreeView):
 
         for applet in self.controller.applet_container.paradigms.values():
             action = QtGui.QAction('New %s Model'%applet.default_name,self)
-            toconnect = "self.controller.project_manager.new%s"%applet.default_name
-            action.triggered.connect(eval(toconnect))
-            menu.addAction(action)
+            action.triggered.connect(self.controller.project_manager.newModel)
+            menu.addAction(action)  
         menu.addSeparator()
         importAction = QtGui.QAction('Import Model',self)
         importAction.triggered.connect(self.controller.project_manager.importFile)
