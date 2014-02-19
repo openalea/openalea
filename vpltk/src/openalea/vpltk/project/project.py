@@ -40,7 +40,7 @@ stored in your computer.
 """
 import os
 import warnings
-from openalea.core.path import path as _path
+from openalea.core.path import path as path_
 from openalea.core import settings
 import cPickle
 from configobj import ConfigObj
@@ -83,7 +83,7 @@ def check_unicity(name, all_names):
 class Project(object):
     def __init__(self,project_name, project_path):
         self.name = str(project_name)
-        self.path = _path(project_path)
+        self.path = path_(project_path)
         self.ns = dict()
         self.controls = dict()
         
@@ -153,20 +153,17 @@ class Project(object):
     
     #----------------------------------------
     # Add
-    #---------------------------------------- 
+    #----------------------------------------        
     def add_script(self, name, script):
         """
         Add a script in the project
         
-        :param name: of the script to add (string)
+        :param name: filename of the script to add (path or str)
         :param script: to add (string)
         """
-        all_names = list()
-        for n in self.scripts:
-            all_names.append(n)
-        name = check_unicity(name, all_names)
+        filename = path_(name)
         
-        self.scripts[str(name)] = str(script)
+        self.scripts[filename] = str(script)
         
     #----------------------------------------
     # Rename
@@ -263,9 +260,12 @@ class Project(object):
                 return return_object
             files = manifest[object_type]
             for filename in files:
-                if self.localized:
-                    filename = temp_path/filename
-                return_object[filename.basename()] = open(filename, 'rU').read()
+                filename = path_(filename)
+                pathname = self.path/self.name/object_type/filename
+                if object_type == "scripts":
+                    if filename.isabs():
+                        pathname = filename
+                return_object[filename] = open(pathname, 'rU').read()
                 
         # hack to add cache in namespace
         if object_type == "cache":
@@ -316,17 +316,27 @@ class Project(object):
             for sub_object in object_:
                 name = str("%s/%s" %(temp_path,sub_object))
                 object_[sub_object].save(name, "BGEOM")
+        elif object_type == "scripts":  
+            for sub_object in object_:
+                if sub_object.isabs():
+                    file_ = open(sub_object, "w")
+                else:
+                    file_ = open(temp_path/sub_object, "w")
+                code = str(object_[sub_object])
+                code_enc = code.encode("utf8","ignore") 
+                file_.write(code_enc)
+                file_.close()
         else:
             for sub_object in object_:
-                file = open(temp_path/sub_object, "w")
+                file_ = open(temp_path/sub_object, "w")
                 # Hack to save controls with cPickle
                 if object_type == "controls":
-                    cPickle.dump(object_[sub_object],file,0)
+                    cPickle.dump(object_[sub_object],file_,0)
                 else:
                     code = str(object_[sub_object])
                     code_enc = code.encode("utf8","ignore") 
-                    file.write(code_enc)
-                file.close()
+                    file_.write(code_enc)
+                file_.close()
      
     def _save_manifest(self):
         """
@@ -417,9 +427,21 @@ class ProjectManager(object):
         """
         :return: a fake empty project
         """
-        project_path = _path(settings.get_project_dir())
+        project_path = path_(settings.get_project_dir())
         proj = Project(project_name="temp", project_path=project_path)
         proj.centralized = False
+        return proj
+    
+    def load_empty(self):
+        """
+        :return: the default loaded project
+        """
+        project_path = path_(settings.get_project_dir())       
+        proj = self.load(project_name="temp", project_path=project_path)
+        
+        if proj == -1: #If can't load default project, create it
+            proj = self.empty()
+            
         return proj
     
     def create(self, project_name, project_path=None):
@@ -428,7 +450,7 @@ class ProjectManager(object):
         :return: Project
         """
         if project_path is None:    
-            project_path = _path(settings.get_project_dir())
+            project_path = path_(settings.get_project_dir())
         
         proj = Project(project_name, project_path)
         proj.create()
@@ -447,9 +469,9 @@ class ProjectManager(object):
         :return: Project
         """
         if not project_path:    
-            project_path = _path(settings.get_project_dir())
+            project_path = path_(settings.get_project_dir())
         
-        full_path = _path(project_path)/project_name
+        full_path = path_(project_path)/project_name
         
         if full_path.exists():
             proj = Project(project_name, project_path)
