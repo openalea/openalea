@@ -366,7 +366,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
             self.session._project = self.scriptManager
         
         self.controller._update_locals()
-        self._tree_view_change()
+        self._project_changed()
 
     def removeModel(self, model_name):
         """
@@ -374,6 +374,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         """
         if self.session.current_is_project():
             self.session.project.remove_script(model_name)   
+            self._project_changed()
         
     def openModel(self, fname=None, extension="*"):
         """"
@@ -386,6 +387,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         self.session._is_script = True
         self.session._is_proj = False
         self.importFile(filename=fname, extension="*")
+        self._project_changed()
         
     def renameCurrent(self, new_name=None):
         """
@@ -396,6 +398,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
             if not new_name:
                 new_name = self.showNewProjectDialog(default_name=path(name)/"..", text='Select new name to save project')
             self.session.project.rename(categorie="project", old_name=name, new_name=new_name)
+            self._project_changed()
         else:
             print("This is not a project, so you can't use 'rename project'")
     
@@ -439,6 +442,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
                 current.controls[scalar.name] = scalar
 
             current.save()
+            self._project_changed()
             
         elif self.session.current_is_script():
             ## TODO : Warning! Save all not just current
@@ -468,10 +472,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         self.session._is_script = False
         self.session._is_proj = False
         
-        self._scene_change()
-        #self._control_change()
-        self._script_change()
-        self._tree_view_change()
+        self._project_changed()
             
     def displayCurrentName(self):
         """
