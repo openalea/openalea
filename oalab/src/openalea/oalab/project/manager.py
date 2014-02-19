@@ -48,7 +48,8 @@ class ProjectManager(QtGui.QWidget):
         for proj in self.projectManager.projects:
             self.session._project = proj
                 
-        self.actionImportFile = QtGui.QAction(QtGui.QIcon(":/images/resources/import.png"),"Add file", self)
+        self.actionEditFile = QtGui.QAction(QtGui.QIcon(":/images/resources/edit.png"),"Edit file", self)
+        self.actionImportFile = QtGui.QAction(QtGui.QIcon(":/images/resources/import.png"),"Import", self)
         
         self.actionNewProj = QtGui.QAction(QtGui.QIcon(":/images/resources/new.png"),"New", self)
         self.actionNewProj.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+N", None, QtGui.QApplication.UnicodeUTF8))
@@ -66,12 +67,14 @@ class ProjectManager(QtGui.QWidget):
         QtCore.QObject.connect(self.actionCloseProj, QtCore.SIGNAL('triggered(bool)'),self.closeCurrent)
         
         QtCore.QObject.connect(self.actionImportFile, QtCore.SIGNAL('triggered(bool)'),self.importFile)
+        QtCore.QObject.connect(self.actionEditFile, QtCore.SIGNAL('triggered(bool)'),self.editFile)
         
         self._actions = [["Project","Manage Project",self.actionNewProj,1],
                          ["Project","Manage Project",self.actionOpenProj,0],
                          ["Project","Manage Project",self.actionSaveProj,0],
                          ["Project","Manage Project",self.actionSaveProjAs,1],
                          ["Project","Manage Project",self.actionCloseProj,1],
+                         ["Model","New Model",self.actionEditFile,0],
                          ["Model","New Model",self.actionImportFile,0]]
                          
         self.extensions = ""                 
@@ -88,7 +91,7 @@ class ProjectManager(QtGui.QWidget):
         self.defaultProj()
         
     def defaultProj(self):
-        proj = self.projectManager.empty()
+        proj = self.projectManager.load_empty()
         self.session._project = proj
         self.session._is_script = False
         self.session._is_proj = True
@@ -96,7 +99,9 @@ class ProjectManager(QtGui.QWidget):
         self._project_changed()
         self._load_control()
 
-        txt = '''# -*- coding: utf-8 -*-
+        if not self.session.project.scripts:
+            
+            txt = '''# -*- coding: utf-8 -*-
 """
 OpenAlea Lab editor
 
@@ -105,8 +110,7 @@ This temporary script is saved in temporary project in
 
 You can rename/move this project thanks to the button "Save As" in menu.
 """'''%str(self.session.project.path/self.session.project.name)
-        
-        self.newModel(applet_type="Python",tab_name=".temp.py", script=txt)
+            self.newModel(applet_type="Python",tab_name=".temp.py", script=txt)
 
            
     def showNewProjectDialog(self, default_name=None, text=None):
@@ -174,6 +178,79 @@ You can rename/move this project thanks to the button "Save As" in menu.
                 
                 logger.debug("Project opened: " + str(self.session._project))
                 return self.session._project
+
+    def editFile(self, filename=None, extension=None):
+        """
+        Permit to edit a file wich is outside project.
+        And add link to file in project.
+        """     
+        if extension is None:
+            extension = self.extensions
+            
+        if self.session.current_is_project():
+            project = self.session.project     
+            if not filename:
+                if extension:
+                    filename = self.showOpenFileDialog(extension)
+                else:
+                    filename = self.showOpenFileDialog()
+            if filename:
+                filename = path(filename).abspath()
+                
+                f = open(filename, "r")
+                txt = f.read() 
+                f.close()
+                
+                tab_name = str(path(filename).splitpath()[-1])
+                ext = str(path(filename).splitext()[-1])
+                ext = ext.split(".")[-1]
+                logger.debug("Try to import file named " + tab_name + " . With applet_type " + ext)
+
+                try:
+                    #self.controller.applet_container.newTab(applet_type=ext, tab_name=tab_name, script=txt)
+                    project.add_script(filename, txt)
+                    self.controller._update_locals()
+                    self._script_change()
+                    self._tree_view_change()
+                    logger.debug("Import file named " + tab_name)
+                except:
+                    print "File extension " +ext+ " not recognised"
+                    logger.warning("Can't import file named %s in current project. Unknow extension."%filename)
+        else:
+            self.session._is_script = True
+            self.session._is_proj = False
+            where_ = None
+            if self.session.project is not None:
+                if len(self.session.project) != 0:
+                    i = self.controller.applet_container.currentIndex()
+                    tab_text = self.controller.applet_container.tabText(i)
+                    where_ = self.session.project.get_name_by_ez_name(tab_text)
+            if not filename:
+                filename = self.showOpenFileDialog(extension=extension, where=where_)
+            if filename:
+                filename = path(filename).abspath()
+                f = open(filename, "r")
+                txt = f.read() 
+                f.close()
+                
+                self.scriptManager.add_script(filename, txt) 
+                self.session._project = self.scriptManager
+                
+                tab_name = self.session.project.get_ez_name_by_name(filename)
+                ext = str(path(filename).splitext()[-1])
+                ext = ext.split(".")[-1]
+
+                
+                self.controller.applet_container.newTab(applet_type=ext, tab_name=tab_name, script=txt)
+                try:
+                    self.controller._update_locals()
+                    #self._script_change()
+                    self._tree_view_change()
+                    logger.debug("Import file named %s outside project"%tab_name)
+                except:
+                    print "File extension " +ext+ " not recognised"
+                    logger.warning("Can't import file named %s outside project. Unknow extension: %s ."%(tab_name,ext))
+
 
     def importFile(self, filename=None, extension=None):
         """
@@ -294,10 +371,9 @@ You can rename/move this project thanks to the button "Save As" in menu.
     def removeModel(self, model_name):
         """
         :param model_name: Name of the model to remove in the current project
-        
-        TODO
         """
-        pass    
+        if self.session.current_is_project():
+            self.session.project.remove_script(model_name)   
         
     def openModel(self, fname=None, extension="*"):
         """"
@@ -338,34 +414,31 @@ You can rename/move this project thanks to the button "Save As" in menu.
         Save current project.
         """
         if self.session.current_is_project():
-            if self.session.project.name == "temp":
-                self.saveAs()
-            else:            
-                current = self.session.project
-                current.controls = dict()
-                container = self.controller.applet_container
+            current = self.session.project
+            current.controls = dict()
+            container = self.controller.applet_container
+        
+            for i in range(container.count()):
+                container.setCurrentIndex(i)
+                name = container.tabText(i)
+                container.widget(i).save(name)
+                
+            colors = self.controller.applets['ControlPanel'].colormap_editor.getTurtle().getColorList()
+            current.controls["color map"] = colors
             
-                for i in range(container.count()):
-                    container.setCurrentIndex(i)
-                    name = container.tabText(i)
-                    container.widget(i).save(name)
-                    
-                colors = self.controller.applets['ControlPanel'].colormap_editor.getTurtle().getColorList()
-                current.controls["color map"] = colors
-                
-                geoms = self.controller.applets['ControlPanel'].geometry_editor.getObjects()
-                
+            geoms = self.controller.applets['ControlPanel'].geometry_editor.getObjects()
+            
 
-                for (manager, geom) in geoms:
-                    if geom != list():
-                        new_obj,new_name = geometry_2_piklable_geometry(manager, geom)
-                        current.controls[new_name] = new_obj
-                
-                scalars = self.controller.applets['ControlPanel'].scalars_editor.getScalars()
-                for scalar in scalars:
-                    current.controls[scalar.name] = scalar
+            for (manager, geom) in geoms:
+                if geom != list():
+                    new_obj,new_name = geometry_2_piklable_geometry(manager, geom)
+                    current.controls[new_name] = new_obj
+            
+            scalars = self.controller.applets['ControlPanel'].scalars_editor.getScalars()
+            for scalar in scalars:
+                current.controls[scalar.name] = scalar
 
-                current.save()
+            current.save()
             
         elif self.session.current_is_script():
             ## TODO : Warning! Save all not just current
