@@ -464,15 +464,16 @@ You can rename/move this project thanks to the button "Save As" in menu.
         if self.session.current_is_project():
             self.projectManager.close(self.session.project.name)
             self._clear_control()
-            logger.debug("Close Project")
+            logger.debug("Close Project named %s"%self.session.project.name)
         elif self.session.current_is_script():
             logger.debug("Close Scripts")
             
         self.session._project = None
         self.session._is_script = False
         self.session._is_proj = False
-        
+        logger.debug("Current project: %s"%self.session.project)
         self._project_changed()
+        logger.debug("Current project2: %s"%self.session.project)
             
     def displayCurrentName(self):
         """
@@ -498,16 +499,11 @@ You can rename/move this project thanks to the button "Save As" in menu.
         """
         logger.debug("Project changed")
         self.controller._update_locals()
-        if self.session.current_is_project():
-            self._scene_change()
-            #self._control_change()
-            self._script_change()
-            self._tree_view_change()
-        elif self.session.current_is_script():
-            self._tree_view_change()
-            #self._script_change()
-        else:
-            pass
+        self._scene_change()
+        #self._control_change()
+        self._script_change()
+        self._tree_view_change()
+
             
     def update_from_widgets(self):
         self._update_control()
