@@ -156,6 +156,7 @@ class Viewer(view3D):
         super(Viewer, self).__init__(parent=parent) 
         
         self.setAccessibleName("3DViewer")
+        self.setMinimumSize(100,100)
         
         self.autofocus = True
         self._fps = False
