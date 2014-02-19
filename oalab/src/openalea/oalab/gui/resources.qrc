@@ -88,5 +88,6 @@
         <file>resources/wrap.png</file>
         <file>resources/zoomin.png</file>
         <file>resources/zoomout.png</file>
+        <file>resources/edit.png</file>
     </qresource>
 </RCC>
