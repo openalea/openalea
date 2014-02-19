@@ -172,12 +172,15 @@ class Project(object):
         """
         Add a script in the project
         
+        Remove nothing in disk.
+        
         :param name: filename of the script to remove (path or str)
         """
         filename = path_(name)
         
         if self.scripts.has_key(filename):
-            del self.scripts[filename]
+            # Remove in project
+            del self.scripts[filename]        
         
     #----------------------------------------
     # Rename
@@ -191,6 +194,10 @@ class Project(object):
         :param new_name: futur name of thing to rename (str)
         """
         if (categorie == "script") or (categorie == "scripts") or (categorie == "Models"):
+            if not new_name:
+                self.remove_script(old_name)
+                return
+                
             # Remove in project
             self.scripts[str(new_name)] = self.scripts[str(old_name)]
             del self.scripts[str(old_name)]
@@ -332,6 +339,7 @@ class Project(object):
                 object_[sub_object].save(name, "BGEOM")
         elif object_type == "scripts":  
             for sub_object in object_:
+                sub_object = path_(sub_object)
                 if sub_object.isabs():
                     file_ = open(sub_object, "w")
                 else:
