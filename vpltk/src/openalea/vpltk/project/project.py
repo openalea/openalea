@@ -166,6 +166,20 @@ class Project(object):
         self.scripts[filename] = str(script)
         
     #----------------------------------------
+    # Remove
+    #----------------------------------------        
+    def remove_script(self, name):
+        """
+        Add a script in the project
+        
+        :param name: filename of the script to remove (path or str)
+        """
+        filename = path_(name)
+        
+        if self.scripts.has_key(filename):
+            del self.scripts[filename]
+        
+    #----------------------------------------
     # Rename
     #---------------------------------------- 
     def rename(self, categorie, old_name, new_name):
