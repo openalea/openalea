@@ -3,6 +3,7 @@ import abc
 import inspect
 import pkg_resources
 import site
+import sys
 
 from openalea.core.pkgmanager import UnknownPackageError
 from openalea.vpltk.pluginmanager import PluginManager
@@ -11,6 +12,9 @@ from openalea.core.node import NodeFactory
 from openalea.core.singleton import Singleton
 from openalea.core.signature import Signature
 from _pyio import __metaclass__
+
+#TODO: review code for optimizations
+#TODO: split in several modules
 
 class InterfaceFactory(NodeFactory):
     def __init__(self, interface, **kargs):
@@ -66,7 +70,7 @@ class ObjectFactory(NodeFactory):
         else:
             self.__interfaces__ = interfaces
 
-    def instantiate(self, *args, **kargs):
+    def classobj(self):
         # The module contains the node implementation.
         module = self.get_node_module()
         classobj = module.__dict__.get(self.nodeclass_name, None)
@@ -74,6 +78,10 @@ class ObjectFactory(NodeFactory):
         if classobj is None:
             raise Exception("Cannot instantiate '" + \
                 self.nodeclass_name + "' from " + str(module))
+        return classobj
+
+    def instantiate(self, *args, **kargs):
+        classobj = self.classobj()
         return classobj(*args, **kargs)
 
 class Catalog(object):
@@ -84,8 +92,9 @@ class Catalog(object):
         self.plugin_types = ('wralea', 'plugin')
         self.groups = set() 
         self.managers = {}
-        
+
         self._services = {}
+        self._interfaces = {}
 
         paths = site.getsitepackages()
         usersite = site.getusersitepackages()
@@ -93,8 +102,9 @@ class Catalog(object):
             paths.append(usersite)
         elif isinstance(usersite, (tuple, list)):
             paths += list(usersite)
+        paths += sys.path
 
-        for path in paths:
+        for path in set(paths):
             distribs = pkg_resources.find_distributions(path)
             for distrib in distribs :
                 for group in distrib.get_entry_map():
@@ -103,6 +113,8 @@ class Catalog(object):
         self.groups = [group for group in self.groups]
         self.tags = self._clean_lst(self.groups)
 
+        self._load_interfaces()
+
     def _clean_lst(self, lst):
         lst = [item for item in lst]
         for plugin_type in self.plugin_types :
@@ -110,13 +122,20 @@ class Catalog(object):
                 lst.remove(plugin_type)
         return lst
 
-    def get_interfaces(self):
-        all_interfaces = set()
+    def _load_interfaces(self):
         for pl in self.get_factories(tags=['plugin']):
-            interfaces = self.interfaces(pl)
-            for interface in interfaces :
-                all_interfaces.add(interface)
-        return all_interfaces
+            if isinstance(pl, InterfaceFactory):
+                interface = pl.instantiate()
+                for parent in inspect.getmro(interface):
+                    if hasattr(parent, 'identifier'):
+                        self._interfaces[parent.identifier] = parent
+
+    def get_interface_class(self, interface):
+        interface_id = self.get_interface_id(interface)
+        return self._interfaces.get(interface_id)
+
+    def get_interfaces(self):
+        return self._interfaces.iterkeys()
 
     def get_interface_id(self, interface):
         if isinstance(interface, basestring):
@@ -136,7 +155,16 @@ class Catalog(object):
         # Check interfaces defined in openalea factories
         if hasattr(obj, '__interfaces__'):
             for interface in obj.__interfaces__:
-                all_interfaces.add(self.get_interface_id(interface))
+                interface_id = self.get_interface_id(interface)
+                if interface_id in self._interfaces:
+                    # Search parent interfaces
+                    interface = self._interfaces[interface_id]
+                    for parent in inspect.getmro(interface):
+                        parent_id = self.get_interface_id(parent)
+                        all_interfaces.add(parent_id)
+                else :
+                    # Cannot reach real interface class, so add it directly
+                    all_interfaces.add(self.get_interface_id(interface))
 
         if not inspect.isclass(obj):
             obj = obj.__class__
@@ -294,4 +322,38 @@ class Catalog(object):
             services.append(self.create_service(object_factory, *args, **kargs))
         return services
 
+
+def color_interface_line(interface_id):
+        catalog = Catalog()
+        interface = catalog.get_interface_class(interface_id)
+        hierarchy = [cl.__name__ for cl in reversed(inspect.getmro(interface)) if cl in catalog._interfaces.values()]
+        hierarchy = ' > '.join(hierarchy)
+        return '\033[93m%s\033[91m   (%s)\033[0m' % (interface_id, hierarchy)
+
+def list_interfaces():
+    catalog = Catalog()
+
+    print '=========='
+    print 'Interfaces'
+    print '=========='
+
+    for interface_id in sorted(catalog.get_interfaces()):
+        interface = catalog.get_interface_class(interface_id)
+        print color_interface_line(interface_id)
+        print '       defined in:', interface.__module__
+        print
+    print
+
+def list_implementations():
+    catalog = Catalog()
+
+    print '==============='
+    print 'Implementations'
+    print '==============='
+
+    for interface_id in catalog.get_interfaces():
+        print color_interface_line(interface_id)
+        for factory in catalog.get_factories(interfaces=interface_id):
+            print '  *', factory.name
+        print
 
