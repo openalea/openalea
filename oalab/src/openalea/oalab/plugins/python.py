@@ -32,6 +32,7 @@ class PythonApplet(object):
 
     def __init__(self, session, controller, parent=None, name="script.py", script=""):
         super(PythonApplet, self).__init__()
+
         self._widget = Editor(session=session, controller=controller, parent=parent)
         Highlighter(self._widget.editor)
         self._widget.applet = self
