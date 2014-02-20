@@ -101,7 +101,7 @@ This temporary script is saved in temporary project in
 
 You can rename/move this project thanks to the button "Save As" in menu.
 """'''%str(self.session.project.path/self.session.project.name)
-            self.newModel(applet_type="Python",tab_name=".temp.py", script=txt)
+            self.session.project.add_script(name=".temp.py", script=txt)
             
         self._project_changed()
         self._load_control()
@@ -473,7 +473,6 @@ You can rename/move this project thanks to the button "Save As" in menu.
     def _script_change(self):
         logger.debug("Script changed")
         if self.session.current_is_project():
-            # If project
             project = self.session.project
             self.controller.applet_container.reset()
             for script in project.scripts:
