@@ -88,6 +88,12 @@ class Catalog(object):
         self._services = {}
 
         paths = site.getsitepackages()
+        usersite = site.getusersitepackages()
+        if isinstance(usersite, basestring):
+            paths.append(usersite)
+        elif isinstance(usersite, (tuple, list)):
+            paths += list(usersite)
+
         for path in paths:
             distribs = pkg_resources.find_distributions(path)
             for distrib in distribs :
