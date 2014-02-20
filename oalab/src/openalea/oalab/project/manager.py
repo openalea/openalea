@@ -25,7 +25,6 @@ from openalea.core import logger
 from time import gmtime, strftime
 from openalea.plantgl.all import PglTurtle
 from openalea.vpltk.project.project import ProjectManager as PM   
-from openalea.vpltk.project.script import Scripts
 from openalea.lpy.gui.objectmanagers import get_managers
 from openalea.oalab.control.picklable_curves import geometry_2_piklable_geometry
             
@@ -43,7 +42,6 @@ class ProjectManager(QtGui.QWidget):
         self.setAccessibleName("Project Manager")
 
         self.projectManager = PM()
-        self.scriptManager = Scripts()
         
         for proj in self.projectManager.projects:
             self.session._project = proj
@@ -85,22 +83,15 @@ class ProjectManager(QtGui.QWidget):
             self._actions.append(["Model","New Model",action,0],)
             self.paradigms_actions.append(action)
             self.extensions = self.extensions + applet.pattern + " "
-
-        self._project_changed()
         
         self.defaultProj()
         
     def defaultProj(self):
         proj = self.projectManager.load_empty()
         self.session._project = proj
-        self.session._is_script = False
         self.session._is_proj = True
 
-        self._project_changed()
-        self._load_control()
-
         if not self.session.project.scripts:
-            
             txt = '''# -*- coding: utf-8 -*-
 """
 OpenAlea Lab editor
@@ -111,7 +102,9 @@ This temporary script is saved in temporary project in
 You can rename/move this project thanks to the button "Save As" in menu.
 """'''%str(self.session.project.path/self.session.project.name)
             self.newModel(applet_type="Python",tab_name=".temp.py", script=txt)
-
+            
+        self._project_changed()
+        self._load_control()
            
     def showNewProjectDialog(self, default_name=None, text=None):
         my_path = path(settings.get_project_dir())
@@ -171,7 +164,6 @@ You can rename/move this project thanks to the button "Save As" in menu.
                 return -1
             else:
                 self.session._project = proj
-                self.session._is_script = False
                 self.session._is_proj = True
                 self._project_changed()
                 self._load_control()
@@ -207,49 +199,16 @@ You can rename/move this project thanks to the button "Save As" in menu.
                 logger.debug("Try to import file named " + tab_name + " . With applet_type " + ext)
 
                 try:
-                    #self.controller.applet_container.newTab(applet_type=ext, tab_name=tab_name, script=txt)
+                    self.controller.applet_container.newTab(applet_type=ext, tab_name=tab_name, script=txt)
                     project.add_script(filename, txt)
                     self.controller._update_locals()
-                    self._script_change()
                     self._tree_view_change()
                     logger.debug("Import file named " + tab_name)
                 except:
                     print "File extension " +ext+ " not recognised"
                     logger.warning("Can't import file named %s in current project. Unknow extension."%filename)
         else:
-            self.session._is_script = True
-            self.session._is_proj = False
-            where_ = None
-            if self.session.project is not None:
-                if len(self.session.project) != 0:
-                    i = self.controller.applet_container.currentIndex()
-                    tab_text = self.controller.applet_container.tabText(i)
-                    where_ = self.session.project.get_name_by_ez_name(tab_text)
-            if not filename:
-                filename = self.showOpenFileDialog(extension=extension, where=where_)
-            if filename:
-                filename = path(filename).abspath()
-                f = open(filename, "r")
-                txt = f.read() 
-                f.close()
-                
-                self.scriptManager.add_script(filename, txt) 
-                self.session._project = self.scriptManager
-                
-                tab_name = self.session.project.get_ez_name_by_name(filename)
-                ext = str(path(filename).splitext()[-1])
-                ext = ext.split(".")[-1]
-
-                
-                self.controller.applet_container.newTab(applet_type=ext, tab_name=tab_name, script=txt)
-                try:
-                    self.controller._update_locals()
-                    #self._script_change()
-                    self._tree_view_change()
-                    logger.debug("Import file named %s outside project"%tab_name)
-                except:
-                    print "File extension " +ext+ " not recognised"
-                    logger.warning("Can't import file named %s outside project. Unknow extension: %s ."%(tab_name,ext))
+            print "You are not working inside project. Please create or load one first."
 
 
     def importFile(self, filename=None, extension=None):
@@ -280,45 +239,13 @@ You can rename/move this project thanks to the button "Save As" in menu.
                     self.controller.applet_container.newTab(applet_type=ext, tab_name=tab_name, script=txt)
                     project.add_script(tab_name, txt)
                     self.controller._update_locals()
-                    self._script_change()
                     self._tree_view_change()
                     logger.debug("Import file named " + tab_name)
                 except:
                     print "File extension " +ext+ " not recognised"
                     logger.warning("Can't import file named %s in current project. Unknow extension."%filename)
         else:
-            self.session._is_script = True
-            self.session._is_proj = False
-            where_ = None
-            if self.session.project is not None:
-                if len(self.session.project) != 0:
-                    i = self.controller.applet_container.currentIndex()
-                    tab_text = self.controller.applet_container.tabText(i)
-                    where_ = self.session.project.get_name_by_ez_name(tab_text)
-            if not filename:
-                filename = self.showOpenFileDialog(extension=extension, where=where_)
-            if filename:
-                f = open(filename, "r")
-                txt = f.read() 
-                f.close()
-                
-                self.scriptManager.add_script(filename, txt) 
-                self.session._project = self.scriptManager
-                
-                tab_name = self.session.project.get_ez_name_by_name(filename)
-                ext = str(path(filename).splitext()[-1])
-                ext = ext.split(".")[-1]
-
-                
-                self.controller.applet_container.newTab(applet_type=ext, tab_name=tab_name, script=txt)
-                try:
-                    self.controller._update_locals()
-                    #self._script_change()
-                    self._tree_view_change()
-                    logger.debug("Import file named %s outside project"%tab_name)
-                except:
-                    print "File extension " +ext+ " not recognised"
-                    logger.warning("Can't import file named %s outside project. Unknow extension: %s ."%(tab_name,ext))
+            print "You are not working inside project. Please create or load one first."
         
     def new(self, name=None):
         """
@@ -332,11 +259,9 @@ You can rename/move this project thanks to the button "Save As" in menu.
                 if self.session.project is not None:
                     self.projectManager.close(self.session.project.name)
             self.session._project = self.projectManager.create(name)
-            self.session._is_script = False
             self.session._is_proj = True
-
-            self._project_changed()
             self._load_control()
+            self._project_changed()
        
     def newModel(self, applet_type=None, tab_name=None, script=""):
         """
@@ -344,29 +269,23 @@ You can rename/move this project thanks to the button "Save As" in menu.
         
         :param applet_type: type of applet to add. Can be Workflow, LSystem, Python, R
         """
-        if not applet_type:
-            button = self.sender() 
-            applet_type = button.text() # can be Workflow, LSystem, Python, R
-            #TODO: this approach is not reliable. If a developer change action name, it breaks the system
-            # a better approach should be to define a "newModel" method in IApplet and call it directly
-            # for instance in __init__ : action.triggered.connect(applet.newModel)        
-        Applet = self.controller.applet_container.paradigms[applet_type]
-        if not tab_name:
-            tab_name = Applet.default_file_name
-        self.controller.applet_container.newTab(applet_type=applet_type, tab_name=tab_name, script=script)
-        
         if self.session.current_is_project():
+            if not applet_type:
+                button = self.sender() 
+                applet_type = button.text() # can be Workflow, LSystem, Python, R
+                #TODO: this approach is not reliable. If a developer change action name, it breaks the system
+                # a better approach should be to define a "newModel" method in IApplet and call it directly
+                # for instance in __init__ : action.triggered.connect(applet.newModel)        
+            Applet = self.controller.applet_container.paradigms[applet_type]
+            if not tab_name:
+                tab_name = Applet.default_file_name
+            self.controller.applet_container.newTab(applet_type=applet_type, tab_name=tab_name, script=script)
             text = self.controller.applet_container.applets[-1].widget().get_text()
             self.session.project.add_script(tab_name, text)  
-            self._script_change()
+            self.controller._update_locals()
+            self._project_changed()
         else:
-            self.session._is_script = True
-            self.session._is_proj = False
-            self.scriptManager.add_script(tab_name, "") 
-            self.session._project = self.scriptManager
-        
-        self.controller._update_locals()
-        self._project_changed()
+            print "You are not working inside project. Please create or load one first."
 
     def removeModel(self, model_name):
         """
@@ -375,8 +294,10 @@ You can rename/move this project thanks to the button "Save As" in menu.
         if self.session.current_is_project():
             self.session.project.remove_script(model_name)   
             self._project_changed()
+        else:
+            print "You are not working inside project. Please create or load one first."
         
-    def openModel(self, fname=None, extension="*"):
+    def openModel(self, fname=None, extension="*.*"):
         """"
         Open a (script-type) file named "fname".
         If "fname"==None, display a dialog with filter "extension".
@@ -384,10 +305,11 @@ You can rename/move this project thanks to the button "Save As" in menu.
         :param fname: filename to open. Default = None
         :param extension: extension of file to open. Default = "*.*"
         """
-        self.session._is_script = True
-        self.session._is_proj = False
-        self.importFile(filename=fname, extension="*")
-        self._project_changed()
+        if self.session.current_is_project():
+            self.importFile(filename=fname, extension=extension)
+            self._project_changed()
+        else:
+            print "You are not working inside project. Please create or load one first."
         
     def renameCurrent(self, new_name=None):
         """
@@ -400,17 +322,20 @@ You can rename/move this project thanks to the button "Save As" in menu.
             self.session.project.rename(categorie="project", old_name=name, new_name=new_name)
             self._project_changed()
         else:
-            print("This is not a project, so you can't use 'rename project'")
+            print("You are not working inside project, so you can't use 'rename project'. Please create or load one first.")
     
     def saveAs(self):
         """
         Save current project but permit to rename and move it..
         """
-        name = self.showNewProjectDialog(default_name=None, text="Select name to save project")
-        if name:
-            self.session.project.rename(categorie="project", old_name=self.session.project.name, new_name=name)
-            self._tree_view_change()
-            self.saveCurrent()
+        if self.session.current_is_project():
+            name = self.showNewProjectDialog(default_name=None, text="Select name to save project")
+            if name:
+                self.session.project.rename(categorie="project", old_name=self.session.project.name, new_name=name)
+                self._tree_view_change()
+                self.saveCurrent()
+        else:
+            print "You are not working inside project. Please create or load one first."
     
     def saveCurrent(self):
         """
@@ -444,55 +369,24 @@ You can rename/move this project thanks to the button "Save As" in menu.
             current.save()
             self._project_changed()
             
-        elif self.session.current_is_script():
-            ## TODO : Warning! Save all not just current
-            #current = self.session.project
-            #container = 
-            self.controller.applet_container.save_all()
-            self._tree_view_change()
-        
-            #for i in range(container.count()):
-                #container.setCurrentIndex(i)
-                #name = container.tabText(i)
-                #container.save_all()
-                #container.setTabText(i, container.widget(i).applet.name)
+        else:
+            print "You are not working inside project. Please create or load one first."
                 
     def closeCurrent(self):
         """
-        Close current project or scripts.
+        Close current project.
         """
         if self.session.current_is_project():
-            self.projectManager.close(self.session.project.name)
-            self._clear_control()
             logger.debug("Close Project named %s"%self.session.project.name)
-        elif self.session.current_is_script():
-            logger.debug("Close Scripts")
-            
-        self.session._project = None
-        self.session._is_script = False
-        self.session._is_proj = False
-        logger.debug("Current project: %s"%self.session.project)
-        self._project_changed()
-        logger.debug("Current project2: %s"%self.session.project)
-            
-    def displayCurrentName(self):
-        """
-        Display name of the current project
-        """
-        if self.session.current_is_project():
-            print self.session.project.name
+            self.projectManager.close(self.session.project.name)
+            self.session._project = None
+            self.session._is_proj = False
+            self._clear_control()
+            self.controller.applet_container.closeAll()
+            self._project_changed()
         else:
-            print ""
-        
-    def displayProjectTreeOnDisk(self):
-        """
-        Display a QTreeView of the current project on the disk.
-        Permit to open files in click on his name.
-        
-        TODO
-        """  
-        print self.session.project
-        
+            print "You are not working inside project. Please create or load one first."
+
     def _project_changed(self):
         """
         Update what is needed when the current project is changed
@@ -500,10 +394,9 @@ You can rename/move this project thanks to the button "Save As" in menu.
         logger.debug("Project changed")
         self.controller._update_locals()
         self._scene_change()
-        #self._control_change()
+        self._control_change() #do nothing
         self._script_change()
         self._tree_view_change()
-
             
     def update_from_widgets(self):
         self._update_control()
@@ -565,10 +458,10 @@ You can rename/move this project thanks to the button "Save As" in menu.
             self.session.project.controls[unicode(scalar.name)] = scalar
                 
     def _clear_control(self):
-            self.controller.applets['ControlPanel'].geometry_editor.clear()
-            n = len(self.controller.applets['ControlPanel'].scalars_editor.getScalars())
-            for scalar in range(n):
-            	    self.controller.applets['ControlPanel'].scalars_editor.deleteScalars()
+        self.controller.applets['ControlPanel'].geometry_editor.clear()
+        n = len(self.controller.applets['ControlPanel'].scalars_editor.getScalars())
+        for scalar in range(n):
+                self.controller.applets['ControlPanel'].scalars_editor.deleteScalars()
             
     def _control_change(self):
         pass           
@@ -586,25 +479,11 @@ You can rename/move this project thanks to the button "Save As" in menu.
             for script in project.scripts:
                 language = str(script).split('.')[-1]
                 self.controller.applet_container.openTab(language, script, project.scripts[script])
-            
-        elif self.session.current_is_script():
-            # If script
-            self.controller.applet_container.reset()
-            scripts = self.session.project
-            
-            for script_name in scripts:
-                language = str(script_name).split('.')[-1]
-                txt = scripts[script_name]
-                self.controller.applet_container.openTab(language, script_name, txt)
-        else:
-            # If nothing opened
-            #self.controller.applet_container.reset()
-            self.controller.applet_container.closeAll()
-            
+
     def _scene_change(self):
         logger.debug("Scene changed")
-        self.controller.scene.reset()
         if self.session.current_is_project():
+            self.controller.scene.reset()
             project = self.session.project
             for w in project.scene:
                 self.controller.scene.add(name=w,obj=project.scene[w])

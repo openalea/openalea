@@ -209,34 +209,6 @@ class TextEditor(QtGui.QTextEdit):
                 project._save_scripts()
                 self.controller.applet_container.setAllTabBlack()
                 logger.debug("Try to save script in project")
-            
-        elif self.session.current_is_script():
-            logger.debug("Will save script outside project")
-            project = self.session.project
-            
-            if name is not None:
-                self.name = project.get_name_by_ez_name(name)
-            if self.name is None or self.name is False:
-                    self.name = u"script.py"      
-            if str(self.name) in (self.default_names.split(), "", "None", "False"):
-                new_fname = QtGui.QFileDialog.getSaveFileName(self, 'Select name to save the file %s'%str(self.name),str(self.name))
-                if new_fname != u"":
-                    project.rename_script(self.name, new_fname)
-                    self.name = new_fname
-                    project[self.name] = txt
-                    ez = project.get_ez_name_by_name(self.name)
-                    self.controller.applet_container.setTabText(self.controller.applet_container.currentIndex(),ez)
-                    
-            if str(self.name) in (self.default_names.split(), "", "None", "False"):
-                logger.debug("Can't save file because name is None")
-            else:
-                f = open(self.name, "w")
-                code = txt
-                code_enc = code.encode("utf8","ignore")
-                f.write(code_enc)
-                f.close()
-                self.controller.applet_container.setTabBlack()
-                logger.debug("Save file "+str(self.name)+" outside project")
 
     def keyPressEvent(self,event):
         # Auto-indent

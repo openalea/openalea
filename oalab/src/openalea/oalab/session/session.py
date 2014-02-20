@@ -38,7 +38,6 @@ class Session(object):
     def __init__(self):
         self._project = None
         self._is_proj = False
-        self._is_script = False
 
         self._config = MainConfig()
         self.extension = None
@@ -63,12 +62,6 @@ class Session(object):
         :return: True if current document is a project
         """
         return bool(self._is_proj)
-
-    def current_is_script(self):
-        """
-        :return: True if current document is a script (not a project!)
-        """
-        return bool(self._is_script)
 
     def get_project(self):
         warnings.warn('Deprecated get_project -> project')
