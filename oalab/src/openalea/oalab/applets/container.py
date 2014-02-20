@@ -18,11 +18,9 @@
 __revision__ = ""
 
 from openalea.vpltk.qt import QtCore, QtGui
-from openalea.vpltk.qt.compat import from_qvariant, to_qvariant
 from openalea.vpltk.plugin import discover, Plugin
 from openalea.core import logger
 from openalea.core.path import path
-from openalea.vpltk.project.script import Scripts
 from openalea.oalab.gui.pages import WelcomePage, SelectExtensionPage, CreateFilePage
 
 class AppletContainer(QtGui.QTabWidget):
@@ -161,16 +159,7 @@ class AppletContainer(QtGui.QTabWidget):
         """
         Delete all tabs
         """
-        while self.count() > 0 :
-            wid = self.widget(0)
-            self.removeTab(0)
-            del wid
-        self.clear()
-
-        #if self.session.project:
-            #self.addCreateFileTab()
-        #else:
-            #self.addDefaultTab()
+        self.closeAll()        
     
     def openTab(self, applet_type, tab_name, script):
         """
@@ -186,7 +175,7 @@ class AppletContainer(QtGui.QTabWidget):
         """
         logger.debug("New tab. Type: " + applet_type + ". Name: " + tab_name)
         self.rmTab("Welcome")
-        #self.rmTab("Create File")
+        self.rmTab("Create File")
         
         # TODO : permit to add more than one script...
         # existing_tabs = list()
@@ -227,16 +216,13 @@ class AppletContainer(QtGui.QTabWidget):
     def closeTab(self):
         """
         Close current tab
-        """
-        if self.session.project:
-            if self.session.current_is_script():
-                ez_name = self.tabText(self.currentIndex())
-                self.session.project.rm_script_by_ez_name(ez_name)
-                self.controller.project_manager._tree_view_change()
-        
+        """       
         self.removeTab(self.currentIndex())
         if self.count() == 0:
-            self.addDefaultTab()
+            if self.session.current_is_project():
+                self.addCreateFileTab()
+            else:
+                self.addDefaultTab()
         logger.debug("Close tab")
         
     def autoClose(self, n_tab):

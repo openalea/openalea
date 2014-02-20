@@ -19,6 +19,7 @@ __revision__ = ""
 
 from openalea.core import logger
 from openalea.vpltk.qt import QtCore, QtGui
+from openalea.vpltk.qt.compat import from_qvariant
 
 class WelcomePage(QtGui.QWidget):
     """
@@ -41,32 +42,16 @@ class WelcomePage(QtGui.QWidget):
         newBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/openalealogo.png"),"New Project")
         newBtn.setMaximumSize(max_size)  
         newBtn.setMinimumSize(min_size)         
-        newScriptBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/import.png"),"Create or Open File")
-        newScriptBtn.setMaximumSize(max_size)  
-        newScriptBtn.setMinimumSize(min_size)
         
         openBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/openalealogo.png"),"Open Project")
         openBtn.setMaximumSize(max_size)    
         openBtn.setMinimumSize(min_size)
         
-        restoreSessionBtn = QtGui.QPushButton(QtGui.QIcon(":/images/resources/open.png"),"Restore Previous Session")
-        restoreSessionBtn.setMaximumSize(max_size)
-        restoreSessionBtn.setMinimumSize(min_size)
-        #restoreSessionBtn.setMaximumSize(QtCore.QSize(412,60))  
-        #restoreSessionBtn.setMinimumSize(QtCore.QSize(412,60))
-                
         QtCore.QObject.connect(newBtn, QtCore.SIGNAL("clicked()"),self.new)
-        QtCore.QObject.connect(newScriptBtn, QtCore.SIGNAL("clicked()"),self.newScript)
         QtCore.QObject.connect(openBtn, QtCore.SIGNAL("clicked()"),self.open)
         
-        QtCore.QObject.connect(restoreSessionBtn, QtCore.SIGNAL("clicked()"),self.restoreSession)
-        
         layout.addWidget(newBtn,0,0)
-        layout.addWidget(openBtn,0,1)
-        
-        layout.addWidget(newScriptBtn,1,0)
-        
-        layout.addWidget(restoreSessionBtn,1,1)
+        layout.addWidget(openBtn,1,0)
         
         self.setLayout(layout)
 
@@ -92,16 +77,15 @@ class WelcomePage(QtGui.QWidget):
     
     def new(self):
         self.session._is_proj = True
-        self.session._is_script = False
         self.controller.project_manager.new()
         logger.debug("New Project from welcome page")
 
     def newScript(self):
-        self.controller.applet_container.addCreateFileTab()
+        pass
+        #self.controller.applet_container.addCreateFileTab()
           
     def open(self):
         self.session._is_proj = True
-        self.session._is_script = False
         self.controller.project_manager.open()
         logger.debug("Open Project from welcome page")
         
@@ -112,20 +96,9 @@ class WelcomePage(QtGui.QWidget):
             logger.debug("Can't restore previous session. May be it is empty")
         elif proj.is_project():
             self.session._is_proj = True
-            self.session._is_script = False
             name = path(proj.path).abspath()/proj.name
             self.controller.project_manager.open(name)
             logger.debug("Restore previous session. (project)")
-        elif proj.is_script():
-            self.session._is_proj = False
-            self.session._is_script = True
-            self.session._project = Scripts()
-            for p in proj:
-                self.controller.project_manager.importFile(filename=p)
-            
-            self.controller.project_manager._project_changed()
-            #self.controller.project_manager.importFile(filename=fname, extension="*.py")
-            logger.debug("Restore previous session. (scripts)")
 
 class SelectExtensionPage(QtGui.QWidget):
     """
@@ -248,12 +221,18 @@ class CreateFilePage(QtGui.QWidget):
     
         text2 = QtGui.QLabel("You can add a file from your computer:")  
         layout.addWidget(text2,10,0,1,-1)
+        
+        editFile = QtGui.QToolButton()
+        editFile.setDefaultAction(self.controller.project_manager.actionEditFile)
+        editFile.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
+        editFile.setMinimumSize(min_size)         
+        layout.addWidget(editFile,11,0,1,-1)
+        
         importFile = QtGui.QToolButton()
         importFile.setDefaultAction(self.controller.project_manager.actionImportFile)
         importFile.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
-        #importFile.setMaximumSize(max_size)  
         importFile.setMinimumSize(min_size)         
-        layout.addWidget(importFile,11,0,1,-1)
+        layout.addWidget(importFile,11,1,1,-1)
         
         self.setLayout(layout)
 

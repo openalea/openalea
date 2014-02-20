@@ -70,8 +70,6 @@ class ProjectLabel(QtGui.QLabel):
     def update(self):    
         if self.session.current_is_project():
             label = self.session.project.name
-        elif self.session.current_is_script():
-            label = "Files"
         else:
             label = ""
         self.setText(label)  
@@ -87,8 +85,6 @@ class ProjectTreeView(QtGui.QTreeView):
         self.controller = controller
         
         if self.session.current_is_project():
-            self.project = self.session.project
-        elif self.session.current_is_script():
             self.project = self.session.project
         else:
             self.project = None
@@ -111,8 +107,6 @@ class ProjectTreeView(QtGui.QTreeView):
         """ Reinitialise project view """
         
         if self.session.current_is_project():
-            self.project = self.session.project
-        elif self.session.current_is_script():
             self.project = self.session.project
         else:
             self.project = None
