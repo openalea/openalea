@@ -22,7 +22,7 @@ def test_load():
     assert len(proj.scene) == 0
     assert len(proj.startup) == 1
 
-    assert isinstance(proj.ns["radius.py"], int)
+    assert isinstance(proj.ns["radius"], int)
     
 def test_manifest():
     pm = ProjectManager()
