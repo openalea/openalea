@@ -40,9 +40,9 @@ class AppletContainer(QtGui.QTabWidget):
         self.applets = list()
         
         self.paradigms = dict()
-        applets = discover("oalab.plugins")
-        for appl in applets.values():
-            applet = Plugin(appl).load()
+        applet_factories = session.catalog.get_factories(interfaces='openalea:IParadigmApplet')
+        for applet_factory in applet_factories:
+            applet = applet_factory.classobj()
             self.paradigms[applet.default_name] = applet
 
         self.setAccessibleName("Container")

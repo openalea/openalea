@@ -81,11 +81,11 @@ setup(
 
     postinstall_scripts = ['oalab_postinstall'],
     share_dirs = { 'share' : 'share' },
-    
+
     # Declare scripts and wralea as entry_points (extensions) of your package 
     entry_points = { 
         'gui_scripts': ['oalab = openalea.oalab.main:main',
-						'openalealab = openalea.oalab.main:main',
+                        'openalealab = openalea.oalab.main:main',
                         'plantlab = openalea.oalab.main:main_plantlab',
                         'tissuelab = openalea.oalab.main:main_tissuelab',
                         '3dlab = openalea.oalab.main:main_3dlab',
@@ -102,6 +102,7 @@ setup(
         #       'fake_script = openalea.fakepackage.amodule:console_script', ],
         # 'gui_scripts': [
         #      'fake_gui = openalea.fakepackage.amodule:gui_script',],
-        'wralea' : ['oalab = openalea.oalab_wralea']
+        'wralea' : ['oalab = openalea.oalab_wralea'],
+        'plugin' : ['oalab = openalea.oalab_wralea']
         },
     )

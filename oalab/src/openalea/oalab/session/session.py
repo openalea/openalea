@@ -26,6 +26,7 @@ from openalea.core.pkgmanager import PackageManager
 from openalea.core.path import path
 from openalea.core.settings import get_openalea_home_dir
 from openalea.vpltk.shell.shell import get_interpreter_class
+from openalea.vpltk.catalog import Catalog
 
 from openalea.oalab.config.main import MainConfig
 
@@ -49,6 +50,8 @@ class Session(object):
 
         self.pm = PackageManager()
         self.pm.init(verbose=False)
+        
+        self.catalog = Catalog()
 
     @property
     def project(self):

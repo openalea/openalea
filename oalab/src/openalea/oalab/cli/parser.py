@@ -34,5 +34,18 @@ class CommandLineParser(object):
         self.parser = argparse.ArgumentParser(description='OALab Command Line')
         self.parser.add_argument('-e', '--extension', metavar='extension', type=str, default="mini",
                                  help='Lab extension to launch')
+        self.parser.add_argument('--list-interfaces', action='store_true',
+                                 help='List available interfaces')
+        self.parser.add_argument('--list-implementations', action='store_true',
+                                 help='List available implementations')
         args = self.parser.parse_args()
+
+        if args.list_interfaces:
+            from openalea.vpltk.catalog import list_interfaces
+            list_interfaces()
+
+        if args.list_implementations:
+            from openalea.vpltk.catalog import list_implementations
+            list_implementations()
+
         self.session.extension = args.extension
