@@ -4,7 +4,7 @@ from openalea.oalab.gui.mainwindow import MainWindow
 from openalea.oalab.applets.container import AppletContainer
 from openalea.oalab.editor.text_editor import TextEditor
 from openalea.oalab.gui.allwidgets import AllWidgets
-
+from openalea.vpltk.project.project import ProjectManager
 from openalea.vpltk.qt import QtGui, QtCore
 import sys
 
@@ -31,10 +31,9 @@ def test_applet_container_opentab():
     assert container.count() == 0
 """
 def test_session_and_mainwindow():
-
-        
+    project_manager = ProjectManager()
     mw = MainWindow(session, controller, parent=None)
-    assert session.project == None
+    assert session.project.name == project_manager.empty().name
     assert controller.applets['Store'].actions() == None
     assert controller.applets['Store'].mainMenu() == "Package Store" 
     
