@@ -510,7 +510,6 @@ class ProjectManager(object):
     def close(self, project_name):
         if project_name in self.projects.keys():
             del self.projects[project_name]
-            self.cproject = self.empty()
             
     def __getitem__(self, project_name):
         try:
