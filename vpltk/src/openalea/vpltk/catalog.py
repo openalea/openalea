@@ -8,7 +8,9 @@ from openalea.core.pkgmanager import UnknownPackageError
 from openalea.vpltk.pluginmanager import PluginManager
 
 from openalea.core.node import NodeFactory
+from openalea.core.singleton import Singleton
 from openalea.core.signature import Signature
+from _pyio import __metaclass__
 
 class InterfaceFactory(NodeFactory):
     def __init__(self, interface, **kargs):
@@ -64,14 +66,27 @@ class ObjectFactory(NodeFactory):
         else:
             self.__interfaces__ = interfaces
 
+    def instantiate(self, *args, **kargs):
+        # The module contains the node implementation.
+        module = self.get_node_module()
+        classobj = module.__dict__.get(self.nodeclass_name, None)
+
+        if classobj is None:
+            raise Exception("Cannot instantiate '" + \
+                self.nodeclass_name + "' from " + str(module))
+        return classobj(*args, **kargs)
+
 class Catalog(object):
+
+    __metaclass__ = Singleton
+
     def __init__(self, verbose=True):
         self.plugin_types = ('wralea', 'plugin')
         self.groups = set() 
         self.managers = {}
+        
+        self._services = {}
 
-
-    def init(self):
         paths = site.getsitepackages()
         for path in paths:
             distribs = pkg_resources.find_distributions(path)
@@ -111,10 +126,6 @@ class Catalog(object):
         all_interfaces = set()
         if obj is None :
             return all_interfaces
-
-        # Check if obj is an Interface factory
-        if isinstance(obj, InterfaceFactory):
-            all_interfaces.add(self.get_interface_id(obj))
 
         # Check interfaces defined in openalea factories
         if hasattr(obj, '__interfaces__'):
@@ -200,10 +211,21 @@ class Catalog(object):
                         lst.append(factory)
         return lst
 
-    def get_factories(self, interfaces=None, identifier=None, tags=None):
+    def get_factories(self, interfaces=None, identifier=None, tags=None, exclude_tags=None):
+        """
+        exclude_tags: if tags is not specified, scan all tags except one defined in exclude_tags
+        """
         lst = []
+        if tags and exclude_tags:
+            print 'tags and exclude_tags are mutually exclusive'
+        if exclude_tags is None:
+            exclude_tags = []
+
         if tags is None :
             tags = self.groups
+            for tag in exclude_tags :
+                if tag in tags :
+                    tags.remove(tag)
 
         # Scan standard entry_points : 1 entry_point = 1 object
         for tag in self._clean_lst(tags) :
@@ -211,15 +233,59 @@ class Catalog(object):
                 if self.is_implementation(ep, interfaces):
                     lst.append(ep)
 
-        # Scan openalea entry_points : 1 entry_point = n factories
+        # Scan openalea entry_points : 1 entry_point = n factories (scan)
         for tag in self.plugin_types:
             if tag in tags :
                 lst += self._getplugin(tag, interfaces, identifier, tags)
 
         return lst
 
-    def get_factory(self, interfaces=None, identifier=None, tags=None):
-        lst = self.get_factories(interfaces, identifier, tags)
+    def get_factory(self, interfaces=None, identifier=None, tags=None, exclude_tags=None):
+        lst = self.get_factories(interfaces, identifier, tags, exclude_tags)
         if lst :
             return lst[0]
+
+    def service(self, object_factory):
+        return self._services[object_factory] if object_factory in self._services else None
+
+    def create_service(self, object_factory, *args, **kargs):
+        """
+        Create a service from object_factory. If object_factory is None, returns None.
+        If this factory is called for the first time, instantiate it with args and kargs.
+        Else, use previous instance.
+        """
+        if object_factory is None :
+            return None
+
+        if object_factory in self._services :
+            service = self._services[object_factory]
+        else :
+            service = object_factory.instantiate(*args, **kargs)
+            self._services[object_factory] = service
+        return service
+
+
+    def get_service(self, interfaces=None, identifier=None, tags=None, exclude_tags=None, args=None, kargs=None):
+        if args is None :
+            args = []
+        if kargs is None :
+            kargs = {}
+        if exclude_tags is None :
+            exclude_tags = ['wralea']
+        object_factory = self.get_factory(interfaces, identifier, tags, exclude_tags)
+        return self.create_service(object_factory)
+
+    def get_services(self, interfaces=None, identifier=None, tags=None, exclude_tags=None, args=None, kargs=None):
+        if args is None :
+            args = []
+        if kargs is None :
+            kargs = {}
+        if exclude_tags is None :
+            exclude_tags = ['wralea']
+        object_factories = self.get_factories(interfaces, identifier, tags, exclude_tags)
+        services = []
+        for object_factory in object_factories :
+            services.append(self.create_service(object_factory, *args, **kargs))
+        return services
+
 
