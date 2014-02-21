@@ -113,25 +113,16 @@ class VisualeaApplet(object):
         self.name = name
         self.session = session
         self.controller = controller
-
-        # Package Manager
-        self._packagemanager = self.session.pm
        
         # Workflow Editor
-
-        if DEBUG:
-            pm = self._packagemanager
-            cnf = pm['oalab.tutorial']['mangotree']
-            self._workflow = cnf.instantiate()
+        _name = name.split('.wpy')[0]
+        if ((repr_model is None) or (repr_model=="")):
+            self._workflow = CompositeNodeFactory(_name).instantiate()
+        elif isinstance(repr_model, CompositeNodeFactory):
+            self._workflow = repr_model.instantiate()
         else:
-            _name = name.split('.wpy')[0]
-            if ((repr_model is None) or (repr_model=="")):
-                self._workflow = CompositeNodeFactory(_name).instantiate()
-            elif isinstance(repr_model, CompositeNodeFactory):
-                self._workflow = repr_model.instantiate()
-            else:
-                cnf = eval(repr_model,globals(),locals()) 
-                self._workflow = cnf.instantiate()
+            cnf = eval(repr_model,globals(),locals()) 
+            self._workflow = cnf.instantiate()
 
         self._widget = dataflowview.GraphicalGraph.create_view(self._workflow, clone=True)
         self._clipboard = CompositeNodeFactory("Clipboard")
