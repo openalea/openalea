@@ -39,13 +39,16 @@ class CommandLineParser(object):
         self.parser.add_argument('--list-implementations', action='store_true',
                                  help='List available implementations')
         args = self.parser.parse_args()
+        session.gui = True
 
         if args.list_interfaces:
-            from openalea.vpltk.catalog import list_interfaces
+            from openalea.vpltk.catalog.tools import list_interfaces
             list_interfaces()
+            session.gui = False
 
         if args.list_implementations:
-            from openalea.vpltk.catalog import list_implementations
+            from openalea.vpltk.catalog.tools import list_implementations
             list_implementations()
+            session.gui = False
 
         self.session.extension = args.extension

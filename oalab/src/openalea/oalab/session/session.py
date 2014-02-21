@@ -52,6 +52,8 @@ class Session(object):
         self.pm.init(verbose=False)
         
         self.catalog = Catalog()
+        
+        self.gui = True
 
     @property
     def project(self):
@@ -69,10 +71,10 @@ class Session(object):
     def get_project(self):
         warnings.warn('Deprecated get_project -> project')
         return self.project
-    
+
     def load_config_file(self, filename, path=None):
         self._config.load_config_file(filename, path)
-                
+
     config = property(fget=lambda self:self._config.config)
-    
-    
+
+

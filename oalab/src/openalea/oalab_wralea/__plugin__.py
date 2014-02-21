@@ -16,8 +16,7 @@ __alias__ = []
 
 __all__ = []
 
-from openalea.vpltk.catalog import InterfaceFactory, ObjectFactory
-
+from openalea.vpltk.catalog.factories import InterfaceFactory, ObjectFactory
 from openalea.oalab.interfaces.all import (IApplet, IParadigmApplet, 
                                            IQTextWidget)
 
