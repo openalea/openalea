@@ -44,6 +44,10 @@ This lab permit to create and execute virtual experiments that use different mod
 To begin, you can work in this temporary project, write code, execute it...
 If you want to save your project, please use "<b>Save As</b>" button in "<b>Project</b>" menu to rename/move your project.
 </p>
+<p>
+Examples of project are available in pressing "<b>Open</b>" button in "<b>Project</b>" menu.
+Then go into "oalab_examples" repository and select a project.
+</p>
 """
 
         
