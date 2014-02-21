@@ -21,7 +21,7 @@ from openalea.vpltk.qt import QtGui, QtCore
 import webbrowser
 
 default_text2 = """
-<H1>Welcome in OpenAleaLab.</H1>
+<H1>Welcome in OpenAlea Laboratory.</H1>
 
 To begin, <b>choose your lab</b> or open an existing file or project:
 <ul>
@@ -35,9 +35,15 @@ To begin, <b>choose your lab</b> or open an existing file or project:
 """
 
 default_text = """
-<H1>Welcome in OpenAleaLab.</H1>
+<H1>Welcome in OpenAlea Laboratory.</H1>
 
-To begin, create or open an existing file or project.
+<p>
+This lab permit to create and execute virtual experiments that use different modelling paradigms.
+</p>
+<p>
+To begin, you can work in this temporary project, write code, execute it...
+If you want to save your project, please use "<b>Save As</b>" button in "<b>Project</b>" menu to rename/move your project.
+</p>
 """
 
         
