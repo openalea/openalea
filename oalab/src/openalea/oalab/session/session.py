@@ -21,8 +21,6 @@ __revision__ = ""
 __all__ = ['Session']
 
 import warnings
-
-from openalea.core.pkgmanager import PackageManager
 from openalea.core.path import path
 from openalea.core.settings import get_openalea_home_dir
 from openalea.vpltk.shell.shell import get_interpreter_class
@@ -47,9 +45,6 @@ class Session(object):
         self.interpreter = interpreter_class() 
         
         self.interpreter.locals['session'] = self
-
-        self.pm = PackageManager()
-        self.pm.init(verbose=False)
         
         self.catalog = Catalog()
         
