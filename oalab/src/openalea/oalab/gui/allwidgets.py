@@ -1,5 +1,3 @@
-
-from openalea.core.pkgmanager import PackageManager
 from openalea.oalab.gui.logger import Logger
 from openalea.oalab.control.controlpanel import ControlPanel
 from openalea.oalab.gui.help import HelpWidget
