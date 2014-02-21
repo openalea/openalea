@@ -18,7 +18,7 @@
 #
 ###############################################################################
 import sys
-from openalea.oalab.gui.app import OALab
+
 from openalea.oalab.cli.parser import CommandLineParser
 from openalea.oalab.project.symlink import create_project_shortcut
 from openalea.oalab.session.all import Session
@@ -34,8 +34,10 @@ def main():
     session = Session()
     cli = CommandLineParser(sys.argv, session)
 
-    app = OALab(sys.argv, session)
-    app.exec_()
+    if session.gui:
+        from openalea.oalab.gui.app import OALab
+        app = OALab(sys.argv, session)
+        app.exec_()
     
 def main_plantlab():
     """
@@ -48,8 +50,10 @@ def main_plantlab():
     session.extension = 'plant'  
     
     # Launch app
-    app = OALab(sys.argv, session)
-    app.exec_()
+    if session.gui:
+        from openalea.oalab.gui.app import OALab
+        app = OALab(sys.argv, session)
+        app.exec_()
     
 def main_tissuelab():
     """
@@ -62,8 +66,10 @@ def main_tissuelab():
     session.extension = 'tissue'     
     
     # Launch app
-    app = OALab(sys.argv, session)
-    app.exec_()
+    if session.gui:
+        from openalea.oalab.gui.app import OALab
+        app = OALab(sys.argv, session)
+        app.exec_()
     
 def main_3dlab():
     """
@@ -76,8 +82,10 @@ def main_3dlab():
     session.extension = '3d'     
     
     # Launch app
-    app = OALab(sys.argv, session)
-    app.exec_()
+    if session.gui:
+        from openalea.oalab.gui.app import OALab
+        app = OALab(sys.argv, session)
+        app.exec_()
     
 def main_minilab():
     """
@@ -88,10 +96,12 @@ def main_minilab():
 
     session = Session()
     session.extension = 'mini'     
-    
-    # Launch app
-    app = OALab(sys.argv, session)
-    app.exec_()
+
+    if session.gui:
+        from openalea.oalab.gui.app import OALab
+        # Launch app
+        app = OALab(sys.argv, session)
+        app.exec_()
 
     
 if( __name__ == "__main__"):
