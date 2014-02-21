@@ -14,6 +14,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+
 """This module defines the package manager.
 
 It is able to find installed package and their plugin.py
@@ -23,15 +24,11 @@ It stores the packages and nodes informations
 __license__ = "Cecill-C"
 __revision__ = " $Id: pkgmanager.py 3772 2013-04-05 13:46:39Z pradal $ "
 
-import openalea
-
 import sys
 import os
 from os.path import join as pj
 from os.path import isdir
 
-import tempfile
-import glob
 import urlparse
 from openalea.core.path import path
 from fnmatch import fnmatch

@@ -1,5 +1,5 @@
 
-from openalea.vpltk.catalog import InterfaceFactory, ObjectFactory
+from openalea.vpltk.catalog.factories import InterfaceFactory, ObjectFactory
 from openalea.vpltk.sample.interfaces import IXyzReader, IXyzWriter
 
 __all__ = []

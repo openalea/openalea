@@ -1,3 +1,22 @@
+# -*- python -*-
+#
+#       Plugin System for vpltk
+# 
+#       OpenAlea.VPLTk: Virtual Plants Lab Toolkit
+#
+#       Copyright 2013 INRIA - CIRAD - INRA
+#
+#       File author(s): Guillaume Baty <guillaume.baty@inria.fr>
+#
+#       File contributor(s):
+#
+#       Distributed under the Cecill-C License.
+#       See accompanying file LICENSE.txt or copy at
+#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
+#
+#       OpenAlea WebSite : http://openalea.gforge.inria.fr
+#
+###############################################################################
 
 import abc
 import inspect
@@ -6,83 +25,13 @@ import site
 import sys
 
 from openalea.core.pkgmanager import UnknownPackageError
-from openalea.vpltk.pluginmanager import PluginManager
-
-from openalea.core.node import NodeFactory
+from openalea.vpltk.catalog.pluginmanager import PluginManager
 from openalea.core.singleton import Singleton
-from openalea.core.signature import Signature
-from _pyio import __metaclass__
+
 
 #TODO: review code for optimizations
-#TODO: split in several modules
 
-class InterfaceFactory(NodeFactory):
-    def __init__(self, interface, **kargs):
-        name = interface.identifier
-        description = interface.__doc__
-        category='interfaces'
-
-        if hasattr(interface, '__authors__'):
-            authors = interface.__authors__
-        else :
-            authors = ''
-
-        s = Signature(interface.__init__)
-
-        super(InterfaceFactory, self).__init__(name=name,
-                 description=description,
-                 category=category,
-                 inputs=s.parameters,
-                 outputs=None,
-                 authors=authors)
-
-        self.interface = interface
-
-    def instantiate(self):
-        return self.interface
-
-
-class ObjectFactory(NodeFactory):
-    def __init__(self,
-                 name,
-                 description = '',
-                 category = '',
-                 interfaces=None,
-                 inputs=None,
-                 outputs=None,
-                 nodemodule = '',
-                 nodeclass = None,
-                 search_path = None,
-                 authors = None,
-                 **kargs):
-        super(ObjectFactory, self).__init__(name=name,
-                 description=description,
-                 category=category,
-                 inputs=inputs,
-                 outputs=outputs,
-                 nodemodule=nodemodule,
-                 nodeclass=nodeclass,
-                 search_path=search_path,
-                 authors=authors)
-
-        if interfaces is None:
-            self.__interfaces__ = []
-        else:
-            self.__interfaces__ = interfaces
-
-    def classobj(self):
-        # The module contains the node implementation.
-        module = self.get_node_module()
-        classobj = module.__dict__.get(self.nodeclass_name, None)
-
-        if classobj is None:
-            raise Exception("Cannot instantiate '" + \
-                self.nodeclass_name + "' from " + str(module))
-        return classobj
-
-    def instantiate(self, *args, **kargs):
-        classobj = self.classobj()
-        return classobj(*args, **kargs)
+from openalea.vpltk.catalog.factories import InterfaceFactory
 
 class Catalog(object):
 
@@ -214,12 +163,11 @@ class Catalog(object):
         # If obj is an instance, use class
         if not inspect.isclass(obj):
             obj = obj.__class__
-    
-    
+
         # Check with issubclass (Derivated from interface or defined using metaclass)
         if issubclass(obj, interface):
             return True
-    
+
         return False
 
     def _getplugin(self, plugin_type, interfaces, identifier, tags):
@@ -321,39 +269,4 @@ class Catalog(object):
         for object_factory in object_factories :
             services.append(self.create_service(object_factory, *args, **kargs))
         return services
-
-
-def color_interface_line(interface_id):
-        catalog = Catalog()
-        interface = catalog.get_interface_class(interface_id)
-        hierarchy = [cl.__name__ for cl in reversed(inspect.getmro(interface)) if cl in catalog._interfaces.values()]
-        hierarchy = ' > '.join(hierarchy)
-        return '\033[93m%s\033[91m   (%s)\033[0m' % (interface_id, hierarchy)
-
-def list_interfaces():
-    catalog = Catalog()
-
-    print '=========='
-    print 'Interfaces'
-    print '=========='
-
-    for interface_id in sorted(catalog.get_interfaces()):
-        interface = catalog.get_interface_class(interface_id)
-        print color_interface_line(interface_id)
-        print '       defined in:', interface.__module__
-        print
-    print
-
-def list_implementations():
-    catalog = Catalog()
-
-    print '==============='
-    print 'Implementations'
-    print '==============='
-
-    for interface_id in catalog.get_interfaces():
-        print color_interface_line(interface_id)
-        for factory in catalog.get_factories(interfaces=interface_id):
-            print '  *', factory.name
-        print
 

@@ -2,7 +2,7 @@ from IPython.kernel.inprocess.ipkernel import InProcessKernel
 
 class Interpreter(InProcessKernel):
     """
-    Interpreter is an IPython kernel adapt for OpenAlea.
+    Interpreter is an IPython kernel adapted for OpenAlea.
     
     :param gui: GUI to use. Default 'qt4'.
     :param locals: namespace to set to the interpreter. Default 'None'.
