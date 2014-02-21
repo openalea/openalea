@@ -19,7 +19,7 @@ except ImportError:
     else:
         api_opts = [QT_API]
     
-    QtCore, QtGui, QtSvg, QT_API = load_qt(api_opts)    
+    QtCore, QtGui, QtSvg, QT_API = load_qt(api_opts)
 except:
     import warnings
     message = """
