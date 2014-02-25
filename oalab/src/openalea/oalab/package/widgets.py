@@ -51,7 +51,7 @@ class PackageViewWidget(OALabTreeView):
             txt = factory.get_tip(asRst=True) + "\n\n"
             if factoryDoc is not None:
                 txt += "**Docstring:**\n" + factoryDoc
-            self.controller.applets['HelpWidget'].setText(txt)        
+            self.controller.helper.setText(txt)
 
     def reinit_treeview(self):
         """ Reinitialise package and category views """
@@ -79,7 +79,7 @@ class PackageCategorieViewWidget(OALabTreeView):
             txt = factory.get_tip(asRst=True) + "\n\n"
             if factoryDoc is not None:
                 txt += "**Docstring:**\n" + factoryDoc
-            self.controller.applets['HelpWidget'].setText(txt)   
+            self.controller.helper.setText(txt)   
             
     def reinit_treeview(self):
         """ Reinitialise package and category views """
@@ -124,7 +124,7 @@ class PackageSearchWidget(QtGui.QWidget):
             txt = factory.get_tip(asRst=True) + "\n\n"
             if factoryDoc is not None:
                 txt += "**Docstring:**\n" + factoryDoc
-            self.controller.applets['HelpWidget'].setText(txt)   
+            self.controller.helper.setText(txt)   
             
     def search_node(self):
         """ Activated when search line edit is validated """

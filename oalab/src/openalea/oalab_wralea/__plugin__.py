@@ -5,7 +5,7 @@ from openalea.core import *
 __name__ = 'openalea.OALab'
 __version__ = '1.0.0'
 __license__ = 'CeCILL-C'
-__author__ = 'Julien Coste, Christophe Pradal'
+__author__ = 'Guillaume Baty, Julien Coste, Christophe Pradal'
 __institutes__ = 'CIRAD, INRIA'
 __description__ = ''
 __url__ = 'http://openalea.gforge.inria.fr'
@@ -18,48 +18,60 @@ __all__ = []
 
 from openalea.vpltk.catalog.factories import InterfaceFactory, ObjectFactory
 from openalea.oalab.interfaces.all import (IApplet, IParadigmApplet, 
-                                           IQTextWidget)
+                                           IQTextWidget, IHelper)
 
-interface_IApplet = InterfaceFactory(IApplet)
-__all__.append('interface_IApplet')
+IApplet = InterfaceFactory(IApplet)
+__all__.append('IApplet')
 
-interface_IParadigmApplet = InterfaceFactory(IParadigmApplet)
-__all__.append('interface_IParadigmApplet')
+IParadigmApplet = InterfaceFactory(IParadigmApplet)
+__all__.append('IParadigmApplet')
 
-interface_IQTextWidget = InterfaceFactory(IQTextWidget)
-__all__.append('interface_IQTextWidget')
+IQTextWidget = InterfaceFactory(IQTextWidget)
+__all__.append('IQTextWidget')
 
-LPyApplet = ObjectFactory(name='openalea:LPyApplet', 
+IHelper = InterfaceFactory(IHelper)
+__all__.append('IHelper')
+
+
+HelpWidget = ObjectFactory(name='HelpWidget', 
+                          description="Help Widget", 
+                          category="helpers", 
+                          interfaces=["IHelper"], 
+                          nodemodule="openalea.oalab.gui.help", 
+                          nodeclass="HelpWidget")
+__all__.append('HelpWidget')
+
+LPyApplet = ObjectFactory(name='LPyApplet', 
                           description="LPyApplet", 
                           category="applets", 
-                          interfaces=["openalea:IParadigmApplet"], 
+                          interfaces=["IParadigmApplet"], 
                           nodemodule="openalea.oalab.plugins.lpy", 
                           nodeclass="LPyApplet")
 __all__.append('LPyApplet')
 
 
-PythonApplet = ObjectFactory(name='openalea:PythonApplet', 
+PythonApplet = ObjectFactory(name='PythonApplet', 
                           description="PythonApplet", 
                           category="applets", 
-                          interfaces=["openalea:IParadigmApplet"], 
+                          interfaces=["IParadigmApplet"], 
                           nodemodule="openalea.oalab.plugins.python", 
                           nodeclass="PythonApplet")
 __all__.append('PythonApplet')
 
 
-RApplet = ObjectFactory(name='openalea:RApplet', 
+RApplet = ObjectFactory(name='RApplet', 
                           description="RApplet", 
                           category="applets", 
-                          interfaces=["openalea:IParadigmApplet"], 
+                          interfaces=["IParadigmApplet"], 
                           nodemodule="openalea.oalab.plugins.r", 
                           nodeclass="RApplet")
 __all__.append('RApplet')
 
 
-VisualeaApplet = ObjectFactory(name='openalea:VisualeaApplet', 
+VisualeaApplet = ObjectFactory(name='VisualeaApplet', 
                           description="VisualeaApplet", 
                           category="applets", 
-                          interfaces=["openalea:IParadigmApplet"], 
+                          interfaces=["IParadigmApplet"], 
                           nodemodule="openalea.oalab.plugins.visualea", 
                           nodeclass="VisualeaApplet")
 __all__.append('VisualeaApplet')

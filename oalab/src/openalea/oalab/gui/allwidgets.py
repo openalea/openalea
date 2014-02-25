@@ -47,6 +47,7 @@ class AllWidgets(QtGui.QWidget):
         
         self.project_manager = ProjectManager(session=self.session, controller=self, parent=self)
 
+        self.helper = self.applets['HelpWidget']
         self.applets['Packages'] = PackageViewWidget(session=self.session, controller=self, parent=self)
         self.applets['PackageCategories'] = PackageCategorieViewWidget(session=self.session, controller=self, parent=self)
         self.applets['PackageSearch'] = PackageSearchWidget(session=self.session, controller=self, parent=self)

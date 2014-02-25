@@ -1,6 +1,6 @@
 
 class IQTextWidget(object):
-    identifier = 'openalea:IQTextWidget' # Unique identifier
+    identifier = 'IQTextWidget' # Unique identifier
     name = 'IQTextWidget' # Human readable name
 
     def setText(self, text):
@@ -8,3 +8,10 @@ class IQTextWidget(object):
 
     def text(self):
         pass
+
+class IHelper(object):
+    identifier = 'IHelper'
+
+    def setText(self, text):
+        pass
+
