@@ -1,4 +1,7 @@
 
+class Info(object):
+    pass
+
 class XyzHandler(object):
     def read(self, filepath):
         print 'read %s' % filepath
