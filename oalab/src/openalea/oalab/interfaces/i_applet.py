@@ -2,7 +2,7 @@
 from openalea.core.factory_decorator import inputs
 
 class IApplet(object):
-    identifier = 'openalea:IApplet' # Unique identifier
+    identifier = 'IApplet' # Unique identifier
     name = 'IApplet' # Human readable name
 
     def __init__(self, session, controller, parent=None):

@@ -2,7 +2,7 @@
 from .i_applet import IApplet
 
 class IParadigmApplet(IApplet):
-    identifier = 'openalea:IParadigmApplet' # Unique identifier
+    identifier = 'IParadigmApplet' # Unique identifier
     name = 'IParadigmApplet' # Human readable name
 
     def __init__(self, session, controller, parent=None):
