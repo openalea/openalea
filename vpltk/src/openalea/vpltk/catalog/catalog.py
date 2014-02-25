@@ -44,6 +44,7 @@ class Catalog(object):
 
         self._services = {}
         self._interfaces = {}
+        self._lowername = {}
 
         paths = site.getsitepackages()
         usersite = site.getusersitepackages()
@@ -78,6 +79,7 @@ class Catalog(object):
                 for parent in inspect.getmro(interface):
                     if hasattr(parent, 'identifier'):
                         self._interfaces[parent.identifier] = parent
+                        self._lowername[parent.identifier.lower()[1:]]=parent.identifier
 
     def get_interface_class(self, interface):
         interface_id = self.get_interface_id(interface)

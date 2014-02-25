@@ -23,7 +23,7 @@ from openalea.core.signature import Signature
 
 class InterfaceFactory(NodeFactory):
     def __init__(self, interface, **kargs):
-        name = interface.identifier
+        name = interface.__name__
         description = interface.__doc__
         category='interfaces'
 
