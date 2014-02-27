@@ -928,3 +928,137 @@ class DiscreteTimeEvaluation(AbstractEvaluation):
 
         return False
 
+
+###############################################################################
+class SciFlowareEvaluation(AbstractEvaluation):
+    """ Distributed Evaluation algorithm with SciFloware backend"""
+    __evaluators__.append("SciFlowareEvaluation")
+
+    def __init__(self, dataflow):
+
+        AbstractEvaluation.__init__(self, dataflow)
+
+        # a property to specify if the node has already been evaluated
+        self._evaluated = set()
+
+        self._scifloware_actors = set()
+
+    @staticmethod
+    def is_operator(actor):
+        from openalea.scifloware.operator import algebra
+        factory = actor.factory
+        if factory is None:
+            return False
+        if 'SciFloware' not in factory.package.name:
+            return False
+        elif factory.name in algebra:
+            return True 
+        else:
+            return False
+    
+    def scifloware_actors(self):
+        """ Compute the scifloware actors.
+
+        Only those actors will be evaluated.
+        """
+
+
+        df = self._dataflow
+        self._scifloware_actors.clear()
+        for vid in df.vertices():
+            actor = df.actor(vid)
+            if self.is_operator(actor):
+                self._scifloware_actors.add(vid)
+
+
+    def eval_vertex(self, vid):
+        """ Evaluate the vertex vid 
+
+        This evaluation is both a kind of compilation and real evaluation.
+        Algorithm
+        ---------
+        For each vertex which is a SciFloware operator (e.g. map, reduce, ...),
+            - select the vertices connected to each input port
+            - if the name of the port is Dataflow:
+                - get its name and send it as input to the operator
+            - else
+                - normal evaluation 
+
+        """
+
+        #print "Step ", self._current_cycle
+
+        df = self._dataflow
+        actor = df.actor(vid)
+
+        is_op = vid in self._scifloware_actors
+        self._evaluated.add(vid)
+
+        #assert self.is_operator(actor)
+
+        # For each inputs
+        # Compute the nodes
+        for pid in df.in_ports(vid):
+            inputs = []
+
+            is_dataflow = False
+            if is_op:
+                name = actor.get_input_port(df.local_id(pid))['name']
+                if name.lower() == 'dataflow':
+                    is_dataflow = True
+
+            if is_dataflow:
+                out_ports = list(df.connected_ports(pid))
+                nb_out = len(out_ports)
+                if nb_out > 1:
+                    raise Exception('Too many nodes connected to the SciFloware operator.')
+                elif nb_out == 1:
+                    out_actor = df.actor(df.vertex(out_ports[0]))
+                    dataflow_name = out_actor.factory.package.name+':'+out_actor.factory.name
+                    actor.set_input(df.local_id(pid), dataflow_name)
+            else:
+                cpt = 0
+                # For each connected node
+                for npid, nvid, nactor in self.get_parent_nodes(pid):
+                    # Do no reevaluate the same node
+                    
+
+                    if not self.is_stopped(nvid, nactor):
+                        self.eval_vertex(nvid)
+
+                    inputs.append(nactor.get_output(df.local_id(npid)))
+                    cpt += 1
+
+                # set input as a list or a simple value
+                if (cpt == 1):
+                    inputs = inputs[0]
+                if (cpt > 0):
+                    actor.set_input(df.local_id(pid), inputs)
+
+        self.eval_vertex_code(vid)
+
+
+    def eval(self, vtx_id=None, **kwds):
+        t0 = clock()
+
+        df = self._dataflow
+        self.scifloware_actors()
+
+        if (vtx_id is not None):
+            leafs = [(vtx_id, df.actor(vtx_id))]
+        else:
+            # Select the leafs (list of (vid, actor))
+            leafs = [(vid, df.actor(vid))
+                for vid in df.vertices() if df.nb_out_edges(vid)==0]
+
+        leafs.sort(cmp_priority)
+
+        # Execute
+        for vid, actor in leafs:
+            self.eval_vertex(vid)
+
+        t1 = clock()
+        if quantify:
+            print "Evaluation time: %s"%(t1-t0)
+
+        return False
