@@ -1,5 +1,4 @@
 
-
 """
 This file demonstrates how to create views for graphs from the
 `networkx <http://networkx.lanl.gov/_>` toolkit. This toolkit
@@ -9,19 +8,43 @@ them.
 """
 
 import networkx as nx
-from openalea.grapheditor.all import Observed, GraphAdapterBase
+from openalea.grapheditor.all import  Observed, GraphAdapterBase
+import weakref
+
+
+class NxObservedVertex(Observed):
+
+    def __init__(self, graph, identifier):
+        Observed.__init__(self)
+        self.identifier = identifier
+        self.g = weakref.ref(graph)
+
+    def notify_position(self, pos):
+        self.notify_listeners(("metadata_changed", "position", pos))
+
+    def notify_update(self, **kwargs):
+        for item in kwargs.iteritems():
+            self.notify_listeners(item)
+
+        pos = self.g().node[self]["position"]
+        self.notify_position(pos)
+
+    def __setitem__(self, key, value):
+        self.g().node[self][key] = value
+        self.notify_update()
+
+    def __getitem__(self, key):
+        return self.g().node[self][key]
 
 class NXObservedGraph( GraphAdapterBase, Observed ):
     """An adapter to networkx.Graph"""
     def __init__(self):
         GraphAdapterBase.__init__(self)
         Observed.__init__(self)
-        self.count = 0
         self.set_graph(nx.Graph())
 
-    def new_vertex(self, **kwargs):
-        vtx = self.count#NXObservedNode(self.graph)
-        self.count += 1
+    def new_vertex(self, vid, **kwargs):
+        vtx = NxObservedVertex(self.graph, vid)
         self.add_vertex(vtx, **kwargs)
         return vtx
 
@@ -29,60 +52,48 @@ class NXObservedGraph( GraphAdapterBase, Observed ):
         if vertex in self.graph:
             return
         else:
-            position = kwargs.pop("position", [0,0,0])
-            self.graph.add_node(vertex, position=position, **kwargs)
+            if "position" not in kwargs : 
+                kwargs["position"] = [0., 0.]
+            else:
+                kwargs["position"] = map(float, kwargs["position"])
+            if "color" not in kwargs :
+                kwargs["color"] = QtGui.QColor(0, 0, 0)
+
+            self.graph.add_node(vertex, **kwargs)
             self.notify_listeners(("vertex_added", ("vertex", vertex)))
 
     def remove_vertex(self, vertex):
-        g = self.graph
-        edges = g.edges([vertex])
+        edges = self.graph.edges([vertex])
         for src, tgt in edges:
             self.remove_edge(src, tgt)
-        g.remove_node(vertex)
+        self.graph.remove_node(vertex)
         self.notify_listeners(("vertex_removed", ("vertex",vertex)))
 
     def add_edge(self, src_vertex, tgt_vertex, **kwargs):
-        g = self.graph
         edge = [src_vertex, tgt_vertex]
         edge.sort(lambda x, y: cmp(id(x), id(y)))
         edge = tuple(edge)
-        print "add", edge
-        if g.has_edge(*edge):
+        if self.graph.has_edge(*edge):
             return
         else:
-            g.add_edge(*edge, **kwargs)
+            self.graph.add_edge(*edge, **kwargs)
             self.notify_listeners(("edge_added", ("default", edge, src_vertex, tgt_vertex)))
 
     def remove_edge(self, src_vertex, tgt_vertex):
         edge =  [src_vertex, tgt_vertex]
         edge.sort(lambda x, y: cmp(id(x), id(y)))
         edge = tuple(edge)
-        print "remove", edge
         self.graph.remove_edge(edge[0], edge[1])
         self.notify_listeners(("edge_removed", ("default",edge)))
 
     def remove_edges(self, edges):
         GraphAdapterBase.remove_edges(self, (e for e in edges))
 
-    # -- not in the adapter interface (yet): --
-    def set_vertex_data(self, vertex, **kwargs):
-        if vertex in self.graph:
-            self.graph.node[vertex].update(kwargs)
-            pos = kwargs.get('position', None)
-            if pos:
-                self.notify_listeners(("vertex_event",
-                                       (vertex,
-                                        ("metadata_changed", "position", pos))))
-
-    def set_edge_data(self, edge_proxy, **kwargs):
-        #nothing right now"
-        pass
 
 #------------------------
 # -- the graph qt view --
 #------------------------
-import sys
-from openalea.vpltk.qt import QtGui, QtCore
+from PyQt4 import QtGui, QtCore
 from openalea.grapheditor.qt import (Vertex, View, mixin_method,
                                      QtGraphStrategyMaker,
                                      DefaultGraphicalEdge,
@@ -90,27 +101,12 @@ from openalea.grapheditor.qt import (Vertex, View, mixin_method,
                                      DefaultGraphicalVertex)
 from random import randint as rint # for random colors
 
-
-
-class GraphicalNode( DefaultGraphicalVertex  ):
+class GraphicalNode( DefaultGraphicalVertex ):
     def initialise_from_model(self):
         self.setPos(QtCore.QPointF(*self.graph().graph.node[self.vertex()]["position"]))
         color = self.graph().graph.node[self.vertex()]["color"]
         brush = QtGui.QBrush(color)
         self.setBrush(brush)
-
-    def store_view_data(self, **kwargs):
-        pos = kwargs.get('position', None)
-        if pos is not None:
-            self.graph().set_vertex_data(self.vertex(), position=pos)
-        return None
-
-    def get_view_data(self, key):
-        return self.graph().graph.node[self.vertex()][key]
-
-    def store_view_data(self, **kwargs):
-        """This call is executed while self is in "deaf" mode to avoid infinite loops"""
-
 
 
 class GraphicalView( View ):
@@ -138,7 +134,6 @@ class GraphicalView( View ):
         event.setAccepted(True)
 
 
-
 #-------------------------
 # -- the graph strategy --
 #-------------------------
@@ -155,24 +150,23 @@ class MainWindow(QtGui.QMainWindow):
         QtGui.QMainWindow.__init__(self, parent)
 
         self.setMinimumSize(800,600)
+
         self.__graph = NXObservedGraph()
         self.__graphView = GraphicalGraph.create_view(self.__graph, parent=self)
+        nodes = []
         for p in range(100):
-            self.__graph.add_vertex(p, position=[rint(0,200), rint(0,200)],
+            node = self.__graph.new_vertex(p, position=[rint(0,200), rint(0,200)],
                                    color=QtGui.QColor(rint(0,255),rint(0,255),rint(0,255)))
+            nodes.append(node)
         for p in range(100):
-            self.__graph.add_edge(rint(0,100), rint(0,100))
+            self.__graph.add_edge(nodes[rint(0,99)], nodes[rint(0,99)])
 
         self.setCentralWidget(self.__graphView)
 
 
-#THE ENTRY POINT
-def main(argv):
-    app = QtGui.QApplication(["GraphEditor and Networkx Demo"])
-    QtGui.QApplication.processEvents()
+if __name__=="__main__":
+
+    app = QtGui.QApplication([])
     win = MainWindow()
     win.show()
-    return app.exec_()
-
-if __name__=="__main__":
-    main(sys.argv)
+    app.exec_()
