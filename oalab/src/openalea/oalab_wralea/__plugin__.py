@@ -14,25 +14,13 @@ __editable__ = 'True'
 __icon__ = ''
 __alias__ = []
 
-__all__ = []
-
-from openalea.vpltk.catalog.factories import InterfaceFactory, ObjectFactory
+# Declare interfaces
 from openalea.oalab.interfaces.all import (IApplet, IParadigmApplet, 
                                            IQTextWidget, IHelper)
+__all__ = ['IApplet', 'IParadigmApplet', 'IQTextWidget', 'IHelper']
 
-IApplet = InterfaceFactory(IApplet)
-__all__.append('IApplet')
-
-IParadigmApplet = InterfaceFactory(IParadigmApplet)
-__all__.append('IParadigmApplet')
-
-IQTextWidget = InterfaceFactory(IQTextWidget)
-__all__.append('IQTextWidget')
-
-IHelper = InterfaceFactory(IHelper)
-__all__.append('IHelper')
-
-
+# Declare object factories
+from openalea.vpltk.catalog.factories import ObjectFactory
 HelpWidget = ObjectFactory(name='HelpWidget', 
                           description="Help Widget", 
                           category="helpers", 

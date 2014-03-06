@@ -1,9 +1,9 @@
 
 from openalea.core.factory_decorator import inputs
+from openalea.vpltk.catalog.interface import IInterface
 
-class IApplet(object):
-    identifier = 'IApplet' # Unique identifier
-    name = 'IApplet' # Human readable name
+class IApplet(IInterface):
+    name = 'IApplet' # Unique identifier
 
     def __init__(self, session, controller, parent=None):
         """
