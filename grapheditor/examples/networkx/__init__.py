@@ -23,8 +23,8 @@ class NxObservedVertex(Observed):
         self.notify_listeners(("metadata_changed", "position", pos))
 
     def notify_update(self, **kwargs):
-        for item in kwargs.iteritems():
-            self.notify_listeners(item)
+        for k, v in kwargs.iteritems():
+            self.notify_listeners(("metadata_changed", k, v))
 
         pos = self.g().node[self]["position"]
         self.notify_position(pos)
@@ -43,7 +43,7 @@ class NXObservedGraph( GraphAdapterBase, Observed ):
         Observed.__init__(self)
         self.set_graph(nx.Graph())
 
-    def new_vertex(self, vid, **kwargs):
+    def new_vertex(self, vid=None, **kwargs):
         vtx = NxObservedVertex(self.graph, vid)
         self.add_vertex(vtx, **kwargs)
         return vtx
@@ -89,6 +89,15 @@ class NXObservedGraph( GraphAdapterBase, Observed ):
     def remove_edges(self, edges):
         GraphAdapterBase.remove_edges(self, (e for e in edges))
 
+    # -- not in the adapter interface (yet): --
+    def set_vertex_data(self, vertex, **kwargs):
+        if vertex in self.graph:
+            for k, v in kwargs.iteritems():
+                self.graph.node[vertex][k]=v
+
+    def set_edge_data(self, edge_proxy, **kwargs):
+        #nothing right now"
+        pass
 
 #------------------------
 # -- the graph qt view --
@@ -108,6 +117,11 @@ class GraphicalNode( DefaultGraphicalVertex ):
         brush = QtGui.QBrush(color)
         self.setBrush(brush)
 
+    def store_view_data(self, **kwargs):
+        self.graph().set_vertex_data(self.vertex(), **kwargs)
+
+    def get_view_data(self, key):
+        return self.graph().graph.node[self.vertex()][key]
 
 class GraphicalView( View ):
     def __init__(self, parent):
@@ -142,7 +156,6 @@ GraphicalGraph = QtGraphStrategyMaker( graphView       = GraphicalView,
                                        edgeWidgetMap   = {"default":DefaultGraphicalEdge,
                                                           "floating-default":DefaultGraphicalFloatingEdge} )
 
-
 #THE APPLICATION'S MAIN WINDOW
 class MainWindow(QtGui.QMainWindow):
     def __init__(self, parent=None):
@@ -151,22 +164,36 @@ class MainWindow(QtGui.QMainWindow):
 
         self.setMinimumSize(800,600)
 
-        self.__graph = NXObservedGraph()
-        self.__graphView = GraphicalGraph.create_view(self.__graph, parent=self)
+        self.graph = NXObservedGraph()
+        self.graphView = GraphicalGraph.create_view(self.graph, parent=self)
         nodes = []
-        for p in range(100):
-            node = self.__graph.new_vertex(p, position=[rint(0,200), rint(0,200)],
+        nmax = 100
+        emax = 100
+        for p in range(nmax):
+            node = self.graph.new_vertex(p, position=[rint(0,200), rint(0,200)],
                                    color=QtGui.QColor(rint(0,255),rint(0,255),rint(0,255)))
             nodes.append(node)
-        for p in range(100):
-            self.__graph.add_edge(nodes[rint(0,99)], nodes[rint(0,99)])
+        for p in range(emax):
+            self.graph.add_edge(nodes[rint(0,nmax-1)], nodes[rint(0,nmax-1)])
 
-        self.setCentralWidget(self.__graphView)
+        self.setCentralWidget(self.graphView)
 
 
 if __name__=="__main__":
 
-    app = QtGui.QApplication([])
+    instance = QtGui.QApplication.instance()
+    if instance is None :
+        app = QtGui.QApplication([])
+    else :
+        app = instance
+
     win = MainWindow()
     win.show()
-    app.exec_()
+
+
+    graph = win.graph
+    nxgraph = graph.graph
+    view = win.graphView
+
+    if instance is None :
+        app.exec_()
