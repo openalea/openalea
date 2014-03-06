@@ -75,7 +75,7 @@ class Catalog(object):
 
     def _load_interfaces(self):
         # load all interfaces defined in __plugin__.py files.
-        for pl in self.get_factories(tags=['plugin']):
+        for pl in self.factories(tags=['plugin']):
             if inspect.isclass(pl) and issubclass(pl, IInterface):
                 interface = pl
                 for parent in inspect.getmro(interface):
@@ -83,14 +83,11 @@ class Catalog(object):
                         self._interfaces[parent.name] = parent
                         self._lowername[parent.name.lower()[1:]]=parent.name
 
-    def get_interface(self, name):
-        interface_id = self.get_interface_id(name)
+    def interface(self, name):
+        interface_id = self.interface_id(name)
         return self._interfaces.get(interface_id)
 
-    def get_interfaces(self):
-        return self._interfaces.iterkeys()
-
-    def get_interface_id(self, interface):
+    def interface_id(self, interface):
         if isinstance(interface, basestring):
             return interface
         elif inspect.isclass(interface) and issubclass(interface, IInterface):
@@ -104,24 +101,24 @@ class Catalog(object):
             raise NotImplementedError
 
 
-    def interfaces(self, obj):
-        all_interfaces = set()
+    def interfaces(self, obj=None):
         if obj is None :
-            return all_interfaces
+            return self._interfaces
+        all_interfaces = set()
 
         # Check interfaces defined in openalea factories
         if hasattr(obj, '__interfaces__'):
             for interface in obj.__interfaces__:
-                interface_id = self.get_interface_id(interface)
+                interface_id = self.interface_id(interface)
                 if interface_id in self._interfaces:
                     # Search parent interfaces
                     interface = self._interfaces[interface_id]
                     for parent in inspect.getmro(interface):
-                        parent_id = self.get_interface_id(parent)
+                        parent_id = self.interface_id(parent)
                         all_interfaces.add(parent_id)
                 else :
                     # Cannot reach real interface class, so add it directly
-                    all_interfaces.add(self.get_interface_id(interface))
+                    all_interfaces.add(self.interface_id(interface))
 
         if not inspect.isclass(obj):
             obj = obj.__class__
@@ -129,7 +126,7 @@ class Catalog(object):
         # Check interfaces defined using traits.provides
         if hasattr(obj, '__implements__'):
             for interface in obj.__implements__.getBases():
-                all_interfaces.add(self.get_interface_id(interface))
+                all_interfaces.add(self.interface_id(interface))
 
         return all_interfaces
 
@@ -141,7 +138,7 @@ class Catalog(object):
         if isinstance(interface, abc.ABCMeta):
             return isinstance(obj, interface)
         else :
-            return self.get_interface_id(interface) in self.interfaces(obj)
+            return self.interface_id(interface) in self.interfaces(obj)
 
     def is_implementation_old(self, obj, interface):
         # If interface is not defined, it means no constrains so return True
@@ -201,7 +198,7 @@ class Catalog(object):
                         lst.append(factory)
         return lst
 
-    def get_factories(self, interfaces=None, name=None, tags=None, exclude_tags=None):
+    def factories(self, interfaces=None, name=None, tags=None, exclude_tags=None):
         """
         exclude_tags: if tags is not specified, scan all tags except one defined in exclude_tags
         """
@@ -230,8 +227,8 @@ class Catalog(object):
 
         return lst
 
-    def get_factory(self, interfaces=None, name=None, tags=None, exclude_tags=None):
-        lst = self.get_factories(interfaces, name, tags, exclude_tags)
+    def factory(self, interfaces=None, name=None, tags=None, exclude_tags=None):
+        lst = self.factories(interfaces, name, tags, exclude_tags)
         if lst :
             return lst[0]
 
@@ -255,24 +252,24 @@ class Catalog(object):
         return service
 
 
-    def get_service(self, interfaces=None, name=None, tags=None, exclude_tags=None, args=None, kargs=None):
+    def service(self, interfaces=None, name=None, tags=None, exclude_tags=None, args=None, kargs=None):
         if args is None :
             args = []
         if kargs is None :
             kargs = {}
         if exclude_tags is None :
             exclude_tags = ['wralea']
-        object_factory = self.get_factory(interfaces, name, tags, exclude_tags)
+        object_factory = self.factory(interfaces, name, tags, exclude_tags)
         return self.create_service(object_factory)
 
-    def get_services(self, interfaces=None, name=None, tags=None, exclude_tags=None, args=None, kargs=None):
+    def services(self, interfaces=None, name=None, tags=None, exclude_tags=None, args=None, kargs=None):
         if args is None :
             args = []
         if kargs is None :
             kargs = {}
         if exclude_tags is None :
             exclude_tags = ['wralea']
-        object_factories = self.get_factories(interfaces, name, tags, exclude_tags)
+        object_factories = self.factories(interfaces, name, tags, exclude_tags)
         services = []
         for object_factory in object_factories :
             services.append(self.create_service(object_factory, *args, **kargs))

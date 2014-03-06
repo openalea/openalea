@@ -24,22 +24,22 @@ class Controller(object):
         except AttributeError:
             if attrib in self._implementations :
                 if attrib[0] in string.lowercase:
-                    value = self.catalog.get_service(interfaces=self.catalog._lowername[attrib])
+                    value = self.catalog.service(interfaces=self.catalog._lowername[attrib])
                 else:
-                    value = self.catalog.get_factory(interfaces=self.catalog._lowername[attrib.lower()], tags=['plugin'])
+                    value = self.catalog.factory(interfaces=self.catalog._lowername[attrib.lower()], tags=['plugin'])
             else :
                 if attrib.startswith('I'):
-                    value = self.catalog.get_interface_class(attrib)
+                    value = self.catalog.interface(attrib)
                 elif attrib[0] in string.lowercase:
                     if attrib.endswith('s'):
-                        value = self.catalog.get_services(interfaces=self.catalog._lowername[attrib[:-1]])
+                        value = self.catalog.services(interfaces=self.catalog._lowername[attrib[:-1]])
                     else:
-                        value = self.catalog.get_service(interfaces=self.catalog._lowername[attrib])
+                        value = self.catalog.service(interfaces=self.catalog._lowername[attrib])
                 else:
                     if attrib.endswith('s'):
-                        value = self.catalog.get_factories(interfaces=self.catalog._lowername[attrib.lower()[:-1]], tags=['plugin'])
+                        value = self.catalog.factories(interfaces=self.catalog._lowername[attrib.lower()[:-1]], tags=['plugin'])
                     else:
-                        value = self.catalog.get_factory(interfaces=self.catalog._lowername[attrib.lower()], tags=['plugin'])
+                        value = self.catalog.factory(interfaces=self.catalog._lowername[attrib.lower()], tags=['plugin'])
 
         return value
 
@@ -48,11 +48,11 @@ class Controller(object):
             value = super(Controller, self).__getattr__(attrib)
         except AttributeError:
             if attrib.startswith('I') and attrib in self._implementations:
-                value = self.catalog.get_factory(interfaces=self.catalog._lowername[attrib.lower()], tags=['plugin'])
+                value = self.catalog.factory(interfaces=self.catalog._lowername[attrib.lower()], tags=['plugin'])
             elif attrib.startswith('I'):
-                value = self.catalog.get_interface_class(attrib)
+                value = self.catalog.interface(attrib)
             elif attrib[0] in string.lowercase:
-                value = self.catalog.get_service(interfaces=self.catalog._lowername[attrib])
+                value = self.catalog.service(interfaces=self.catalog._lowername[attrib])
             else:
-                value = self.catalog.get_factory(interfaces=self.catalog._lowername[attrib.lower()], tags=['plugin'])
+                value = self.catalog.factory(interfaces=self.catalog._lowername[attrib.lower()], tags=['plugin'])
         return value
