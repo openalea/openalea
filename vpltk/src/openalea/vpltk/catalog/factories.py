@@ -18,34 +18,9 @@
 #
 ###############################################################################
 
+__all__ =  ['ObjectFactory']
+
 from openalea.core.node import NodeFactory
-from openalea.core.signature import Signature
-
-class InterfaceFactory(NodeFactory):
-    def __init__(self, interface, **kargs):
-        name = interface.__name__
-        description = interface.__doc__
-        category='interfaces'
-
-        if hasattr(interface, '__authors__'):
-            authors = interface.__authors__
-        else :
-            authors = ''
-
-        s = Signature(interface.__init__)
-
-        super(InterfaceFactory, self).__init__(name=name,
-                 description=description,
-                 category=category,
-                 inputs=s.parameters,
-                 outputs=None,
-                 authors=authors)
-
-        self.interface = interface
-
-    def instantiate(self):
-        return self.interface
-
 
 class ObjectFactory(NodeFactory):
     def __init__(self,

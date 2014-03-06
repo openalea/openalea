@@ -1,30 +1,32 @@
 
-class IInfo(object):
-    identifier = 'IInfo'
+from openalea.vpltk.catalog.interface import IInterface
 
-class IReader(object):
-    identifier = 'IReader'
+class IInfo(IInterface):
+    name = 'IInfo'
+
+class IReader(IInterface):
+    name = 'IReader'
 
     def read(self, filepath):
         raise NotImplementedError
 
-class IWriter(object):
-    identifier = 'IWriter'
+class IWriter(IInterface):
+    name = 'IWriter'
 
     def write(self, filepath, data):
         raise NotImplementedError
 
-class IXyzRepr(object):
-    identifier = 'IXyzRepr'
+class IXyzRepr(IInterface):
+    name = 'IXyzRepr'
 
 class IXyzReader(IReader):
-    identifier = 'IXyzReader'
+    name = 'IXyzReader'
 
     def read(self, filepath):
         raise NotImplementedError
 
 class IXyzWriter(IWriter):
-    identifier = 'IXyzWriter'
+    name = 'IXyzWriter'
 
     def save(self, filepath, data):
         raise NotImplementedError

@@ -27,11 +27,10 @@ import sys
 from openalea.core.pkgmanager import UnknownPackageError
 from openalea.vpltk.catalog.pluginmanager import PluginManager
 from openalea.core.singleton import Singleton
+from openalea.core.interface import IInterface
 
 
 #TODO: review code for optimizations
-
-from openalea.vpltk.catalog.factories import InterfaceFactory
 
 class Catalog(object):
 
@@ -46,6 +45,7 @@ class Catalog(object):
         self._interfaces = {}
         self._lowername = {}
 
+        # list all path supporting python modules
         paths = site.getsitepackages()
         usersite = site.getusersitepackages()
         if isinstance(usersite, basestring):
@@ -54,6 +54,7 @@ class Catalog(object):
             paths += list(usersite)
         paths += sys.path
 
+        # scan all entry_point and list different groups
         for path in set(paths):
             distribs = pkg_resources.find_distributions(path)
             for distrib in distribs :
@@ -73,16 +74,17 @@ class Catalog(object):
         return lst
 
     def _load_interfaces(self):
+        # load all interfaces defined in __plugin__.py files.
         for pl in self.get_factories(tags=['plugin']):
-            if isinstance(pl, InterfaceFactory):
-                interface = pl.instantiate()
+            if inspect.isclass(pl) and issubclass(pl, IInterface):
+                interface = pl
                 for parent in inspect.getmro(interface):
-                    if hasattr(parent, 'identifier'):
-                        self._interfaces[parent.identifier] = parent
-                        self._lowername[parent.identifier.lower()[1:]]=parent.identifier
+                    if hasattr(parent, 'name'):
+                        self._interfaces[parent.name] = parent
+                        self._lowername[parent.name.lower()[1:]]=parent.name
 
-    def get_interface_class(self, interface):
-        interface_id = self.get_interface_id(interface)
+    def get_interface(self, name):
+        interface_id = self.get_interface_id(name)
         return self._interfaces.get(interface_id)
 
     def get_interfaces(self):
@@ -91,12 +93,16 @@ class Catalog(object):
     def get_interface_id(self, interface):
         if isinstance(interface, basestring):
             return interface
-        if isinstance(interface, InterfaceFactory):
-            return self.get_interface_id(interface.instantiate())
-        if hasattr(interface, 'identifier'):
-            return interface.identifier
-        else :
-            return 'builtin:%s.%s' % (interface.__module__, interface.__name__)
+        elif inspect.isclass(interface) and issubclass(interface, IInterface):
+            if hasattr(interface, 'name'):
+                return interface.name
+            else :
+                return 'builtin:%s.%s' % (interface.__module__, interface.__name__)
+        elif inspect.isclass(interface) :
+            return interface.__name__
+        else:
+            raise NotImplementedError
+
 
     def interfaces(self, obj):
         all_interfaces = set()
@@ -148,18 +154,18 @@ class Catalog(object):
             else:
                 return False
 
-        if isinstance(interface, InterfaceFactory):
-            return self.is_implementation(obj, interface.instantiate().identifier)
+        if inspect.isclass(interface) and issubclass(interface, IInterface):
+            return self.is_implementation(obj, interface.name)
 
         if isinstance(interface, abc.ABCMeta):
             if isinstance(obj, interface):
                 return True
             else :
-                if hasattr(interface, 'identifier'):
-                    identifier = interface.identifier
+                if hasattr(interface, 'name'):
+                    name = interface.name
                 else :
-                    identifier = 'ABCMeta:%s.%s' % (interface.__module__, interface.__name__)
-                    return self.is_implementation(obj, identifier)
+                    name = 'ABCMeta:%s.%s' % (interface.__module__, interface.__name__)
+                    return self.is_implementation(obj, name)
 
 
         # If obj is an instance, use class
@@ -172,7 +178,7 @@ class Catalog(object):
 
         return False
 
-    def _getplugin(self, plugin_type, interfaces, identifier, tags):
+    def _getplugin(self, plugin_type, interfaces, name, tags):
         lst = []
 
         if plugin_type not in self.managers :
@@ -189,13 +195,13 @@ class Catalog(object):
                 pass
             else:
                 for factory in factories.itervalues():
-                    if identifier and factory.name != identifier :
+                    if name and factory.name != name :
                         continue
                     if self.is_implementation(factory, interfaces):
                         lst.append(factory)
         return lst
 
-    def get_factories(self, interfaces=None, identifier=None, tags=None, exclude_tags=None):
+    def get_factories(self, interfaces=None, name=None, tags=None, exclude_tags=None):
         """
         exclude_tags: if tags is not specified, scan all tags except one defined in exclude_tags
         """
@@ -203,7 +209,7 @@ class Catalog(object):
         if tags and exclude_tags:
             print 'tags and exclude_tags are mutually exclusive'
         if exclude_tags is None:
-            exclude_tags = []
+            exclude_tags = ['wralea']
 
         if tags is None :
             tags = self.groups
@@ -213,19 +219,19 @@ class Catalog(object):
 
         # Scan standard entry_points : 1 entry_point = 1 object
         for tag in self._clean_lst(tags) :
-            for ep in pkg_resources.iter_entry_points(tag, identifier) :
+            for ep in pkg_resources.iter_entry_points(tag, name) :
                 if self.is_implementation(ep, interfaces):
                     lst.append(ep)
 
         # Scan openalea entry_points : 1 entry_point = n factories (scan)
         for tag in self.plugin_types:
             if tag in tags :
-                lst += self._getplugin(tag, interfaces, identifier, tags)
+                lst += self._getplugin(tag, interfaces, name, tags)
 
         return lst
 
-    def get_factory(self, interfaces=None, identifier=None, tags=None, exclude_tags=None):
-        lst = self.get_factories(interfaces, identifier, tags, exclude_tags)
+    def get_factory(self, interfaces=None, name=None, tags=None, exclude_tags=None):
+        lst = self.get_factories(interfaces, name, tags, exclude_tags)
         if lst :
             return lst[0]
 
@@ -249,24 +255,24 @@ class Catalog(object):
         return service
 
 
-    def get_service(self, interfaces=None, identifier=None, tags=None, exclude_tags=None, args=None, kargs=None):
+    def get_service(self, interfaces=None, name=None, tags=None, exclude_tags=None, args=None, kargs=None):
         if args is None :
             args = []
         if kargs is None :
             kargs = {}
         if exclude_tags is None :
             exclude_tags = ['wralea']
-        object_factory = self.get_factory(interfaces, identifier, tags, exclude_tags)
+        object_factory = self.get_factory(interfaces, name, tags, exclude_tags)
         return self.create_service(object_factory)
 
-    def get_services(self, interfaces=None, identifier=None, tags=None, exclude_tags=None, args=None, kargs=None):
+    def get_services(self, interfaces=None, name=None, tags=None, exclude_tags=None, args=None, kargs=None):
         if args is None :
             args = []
         if kargs is None :
             kargs = {}
         if exclude_tags is None :
             exclude_tags = ['wralea']
-        object_factories = self.get_factories(interfaces, identifier, tags, exclude_tags)
+        object_factories = self.get_factories(interfaces, name, tags, exclude_tags)
         services = []
         for object_factory in object_factories :
             services.append(self.create_service(object_factory, *args, **kargs))
