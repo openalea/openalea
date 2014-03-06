@@ -1,7 +1,7 @@
+from openalea.vpltk.catalog.interface import IInterface
 
-class IQTextWidget(object):
-    identifier = 'IQTextWidget' # Unique identifier
-    name = 'IQTextWidget' # Human readable name
+class IQTextWidget(IInterface):
+    name = 'IQTextWidget' # Unique identifier
 
     def setText(self, text):
         pass
@@ -9,8 +9,8 @@ class IQTextWidget(object):
     def text(self):
         pass
 
-class IHelper(object):
-    identifier = 'IHelper'
+class IHelper(IInterface):
+    name = 'IHelper'
 
     def setText(self, text):
         pass
