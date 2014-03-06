@@ -1,17 +1,8 @@
 
-from openalea.vpltk.catalog.factories import InterfaceFactory, ObjectFactory
+from openalea.vpltk.catalog.factories import ObjectFactory
 from openalea.vpltk.sample.interfaces import IXyzReader, IXyzWriter, IInfo
+__all__ = ['IXyzReader', 'IXyzWriter', 'IInfo']
 
-__all__ = []
-
-IInfo = InterfaceFactory(IInfo)
-__all__.append('IInfo')
-
-IXyzReader = InterfaceFactory(IXyzReader)
-__all__.append('IXyzReader')
-
-IXyzWriter = InterfaceFactory(IXyzWriter)
-__all__.append('IXyzWriter')
 
 XyzHandler = ObjectFactory(name='XyzHandler', 
                           description="A sample to show interface/implementation mechanism", 

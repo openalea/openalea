@@ -23,7 +23,7 @@ from openalea.vpltk.catalog import Catalog
 
 def color_interface_line(interface_id):
         catalog = Catalog()
-        interface = catalog.get_interface_class(interface_id)
+        interface = catalog.get_interface(interface_id)
         hierarchy = [cl.__name__ for cl in reversed(inspect.getmro(interface)) if cl in catalog._interfaces.values()]
         hierarchy = ' > '.join(hierarchy)
         return '\033[93m%s\033[91m   (%s)\033[0m' % (interface_id, hierarchy)
@@ -36,7 +36,7 @@ def list_interfaces():
     print '=========='
 
     for interface_id in sorted(catalog.get_interfaces()):
-        interface = catalog.get_interface_class(interface_id)
+        interface = catalog.get_interface(interface_id)
         print color_interface_line(interface_id)
         print '       defined in:', interface.__module__
         print
