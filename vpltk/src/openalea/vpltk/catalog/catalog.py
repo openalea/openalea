@@ -30,14 +30,14 @@ from openalea.core.singleton import Singleton
 from openalea.core.interface import IInterface
 
 
-#TODO: review code for optimizations
+#TODO: review code
 
 class Catalog(object):
 
     __metaclass__ = Singleton
 
     def __init__(self, verbose=True):
-        self.plugin_types = ('wralea', 'plugin')
+        self.plugin_types = ('wralea', 'plugin', 'adapters', 'interfaces')
         self.groups = set() 
         self.managers = {}
 
@@ -75,7 +75,7 @@ class Catalog(object):
 
     def _load_interfaces(self):
         # load all interfaces defined in __plugin__.py files.
-        for pl in self.factories(tags=['plugin']):
+        for pl in self.factories(tags=['plugin', 'interfaces']):
             if inspect.isclass(pl) and issubclass(pl, IInterface):
                 interface = pl
                 for parent in inspect.getmro(interface):
@@ -232,9 +232,6 @@ class Catalog(object):
         if lst :
             return lst[0]
 
-    def service(self, object_factory):
-        return self._services[object_factory] if object_factory in self._services else None
-
     def create_service(self, object_factory, *args, **kargs):
         """
         Create a service from object_factory. If object_factory is None, returns None.
@@ -275,3 +272,4 @@ class Catalog(object):
             services.append(self.create_service(object_factory, *args, **kargs))
         return services
 
+CATALOG = Catalog()
