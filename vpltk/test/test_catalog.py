@@ -4,8 +4,8 @@ catalog = Catalog()
 
 def test_services():
 
-    service1 = catalog.get_service(identifier='openalea-test:XyzHandler')
-    service2 = catalog.get_service(identifier='openalea-test:XyzHandler')
+    service1 = catalog.get_service(identifier='XyzHandler')
+    service2 = catalog.get_service(identifier='XyzHandler')
 
     assert service1 is service2
     assert hasattr(service1, 'read')
@@ -13,32 +13,32 @@ def test_services():
 
 def test_get_factories():
 
-    interfaces = catalog.get_interfaces()
-    assert 'openalea-test:IXyzReader' in interfaces
-    assert 'openalea-test:IXyzWriter' in interfaces
+    interfaces = list(catalog.get_interfaces())
+    assert 'IXyzReader' in interfaces
+    assert 'IXyzWriter' in interfaces
 
     factories = catalog.get_factories(tags=['plugin'])
     names = [factory.name for factory in factories]
-    assert 'openalea-test:XyzHandler' in names
+    assert 'XyzHandler' in names
 
-    xyzhandlers = catalog.get_factories(identifier='openalea-test:XyzHandler')
+    xyzhandlers = catalog.get_factories(identifier='XyzHandler')
     assert len(xyzhandlers) == 1
-    xyzhandler = catalog.get_factory(identifier='openalea-test:XyzHandler')
+    xyzhandler = catalog.get_factory(identifier='XyzHandler')
     assert xyzhandler == xyzhandlers[0]
 
 
-    interface_name = 'openalea-test:IXyzReader'
+    interface_name = 'IXyzReader'
     names = [factory.name for factory in catalog.get_factories(interfaces=interface_name)]
 
     assert interface_name not in names
 
-    xyzreader = catalog.get_factory(interfaces='openalea-test:IXyzReader')
-    xyzwriter = catalog.get_factory(interfaces='openalea-test:IXyzWriter')
+    xyzreader = catalog.get_factory(interfaces='IXyzReader')
+    xyzwriter = catalog.get_factory(interfaces='IXyzWriter')
     
-    assert xyzreader.name == xyzwriter.name == 'openalea-test:XyzHandler'
+    assert xyzreader.name == xyzwriter.name == 'XyzHandler'
 
 def test_interface_ids():
-    interface_name = 'openalea-test:IXyzReader'
+    interface_name = 'IXyzReader'
     interface_factory = catalog.get_factory(identifier=interface_name)
     interface = interface_factory.instantiate()
 
@@ -55,7 +55,7 @@ def test_interface_ids():
 
     assert interface == interface_IXyzReader
 
-    factory_name = 'openalea-test:XyzHandler'
+    factory_name = 'XyzHandler'
     assert isinstance(catalog.get_factory(identifier=factory_name).instantiate(), XyzHandler)
     assert isinstance(catalog.get_factory(interfaces=interface).instantiate(), XyzHandler)
     assert isinstance(catalog.get_factory(interfaces=interface_name).instantiate(), XyzHandler)
