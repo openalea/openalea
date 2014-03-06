@@ -2,7 +2,6 @@
 import string
 
 from .catalog import Catalog
-from .factories import InterfaceFactory, ObjectFactory
 
 class Implementation(object): pass
 

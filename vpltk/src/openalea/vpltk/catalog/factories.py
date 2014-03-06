@@ -49,6 +49,7 @@ class ObjectFactory(NodeFactory):
             self.__interfaces__ = []
         else:
             self.__interfaces__ = interfaces
+        self.kargs = kargs
 
     def classobj(self):
         # The module contains the node implementation.
