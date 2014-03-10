@@ -1212,15 +1212,20 @@ class NodeFactory(AbstractFactory):
 
         else:
             # load module
-            (file, pathname, desc) = imp.find_module(modulename, 
-                self.search_path + sys.path)
-
-            sys.path.append(os.path.dirname(pathname))
-            module = imp.load_module(modulename, file, pathname, desc)
-            sys.path.pop()
-
-            if(file):
-                file.close()
+            try:
+                (file, pathname, desc) = imp.find_module(modulename, 
+                    self.search_path + sys.path)
+                
+                sys.path.append(os.path.dirname(pathname))
+                module = imp.load_module(modulename, file, pathname, desc)
+                sys.path.pop()
+                
+                if(file):
+                    file.close()
+                    
+            except ImportError, e:
+                # use the node module
+                module = self.get_node_module()
 
             widgetclass = module.__dict__[self.widgetclass_name]
             return widgetclass(node, parent)
