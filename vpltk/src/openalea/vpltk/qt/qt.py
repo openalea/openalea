@@ -22,7 +22,6 @@ except ImportError:
     try:
         QtCore, QtGui, QtSvg, QT_API = load_qt(api_opts)    
     except ImportError, e :
-        print e
         import warnings
         message = """
     
