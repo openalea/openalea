@@ -8,7 +8,7 @@ try:
     from IPython.external.qt import QtCore, QtGui, QtSvg, QT_API
 except ImportError:
     # Use local IPython qt loader
-    from qt_loaders import (load_qt, QT_API_PYSIDE, QT_API_PYQT)
+    from qt_loaders import (load_qt, QT_API_PYSIDE, QT_API_PYQT, QT_API_PYQT_DEFAULT)
     
     QT_API = os.environ.get('QT_API', None)
     if QT_API not in [QT_API_PYSIDE, QT_API_PYQT, None]:
@@ -19,10 +19,12 @@ except ImportError:
     else:
         api_opts = [QT_API]
     
-    QtCore, QtGui, QtSvg, QT_API = load_qt(api_opts)
-except:
-    import warnings
-    message = """
+    try:
+        QtCore, QtGui, QtSvg, QT_API = load_qt(api_opts)    
+    except ImportError, e :
+        print e
+        import warnings
+        message = """
     
 ===============================================================================
 You are trying to import openalea.vpltk.qt.
@@ -38,9 +40,9 @@ Else, you can continue: api 1 will be used.
 ===============================================================================
 
 """
-    warnings.warn(message)
-    QT_API = 'pyqt'
-    QtCore, QtGui, QtSvg = load_qt()
+        warnings.warn(message)
+        QT_API = QT_API_PYQT_DEFAULT
+        QtCore, QtGui, QtSvg, QT_API = load_qt([QT_API])
     
 os.environ['QT_API'] = QT_API
     
