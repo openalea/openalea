@@ -521,20 +521,16 @@ class SyntaxColor:
         
 def main():        
     # Test the widget independently.
-    from code import InteractiveInterpreter as Interpreter
-    from openalea.visualea.ipyinterpreter import IPyInterpreter
     a = qt.QtGui.QApplication(sys.argv)
 
     # Restore default signal handler for CTRL+C
     import signal; signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-    interpreter = Interpreter()
-    ipyinterpreter = IPyInterpreter(gui="qt4")
     shellclass = get_shell_class()
-    if str(get_shell_class()) == str("IPyShell"):
-        aw = shellclass(ipyinterpreter)
-    else:
-        aw = shellclass(interpreter)
+    interpreterclass = get_interpreter_class()
+    
+    ipyinterpreter = interpreterclass()
+    aw = shellclass(ipyinterpreter)
 
     # static resize
     aw.resize(600,400)
