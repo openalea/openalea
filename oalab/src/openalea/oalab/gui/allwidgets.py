@@ -5,7 +5,7 @@ from openalea.oalab.gui.menu import PanedMenu
 from openalea.vpltk.shell.shell import get_shell_class
 from openalea.oalab.applets.container import AppletContainer
 from openalea.oalab.scene.vplscene import VPLScene
-from openalea.oalab.project.manager import ProjectManager
+from openalea.oalab.project.manager import ProjectManagerWidget
 from openalea.oalab.project.treeview import ProjectLayoutWidget
 from openalea.oalab.package.widgets import PackageViewWidget, PackageCategorieViewWidget, PackageSearchWidget
 from openalea.oalab.gui.store import Store
@@ -45,7 +45,7 @@ class AllWidgets(QtGui.QWidget):
         
         self.applets['Project'] = ProjectLayoutWidget(session=self.session, controller=self, parent=self)
         
-        self.project_manager = ProjectManager(session=self.session, controller=self, parent=self)
+        self.project_manager = ProjectManagerWidget(session=self.session, controller=self, parent=self)
 
         self.helper = self.applets['HelpWidget']
         self.applets['Packages'] = PackageViewWidget(session=self.session, controller=self, parent=self)

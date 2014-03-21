@@ -24,16 +24,16 @@ from openalea.core import settings
 from openalea.core import logger
 from time import gmtime, strftime
 from openalea.plantgl.all import PglTurtle
-from openalea.vpltk.project.project import ProjectManager as PM   
+from openalea.vpltk.project.manager import ProjectManager as PM   
 from openalea.lpy.gui.objectmanagers import get_managers
 from openalea.oalab.control.picklable_curves import geometry_2_piklable_geometry
             
-class ProjectManager(QtGui.QWidget):
+class ProjectManagerWidget(QtGui.QWidget):
     """
     Object which permit to manage projects.
     """
     def __init__(self, session, controller, parent=None):
-        super(ProjectManager, self).__init__()
+        super(ProjectManagerWidget, self).__init__()
 
         self._actions = []
         self.paradigms_actions = []

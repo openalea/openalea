@@ -25,6 +25,7 @@ __revision__ = "$Id: "
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core.path import path
 from openalea.core import settings
+from openalea.oalab.gui import resources_rc
 import os
 
 class ProjectLayoutWidget(QtGui.QWidget):
@@ -310,3 +311,111 @@ class PrjctModel(QtGui.QStandardItemModel):
                 self.old_scene.append(name)
         else:
             pass
+
+
+class PrjctManagerModel(QtGui.QStandardItemModel):
+    """
+    Item model to use TreeView with the project manager.
+    
+    Use: 
+
+        from openalea.vpltk.project.manager import ProjectManager
+        import sys
+        app = QtGui.QApplication(sys.argv)
+        
+        project_manager = ProjectManager()
+        project_manager.discover()
+
+        # Model to transform a project into a tree
+        proj_model = PrjctManagerModel(project_manager)
+
+        # Create tree view and set model
+        treeView = QtGui.QTreeView()
+        treeView.setModel(proj_model)
+        treeView.expandAll()
+
+        # Display
+        treeView.show()
+        app.exec_()
+    """
+    def __init__(self, project_manager, parent=None):
+        super(PrjctManagerModel, self).__init__(parent)
+        self.projects = dict()
+        self.set_proj_manag(project_manager)      
+
+    def set_proj_manag(self, project_manager=None):
+        self.clear()
+        if project_manager is not None:
+            self.projects = project_manager.read_manifests()
+            self._set_levels()
+
+    def _set_levels(self):                           
+        for (project, manifest) in self.projects:
+            name = project.name
+            parentItem = self.invisibleRootItem()
+            item = QtGui.QStandardItem(name)
+            
+            # Propose icon by default.
+            # If project have another one, use it
+            icon = QtGui.QIcon(":/images/resources/openalea_icon2.png")
+            if manifest.has_key("icon"):
+                icon_name = manifest["icon"]
+                if len(icon_name):
+                    if icon_name[0] is not ":":
+                        #local icon
+                        icon_name = path(project.path)/name/icon_name
+                        #else native icon from oalab.gui.resources
+                    icon = QtGui.QIcon(icon_name)
+
+            item.setIcon(icon)
+            parentItem.appendRow(item)
+            
+            for category in manifest.keys():
+                if len(manifest[category]) > 0:
+                    item2 = QtGui.QStandardItem(category)
+                    item.appendRow(item2)
+                else:
+                    # hide name of category if we don't have object of this category
+                    pass
+                
+                if isinstance(manifest[category],list):
+                    for obj in manifest[category]:
+                        item3 = QtGui.QStandardItem(obj)
+                        item2.appendRow(item3)
+                else:    
+                    # Useful for category "localized" which store a bool and not a list
+                    obj = manifest[category]
+                    item3 = QtGui.QStandardItem(obj)
+                    item2.appendRow(item3)
+
+    def _set_level_0_only(self):
+        """
+        Use it if you just want to see projects path
+        """                   
+        for name in self.projects:
+            parentItem = self.invisibleRootItem()
+            item = QtGui.QStandardItem(name)
+            parentItem.appendRow(item)
+
+def main():
+    from openalea.vpltk.project.manager import ProjectManager
+    import sys
+    app = QtGui.QApplication(sys.argv)
+    
+    project_manager = ProjectManager()
+    project_manager.discover()
+
+    # Model to transform a project into a tree
+    proj_model = PrjctManagerModel(project_manager)
+
+    # Create tree view and set model
+    treeView = QtGui.QTreeView()
+    treeView.setModel(proj_model)
+    #treeView.expandAll()
+
+    # Display
+    treeView.show()
+    app.exec_()
+
+if __name__ == "__main__":
+    main()
