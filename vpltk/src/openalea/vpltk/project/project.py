@@ -1,27 +1,4 @@
-"""
----------------------
-How to use module
----------------------        
-You can create load or save a project(P) thanks to the project manager (PM).
-
-When you create or load a P, the PM return a P like here:
-
-.. code-block::
-    PM = ProjectManager()
-    P1 = PM.create('project1')
-    P2 = PM.load('project2')
-    P3 = PM['project2']
-
-You can then manipulate P and these attributes (name, controls, scene, global_workflow)
-.. code-block::
-    P1.controls['newcontrol'] = my_new_control
-    print P1
-
-When you have finished, you can save the project:
-.. code-block::
-    PM.save(P1)    
-    
-    
+"""   
 ---------------------
 Project Architecture
 ---------------------
@@ -84,6 +61,7 @@ class Project(object):
     def __init__(self,project_name, project_path):
         self.name = str(project_name)
         self.path = path_(project_path)
+        self.icon = ""
         self.ns = dict()
         self.controls = dict()
         
@@ -255,6 +233,10 @@ class Project(object):
         manifest = self._load_manifest()
         if manifest.has_key("localized"):
             self.localized = manifest["localized"][0]
+        if manifest.has_key("name"):
+            self.name = manifest["name"][0]
+        if manifest.has_key("icon"):
+            self.icon = manifest["icon"][0]
             
         self.scripts = self._load("scripts")
         self.controls = self._load("controls")
@@ -342,6 +324,7 @@ class Project(object):
                 sub_object = path_(sub_object)
                 if sub_object.isabs():
                     file_ = open(sub_object, "w")
+                    # try, except IOError
                 else:
                     file_ = open(temp_path/sub_object, "w")
                 code = str(object_[sub_object])
@@ -373,6 +356,8 @@ class Project(object):
         config['cache'] = self.cache.keys()
         config['startup'] = self.startup.keys()
         config['localized'] = self.localized
+        config['name'] = self.name
+        config['icon'] = self.icon
 
         config.write()
         
@@ -383,7 +368,6 @@ class Project(object):
         config = ConfigObj(self.path/self.name/"oaproject.cfg")
         return config
 
-        
     def _startup_import(self): 
         use_ip = self.use_ipython()
     
@@ -405,6 +389,8 @@ class Project(object):
     def _create_default_folders(self):
         """
         Create the default folders for the current project
+        
+        TODO: remove it??? and replace by try except IOError in save
         """
         error = False
         
@@ -432,117 +418,4 @@ class Project(object):
     def __repr__(self):
         return "Project named " + str(self.name) + " in path " + str(self.path) + " . Scripts: " + str(self.scripts.keys()) + " . Controls: " + str(self.controls.keys()) + " . Scene: " + str(self.scene.keys())
 
-class ProjectManager(object):
-    """
-    Object which manage projects: creation, loading, saving   
-    Should it be a Singleton?
-    """
-    def __init__(self):
-        super(ProjectManager, self).__init__()
-        self.projects = {}
-        self.cproject = self.empty()
 
-    def get_current(self):
-        return self.cproject
-        
-    def empty(self):
-        """
-        :return: a fake empty project
-        """
-        project_path = path_(settings.get_project_dir())
-        proj = Project(project_name="temp", project_path=project_path)
-        proj.centralized = False
-        return proj
-    
-    def load_empty(self):
-        """
-        :return: the default loaded project
-        """
-        project_path = path_(settings.get_project_dir())       
-        proj = self.load(project_name="temp", project_path=project_path)
-        
-        if proj == -1: #If can't load default project, create it
-            proj = self.empty()
-            
-        return proj
-    
-    def create(self, project_name, project_path=None):
-        """
-        Create new project
-        :return: Project
-        """
-        if project_path is None:    
-            project_path = path_(settings.get_project_dir())
-        
-        proj = Project(project_name, project_path)
-        proj.create()
-        
-        self.projects[proj.name] = proj
-        self.cproject = self.projects[proj.name]
-        return proj
-    
-    def load(self, project_name, project_path=None):
-        """
-        Load existing project
-        
-        :param project_name: name of project to load. Must be a string.
-        :param project_path: path of project to load. Must be a path (see module path.py).
-        Default=None means that the path is the openaelea.core.settings.get_project_dir()
-        :return: Project
-        """
-        if not project_path:    
-            project_path = path_(settings.get_project_dir())
-        
-        full_path = path_(project_path)/project_name
-        
-        if full_path.exists():
-            proj = Project(project_name, project_path)
-            proj.start()
-            
-            self.projects[proj.name] = proj
-            self.cproject = self.projects[proj.name]
-            return proj
-        else:
-            #raise IOError('Project %s in repository %s does not exist' %(project_name,project_path))
-            #print 'Project %s in repository %s does not exist' %(project_name,project_path)
-            return -1
-
-    def close(self, project_name):
-        if project_name in self.projects.keys():
-            del self.projects[project_name]
-            
-    def __getitem__(self, project_name):
-        try:
-            proj = self.load(project_name)
-            return proj
-        except:
-            return self.empty()
-    
-    
-def main():
-    from openalea.vpltk.qt import QtGui
-    from openalea.vpltk.shell.ipythoninterpreter import Interpreter
-    from openalea.vpltk.shell.ipythonshell import ShellWidget
-    import sys
-    
-    # Create Window with IPython shell
-    app = QtGui.QApplication(sys.argv)
-    interpreter = Interpreter()
-    shellwdgt = ShellWidget(interpreter)
-    mainWindow = QtGui.QMainWindow()
-    mainWindow.setCentralWidget(shellwdgt)
-    mainWindow.show()
-
-    # Create Project Manager
-    PM = ProjectManager()
-    
-    # Create or load project
-    project_name = "project_test"
-    proj = PM.load(project_name)
-    proj.shell = shellwdgt
-
-    app.exec_()
-
-    
-if( __name__ == "__main__"):
-    main()                  
