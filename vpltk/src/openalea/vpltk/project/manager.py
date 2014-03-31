@@ -45,45 +45,33 @@ class ProjectManager(object):
     """
     def __init__(self):
         super(ProjectManager, self).__init__()
-        self.projects = {}
-        self.projects_list = []
+        self.projects = []
+        #self.projects_list = []
         self.cproject = self.empty()
-        self.project_paths = [path_(settings.get_project_dir())]
+        self.find_links = [path_(settings.get_project_dir())]
         
         try:
             from openalea import oalab
             from openalea.deploy.shared_data import shared_data
             oalab_dir = shared_data(oalab)
-            self.project_paths.append(path_(oalab_dir))
+            self.find_links.append(path_(oalab_dir))
         except ImportError:
             pass
             
     def discover(self):
-        for project_path in self.project_paths:
+        for project_path in self.find_links:
             for root, dirs, files in os.walk(project_path):
                 if "oaproject.cfg" in files: 
-                    if root not in self.projects_list:
-                        self.projects_list.append(root)
-                    
-    def read_manifests(self):
-        ret = list()
-        # use list instead of dict to permit to various project in different places to have the same name
-        for proj_name in self.projects_list:
-            proj, mani = self.read_project(path_(proj_name))
-            ret.append([proj, mani])
-        return ret
-        
-    def read_project(self, project_path):
-        mani = ConfigObj(path_(project_path)/"oaproject.cfg")
-        project_path, name = path_(project_path).splitpath()
-        if mani.has_key("name"):
-            name = mani["name"]
-        # Create Project object but not start it
-        # To really load project: proj.start()
-        proj = Project(name, project_path)
-        proj
-        return [proj, mani]
-        
+                    if root not in self.projects:
+                        project_path = root
+                        mani = ConfigObj(path_(project_path)/"oaproject.cfg")
+                        project_path, name = path_(project_path).splitpath()
+                        if mani.has_key("name"):
+                            name = mani["name"]
+                        project = Project(name, project_path)
+                        project.load_metadata()
+                        self.projects.append(project)
+                            
     def search(self):
         pass
 
@@ -122,8 +110,8 @@ class ProjectManager(object):
         proj = Project(project_name, project_path)
         proj.create()
         
-        self.projects[proj.name] = proj
-        self.cproject = self.projects[proj.name]
+        #self.projects[proj.name] = proj
+        self.cproject = proj
         return proj
     
     def load(self, project_name, project_path=None):
@@ -144,8 +132,8 @@ class ProjectManager(object):
             proj = Project(project_name, project_path)
             proj.start()
             
-            self.projects[proj.name] = proj
-            self.cproject = self.projects[proj.name]
+            #self.projects[proj.name] = proj
+            self.cproject = proj
             return proj
         else:
             #raise IOError('Project %s in repository %s does not exist' %(project_name,project_path))
@@ -153,8 +141,11 @@ class ProjectManager(object):
             return -1
 
     def close(self, project_name):
-        if project_name in self.projects.keys():
-            del self.projects[project_name]
+        pass
+        # TODO
+        
+        #if project_name in self.projects.keys():
+        #    del self.projects[project_name]
             
     def __getitem__(self, project_name):
         try:
