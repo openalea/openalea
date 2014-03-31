@@ -62,13 +62,18 @@ class Project(object):
         self.name = str(project_name)
         self.path = path_(project_path)
         self.icon = ""
-        self.ns = dict()
-        self.controls = dict()
+        self.authors = ""
+        self.description = ""
+        self.version = "0.1"
+        self.license = "CeCILL-C"
+        self.dependencies = []
+        self.citation = ""
         
         self.localized = True # Set to False if you want to work with files that are outside project
         self.shell = None
         self.set_ipython()
         
+        self.ns = dict()
         self.scripts = dict()
         self.controls = dict()
         self.cache = dict()
@@ -84,7 +89,6 @@ class Project(object):
     # Public API
     #----------------------------------------    
     def create(self):
-        self._create_default_folders()
         self.start()
         
     def start(self):
@@ -97,6 +101,9 @@ class Project(object):
         self.load()
         
     def save(self):
+        root = path_(self.path)/self.name
+        if not root.exists():
+            os.mkdir(root)
         self._save("scripts")
         self._save("controls")
         self._save("startup")
@@ -128,7 +135,23 @@ class Project(object):
 
     def get_scene(self):
         return self.scene
-    
+
+    #----------------------------------------
+    # Get
+    #----------------------------------------    
+    def get(self, category, name):
+        """
+        """
+        if hasattr(self, category):
+            cat = getattr(self, category)
+            if hasattr(cat, name):
+                return cat[name]
+            elif hasattr(cat, "has_key"):
+                # if category is a dict
+                if cat.has_key(name):
+                    return cat[name]
+        return None
+        
     #----------------------------------------
     # Add
     #----------------------------------------        
@@ -141,7 +164,19 @@ class Project(object):
         """
         filename = path_(name)
         
-        self.scripts[filename] = str(script)
+        self.add("scripts", filename, script)
+        
+    def add(self, category, name, value):
+        """
+        Add a script in the project
+        
+        :param name: filename of the script to add (path or str)
+        :param script: to add (string)
+        """
+        if not hasattr(self, category):
+            setattr(self, category, dict())
+        cat = getattr(self, category)
+        cat[name] = value
         
     #----------------------------------------
     # Remove
@@ -183,12 +218,13 @@ class Project(object):
             # Remove on disk
             temp_path = self.path/self.name/"scripts"
             cwd = os.getcwd()
-            os.chdir(temp_path)
-            try:
-                os.remove(str(old_name))
-            except:
-                pass
-            os.chdir(cwd) 
+            if temp_path.exists():
+                os.chdir(temp_path)
+                try:
+                    os.remove(str(old_name))
+                except:
+                    pass
+                os.chdir(cwd) 
         
         if (categorie == "control") or (categorie == "Controls"):
             # Remove in project
@@ -197,13 +233,15 @@ class Project(object):
             
             # Remove on disk
             temp_path = self.path/self.name/"controls"
-            cwd = os.getcwd()
-            os.chdir(temp_path)
-            try:
-                os.remove(str(old_name))
-            except:
-                pass
-            os.chdir(cwd) 
+            
+            if temp_path.exists():
+                cwd = os.getcwd()
+                os.chdir(temp_path)
+                try:
+                    os.remove(str(old_name))
+                except:
+                    pass
+                os.chdir(cwd) 
             
         if (categorie == "scene") or (categorie == "Scene"):
              # Remove in project
@@ -212,39 +250,39 @@ class Project(object):
             
             # Remove on disk
             temp_path = self.path/self.name/"scene"
-            cwd = os.getcwd()
-            try:
-                os.remove(str(old_name))
-            except:
-                pass
-            os.chdir(cwd) 
+            if temp_path.exists():
+                cwd = os.getcwd()
+                try:
+                    os.remove(str(old_name))
+                except:
+                    pass
+                os.chdir(cwd) 
             
         if (categorie == "project"):
             self.name = new_name
-            self._create_default_folders()
             self.save()
             try:
                 (self.path/old_name).removedirs()
             except:
                 pass
             
+    def load_metadata(self):
+        manifest = self._load_manifest()
+        for info in ['name', 'icon', 'authors', 'description', 'version', 'license', 'dependencies']:
+            if manifest.has_key(info):
+                setattr(self, info, manifest[info])
             
     def load(self):
         manifest = self._load_manifest()
-        if manifest.has_key("localized"):
-            self.localized = manifest["localized"][0]
-        if manifest.has_key("name"):
-            self.name = manifest["name"][0]
-        if manifest.has_key("icon"):
-            self.icon = manifest["icon"][0]
-            
+        for info in ['name', 'icon', 'authors', 'description', 'version', 'license', 'dependencies']:
+            if manifest.has_key(info):
+                setattr(self, info, manifest[info])
+
         self.scripts = self._load("scripts")
         self.controls = self._load("controls")
         self.cache = self._load("cache")
         self.scene = self._load("scene")
         self.startup = self._load("startup")
-        
-
         
     #----------------------------------------
     # Protected 
@@ -314,6 +352,9 @@ class Project(object):
         object_ = eval("self.%s"%object_type)
         temp_path = self.path/self.name/object_type
         
+        if not temp_path.exists():
+            os.mkdir(temp_path)
+        
         # Hack to save plantgl object
         if object_type == "scene":
             for sub_object in object_:
@@ -356,8 +397,9 @@ class Project(object):
         config['cache'] = self.cache.keys()
         config['startup'] = self.startup.keys()
         config['localized'] = self.localized
-        config['name'] = self.name
-        config['icon'] = self.icon
+        
+        for info in ['name', 'icon', 'authors', 'description', 'version', 'license', 'dependencies']:
+            config[info] = getattr(self, info)
 
         config.write()
         
@@ -385,35 +427,6 @@ class Project(object):
                 exec(self.startup[s],self.ns)
                 if use_ip:
                     self.shell.runcode(self.startup[s])
-        
-    def _create_default_folders(self):
-        """
-        Create the default folders for the current project
-        
-        TODO: remove it??? and replace by try except IOError in save
-        """
-        error = False
-        
-        try:
-            os.mkdir(self.path/self.name)
-        except OSError:
-            warnings.warn("Directory %s alreay exits in %s" %(self.name,self.path))
-            error = True
-        
-        folders = [self.path/self.name/'scripts',
-                   self.path/self.name/'startup',
-                   self.path/self.name/'controls', 
-                   self.path/self.name/'cache', 
-                   self.path/self.name/'scene' ]
-        try:
-            map(os.mkdir, folders)
-        except OSError:
-            warnings.warn("Directories %s alreay exits in %s\%s" %(folders,self.name,self.path))
-            error = True
-        
-        if error:
-            warnings.warn("---Warning!---\nPlease delete old directories before creating new!")
-            raise OSError("Please delete old directories before creating new!")
         
     def __repr__(self):
         return "Project named " + str(self.name) + " in path " + str(self.path) + " . Scripts: " + str(self.scripts.keys()) + " . Controls: " + str(self.controls.keys()) + " . Scene: " + str(self.scene.keys())
