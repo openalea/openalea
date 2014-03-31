@@ -4,7 +4,7 @@ from openalea.oalab.gui.mainwindow import MainWindow
 from openalea.oalab.applets.container import AppletContainer
 from openalea.oalab.editor.text_editor import TextEditor
 from openalea.oalab.gui.allwidgets import AllWidgets
-from openalea.vpltk.project.project import ProjectManager
+from openalea.vpltk.project.manager import ProjectManager
 from openalea.vpltk.qt import QtGui, QtCore
 import sys
 
