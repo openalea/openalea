@@ -260,7 +260,8 @@ class MainWindow(QtGui.QMainWindow):
         self._dockWidget("Store", controller.applets["Store"], name="OpenAlea Store", position=QtCore.Qt.RightDockWidgetArea)
         
         self._dockWidget("HelpWidget", controller.applets["HelpWidget"], position=QtCore.Qt.RightDockWidgetArea, alias="Help")
-        self._dockWidget("Project", controller.applets["Project"],position=QtCore.Qt.RightDockWidgetArea) # Project Manager
+        self._dockWidget("Project", controller.applets["Project"],position=QtCore.Qt.RightDockWidgetArea)
+        #self._dockWidget("ProjectManager", controller.applets["ProjectManager"],position=QtCore.Qt.RightDockWidgetArea) # Project Manager
         
         self._dockWidget("Shell", controller.shell, name="IPython Shell", position=QtCore.Qt.RightDockWidgetArea)
         self._dockWidget("Logger", controller.applets["Logger"], position=QtCore.Qt.RightDockWidgetArea)

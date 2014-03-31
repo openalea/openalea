@@ -7,6 +7,7 @@ from openalea.oalab.applets.container import AppletContainer
 from openalea.oalab.scene.vplscene import VPLScene
 from openalea.oalab.project.manager import ProjectManagerWidget
 from openalea.oalab.project.treeview import ProjectLayoutWidget
+#from openalea.oalab.project.treeview import PrjctManagerModel
 from openalea.oalab.package.widgets import PackageViewWidget, PackageCategorieViewWidget, PackageSearchWidget
 from openalea.oalab.gui.store import Store
 from openalea.core.path import path
@@ -53,6 +54,17 @@ class AllWidgets(QtGui.QWidget):
         self.applets['PackageSearch'] = PackageSearchWidget(session=self.session, controller=self, parent=self)
 
         self.applets['Logger'] = Logger(session=self.session, controller=self, parent=self)
+        
+        
+        self.session.project_manager.discover()
+        
+        """
+        proj_model = PrjctManagerModel(self.session.project_manager)
+        treeView = QtGui.QTreeView()
+        treeView.setModel(proj_model)
+        treeView.setHeaderHidden(True)
+        self.applets['ProjectManager'] = treeView"""
+
 
         #self.interpreter.locals['ctrl'] = self.applets['ControlPanel']
         #self.interpreter.locals['interp'] = self.interpreter

@@ -10,6 +10,7 @@ enum_position = Enum(['top', 'bottom']) # TODO: check trait declaration
 class MainWindowConfig(Configurable):
 
     project = Bool(True, config=True, help="Display project tree view")
+    project_manager = Bool(True, config=True, help="Display projects available")
     packages = Bool(True, config=True, help="Display package manager")
     packagecategories = Bool(True, config=True, help="Display package manager sorted by categories")
     packagesearch = Bool(True, config=True, help="Display search widget for package manager")

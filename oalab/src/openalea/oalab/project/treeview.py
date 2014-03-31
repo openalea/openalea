@@ -340,17 +340,17 @@ class PrjctManagerModel(QtGui.QStandardItemModel):
     """
     def __init__(self, project_manager, parent=None):
         super(PrjctManagerModel, self).__init__(parent)
-        self.projects = dict()
+        self.projects = []
         self.set_proj_manag(project_manager)      
 
-    def set_proj_manag(self, project_manager=None):
+    def set_proj_manag(self, project_manager):
         self.clear()
-        if project_manager is not None:
-            self.projects = project_manager.read_manifests()
-            self._set_levels()
+        project_manager.discover()
+        self.projects = project_manager.projects
+        self._set_levels()
 
     def _set_levels(self):                           
-        for (project, manifest) in self.projects:
+        for project in self.projects:
             name = project.name
             parentItem = self.invisibleRootItem()
             item = QtGui.QStandardItem(name)
@@ -358,8 +358,8 @@ class PrjctManagerModel(QtGui.QStandardItemModel):
             # Propose icon by default.
             # If project have another one, use it
             icon = QtGui.QIcon(":/images/resources/openalea_icon2.png")
-            if manifest.has_key("icon"):
-                icon_name = manifest["icon"]
+            if hasattr(project, "icon"):
+                icon_name = project.icon
                 if len(icon_name):
                     if icon_name[0] is not ":":
                         #local icon

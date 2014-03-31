@@ -25,7 +25,7 @@ from openalea.core.path import path
 from openalea.core.settings import get_openalea_home_dir
 from openalea.vpltk.shell.shell import get_interpreter_class
 from openalea.vpltk.catalog import Catalog
-
+from openalea.vpltk.project.manager import ProjectManager
 from openalea.oalab.config.main import MainConfig
 
 class Session(object):
@@ -40,6 +40,8 @@ class Session(object):
 
         self._config = MainConfig()
         self.extension = None
+        
+        self.project_manager = ProjectManager()
         
         interpreter_class = get_interpreter_class()
         self.interpreter = interpreter_class() 
