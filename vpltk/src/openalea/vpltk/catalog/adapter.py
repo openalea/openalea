@@ -1,6 +1,8 @@
 
 from openalea.core.singleton import Singleton
 from .catalog import CATALOG
+# TODO
+# global ? CATAL or Catal()
 
 class Register(dict):
 
@@ -24,6 +26,8 @@ class Register(dict):
                         self[(in_, out_)] = adapter
 
 REGISTER = Register()
+# TODO
+# global ?
 
 def adapt(obj, interface, interface_in=None):
     # TODO: detect interface_in from obj
