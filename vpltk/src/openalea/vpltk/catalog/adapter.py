@@ -1,8 +1,6 @@
 
 from openalea.core.singleton import Singleton
-from .catalog import CATALOG
-# TODO
-# global ? CATAL or Catal()
+from .catalog import Catalog
 
 class Register(dict):
 
@@ -11,9 +9,10 @@ class Register(dict):
     def __init__(self):
         dict.__init__(self)
         self._load_adapters()
+        self._catalog = Catalog()
 
     def _load_adapters(self):
-        adapters = CATALOG.factories(interfaces='IAdapter', tags=['adapters'])
+        adapters = self._catalog.factories(interfaces='IAdapter', tags=['adapters'])
         for adapter in adapters :
             try:
                 inputs = adapter.kargs['adapter_inputs']
@@ -24,16 +23,18 @@ class Register(dict):
                 for in_ in inputs:
                     for out_ in outputs:
                         self[(in_, out_)] = adapter
-
-REGISTER = Register()
-# TODO
-# global ?
+    def adapter(self, interface_in, interface_out):
+        key = (interface_in, interface_out)
+        if key in self :
+            return self[key].classobj()
+        else :
+            return None
 
 def adapt(obj, interface, interface_in=None):
     # TODO: detect interface_in from obj
-    key = (interface_in, interface)
-    if key in REGISTER :
-        return REGISTER[key].instantiate(obj)
+    adapter = Register().adapter(interface_in, interface)
+    if adapter :
+        return adapter(obj)
     else :
-        raise TypeError, 'cannot adapt obj type %s to %s' %(interface_in, interface)
+        raise TypeError, 'cannot adapt obj type %s to %s' % (interface_in, interface)
 

@@ -2,24 +2,30 @@
 ---------------------
 How to use module
 ---------------------        
-You can create load or save a project(P) thanks to the project manager (PM).
+You can create load or save a project "p" thanks to the project manager "pm".
 
-When you create or load a P, the PM return a P like here:
+When you create or load a "p", the "pm" return a "p" like here:
 
-.. code-block::
-    PM = ProjectManager()
-    P1 = PM.create('project1')
-    P2 = PM.load('project2')
-    P3 = PM['project2']
+.. code-block:: python
+
+    pm = ProjectManager()
+    p1 = pm.create('project1')
+    p2 = pm.load('project2')
+    p3 = pm['project2']
 
 You can then manipulate P and these attributes (name, controls, scene, global_workflow)
-.. code-block::
-    P1.controls['newcontrol'] = my_new_control
-    print P1
+.. code-block:: python
+
+    p1.controls['newcontrol'] = my_new_control
+    print p1
 
 When you have finished, you can save the project:
-.. code-block::
-    PM.save(P1)    
+By default, project are saved in ~/.openalea/projects
+You can change default directly with
+
+.. code-block:: python
+
+    pm.save(p1)
 
 """
 import os
