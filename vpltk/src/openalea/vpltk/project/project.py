@@ -2,7 +2,7 @@
 ---------------------
 Project Architecture
 ---------------------
-You are here the architecture of the project named "project_name",
+You have here the architecture of the project named "project_name",
 stored in your computer.
 
 /project_name
@@ -24,7 +24,7 @@ from configobj import ConfigObj
 
 def check_unicity(name, all_names):
     """
-    Check if an object with the name 'name' is already register
+    Check if an object with the name 'name' is already registered
     in 'all_names'.
     
     If it is the case, the name is changed ("_1" is append).
@@ -70,6 +70,8 @@ class Project(object):
         self.citation = ""
         
         self.localized = True # Set to False if you want to work with files that are outside project
+        # REVIEW: localized generally references localization (see l10n, http://en.wikipedia.org/wiki/Software_localization)
+        # maybe "embedded" or "local_files" ?
         self.shell = None
         self.set_ipython()
         
@@ -85,6 +87,7 @@ class Project(object):
         
     def is_script(self):
         return False
+
     #----------------------------------------
     # Public API
     #----------------------------------------    
@@ -119,7 +122,7 @@ class Project(object):
             try:
                 # Try to get automatically current IPython shell
                 shell = get_ipython()
-            except:
+            except NameError:
                 shell = None
         self.shell = shell
         
@@ -198,15 +201,15 @@ class Project(object):
     #----------------------------------------
     # Rename
     #---------------------------------------- 
-    def rename(self, categorie, old_name, new_name):
+    def rename(self, category, old_name, new_name):
         """
         Rename a script, a scene or a control in the project. Can rename the project too.
         
-        :param categorie: Can be "script", "control", "scene" or "project" (str)
+        :param category: Can be "script", "control", "scene" or "project" (str)
         :param old_name: current name of thing to rename (str)
         :param new_name: futur name of thing to rename (str)
         """
-        if (categorie == "script") or (categorie == "scripts") or (categorie == "Models"):
+        if (category == "script") or (category == "scripts") or (category == "Models"):
             if not new_name:
                 self.remove_script(old_name)
                 return
@@ -226,7 +229,7 @@ class Project(object):
                     pass
                 os.chdir(cwd) 
         
-        if (categorie == "control") or (categorie == "Controls"):
+        if (category == "control") or (category == "Controls"):
             # Remove in project
             self.controls[str(new_name)] = self.controls[str(old_name)]
             del self.controls[str(old_name)]
@@ -243,7 +246,7 @@ class Project(object):
                     pass
                 os.chdir(cwd) 
             
-        if (categorie == "scene") or (categorie == "Scene"):
+        if (category == "scene") or (category == "Scene"):
              # Remove in project
             self.scene[str(new_name)] = self.scene[str(old_name)]
             del self.scene[str(old_name)]
@@ -258,7 +261,7 @@ class Project(object):
                     pass
                 os.chdir(cwd) 
             
-        if (categorie == "project"):
+        if (category == "project"):
             self.name = new_name
             self.save()
             try:
@@ -344,7 +347,7 @@ class Project(object):
         
     def _save(self, object_type):
         object_type = str(object_type)
-        object_ = eval("self.%s"%object_type)
+        object_ = getattr(self, object_type)
         temp_path = self.path/self.name/object_type
         
         if not (self.path/self.name).exists():
@@ -354,6 +357,7 @@ class Project(object):
             os.mkdir(temp_path)
         
         # Hack to save plantgl object
+        # REVIEW: PlantGL must not appear in vpltk
         if object_type == "scene":
             for sub_object in object_:
                 name = str("%s/%s" %(temp_path,sub_object))

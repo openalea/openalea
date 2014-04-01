@@ -1,7 +1,7 @@
 # -*- python -*-
 #
 #       Plugin System for vpltk
-# 
+#
 #       OpenAlea.VPLTk: Virtual Plants Lab Toolkit
 #
 #       Copyright 2013 INRIA - CIRAD - INRA
@@ -29,9 +29,6 @@ from openalea.vpltk.catalog.pluginmanager import PluginManager
 from openalea.core.singleton import Singleton
 from openalea.core.interface import IInterface
 
-
-#TODO: review code
-
 # TODO
 # Write a short description of what do methods
 
@@ -41,7 +38,7 @@ class Catalog(object):
 
     def __init__(self, verbose=True):
         self.plugin_types = ('wralea', 'plugin', 'adapters', 'interfaces')
-        self.groups = set() 
+        self.groups = set()
         self.managers = {}
 
         self._services = {}
@@ -84,7 +81,7 @@ class Catalog(object):
                 for parent in inspect.getmro(interface):
                     if hasattr(parent, 'name'):
                         self._interfaces[parent.name] = parent
-                        self._lowername[parent.name.lower()[1:]]=parent.name
+                        self._lowername[parent.name.lower()[1:]] = parent.name
 
     def interface(self, name):
         interface_id = self.interface_id(name)
@@ -112,11 +109,10 @@ class Catalog(object):
         # Check interfaces defined in openalea factories
         if hasattr(obj, '__interfaces__'):
             for interface in obj.__interfaces__:
-                # TODO
-                # many obects named "interface". Difficil to read
-                # Try to switch with "interface_name" when it is not the interface object but only the name of it for instance
+                # Currently, interfaces can be defined as "string identifier" or directly using interface class
+                # If interface class is used, get its "string identifier".
                 interface_id = self.interface_id(interface)
-                if interface_id in self._interfaces:
+                if interface_id in self._interfaces: # check if interface_id is yet known by Catalog
                     # Search parent interfaces
                     interface = self._interfaces[interface_id]
                     for parent in inspect.getmro(interface):
@@ -146,41 +142,6 @@ class Catalog(object):
         else :
             return self.interface_id(interface) in self.interfaces(obj)
 
-    def is_implementation_old(self, obj, interface):
-        # If interface is not defined, it means no constrains so return True
-        if interface is None :
-            return True
-
-        if isinstance(interface, basestring):
-            if interface in self.interfaces(obj):
-                return True
-            else:
-                return False
-
-        if inspect.isclass(interface) and issubclass(interface, IInterface):
-            return self.is_implementation(obj, interface.name)
-
-        if isinstance(interface, abc.ABCMeta):
-            if isinstance(obj, interface):
-                return True
-            else :
-                if hasattr(interface, 'name'):
-                    name = interface.name
-                else :
-                    name = 'ABCMeta:%s.%s' % (interface.__module__, interface.__name__)
-                    return self.is_implementation(obj, name)
-
-
-        # If obj is an instance, use class
-        if not inspect.isclass(obj):
-            obj = obj.__class__
-
-        # Check with issubclass (Derivated from interface or defined using metaclass)
-        if issubclass(obj, interface):
-            return True
-
-        return False
-
     def _getplugin(self, plugin_type, interfaces, name, tags):
         lst = []
 
@@ -199,27 +160,23 @@ class Catalog(object):
             else:
                 for factory in factories.itervalues():
                     if name and factory.name != name :
-                        # TODO
-                        # What is done here? Useful?
                         continue
                     if self.is_implementation(factory, interfaces):
                         lst.append(factory)
+
         return lst
 
     def factories(self, interfaces=None, name=None, tags=None, exclude_tags=None):
         """
-        exclude_tags: if tags is not specified, scan all tags except one defined in exclude_tags
+        :param exclude_tags: if tags is not specified, scan all tags except one defined in exclude_tags
+        :param interfaces: by default do not check interfaces so return all factories
+
+        TODO: tags and exclude_tags need to be clarified
         """
-        # TODO
-        # if name or interfaces is None ???    
-        # don't set to None by default ???  
         lst = []
         if tags and exclude_tags:
             print 'tags and exclude_tags are mutually exclusive'
         if exclude_tags is None:
-            # TODO
-            # do it in default values (hide less things to the user)
-            # if you do it, don't forget to change previous lines (if tags and exclude_tags)
             exclude_tags = ['wralea']
 
         if tags is None :
@@ -242,8 +199,11 @@ class Catalog(object):
         return lst
 
     def factory(self, interfaces=None, name=None, tags=None, exclude_tags=None):
-        # TODO
-        # idem factories: defalut values have sense?
+        """
+        get factories matching given criteria (interfaces, name, tags).
+        criterion=None means criterion is not used.
+        If all criteria are None (default) it returns all factories.
+        """
         lst = self.factories(interfaces, name, tags, exclude_tags)
         if lst :
             return lst[0]
@@ -266,27 +226,30 @@ class Catalog(object):
 
 
     def service(self, interfaces=None, name=None, tags=None, exclude_tags=None, args=None, kargs=None):
+        """
+        args and kargs are not currently used but defined for future additional filters.
+        For example "author='John Doe'".
+
+        TODO: tags and exclude_tags need to be clarified
+        """
         if args is None :
             args = []
         if kargs is None :
             kargs = {}
-        # TODO
-        # args and kargs unused
         if exclude_tags is None :
-            # TODO
-            # by default ?
             exclude_tags = ['wralea']
         object_factory = self.factory(interfaces, name, tags, exclude_tags)
         return self.create_service(object_factory)
 
     def services(self, interfaces=None, name=None, tags=None, exclude_tags=None, args=None, kargs=None):
+        """
+        See :meth:`Catalog.service <openalea.vpltk.catalog.Catalog.service>`.
+        """
         if args is None :
             args = []
         if kargs is None :
             kargs = {}
         if exclude_tags is None :
-            # TODO
-            # by default ?
             exclude_tags = ['wralea']
         object_factories = self.factories(interfaces, name, tags, exclude_tags)
         services = []
@@ -294,6 +257,3 @@ class Catalog(object):
             services.append(self.create_service(object_factory, *args, **kargs))
         return services
 
-CATALOG = Catalog()
-# TODO
-# why a global variable?
