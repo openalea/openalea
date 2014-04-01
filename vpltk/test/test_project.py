@@ -16,24 +16,19 @@ def test_load():
     for category in ["name", "path", "icon", "authors", "description", "version", "license", "dependencies"]:
         assert hasattr(proj,category) 
 
-    assert len(proj.scripts) == 1
-    assert len(proj.cache) == 4
-    assert len(proj.controls) == 0
-    assert len(proj.scene) == 0
-    assert len(proj.startup) == 1
+    assert len(proj.scripts.keys()) == 1
+    assert len(proj.cache.keys()) == 4
+    assert len(proj.startup.keys()) == 1
 
     assert isinstance(proj.ns["radius"], int)
     
 def test_manifest():
     pm = ProjectManager()
     proj = pm.load('test_project_lpy','data')
-    manifest = proj._load_manifest()
-    assert len(manifest["scripts"]) == 1
-    assert len(manifest["cache"]) == 4
-    assert len(manifest["controls"]) == 0
-    assert len(manifest["scene"]) == 0
-    assert len(manifest["startup"]) == 1
-    assert len(manifest) == 5
+    proj._load_manifest()
+    assert len(proj.scripts) == 1
+    assert len(proj.cache) == 4
+    assert len(proj.startup) == 1
     
 def test_save_project():
     pm = ProjectManager()
