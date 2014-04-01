@@ -32,6 +32,9 @@ from openalea.core.interface import IInterface
 
 #TODO: review code
 
+# TODO
+# Write a short description of what do methods
+
 class Catalog(object):
 
     __metaclass__ = Singleton
@@ -109,6 +112,9 @@ class Catalog(object):
         # Check interfaces defined in openalea factories
         if hasattr(obj, '__interfaces__'):
             for interface in obj.__interfaces__:
+                # TODO
+                # many obects named "interface". Difficil to read
+                # Try to switch with "interface_name" when it is not the interface object but only the name of it for instance
                 interface_id = self.interface_id(interface)
                 if interface_id in self._interfaces:
                     # Search parent interfaces
@@ -193,6 +199,8 @@ class Catalog(object):
             else:
                 for factory in factories.itervalues():
                     if name and factory.name != name :
+                        # TODO
+                        # What is done here? Useful?
                         continue
                     if self.is_implementation(factory, interfaces):
                         lst.append(factory)
@@ -202,10 +210,16 @@ class Catalog(object):
         """
         exclude_tags: if tags is not specified, scan all tags except one defined in exclude_tags
         """
+        # TODO
+        # if name or interfaces is None ???    
+        # don't set to None by default ???  
         lst = []
         if tags and exclude_tags:
             print 'tags and exclude_tags are mutually exclusive'
         if exclude_tags is None:
+            # TODO
+            # do it in default values (hide less things to the user)
+            # if you do it, don't forget to change previous lines (if tags and exclude_tags)
             exclude_tags = ['wralea']
 
         if tags is None :
@@ -228,6 +242,8 @@ class Catalog(object):
         return lst
 
     def factory(self, interfaces=None, name=None, tags=None, exclude_tags=None):
+        # TODO
+        # idem factories: defalut values have sense?
         lst = self.factories(interfaces, name, tags, exclude_tags)
         if lst :
             return lst[0]
@@ -254,7 +270,11 @@ class Catalog(object):
             args = []
         if kargs is None :
             kargs = {}
+        # TODO
+        # args and kargs unused
         if exclude_tags is None :
+            # TODO
+            # by default ?
             exclude_tags = ['wralea']
         object_factory = self.factory(interfaces, name, tags, exclude_tags)
         return self.create_service(object_factory)
@@ -265,6 +285,8 @@ class Catalog(object):
         if kargs is None :
             kargs = {}
         if exclude_tags is None :
+            # TODO
+            # by default ?
             exclude_tags = ['wralea']
         object_factories = self.factories(interfaces, name, tags, exclude_tags)
         services = []
@@ -273,3 +295,5 @@ class Catalog(object):
         return services
 
 CATALOG = Catalog()
+# TODO
+# why a global variable?
