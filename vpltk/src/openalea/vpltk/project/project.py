@@ -266,18 +266,9 @@ class Project(object):
             except:
                 pass
             
-    def load_metadata(self):
-        manifest = self._load_manifest()
-        for info in ['name', 'icon', 'authors', 'description', 'version', 'license', 'dependencies']:
-            if manifest.has_key(info):
-                setattr(self, info, manifest[info])
-            
     def load(self):
-        manifest = self._load_manifest()
-        for info in ['name', 'icon', 'authors', 'description', 'version', 'license', 'dependencies']:
-            if manifest.has_key(info):
-                setattr(self, info, manifest[info])
-
+        self._load_manifest()
+        
         self.scripts = self._load("scripts")
         self.controls = self._load("controls")
         self.cache = self._load("cache")
@@ -288,18 +279,22 @@ class Project(object):
     # Protected 
     #---------------------------------------- 
     def _load(self, object_type):
+        """
+        Load files listed in self.object_type.keys()
+        """
+        
         object_type = str(object_type)
         if object_type == "scene":
             return self._load_scene()
         
         return_object = dict()
-        manifest = self._load_manifest()
         
-        if manifest.has_key(object_type):
+        if hasattr(self, object_type):
             temp_path = self.path/self.name/object_type
             if not temp_path.exists():
                 return return_object
-            files = manifest[object_type]
+            files = getattr(self, object_type)
+            files = files.keys()
             for filename in files:
                 filename = path_(filename)
                 pathname = self.path/self.name/object_type/filename
@@ -326,13 +321,13 @@ class Project(object):
         try:
             from openalea.plantgl.all import Scene
             sc = Scene()
-            manifest = self._load_manifest()
         
-            if manifest.has_key(object_type):
+            if hasattr(self, object_type):
                 temp_path = self.path/self.name/object_type
                 if not temp_path.exists():
                     return return_object
-                files = manifest[object_type]
+                files = getattr(self,object_type)
+                files = files.keys()
             
                 for filename in files:
                     fileName, fileExtension = os.path.splitext(str(filename))
@@ -351,6 +346,9 @@ class Project(object):
         object_type = str(object_type)
         object_ = eval("self.%s"%object_type)
         temp_path = self.path/self.name/object_type
+        
+        if not (self.path/self.name).exists():
+            os.mkdir(self.path/self.name)
         
         if not temp_path.exists():
             os.mkdir(temp_path)
@@ -390,25 +388,41 @@ class Project(object):
         """
         config = ConfigObj()
         config.filename = self.path/self.name/"oaproject.cfg"
-
-        config['scripts'] = self.scripts.keys()
-        config['controls'] = self.controls.keys()
-        config['scene'] = self.scene.keys()
-        config['cache'] = self.cache.keys()
-        config['startup'] = self.startup.keys()
-        config['localized'] = self.localized
+        
+        config['metadata'] = dict()
+        config['manifest'] = dict()
         
         for info in ['name', 'icon', 'authors', 'description', 'version', 'license', 'dependencies']:
-            config[info] = getattr(self, info)
+            config['metadata'][info] = getattr(self, info)
+            
+        for files in ['scripts', 'controls', 'scene', 'cache', 'startup']:
+            filenames = getattr(self, files)
+            if filenames.keys():
+                config['manifest'][files] = filenames.keys()
 
         config.write()
         
     def _load_manifest(self):
         """
         Load a project from a manifest file
+        
+        :warning: load metadata and list of filenames but does not load files
         """
         config = ConfigObj(self.path/self.name/"oaproject.cfg")
-        return config
+        if config.has_key('metadata'):
+            for info in ['name', 'icon', 'authors', 'description', 'version', 'license', 'dependencies']:
+                if config['metadata'].has_key(info):
+                    setattr(self, info, config['metadata'][info])
+
+        if config.has_key('manifest'):
+            # Load file names in good place (dict.keys()) but don't load entire object:
+            # ie. load keys but not values
+            for files in ['scripts', 'controls', 'scene', 'cache', 'startup']:
+                if config['manifest'].has_key(files):
+                    filedict = dict()
+                    for f in config['manifest'][files]:
+                        filedict[f] = ""
+                    setattr(self, files, filedict)
 
     def _startup_import(self): 
         use_ip = self.use_ipython()

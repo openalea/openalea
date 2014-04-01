@@ -69,7 +69,7 @@ class ProjectManager(object):
                         if mani.has_key("name"):
                             name = mani["name"]
                         project = Project(name, project_path)
-                        project.load_metadata()
+                        project._load_manifest()
                         self.projects.append(project)
                             
     def search(self):
