@@ -93,11 +93,6 @@ setup(
         'oalab.control': ['IntControl = openalea.oalab.control.stdcontrol:IntControl',
                           'BoolControl = openalea.oalab.control.stdcontrol:BoolControl',
                           'FloatControl = openalea.oalab.control.stdcontrol:FloatControl'],
-        'oalab.plugins': ['PythonApplet = openalea.oalab.plugins.python:PythonApplet',
-                          'LPyApplet = openalea.oalab.plugins.lpy:LPyApplet',
-                          'RApplet = openalea.oalab.plugins.r:RApplet',
-                          'VisualeaApplet = openalea.oalab.plugins.visualea:VisualeaApplet',        
-                         ],
         #'console_scripts': [
         #       'fake_script = openalea.fakepackage.amodule:console_script', ],
         # 'gui_scripts': [
