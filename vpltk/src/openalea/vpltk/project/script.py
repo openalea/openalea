@@ -18,7 +18,6 @@
 __revision__ = "$Id: $"
 
 from openalea.core.path import path
-from openalea.vpltk.project.project import check_unicity
 
 class Scripts(dict):
     """ Hack if we works outside of project
@@ -43,7 +42,6 @@ class Scripts(dict):
         # easy_name is used to display file_name
         # Thanks to self.ez_name, we can found the real name to save file.
         ez_n = str(path(name).splitpath()[-1])
-        ez_n = check_unicity(name=ez_n, all_names=self.ez_name.values())
         self.ez_name[ez_n] = name
         self.name[name] = ez_n
 

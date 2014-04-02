@@ -38,5 +38,26 @@ def has_new_ipython():
         return True
     except ImportError:
         return False   
-		
+        
+def has_ipython_config():
+    """
+    Check if User can has IPython 1.0dev not deprecated.
+    
+    :return: True if user can use IPython. Else False.
+    """
+    try:
+        # Works for IPython 2.x
+        from IPython.config.application import Application
+        from IPython.config.configurable import Configurable
+        from IPython.utils.traitlets import List, Bool, Unicode
+        return True
+    except ImportError:
+        try:
+            # Works for IPython 1.x
+            from IPython.config.application import Application, Configurable
+            from IPython.utils.traitlets import List, Bool, Unicode
+            return True
+        except ImportError:
+            return False
+        
 has_ipython()
