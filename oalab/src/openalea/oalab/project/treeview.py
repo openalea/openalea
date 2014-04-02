@@ -369,24 +369,27 @@ class PrjctManagerModel(QtGui.QStandardItemModel):
 
             item.setIcon(icon)
             parentItem.appendRow(item)
-            
-            for category in manifest.keys():
-                if len(manifest[category]) > 0:
-                    item2 = QtGui.QStandardItem(category)
-                    item.appendRow(item2)
-                else:
-                    # hide name of category if we don't have object of this category
-                    pass
+                        
+            categories = project._to_save_in_manifest
+            for category in categories:
+                if hasattr(project, category):
+                    cat = getattr(project, category)
+                    if len(cat) > 0:
+                        item2 = QtGui.QStandardItem(category)
+                        item.appendRow(item2)
+                    else:
+                        # hide name of category if we don't have object of this category
+                        pass
                 
-                if isinstance(manifest[category],list):
-                    for obj in manifest[category]:
-                        item3 = QtGui.QStandardItem(obj)
+                    
+                    if isinstance(cat,dict):
+                        for obj in cat.keys():
+                            item3 = QtGui.QStandardItem(obj)
+                            item2.appendRow(item3)
+                    else:    
+                        # Useful for category "localized" which store a bool and not a list
+                        item3 = QtGui.QStandardItem(cat)
                         item2.appendRow(item3)
-                else:    
-                    # Useful for category "localized" which store a bool and not a list
-                    obj = manifest[category]
-                    item3 = QtGui.QStandardItem(obj)
-                    item2.appendRow(item3)
 
     def _set_level_0_only(self):
         """
@@ -403,7 +406,6 @@ def main():
     app = QtGui.QApplication(sys.argv)
     
     project_manager = ProjectManager()
-    project_manager.discover()
 
     # Model to transform a project into a tree
     proj_model = PrjctManagerModel(project_manager)

@@ -63,9 +63,11 @@ class MainWindow(QtGui.QMainWindow):
         """
         self.removeDocksWidgets()
         
-        conf = path(get_openalea_home_dir()) / 'oalab.cfg'
+        filename = 'oalab.py'
+        conf = path(get_openalea_home_dir()) / filename
         if extension in ["mini", "3d", "tissue", "plant"]:
-            conf = path(get_openalea_home_dir()) / ('oalab_' + extension + '.cfg')
+            filename = ('oalab_' + extension + '.py')
+            conf = path(get_openalea_home_dir()) / filename
         if not conf.exists():
             with conf.open('w') as f:
                 # TODO : auto generate config file
@@ -80,8 +82,8 @@ class MainWindow(QtGui.QMainWindow):
                     f.write(config_file_plant)
                 else:
                     f.write(config_file_default)
-        self.session.load_config_file(conf)
-        
+                    
+        self.session.load_config_file(filename=filename,path=get_openalea_home_dir())
         self.setWidgets(self.controller)
                 
                 
@@ -242,8 +244,7 @@ class MainWindow(QtGui.QMainWindow):
         dock_widget.setWidget(widget)
         self.addDockWidget(position, dock_widget)
         self._dockwidgets[identifier] = dock_widget
-        
-        display = self.session.config.MainWindowConfig.get(identifier.lower(), False)
+        display = self.session.config.get('MainWindowConfig').get(identifier.lower(), False)
         dock_widget.setVisible(display)
         
         return dock_widget

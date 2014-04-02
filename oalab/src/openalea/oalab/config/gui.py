@@ -2,7 +2,13 @@
 
 __all__ = ['MainWindowConfig']
 
-from IPython.config.configurable import Configurable
+
+try:
+    # Works for IPython 2.x
+    from IPython.config.configurable import Configurable
+except ImportError:
+    # Works for IPython 1.x
+    from IPython.config.application import Configurable
 from IPython.utils.traitlets import List, Bool, Enum
 
 enum_position = Enum(['top', 'bottom']) # TODO: check trait declaration
@@ -27,4 +33,3 @@ class MainWindowConfig(Configurable):
     menu = Bool(True, config=True, help="Display menu bar")
     
     #paradigms_list = List(['oalab.plugins:PythonApplet', 'oalab.plugins:LPyApplet', 'oalab.plugins:RApplet', 'oalab.plugins:VisualeaApplet'], config=True, help="List of available paradigms")
- 
