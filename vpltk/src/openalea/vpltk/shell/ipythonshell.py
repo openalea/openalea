@@ -1,5 +1,10 @@
 from streamredirection import GraphicalStreamRedirection
-from IPython.qt.console.rich_ipython_widget import RichIPythonWidget
+from openalea.vpltk.check.ipython import has_new_ipython
+if has_new_ipython():
+    from IPython.qt.console.rich_ipython_widget import RichIPythonWidget
+else:
+    from IPython.frontend.qt.console.rich_ipython_widget import RichIPythonWidget
+    
 
 class ShellWidget(RichIPythonWidget, GraphicalStreamRedirection):
     """

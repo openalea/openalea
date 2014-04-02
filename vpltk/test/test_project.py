@@ -25,7 +25,7 @@ def test_load():
 def test_manifest():
     pm = ProjectManager()
     proj = pm.load('test_project_lpy','data')
-    proj._load_manifest()
+    proj.load_manifest()
     assert len(proj.scripts) == 1
     assert len(proj.cache) == 4
     assert len(proj.startup) == 1

@@ -32,17 +32,6 @@ import os
 from openalea.core.path import path as path_
 from openalea.core import settings
 from openalea.vpltk.project.project import Project
-from configobj import ConfigObj
-
-def read_manifest(filename):
-        """
-        Read a manifest file (oaproject.cfg by default).
-        
-        :param filename: full filename of manifest file to read
-        :return: a ConfigObj (dict) with what is in manifest file
-        """
-        config = ConfigObj(filename)
-        return config
 
 class ProjectManager(object):
     """
@@ -65,20 +54,21 @@ class ProjectManager(object):
             pass
             
     def discover(self):
+        self.clear()
         for project_path in self.find_links:
             for root, dirs, files in os.walk(project_path):
                 if "oaproject.cfg" in files: 
                     if root not in self.projects:
                         project_path = root
-                        mani = ConfigObj(path_(project_path)/"oaproject.cfg")
                         project_path, name = path_(project_path).splitpath()
-                        if mani.has_key("name"):
-                            name = mani["name"]
                         project = Project(name, project_path)
-                        project._load_manifest()
+                        project.load()
                         self.projects.append(project)
                             
     def search(self):
+        """
+        TODO
+        """
         pass
 
     def get_current(self):
@@ -136,9 +126,8 @@ class ProjectManager(object):
         
         if full_path.exists():
             proj = Project(project_name, project_path)
-            proj.start()
-            
-            #self.projects[proj.name] = proj
+            proj.load()
+
             self.cproject = proj
             return proj
         else:
@@ -159,6 +148,12 @@ class ProjectManager(object):
             return proj
         except:
             return self.empty()
+            
+    def clear(self):
+        """
+        Empty the list of projects
+        """
+        self.projects = []
             
 def main():
     from openalea.vpltk.qt import QtGui

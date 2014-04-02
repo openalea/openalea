@@ -22,58 +22,24 @@ from openalea.core import settings
 import cPickle
 from configobj import ConfigObj
 
-def check_unicity(name, all_names):
-    """
-    Check if an object with the name 'name' is already registered
-    in 'all_names'.
-    
-    If it is the case, the name is changed ("_1" is append).
-    This is realize until the name becomes unique.
-    
-    :param name: name to check unicity (str)
-    :param all_names: list of other present objects (list)
-    
-    TODO : remove this method if we want unicity of name, 
-    like in a classical dict
-    """
-    #REVIEW: remove try catch
-
-    while name in all_names:
-        namesplited = name.split(".")
-        if len(namesplited) == 2:
-            begin_name = namesplited[0]
-            extension = "." + namesplited[1]
-        else:
-            begin_name = name
-            extension = ""
-  
-        try:
-            end = begin_name.split("_")[-1]
-            l = len(end)
-            end = int(end)
-            end += 1
-            name = begin_name[0:-l] + str(end) + extension
-        except:    
-            name = begin_name + "_1" + extension
-    return name
-
 class Project(object):
     def __init__(self,project_name, project_path):
         self.name = str(project_name)
         self.path = path_(project_path)
         self.icon = ""
-        self.authors = ""
+        self.authors = "OpenAlea Consortium"
         self.description = ""
         self.version = "0.1"
         self.license = "CeCILL-C"
-        self.dependencies = []
+        self.dependencies = ""
         self.citation = ""
+        self.long_description = ""
         
         self.localized = True # Set to False if you want to work with files that are outside project
         # REVIEW: localized generally references localization (see l10n, http://en.wikipedia.org/wiki/Software_localization)
         # maybe "embedded" or "local_files" ?
         self.shell = None
-        self.set_ipython()
+        self._set_ipython()
         
         self.ns = dict()
         self.scripts = dict()
@@ -81,12 +47,10 @@ class Project(object):
         self.cache = dict()
         self.scene = dict()
         self.startup = dict()
-    
-    def is_project(self):
-        return True
         
-    def is_script(self):
-        return False
+        self._to_save_in_manifest = ['scripts', 'controls', 'scene', 'cache', 'startup']
+        self._to_save_in_metadata = ['name', 'icon', 'authors', 'description', 'version', 'license', 'dependencies', 'long_description']
+
 
     #----------------------------------------
     # Public API
@@ -96,54 +60,31 @@ class Project(object):
         
     def start(self):
         # Load in object
-        self._load("startup")
+        self.load()
         # Load in shell
         self._startup_import()
         self._startup_run()
-        
-        self.load()
+
+    def load(self):
+        self.load_manifest()
+        for category in self._to_save_in_manifest:
+            obj = self._load(str(category))
+            setattr(self, category, obj)
         
     def save(self):
-        root = path_(self.path)/self.name
-        if not root.exists():
-            os.mkdir(root)
-        self._save("scripts")
-        self._save("controls")
-        self._save("startup")
-        self._save("cache")
-        self._save("scene")
-        self._save_manifest()
-        
-    def _save_scripts(self):
-        self._save("scripts")
-        
-    def set_ipython(self, shell=None):
-        if not self.use_ipython():
-            try:
-                # Try to get automatically current IPython shell
-                shell = get_ipython()
-            except NameError:
-                shell = None
-        self.shell = shell
-        
-    def use_ipython(self):
-        """
-        :return: True if project is instaciated with a shell IPython.
-        Else, return False.
-        """
-        if self.shell == None:
-            return False
-        else:
-            return True
-
-    def get_scene(self):
-        return self.scene
+        for category in self._to_save_in_manifest:
+            obj = self._save(str(category))
+        self.save_manifest()
 
     #----------------------------------------
     # Get
     #----------------------------------------    
     def get(self, category, name):
         """
+        :param category: category of object to get
+        :param name: name of object to get
+        
+        :use: >>> get(category="scripts", name="myscript.py")
         """
         if hasattr(self, category):
             cat = getattr(self, category)
@@ -188,7 +129,7 @@ class Project(object):
         """
         Add a script in the project
         
-        Remove nothing in disk.
+        Remove nothing on disk.
         
         :param name: filename of the script to remove (path or str)
         """
@@ -268,16 +209,7 @@ class Project(object):
                 (self.path/old_name).removedirs()
             except:
                 pass
-            
-    def load(self):
-        self._load_manifest()
-        
-        self.scripts = self._load("scripts")
-        self.controls = self._load("controls")
-        self.cache = self._load("cache")
-        self.scene = self._load("scene")
-        self.startup = self._load("startup")
-        
+
     #----------------------------------------
     # Protected 
     #---------------------------------------- 
@@ -285,7 +217,6 @@ class Project(object):
         """
         Load files listed in self.object_type.keys()
         """
-        
         object_type = str(object_type)
         if object_type == "scene":
             return self._load_scene()
@@ -386,7 +317,10 @@ class Project(object):
                     file_.write(code_enc)
                 file_.close()
      
-    def _save_manifest(self):
+    def _save_scripts(self):
+        self._save("scripts")     
+     
+    def save_manifest(self):
         """
         Save in a manifest file what is present inside a project
         """
@@ -396,17 +330,17 @@ class Project(object):
         config['metadata'] = dict()
         config['manifest'] = dict()
         
-        for info in ['name', 'icon', 'authors', 'description', 'version', 'license', 'dependencies']:
+        for info in self._to_save_in_manifest:
             config['metadata'][info] = getattr(self, info)
             
-        for files in ['scripts', 'controls', 'scene', 'cache', 'startup']:
+        for files in self._to_save_in_manifest:
             filenames = getattr(self, files)
             if filenames.keys():
                 config['manifest'][files] = filenames.keys()
 
         config.write()
         
-    def _load_manifest(self):
+    def load_manifest(self):
         """
         Load a project from a manifest file
         
@@ -414,19 +348,17 @@ class Project(object):
         """
         config = ConfigObj(self.path/self.name/"oaproject.cfg")
         if config.has_key('metadata'):
-            for info in ['name', 'icon', 'authors', 'description', 'version', 'license', 'dependencies']:
-                if config['metadata'].has_key(info):
-                    setattr(self, info, config['metadata'][info])
+            for info in config["metadata"].keys():
+                setattr(self, info, config['metadata'][info])
 
         if config.has_key('manifest'):
             # Load file names in good place (dict.keys()) but don't load entire object:
             # ie. load keys but not values
-            for files in ['scripts', 'controls', 'scene', 'cache', 'startup']:
-                if config['manifest'].has_key(files):
-                    filedict = dict()
-                    for f in config['manifest'][files]:
-                        filedict[f] = ""
-                    setattr(self, files, filedict)
+            for files in config["manifest"].keys():
+                filedict = dict()
+                for f in config['manifest'][files]:
+                    filedict[f] = ""
+                setattr(self, files, filedict)
 
     def _startup_import(self): 
         use_ip = self.use_ipython()
@@ -447,6 +379,32 @@ class Project(object):
                     self.shell.runcode(self.startup[s])
         
     def __repr__(self):
-        return "Project named " + str(self.name) + " in path " + str(self.path) + " . Scripts: " + str(self.scripts.keys()) + " . Controls: " + str(self.controls.keys()) + " . Scene: " + str(self.scene.keys())
+        return "Project named " + str(self.name) + " in path " + str(self.path) + " . Scripts: " + str(self.scripts.keys()) 
 
+    def is_project(self):
+        return True
+        
+    def is_script(self):
+        return False
 
+    def _set_ipython(self, shell=None):
+        if not self.use_ipython():
+            try:
+                # Try to get automatically current IPython shell
+                shell = get_ipython()
+            except:
+                shell = None
+        self.shell = shell
+        
+    def use_ipython(self):
+        """
+        :return: True if project is instaciated with a shell IPython.
+        Else, return False.
+        """
+        if self.shell == None:
+            return False
+        else:
+            return True
+
+    def get_scene(self):
+        return self.scene
