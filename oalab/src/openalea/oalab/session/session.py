@@ -70,7 +70,7 @@ class Session(object):
         return self.project
 
     def load_config_file(self, filename, path=None):
-        self._config.load_config_file(filename, path)
+        self._config.load_config_file(filename=filename, path=path)
 
     config = property(fget=lambda self:self._config.config)
 
