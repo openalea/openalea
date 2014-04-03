@@ -24,7 +24,7 @@ class PrettyPreview(QtGui.QPushButton):
                 icon_name = path(project.path)/project.name/project.icon
                 #else native icon from oalab.gui.resources
 
-        text = project.name + " v" + project.version
+        text = str(project.name).decode('utf-8') + " v" + str(project.version).decode('utf-8')
         
         pixmap = QtGui.QPixmap(icon_name)
         size = pixmap.size()

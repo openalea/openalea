@@ -6,6 +6,7 @@ from openalea.oalab.gui import resources_rc
 class Preview(QtGui.QWidget):
     def __init__(self, project, parent=None):
         super(Preview, self).__init__(parent)       
+        wanted_size = 50
         
         layout = QtGui.QGridLayout()       
         icon_name = ":/images/resources/openalea_icon2.png"
@@ -24,14 +25,14 @@ class Preview(QtGui.QWidget):
         label = QtGui.QLabel()
         label.setPixmap(QtGui.QPixmap(image))
         size = image.size()
-        if size.height()>50 or size.width()>50 :
-            # Auto-rescale if image is bigger than 50x50
+        if size.height()>wanted_size or size.width()>wanted_size :
+            # Auto-rescale if image is bigger than wanted_size x wanted_size
             label.setScaledContents( True )
-        label.setMinimumSize(50,50)
-        label.setMaximumSize(50,50)
+        label.setMinimumSize(wanted_size,wanted_size)
+        label.setMaximumSize(wanted_size,wanted_size)
         layout.addWidget(label ,0,0)
         
-        layout.addWidget(QtGui.QLabel("<b><FONT SIZE = 40>" + project.name + "<\b>") ,0,1)
+        layout.addWidget(QtGui.QLabel("<b><FONT SIZE = 40>" + str(project.name).decode('utf-8') + "<\b>") ,0,1)
         # GBY Review:
         # QLabel expects a QString and QString is equivalent to unicode
         # so you must convert str to unicode to support non ASCII characters correctly (for example accent in author's name)
@@ -39,15 +40,15 @@ class Preview(QtGui.QWidget):
         # Just put accents or greek characters in test data to check such problems
         
         # GBY Review: if amount of metainfo grows, QTextEdit can be more convenient
-        layout.addWidget(QtGui.QLabel(str(project.authors)) ,1,1)
-        layout.addWidget(QtGui.QLabel(str(project.description)) ,2,1)
-        layout.addWidget(QtGui.QLabel(str(project.citation)) ,3,1)
-        layout.addWidget(QtGui.QLabel(str(project.license)) ,4,1)
-        layout.addWidget(QtGui.QLabel(str(project.dependencies)) ,5,1)
-        layout.addWidget(QtGui.QLabel(str(project.path)) ,6,1)
+        layout.addWidget(QtGui.QLabel(str(project.authors).decode('utf-8')) ,1,1)
+        layout.addWidget(QtGui.QLabel(str(project.description).decode('utf-8')) ,2,1)
+        layout.addWidget(QtGui.QLabel(str(project.citation).decode('utf-8')) ,3,1)
+        layout.addWidget(QtGui.QLabel(str(project.license).decode('utf-8')) ,4,1)
+        layout.addWidget(QtGui.QLabel(str(project.dependencies).decode('utf-8')) ,5,1)
+        layout.addWidget(QtGui.QLabel(str(project.path).decode('utf-8')) ,6,1)
         
         layout.addWidget(QtGui.QLabel("scripts:") ,8,0)
-        layout.addWidget(QtGui.QLabel(str(project.scripts.keys())) ,8,1)
+        layout.addWidget(QtGui.QLabel(str(project.scripts.keys()).decode('utf-8')) ,8,1)
 
         verticalSpacer = QtGui.QSpacerItem(0,0);
         layout.addItem(verticalSpacer, 9, 0,9,1)
