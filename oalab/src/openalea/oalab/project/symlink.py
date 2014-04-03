@@ -23,6 +23,7 @@ from openalea.core.path import path
 from openalea.deploy.shared_data import shared_data
 from openalea import oalab
 
+#GBY Review: this function could go into openalea and also in path method
 def symlink(source, link_name):
     """
     os.symlink but with windows support.

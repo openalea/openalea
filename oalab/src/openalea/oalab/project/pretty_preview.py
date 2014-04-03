@@ -78,6 +78,7 @@ def main():
         # Create widget
         preview_widget = PrettyPreview(project,parent=widget)
         QtCore.QObject.connect(preview_widget,QtCore.SIGNAL('clicked()'),showDetails)
+        # other syntax: preview_widget.clicked.connect(showDetails)
         
         if j < maxcolumn-1:
             j += 1

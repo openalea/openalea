@@ -32,6 +32,13 @@ class Preview(QtGui.QWidget):
         layout.addWidget(label ,0,0)
         
         layout.addWidget(QtGui.QLabel("<b><FONT SIZE = 40>" + project.name + "<\b>") ,0,1)
+        # GBY Review:
+        # QLabel expects a QString and QString is equivalent to unicode
+        # so you must convert str to unicode to support non ASCII characters correctly (for example accent in author's name)
+        # If project meta-info encoding is utf-8, you can write projet.authors.decode('utf-8')
+        # Just put accents or greek characters in test data to check such problems
+        
+        # GBY Review: if amount of metainfo grows, QTextEdit can be more convenient
         layout.addWidget(QtGui.QLabel(str(project.authors)) ,1,1)
         layout.addWidget(QtGui.QLabel(str(project.description)) ,2,1)
         layout.addWidget(QtGui.QLabel(str(project.citation)) ,3,1)
