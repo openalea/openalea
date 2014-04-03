@@ -6,9 +6,11 @@ from openalea.oalab.project.preview import Preview
 from math import sqrt
 
 class PrettyPreview(QtGui.QPushButton):
-    def __init__(self, project, parent=None):
+    def __init__(self, project, size=None, parent=None):
         super(PrettyPreview, self).__init__(parent) 
         wanted_size = 200
+        if size:
+            wanted_size = size
         margin = 10
         self.setMinimumSize(wanted_size,wanted_size)
         self.setMaximumSize(wanted_size,wanted_size)
@@ -22,12 +24,14 @@ class PrettyPreview(QtGui.QPushButton):
                 icon_name = path(project.path)/project.name/project.icon
                 #else native icon from oalab.gui.resources
 
-        text = project.name
+        text = project.name + " v" + project.version
         
         pixmap = QtGui.QPixmap(icon_name)
         size = pixmap.size()
+        label = QtGui.QLabel()
+        
         if (size.height()>wanted_size) or (size.width()>wanted_size) :
-            # Auto-rescale if image is bigger than 50x50
+            # Auto-rescale if image is bigger than (wanted_size x wanted_size)
             label.setScaledContents( True )
         
         size = pixmap.size()
@@ -37,7 +41,6 @@ class PrettyPreview(QtGui.QPushButton):
         painter.drawText(margin,0,size.width(),size.height(),84,text)
         painter.end()
         
-        label = QtGui.QLabel()
         label.setPixmap(pixmap)
         
         layout.addWidget(label,0,0)
@@ -76,9 +79,8 @@ def main():
     for project in projects:
         project.load_manifest()
         # Create widget
-        preview_widget = PrettyPreview(project,parent=widget)
-        QtCore.QObject.connect(preview_widget,QtCore.SIGNAL('clicked()'),showDetails)
-        # other syntax: preview_widget.clicked.connect(showDetails)
+        preview_widget = PrettyPreview(project,size=200,parent=widget)
+        preview_widget.clicked.connect(showDetails)
         
         if j < maxcolumn-1:
             j += 1
