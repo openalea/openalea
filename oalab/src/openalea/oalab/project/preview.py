@@ -3,6 +3,17 @@ from openalea.vpltk.project.project import ConfigObj
 from openalea.core.path import path
 from openalea.oalab.gui import resources_rc
 
+def pretty_print(obj):
+    """
+    :param obj: to decode. Can be a string/unicode or a list of string/unicod
+    :return: object decode into utf-8.
+    """
+    if isinstance(obj, list):
+        text = ', '.join(obj).decode('utf-8')
+    else:
+        text = str(obj).decode('utf-8')
+    return text
+
 class Preview(QtGui.QWidget):
     def __init__(self, project, parent=None):
         super(Preview, self).__init__(parent)       
@@ -32,7 +43,7 @@ class Preview(QtGui.QWidget):
         label.setMaximumSize(wanted_size,wanted_size)
         layout.addWidget(label ,0,0)
         
-        layout.addWidget(QtGui.QLabel("<b><FONT SIZE = 40>" + str(project.name).decode('utf-8') + "<\b>") ,0,1)
+        layout.addWidget(QtGui.QLabel("<b><FONT SIZE = 40>" + pretty_print(project.name) + "<\b>") ,0,1)
         # GBY Review:
         # QLabel expects a QString and QString is equivalent to unicode
         # so you must convert str to unicode to support non ASCII characters correctly (for example accent in author's name)
@@ -40,15 +51,15 @@ class Preview(QtGui.QWidget):
         # Just put accents or greek characters in test data to check such problems
         
         # GBY Review: if amount of metainfo grows, QTextEdit can be more convenient
-        layout.addWidget(QtGui.QLabel(str(project.authors).decode('utf-8')) ,1,1)
-        layout.addWidget(QtGui.QLabel(str(project.description).decode('utf-8')) ,2,1)
-        layout.addWidget(QtGui.QLabel(str(project.citation).decode('utf-8')) ,3,1)
-        layout.addWidget(QtGui.QLabel(str(project.license).decode('utf-8')) ,4,1)
-        layout.addWidget(QtGui.QLabel(str(project.dependencies).decode('utf-8')) ,5,1)
-        layout.addWidget(QtGui.QLabel(str(project.path).decode('utf-8')) ,6,1)
+        layout.addWidget(QtGui.QLabel(pretty_print(project.authors)) ,1,1)
+        layout.addWidget(QtGui.QLabel(pretty_print(project.description)) ,2,1)
+        layout.addWidget(QtGui.QLabel(pretty_print(project.citation)) ,3,1)
+        layout.addWidget(QtGui.QLabel(pretty_print(project.license)) ,4,1)
+        layout.addWidget(QtGui.QLabel(pretty_print(project.dependencies)) ,5,1)
+        layout.addWidget(QtGui.QLabel(pretty_print(project.path)) ,6,1)
         
         layout.addWidget(QtGui.QLabel("scripts:") ,8,0)
-        layout.addWidget(QtGui.QLabel(str(project.scripts.keys()).decode('utf-8')) ,8,1)
+        layout.addWidget(QtGui.QLabel(pretty_print(project.scripts.keys())) ,8,1)
 
         verticalSpacer = QtGui.QSpacerItem(0,0);
         layout.addItem(verticalSpacer, 9, 0,9,1)
