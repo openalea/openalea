@@ -2,7 +2,7 @@ from openalea.vpltk.qt import QtGui, QtCore
 from openalea.vpltk.project.project import ConfigObj
 from openalea.core.path import path
 from openalea.oalab.gui import resources_rc
-from openalea.oalab.project.preview import Preview
+from openalea.oalab.project.preview import Preview, pretty_print
 from math import sqrt
 
 class PrettyPreview(QtGui.QPushButton):
@@ -24,7 +24,7 @@ class PrettyPreview(QtGui.QPushButton):
                 icon_name = path(project.path)/project.name/project.icon
                 #else native icon from oalab.gui.resources
 
-        text = str(project.name).decode('utf-8') + " v" + str(project.version).decode('utf-8')
+        text = pretty_print(project.name) + " v" + pretty_print(project.version)
         
         pixmap = QtGui.QPixmap(icon_name)
         size = pixmap.size()
