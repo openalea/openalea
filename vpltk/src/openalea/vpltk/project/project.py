@@ -22,6 +22,9 @@ from openalea.core import settings
 import cPickle
 from configobj import ConfigObj
 
+from openalea.vpltk.project.loader import BGEOMLoader, CPickleLoader, ILoader
+from openalea.vpltk.project.saver import BGEOMSaver, CPickleSaver, ISaver
+
 class Project(object):
     def __init__(self,project_name, project_path):
         self.name = str(project_name)
@@ -235,17 +238,16 @@ class Project(object):
                 if object_type == "scripts":
                     if filename.isabs():
                         pathname = filename
-                return_object[filename] = open(pathname, 'rU').read()
+                loader = ILoader()
+                if object_type == "controls":
+                    loader = CPickleLoader()
+                result = loader.load(pathname)
+                return_object[filename] = result
                 
         # hack to add cache in namespace
         if object_type == "cache":
             for cache_name in return_object:
-                self.ns[cache_name] = eval(return_object[cache_name], self.ns)
-        # hack for controls
-        # controls were Pickle.dumped so we need to cPickle.loads
-        if object_type == "controls":
-            for obj in return_object:
-                return_object[obj] = cPickle.loads(return_object[obj])
+                self.ns[cache_name] = eval(str(return_object[cache_name]), self.ns)
             
         return return_object
 
@@ -253,9 +255,6 @@ class Project(object):
         return_object = dict()
         object_type = "scene"
         try:
-            from openalea.plantgl.all import Scene
-            sc = Scene()
-        
             if hasattr(self, object_type):
                 temp_path = self.path/self.name/object_type
                 if not temp_path.exists():
@@ -265,12 +264,9 @@ class Project(object):
             
                 for filename in files:
                     fileName, fileExtension = os.path.splitext(str(filename))
-                    sc.clear()
-                    sc.read(fileName, "BGEOM")
+                    loader = BGEOMLoader()
+                    sc = loader.load(fileName)
                     return_object[fileName.basename()] = sc.deepcopy()
-                    
-        except ImportError:
-            warnings.warn("You must install PlantGL if you want to load scene in project.")
         except Exception, e:
             print e
             warnings.warn("Impossible to load the scene")
@@ -292,30 +288,27 @@ class Project(object):
         if object_type == "scene":
             for sub_object in object_:
                 name = str("%s/%s" %(temp_path,sub_object))
-                object_[sub_object].save(name, "BGEOM")
+                saver = IBGEOMSaver()
+                saver.save(object_[sub_object], name)
         elif object_type == "scripts":  
             for sub_object in object_:
                 sub_object = path_(sub_object)
                 if sub_object.isabs():
-                    file_ = open(sub_object, "w")
+                    filename = sub_object
                     # try, except IOError
                 else:
-                    file_ = open(temp_path/sub_object, "w")
-                code = str(object_[sub_object])
-                code_enc = code.encode("utf8","ignore") 
-                file_.write(code_enc)
-                file_.close()
+                    filename = temp_path/sub_object
+                saver = ISaver()
+                saver.save(object_[sub_object], filename)
         else:
             for sub_object in object_:
-                file_ = open(temp_path/sub_object, "w")
+                filename = temp_path/sub_object
                 # Hack to save controls with cPickle
                 if object_type == "controls":
-                    cPickle.dump(object_[sub_object],file_,0)
+                    saver = CPickleSaver()
                 else:
-                    code = str(object_[sub_object])
-                    code_enc = code.encode("utf8","ignore") 
-                    file_.write(code_enc)
-                file_.close()
+                    saver = ISaver()
+                saver.save(object_[sub_object], filename)
      
     def _save_scripts(self):
         self._save("scripts")     
