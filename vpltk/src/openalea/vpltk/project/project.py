@@ -323,7 +323,7 @@ class Project(object):
         config['metadata'] = dict()
         config['manifest'] = dict()
         
-        for info in self._to_save_in_manifest:
+        for info in self._to_save_in_metadata:
             config['metadata'][info] = getattr(self, info)
             
         for files in self._to_save_in_manifest:
