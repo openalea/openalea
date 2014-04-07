@@ -6,11 +6,9 @@ from openalea.oalab.project.preview import Preview, pretty_print
 from math import sqrt
 
 class PrettyPreview(QtGui.QPushButton):
-    def __init__(self, project, size=None, parent=None):
+    def __init__(self, project, size=200, parent=None):
         super(PrettyPreview, self).__init__(parent) 
-        wanted_size = 200
-        if size:
-            wanted_size = size
+        wanted_size = size
         margin = 10
         self.setMinimumSize(wanted_size,wanted_size)
         self.setMaximumSize(wanted_size,wanted_size)
@@ -79,7 +77,7 @@ def main():
     for project in projects:
         project.load_manifest()
         # Create widget
-        preview_widget = PrettyPreview(project,size=200,parent=widget)
+        preview_widget = PrettyPreview(project,size=180,parent=widget)
         preview_widget.clicked.connect(showDetails)
         
         if j < maxcolumn-1:
