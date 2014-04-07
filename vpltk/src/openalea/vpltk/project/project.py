@@ -221,26 +221,27 @@ class Project(object):
         Load files listed in self.object_type.keys()
         """
         object_type = str(object_type)
-        if object_type == "scene":
-            return self._load_scene()
-        
         return_object = dict()
         
         if hasattr(self, object_type):
             temp_path = self.path/self.name/object_type
+            
             if not temp_path.exists():
                 return return_object
+                
             files = getattr(self, object_type)
             files = files.keys()
             for filename in files:
                 filename = path_(filename)
                 pathname = self.path/self.name/object_type/filename
-                if object_type == "scripts":
-                    if filename.isabs():
-                        pathname = filename
+                if filename.isabs():
+                    # Load files that are outside project
+                    pathname = filename
                 loader = ILoader()
                 if object_type == "controls":
                     loader = CPickleLoader()
+                if object_type == "scene":
+                    loader = BGEOMLoader()
                 result = loader.load(pathname)
                 return_object[filename] = result
                 
@@ -249,66 +250,32 @@ class Project(object):
             for cache_name in return_object:
                 self.ns[cache_name] = eval(str(return_object[cache_name]), self.ns)
             
-        return return_object
-
-    def _load_scene(self):
-        return_object = dict()
-        object_type = "scene"
-        try:
-            if hasattr(self, object_type):
-                temp_path = self.path/self.name/object_type
-                if not temp_path.exists():
-                    return return_object
-                files = getattr(self,object_type)
-                files = files.keys()
-            
-                for filename in files:
-                    fileName, fileExtension = os.path.splitext(str(filename))
-                    loader = BGEOMLoader()
-                    sc = loader.load(fileName)
-                    return_object[fileName.basename()] = sc.deepcopy()
-        except Exception, e:
-            print e
-            warnings.warn("Impossible to load the scene")
-        return return_object    
+        return return_object 
         
     def _save(self, object_type):
         object_type = str(object_type)
         object_ = getattr(self, object_type)
         temp_path = self.path/self.name/object_type
         
+        # Make default directories
         if not (self.path/self.name).exists():
             os.mkdir(self.path/self.name)
-        
         if not temp_path.exists():
             os.mkdir(temp_path)
         
-        # Hack to save plantgl object
-        # REVIEW: PlantGL must not appear in vpltk
-        if object_type == "scene":
-            for sub_object in object_:
-                name = str("%s/%s" %(temp_path,sub_object))
+        for sub_object in object_:
+            saver = ISaver()
+            filename = temp_path/sub_object
+            sub_object = path_(sub_object)
+            if sub_object.isabs():
+                # Permit to save object outside project
+                filename = sub_object
+            if object_type == "scene":
+                # Save PlantGL objects
                 saver = IBGEOMSaver()
-                saver.save(object_[sub_object], name)
-        elif object_type == "scripts":  
-            for sub_object in object_:
-                sub_object = path_(sub_object)
-                if sub_object.isabs():
-                    filename = sub_object
-                    # try, except IOError
-                else:
-                    filename = temp_path/sub_object
-                saver = ISaver()
-                saver.save(object_[sub_object], filename)
-        else:
-            for sub_object in object_:
-                filename = temp_path/sub_object
-                # Hack to save controls with cPickle
-                if object_type == "controls":
-                    saver = CPickleSaver()
-                else:
-                    saver = ISaver()
-                saver.save(object_[sub_object], filename)
+            elif object_type == "controls":
+                saver = CPickleSaver()
+            saver.save(object_[sub_object], filename)
      
     def _save_scripts(self):
         self._save("scripts")     
