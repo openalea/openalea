@@ -264,8 +264,8 @@ class MainWindow(QtGui.QMainWindow):
         self._dockWidget("Project", controller.applets["Project"],position=QtCore.Qt.RightDockWidgetArea)
         #self._dockWidget("ProjectManager", controller.applets["ProjectManager"],position=QtCore.Qt.RightDockWidgetArea) # Project Manager
         
-        self._dockWidget("Shell", controller.shell, name="IPython Shell", position=QtCore.Qt.RightDockWidgetArea)
-        self._dockWidget("Logger", controller.applets["Logger"], position=QtCore.Qt.RightDockWidgetArea)
+        self._dockWidget("Shell", controller.shell, name="IPython Shell", position=QtCore.Qt.BottomDockWidgetArea)
+        self._dockWidget("Logger", controller.applets["Logger"], position=QtCore.Qt.BottomDockWidgetArea)
         
         self._dockWidget("Packages", controller.applets["Packages"], position=QtCore.Qt.BottomDockWidgetArea)
         self._dockWidget("PackageCategories", controller.applets["PackageCategories"], name="Package Categories", position=QtCore.Qt.BottomDockWidgetArea)
@@ -287,6 +287,7 @@ class MainWindow(QtGui.QMainWindow):
         
         self.tabifyDockWidget(self._dockwidgets['PackageSearch'], self._dockwidgets['PackageCategories'])
         self.tabifyDockWidget(self._dockwidgets['PackageCategories'], self._dockwidgets['Packages'])
+        self.tabifyDockWidget(self._dockwidgets['Packages'], self._dockwidgets['ControlPanel'])
         self.tabifyDockWidget(self._dockwidgets['Project'], self._dockwidgets['HelpWidget'])
         self._dockwidgets['Store'].setTitleBarWidget(QtGui.QWidget())
         
