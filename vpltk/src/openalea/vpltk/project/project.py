@@ -20,13 +20,14 @@ import warnings
 from openalea.core.path import path as path_
 from openalea.core import settings
 import cPickle
-from configobj import ConfigObj
+from openalea.vpltk.project.configobj import ConfigObj
 
 from openalea.vpltk.project.loader import BGEOMLoader, CPickleLoader, ILoader
 from openalea.vpltk.project.saver import BGEOMSaver, CPickleSaver, ISaver
 
 class Project(object):
     def __init__(self,project_name, project_path):
+        # Metadata
         self.name = str(project_name)
         self.path = path_(project_path)
         self.icon = ""
@@ -37,13 +38,8 @@ class Project(object):
         self.dependencies = ""
         self.citation = ""
         self.long_description = ""
-        
-        self.localized = True # Set to False if you want to work with files that are outside project
-        # REVIEW: localized generally references localization (see l10n, http://en.wikipedia.org/wiki/Software_localization)
-        # maybe "embedded" or "local_files" ?
-        self.shell = None
-        self._set_ipython()
-        
+
+        # Data, scripts, ...
         self.ns = dict()
         self.scripts = dict()
         self.controls = dict()
@@ -51,9 +47,10 @@ class Project(object):
         self.scene = dict()
         self.startup = dict()
         
+        self.shell = None
+        self._set_ipython()
         self._to_save_in_manifest = ['scripts', 'controls', 'scene', 'cache', 'startup']
         self._to_save_in_metadata = ['name', 'icon', 'authors', 'description', 'version', 'license', 'dependencies', 'long_description']
-
 
     #----------------------------------------
     # Public API
@@ -79,9 +76,6 @@ class Project(object):
             obj = self._save(str(category))
         self.save_manifest()
 
-    #----------------------------------------
-    # Get
-    #----------------------------------------    
     def get(self, category, name):
         """
         :param category: category of object to get
@@ -98,53 +92,37 @@ class Project(object):
                 if cat.has_key(name):
                     return cat[name]
         return None
-        
-    #----------------------------------------
-    # Add
-    #----------------------------------------        
-    def add_script(self, name, script):
-        """
-        Add a script in the project
-        
-        :param name: filename of the script to add (path or str)
-        :param script: to add (string)
-        """
-        filename = path_(name)
-        
-        self.add("scripts", filename, script)
-        
+    
     def add(self, category, name, value):
         """
-        Add a script in the project
+        Add an object in the project
         
-        :param name: filename of the script to add (path or str)
-        :param script: to add (string)
+        :param category: *type* of object to add ("scripts", "control", "scene", ...)
+        :param name: filename of the object to add (path or str)
+        :param value: to add (string)
         """
         if not hasattr(self, category):
             setattr(self, category, dict())
         cat = getattr(self, category)
         cat[name] = value
-        
-    #----------------------------------------
-    # Remove
-    #----------------------------------------        
-    def remove_script(self, name):
+    
+    def remove(self, category, name):
         """
-        Add a script in the project
+        Remove an object in the project
         
         Remove nothing on disk.
         
+        :category: category of object to remove ("scripts", "control", "scene", ...) (str)
         :param name: filename of the script to remove (path or str)
         """
+        category = str(category)
         filename = path_(name)
         
-        if self.scripts.has_key(filename):
-            # Remove in project
-            del self.scripts[filename]        
-        
-    #----------------------------------------
-    # Rename
-    #---------------------------------------- 
+        if hasattr(self, category):
+            cat = getattr(self, category)
+            if cat.has_key(filename):
+                del cat[filename]
+                
     def rename(self, category, old_name, new_name):
         """
         Rename a script, a scene or a control in the project. Can rename the project too.
@@ -152,12 +130,13 @@ class Project(object):
         :param category: Can be "script", "control", "scene" or "project" (str)
         :param old_name: current name of thing to rename (str)
         :param new_name: futur name of thing to rename (str)
+        
+        :TODO: become generical (cf. remove or add method)
         """
-        if (category == "script") or (category == "scripts") or (category == "Models"):
+        if (category == "script") or (category == "scripts") or (category == "Models"):  
             if not new_name:
-                self.remove_script(old_name)
-                return
-                
+                self.remove(category, old_name)
+                return          
             # Remove in project
             self.scripts[str(new_name)] = self.scripts[str(old_name)]
             del self.scripts[str(old_name)]
@@ -212,7 +191,74 @@ class Project(object):
                 (self.path/old_name).removedirs()
             except:
                 pass
+                
+    #----------------------------------------
+    # Manifest
+    #---------------------------------------- 
+    def save_manifest(self):
+        """
+        Save in a manifest file what is present inside a project
+        """
+        config = ConfigObj()
+        config.filename = self.path/self.name/"oaproject.cfg"
+        
+        config['metadata'] = dict()
+        config['manifest'] = dict()
+        
+        for info in self._to_save_in_metadata:
+            config['metadata'][info] = getattr(self, info)
+            
+        for files in self._to_save_in_manifest:
+            filenames = getattr(self, files)
+            if filenames.keys():
+                config['manifest'][files] = filenames.keys()
 
+        config.write()
+        
+    def load_manifest(self):
+        """
+        Load a project from a manifest file
+        
+        :warning: load metadata and list of filenames but does not load files
+        """
+        config = ConfigObj(self.path/self.name/"oaproject.cfg")
+        if config.has_key('metadata'):
+            for info in config["metadata"].keys():
+                setattr(self, info, config['metadata'][info])
+
+        if config.has_key('manifest'):
+            # Load file names in good place (dict.keys()) but don't load entire object:
+            # ie. load keys but not values
+            for files in config["manifest"].keys():
+                filedict = dict()
+                for f in config['manifest'][files]:
+                    filedict[f] = ""
+                setattr(self, files, filedict)
+                
+    #----------------------------------------
+    # Scripts
+    #---------------------------------------- 
+    def add_script(self, name, script):
+        """
+        Add a script in the project
+        
+        :param name: filename of the script to add (path or str)
+        :param script: to add (string)
+        """
+        warnings.warn("project.add_script(name, script) is deprecated. Please use project.add('scripts', name, script) instead.")
+        self.add("scripts", name, script)
+        
+    def remove_script(self, name):
+        """
+        Add a script in the project
+        
+        Remove nothing on disk.
+        
+        :param name: filename of the script to remove (path or str)
+        """
+        warnings.warn("project.remove_script(name) is deprecated. Please use project.remove('scripts', name) instead.")
+        self.remove("scripts", name)     
+        
     #----------------------------------------
     # Protected 
     #---------------------------------------- 
@@ -278,48 +324,9 @@ class Project(object):
             saver.save(object_[sub_object], filename)
      
     def _save_scripts(self):
+        warnings.warn("project._save_scripts is deprecated. Please use project._save('scripts') instead.")
         self._save("scripts")     
      
-    def save_manifest(self):
-        """
-        Save in a manifest file what is present inside a project
-        """
-        config = ConfigObj()
-        config.filename = self.path/self.name/"oaproject.cfg"
-        
-        config['metadata'] = dict()
-        config['manifest'] = dict()
-        
-        for info in self._to_save_in_metadata:
-            config['metadata'][info] = getattr(self, info)
-            
-        for files in self._to_save_in_manifest:
-            filenames = getattr(self, files)
-            if filenames.keys():
-                config['manifest'][files] = filenames.keys()
-
-        config.write()
-        
-    def load_manifest(self):
-        """
-        Load a project from a manifest file
-        
-        :warning: load metadata and list of filenames but does not load files
-        """
-        config = ConfigObj(self.path/self.name/"oaproject.cfg")
-        if config.has_key('metadata'):
-            for info in config["metadata"].keys():
-                setattr(self, info, config['metadata'][info])
-
-        if config.has_key('manifest'):
-            # Load file names in good place (dict.keys()) but don't load entire object:
-            # ie. load keys but not values
-            for files in config["manifest"].keys():
-                filedict = dict()
-                for f in config['manifest'][files]:
-                    filedict[f] = ""
-                setattr(self, files, filedict)
-
     def _startup_import(self): 
         use_ip = self.use_ipython()
     
@@ -340,12 +347,6 @@ class Project(object):
         
     def __repr__(self):
         return "Project named " + str(self.name) + " in path " + str(self.path) + " . Scripts: " + str(self.scripts.keys()) 
-
-    def is_project(self):
-        return True
-        
-    def is_script(self):
-        return False
 
     def _set_ipython(self, shell=None):
         if not self.use_ipython():
@@ -368,3 +369,9 @@ class Project(object):
 
     def get_scene(self):
         return self.scene
+
+    def is_project(self):
+        return True
+        
+    def is_script(self):
+        return False
