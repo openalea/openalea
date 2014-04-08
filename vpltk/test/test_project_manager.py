@@ -1,6 +1,5 @@
 from openalea.vpltk.project.manager import ProjectManager
 
-
 def test_project_manager_discover():
     pm = ProjectManager()
     pm.discover()
@@ -26,4 +25,13 @@ def test_project_manager_discover_not_add_twice():
     assert nb2 > 0
     assert str(pm.projects[nb-1].name) != str(pm.projects[nb2-1].name)
 
-    
+def test_project_manager_add_path():
+    pm = ProjectManager()
+    pm.discover()
+
+    nb = len(pm.projects)
+    pm.find_links.append(pm.find_links[0])
+    pm.discover()
+
+    nb2 = len(pm.projects)
+    assert nb == nb2
