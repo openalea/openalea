@@ -64,10 +64,10 @@ def test_add_script():
     name = path("data")/"my_new_temp_project"
     pm = ProjectManager()
     proj = pm.create('my_new_temp_project', path("data"))
-    proj.add_script("1", "blablabla")
-    proj.add_script("2", "blablabla2")
-    proj.add_script("3", "blablabla3")
-    proj.add_script("4", "blablabla4")
+    proj.add("scripts", "1", "blablabla")
+    proj.add("scripts", "2", "blablabla2")
+    proj.add("scripts", "3", "blablabla3")
+    proj.add("scripts", "4", "blablabla4")
     assert len(proj.scripts) == 4
     assert proj.is_project() is True
     assert proj.is_script() is False
@@ -75,7 +75,7 @@ def test_add_script():
 def test_rename():
     pm = ProjectManager()
     proj = pm.create('my_new_temp_project', path("data"))
-    proj.add_script("1", "blablabla")
+    proj.add("scripts", "1", "blablabla")
     proj.rename("scripts", "1","2")
     assert len(proj.scripts) == 1
     assert proj.scripts["2"] == "blablabla"
