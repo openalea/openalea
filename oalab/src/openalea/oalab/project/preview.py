@@ -6,7 +6,7 @@ from openalea.oalab.gui import resources_rc
 def pretty_print(obj):
     """
     :param obj: to decode. Can be a string/unicode or a list of string/unicod
-    :return: object decode into utf-8.
+    :return: object decoded into utf-8.
     """
     if isinstance(obj, list):
         text = ', '.join(obj).decode('utf-8')
