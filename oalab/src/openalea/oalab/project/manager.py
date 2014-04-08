@@ -101,7 +101,7 @@ This temporary script is saved in temporary project in
 
 You can rename/move this project thanks to the button "Save As" in menu.
 """'''%str(self.session.project.path/self.session.project.name)
-            self.session.project.add_script(name=".temp.py", script=txt)
+            self.session.project.add(category="scripts", name=".temp.py", value=txt)
             
         self._project_changed()
         self._load_control()
@@ -200,7 +200,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
                 try:
                     self.controller.applet_container.newTab(applet_type=ext, tab_name=tab_name, script=txt)
-                    project.add_script(filename, txt)
+                    project.add("scripts", filename, txt)
                     self.controller._update_locals()
                     self._tree_view_change()
                     logger.debug("Import file named " + tab_name)
@@ -237,7 +237,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
                 try:
                     self.controller.applet_container.newTab(applet_type=ext, tab_name=tab_name, script=txt)
-                    project.add_script(tab_name, txt)
+                    project.add("scripts", tab_name, txt)
                     self.controller._update_locals()
                     self._tree_view_change()
                     logger.debug("Import file named " + tab_name)
@@ -281,7 +281,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
                 tab_name = Applet.default_file_name
             self.controller.applet_container.newTab(applet_type=applet_type, tab_name=tab_name, script=script)
             text = self.controller.applet_container.applets[-1].widget().get_text()
-            self.session.project.add_script(tab_name, text)  
+            self.session.project.add("scripts", tab_name, text)  
             self.controller._update_locals()
             self._project_changed()
         else:
