@@ -73,7 +73,7 @@ class Project(object):
         
     def save(self):
         for category in self._to_save_in_manifest:
-            obj = self._save(str(category))
+            self._save(str(category))
         self.save_manifest()
 
     def get(self, category, name):
