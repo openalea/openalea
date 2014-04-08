@@ -1,7 +1,5 @@
 from openalea.vpltk.qt import QtGui, QtCore
-from openalea.vpltk.project.project import ConfigObj
 from openalea.core.path import path
-from openalea.oalab.gui import resources_rc
 
 def pretty_print(obj):
     """
@@ -18,6 +16,7 @@ class Preview(QtGui.QWidget):
     def __init__(self, project, parent=None):
         super(Preview, self).__init__(parent)       
         wanted_size = 50
+        self.project = project
         
         layout = QtGui.QGridLayout()       
         icon_name = ":/images/resources/openalea_icon2.png"
@@ -61,12 +60,20 @@ class Preview(QtGui.QWidget):
         layout.addWidget(QtGui.QLabel("scripts:") ,8,0)
         layout.addWidget(QtGui.QLabel(pretty_print(project.scripts.keys())) ,8,1)
 
+        open_button = QtGui.QPushButton("Open this project")
+        open_button.clicked.connect(self.open_project)
+        layout.addWidget(open_button, 9, 0, 9, 2)
+
         verticalSpacer = QtGui.QSpacerItem(0,0);
-        layout.addItem(verticalSpacer, 9, 0,9,1)
+        layout.addItem(verticalSpacer, 10, 0,10,1)
         horizontalSpacer = QtGui.QSpacerItem(0, 0)
-        layout.addItem(horizontalSpacer, 0, 2,9,2)
+        layout.addItem(horizontalSpacer, 0, 2,10,2)
         
         self.setLayout(layout)
+
+    def open_project(self):
+        print self.project
+        self.hide()
 
 def main():
     from openalea.vpltk.project.manager import ProjectManager

@@ -258,7 +258,10 @@ You can rename/move this project thanks to the button "Save As" in menu.
             if self.session.current_is_project():
                 if self.session.project is not None:
                     self.projectManager.close(self.session.project.name)
-            self.session._project = self.projectManager.create(name)
+            projpath, name = path(name).splitpath()
+            if not projpath:
+                projpath = None
+            self.session._project = self.projectManager.create(project_name=name, project_path=projpath)
             self.session._is_proj = True
             self._load_control()
             self._project_changed()
