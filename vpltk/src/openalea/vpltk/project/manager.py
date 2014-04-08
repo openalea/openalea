@@ -33,12 +33,15 @@ import platform
 from openalea.core.path import path as path_
 from openalea.core import settings
 from openalea.vpltk.project.project import Project
+from openalea.core.singleton import Singleton
 
 class ProjectManager(object):
     """
     Object which manage projects: creation, loading, saving   
     Should it be a Singleton?
     """
+    __metaclass__ = Singleton
+
     def __init__(self):
         super(ProjectManager, self).__init__()
         self.projects = []
@@ -59,10 +62,10 @@ class ProjectManager(object):
         self.clear()
         for project_path in self.find_links:
             for root, dirs, files in os.walk(project_path):
-                if "oaproject.cfg" in files: 
-                    if root not in self.projects:
-                        project_path = root
-                        project_path, name = path_(project_path).splitpath()
+                if "oaproject.cfg" in files:
+                    project_path = root
+                    project_path, name = path_(project_path).splitpath()
+                    if not ((project_path in [proj.path for proj in self.projects]) and (name in [proj.name for proj in self.projects])):
                         project = Project(name, project_path)
                         project.load()
                         self.projects.append(project)
