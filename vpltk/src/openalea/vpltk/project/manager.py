@@ -29,6 +29,7 @@ You can change default directly with
 
 """
 import os
+import platform
 from openalea.core.path import path as path_
 from openalea.core import settings
 from openalea.vpltk.project.project import Project
@@ -45,13 +46,14 @@ class ProjectManager(object):
         self.cproject = self.empty()
         self.find_links = [path_(settings.get_project_dir())]
         
-        try:
-            from openalea import oalab
-            from openalea.deploy.shared_data import shared_data
-            oalab_dir = shared_data(oalab)
-            self.find_links.append(path_(oalab_dir))
-        except ImportError:
-            pass
+        if not "windows" in platform.system().lower():
+            try:
+                from openalea import oalab
+                from openalea.deploy.shared_data import shared_data
+                oalab_dir = shared_data(oalab)
+                self.find_links.append(path_(oalab_dir))
+            except ImportError:
+                pass
             
     def discover(self):
         self.clear()
