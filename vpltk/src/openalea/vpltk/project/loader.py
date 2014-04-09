@@ -1,5 +1,14 @@
 import warnings
 from openalea.core.path import path
+from openalea.vpltk.plugin import discover, Plugin
+
+def get_loader(name="GenericLoader"):
+    loaders = discover('vpltk.loader')
+    for loader in loaders.values():
+        loader = Plugin(loader)
+        loader = loader.load()
+        if loader.default_name == name:
+            return loader
 
 class ILoader(object):
     """
@@ -8,12 +17,25 @@ class ILoader(object):
     def load(self, filename):
         """
         :param filename: filename to convert into python object
+        :return: a python object
+        """
+        raise NotImplementedError
+
+class GenericLoader(object):
+    """
+    Classical loader that read file
+    """
+    default_name = "GenericLoader"
+    input_format = "*.py"
+    def load(self, filename):
+        """
+        :param filename: filename to convert into python object
         :return: a python object interpreted from string "text"
         """
         filename = path(filename)
         if filename.exists():
             obj = open(filename, 'rU').read()
-            
+
             try:
                 return eval(obj)
             except SyntaxError:
@@ -25,6 +47,8 @@ class CPickleLoader(ILoader):
     """
     Specific loader that use cPickle.loads
     """
+    default_name = "CPickleLoader"
+    input_format = "*"
     def load(self, filename):
         """
         :param filename: filename to convert into python object
@@ -45,6 +69,8 @@ class BGEOMLoader(ILoader):
     """
     Specific loader that is used to manipulate PlantGL objects
     """
+    default_name = "BGEOMLoader"
+    input_format = "*.BGEOM"
     def load(self, filename):
         """
         :param filename: filename to convert into python object
