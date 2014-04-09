@@ -108,6 +108,12 @@ setup(
     # Declare scripts and wralea as entry_points (extensions) of your package 
     entry_points = { 
         'plugin' : ['vpltksample = openalea.vpltk.sample'],
+        'vpltk.loader': ['GenericLoader = openalea.vpltk.project.loader:GenericLoader',
+                         'CPickleLoader = openalea.vpltk.project.loader:CPickleLoader',
+                         'BGEOMLoader = openalea.vpltk.project.loader:BGEOMLoader', ],
+        'vpltk.saver': ['GenericSaver = openalea.vpltk.project.saver:GenericSaver',
+                        'CPickleSaver = openalea.vpltk.project.saver:CPickleSaver',
+                        'BGEOMSaver = openalea.vpltk.project.saver:BGEOMSaver',],
         #'wralea' : ['vpltk = openalea.vpltk_wralea' if has_project else 'vpltk = vpltk_wralea' ],
         #'console_scripts': [
         #       'fake_script = openalea.fakepackage.amodule:console_script', ],

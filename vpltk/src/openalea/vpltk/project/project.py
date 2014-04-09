@@ -18,12 +18,10 @@ stored in your computer.
 import os
 import warnings
 from openalea.core.path import path as path_
-from openalea.core import settings
-import cPickle
 from openalea.vpltk.project.configobj import ConfigObj
 
-from openalea.vpltk.project.loader import BGEOMLoader, CPickleLoader, ILoader
-from openalea.vpltk.project.saver import BGEOMSaver, CPickleSaver, ISaver
+from openalea.vpltk.project.loader import get_loader, BGEOMLoader, CPickleLoader, GenericLoader
+from openalea.vpltk.project.saver import get_saver, BGEOMSaver, CPickleSaver, GenericSaver
 
 class Project(object):
     def __init__(self,project_name, project_path):
@@ -283,11 +281,12 @@ class Project(object):
                 if filename.isabs():
                     # Load files that are outside project
                     pathname = filename
-                loader = ILoader()
+                Loader = get_loader("GenericLoader")
                 if object_type == "controls":
-                    loader = CPickleLoader()
+                    Loader = get_loader("CPickleLoader")
                 if object_type == "scene":
-                    loader = BGEOMLoader()
+                    Loader = get_loader("BGEOMLoader")
+                loader = Loader()
                 result = loader.load(pathname)
                 return_object[filename] = result
                 
@@ -310,17 +309,18 @@ class Project(object):
             os.mkdir(temp_path)
         
         for sub_object in object_:
-            saver = ISaver()
             filename = temp_path/sub_object
             sub_object = path_(sub_object)
+            Saver = get_saver()
             if sub_object.isabs():
                 # Permit to save object outside project
                 filename = sub_object
             if object_type == "scene":
                 # Save PlantGL objects
-                saver = IBGEOMSaver()
+                Saver = get_saver("BGEOMSaver")
             elif object_type == "controls":
-                saver = CPickleSaver()
+                Saver = get_saver("CPickleSaver")
+            saver = Saver()
             saver.save(object_[sub_object], filename)
      
     def _save_scripts(self):
