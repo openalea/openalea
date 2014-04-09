@@ -23,7 +23,6 @@
 __all__ = ['CommandLineParser']
 
 import argparse
-
 from openalea.oalab.session.all import Session
 
 class CommandLineParser(object):

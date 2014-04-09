@@ -7,13 +7,10 @@ from openalea.oalab.applets.container import AppletContainer
 from openalea.oalab.scene.vplscene import VPLScene
 from openalea.oalab.project.manager import ProjectManagerWidget
 from openalea.oalab.project.treeview import ProjectLayoutWidget
-#from openalea.oalab.project.treeview import PrjctManagerModel
 from openalea.oalab.package.widgets import PackageViewWidget, PackageCategorieViewWidget, PackageSearchWidget
 from openalea.oalab.gui.store import Store
-from openalea.core.path import path
-from openalea.core.settings import get_openalea_home_dir
 from openalea.oalab.scene.view3d import Viewer
-from openalea.vpltk.qt import QtCore, QtGui
+from openalea.vpltk.qt import QtGui
 
 class AllWidgets(QtGui.QWidget):
     """

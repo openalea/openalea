@@ -18,7 +18,6 @@
 __revision__ = ""
 
 from openalea.vpltk.qt import QtCore, QtGui
-from openalea.core import logger
 
 class GoToWidget(QtGui.QWidget):
     def __init__(self, parent=None):

@@ -21,8 +21,6 @@ __revision__ = ""
 __all__ = ['Session']
 
 import warnings
-from openalea.core.path import path
-from openalea.core.settings import get_openalea_home_dir
 from openalea.vpltk.shell.shell import get_interpreter_class
 from openalea.vpltk.catalog import Catalog
 from openalea.vpltk.project.manager import ProjectManager

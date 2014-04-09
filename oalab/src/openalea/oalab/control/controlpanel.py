@@ -18,9 +18,7 @@
 __revision__ = "$Id: $"
 
 from openalea.vpltk.qt import QtGui, QtCore
-#from openalea.vpltk import plugin
 from openalea.lpy.gui.materialeditor import MaterialEditor
-#from openalea.lpy.gui.objectpanel import LpyObjectPanelDock
 from openalea.lpy.gui.objectpanel import ObjectPanelManager, TriggerParamFunc, ObjectListDisplay
 from openalea.lpy.gui.scalareditor import ScalarEditor
 

@@ -24,10 +24,8 @@ DEBUG =False
 import types
 import sys
 
-from openalea.plantgl.wralea.visualization import viewernode
 from openalea.vpltk.qt import QtCore, QtGui
 from openalea.visualea.graph_operator import GraphOperator
-from openalea.core.compositenode import CompositeNodeFactory, CompositeNode
 from openalea.visualea import dataflowview
 
 

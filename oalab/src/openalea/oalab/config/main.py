@@ -4,7 +4,6 @@ __all__ = ['MainConfig']
 
 from IPython.config.application import Application
 from IPython.utils.traitlets import List, Bool, Unicode
-
 from openalea.oalab.config.gui import MainWindowConfig
 
 class MainConfig(Application):   

@@ -17,7 +17,6 @@
 ###############################################################################
 __revision__ = "$Id: $"
 
-from openalea.vpltk.qt import QtGui
 from openalea.core import logger
 from openalea.visualea.logger import LoggerView
 
