@@ -20,8 +20,7 @@ __revision__ = ""
 from openalea.vpltk.qt import QtCore, QtGui
 from openalea.vpltk.plugin import discover, Plugin
 from openalea.core import logger
-from openalea.core.path import path
-from openalea.oalab.gui.pages import WelcomePage, SelectExtensionPage, CreateFilePage
+from openalea.oalab.gui.pages import WelcomePage, CreateFilePage
 
 class AppletContainer(QtGui.QTabWidget):
     """
