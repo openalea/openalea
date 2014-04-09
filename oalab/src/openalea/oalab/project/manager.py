@@ -22,19 +22,21 @@ from openalea.core.path import path
 from openalea.core import settings
 from openalea.core import logger
 from time import gmtime, strftime
-from openalea.plantgl.all import PglTurtle
-from openalea.vpltk.project.manager import ProjectManager as PM
-from openalea.lpy.gui.objectmanagers import get_managers
-from openalea.oalab.control.picklable_curves import geometry_2_piklable_geometry
+from openalea.vpltk.project.manager import ProjectManager
 
 
 class ProjectManagerWidget(QtGui.QWidget):
     """
     Object which permit to manage projects.
+
+    :Warning: this QWidget is not used like a widget but like the interface between GUI (buttons "newProj", "newScript",...)
+    and objects (project, controls, ...)
+
+    :TODO: Refactor it
     """
 
     def __init__(self, session, controller, parent=None):
-        super(ProjectManagerWidget, self).__init__()
+        super(ProjectManagerWidget, self).__init__(parent)
 
         self._actions = []
         self.paradigms_actions = []
@@ -42,7 +44,7 @@ class ProjectManagerWidget(QtGui.QWidget):
         self.controller = controller
         self.setAccessibleName("Project Manager")
 
-        self.projectManager = PM()
+        self.projectManager = ProjectManager()
 
         for proj in self.projectManager.projects:
             self.session._project = proj
@@ -61,21 +63,21 @@ class ProjectManagerWidget(QtGui.QWidget):
         #self.actionSaveProj.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
         self.actionCloseProj = QtGui.QAction(QtGui.QIcon(":/images/resources/closeButton.png"), "Close All", self)
 
-        QtCore.QObject.connect(self.actionNewProj, QtCore.SIGNAL('triggered(bool)'), self.new)
-        QtCore.QObject.connect(self.actionOpenProj, QtCore.SIGNAL('triggered(bool)'), self.open)
-        QtCore.QObject.connect(self.actionSaveProjAs, QtCore.SIGNAL('triggered(bool)'), self.saveAs)
-        QtCore.QObject.connect(self.actionSaveProj, QtCore.SIGNAL('triggered(bool)'), self.saveCurrent)
-        QtCore.QObject.connect(self.actionCloseProj, QtCore.SIGNAL('triggered(bool)'), self.closeCurrent)
+        self.connect(self.actionNewProj, QtCore.SIGNAL('triggered(bool)'), self.new)
+        self.connect(self.actionOpenProj, QtCore.SIGNAL('triggered(bool)'), self.open)
+        self.connect(self.actionSaveProjAs, QtCore.SIGNAL('triggered(bool)'), self.saveAs)
+        self.connect(self.actionSaveProj, QtCore.SIGNAL('triggered(bool)'), self.saveCurrent)
+        self.connect(self.actionCloseProj, QtCore.SIGNAL('triggered(bool)'), self.closeCurrent)
 
-        QtCore.QObject.connect(self.actionImportFile, QtCore.SIGNAL('triggered(bool)'), self.importFile)
-        QtCore.QObject.connect(self.actionEditFile, QtCore.SIGNAL('triggered(bool)'), self.editFile)
+        self.connect(self.actionImportFile, QtCore.SIGNAL('triggered(bool)'), self.importFile)
+        self.connect(self.actionEditFile, QtCore.SIGNAL('triggered(bool)'), self.editFile)
 
         self._actions = [["Project", "Manage Project", self.actionNewProj, 1],
                          ["Project", "Manage Project", self.actionOpenProj, 0],
                          ["Project", "Manage Project", self.actionSaveProj, 0],
                          ["Project", "Manage Project", self.actionSaveProjAs, 1],
                          ["Project", "Manage Project", self.actionCloseProj, 1],
-                         ["Model", "New Model", self.actionEditFile, 0],
+                         #["Model", "New Model", self.actionEditFile, 0],
                          ["Model", "New Model", self.actionImportFile, 0]]
 
         self.extensions = ""
@@ -109,45 +111,16 @@ You can rename/move this project thanks to the button "Save As" in menu.
         self._project_changed()
         self._load_control()
 
-    def showNewProjectDialog(self, default_name=None, text=None):
-        my_path = path(settings.get_project_dir())
-        if default_name:
-            my_path = my_path / default_name
-        if not text:
-            text = 'Select name to create project'
-        fname = QtGui.QFileDialog.getSaveFileName(self, text,
-                                                  my_path)
-        return fname
-
-    def showOpenProjectDialog(self):
-        my_path = path(settings.get_project_dir())
-        fname = QtGui.QFileDialog.getExistingDirectory(self, 'Select Project Directory',
-                                                       my_path)
-        return fname
-
-    def showOpenFileDialog(self, extension=None, where=None):
-        if extension is None:
-            extension = self.extensions
-
-        if where is not None:
-            my_path = path(str(where)).abspath().splitpath()[0]
-        else:
-            my_path = path(settings.get_project_dir())
-        logger.debug("Search to open file with extension " + extension + " from " + my_path)
-        fname = QtGui.QFileDialog.getOpenFileName(self, 'Select File to open',
-                                                  my_path, "All (*);;Scripts Files (%s)" % extension)
-        return fname
-
     def actions(self):
         return self._actions
 
     def open(self, name=False):
         """
-        Display a widget to choose project to open.
+        If name==false, display a widget to choose project to open.
         Then open project.
         """
         if name is False:
-            name = self.showOpenProjectDialog()
+            name = showOpenProjectDialog()
         if name:
             proj_path = path(name).abspath()
             proj_name = proj_path.basename()
@@ -176,7 +149,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
     def editFile(self, filename=None, extension=None):
         """
-        Permit to edit a file wich is outside project.
+        Permit to edit a file which is outside project.
         And add link to file in project.
         """
         if extension is None:
@@ -186,9 +159,9 @@ You can rename/move this project thanks to the button "Save As" in menu.
             project = self.session.project
             if not filename:
                 if extension:
-                    filename = self.showOpenFileDialog(extension)
+                    filename = showOpenFileDialog(extension)
                 else:
-                    filename = self.showOpenFileDialog()
+                    filename = showOpenFileDialog()
             if filename:
                 filename = path(filename).abspath()
 
@@ -224,29 +197,17 @@ You can rename/move this project thanks to the button "Save As" in menu.
         if self.session.current_is_project():
             project = self.session.project
             if not filename:
-                if extension:
-                    filename = self.showOpenFileDialog(extension)
-                else:
-                    filename = self.showOpenFileDialog()
+                filename = showOpenFileDialog(extension)
             if filename:
+                filename = path(filename)
                 f = open(filename, "r")
                 txt = f.read()
                 f.close()
-
-                tab_name = str(path(filename).splitpath()[-1])
-                ext = str(path(filename).splitext()[-1])
-                ext = ext.split(".")[-1]
-                logger.debug("Try to import file named " + tab_name + " . With applet_type " + ext)
-
-                try:
-                    self.controller.applet_container.newTab(applet_type=ext, tab_name=tab_name, script=txt)
-                    project.add("scripts", tab_name, txt)
-                    self.controller._update_locals()
-                    self._tree_view_change()
-                    logger.debug("Import file named " + tab_name)
-                except:
-                    print "File extension " + ext + " not recognised"
-                    logger.warning("Can't import file named %s in current project. Unknow extension." % filename)
+                name = filename.splitpath()[1]
+                project.add("scripts", name, txt)
+                self.controller._update_locals()
+                self._project_changed()
+                logger.debug("Import file named " + name)
         else:
             print "You are not working inside project. Please create or load one first."
 
@@ -256,7 +217,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         """
         if not name:
             date = strftime("%Y-%m-%d_%H-%M-%S", gmtime())
-            name = self.showNewProjectDialog('project_%s' % date)
+            name = showNewProjectDialog('project_%s' % date)
         if name:
             if self.session.current_is_project():
                 if self.session.project is not None:
@@ -324,20 +285,20 @@ You can rename/move this project thanks to the button "Save As" in menu.
         if self.session.current_is_project():
             name = self.session.project.name
             if not new_name:
-                new_name = self.showNewProjectDialog(default_name=path(name) / "..",
-                                                     text='Select new name to save project')
+                new_name = showNewProjectDialog(default_name=path(name) / "..",
+                                                text='Select new name to save project')
             self.session.project.rename(categorie="project", old_name=name, new_name=new_name)
             self._project_changed()
         else:
             print(
-            "You are not working inside project, so you can't use 'rename project'. Please create or load one first.")
+                "You are not working inside project, so you can't use 'rename project'. Please create or load one first.")
 
     def saveAs(self):
         """
         Save current project but permit to rename and move it..
         """
         if self.session.current_is_project():
-            name = self.showNewProjectDialog(default_name=None, text="Select name to save project")
+            name = showNewProjectDialog(default_name=None, text="Select name to save project")
             if name:
                 self.session.project.rename(categorie="project", old_name=self.session.project.name, new_name=name)
                 self._tree_view_change()
@@ -350,30 +311,13 @@ You can rename/move this project thanks to the button "Save As" in menu.
         Save current project.
         """
         if self.session.current_is_project():
-            current = self.session.project
-            current.controls = dict()
             container = self.controller.applet_container
-
             for i in range(container.count()):
                 container.setCurrentIndex(i)
                 name = container.tabText(i)
                 container.widget(i).save(name)
-
-            colors = self.controller.applets['ControlPanel'].colormap_editor.getTurtle().getColorList()
-            current.controls["color map"] = colors
-
-            geoms = self.controller.applets['ControlPanel'].geometry_editor.getObjects()
-
-            for (manager, geom) in geoms:
-                if geom != list():
-                    new_obj, new_name = geometry_2_piklable_geometry(manager, geom)
-                    current.controls[new_name] = new_obj
-
-            scalars = self.controller.applets['ControlPanel'].scalars_editor.getScalars()
-            for scalar in scalars:
-                current.controls[scalar.name] = scalar
-
-            current.save()
+            self._update_control()
+            self.session.project.save()
             self._project_changed()
 
         else:
@@ -412,63 +356,22 @@ You can rename/move this project thanks to the button "Save As" in menu.
         """
         Get controls from project and put them into widgets
         """
-        logger.debug("Load Controls")
-        proj = self.session.project
-        if not proj.controls.has_key("color map"):
-            proj.controls["color map"] = PglTurtle().getColorList()
-        i = 0
-        logger.debug("Load Controls color map: %s " % str(proj.controls["color map"]))
-        for color in proj.controls["color map"]:
-            self.controller.applets['ControlPanel'].colormap_editor.getTurtle().setMaterial(i, color)
-            i += 1
-
-        managers = get_managers()
-        geom = []
-        scalars = []
-
-        for control in proj.controls:
-            logger.debug(str(proj.controls[control]))
-            if hasattr(proj.controls[control], "__module__"):
-                if proj.controls[control].__module__ == "openalea.oalab.control.picklable_curves":
-                    typename = proj.controls[control].typename
-                    proj.controls[control].name = str(control)
-                    manager = managers[typename]
-                    geom.append((manager, proj.controls[control]))
-                elif str(control) != "color map":
-                    scalars.append(proj.controls[control])
-            elif str(control) != "color map":
-                scalars.append(proj.controls[control])
-        if geom is not list():
-            logger.debug("Load Controls Geom: %s " % str(geom))
-            self.controller.applets['ControlPanel'].geometry_editor.setObjects(geom)
-        if scalars is not list():
-            logger.debug("Load Controls Scalars: %s " % str(scalars))
-            self.controller.applets['ControlPanel'].scalars_editor.setScalars(scalars)
+        if self.controller.applets.has_key('ControlPanel'):
+            logger.debug("Load Controls")
+            self.controller.applets['ControlPanel'].load()
 
     def _update_control(self):
         """
         Get controls from widget and put them into project
         """
-        logger.debug("Update Controls")
-        #self.session.project.controls = dict()
-
-        self.session.project.controls["color map"] = PglTurtle().getColorList()
-
-        objects = self.controller.applets['ControlPanel'].geometry_editor.getObjects()
-        for (manager, obj) in objects:
-            if obj != list():
-                obj, name = geometry_2_piklable_geometry(manager, obj)
-                self.session.project.controls[unicode(name)] = obj
-
-        scalars = self.controller.applets['ControlPanel'].scalars_editor.getScalars()
-        for scalar in scalars:
-            self.session.project.controls[unicode(scalar.name)] = scalar
+        if self.controller.applets.has_key('ControlPanel'):
+            logger.debug("Update Controls")
+            self.controller.applets['ControlPanel'].update()
 
     def _clear_control(self):
-        self.controller.applets['ControlPanel'].geometry_editor.clear()
-        n = len(self.controller.applets['ControlPanel'].scalars_editor.getScalars())
-        for scalar in range(n):
-            self.controller.applets['ControlPanel'].scalars_editor.deleteScalars()
+        if self.controller.applets.has_key('ControlPanel'):
+            logger.debug("Clear Controls")
+            self.controller.applets['ControlPanel'].clear()
 
     def _control_change(self):
         pass
@@ -493,3 +396,35 @@ You can rename/move this project thanks to the button "Save As" in menu.
             project = self.session.project
             for w in project.scene:
                 self.controller.scene.add(name=w, obj=project.scene[w])
+
+
+def showNewProjectDialog(default_name=None, text=None, parent=None):
+    my_path = path(settings.get_project_dir())
+    if default_name:
+        my_path = my_path / default_name
+    if not text:
+        text = 'Select name to create project'
+    fname = QtGui.QFileDialog.getSaveFileName(parent, text,
+                                              my_path)
+    return fname
+
+
+def showOpenProjectDialog(parent=None):
+    my_path = path(settings.get_project_dir())
+    fname = QtGui.QFileDialog.getExistingDirectory(parent, 'Select Project Directory',
+                                                   my_path)
+    return fname
+
+
+def showOpenFileDialog(extension=None, where=None, parent=None):
+    if extension is None:
+        extension = self.extensions
+
+    if where is not None:
+        my_path = path(str(where)).abspath().splitpath()[0]
+    else:
+        my_path = path(settings.get_project_dir())
+    logger.debug("Search to open file with extension " + extension + " from " + my_path)
+    fname = QtGui.QFileDialog.getOpenFileName(parent, 'Select File to open',
+                                              my_path, "All (*);;Scripts Files (%s)" % extension)
+    return fname

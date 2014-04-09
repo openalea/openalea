@@ -62,9 +62,6 @@ class AllWidgets(QtGui.QWidget):
         treeView.setHeaderHidden(True)
         self.applets['ProjectManager'] = treeView"""
 
-
-        #self.interpreter.locals['ctrl'] = self.applets['ControlPanel']
-        #self.interpreter.locals['interp'] = self.interpreter
         self.session.interpreter.locals['shell'] = self.shell
         self.session.interpreter.locals['controller'] = self
         self._update_locals()
