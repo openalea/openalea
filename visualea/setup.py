@@ -33,22 +33,21 @@ setup(
     py_modules = ['visualea_postinstall'],
     namespace_packages = [namespace],
     create_namespaces = True,
-    
+
     packages = packages,
     package_dir = package_dir,
     include_package_data = True,
     zip_safe = False,
-    
+
     # Scripts
     entry_points = { 'gui_scripts': [
                            'visualea = openalea.visualea.visualea_script:start_gui',
-                           'aleashell = openalea.visualea.shell:main',
-
-                           ]},
+                           'aleashell = openalea.visualea.shell:main',],
+                     'oalab.paradigm_applet': ['VisualeaApplet = openalea.oalab.plugins.visualea:VisualeaApplet' ],},
 
     postinstall_scripts = ['visualea_postinstall'],
     share_dirs = { 'share' : 'share' },
- 
+
     # Dependencies
     setup_requires = ['openalea.deploy'],
     dependency_links = ['http://openalea.gforge.inria.fr/pi'],
