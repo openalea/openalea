@@ -1,5 +1,3 @@
-
-from openalea.core.factory_decorator import inputs
 from openalea.vpltk.catalog.interface import IInterface
 
 class IApplet(IInterface):

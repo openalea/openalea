@@ -21,7 +21,6 @@
 __revision__ = "$Id: $"
 
 from openalea.deploygui.alea_install_gui import MainWindow as MainWindowAleaInstall
-from openalea.vpltk.qt import QtGui, QtCore
 from openalea.deploygui.alea_install_gui import * 
 
 

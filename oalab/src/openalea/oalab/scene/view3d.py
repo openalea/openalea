@@ -20,9 +20,10 @@
 __revision__ = ""
 
 from openalea.vpltk.qt import QtGui, QtCore
-from openalea.plantgl.all import *
-from PyQGLViewer import *
+from openalea.plantgl.all import Scene, Sphere, Discretizer, GLRenderer, BoundingBox
+from PyQGLViewer import QGLViewer, Vec
 import sys
+
 
 class view3D(QGLViewer):
     """
@@ -30,48 +31,49 @@ class view3D(QGLViewer):
     This scene is based on QGLViewer.
     For the moment, we have only one view of this scene.
     """
-    
-    def __init__(self,parent=None,scene=None,statefilename='.temp_scene.xml',shareWidget=None):
-        QGLViewer.__init__(self,parent,shareWidget)
+
+    def __init__(self, parent=None, scene=None, statefilename='.temp_scene.xml', shareWidget=None):
+        QGLViewer.__init__(self, parent, shareWidget)
         # set the scene
-        if scene == None:        
+        if scene == None:
             scene = self.defaultScene()
         self.scene = scene
         # set some parameters
-        self.setAxisIsDrawn(False) # show axis
-        self.setGridIsDrawn(True) # show grid
-        position = Vec(0.0,-1.0,0.1)
-        self.camera().setPosition(position) # set camera
+        self.setAxisIsDrawn(False)  # show axis
+        self.setGridIsDrawn(True)  # show grid
+        position = Vec(0.0, -1.0, 0.1)
+        self.camera().setPosition(position)  # set camera
         self.camera().lookAt(self.sceneCenter())
-        self.camera().setSceneRadius(1)#Size of vectors x,y,z
+        self.camera().setSceneRadius(1)  #Size of vectors x,y,z
         self.camera().showEntireScene()
         # connection
-        self.connect(self,QtCore.SIGNAL("drawNeeded()"),self.draw)
+        self.connect(self, QtCore.SIGNAL("drawNeeded()"), self.draw)
         self.orientation_initiale = self.camera().orientation()
         self.position_initiale = self.camera().position()
         # Block "*.xml" save
-        self.setStateFileName("") 
+        self.setStateFileName("")
         # Disable Quit in clicking on 'Escape'
         # Set "show_axis" instead of "kill_application"
-        self.setShortcut(0,QtCore.Qt.Key_Escape)
+        self.setShortcut(0, QtCore.Qt.Key_Escape)
 
     # Method for lpy.registerPlotter to "animate"
-    def plot(self,scene):
-        scenedict = {"new":scene}
+    def plot(self, scene):
+        scenedict = {"new": scene}
         self.setScene(scenedict)
-        self.updateGL()        
+        self.updateGL()
 
-    # Method for lpy.registerPlotter to "animate"        
+        # Method for lpy.registerPlotter to "animate"
+
     def selection(self):
         return super(view3D, self).selection
 
     # Method for lpy.registerPlotter to "animate"    
-    def waitSelection(self,txt):
+    def waitSelection(self, txt):
         return super(view3D, self).waitSelection(txt)
 
     # Method for lpy.registerPlotter to "animate"    
-    def save(self,fname,format):
-        super(view3D, self).frameGL.saveImage(fname,format)
+    def save(self, fname, format):
+        super(view3D, self).frameGL.saveImage(fname, format)
 
     def setScene(self, scenes):
         """
@@ -91,7 +93,7 @@ class view3D(QGLViewer):
         :return: the scene (orderedDict)
         """
         return self.scene
-        
+
     def addToScene(self, obj):
         """
         Add a new object in existing scene
@@ -101,28 +103,28 @@ class view3D(QGLViewer):
         scene = self.getScene()
         scene += obj
         self.setScene(scene)
-    
+
     def draw(self):
         """
         Draw the scene
         """
         d = Discretizer()
-        gl = GLRenderer(d)       
+        gl = GLRenderer(d)
         self.scene.apply(gl)
 
     def start(self):
         self.show()
-        
+
     def defaultScene(self):
         """
         Create a default scene.
         Here she is empty.
         
         :return: the scene
-        """    
+        """
         scene = Scene()
         return scene
-        
+
     def update_radius(self):
         """
         Set the scene radius to 110% of the max size in the scene
@@ -132,17 +134,17 @@ class view3D(QGLViewer):
             xmax = bBox.getXMax()
             ymax = bBox.getYMax()
             zmax = bBox.getZMax()
-            
+
             xmin = bBox.getXMin()
             ymin = bBox.getYMin()
             zmin = bBox.getZMin()
-            
-            x = max(abs(xmin),abs(xmax))
-            y = max(abs(ymin),abs(ymax))
-            z = max(abs(zmin),abs(zmax))
-            
-            radius = max(x,y,z)
-            self.camera().setSceneRadius(radius*1.1)
+
+            x = max(abs(xmin), abs(xmax))
+            y = max(abs(ymin), abs(ymax))
+            z = max(abs(zmin), abs(zmax))
+
+            radius = max(x, y, z)
+            self.camera().setSceneRadius(radius * 1.1)
             self.show_entire_scene()
         except:
             pass
@@ -152,74 +154,74 @@ class Viewer(view3D):
     """
     Widget of 3D Viewer to show the scene.
     """
+
     def __init__(self, session, controller, parent=None):
-        super(Viewer, self).__init__(parent=parent) 
-        
+        super(Viewer, self).__init__(parent=parent)
+
         self.setAccessibleName("3DViewer")
-        self.setMinimumSize(100,100)
-        
+        self.setMinimumSize(100, 100)
+
         self.autofocus = True
         self._fps = False
         self.axis = False
         self.grid = True
-        
-        actionResetZoom = QtGui.QAction(QtGui.QIcon(":/images/resources/resetzoom.png"),"Reset Zoom", self)
-        actionZoomOut = QtGui.QAction(QtGui.QIcon(":/images/resources/zoomout.png"),"Zoom Out", self)
-        actionZoomIn = QtGui.QAction(QtGui.QIcon(":/images/resources/zoomin.png"),"Zoom In", self)
-        actionShowAxis = QtGui.QAction(QtGui.QIcon(":/images/resources/axis.png"),"Show Axis", self)
-        actionShowGrid = QtGui.QAction(QtGui.QIcon(":/images/resources/grid.png"),"Show Grid", self)
-        actionRadius = QtGui.QAction(QtGui.QIcon(":/images/resources/growth2.png"),"Focus", self)
-        actionShowFps = QtGui.QAction(QtGui.QIcon(":/images/resources/fps.png"),"Show FPS", self)
-        
-        actionShowAxis.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+A", None, QtGui.QApplication.UnicodeUTF8))
-        actionShowGrid.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+G", None, QtGui.QApplication.UnicodeUTF8))
-        actionRadius.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+F", None, QtGui.QApplication.UnicodeUTF8))
-        
-        QtCore.QObject.connect(actionResetZoom, QtCore.SIGNAL('triggered(bool)'),self.resetzoom)
-        QtCore.QObject.connect(actionZoomOut, QtCore.SIGNAL('triggered(bool)'),self.zoomout)
-        QtCore.QObject.connect(actionZoomIn, QtCore.SIGNAL('triggered(bool)'),self.zoomin)
-        
-        QtCore.QObject.connect(actionShowAxis, QtCore.SIGNAL('triggered(bool)'),self.show_hide_axis)
-        QtCore.QObject.connect(actionShowGrid, QtCore.SIGNAL('triggered(bool)'),self.show_hide_grid)
-        QtCore.QObject.connect(actionRadius, QtCore.SIGNAL('triggered(bool)'),self.update_radius)
-        
-        QtCore.QObject.connect(actionShowFps, QtCore.SIGNAL('triggered(bool)'),self.show_fps)
-        
-        QtCore.QObject.connect(controller.scene.signaler, QtCore.SIGNAL('SceneChanged'),self.setScene)
-        QtCore.QObject.connect(controller.scene.signaler, QtCore.SIGNAL('SceneChanged'),self.updateGL)        
-        
-        self._actions = [["3D Viewer","Zoom",actionResetZoom,0],
-                        ["3D Viewer","Zoom",actionZoomOut,0],
-                        ["3D Viewer","Zoom",actionZoomIn,0],
-                        ["3D Viewer","Camera",actionShowAxis,1],
-                        ["3D Viewer","Camera",actionShowGrid,1],
-                        ["3D Viewer","Camera",actionRadius,1],
-                        ["3D Viewer","Informations",actionShowFps,1]]
+
+        actionResetZoom = QtGui.QAction(QtGui.QIcon(":/images/resources/resetzoom.png"), "Reset Zoom", self)
+        actionZoomOut = QtGui.QAction(QtGui.QIcon(":/images/resources/zoomout.png"), "Zoom Out", self)
+        actionZoomIn = QtGui.QAction(QtGui.QIcon(":/images/resources/zoomin.png"), "Zoom In", self)
+        actionShowAxis = QtGui.QAction(QtGui.QIcon(":/images/resources/axis.png"), "Show Axis", self)
+        actionShowGrid = QtGui.QAction(QtGui.QIcon(":/images/resources/grid.png"), "Show Grid", self)
+        actionRadius = QtGui.QAction(QtGui.QIcon(":/images/resources/growth2.png"), "Focus", self)
+        actionShowFps = QtGui.QAction(QtGui.QIcon(":/images/resources/fps.png"), "Show FPS", self)
+
+        actionShowAxis.setShortcut(
+            QtGui.QApplication.translate("MainWindow", "Ctrl+A", None, QtGui.QApplication.UnicodeUTF8))
+        actionShowGrid.setShortcut(
+            QtGui.QApplication.translate("MainWindow", "Ctrl+G", None, QtGui.QApplication.UnicodeUTF8))
+        actionRadius.setShortcut(
+            QtGui.QApplication.translate("MainWindow", "Ctrl+F", None, QtGui.QApplication.UnicodeUTF8))
+
+        QtCore.QObject.connect(actionResetZoom, QtCore.SIGNAL('triggered(bool)'), self.resetzoom)
+        QtCore.QObject.connect(actionZoomOut, QtCore.SIGNAL('triggered(bool)'), self.zoomout)
+        QtCore.QObject.connect(actionZoomIn, QtCore.SIGNAL('triggered(bool)'), self.zoomin)
+
+        QtCore.QObject.connect(actionShowAxis, QtCore.SIGNAL('triggered(bool)'), self.show_hide_axis)
+        QtCore.QObject.connect(actionShowGrid, QtCore.SIGNAL('triggered(bool)'), self.show_hide_grid)
+        QtCore.QObject.connect(actionRadius, QtCore.SIGNAL('triggered(bool)'), self.update_radius)
+
+        QtCore.QObject.connect(actionShowFps, QtCore.SIGNAL('triggered(bool)'), self.show_fps)
+
+        QtCore.QObject.connect(controller.scene.signaler, QtCore.SIGNAL('SceneChanged'), self.setScene)
+        QtCore.QObject.connect(controller.scene.signaler, QtCore.SIGNAL('SceneChanged'), self.updateGL)
+
+        self._actions = [["3D Viewer", "Zoom", actionResetZoom, 0],
+                         ["3D Viewer", "Zoom", actionZoomOut, 0],
+                         ["3D Viewer", "Zoom", actionZoomIn, 0],
+                         ["3D Viewer", "Camera", actionShowAxis, 1],
+                         ["3D Viewer", "Camera", actionShowGrid, 1],
+                         ["3D Viewer", "Camera", actionRadius, 1],
+                         ["3D Viewer", "Informations", actionShowFps, 1]]
 
     def actions(self):
         return self._actions
-    
+
     def resetzoom(self):
         self.camera().setOrientation(self.orientation_initiale)
         self.camera().setPosition(self.position_initiale)
-        self.updateGL() 
-        
+        self.updateGL()
+
     def zoomout(self):
         cam = self.camera()
-        new_position = (cam.position()-cam.sceneCenter())*2
+        new_position = (cam.position() - cam.sceneCenter()) * 2
         cam.setPosition(new_position)
-        self.updateGL() 
-        
+        self.updateGL()
+
     def zoomin(self):
         cam = self.camera()
-        new_position = (cam.position()-cam.sceneCenter())/2
+        new_position = (cam.position() - cam.sceneCenter()) / 2
         cam.setPosition(new_position)
-        self.updateGL() 
-        
-        #coef = qMax(fabsf((camera->frame()->coordinatesOf(camera->revolveAroundPoint())).z), 0.2f*camera->sceneRadius())
-        #trans(0.0, 0.0, -coef * (event->y() - prevPos_.y()) / camera->screenHeight())
-        #translate(inverseTransformOf(trans))
-        
+        self.updateGL()
+
     def show_fps(self):
         self._fps = not self._fps
         self.setFPSIsDisplayed(self._fps)
@@ -229,28 +231,28 @@ class Viewer(view3D):
         :return: Name of menu tab to automatically set current when current widget
         begin current.
         """
-        return "3D Viewer"  
+        return "3D Viewer"
 
     def show_hide_axis(self):
         if self.axis:
-            self.setAxisIsDrawn(False) # hide axis
+            self.setAxisIsDrawn(False)  # hide axis
             self.axis = False
         else:
-            self.setAxisIsDrawn(True) # show axis
+            self.setAxisIsDrawn(True)  # show axis
             self.axis = True
-        
+
     def show_hide_grid(self):
         if self.grid:
-            self.setGridIsDrawn(False) # hide grid
+            self.setGridIsDrawn(False)  # hide grid
             self.grid = False
         else:
-            self.setGridIsDrawn(True) # show grid 
+            self.setGridIsDrawn(True)  # show grid
             self.grid = True
 
     def show_entire_scene(self):
         self.camera().showEntireScene()
-        self.updateGL()  
-        
+        self.updateGL()
+
     def setScene(self, scenes):
         """
         Set the scene
@@ -262,17 +264,17 @@ class Viewer(view3D):
         """
         super(Viewer, self).setScene(scenes)
         if self.autofocus:
-            self.update_radius()    
+            self.update_radius()
             self.autofocus = False
-        
+
+
 def main():
-        app = QApplication(sys.argv)
-        view = view3D()
-        view.addToScene(Sphere())
-        view.start() 
-        app.exec_()
-        
-        
-if( __name__ == "__main__"):
+    app = QtGui.QApplication(sys.argv)
+    view = view3D()
+    view.addToScene(Sphere())
+    view.start()
+    app.exec_()
+
+
+if ( __name__ == "__main__"):
     main()
-                

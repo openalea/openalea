@@ -1,4 +1,4 @@
-from openalea.vpltk.qt import QtGui, QtCore
+from openalea.vpltk.qt import QtGui
 from openalea.core.path import path
 
 def pretty_print(obj):

@@ -27,8 +27,6 @@ from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core import logger
 from openalea.core.path import path
 from openalea.core.settings import get_openalea_home_dir
-
-from openalea.oalab.config.main import MainConfig
 from openalea.oalab.config.template import config_file_default, config_file_mini, config_file_3d, config_file_tissue, config_file_plant
 
 class MainWindow(QtGui.QMainWindow):

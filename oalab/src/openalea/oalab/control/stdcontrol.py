@@ -23,7 +23,6 @@ Control classes for standard python types
 __revision__ = "$Id: $"
 
 
-from cPickle import loads, dumps
 from openalea.vpltk.qt import QtGui
 
 class Control(object):

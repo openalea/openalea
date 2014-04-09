@@ -19,14 +19,11 @@ __revision__ = ""
 
 
 from openalea.vpltk.qt import QtGui, QtCore
-from mainwindow import MainWindow
+from openalea.oalab.gui.mainwindow import MainWindow
 from openalea.oalab import metainfo
-
 from openalea.oalab.session.all import Session
 from openalea.oalab.gui.allwidgets import AllWidgets
-
 from openalea.oalab.gui import resources_rc
-
 import sys
 
 
