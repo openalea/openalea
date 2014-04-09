@@ -268,9 +268,11 @@ class MainWindow(QtGui.QMainWindow):
         self._dockWidget("Packages", controller.applets["Packages"], position=QtCore.Qt.BottomDockWidgetArea)
         self._dockWidget("PackageCategories", controller.applets["PackageCategories"], name="Package Categories", position=QtCore.Qt.BottomDockWidgetArea)
         self._dockWidget("PackageSearch", controller.applets["PackageSearch"], name="Package Search", position=QtCore.Qt.BottomDockWidgetArea)
-        self._dockWidget("ControlPanel", controller.applets["ControlPanel"], name="Control Panel", position=QtCore.Qt.BottomDockWidgetArea)
-        
-        controller.applets['ControlPanel'].geometry_editor.setStatusBar(self.statusBar())
+
+        if controller.applets.has_key("ControlPanel"):
+            self._dockWidget("ControlPanel", controller.applets["ControlPanel"], name="Control Panel", position=QtCore.Qt.BottomDockWidgetArea)
+            controller.applets['ControlPanel'].geometry_editor.setStatusBar(self.statusBar())
+
         self._dockwidgets['Store'].hide()
 
         # Status bar
@@ -285,7 +287,8 @@ class MainWindow(QtGui.QMainWindow):
         
         self.tabifyDockWidget(self._dockwidgets['PackageSearch'], self._dockwidgets['PackageCategories'])
         self.tabifyDockWidget(self._dockwidgets['PackageCategories'], self._dockwidgets['Packages'])
-        self.tabifyDockWidget(self._dockwidgets['Packages'], self._dockwidgets['ControlPanel'])
+        if self._dockwidgets.has_key("Packages") and self._dockwidgets.has_key("ControlPanel"):
+            self.tabifyDockWidget(self._dockwidgets['Packages'], self._dockwidgets['ControlPanel'])
         self.tabifyDockWidget(self._dockwidgets['Project'], self._dockwidgets['HelpWidget'])
         self._dockwidgets['Store'].setTitleBarWidget(QtGui.QWidget())
         
