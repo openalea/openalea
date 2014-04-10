@@ -56,14 +56,19 @@ class CPickleLoader(ILoader):
         """
         filename = path(filename)
         if filename.exists():
+            cpik = "False"
             try:
                 import cPickle
+                cpik = "True"
+            except ImportError:
+                warnings.warn("You must install cPickle.")
+            try:
                 file_ = open(filename, "r")
                 ret = cPickle.load(file_)
                 file_.close()
                 return ret
-            except ImportError:
-                warnings.warn("You must install cPickle.")
+            except Exception, e:
+                print e
         
 class BGEOMLoader(ILoader):
     """
