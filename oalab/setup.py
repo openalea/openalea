@@ -94,8 +94,8 @@ setup(
                           'BoolControl = openalea.oalab.control.stdcontrol:BoolControl',
                           'FloatControl = openalea.oalab.control.stdcontrol:FloatControl'],
         'oalab.paradigm_applet': ['PythonApplet = openalea.oalab.plugins.python:PythonApplet',
-                                  #'oalab.paradigm_applet': ['LPyApplet = openalea.oalab.plugins.lpy:LPyApplet'],
-                                  #'oalab.paradigm_applet': ['VisualeaApplet = openalea.oalab.plugins.visualea:VisualeaApplet' ],
+                                  'LPyApplet = openalea.oalab.plugins.lpy:LPyApplet',
+                                  'VisualeaApplet = openalea.oalab.plugins.visualea:VisualeaApplet',
                                   'RApplet = openalea.oalab.plugins.r:RApplet', ],
         #'console_scripts': [
         #       'fake_script = openalea.fakepackage.amodule:console_script', ],

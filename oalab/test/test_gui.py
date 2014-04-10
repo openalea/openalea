@@ -1,7 +1,6 @@
 from openalea.oalab.session.session import Session
 from openalea.oalab.gui.menu import PanedMenu
 from openalea.oalab.gui.mainwindow import MainWindow
-from openalea.oalab.applets.container import AppletContainer
 from openalea.oalab.editor.text_editor import TextEditor
 from openalea.oalab.gui.allwidgets import AllWidgets
 from openalea.vpltk.project.manager import ProjectManager
@@ -30,22 +29,27 @@ def test_applet_container_opentab():
     container.reset()
     assert container.count() == 0
 """
+
+
 def test_session_and_mainwindow():
     project_manager = ProjectManager()
     mw = MainWindow(session, controller, parent=None)
-    assert session.project.name == project_manager.empty().name
+    assert session.project.name == project_manager.default().name
     assert controller.applets['Store'].actions() == None
-    assert controller.applets['Store'].mainMenu() == "Package Store" 
-    
+    assert controller.applets['Store'].mainMenu() == "Package Store"
+
+
 def test_text_edit():
     editor = TextEditor(session, controller, parent=None)
     assert editor is not None
-    
+
+
 def test_create_paned_menu():
     menu = PanedMenu()
     obj = QtCore.QObject()
     myaction = QtGui.QAction("Plop", obj)
-    menu.addBtn(pane_name="Test Pane", group_name="Test Group", btn_name="Test Button", btn_icon=QtGui.QIcon(""), btn_type=0)
+    menu.addBtn(pane_name="Test Pane", group_name="Test Group", btn_name="Test Button", btn_icon=QtGui.QIcon(""),
+                btn_type=0)
     menu.addBtnByAction(pane_name="Test Pane 2", group_name="Test Group 2", action=myaction, btn_type=1)
     menu.addSpecialTab(label="specialtab", widget=QtGui.QWidget())
     assert len(menu.tab_name) == 3
