@@ -1,30 +1,64 @@
-"""   
----------------------
-Project Architecture
----------------------
-You have here the architecture of the project named "project_name",
-stored in your computer.
+# -*- python -*-
+#
+#       OpenAlea.OALab: Multi-Paradigm GUI
+#
+#       Copyright 2014 INRIA - CIRAD - INRA
+#
+#       File author(s): Julien Coste <julien.coste@inria.fr>
+#
+#       File contributor(s):
+#
+#       Distributed under the Cecill-C License.
+#       See accompanying file LICENSE.txt or copy at
+#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
+#
+#       OpenAlea WebSite : http://openalea.gforge.inria.fr
+#
+###############################################################################
 
-/project_name
-    /scripts          (Files sources, Script Python, LPy...)
-    /controls       (Controls, like color map or curve)
-    /scene          (scene, scene 3D)
-    /cache          (Intermediary saved objects)
-    /startup          (Preprocessing scripts)
-        *.py            (Preprocessing scripts)
-        *import*.py     (Libs and packages to import in preprocessing)
-
-"""
 import os
 import warnings
 from openalea.core.path import path as path_
 from openalea.vpltk.project.configobj import ConfigObj
+from openalea.vpltk.project.loader import get_loader
+from openalea.vpltk.project.saver import get_saver
 
-from openalea.vpltk.project.loader import get_loader, BGEOMLoader, CPickleLoader, GenericLoader
-from openalea.vpltk.project.saver import get_saver, BGEOMSaver, CPickleSaver, GenericSaver
 
 class Project(object):
-    def __init__(self,project_name, project_path):
+    """
+    The Project is a structure which permit to manage different objects.
+
+    It store **metadata** (name, authors, description, version, license, ...) and **data** (scripts, models, images, ...).
+
+    You have here the default architecture of the project named "project_name",
+    stored in your computer.
+
+    /project_name
+        oaproject.cfg        (Configuration file)
+        /scripts          (Files sources, Script Python, LPy...)
+        /controls       (Controls, like color map or curve)
+        /scene          (scene, scene 3D)
+        /cache          (Intermediary saved objects)
+        /data           (Data files like images, .dat, ...)
+        /startup          (Preprocessing scripts)
+            *.py            (Preprocessing scripts)
+            *import*.py     (Libs and packages to import in preprocessing)
+
+    :use:
+        .. code-block:: python
+
+            project1 = Porject(project_name="mynewproj", project_path="/path/to/proj")
+            project1.start()
+            project1.add(category="scripts", name"hello.py", value="print 'Hello World'")
+            project1.authors = "John Doe"
+            project1.description = "This project is used to said hello to everyone"
+            project1.save()
+    """
+    def __init__(self, project_name, project_path):
+        """
+        :param project_name: name of the project to create or load
+        :param project_path: path of the project to create or load
+        """
         # Metadata
         self.name = str(project_name)
         self.path = path_(project_path)
@@ -42,21 +76,35 @@ class Project(object):
         self.scripts = dict()
         self.controls = dict()
         self.cache = dict()
+        self.data = dict()
         self.scene = dict()
         self.startup = dict()
-        
+
         self.shell = None
         self._set_ipython()
         self._to_save_in_manifest = ['scripts', 'controls', 'scene', 'cache', 'startup']
-        self._to_save_in_metadata = ['name', 'icon', 'authors', 'description', 'version', 'license', 'dependencies', 'long_description']
+        self._to_save_in_metadata = ['name', 'icon', 'authors', 'description', 'version', 'license', 'dependencies',
+                                     'long_description']
 
     #----------------------------------------
     # Public API
     #----------------------------------------    
     def create(self):
+        """
+        Do the same thing that start method.
+
+        .. seealso:: :func:`start` :func:`load` :func:`load_manifest`
+        """
         self.start()
-        
+
     def start(self):
+        """
+        1. :func:`load` objects into project.
+        2. Import startup.
+        3. Run preprocessing.
+
+        .. seealso:: :func:`load` :func:`load_manifest`
+        """
         # Load in object
         self.load()
         # Load in shell
@@ -64,22 +112,43 @@ class Project(object):
         self._startup_run()
 
     def load(self):
+        """
+        Realize a total loading of project (contrary to :func:`load_manifest`).
+
+        1. Load manifest :func:`load_manifest`
+        2. Read data files listed in manifest and fill project object.
+
+        .. seealso:: :func:`start` :func:`load_manifest`
+        """
         self.load_manifest()
         for category in self._to_save_in_manifest:
             obj = self._load(str(category))
             setattr(self, category, obj)
-        
+
     def save(self):
+        """
+        Save project on disk.
+
+        1. Save **data** files.
+        2. Save **metadata** and **list on previously saved data** into a manifest file (*oaproject.cfg*).
+
+        .. seealso:: :func:`save_manifest`
+        """
         for category in self._to_save_in_manifest:
             self._save(str(category))
         self.save_manifest()
 
     def get(self, category, name):
         """
+        Search an object inside project and return it.
+
         :param category: category of object to get
         :param name: name of object to get
-        
+        :return: object named *name* in the category *category* if it exists. Else, None.
+
         :use: >>> get(category="scripts", name="myscript.py")
+
+        .. seealso:: :func:`add`
         """
         if hasattr(self, category):
             cat = getattr(self, category)
@@ -90,7 +159,7 @@ class Project(object):
                 if cat.has_key(name):
                     return cat[name]
         return None
-    
+
     def add(self, category, name, value):
         """
         Add an object in the project
@@ -98,128 +167,103 @@ class Project(object):
         :param category: *type* of object to add ("scripts", "control", "scene", ...)
         :param name: filename of the object to add (path or str)
         :param value: to add (string)
+
+        .. seealso:: :func:`get` :func:`remove`
         """
         if not hasattr(self, category):
             setattr(self, category, dict())
         cat = getattr(self, category)
         cat[name] = value
-    
+
     def remove(self, category, name):
         """
         Remove an object in the project
         
         Remove nothing on disk.
         
-        :category: category of object to remove ("scripts", "control", "scene", ...) (str)
+        :param category: category of object to remove ("scripts", "control", "scene", ...) (str)
         :param name: filename of the script to remove (path or str)
         """
         category = str(category)
         filename = path_(name)
-        
+
         if hasattr(self, category):
             cat = getattr(self, category)
             if cat.has_key(filename):
                 del cat[filename]
-                
+
     def rename(self, category, old_name, new_name):
         """
-        Rename a script, a scene or a control in the project. Can rename the project too.
+        Rename a script, a scene or a control in the project.
+        If category is project, rename the entire project.
         
         :param category: Can be "script", "control", "scene" or "project" (str)
         :param old_name: current name of thing to rename (str)
-        :param new_name: futur name of thing to rename (str)
-        
-        :TODO: become generical (cf. remove or add method)
+        :param new_name: future name of thing to rename (str)
         """
-        if (category == "script") or (category == "scripts") or (category == "Models"):  
-            if not new_name:
-                self.remove(category, old_name)
-                return          
-            # Remove in project
-            self.scripts[str(new_name)] = self.scripts[str(old_name)]
-            del self.scripts[str(old_name)]
-            
-            # Remove on disk
-            temp_path = self.path/self.name/"scripts"
-            cwd = os.getcwd()
-            if temp_path.exists():
-                os.chdir(temp_path)
-                try:
-                    os.remove(str(old_name))
-                except:
-                    pass
-                os.chdir(cwd) 
-        
-        if (category == "control") or (category == "Controls"):
-            # Remove in project
-            self.controls[str(new_name)] = self.controls[str(old_name)]
-            del self.controls[str(old_name)]
-            
-            # Remove on disk
-            temp_path = self.path/self.name/"controls"
-            
-            if temp_path.exists():
-                cwd = os.getcwd()
-                os.chdir(temp_path)
-                try:
-                    os.remove(str(old_name))
-                except:
-                    pass
-                os.chdir(cwd) 
-            
-        if (category == "scene") or (category == "Scene"):
-             # Remove in project
-            self.scene[str(new_name)] = self.scene[str(old_name)]
-            del self.scene[str(old_name)]
-            
-            # Remove on disk
-            temp_path = self.path/self.name/"scene"
-            if temp_path.exists():
-                cwd = os.getcwd()
-                try:
-                    os.remove(str(old_name))
-                except:
-                    pass
-                os.chdir(cwd) 
-            
         if (category == "project"):
             self.name = new_name
             self.save()
             try:
-                (self.path/old_name).removedirs()
-            except:
+                (self.path / old_name).removedirs()
+            except IOError:
                 pass
-                
+        else:
+            if hasattr(self, category):
+                cat = getattr(self, category)
+                # Rename in project
+                cat[str(new_name)] = cat[str(old_name)]
+                # Remove inside project
+                self.remove(category, old_name)
+                # Remove on disk
+                temp_path = self.path / self.name / category
+                if temp_path.exists():
+                    try:
+                        os.remove(str(old_name))
+                    except IOError:
+                        pass
+
     #----------------------------------------
     # Manifest
     #---------------------------------------- 
     def save_manifest(self):
         """
-        Save in a manifest file what is present inside a project
+        Save a manifest file on disk. His name is "*oaproject.cfg*".
+
+        It contains **list of files** that are inside project (*manifest*) and **metadata** (authors, version, ...).
+
+        .. seealso:: :func:`load_manifest`
         """
         config = ConfigObj()
-        config.filename = self.path/self.name/"oaproject.cfg"
-        
+        config.filename = self.path / self.name / "oaproject.cfg"
+
         config['metadata'] = dict()
         config['manifest'] = dict()
-        
+
         for info in self._to_save_in_metadata:
             config['metadata'][info] = getattr(self, info)
-            
+
         for files in self._to_save_in_manifest:
             filenames = getattr(self, files)
             if filenames.keys():
                 config['manifest'][files] = filenames.keys()
 
         config.write()
-        
+
     def load_manifest(self):
         """
-        Load a project from a manifest file
+        *Partially load* a project from a manifest file.
+
+        1. Read manifest file (oaproject.cfg).
+        2. Load metadata inside project from manifest.
+        3. Load **filenames** of data files inside project from manifest.
+        4. **Not** load data ! If you want to load data, please use :func:`load`.
         
         :warning: load metadata and list of filenames but does not load files
+
+        .. seealso:: :func:`save_manifest` :func:`load`
         """
-        config = ConfigObj(self.path/self.name/"oaproject.cfg")
+        config = ConfigObj(self.path / self.name / "oaproject.cfg")
         if config.has_key('metadata'):
             for info in config["metadata"].keys():
                 setattr(self, info, config['metadata'][info])
@@ -232,33 +276,40 @@ class Project(object):
                 for f in config['manifest'][files]:
                     filedict[f] = ""
                 setattr(self, files, filedict)
-                
+
     #----------------------------------------
     # Scripts
     #---------------------------------------- 
     def add_script(self, name, script):
         """
         Add a script in the project
-        
+
+        :deprecated: replace by :func:`add` method
         :param name: filename of the script to add (path or str)
         :param script: to add (string)
+
+        .. seealso:: :func:`add`
         """
-        warnings.warn("project.add_script(name, script) is deprecated. Please use project.add('scripts', name, script) instead.")
+        warnings.warn(
+            "project.add_script(name, script) is deprecated. Please use project.add('scripts', name, script) instead.")
         self.add("scripts", name, script)
-        
+
     def remove_script(self, name):
         """
         Add a script in the project
         
         Remove nothing on disk.
-        
+
+        :deprecated: replace by :func:`remove` method
         :param name: filename of the script to remove (path or str)
+
+        .. seealso:: :func:`remove`
         """
         warnings.warn("project.remove_script(name) is deprecated. Please use project.remove('scripts', name) instead.")
-        self.remove("scripts", name)     
-        
+        self.remove("scripts", name)
+
     #----------------------------------------
-    # Protected 
+    # Protected
     #---------------------------------------- 
     def _load(self, object_type):
         """
@@ -266,18 +317,18 @@ class Project(object):
         """
         object_type = str(object_type)
         return_object = dict()
-        
+
         if hasattr(self, object_type):
-            temp_path = self.path/self.name/object_type
-            
+            temp_path = self.path / self.name / object_type
+
             if not temp_path.exists():
                 return return_object
-                
+
             files = getattr(self, object_type)
             files = files.keys()
             for filename in files:
                 filename = path_(filename)
-                pathname = self.path/self.name/object_type/filename
+                pathname = self.path / self.name / object_type / filename
                 if filename.isabs():
                     # Load files that are outside project
                     pathname = filename
@@ -289,27 +340,27 @@ class Project(object):
                 loader = Loader()
                 result = loader.load(pathname)
                 return_object[filename] = result
-                
+
         # hack to add cache in namespace
         if object_type == "cache":
             for cache_name in return_object:
                 self.ns[cache_name] = eval(str(return_object[cache_name]), self.ns)
-            
-        return return_object 
-        
+
+        return return_object
+
     def _save(self, object_type):
         object_type = str(object_type)
         object_ = getattr(self, object_type)
-        temp_path = self.path/self.name/object_type
-        
-        # Make default directories
-        if not (self.path/self.name).exists():
-            os.mkdir(self.path/self.name)
+        temp_path = self.path / self.name / object_type
+
+        # Make default directories if necessary
+        if not (self.path / self.name).exists():
+            os.mkdir(self.path / self.name)
         if not temp_path.exists():
             os.mkdir(temp_path)
-        
+
         for sub_object in object_:
-            filename = temp_path/sub_object
+            filename = temp_path / sub_object
             sub_object = path_(sub_object)
             Saver = get_saver()
             if sub_object.isabs():
@@ -322,31 +373,32 @@ class Project(object):
                 Saver = get_saver("CPickleSaver")
             saver = Saver()
             saver.save(object_[sub_object], filename)
-     
+
     def _save_scripts(self):
         warnings.warn("project._save_scripts is deprecated. Please use project._save('scripts') instead.")
-        self._save("scripts")     
-     
-    def _startup_import(self): 
+        self._save("scripts")
+
+    def _startup_import(self):
         use_ip = self.use_ipython()
-    
+
         for s in self.startup:
             if s.find('import') != -1:
-                exec(self.startup[s],self.ns)
+                exec (self.startup[s], self.ns)
                 if use_ip:
                     self.shell.runcode(self.startup[s])
 
     def _startup_run(self):
         use_ip = self.use_ipython()
-    
+
         for s in self.startup:
             if s.find('import') == -1:
-                exec(self.startup[s],self.ns)
+                exec (self.startup[s], self.ns)
                 if use_ip:
                     self.shell.runcode(self.startup[s])
-        
+
     def __repr__(self):
-        return "Project named " + str(self.name) + " in path " + str(self.path) + " . Scripts: " + str(self.scripts.keys()) 
+        return "Project named " + str(self.name) + " in path " + str(self.path) + " . Scripts: " + str(
+            self.scripts.keys())
 
     def _set_ipython(self, shell=None):
         if not self.use_ipython():
@@ -356,11 +408,10 @@ class Project(object):
             except:
                 shell = None
         self.shell = shell
-        
+
     def use_ipython(self):
         """
-        :return: True if project is instaciated with a shell IPython.
-        Else, return False.
+        :return: True if project is instaciated with a shell IPython. Else, return False.
         """
         if self.shell == None:
             return False
@@ -368,10 +419,19 @@ class Project(object):
             return True
 
     def get_scene(self):
+        """
+        :return: self.scene (dict)
+        """
         return self.scene
 
     def is_project(self):
+        """
+        :return: True
+        """
         return True
-        
+
     def is_script(self):
+        """
+        :return: False
+        """
         return False

@@ -7,15 +7,29 @@ Reference guide
 ###################################
 .. contents::
 
-.. currentmodule:: openalea.vpltk.__init__
 
+:mod:`openalea.vpltk.project.project` module
+===================================================
 
-:mod:`openalea.vpltk` module
-===============================================
-.. automodule:: openalea.vpltk.__init__
+.. automodule:: openalea.vpltk.project.project
     :members:
     :undoc-members:
     :inherited-members:
     :show-inheritance:
-    :synopsis: doc todo
+    :synopsis: Define Projects
+
+.. currentmodule:: openalea.vpltk.project
+
+:mod:`openalea.vpltk.project.manager` module
+===================================================
+
+.. automodule:: openalea.vpltk.project.manager
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :show-inheritance:
+    :synopsis: Manage Projects
+
+.. currentmodule:: openalea.vpltk.project
+
 

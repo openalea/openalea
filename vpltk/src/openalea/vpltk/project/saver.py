@@ -10,6 +10,7 @@ def get_saver(name="GenericSaver"):
         if saver.default_name == name:
             return saver
 
+
 class ISaver(object):
     """
     Generic class for savers
@@ -52,7 +53,7 @@ class CPickleSaver(object):
             cPickle.dump(obj, file_)
         except ImportError:
             warnings.warn("You must install cPickle.")
-        
+
 class BGEOMSaver(object):
     """
     Specific loader that is used to manipulate PlantGL objects
