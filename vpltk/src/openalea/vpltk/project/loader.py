@@ -69,6 +69,7 @@ class CPickleLoader(ILoader):
                     file_.close()
                     return ret
                 except Exception, e:
+                    print "Can't load file " + filename + " with loader CPickleLoader. "
                     print e
         
 class BGEOMLoader(ILoader):
