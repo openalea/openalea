@@ -27,6 +27,7 @@ import sys
 from openalea.vpltk.qt import QtCore, QtGui
 from openalea.visualea.graph_operator import GraphOperator
 from openalea.visualea import dataflowview
+from openalea.core.compositenode import CompositeNodeFactory
 
 
 def repr_workflow(self, name=None):
@@ -74,7 +75,7 @@ def save(self, name=None):
 
     if project.is_project():
         project.scripts[name] = wf_str
-        project._save_scripts()
+        project._save("scripts")
     elif project.is_script():
         project[name] = wf_str
         if name == (u"workflow.wpy"):

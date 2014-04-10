@@ -57,7 +57,7 @@ class ControlPanel(QtGui.QTabWidget):
         n = len(self.scalars_editor.getScalars())
         for scalar in range(n):
             self.scalars_editor.deleteScalars()
-        self.colormap_editor = MaterialEditor(self)
+        #self.colormap_editor = MaterialEditor(self)
 
     def update(self):
         """
@@ -80,8 +80,11 @@ class ControlPanel(QtGui.QTabWidget):
         """
         Get controls from project and put them into widgets
         """
+        self.clear()
         proj = self.session.project
         if not proj.controls.has_key("color map"):
+            proj.controls["color map"] = self.colormap_editor.getTurtle().getColorList()
+        if not proj.controls["color map"]:
             proj.controls["color map"] = self.colormap_editor.getTurtle().getColorList()
         i = 0
         logger.debug("Load Controls color map: %s " % str(proj.controls["color map"]))

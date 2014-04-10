@@ -92,7 +92,7 @@ class ProjectManagerWidget(QtGui.QWidget):
         self.defaultProj()
 
     def defaultProj(self):
-        proj = self.projectManager.load_empty()
+        proj = self.projectManager.load_default()
         self.session._project = proj
         self.session._is_proj = True
 
@@ -189,7 +189,10 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
     def importFile(self, filename=None, extension=None):
         """
-        Import a file and add it in the project
+        Import a file and add it to the project.
+
+        :param filename: name of file to add in project
+        :param extension:
         """
         if extension is None:
             extension = self.extensions
@@ -213,7 +216,9 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
     def new(self, name=None):
         """
-        Create an empty project with a default name.
+        Create an default empty project with a default name.
+
+        :param name: full name of project to add (path)
         """
         if not name:
             date = strftime("%Y-%m-%d_%H-%M-%S", gmtime())
@@ -259,7 +264,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         :param model_name: Name of the model to remove in the current project
         """
         if self.session.current_is_project():
-            self.session.project.remove_script(model_name)
+            self.session.project.remove("scripts", model_name)
             self._project_changed()
         else:
             print "You are not working inside project. Please create or load one first."
