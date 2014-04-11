@@ -88,6 +88,9 @@ class ProjectSelector(QtGui.QWidget):
         # <=4 -> 2x2 or 2x1, <=9 -> 3x3 or 3x2, <=16 -> 4x4 or 4x3, ...
         maxcolumn = int(sqrt(len(self.projects)))
 
+        if maxcolumn > 5:
+            maxcolumn = 5
+
         refresh_widget = QtGui.QPushButton("Refresh Project List")
         refresh_widget.clicked.connect(self.refersh_project_list)
         add_widget = QtGui.QPushButton("Search Projects")
@@ -142,15 +145,23 @@ class ProjectSelector(QtGui.QWidget):
         fname = QtGui.QFileDialog.getExistingDirectory(self, 'Select Directory to search Projects', None)
         return fname
 
+
+class ProjectSelectorScroll(QtGui.QScrollArea):
+    def __init__(self, projects, parent=None):
+        super(ProjectSelectorScroll, self).__init__(parent)
+        widget = ProjectSelector(projects, parent)
+        self.setWidget(widget)
+
+
 def main():
     app = QtGui.QApplication(sys.argv)
 
     project_manager = ProjectManager()
     project_manager.discover()
-    widget = ProjectSelector(project_manager.projects)
+    scroll = ProjectSelectorScroll(project_manager.projects)
 
     # Display
-    widget.show()
+    scroll.show()
     app.exec_()
 
 
