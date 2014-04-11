@@ -15,6 +15,66 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+"""
+---------------------------------------
+Project and Project Manager Quick Start
+---------------------------------------
+
+You can create load or save a *project* thanks to the *project manager*.
+
+.. code-block:: python
+
+    from openalea.vpltk.project.manager import ProjectManager
+    # Instanciate ProjectManager
+    project_manager = ProjectManager()
+    # Discover available projects
+    project_manager.discover()
+    print project_manager.projects
+
+    # Create project in default directory or in specific one
+    p1 = project_manager.create('project1')
+    p2 = project_manager.create('project2', '/path/to/project')
+    # Load project from default directory or in specific one
+    p3 = project_manager.load('project3')
+    p4 = project_manager.load('project4', '/path/to/project')
+
+To search projects that are not located inside default directories:
+
+.. code-block:: python
+
+    project_manager.find_links.append('path/to/search/projects')
+    project_manager.discover()
+    print project_manager.projects
+
+You can then manipulate *proj* and these attributes (name, description, scripts, startup)
+
+.. code-block:: python
+
+    # Metadata
+    p1.rename("project", "project1", "numpy_project")
+    p1.authors = "OpenAlea Consortium and me"
+    p1.description = "Test project concept with numpy"
+    p1.long_description = '''This project import numpy.
+    Then, it create and display a numpy eye.
+    We use it to test concept of Project.'''
+
+    # Data management
+    p1.add("startup", "begin_numpy.py", "import numpy as np")
+    p1.add("scripts", "eye.py", "print np.eye(2)")
+    p1.rename("scripts", "eye.py", "eye_numpy.py")
+    print p1.get("scripts", "eye_numpy.py")
+
+    # Save
+    p1.save()
+
+    # Load
+    p2 = project_manager.load("numpy_project")
+    # Run startup
+    p2.start()
+    # Run script
+    p2.run_script("eye_numpy.py")
+
+"""
 
 import os
 import warnings
@@ -217,10 +277,10 @@ class Project(object):
                 # Remove inside project
                 self.remove(category, old_name)
                 # Remove on disk
-                temp_path = self.path / self.name / category
+                temp_path = self.path / self.name / category / old_name
                 if temp_path.exists():
                     try:
-                        path_(old_name).removedirs()
+                        path_(temp_path).removedirs()
                     except IOError:
                         pass
 
@@ -308,6 +368,14 @@ class Project(object):
         """
         warnings.warn("project.remove_script(name) is deprecated. Please use project.remove('scripts', name) instead.")
         self.remove("scripts", name)
+
+    def run_script(self, name):
+        """
+        Try to run the script named *name* into current shell
+
+        """
+        script = self.get("scripts", name)
+        exec(script, self.ns)
 
     #----------------------------------------
     # Protected
