@@ -137,7 +137,7 @@ class ProjectManager(object):
 
         :TODO: not implemented yet
         """
-        pass
+        return self.projects
 
     def get_current(self):
         """
@@ -226,12 +226,13 @@ class ProjectManager(object):
         # del self.cproject
         # self.cproject = self.default()
 
+    """
     def __getitem__(self, project_name):
         try:
             self.cproject = self.load(project_name)
             return self.get_current()
         except:
-            return self.default()
+            return self.default()"""
 
     def clear(self):
         """

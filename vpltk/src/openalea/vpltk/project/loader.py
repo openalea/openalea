@@ -12,7 +12,7 @@ def get_loader(name="GenericLoader"):
 
 class ILoader(object):
     """
-    Generic class for loaders
+    Generic interface class for loaders
     """    
     def load(self, filename):
         """

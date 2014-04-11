@@ -83,6 +83,13 @@ def test_rename():
     assert proj.scripts["2"] == "blablabla"
 
 
+def test_rename_project():
+    pm = ProjectManager()
+    proj = pm.create('my_new_temp_project', path("data"))
+    proj.add("scripts", "1", "blablabla")
+    proj.rename("project", "my_new_temp_project", "new_name")
+    assert proj.name == "new_name"
+
 #######################################################
 # New API
 #######################################################
@@ -90,6 +97,14 @@ def test_rename():
 def test_create_project_from_manager():
     pm = ProjectManager()
     proj = pm.create('my_new_temp_project', path("data"))
+
+    for category in ["name", "path", "icon", "authors", "description", "version", "license", "dependencies"]:
+        assert hasattr(proj, category)
+
+
+def test_create_project_from_manager2():
+    pm = ProjectManager()
+    proj = pm.create('my_new_temp_project')
 
     for category in ["name", "path", "icon", "authors", "description", "version", "license", "dependencies"]:
         assert hasattr(proj, category)

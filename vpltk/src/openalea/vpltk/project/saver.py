@@ -13,7 +13,7 @@ def get_saver(name="GenericSaver"):
 
 class ISaver(object):
     """
-    Generic class for savers
+    Generic interface class for savers
     """
     def save(self, obj, filename):
         raise NotImplementedError

@@ -204,10 +204,11 @@ class Project(object):
         if (category == "project"):
             self.name = new_name
             self.save()
-            try:
-                (self.path / old_name).removedirs()
-            except IOError:
-                pass
+            if (self.path/old_name).exists():
+                try:
+                    (self.path / old_name).removedirs()
+                except IOError:
+                    pass
         else:
             if hasattr(self, category):
                 cat = getattr(self, category)
@@ -219,7 +220,7 @@ class Project(object):
                 temp_path = self.path / self.name / category
                 if temp_path.exists():
                     try:
-                        os.remove(str(old_name))
+                        path_(old_name).removedirs()
                     except IOError:
                         pass
 
