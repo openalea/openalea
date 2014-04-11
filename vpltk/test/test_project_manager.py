@@ -39,3 +39,20 @@ def test_project_manager_add_path():
 
     nb2 = len(pm.projects)
     assert nb == nb2
+
+
+def test_search():
+    pm = ProjectManager()
+    pm.discover()
+    projs = pm.search()
+    assert type(projs) is list
+    assert projs is pm.projects
+
+
+def test_load_default():
+    pm = ProjectManager()
+    pm.discover()
+    proj = pm.load_default()
+    proj2 = pm.default()
+    assert type(proj) is type(proj2)
+    assert str(proj.name) == "temp"
