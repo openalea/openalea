@@ -15,55 +15,6 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-"""
---------------------------
-How to use Project Manager
---------------------------
-You can create load or save a project *project* thanks to the project manager *project_manager*.
-
-When you create or load a *project*, the *project_manager* return a *project* like here:
-
-.. code-block:: python
-
-    # Instanciate ProjectManager
-    project_manager = ProjectManager()
-    # Discover available projects
-    project_manager.discover()
-    # Create project in default directory
-    p1 = project_manager.create('project1')
-    # Create project in specific directory
-    p2 = project_manager.create('project2', '/path/to/project')
-    # Load project from default directory
-    p3 = project_manager.load('project3')
-    # Load project from specific directory
-    p4 = project_manager.load('project4', '/path/to/project')
-
-To search projects that are not located inside default directories:
-
-.. code-block:: python
-
-    project_manager.find_links.append('path/to/search/projects')
-    project_manager.discover()
-    print project_manager.projects
-
-You can then manipulate *proj* and these attributes (name, controls, scene, global_workflow)
-.. code-block:: python
-
-    p1.add("controls", "newcontrol", my_new_control)
-    # or
-    p1.controls['newcontrol'] = my_new_control
-
-When you have finished, you can save the project:
-By default, project are saved in ~/.openalea/projects
-You can change default directly with
-
-.. code-block:: python
-
-    p1.save()
-
-.. seealso:: :class:`openalea.vpltk.project.project.Project`_
-
-"""
 import os
 import platform
 from openalea.core.path import path as path_
