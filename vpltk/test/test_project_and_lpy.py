@@ -3,7 +3,6 @@ from openalea.lpy_wralea.lpy_nodes import run_lpy
 from openalea.vpltk.project.manager import ProjectManager
 from openalea.core.path import path
 import os
-import shutil
 
 def test_load_project_1():
     # reference
@@ -11,7 +10,7 @@ def test_load_project_1():
     tree, lsys = run_lpy(str(fn))
  
     pm = ProjectManager()
-    fn = path("data")/"test_project_lpy"/"scripts"/"noise_branch-2d.lpy" # remove python & context
+    fn = path("data")/"test_project_lpy"/"src"/"noise_branch-2d.lpy" # remove python & context
     proj = pm.load('test_project_lpy','data') # load in globals context and python as startup
     l = Lsystem(str(fn), proj.ns)
     tree2 = l.iterate()
@@ -24,7 +23,7 @@ def test_load_project_2():
     tree, lsys = run_lpy(fn)
 
     pm = ProjectManager()
-    fn = path("data")/"test_project_lpy"/"scripts"/"noise_branch-2d.lpy" # remove python & context
+    fn = path("data")/"test_project_lpy"/"src"/"noise_branch-2d.lpy" # remove python & context
     proj = pm.load('test_project_lpy','data') # load in globals context and python as startup
     tree2, lsys2 = run_lpy(str(fn), parameters=proj.ns)
     
@@ -38,8 +37,8 @@ def test_load_project_3():
     pm = ProjectManager()
     proj = pm.load('test_project_lpy','data') # load in globals context and python as startup
     
-    for s in proj.scripts:
-        script_filename = proj.path/proj.name/'scripts'/s
+    for s in proj.src:
+        script_filename = proj.path/proj.name/'src'/s
     tree2, lsys2 = run_lpy(str(script_filename), parameters=proj.ns)
 
     assert len(tree) == len(tree2)
@@ -52,8 +51,8 @@ def test_load_and_open_project():
     pm = ProjectManager()
     proj = pm.load('test_project_lpy','data')
     
-    for s in proj.scripts:
-        script_filename = proj.path/proj.name/'scripts'/s
+    for s in proj.src:
+        script_filename = proj.path/proj.name/'src'/s
         
     code = open(script_filename).read()
     
