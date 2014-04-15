@@ -84,7 +84,7 @@ class ProjectManager(object):
         Search a specific project that match filters.
 
         :use:
-            >>> project_manager.search(name="*mtg*", authors="*Godin*")
+            >>> project_manager.search(name="*mtg*", author="*Godin*")
 
         :TODO: not implemented yet
         """

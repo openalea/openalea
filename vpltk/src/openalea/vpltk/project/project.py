@@ -16,64 +16,33 @@
 #
 ###############################################################################
 """
----------------------------------------
-Project and Project Manager Quick Start
----------------------------------------
+The Project is a structure which permit to manage different objects.
 
-You can create load or save a *project* thanks to the *project manager*.
+It store **metadata** (name, author, description, version, license, ...) and **data** (src, models, images, ...).
 
-.. code-block:: python
+You have here the default architecture of the project named "project_name",
+stored in your computer.
 
-    from openalea.vpltk.project.manager import ProjectManager
-    # Instanciate ProjectManager
-    project_manager = ProjectManager()
-    # Discover available projects
-    project_manager.discover()
-    print project_manager.projects
+/project_name
+    oaproject.cfg        (Configuration file)
+    /src          (Files sources, Script Python, LPy...)
+    /control       (Control, like color map or curve)
+    /scene          (scene, scene 3D)
+    /cache          (Intermediary saved objects)
+    /data           (Data files like images, .dat, ...)
+    /startup          (Preprocessing scripts)
+        *.py            (Preprocessing scripts)
+        *import*.py     (Libs and packages to import in preprocessing)
 
-    # Create project in default directory or in specific one
-    p1 = project_manager.create('project1')
-    p2 = project_manager.create('project2', '/path/to/project')
-    # Load project from default directory or in specific one
-    p3 = project_manager.load('project3')
-    p4 = project_manager.load('project4', '/path/to/project')
+:use:
+    .. code-block:: python
 
-To search projects that are not located inside default directories:
-
-.. code-block:: python
-
-    project_manager.find_links.append('path/to/search/projects')
-    project_manager.discover()
-    print project_manager.projects
-
-You can then manipulate *proj* and these attributes (name, description, scripts, startup)
-
-.. code-block:: python
-
-    # Metadata
-    p1.rename("project", "project1", "numpy_project")
-    p1.authors = "OpenAlea Consortium and me"
-    p1.description = "Test project concept with numpy"
-    p1.long_description = '''This project import numpy.
-    Then, it create and display a numpy eye.
-    We use it to test concept of Project.'''
-
-    # Data management
-    p1.add("startup", "begin_numpy.py", "import numpy as np")
-    p1.add("scripts", "eye.py", "print np.eye(2)")
-    p1.rename("scripts", "eye.py", "eye_numpy.py")
-    print p1.get("scripts", "eye_numpy.py")
-
-    # Save
-    p1.save()
-
-    # Load
-    p2 = project_manager.load("numpy_project")
-    # Run startup
-    p2.start()
-    # Run script
-    p2.run_script("eye_numpy.py")
-
+        project1 = Project(project_name="mynewproj", project_path="/path/to/proj")
+        project1.start()
+        project1.add(category="src", name"hello.py", value="print 'Hello World'")
+        project1.author = "John Doe"
+        project1.description = "This project is used to said hello to everyone"
+        project1.save()
 """
 
 import os
@@ -85,64 +54,49 @@ from openalea.vpltk.project.saver import get_saver
 
 
 class Project(object):
-    """
-    The Project is a structure which permit to manage different objects.
-
-    It store **metadata** (name, authors, description, version, license, ...) and **data** (scripts, models, images, ...).
-
-    You have here the default architecture of the project named "project_name",
-    stored in your computer.
-
-    /project_name
-        oaproject.cfg        (Configuration file)
-        /scripts          (Files sources, Script Python, LPy...)
-        /controls       (Controls, like color map or curve)
-        /scene          (scene, scene 3D)
-        /cache          (Intermediary saved objects)
-        /data           (Data files like images, .dat, ...)
-        /startup          (Preprocessing scripts)
-            *.py            (Preprocessing scripts)
-            *import*.py     (Libs and packages to import in preprocessing)
-
-    :use:
-        .. code-block:: python
-
-            project1 = Project(project_name="mynewproj", project_path="/path/to/proj")
-            project1.start()
-            project1.add(category="scripts", name"hello.py", value="print 'Hello World'")
-            project1.authors = "John Doe"
-            project1.description = "This project is used to said hello to everyone"
-            project1.save()
-    """
-
-    _to_save_in_manifest = ['scripts', 'controls', 'scene', 'cache', 'startup']
-    _to_save_in_metadata = ['name', 'icon', 'authors', 'description', 'version', 'license', 'dependencies',
-                            'long_description']
-    def __init__(self, project_name, project_path):
+    def __init__(self, project_name, project_path, icon="", author="OpenAlea Consortium", author_email="",
+                 description="", long_description="", citation="", url="", dependencies=[], license="CeCILL-C",
+                 version="0.1"):
         """
         :param project_name: name of the project to create or load
         :param project_path: path of the project to create or load
         """
         # Metadata
-        self.name = str(project_name)
         self.path = path_(project_path)
-        self.icon = ""
-        self.authors = "OpenAlea Consortium"
-        self.description = ""
-        self.version = "0.1"
-        self.license = "CeCILL-C"
-        self.dependencies = ""
-        self.citation = ""
-        self.long_description = ""
+        self.metadata = {
+            "name": str(project_name),
+            "icon": path_(icon),
+            "author": str(author),
+            "author_email": str(author_email),
+            "description": str(description),
+            "long_description": str(long_description),
+            "citation": str(citation),
+            "url": str(url),
+            "dependencies": dependencies,
+            "license": str(license),
+            "version": str(version),
+        }
+        self.config_file = "oaproject.cfg"
 
-        # Data, scripts, ...
+        # Data, src, ...
         # Abstract this part as self.folders
-        self.scripts = dict()
-        self.controls = dict()
+        self.src = dict()
+        self.control = dict()
         self.cache = dict()
         self.data = dict()
         self.scene = dict()
         self.startup = dict()
+        self.doc = dict()
+
+        self.files = {
+            "src": self.src,
+            "control": self.control,
+            "cache": self.cache,
+            "data": self.data,
+            "scene": self.scene,
+            "startup": self.startup,
+            "doc": self.doc
+        }
 
         #
         self._ns = dict()
@@ -154,7 +108,7 @@ class Project(object):
     #----------------------------------------    
     def create(self):
         """
-        Do the same thing that start method.
+        Do the same thing that import method.
 
         .. seealso:: :func:`start` :func:`load` :func:`load_manifest`
         """
@@ -184,7 +138,7 @@ class Project(object):
         .. seealso:: :func:`start` :func:`load_manifest`
         """
         self.load_manifest()
-        for category in self._to_save_in_manifest:
+        for category in self.files.keys():
             obj = self._load(str(category))
             setattr(self, category, obj)
 
@@ -197,7 +151,7 @@ class Project(object):
 
         .. seealso:: :func:`save_manifest`
         """
-        for category in self._to_save_in_manifest:
+        for category in self.files.keys():
             self._save(str(category))
         self.save_manifest()
 
@@ -209,7 +163,7 @@ class Project(object):
         :param name: name of object to get
         :return: object named *name* in the category *category* if it exists. Else, None.
 
-        :use: >>> get(category="scripts", name="myscript.py")
+        :use: >>> get(category="src", name="myscript.py")
 
         .. seealso:: :func:`add`
         """
@@ -227,7 +181,7 @@ class Project(object):
         """
         Add an object in the project
         
-        :param category: *type* of object to add ("scripts", "control", "scene", ...)
+        :param category: *type* of object to add ("src", "control", "scene", ...)
         :param name: filename of the object to add (path or str)
         :param value: to add (string)
 
@@ -244,8 +198,8 @@ class Project(object):
         
         Remove nothing on disk.
         
-        :param category: category of object to remove ("scripts", "control", "scene", ...) (str)
-        :param name: filename of the script to remove (path or str)
+        :param category: category of object to remove ("src", "control", "scene", ...) (str)
+        :param name: filename of the src to remove (path or str)
         """
         category = str(category)
         filename = path_(name)
@@ -257,17 +211,17 @@ class Project(object):
 
     def rename(self, category, old_name, new_name):
         """
-        Rename a script, a scene or a control in the project.
+        Rename a src, a scene or a control in the project.
         If category is project, rename the entire project.
         
-        :param category: Can be "script", "control", "scene" or "project" (str)
+        :param category: Can be "src", "control", "scene" or "project" (str)
         :param old_name: current name of thing to rename (str)
         :param new_name: future name of thing to rename (str)
         """
         if (category == "project"):
             self.name = new_name
             self.save()
-            if (self.path/old_name).exists():
+            if (self.path / old_name).exists():
                 try:
                     (self.path / old_name).removedirs()
                 except IOError:
@@ -294,20 +248,19 @@ class Project(object):
         """
         Save a manifest file on disk. His name is "*oaproject.cfg*".
 
-        It contains **list of files** that are inside project (*manifest*) and **metadata** (authors, version, ...).
+        It contains **list of files** that are inside project (*manifest*) and **metadata** (author, version, ...).
 
         .. seealso:: :func:`load_manifest`
         """
         config = ConfigObj()
-        config.filename = self.path / self.name / "oaproject.cfg"
+        config.filename = self.path / self.name / self.config_file
 
         config['metadata'] = dict()
         config['manifest'] = dict()
 
-        for info in self._to_save_in_metadata:
-            config['metadata'][info] = getattr(self, info)
+        config['metadata'] = self.metadata
 
-        for files in self._to_save_in_manifest:
+        for files in self.files.keys():
             filenames = getattr(self, files)
             if filenames.keys():
                 config['manifest'][files] = filenames.keys()
@@ -327,7 +280,7 @@ class Project(object):
 
         .. seealso:: :func:`save_manifest` :func:`load`
         """
-        config = ConfigObj(self.path / self.name / "oaproject.cfg")
+        config = ConfigObj(self.path / self.name / self.config_file)
         if config.has_key('metadata'):
             for info in config["metadata"].keys():
                 setattr(self, info, config['metadata'][info])
@@ -342,43 +295,43 @@ class Project(object):
                 setattr(self, files, filedict)
 
     #----------------------------------------
-    # Scripts
+    # src
     #---------------------------------------- 
     def add_script(self, name, script):
         """
-        Add a script in the project
+        Add a src in the project
 
         :deprecated: replace by :func:`add` method
-        :param name: filename of the script to add (path or str)
+        :param name: filename of the src to add (path or str)
         :param script: to add (string)
 
         .. seealso:: :func:`add`
         """
         warnings.warn(
-            "project.add_script(name, script) is deprecated. Please use project.add('scripts', name, script) instead.")
-        self.add("scripts", name, script)
+            "project.add_script(name, script) is deprecated. Please use project.add('src', name, script) instead.")
+        self.add("src", name, script)
 
     def remove_script(self, name):
         """
-        Add a script in the project
+        Add a src in the project
         
         Remove nothing on disk.
 
         :deprecated: replace by :func:`remove` method
-        :param name: filename of the script to remove (path or str)
+        :param name: filename of the src to remove (path or str)
 
         .. seealso:: :func:`remove`
         """
-        warnings.warn("project.remove_script(name) is deprecated. Please use project.remove('scripts', name) instead.")
-        self.remove("scripts", name)
+        warnings.warn("project.remove_script(name) is deprecated. Please use project.remove('src', name) instead.")
+        self.remove("src", name)
 
-    def run_script(self, name):
+    def run_src(self, name):
         """
-        Try to run the script named *name* into current shell
+        Try to run the source file named *name* into current shell
 
         """
-        script = self.get("scripts", name)
-        exec(script, self._ns)
+        src = self.get("src", name)
+        exec (src, self._ns)
 
     #----------------------------------------
     # Protected
@@ -405,7 +358,7 @@ class Project(object):
                     # Load files that are outside project
                     pathname = filename
                 Loader = get_loader("GenericLoader")
-                if object_type == "controls":
+                if object_type == "control":
                     Loader = get_loader("CPickleLoader")
                 if object_type == "scene":
                     Loader = get_loader("BGEOMLoader")
@@ -423,32 +376,33 @@ class Project(object):
     def _save(self, object_type):
         object_type = str(object_type)
         object_ = getattr(self, object_type)
-        temp_path = self.path / self.name / object_type
+        if object_:
+            temp_path = self.path / self.name / object_type
 
-        # Make default directories if necessary
-        if not (self.path / self.name).exists():
-            os.mkdir(self.path / self.name)
-        if not temp_path.exists():
-            os.mkdir(temp_path)
+            # Make default directories if necessary
+            if not (self.path / self.name).exists():
+                os.mkdir(self.path / self.name)
+            if not temp_path.exists():
+                os.mkdir(temp_path)
 
-        for sub_object in object_:
-            filename = temp_path / sub_object
-            sub_object = path_(sub_object)
-            Saver = get_saver()
-            if sub_object.isabs():
-                # Permit to save object outside project
-                filename = sub_object
-            if object_type == "scene":
-                # Save PlantGL objects
-                Saver = get_saver("BGEOMSaver")
-            elif object_type == "controls":
-                Saver = get_saver("CPickleSaver")
-            saver = Saver()
-            saver.save(object_[sub_object], filename)
+            for sub_object in object_:
+                filename = temp_path / sub_object
+                sub_object = path_(sub_object)
+                Saver = get_saver()
+                if sub_object.isabs():
+                    # Permit to save object outside project
+                    filename = sub_object
+                if object_type == "scene":
+                    # Save PlantGL objects
+                    Saver = get_saver("BGEOMSaver")
+                elif object_type == "control":
+                    Saver = get_saver("CPickleSaver")
+                saver = Saver()
+                saver.save(object_[sub_object], filename)
 
     def _save_scripts(self):
-        warnings.warn("project._save_scripts is deprecated. Please use project._save('scripts') instead.")
-        self._save("scripts")
+        warnings.warn("project._save_scripts is deprecated. Please use project._save('src') instead.")
+        self._save("src")
 
     def _startup_import(self):
         use_ip = self.use_ipython()
@@ -469,15 +423,15 @@ class Project(object):
                     self._shell.runcode(self.startup[s])
 
     def __repr__(self):
-        return "Project named " + str(self.name) + " in path " + str(self.path) + " . Scripts: " + str(
-            self.scripts.keys())
+        return "Project named " + str(self.name) + " in path " + str(self.path) + " . Src: " + str(
+            self.src.keys())
 
     def _set_ipython(self, shell=None):
         if not self.use_ipython():
             try:
                 # Try to get automatically current IPython shell
                 shell = get_ipython()
-            except:
+            except NameError:
                 shell = None
         self._shell = shell
 
@@ -511,5 +465,93 @@ class Project(object):
     @property
     def ns(self):
         return self._ns
-    
-    
+
+    # Metadata
+
+    @property
+    def name(self):
+        return self.metadata["name"]
+
+    @name.setter
+    def name(self, value):
+        self.metadata["name"] = value
+
+    @property
+    def icon(self):
+        return self.metadata["icon"]
+
+    @icon.setter
+    def icon(self, value):
+        self.metadata["icon"] = value
+
+    @property
+    def author(self):
+        return self.metadata["author"]
+
+    @author.setter
+    def author(self, value):
+        self.metadata["author"] = value
+
+    @property
+    def author_email(self):
+        return self.metadata["author_email"]
+
+    @author_email.setter
+    def author_email(self, value):
+        self.metadata["author_email"] = value
+
+    @property
+    def description(self):
+        return self.metadata["description"]
+
+    @description.setter
+    def description(self, value):
+        self.metadata["description"] = value
+
+    @property
+    def long_description(self):
+        return self.metadata["long_description"]
+
+    @long_description.setter
+    def long_description(self, value):
+        self.metadata["long_description"] = value
+
+    @property
+    def citation(self):
+        return self.metadata["citation"]
+
+    @citation.setter
+    def citation(self, value):
+        self.metadata["citation"] = value
+
+    @property
+    def url(self):
+        return self.metadata["url"]
+
+    @url.setter
+    def url(self, value):
+        self.metadata["url"] = value
+
+    @property
+    def dependencies(self):
+        return self.metadata["dependencies"]
+
+    @dependencies.setter
+    def dependencies(self, value):
+        self.metadata["dependencies"] = value
+
+    @property
+    def license(self):
+        return self.metadata["license"]
+
+    @license.setter
+    def license(self, value):
+        self.metadata["license"] = value
+
+    @property
+    def version(self):
+        return self.metadata["version"]
+
+    @version.setter
+    def version(self, value):
+        self.metadata["version"] = value
