@@ -206,7 +206,7 @@ class TextEditor(QtGui.QTextEdit):
             if self.name is not None:
                 project = self.session.project
                 project.scripts[self.name] = txt
-                project._save("scripts")
+                project._save("src")
                 self.controller.applet_container.setAllTabBlack()
                 logger.debug("Try to save script in project")
 

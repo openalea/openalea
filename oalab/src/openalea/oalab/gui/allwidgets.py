@@ -75,7 +75,7 @@ class AllWidgets(QtGui.QWidget):
         self.session.interpreter.locals['scene'] = self.scene
         
         try:
-            self.session.interpreter.locals['controls'] = self.session.project.controls
+            self.session.interpreter.locals['control'] = self.session.project.control
         except AttributeError:
             pass
         

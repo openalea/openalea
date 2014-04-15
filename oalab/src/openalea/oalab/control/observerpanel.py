@@ -39,8 +39,8 @@ class ObserverPanel(QtGui.QWidget):
     
     def diplay_thumbnails(self):    
         """
-        Display thumbnails of all controls.
-        - List controls
+        Display thumbnails of all control.
+        - List control
         - Call control.thumbnail() on each one
         """ 
         pass

@@ -73,25 +73,32 @@ class PrettyPreview(QtGui.QPushButton):
 
 
 class ProjectSelector(QtGui.QWidget):
-    def __init__(self, projects, parent=None):
+    def __init__(self, projects, open_project=None, parent=None):
         super(ProjectSelector, self).__init__(parent)
         self.projects = projects
         self.layout = QtGui.QGridLayout(self)
+        self.open_project = open_project
         self.init()
 
     def init(self):
-
+        button_size = 180
         self.current_preview = None
 
         # Auto select number of lines and columns to display
         # Here number of lines <= number of columns
         # <=4 -> 2x2 or 2x1, <=9 -> 3x3 or 3x2, <=16 -> 4x4 or 4x3, ...
-        maxcolumn = int(sqrt(len(self.projects)))
+        nb_proj = len(self.projects)
+        #maxcolumn = int(sqrt(nb_proj))
+
+        # Pb: we want the size of QScrollArea and not self
+        actual_width = self.size().width()
+        maxcolumn = int(actual_width/nb_proj)
+
 
         if maxcolumn > 5:
             maxcolumn = 5
 
-        refresh_widget = QtGui.QPushButton("Refresh Project List")
+        refresh_widget = QtGui.QPushButton("Refresh")
         refresh_widget.clicked.connect(self.refersh_project_list)
         add_widget = QtGui.QPushButton("Search Projects")
         add_widget.clicked.connect(self.add_path_to_search_project)
@@ -100,7 +107,7 @@ class ProjectSelector(QtGui.QWidget):
         for project in self.projects:
             project.load_manifest()
             # Create widget
-            preview_widget = PrettyPreview(project, size=180)
+            preview_widget = PrettyPreview(project, size=button_size)
             preview_widget.clicked.connect(self.showDetails)
 
             if j < maxcolumn - 1:
@@ -115,7 +122,7 @@ class ProjectSelector(QtGui.QWidget):
 
     def showDetails(self):
         sender = self.sender()
-        self.current_preview = Preview(project=sender.project)
+        self.current_preview = Preview(project=sender.project, open_project=self.open_project)
         self.current_preview.show()
 
         #preview_widget = Preview(project=sender.project)
@@ -147,9 +154,9 @@ class ProjectSelector(QtGui.QWidget):
 
 
 class ProjectSelectorScroll(QtGui.QScrollArea):
-    def __init__(self, projects, parent=None):
+    def __init__(self, projects, open_project=None, parent=None):
         super(ProjectSelectorScroll, self).__init__(parent)
-        widget = ProjectSelector(projects, parent)
+        widget = ProjectSelector(projects, open_project=open_project, parent=parent)
         self.setWidget(widget)
 
 

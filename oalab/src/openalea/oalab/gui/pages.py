@@ -26,7 +26,7 @@ class WelcomePage(QtGui.QWidget):
     Welcome page in the applet container.
     Permit to open an existing project,
     or to create a new one,
-    or to work on scripts outside projects.
+    or to work on src outside projects.
     """
     def __init__(self, session, controller, parent=None):
         super(WelcomePage, self).__init__(parent=parent)
@@ -190,7 +190,7 @@ class CreateFilePage(QtGui.QWidget):
     Welcome page in the applet container.
     Permit to open an existing project,
     or to create a new one,
-    or to work on scripts outside projects.
+    or to work on src outside projects.
     """
     def __init__(self, session, controller, parent=None):
         super(CreateFilePage, self).__init__(parent=parent)

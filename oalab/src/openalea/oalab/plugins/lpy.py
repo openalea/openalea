@@ -44,19 +44,19 @@ endlsystem
 
 def import_lpy_file(script):
     """
-    Extract from an "old style" LPy file script part (str) and associated controls (dict).
+    Extract from an "old style" LPy file script part (str) and associated control (dict).
     Permit compatibility between LPy and OALab.
     
     :param: script to filter (str)
     :return: lpy script (str) without end begining with "###### INITIALISATION ######"
-    and a dict which contain the controls (dict)
+    and a dict which contain the control (dict)
     """
-    controls = dict()
+    control = dict()
 
     if script is None: script = ""
     beginTag = LpyParsing.InitialisationBeginTag
     if not beginTag in script:
-        return str(script), controls
+        return str(script), control
     else:
         txts = str(script).split(beginTag)
         new_script = txts[0]
@@ -97,19 +97,19 @@ def import_lpy_file(script):
                 for typename,obj in objects:
                     visualparameters.append((managers[typename],obj))
         
-        controls["color map"] = context.turtle.getColorList()
+        control["color map"] = context.turtle.getColorList()
         for scalar in scalars:
-        	controls[unicode(scalar.name)] = scalar
+        	control[unicode(scalar.name)] = scalar
         for (manager, geom) in geoms:
             if geom != list():
                 new_obj,new_name = geometry_2_piklable_geometry(manager, geom)
-                controls[new_name] = new_obj
+                control[new_name] = new_obj
         for (manager, geom) in visualparameters:
             if geom != list():
                 new_obj,new_name = geometry_2_piklable_geometry(manager, geom)
-                controls[new_name] = new_obj
+                control[new_name] = new_obj
                 
-        return new_script, controls
+        return new_script, control
 
 class LPyApplet(object):   
     default_name = "LSystem"
@@ -138,9 +138,9 @@ class LPyApplet(object):
         if script == "":
             script = get_default_text()
 
-        script, controls = import_lpy_file(script)
+        script, control = import_lpy_file(script)
         if self.session.project is not None:
-            self.session.project.controls.update(controls)
+            self.session.project.control.update(control)
             # for parameter in self.parameters:
                 # if hasattr(self.parameters[parameter], "value"):
                     # self.parameters[parameter] = self.parameters[parameter].value
@@ -154,10 +154,10 @@ class LPyApplet(object):
         registerPlotter(self.controller.applets['Viewer3D'])
         
         # Link with color map from application
-        if hasattr(self.session.project,"controls"):
-            if self.session.project.controls.has_key("color map"):    
+        if hasattr(self.session.project,"control"):
+            if self.session.project.control.has_key("color map"):
                 i = 0
-                for color in self.session.project.controls["color map"] :
+                for color in self.session.project.control["color map"] :
                     self.lsystem.context().turtle.setMaterial(i, color)
                     i += 1
         
@@ -206,8 +206,8 @@ class LPyApplet(object):
         """
         # Get code from application
         code = str(self.widget().get_text())
-        # Get controls
-        self.parameters.update(self.session.project.controls)
+        # Get control
+        self.parameters.update(self.session.project.control)
         for parameter in self.parameters:
             if hasattr(self.parameters[parameter], "value"):
                 self.parameters[parameter] = self.parameters[parameter].value
@@ -233,7 +233,7 @@ class LPyApplet(object):
         if code != self.code:
             # /!\ setCode method set the getLastIterationNb to zero
             # So, if you change code, next step will do a 'reinit()'
-            self.parameters.update(self.session.project.controls)
+            self.parameters.update(self.session.project.control)
             for parameter in self.parameters:
                 if hasattr(self.parameters[parameter], "value"):
                     self.parameters[parameter] = self.parameters[parameter].value
@@ -265,7 +265,7 @@ class LPyApplet(object):
     def animate(self):
         # Get code from application
         code = str(self.widget().get_text())
-        self.parameters.update(self.session.project.controls)
+        self.parameters.update(self.session.project.control)
         for parameter in self.parameters:
             if hasattr(self.parameters[parameter], "value"):
                 self.parameters[parameter] = self.parameters[parameter].value    
@@ -296,11 +296,11 @@ class LPyApplet2(object):
         self.lsystem = Lsystem()
         self.axialtree = AxialTree()
         
-        script, controls = import_lpy_file(script)
+        script, control = import_lpy_file(script)
         self.code = script
         if self.code == "":
             self.code = get_default_text()
-        self.parameters.update(controls)   
+        self.parameters.update(control)
         
     def focus_change(self):
         """

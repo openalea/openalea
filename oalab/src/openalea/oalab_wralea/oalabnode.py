@@ -18,7 +18,7 @@
 """
 Visual Programming nodes define to interact with the oalab application components like:
     - the scene
-    - controls
+    - control
     - observer
 """
 

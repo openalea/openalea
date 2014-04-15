@@ -190,7 +190,7 @@ class PrjctModel(QtGui.QStandardItemModel):
         self.controller = controller
         
         self.old_models = list()
-        self.old_controls = list()
+        self.old_control = list()
         self.old_scene = list()
         
         self.proj = None
@@ -224,9 +224,9 @@ class PrjctModel(QtGui.QStandardItemModel):
                             if i not in children:
                                 self.proj.rename(categorie=parent.text(), old_name=i, new_name= item.text())
 
-                    if parent.text() == "Controls":
+                    if parent.text() == "Control":
                         for i in children:
-                            if i not in self.old_controls:
+                            if i not in self.old_control:
                                 self.proj.rename(categorie=parent.text(), old_name=i, new_name= item.text())
 
                     if parent.text() == "Scene":
@@ -250,14 +250,14 @@ class PrjctModel(QtGui.QStandardItemModel):
         ## TODO if you want to see all objects of the project
         
         if self.proj.is_project():
-            #level0 = ["Models", "Controls", "Scene"]
-            # TODO : add controls, scene, import, ...
+            #level0 = ["Models", "Control", "Scene"]
+            # TODO : add control, scene, import, ...
             level0 = ["Models"]
                                 
             for name in level0:
                 parentItem = self.invisibleRootItem()
                 item = QtGui.QStandardItem(name)
-                if name == "Controls": icon = QtGui.QIcon(":/images/resources/node.png")
+                if name == "Control": icon = QtGui.QIcon(":/images/resources/node.png")
                 elif name == "Scene": icon = QtGui.QIcon(":/images/resources/plant.png")
                 elif name == "Models": icon = QtGui.QIcon(":/images/resources/package.png")
                 item.setIcon(icon)
@@ -277,18 +277,18 @@ class PrjctModel(QtGui.QStandardItemModel):
     def _set_level_1(self):
         if self.proj.is_project():
             self.old_models = list()
-            self.old_controls = list()
+            self.old_control = list()
             self.old_scene = list()
             
             rootItem = self.invisibleRootItem()
             
-            # Controls
+            # Control
             parentItem = rootItem.child(1)
-            for name in self.proj.controls:
+            for name in self.proj.control:
                 item = QtGui.QStandardItem(name)
                 item.setIcon(QtGui.QIcon(":/images/resources/bool.png"))
                 #parentItem.appendRow(item)    
-                self.old_controls.append(name)
+                self.old_control.append(name)
                  
             # Models
             parentItem = rootItem.child(0)
@@ -370,7 +370,7 @@ class PrjctManagerModel(QtGui.QStandardItemModel):
             item.setIcon(icon)
             parentItem.appendRow(item)
                         
-            categories = project._to_save_in_manifest
+            categories = project.files.keys()
             for category in categories:
                 if hasattr(project, category):
                     cat = getattr(project, category)

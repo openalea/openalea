@@ -30,7 +30,7 @@ class ProjectManagerWidget(QtGui.QWidget):
     Object which permit to manage projects.
 
     :Warning: this QWidget is not used like a widget but like the interface between GUI (buttons "newProj", "newScript",...)
-    and objects (project, controls, ...)
+    and objects (project, control, ...)
 
     :TODO: Refactor it
     """
@@ -106,7 +106,7 @@ This temporary script is saved in temporary project in
 
 You can rename/move this project thanks to the button "Save As" in menu.
 """''' % str(self.session.project.path / self.session.project.name)
-            self.session.project.add(category="scripts", name=".temp.py", value=txt)
+            self.session.project.add(category="src", name=".temp.py", value=txt)
 
         self._project_changed()
         self._load_control()
@@ -114,10 +114,13 @@ You can rename/move this project thanks to the button "Save As" in menu.
     def actions(self):
         return self._actions
 
-    def open(self, name=False):
+    def open(self, name=False, project_path=None):
         """
         If name==false, display a widget to choose project to open.
         Then open project.
+        """
+        self.closeCurrent()
+        #self.controller.applet_container.closeAll()
         """
         if name is False:
             name = showOpenProjectDialog()
@@ -125,6 +128,8 @@ You can rename/move this project thanks to the button "Save As" in menu.
             proj_path = path(name).abspath()
             proj_name = proj_path.basename()
             proj_path = proj_path.dirname()
+            if project_path:
+                proj_path = path(project_path)
             logger.debug("Open Project named " + proj_name)
             if self.session.project is not None:
                 if self.session.current_is_project():
@@ -133,19 +138,31 @@ You can rename/move this project thanks to the button "Save As" in menu.
                     logger.debug("Project named " + self.session.project.name + " closed.")
 
             proj = self.projectManager.load(proj_name, proj_path)
+
             logger.debug("Project " + str(proj) + " loaded")
 
             if proj == -1:
                 logger.warning("Project was not loaded...")
                 return -1
             else:
-                self.session._project = proj
-                self.session._is_proj = True
-                self._project_changed()
-                self._load_control()
+                return self.openProject(proj)"""
 
-                logger.debug("Project opened: " + str(self.session._project))
-                return self.session._project
+
+    def openProject(self, project):
+        """
+        Open a project in application from project
+
+        :param project: project from vpltk
+        """
+        project.start()
+        logger.debug("Project " + str(project) + " opened")
+        self.session._project = project
+        self.session._is_proj = True
+        self._project_changed()
+        self._load_control()
+
+        logger.debug("Project opened: " + str(self.session._project))
+        return self.session._project
 
     def editFile(self, filename=None, extension=None):
         """
@@ -176,7 +193,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
                 try:
                     self.controller.applet_container.newTab(applet_type=ext, tab_name=tab_name, script=txt)
-                    project.add("scripts", filename, txt)
+                    project.add("src", filename, txt)
                     self.controller._update_locals()
                     self._tree_view_change()
                     logger.debug("Import file named " + tab_name)
@@ -207,7 +224,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
                 txt = f.read()
                 f.close()
                 name = filename.splitpath()[1]
-                project.add("scripts", name, txt)
+                project.add("src", name, txt)
                 self.controller._update_locals()
                 self._project_changed()
                 logger.debug("Import file named " + name)
@@ -253,7 +270,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
                 tab_name = Applet.default_file_name
             self.controller.applet_container.newTab(applet_type=applet_type, tab_name=tab_name, script=script)
             text = self.controller.applet_container.applets[-1].widget().get_text()
-            self.session.project.add("scripts", tab_name, text)
+            self.session.project.add("src", tab_name, text)
             self.controller._update_locals()
             self._project_changed()
         else:
@@ -264,7 +281,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         :param model_name: Name of the model to remove in the current project
         """
         if self.session.current_is_project():
-            self.session.project.remove("scripts", model_name)
+            self.session.project.remove("src", model_name)
             self._project_changed()
         else:
             print "You are not working inside project. Please create or load one first."
@@ -359,7 +376,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
     def _load_control(self):
         """
-        Get controls from project and put them into widgets
+        Get control from project and put them into widgets
         """
         if self.controller.applets.has_key('ControlPanel'):
             logger.debug("Load Controls")
@@ -367,7 +384,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
     def _update_control(self):
         """
-        Get controls from widget and put them into project
+        Get control from widget and put them into project
         """
         if self.controller.applets.has_key('ControlPanel'):
             logger.debug("Update Controls")

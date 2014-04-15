@@ -28,8 +28,8 @@ from openalea.oalab.control.picklable_curves import geometry_2_piklable_geometry
 
 class ControlPanel(QtGui.QTabWidget):
     """
-    Widget to display controls of the current project.
-    Permit to manage controls.
+    Widget to display control of the current project.
+    Permit to manage control.
     Double-clic permit to edit control.
     """
 
@@ -61,34 +61,34 @@ class ControlPanel(QtGui.QTabWidget):
 
     def update(self):
         """
-        Get controls from widget and put them into project
+        Get control from widget and put them into project
         """
         colors = self.colormap_editor.getTurtle().getColorList()
-        self.session.project.controls["color map"] = colors
+        self.session.project.control["color map"] = colors
 
         objects = self.geometry_editor.getObjects()
         for (manager, obj) in objects:
             if obj != list():
                 obj, name = geometry_2_piklable_geometry(manager, obj)
-                self.session.project.controls[unicode(name)] = obj
+                self.session.project.control[unicode(name)] = obj
 
         scalars = self.scalars_editor.getScalars()
         for scalar in scalars:
-            self.session.project.controls[unicode(scalar.name)] = scalar
+            self.session.project.control[unicode(scalar.name)] = scalar
 
     def load(self):
         """
-        Get controls from project and put them into widgets
+        Get control from project and put them into widgets
         """
         self.clear()
         proj = self.session.project
-        if not proj.controls.has_key("color map"):
-            proj.controls["color map"] = self.colormap_editor.getTurtle().getColorList()
-        if not proj.controls["color map"]:
-            proj.controls["color map"] = self.colormap_editor.getTurtle().getColorList()
+        if not proj.control.has_key("color map"):
+            proj.control["color map"] = self.colormap_editor.getTurtle().getColorList()
+        if not proj.control["color map"]:
+            proj.control["color map"] = self.colormap_editor.getTurtle().getColorList()
         i = 0
-        logger.debug("Load Controls color map: %s " % str(proj.controls["color map"]))
-        for color in proj.controls["color map"]:
+        logger.debug("Load Control color map: %s " % str(proj.control["color map"]))
+        for color in proj.control["color map"]:
             self.colormap_editor.getTurtle().setMaterial(i, color)
             i += 1
 
@@ -96,23 +96,23 @@ class ControlPanel(QtGui.QTabWidget):
         geom = []
         scalars = []
 
-        for control in proj.controls:
-            logger.debug(str(proj.controls[control]))
-            if hasattr(proj.controls[control], "__module__"):
-                if proj.controls[control].__module__ == "openalea.oalab.control.picklable_curves":
-                    typename = proj.controls[control].typename
-                    proj.controls[control].name = str(control)
+        for control in proj.control:
+            logger.debug(str(proj.control[control]))
+            if hasattr(proj.control[control], "__module__"):
+                if proj.control[control].__module__ == "openalea.oalab.control.picklable_curves":
+                    typename = proj.control[control].typename
+                    proj.control[control].name = str(control)
                     manager = managers[typename]
-                    geom.append((manager, proj.controls[control]))
+                    geom.append((manager, proj.control[control]))
                 elif str(control) != "color map":
-                    scalars.append(proj.controls[control])
+                    scalars.append(proj.control[control])
             elif str(control) != "color map":
-                scalars.append(proj.controls[control])
+                scalars.append(proj.control[control])
         if geom is not list():
-            logger.debug("Load Controls Geom: %s " % str(geom))
+            logger.debug("Load Control Geom: %s " % str(geom))
             self.geometry_editor.setObjects(geom)
         if scalars is not list():
-            logger.debug("Load Controls Scalars: %s " % str(scalars))
+            logger.debug("Load Control Scalars: %s " % str(scalars))
             self.scalars_editor.setScalars(scalars)
 
 

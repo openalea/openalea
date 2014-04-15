@@ -82,7 +82,7 @@ setup(
     postinstall_scripts = ['oalab_postinstall'],
     share_dirs = { 'share' : 'share' },
 
-    # Declare scripts and wralea as entry_points (extensions) of your package 
+    # Declare src and wralea as entry_points (extensions) of your package
     entry_points = { 
         'gui_scripts': ['oalab = openalea.oalab.main:main',
                         'openalealab = openalea.oalab.main:main',
@@ -96,7 +96,8 @@ setup(
         'oalab.paradigm_applet': ['PythonApplet = openalea.oalab.plugins.python:PythonApplet',
                                   'LPyApplet = openalea.oalab.plugins.lpy:LPyApplet',
                                   'VisualeaApplet = openalea.oalab.plugins.visualea:VisualeaApplet',
-                                  'RApplet = openalea.oalab.plugins.r:RApplet', ],
+                                  #'RApplet = openalea.oalab.plugins.r:RApplet',
+                                  ],
         #'console_scripts': [
         #       'fake_script = openalea.fakepackage.amodule:console_script', ],
         # 'gui_scripts': [
