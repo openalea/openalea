@@ -107,13 +107,17 @@ class Project(object):
     :use:
         .. code-block:: python
 
-            project1 = Porject(project_name="mynewproj", project_path="/path/to/proj")
+            project1 = Project(project_name="mynewproj", project_path="/path/to/proj")
             project1.start()
             project1.add(category="scripts", name"hello.py", value="print 'Hello World'")
             project1.authors = "John Doe"
             project1.description = "This project is used to said hello to everyone"
             project1.save()
     """
+
+    _to_save_in_manifest = ['scripts', 'controls', 'scene', 'cache', 'startup']
+    _to_save_in_metadata = ['name', 'icon', 'authors', 'description', 'version', 'license', 'dependencies',
+                            'long_description']
     def __init__(self, project_name, project_path):
         """
         :param project_name: name of the project to create or load
@@ -132,7 +136,7 @@ class Project(object):
         self.long_description = ""
 
         # Data, scripts, ...
-        self.ns = dict()
+        # Abstract this part as self.folders
         self.scripts = dict()
         self.controls = dict()
         self.cache = dict()
@@ -140,11 +144,10 @@ class Project(object):
         self.scene = dict()
         self.startup = dict()
 
-        self.shell = None
+        #
+        self._ns = dict()
+        self._shell = None
         self._set_ipython()
-        self._to_save_in_manifest = ['scripts', 'controls', 'scene', 'cache', 'startup']
-        self._to_save_in_metadata = ['name', 'icon', 'authors', 'description', 'version', 'license', 'dependencies',
-                                     'long_description']
 
     #----------------------------------------
     # Public API
@@ -375,7 +378,7 @@ class Project(object):
 
         """
         script = self.get("scripts", name)
-        exec(script, self.ns)
+        exec(script, self._ns)
 
     #----------------------------------------
     # Protected
@@ -413,7 +416,7 @@ class Project(object):
         # hack to add cache in namespace
         if object_type == "cache":
             for cache_name in return_object:
-                self.ns[cache_name] = eval(str(return_object[cache_name]), self.ns)
+                self._ns[cache_name] = eval(str(return_object[cache_name]), self._ns)
 
         return return_object
 
@@ -452,18 +455,18 @@ class Project(object):
 
         for s in self.startup:
             if s.find('import') != -1:
-                exec (self.startup[s], self.ns)
+                exec (self.startup[s], self._ns)
                 if use_ip:
-                    self.shell.runcode(self.startup[s])
+                    self._shell.runcode(self.startup[s])
 
     def _startup_run(self):
         use_ip = self.use_ipython()
 
         for s in self.startup:
             if s.find('import') == -1:
-                exec (self.startup[s], self.ns)
+                exec (self.startup[s], self._ns)
                 if use_ip:
-                    self.shell.runcode(self.startup[s])
+                    self._shell.runcode(self.startup[s])
 
     def __repr__(self):
         return "Project named " + str(self.name) + " in path " + str(self.path) + " . Scripts: " + str(
@@ -476,13 +479,13 @@ class Project(object):
                 shell = get_ipython()
             except:
                 shell = None
-        self.shell = shell
+        self._shell = shell
 
     def use_ipython(self):
         """
         :return: True if project is instaciated with a shell IPython. Else, return False.
         """
-        if self.shell == None:
+        if self._shell == None:
             return False
         else:
             return True
@@ -504,3 +507,9 @@ class Project(object):
         :return: False
         """
         return False
+
+    @property
+    def ns(self):
+        return self._ns
+    
+    
