@@ -26,7 +26,7 @@ __revision__ = "$Id: $"
 from openalea.vpltk.qt import QtGui
 
 class Control(object):
-    """ Base Class for controls """
+    """ Base Class for control """
     
     def __init__(self, name=None, value=None):
         super(Control, self).__init__() 

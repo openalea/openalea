@@ -21,6 +21,7 @@ from openalea.vpltk.qt import QtCore, QtGui
 from openalea.vpltk.plugin import discover, Plugin
 from openalea.core import logger
 from openalea.oalab.gui.pages import WelcomePage, CreateFilePage
+from openalea.oalab.project.pretty_preview import ProjectSelectorScroll
 
 class AppletContainer(QtGui.QTabWidget):
     """
@@ -134,7 +135,8 @@ class AppletContainer(QtGui.QTabWidget):
         """
         Display a welcome tab if nothing is opened
         """
-        welcomePage = WelcomePage(session = self.session, controller=self.controller, parent=self.parent())
+        welcomePage = ProjectSelectorScroll(self.session.project_manager.projects, open_project=self.controller.project_manager.openProject)
+        #welcomePage = WelcomePage(session = self.session, controller=self.controller, parent=self.parent())
         self.addTab(welcomePage, "Welcome")
         
     def addCreateFileTab(self):
@@ -179,7 +181,7 @@ class AppletContainer(QtGui.QTabWidget):
         
         # TODO : permit to add more than one script...
         # existing_tabs = list()
-        # for name in self.session.project.scripts:
+        # for name in self.session.project.src:
         #    existing_tabs.append(name)
         # tab_name = check_if_name_is_unique(tab_name, existing_tabs)
 
@@ -210,8 +212,10 @@ class AppletContainer(QtGui.QTabWidget):
         self.setTabBlack()
         
     def focusChange(self):
-        if self.currentWidget():
-            self.currentWidget().applet.focus_change()
+        widget = self.currentWidget()
+        if widget:
+            if hasattr(widget, "applet"):
+                widget.applet.focus_change()
         
     def closeTab(self):
         """
@@ -258,7 +262,7 @@ class AppletContainer(QtGui.QTabWidget):
     
     def save_all(self):
         """
-        Save all opened scripts
+        Save all opened src
         """
         logger.debug("Save all models")
         n = self.count()
