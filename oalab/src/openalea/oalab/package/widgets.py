@@ -22,8 +22,8 @@ from openalea.vpltk.qt import QtGui
 from openalea.core.node import NodeFactory
 from openalea.core.compositenode import CompositeNodeFactory
 from openalea.visualea.node_treeview import NodeFactoryView, PkgModel, CategoryModel
-from openalea.visualea.node_treeview import SearchListView, SearchModel
-from openalea.oalab.package.treeview import OALabTreeView
+from openalea.visualea.node_treeview import SearchModel
+from openalea.oalab.package.treeview import OALabTreeView, OALabSearchView
 from openalea.oalab.package.manager import package_manager
 
 class PackageViewWidget(OALabTreeView):
@@ -94,12 +94,11 @@ class PackageSearchWidget(QtGui.QWidget):
     Widget with line edit (to search) and finding packages.
     """
     def __init__(self, session, controller, parent=None):
-        super(PackageSearchWidget, self).__init__()
+        super(PackageSearchWidget, self).__init__(parent=parent)
         self.session = session
         self.controller = controller
-        
-        self.searchview = QtGui.QWidget()
-        self.result_widget = SearchListView(self.searchview)
+
+        self.result_widget = OALabSearchView(session, controller, parent)
         self.search_model = SearchModel()
         self.result_widget.setModel(self.search_model)
         
@@ -123,7 +122,8 @@ class PackageSearchWidget(QtGui.QWidget):
             txt = factory.get_tip(asRst=True) + "\n\n"
             if factoryDoc is not None:
                 txt += "**Docstring:**\n" + factoryDoc
-            self.controller.helper.setText(txt)   
+            if self.controller.applets.has_key("Help"):
+                self.controller.applets['Help'].setText(txt)
             
     def search_node(self):
         """ Activated when search line edit is validated """
