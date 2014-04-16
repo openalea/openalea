@@ -17,9 +17,11 @@
 ###############################################################################
 __revision__ = ""
 
+from openalea.vpltk.qt import QtGui
 from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.package import Package
 from openalea.visualea.node_treeview import NodeFactoryTreeView
+from openalea.visualea.node_treeview import SearchListView
 
 class OALabTreeView(NodeFactoryTreeView):
     def __init__(self, session, controller, parent=None):
@@ -38,3 +40,21 @@ class OALabTreeView(NodeFactoryTreeView):
         elif (not isinstance(obj, Package)):
             self.open_node()
 
+
+class OALabSearchView(SearchListView):
+    def __init__(self, session, controller, parent=None):
+        main_win = QtGui.QWidget()
+        super(OALabSearchView, self).__init__(main_win)
+        self.session = session
+        self.controller = controller
+
+    def mouseDoubleClickEvent(self, event):
+
+        item = self.currentIndex()
+        obj =  item.internalPointer()
+
+        if(isinstance(obj, CompositeNodeFactory)):
+            self.controller.applet_container.newTab('Workflow',obj.name+'.wpy',obj)
+
+        elif (not isinstance(obj, Package)):
+            self.open_node()
