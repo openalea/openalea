@@ -35,7 +35,7 @@ class Store(MainWindowAleaInstall):
         # Save stdout and stderr because MainWindowAleaInstall try to redirect it.
         oldstdout = sys.stdout
         oldstderr = sys.stderr
-        super(Store, self).__init__()
+        super(Store, self).__init__(parent)
         
         self.setAccessibleName("Store")
         # Restore stdout and stderr
