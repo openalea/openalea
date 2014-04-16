@@ -73,7 +73,7 @@ more informations: http://www.r-project.org/
             code = self.widget().get_text()
         code = """%%R
 
-""" + code
+        """ + code
         interp = self.controller.shell.get_interpreter()
         user_ns = self.session.interpreter.user_ns
         interp.runcode(code)    

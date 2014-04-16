@@ -96,7 +96,7 @@ setup(
         'oalab.paradigm_applet': ['PythonApplet = openalea.oalab.plugins.python:PythonApplet',
                                   'LPyApplet = openalea.oalab.plugins.lpy:LPyApplet',
                                   'VisualeaApplet = openalea.oalab.plugins.visualea:VisualeaApplet',
-                                  #'RApplet = openalea.oalab.plugins.r:RApplet',
+                                  'RApplet = openalea.oalab.plugins.r:RApplet',
                                   ],
         #'console_scripts': [
         #       'fake_script = openalea.fakepackage.amodule:console_script', ],
