@@ -187,7 +187,7 @@ class MainWindow(QtGui.QMainWindow):
                             ["Extension","Select an Extension",lab3d,0],
                             ["Extension","Select an Extension",plantlab,0],
                             ["Extension","Select an Extension",tissuelab,0]]
-                return _actions
+                return None
                 
         settings = FakeWidget(parent=self)
         self.controller.connect_actions(settings)  
