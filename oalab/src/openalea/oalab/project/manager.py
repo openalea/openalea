@@ -96,7 +96,7 @@ class ProjectManagerWidget(QtGui.QWidget):
         self.session._project = proj
         self.session._is_proj = True
 
-        if not self.session.project.scripts:
+        if not self.session.project.src:
             txt = '''# -*- coding: utf-8 -*-
 """
 OpenAlea Lab editor
@@ -407,9 +407,9 @@ You can rename/move this project thanks to the button "Save As" in menu.
         if self.session.current_is_project():
             project = self.session.project
             self.controller.applet_container.reset()
-            for script in project.scripts:
+            for script in project.src:
                 language = str(script).split('.')[-1]
-                self.controller.applet_container.openTab(language, script, project.scripts[script])
+                self.controller.applet_container.openTab(language, script, project.src[script])
 
     def _scene_change(self):
         logger.debug("Scene changed")
