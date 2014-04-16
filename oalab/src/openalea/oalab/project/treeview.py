@@ -248,69 +248,53 @@ class PrjctModel(QtGui.QStandardItemModel):
 
     def _set_level_0(self):
         ## TODO if you want to see all objects of the project
-        
-        if self.proj.is_project():
-            #level0 = ["Models", "Control", "Scene"]
-            # TODO : add control, scene, import, ...
-            level0 = ["Models"]
-                                
-            for name in level0:
-                parentItem = self.invisibleRootItem()
-                item = QtGui.QStandardItem(name)
-                if name == "Control": icon = QtGui.QIcon(":/images/resources/node.png")
-                elif name == "Scene": icon = QtGui.QIcon(":/images/resources/plant.png")
-                elif name == "Models": icon = QtGui.QIcon(":/images/resources/package.png")
-                item.setIcon(icon)
-                parentItem.appendRow(item)
+        #level0 = ["Models", "Control", "Scene"]
+        # TODO : add control, scene, import, ...
+        level0 = ["Models"]
 
-        elif self.proj.is_script():
-            rootItem = self.invisibleRootItem()
-            for name in self.proj:
-                item = QtGui.QStandardItem(name)
-                ext = name.split(".")[-1]
-                if ext in self.icons.keys():
-                    item.setIcon(QtGui.QIcon(self.icons[ext]))
-                else:
-                    item.setIcon(QtGui.QIcon(":/images/resources/openalea_icon2.png"))
-                rootItem.appendRow(item)    
+        for name in level0:
+            parentItem = self.invisibleRootItem()
+            item = QtGui.QStandardItem(name)
+            if name == "Control": icon = QtGui.QIcon(":/images/resources/node.png")
+            elif name == "Scene": icon = QtGui.QIcon(":/images/resources/plant.png")
+            elif name == "Models": icon = QtGui.QIcon(":/images/resources/package.png")
+            item.setIcon(icon)
+            parentItem.appendRow(item)
 
     def _set_level_1(self):
-        if self.proj.is_project():
-            self.old_models = list()
-            self.old_control = list()
-            self.old_scene = list()
-            
-            rootItem = self.invisibleRootItem()
-            
-            # Control
-            parentItem = rootItem.child(1)
-            for name in self.proj.control:
-                item = QtGui.QStandardItem(name)
-                item.setIcon(QtGui.QIcon(":/images/resources/bool.png"))
-                #parentItem.appendRow(item)    
-                self.old_control.append(name)
-                 
-            # Models
-            parentItem = rootItem.child(0)
-            for name in self.proj.scripts:
-                item = QtGui.QStandardItem(name)
-                ext = name.split(".")[-1]
-                if ext in self.icons.keys():
-                    item.setIcon(QtGui.QIcon(self.icons[ext]))
-                else:
-                    item.setIcon(QtGui.QIcon(":/images/resources/openalea_icon2.png"))
-                parentItem.appendRow(item)
-                self.old_models.append(name)
-            
-            # Scene
-            parentItem = rootItem.child(2)
-            for name in self.proj.scene:
-                item = QtGui.QStandardItem(name)
-                item.setIcon(QtGui.QIcon(":/images/resources/plant.png"))
-                parentItem.appendRow(item) 
-                self.old_scene.append(name)
-        else:
-            pass
+        self.old_models = list()
+        self.old_control = list()
+        self.old_scene = list()
+
+        rootItem = self.invisibleRootItem()
+
+        # Control
+        parentItem = rootItem.child(1)
+        for name in self.proj.control:
+            item = QtGui.QStandardItem(name)
+            item.setIcon(QtGui.QIcon(":/images/resources/bool.png"))
+            #parentItem.appendRow(item)
+            self.old_control.append(name)
+
+        # Models
+        parentItem = rootItem.child(0)
+        for name in self.proj.src:
+            item = QtGui.QStandardItem(name)
+            ext = name.split(".")[-1]
+            if ext in self.icons.keys():
+                item.setIcon(QtGui.QIcon(self.icons[ext]))
+            else:
+                item.setIcon(QtGui.QIcon(":/images/resources/openalea_icon2.png"))
+            parentItem.appendRow(item)
+            self.old_models.append(name)
+
+        # Scene
+        parentItem = rootItem.child(2)
+        for name in self.proj.scene:
+            item = QtGui.QStandardItem(name)
+            item.setIcon(QtGui.QIcon(":/images/resources/plant.png"))
+            parentItem.appendRow(item)
+            self.old_scene.append(name)
 
 
 class PrjctManagerModel(QtGui.QStandardItemModel):
@@ -349,15 +333,26 @@ class PrjctManagerModel(QtGui.QStandardItemModel):
         self.projects = project_manager.projects
         self._set_levels()
 
-    def _set_levels(self):                           
+    def _set_levels(self):
+        icon_project = QtGui.QIcon(":/images/resources/openalea_icon2.png")
+        icon_src = QtGui.QIcon(":/images/resources/filenew.png")
+        icon_control = QtGui.QIcon(":/images/resources/node.png")
+        icon_scene = QtGui.QIcon(":/images/resources/plant.png")
+        icon_startup = QtGui.QIcon(":/images/resources/editredo.png")
+        icon_data = QtGui.QIcon(":/images/resources/fileopen.png")
+        icon_doc = QtGui.QIcon(":/images/resources/book.png")
+        icon_cache = QtGui.QIcon(":/images/resources/editcopy.png")
+
         for project in self.projects:
             name = project.name
             parentItem = self.invisibleRootItem()
             item = QtGui.QStandardItem(name)
+
+            files = project.files
             
             # Propose icon by default.
             # If project have another one, use it
-            icon = QtGui.QIcon(":/images/resources/openalea_icon2.png")
+            icon = icon_project
             if hasattr(project, "icon"):
                 icon_name = project.icon
                 if len(icon_name):
@@ -370,13 +365,18 @@ class PrjctManagerModel(QtGui.QStandardItemModel):
             item.setIcon(icon)
             parentItem.appendRow(item)
                         
-            categories = project.files.keys()
+            categories = files.keys()
             for category in categories:
                 if hasattr(project, category):
                     cat = getattr(project, category)
                     if len(cat) > 0:
                         item2 = QtGui.QStandardItem(category)
                         item.appendRow(item2)
+                        try:
+                            icon = eval(str("icon_"+category))
+                        except NameError:
+                            icon = QtGui.QIcon()
+                        item2.setIcon(icon)
                     else:
                         # hide name of category if we don't have object of this category
                         pass
@@ -385,6 +385,12 @@ class PrjctManagerModel(QtGui.QStandardItemModel):
                     if isinstance(cat,dict):
                         for obj in cat.keys():
                             item3 = QtGui.QStandardItem(obj)
+
+                            # ext = obj.split(".")[-1]
+                            # if ext in self.icons.keys():
+                            #     item.setIcon(QtGui.QIcon(self.icons[ext]))
+
+
                             item2.appendRow(item3)
                     else:    
                         # Useful for category "localized" which store a bool and not a list
