@@ -256,7 +256,7 @@ class MainWindow(QtGui.QMainWindow):
 
         # Docks
         self._dockWidget("Viewer3D", controller.applets["Viewer3D"], name="3D Viewer", position=QtCore.Qt.RightDockWidgetArea)
-        self._dockWidget("Store", controller.applets["Store"], name="OpenAlea Store", position=QtCore.Qt.RightDockWidgetArea)
+        #self._dockWidget("Store", controller.applets["Store"], name="OpenAlea Store", position=QtCore.Qt.RightDockWidgetArea)
         
         self._dockWidget("HelpWidget", controller.applets["HelpWidget"], position=QtCore.Qt.RightDockWidgetArea, alias="Help")
         self._dockWidget("Project", controller.applets["Project"],position=QtCore.Qt.RightDockWidgetArea)
@@ -273,7 +273,7 @@ class MainWindow(QtGui.QMainWindow):
             self._dockWidget("ControlPanel", controller.applets["ControlPanel"], name="Control Panel", position=QtCore.Qt.BottomDockWidgetArea)
             controller.applets['ControlPanel'].geometry_editor.setStatusBar(self.statusBar())
 
-        self._dockwidgets['Store'].hide()
+        #self._dockwidgets['Store'].hide()
 
         # Status bar
         status = self.statusBar()     
@@ -282,7 +282,7 @@ class MainWindow(QtGui.QMainWindow):
         self.statusBar().showMessage("OALab is ready!", 10000)   
         
         # Tabify docks
-        self.tabifyDockWidget(self._dockwidgets['Viewer3D'], self._dockwidgets['Store'])
+        #self.tabifyDockWidget(self._dockwidgets['Viewer3D'], self._dockwidgets['Store'])
         self.tabifyDockWidget(self._dockwidgets['Logger'], self._dockwidgets['Shell'])
         
         self.tabifyDockWidget(self._dockwidgets['PackageSearch'], self._dockwidgets['PackageCategories'])
@@ -290,7 +290,7 @@ class MainWindow(QtGui.QMainWindow):
         if self._dockwidgets.has_key("Packages") and self._dockwidgets.has_key("ControlPanel"):
             self.tabifyDockWidget(self._dockwidgets['Packages'], self._dockwidgets['ControlPanel'])
         self.tabifyDockWidget(self._dockwidgets['Project'], self._dockwidgets['HelpWidget'])
-        self._dockwidgets['Store'].setTitleBarWidget(QtGui.QWidget())
+        #self._dockwidgets['Store'].setTitleBarWidget(QtGui.QWidget())
         
     def removeDocksWidgets(self):
         children = self.findChildren(QtGui.QDockWidget)

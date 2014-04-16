@@ -66,7 +66,7 @@ class AllWidgets(QtGui.QWidget):
         self.session.interpreter.locals['controller'] = self
         self._update_locals()
         
-        self.applets['Store'] = Store(session=self.session, controller=self, parent=self)
+        #self.applets['Store'] = Store(session=self.session, controller=self, parent=self)
         
         self.connect_all_actions()
     
