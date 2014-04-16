@@ -28,7 +28,7 @@ from openalea.vpltk.qt import QtCore, QtGui
 from openalea.visualea.graph_operator import GraphOperator
 from openalea.visualea import dataflowview
 from openalea.core.compositenode import CompositeNodeFactory
-
+from openalea.plantgl.wralea.visualization import viewernode
 
 def repr_workflow(self, name=None):
     """
@@ -151,7 +151,6 @@ class VisualeaApplet(object):
         #see Also QSignalMapper
         QtCore.QObject.connect(self._widget.actionSave, QtCore.SIGNAL('triggered(bool)'),self.controller.applet_container.save)        
 
-        viewernode = sys.modules['openalea.plantgl.wralea.visualization.viewernode']
         viewernode.registerPlotter(self.controller.applets['Viewer3D'])
         
         #QtCore.QObject.connect(self.widget().scene(), QtCore.SIGNAL('focusedItemChanged(type?,type?)'), self.focus_change)
