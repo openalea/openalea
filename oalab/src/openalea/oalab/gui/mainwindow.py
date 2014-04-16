@@ -155,9 +155,11 @@ class MainWindow(QtGui.QMainWindow):
             name = child.windowTitle()
             btn = QtGui.QCheckBox(name, self)
             btn.setChecked(child.isVisibleTo(self))
-            QtCore.QObject.connect(btn, QtCore.SIGNAL('toggled(bool)'),child.setVisible)
 
-            child._actions = [["View","Show",btn,"smallwidget"],]
+            btn.toggled.connect(child.setVisible)
+            child.visibilityChanged.connect(btn.setChecked)
+
+            child._actions = [["View", "Show", btn, "smallwidget"], ]
             def actions(self):
                 return self._actions
             
