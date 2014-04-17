@@ -35,7 +35,22 @@ class GenericLoader(object):
         filename = path(filename)
         if filename.exists():
             obj = open(filename, 'rU').read()
+            return obj
 
+class PythonLoader(object):
+    """
+    Classical loader that read file and try to eval object
+    """
+    default_name = "PythonLoader"
+    input_format = "*.py"
+    def load(self, filename):
+        """
+        :param filename: filename to convert into python object
+        :return: a python object interpreted from string "text"
+        """
+        filename = path(filename)
+        if filename.exists():
+            obj = open(filename, 'rU').read()
             try:
                 return eval(obj)
             except SyntaxError:
