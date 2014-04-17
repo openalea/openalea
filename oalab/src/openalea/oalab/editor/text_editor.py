@@ -205,7 +205,7 @@ class TextEditor(QtGui.QTextEdit):
                 self.name = QtGui.QFileDialog.getSaveFileName(self, 'Select name to save the file', temp_path)
             if self.name is not None:
                 project = self.session.project
-                project.scripts[self.name] = txt
+                project.src[self.name] = txt
                 project._save("src")
                 self.controller.applet_container.setAllTabBlack()
                 logger.debug("Try to save script in project")
