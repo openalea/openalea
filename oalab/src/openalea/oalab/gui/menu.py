@@ -19,6 +19,28 @@
 ###############################################################################
 __revision__ = ""
 
+"""
+This module defines classes to create "Ribbon bars"
+
+.. code-block:: python
+
+    from openalea.vpltk.qt import QtGui
+    from openalea.oalab.gui.menu import PanedMenu
+
+    # Create ribbon bar
+    menu = PanedMenu()
+
+    # Create Qt QAction
+    act1 = QtGui.QAction(u'act 1', menu)
+    act2 = QtGui.QAction(u'act 2', menu)
+
+    # Add actions to ribbon bar
+    menu.addBtnByAction('Panel', 'group', act1, PanedMenu.BigButton)
+    menu.addBtnByAction('Panel', 'group', act2, PanedMenu.SmallButton)
+
+"""
+
+
 from openalea.vpltk.qt import QtGui, QtCore
 
 """
@@ -38,19 +60,11 @@ toolbutton_style = """
          min-width: 80px;
      }
 
-    QToolButton:pressed {
-        background-color: qlineargradient(
-            x1: 0, y1: 0, x2: 0, y2: 1,
-            stop: 0 #dadbde, stop: 1 #f6f7fa
-        );
-    }
-
     QToolButton:hover {
         border: 1px solid rgb(200, 200, 200);
         border-radius: 2px;
     }
 """
-
 
 
 class PanedMenu(QtGui.QTabWidget):
