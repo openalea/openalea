@@ -32,17 +32,40 @@ small_btn_size = QtCore.QSize(130,20)
 big_icon_size = QtCore.QSize(30,30)
 small_icon_size = QtCore.QSize(20,20)
 
+toolbutton_style = """
+    QToolButton {
+         background-color: transparent;
+         min-width: 80px;
+     }
+
+    QToolButton:pressed {
+        background-color: qlineargradient(
+            x1: 0, y1: 0, x2: 0, y2: 1,
+            stop: 0 #dadbde, stop: 1 #f6f7fa
+        );
+    }
+
+    QToolButton:hover {
+        border: 1px solid rgb(200, 200, 200);
+        border-radius: 2px;
+    }
+"""
+
+
 
 class PanedMenu(QtGui.QTabWidget):
     """
     A widget that tries to mimic menu of Microsoft Office 2010.
     Cf. Ribbon Bar.
     """
+    BigButton = 0
+    SmallButton = 1
+    BigWidget = 'bigwidget'
+    SmallWidget = 'smallwidget'
+
     def __init__(self, parent=None):
         super(PanedMenu, self).__init__() 
         self.setAccessibleName("Menu")
-        self.setMinimumSize(1,120)
-        self.setMaximumSize(10000,120)
         self.tab_name = list()
         
     def addSpecialTab(self, label, widget=None):
@@ -102,16 +125,16 @@ class PanedMenu(QtGui.QTabWidget):
         # Add Btn
         return grp.addBtnByAction(action, btn_type)
         
-class Pane(QtGui.QScrollArea):
+class Pane(QtGui.QWidget):
     def __init__(self, parent=None):
         # TODO : scroll doesn't work yet
         super(Pane, self).__init__()
-        self.setWidgetResizable(False)
-        self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+#         self.setWidgetResizable(False)
+#         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         #ScrollBarAsNeeded
         #ScrollBarAlwaysOn
         #ScrollBarAlwaysOff
-        self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
+#         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.group_name = list()
         self.layout = QtGui.QGridLayout()
         self.layout.setContentsMargins(0, 0, 0, 0)
@@ -127,10 +150,11 @@ class Pane(QtGui.QScrollArea):
         self.group_name.append( name )
 
 class Group(QtGui.QGroupBox):
+
     def __init__(self, name):
         super(Group, self).__init__(name)
         self.name = name
-        self.setFlat(False)
+        self.setFlat(True)
         
         self.layout = QtGui.QHBoxLayout()
         self.layout.setContentsMargins(6, 6, 6, 6)
@@ -141,24 +165,14 @@ class Group(QtGui.QGroupBox):
         self.layout.addWidget(SubGroupH())
         self.layout.addWidget(SubGroupGrid())
 
-    def addBtn(self, name, icon, style=0):
-        if style == 0:
-            return self.addBigBtn(name, icon)
-        elif style == 1:
-            return self.addSmallBtn(name, icon)
-        elif style == "smallwidget":
-            return self.addWidget(widget, "small")
-        elif style == "bigwidget":
-            return self.addWidget(action, "big")
-        
-    def addBtnByAction(self, action, style=0):
-        if style == 0:
+    def addBtnByAction(self, action, style=PanedMenu.BigButton):
+        if style == PanedMenu.BigButton:
             return self.addBigBtnByAction(action)
-        elif style == 1:
+        elif style == PanedMenu.SmallButton:
             return self.addSmallBtnByAction(action)
-        elif style == "smallwidget":
+        elif style == PanedMenu.SmallWidget:
             return self.addWidget(action, "small")
-        elif style == "bigwidget":
+        elif style == PanedMenu.BigWidget:
             return self.addWidget(action, "big")
 
     def addWidget(self, widget, style="big"):
@@ -323,6 +337,8 @@ class BigBtnByAction(QtGui.QToolButton):
         self.setMinimumSize(big_btn_size)
         self.setMaximumSize(big_btn_size)
 
+        self.setStyleSheet(toolbutton_style)
+
 class SmallBtnByAction(QtGui.QToolButton):
     def __init__(self, action):
         super(SmallBtnByAction, self).__init__()
@@ -332,3 +348,7 @@ class SmallBtnByAction(QtGui.QToolButton):
         self.setIconSize(small_icon_size)
         self.setMinimumSize(small_btn_size)
         self.setMaximumSize(small_btn_size)
+
+        self.setStyleSheet(toolbutton_style)
+
+
