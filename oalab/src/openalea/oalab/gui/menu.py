@@ -167,9 +167,9 @@ class Group(QtGui.QGroupBox):
 
     def addBtnByAction(self, action, style=PanedMenu.BigButton):
         if style == PanedMenu.BigButton:
-            return self.addBigBtnByAction(action)
+            return self.addBigToolButton(action)
         elif style == PanedMenu.SmallButton:
-            return self.addSmallBtnByAction(action)
+            return self.addSmallToolButton(action)
         elif style == PanedMenu.SmallWidget:
             return self.addWidget(action, "small")
         elif style == PanedMenu.BigWidget:
@@ -202,7 +202,7 @@ class Group(QtGui.QGroupBox):
         return btn
 
     def addBigBtn(self, name, icon):
-        btn = BigBtn(name, icon)
+        btn = BigToolButton(name, icon)
         layout = self.layout.itemAt(0).widget().layout
         self.check_unicity_box(layout, name)
 
@@ -210,7 +210,7 @@ class Group(QtGui.QGroupBox):
         return btn
 
     def addSmallBtn(self, name, icon):
-        btn = SmallBtn(name, icon)
+        btn = SmallToolButton(name, icon)
         layout = self.layout.itemAt(1).widget().layout
         self.check_unicity_group(layout, name)
         column = layout.columnCount()
@@ -227,15 +227,15 @@ class Group(QtGui.QGroupBox):
             layout.addWidget(btn, 1, column)
         return btn
 
-    def addBigBtnByAction(self, action):
-        btn = BigBtnByAction(action)
+    def addBigToolButton(self, action):
+        btn = BigToolButton(action)
         layout = self.layout.itemAt(0).widget().layout
         self.check_unicity_box(layout, btn.defaultAction().iconText())
         layout.addWidget(btn)
         return btn
 
-    def addSmallBtnByAction(self, action):
-        btn = SmallBtnByAction(action)
+    def addSmallToolButton(self, action):
+        btn = SmallToolButton(action)
         layout = self.layout.itemAt(1).widget().layout
         self.check_unicity_group(layout, btn.defaultAction().iconText())
         column = layout.columnCount()
@@ -305,50 +305,63 @@ class SubGroupGrid(QtGui.QWidget):
         self.layout.setAlignment(QtCore.Qt.AlignLeft)
         self.setLayout(self.layout)
 
-class BigBtn(QtGui.QToolButton):
-    def __init__(self, label, icon):
-        super(BigBtn, self).__init__()
-        self.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
+class ToolButton(QtGui.QToolButton):
+    def __init__(self, action, icon=None):
+        super(ToolButton, self).__init__()
         self.setAutoRaise(True)
-        self.setIcon(icon)
-        self.setText(str(label))
+
+        if isinstance(action, QtGui.QAction):
+            self.setDefaultAction(action)
+        else:
+            self.setText(str(action))
+            if isinstance(icon, QtGui.QIcon):
+                self.setIcon(icon)
+
+        self.setStyleSheet(toolbutton_style)
+
+class BigToolButton(ToolButton):
+    def __init__(self, action, icon=None):
+        super(BigToolButton, self).__init__(action, icon)
+
+        self.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
         self.setIconSize(big_icon_size)
         self.setMinimumSize(big_btn_size)
         self.setMaximumSize(big_btn_size)
 
-class SmallBtn(QtGui.QToolButton):
-    def __init__(self, label, icon):
-        super(SmallBtn, self).__init__()
+class SmallToolButton(ToolButton):
+    def __init__(self, action, icon=None):
+        super(SmallToolButton, self).__init__(action, icon)
+
         self.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
-        self.setAutoRaise(True)
-        self.setIcon(icon)
-        self.setText(str(label))
         self.setIconSize(small_icon_size)
         self.setMinimumSize(small_btn_size)
         self.setMaximumSize(small_btn_size)
 
-class BigBtnByAction(QtGui.QToolButton):
-    def __init__(self, action):
-        super(BigBtnByAction, self).__init__()
-        self.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
-        self.setAutoRaise(True)
-        self.setDefaultAction(action)
-        self.setIconSize(big_icon_size)
-        self.setMinimumSize(big_btn_size)
-        self.setMaximumSize(big_btn_size)
 
-        self.setStyleSheet(toolbutton_style)
+if __name__ == '__main__':
 
-class SmallBtnByAction(QtGui.QToolButton):
-    def __init__(self, action):
-        super(SmallBtnByAction, self).__init__()
-        self.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
-        self.setAutoRaise(True)
-        self.setDefaultAction(action)
-        self.setIconSize(small_icon_size)
-        self.setMinimumSize(small_btn_size)
-        self.setMaximumSize(small_btn_size)
+    import sys
+    from openalea.vpltk.qt import QtGui
 
-        self.setStyleSheet(toolbutton_style)
+    instance = QtGui.QApplication.instance()
+    if instance is None:
+        qapp = QtGui.QApplication(sys.argv)
+    else:
+        qapp = instance
 
+    # Example: create a panel with one group containing 1 big and 3 small buttons
+    menu = PanedMenu()
 
+    act0 = QtGui.QAction(u'Action', menu)
+    act1 = QtGui.QAction(u'act 1', menu)
+    act2 = QtGui.QAction(u'act 2', menu)
+    act3 = QtGui.QAction(u'act 3', menu)
+
+    menu.addBtnByAction('Panel', 'group', act0, PanedMenu.BigButton)
+    menu.addBtnByAction('Panel', 'group', act1, PanedMenu.SmallButton)
+    menu.addBtnByAction('Panel', 'group', act2, PanedMenu.SmallButton)
+    menu.addBtnByAction('Panel', 'group', act3, PanedMenu.SmallButton)
+    menu.show()
+
+    if instance is None:
+        qapp.exec_()
