@@ -277,7 +277,7 @@ class ControlPanelManager(ObjectPanelManager):
     """
 
     def __init__(self, session, controller, parent=None):
-        # Create unused menu to fit with original ObjectPanaleManager from lpy
+        # Create unused menu to fit with original ObjectPanelManager from lpy
         parent = QtCore.QObject()
         parent.vparameterView = QtGui.QMenu()
         super(ControlPanelManager, self).__init__(parent)
