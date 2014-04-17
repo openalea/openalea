@@ -30,14 +30,14 @@ def test_applet_container_opentab():
     assert container.count() == 0
 """
 
-
+"""
 def test_session_and_mainwindow():
     project_manager = ProjectManager()
     mw = MainWindow(session, controller, parent=None)
     assert session.project.name == project_manager.default().name
     assert controller.applets['Store'].actions() == None
     assert controller.applets['Store'].mainMenu() == "Package Store"
-
+"""
 
 def test_text_edit():
     editor = TextEditor(session, controller, parent=None)
