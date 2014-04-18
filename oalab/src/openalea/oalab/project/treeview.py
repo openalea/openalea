@@ -222,17 +222,17 @@ class PrjctModel(QtGui.QStandardItemModel):
                     if parent.text() == "Models":
                         for i in self.old_models:
                             if i not in children:
-                                self.proj.rename(categorie=parent.text(), old_name=i, new_name= item.text())
+                                self.proj.rename(category=parent.text(), old_name=i, new_name= item.text())
 
                     if parent.text() == "Control":
                         for i in children:
                             if i not in self.old_control:
-                                self.proj.rename(categorie=parent.text(), old_name=i, new_name= item.text())
+                                self.proj.rename(category=parent.text(), old_name=i, new_name= item.text())
 
                     if parent.text() == "Scene":
                         for i in children:
                             if i not in self.old_scene:
-                                self.proj.rename(categorie=parent.text(), old_name=i, new_name= item.text())
+                                self.proj.rename(category=parent.text(), old_name=i, new_name= item.text())
                                 
                     # Save project
                     self.proj.save()
