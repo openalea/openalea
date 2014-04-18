@@ -423,8 +423,21 @@ class Project(object):
                     self._shell.runcode(self.startup[s])
 
     def __repr__(self):
-        return "Project named " + str(self.name) + " in path " + str(self.path) + " . Src: " + str(
-            self.src.keys())
+        txt = "Project named " + str(self.name) + " in path " + str(self.path) + """.
+
+"""
+        for metada in self.metadata:
+            if self.metadata[metada]:
+                txt = txt + metada + " : " + str(self.metadata[metada]) + ". "
+
+        txt = txt + """
+
+"""
+        for file in self.files:
+            if self.files[file]:
+                txt = txt + file + " : " + str(self.files[file])
+
+        return txt
 
     def _set_ipython(self, shell=None):
         if not self.use_ipython():
