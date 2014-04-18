@@ -78,27 +78,18 @@ class Project(object):
         }
         self.config_file = "oaproject.cfg"
 
-        # Data, src, ...
-        # Abstract this part as self.folders
-        self.src = dict()
-        self.control = dict()
-        self.cache = dict()
-        self.data = dict()
-        self.scene = dict()
-        self.startup = dict()
-        self.doc = dict()
-
+        # Data
         self.files = {
-            "src": self.src,
-            "control": self.control,
-            "cache": self.cache,
-            "data": self.data,
-            "scene": self.scene,
-            "startup": self.startup,
-            "doc": self.doc
+            "src": dict(),
+            "control": dict(),
+            "cache": dict(),
+            "data": dict(),
+            "scene": dict(),
+            "startup": dict(),
+            "doc": dict()
         }
 
-        #
+        # Others
         self._ns = dict()
         self._shell = None
         self._set_ipython()
@@ -433,9 +424,9 @@ class Project(object):
         txt = txt + """
 
 """
-        for file in self.files:
-            if self.files[file]:
-                txt = txt + file + " : " + str(self.files[file])
+        for file_ in self.files:
+            if self.files[file_]:
+                txt = txt + file_ + " : " + str(self.files[file_])
 
         return txt
 
@@ -568,3 +559,59 @@ class Project(object):
     @version.setter
     def version(self, value):
         self.metadata["version"] = value
+
+    @property
+    def src(self):
+        return self.files["src"]
+
+    @src.setter
+    def src(self, value):
+        self.files["src"] = value
+
+    @property
+    def control(self):
+        return self.files["control"]
+
+    @control.setter
+    def control(self, value):
+        self.files["control"] = value
+
+    @property
+    def cache(self):
+        return self.files["cache"]
+
+    @cache.setter
+    def cache(self, value):
+        self.files["cache"] = value
+
+    @property
+    def data(self):
+        return self.files["data"]
+
+    @data.setter
+    def data(self, value):
+        self.files["data"] = value
+
+    @property
+    def scene(self):
+        return self.files["scene"]
+
+    @scene.setter
+    def scene(self, value):
+        self.files["scene"] = value
+
+    @property
+    def startup(self):
+        return self.files["startup"]
+
+    @startup.setter
+    def startup(self, value):
+        self.files["startup"] = value
+
+    @property
+    def doc(self):
+        return self.files["doc"]
+
+    @doc.setter
+    def doc(self, value):
+        self.files["doc"] = value
