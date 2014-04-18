@@ -29,11 +29,6 @@ class Preview(QtGui.QWidget):
                 icon_name = path(project.path) / project.name / project.icon
                 #else native icon from oalab.gui.resources
 
-        i = 1
-        for label in ["author:", "description:", "citation:", "license:", "dependencies:", "path:"]:
-            layout.addWidget(QtGui.QLabel(label), i, 0)
-            i += 1
-
         image = QtGui.QImage(icon_name)
         label = QtGui.QLabel()
         label.setPixmap(QtGui.QPixmap(image))
@@ -46,31 +41,31 @@ class Preview(QtGui.QWidget):
         layout.addWidget(label, 0, 0)
 
         layout.addWidget(QtGui.QLabel("<b><FONT SIZE = 40>" + pretty_print(project.name) + "<\b>"), 0, 1)
-        # GBY Review:
-        # QLabel expects a QString and QString is equivalent to unicode
-        # so you must convert str to unicode to support non ASCII characters correctly (for example accent in author's name)
-        # If project meta-info encoding is utf-8, you can write projet.author.decode('utf-8')
-        # Just put accents or greek characters in test data to check such problems
 
-        # GBY Review: if amount of metainfo grows, QTextEdit can be more convenient
-        layout.addWidget(QtGui.QLabel(pretty_print(project.author)), 1, 1)
-        layout.addWidget(QtGui.QLabel(pretty_print(project.description)), 2, 1)
-        layout.addWidget(QtGui.QLabel(pretty_print(project.citation)), 3, 1)
-        layout.addWidget(QtGui.QLabel(pretty_print(project.license)), 4, 1)
-        layout.addWidget(QtGui.QLabel(pretty_print(project.dependencies)), 5, 1)
-        layout.addWidget(QtGui.QLabel(pretty_print(project.path)), 6, 1)
+        i = 1
+        for label in ["author", "author_email", "description", "long_description", "version", "url", "citation", "license", "dependencies", "path"]:
+            layout.addWidget(QtGui.QLabel(label), i, 0)
+            # GBY Review:
+            # QLabel expects a QString and QString is equivalent to unicode
+            # so you must convert str to unicode to support non ASCII characters correctly (for example accent in author's name)
+            # If project meta-info encoding is utf-8, you can write projet.author.decode('utf-8')
+            # Just put accents or greek characters in test data to check such problems
 
-        layout.addWidget(QtGui.QLabel("src:"), 8, 0)
-        layout.addWidget(QtGui.QLabel(pretty_print(project.src.keys())), 8, 1)
+            # GBY Review: if amount of metainfo grows, QTextEdit can be more convenient
+            layout.addWidget(QtGui.QLabel(pretty_print(getattr(project, label))), i, 1)
+            i += 1
+
+        layout.addWidget(QtGui.QLabel("src:"), 12, 0)
+        layout.addWidget(QtGui.QLabel(pretty_print(project.src.keys())), 12, 1)
 
         open_button = QtGui.QPushButton("Open this project")
         open_button.clicked.connect(self.on_project_opened)
-        layout.addWidget(open_button, 9, 0, 9, 2)
+        layout.addWidget(open_button, 13, 0, 13, 2)
 
         verticalSpacer = QtGui.QSpacerItem(0, 0);
-        layout.addItem(verticalSpacer, 10, 0, 10, 1)
+        layout.addItem(verticalSpacer, 14, 0, 14, 1)
         horizontalSpacer = QtGui.QSpacerItem(0, 0)
-        layout.addItem(horizontalSpacer, 0, 2, 10, 2)
+        layout.addItem(horizontalSpacer, 0, 2, 14, 2)
 
         self.setLayout(layout)
 

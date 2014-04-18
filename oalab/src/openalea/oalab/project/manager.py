@@ -157,6 +157,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         project.start()
         logger.debug("Project " + str(project) + " opened")
 
+        project.scene = self.controller.scene
         self.session._project = project
         self.session._is_proj = True
         self._project_changed()
