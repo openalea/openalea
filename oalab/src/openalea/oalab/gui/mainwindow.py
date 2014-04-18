@@ -157,7 +157,7 @@ class MainWindow(QtGui.QMainWindow):
             btn.setChecked(child.isVisibleTo(self))
 
             btn.toggled.connect(child.setVisible)
-            child.visibilityChanged.connect(btn.setChecked)
+            #child.visibilityChanged.connect(btn.setChecked)
 
             child._actions = [["View", "Show", btn, "smallwidget"], ]
             def actions(self):

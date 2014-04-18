@@ -299,7 +299,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
             if not new_name:
                 new_name = showNewProjectDialog(default_name=path(name) / "..",
                                                 text='Select new name to save project')
-            self.session.project.rename(categorie="project", old_name=name, new_name=new_name)
+            self.session.project.rename(category="project", old_name=name, new_name=new_name)
             self._project_changed()
         else:
             print(
@@ -312,7 +312,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         if self.session.current_is_project():
             name = showNewProjectDialog(default_name=None, text="Select name to save project")
             if name:
-                self.session.project.rename(categorie="project", old_name=self.session.project.name, new_name=name)
+                self.session.project.rename(category="project", old_name=self.session.project.name, new_name=name)
                 self._tree_view_change()
                 self.saveCurrent()
         else:
