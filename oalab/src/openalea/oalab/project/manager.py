@@ -21,8 +21,8 @@ from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core.path import path
 from openalea.core import settings
 from openalea.core import logger
-from time import gmtime, strftime
 from openalea.vpltk.project.manager import ProjectManager
+from openalea.oalab.project.creator import CreateProjectWidget
 
 
 class ProjectManagerWidget(QtGui.QWidget):
@@ -156,6 +156,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         """
         project.start()
         logger.debug("Project " + str(project) + " opened")
+
         self.session._project = project
         self.session._is_proj = True
         self._project_changed()
@@ -231,26 +232,15 @@ You can rename/move this project thanks to the button "Save As" in menu.
         else:
             print "You are not working inside project. Please create or load one first."
 
-    def new(self, name=None):
+    def new(self):
         """
         Create an default empty project with a default name.
 
-        :param name: full name of project to add (path)
+        Open a window to define metadata of the project.
         """
-        if not name:
-            date = strftime("%Y-%m-%d_%H-%M-%S", gmtime())
-            name = showNewProjectDialog('project_%s' % date)
-        if name:
-            if self.session.current_is_project():
-                if self.session.project is not None:
-                    self.projectManager.close(self.session.project.name)
-            projpath, name = path(name).splitpath()
-            if not projpath:
-                projpath = None
-            self.session._project = self.projectManager.create(project_name=name, project_path=projpath)
-            self.session._is_proj = True
-            self._load_control()
-            self._project_changed()
+        self.project_creator = CreateProjectWidget()
+        self.project_creator.show()
+        self.connect(self.project_creator, QtCore.SIGNAL('ProjectOpened(PyQt_PyObject)'), self.openProject)
 
     def newModel(self, applet_type=None, tab_name=None, script=""):
         """
