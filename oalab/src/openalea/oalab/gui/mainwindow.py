@@ -153,6 +153,8 @@ class MainWindow(QtGui.QMainWindow):
 
         for child in children:
             name = child.windowTitle()
+            if name.lower() == "menu":
+                continue
             btn = QtGui.QCheckBox(name, self)
             btn.setChecked(child.isVisibleTo(self))
 
