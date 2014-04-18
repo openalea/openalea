@@ -173,6 +173,8 @@ class MainWindow(QtGui.QMainWindow):
             def __init__(self, parent):
                 """
                 Use it to add features like setting widgets layout
+
+                Actually not used
                 """
                 super(FakeWidget, self).__init__()
                 self.mainwindow = parent
