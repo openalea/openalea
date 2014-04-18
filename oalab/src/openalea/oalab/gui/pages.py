@@ -222,17 +222,17 @@ class CreateFilePage(QtGui.QWidget):
         text2 = QtGui.QLabel("You can add a file from your computer:")  
         layout.addWidget(text2,10,0,1,-1)
         
-        editFile = QtGui.QToolButton()
-        editFile.setDefaultAction(self.controller.project_manager.actionEditFile)
-        editFile.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
-        editFile.setMinimumSize(min_size)         
-        layout.addWidget(editFile,11,0,1,-1)
+        # editFile = QtGui.QToolButton()
+        # editFile.setDefaultAction(self.controller.project_manager.actionEditFile)
+        # editFile.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
+        # editFile.setMinimumSize(min_size)
+        # layout.addWidget(editFile,11,0,1,-1)
         
         importFile = QtGui.QToolButton()
         importFile.setDefaultAction(self.controller.project_manager.actionImportFile)
         importFile.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
         importFile.setMinimumSize(min_size)         
-        layout.addWidget(importFile,11,1,1,-1)
+        layout.addWidget(importFile,11,0,1,-1)
         
         self.setLayout(layout)
 
