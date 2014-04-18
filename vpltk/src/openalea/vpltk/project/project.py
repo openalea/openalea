@@ -233,13 +233,13 @@ class Project(object):
                 cat[str(new_name)] = cat[str(old_name)]
                 # Remove inside project
                 self.remove(category, old_name)
-                # Remove on disk
-                temp_path = self.path / self.name / category / old_name
-                if temp_path.exists():
-                    try:
-                        path_(temp_path).removedirs()
-                    except IOError:
-                        pass
+                # TODO: Remove on disk
+                # temp_path = self.path / self.name / category / old_name
+                # if temp_path.exists():
+                #     try:
+                #         path_(temp_path).removedirs()
+                #     except IOError:
+                #         pass
 
     #----------------------------------------
     # Manifest
