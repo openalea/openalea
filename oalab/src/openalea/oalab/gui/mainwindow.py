@@ -159,7 +159,7 @@ class MainWindow(QtGui.QMainWindow):
             btn.setChecked(child.isVisibleTo(self))
 
             btn.toggled.connect(child.setVisible)
-            #child.visibilityChanged.connect(btn.setChecked)
+            # child.visibilityChanged.connect(btn.setChecked)
 
             child._actions = [["View", "Show", btn, "smallwidget"], ]
             def actions(self):
@@ -288,13 +288,13 @@ class MainWindow(QtGui.QMainWindow):
         self.statusBar().showMessage("OALab is ready!", 10000)
 
         # Tabify docks
-        # self.tabifyDockWidget(self._dockwidgets['Viewer3D'], self._dockwidgets['Store'])
         self.tabifyDockWidget(self._dockwidgets['Logger'], self._dockwidgets['Shell'])
-
         self.tabifyDockWidget(self._dockwidgets['PackageSearch'], self._dockwidgets['PackageCategories'])
         self.tabifyDockWidget(self._dockwidgets['PackageCategories'], self._dockwidgets['Packages'])
+
         if self._dockwidgets.has_key("Packages") and self._dockwidgets.has_key("ControlPanel"):
             self.tabifyDockWidget(self._dockwidgets['Packages'], self._dockwidgets['ControlPanel'])
+
         self.tabifyDockWidget(self._dockwidgets['Project'], self._dockwidgets['HelpWidget'])
         # self._dockwidgets['Store'].setTitleBarWidget(QtGui.QWidget())
 
@@ -306,23 +306,23 @@ class MainWindow(QtGui.QMainWindow):
 
     def changeMenuTab(self, old, new):
         """
-        Set tab of 'new' current in the menu
+        Set tab of 'new' current in the menu.
+        This class is designed to be connected to focusChanged signal.
 
-        :param old: old current widget. Not used.
+        :param old: old widget. Not used.
         :param new: current widget to check if we have to change menu
         """
-        try:
+
+        if new and hasattr(new, 'mainMenu') :
+            # new=None means application has lost focus, so do not change PanedMenu.
+            # (for example, click outside application)
+
             # Get Tab Name
             name = new.mainMenu()
             # Get Menu
             menu = self._dockwidgets['Menu'].widget()
-            # Find tab named 'name'
-            for index in range(menu.count()):
-                if menu.tabText(index) == name:
-                    # Set Current
-                    menu.setCurrentIndex(index)
-        except:
-            pass
+            menu.showPane(name)
+
 
     def _mini(self):
         self.changeExtension("mini")

@@ -18,6 +18,7 @@
 __revision__ = ""
 
 from openalea.vpltk.qt import QtGui, QtCore
+import resources_rc # do not remove this import else icon are not drawn
 import webbrowser
 
 default_text2 = """
@@ -68,8 +69,8 @@ class HelpWidget(QtGui.QTextBrowser):
         QtCore.QObject.connect(actionHelpGForge, QtCore.SIGNAL('triggered(bool)'),self.openOALabBugs)
         QtCore.QObject.connect(actionHelpTasks, QtCore.SIGNAL('triggered(bool)'),self.openOALabTasks)
 
-        self._actions = [["Help","Website",actionHelpOpenAlea,0],
-                         ["Help","Website",actionHelpGForge,0]]
+        self._actions = [["Help", "Website", actionHelpOpenAlea, 0],
+                         ["Help", "Website", actionHelpGForge, 0]]
         self.setText(default_text)                
 
     def actions(self):

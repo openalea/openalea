@@ -17,10 +17,10 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-__revision__ = ""
 
 """
-This module defines classes to create "Ribbon bars"
+
+Full example:
 
 .. code-block:: python
 
@@ -40,6 +40,7 @@ This module defines classes to create "Ribbon bars"
 
 """
 
+__revision__ = ""
 
 from openalea.vpltk.qt import QtGui, QtCore
 
@@ -64,6 +65,13 @@ toolbutton_style = """
         border: 1px solid rgb(200, 200, 200);
         border-radius: 2px;
     }
+
+    QToolButton:pressed {
+        background-color: rgba(0, 0, 0, 50);
+        border: 1px solid rgb(175, 175, 175);
+        border-radius: 2px;
+    }
+
 """
 
 
@@ -71,6 +79,10 @@ class PanedMenu(QtGui.QTabWidget):
     """
     A widget that tries to mimic menu of Microsoft Office 2010.
     Cf. Ribbon Bar.
+
+    >>> from openalea.oalab.gui.menu import PanedMenu
+    >>> menu = PanedMenu()
+
     """
     BigButton = 0
     SmallButton = 1
@@ -80,6 +92,9 @@ class PanedMenu(QtGui.QTabWidget):
     def __init__(self, parent=None):
         super(PanedMenu, self).__init__()
         self.setAccessibleName("Menu")
+        self.setContentsMargins(0, 0, 0, 0)
+        size_policy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Maximum)
+        self.setSizePolicy(size_policy)
         self.tab_name = list()
 
     def addSpecialTab(self, label, widget=None):
@@ -139,6 +154,15 @@ class PanedMenu(QtGui.QTabWidget):
         # Add Btn
         return grp.addBtnByAction(action, btn_type)
 
+    def showPane(self, pane_name):
+        # Find tab named 'name'
+        try:
+            index = self.tab_name.index(pane_name)
+        except ValueError:
+            pass
+        else:
+            self.setCurrentIndex(index)
+
 class Pane(QtGui.QWidget):
     def __init__(self, parent=None):
         # TODO : scroll doesn't work yet
@@ -171,7 +195,7 @@ class Group(QtGui.QGroupBox):
         self.setFlat(True)
 
         self.layout = QtGui.QHBoxLayout()
-        self.layout.setContentsMargins(6, 6, 6, 6)
+        self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setSpacing(0)
         self.layout.setAlignment(QtCore.Qt.AlignLeft)
         self.setLayout(self.layout)

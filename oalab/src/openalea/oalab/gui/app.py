@@ -56,8 +56,7 @@ class OALab(QtGui.QApplication):
         self.win.raise_()
         self.splash.finish(self.win)
         self.win.setEnabled(True)
-        
-        
+
 def show_splash_screen():
     """Show a small splash screen to make people wait for OpenAleaLab to startup"""
     
