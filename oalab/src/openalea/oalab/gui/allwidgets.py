@@ -8,13 +8,12 @@ from openalea.oalab.scene.vplscene import VPLScene
 from openalea.oalab.project.manager import ProjectManagerWidget
 from openalea.oalab.project.treeview import ProjectLayoutWidget
 from openalea.oalab.package.widgets import PackageViewWidget, PackageCategorieViewWidget, PackageSearchWidget
-from openalea.oalab.gui.store import Store
 from openalea.oalab.scene.view3d import Viewer
 from openalea.vpltk.qt import QtGui
 
 class AllWidgets(QtGui.QWidget):
     """
-    TODO:  This class must be replaces by independent widgets !
+    TODO:  This class must be replaced by independent widgets !
     """
     def __init__(self, session):
 
@@ -24,7 +23,7 @@ class AllWidgets(QtGui.QWidget):
         self.session = session
 
         self.scene = VPLScene()
-        
+
         # Menu
         self.menu = PanedMenu()
         self.classical_menu = QtGui.QMenuBar()
@@ -34,15 +33,15 @@ class AllWidgets(QtGui.QWidget):
         # Docks
         self.applets['ControlPanel'] = ControlPanel(session=self.session, controller=self, parent=self)
         self.applets['Viewer3D'] = Viewer(session=self.session, controller=self, parent=self)
-        
-        self.shell = get_shell_class()(self.session.interpreter)     
-        
+
+        self.shell = get_shell_class()(self.session.interpreter)
+
         # Applet Container : can contain text editor or/and workflow editor
-        self.applet_container = AppletContainer(session=self.session, controller=self, parent=self)        
+        self.applet_container = AppletContainer(session=self.session, controller=self, parent=self)
         self.session.interpreter.locals['applets'] = self.applet_container
-        
+
         self.applets['Project'] = ProjectLayoutWidget(session=self.session, controller=self, parent=self)
-        
+
         self.project_manager = ProjectManagerWidget(session=self.session, controller=self, parent=self)
 
         self.helper = self.applets['HelpWidget']
@@ -51,10 +50,10 @@ class AllWidgets(QtGui.QWidget):
         self.applets['PackageSearch'] = PackageSearchWidget(session=self.session, controller=self, parent=self)
 
         self.applets['Logger'] = Logger(session=self.session, controller=self, parent=self)
-        
-        
+
+
         self.session.project_manager.discover()
-        
+
         """
         proj_model = PrjctManagerModel(self.session.project_manager)
         treeView = QtGui.QTreeView()
@@ -65,20 +64,20 @@ class AllWidgets(QtGui.QWidget):
         self.session.interpreter.locals['shell'] = self.shell
         self.session.interpreter.locals['controller'] = self
         self._update_locals()
-        
-        #self.applets['Store'] = Store(session=self.session, controller=self, parent=self)
-        
+
+        # self.applets['Store'] = Store(session=self.session, controller=self, parent=self)
+
         self.connect_all_actions()
-    
+
     def _update_locals(self):
         self.session.interpreter.locals['project'] = self.session.project
         self.session.interpreter.locals['scene'] = self.scene
-        
+
         try:
             self.session.interpreter.locals['control'] = self.session.project.control
         except AttributeError:
             pass
-        
+
     def connect_all_actions(self):
         """
         Connect actions of different widget to the menu
@@ -93,24 +92,22 @@ class AllWidgets(QtGui.QWidget):
         """
         Connect actions from 'widget' to 'menu'
         """
-        # TODO : add "show/hide widget" button in menu ribbon bar
-        # Maybe do it in mainwindow class to show/hide dockwidget and not widget in dock
         if not menu:
             menu = self.menu
         actions = widget.actions()
 
         if actions:
             for action in actions:
-                menu.addBtnByAction(pane_name=action[0], group_name=action[1], action=action[2],btn_type=action[3])
-                
-                
+                menu.addBtnByAction(pane_name=action[0], group_name=action[1], action=action[2], btn_type=action[3])
+
+
                 #### Add a classical menu too
                 """
                 if isinstance(action[2], QtGui.QAction):
                     menus = [men.text() for men in self.classical_menu.actions()]
                     if not action[0] in menus:
                         print [men.text() for men in self.classical_menu.actions()]
-                        
+
                         submenu = self.classical_menu.addMenu(action[0])
                         submenu.addAction(action[2])
                     else:

@@ -30,7 +30,7 @@ def main():
     # Create shortcut in project dir to oalab.share dir (only if necessary)
     create_project_shortcut()
     # Launch app
-    
+
     session = Session()
     cli = CommandLineParser(sys.argv, session)
 
@@ -38,7 +38,25 @@ def main():
         from openalea.oalab.gui.app import OALab
         app = OALab(sys.argv, session)
         app.exec_()
-    
+
+
+def main2():
+    # Create shortcut in project dir to oalab.share dir (only if necessary)
+    create_project_shortcut()
+
+    session = Session()
+    cli = CommandLineParser(sys.argv, session)
+
+    if session.gui:
+        from openalea.vpltk.qt import QtGui
+        from openalea.oalab.gui.mainwindow2 import MainWindow
+
+        app = QtGui.QApplication(sys.argv)
+        win = MainWindow(session)
+        win.show()
+        win.raise_()
+        app.exec_()
+
 def main_plantlab():
     """
     OpenAleaLaboratory starts here

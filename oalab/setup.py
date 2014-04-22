@@ -85,6 +85,7 @@ setup(
     # Declare src and wralea as entry_points (extensions) of your package
     entry_points = { 
         'gui_scripts': ['oalab = openalea.oalab.main:main',
+                        'oalab2 = openalea.oalab.main:main2',
                         'openalealab = openalea.oalab.main:main',
                         'plantlab = openalea.oalab.main:main_plantlab',
                         'tissuelab = openalea.oalab.main:main_tissuelab',
@@ -98,6 +99,10 @@ setup(
                                   'VisualeaApplet = openalea.oalab.plugins.visualea:VisualeaApplet',
                                   'RApplet = openalea.oalab.plugins.r:RApplet',
                                   ],
+        'oalab.widgets': [
+            'HelpWidget = openalea.oalab.plugins.helpwidget:OALabHelpWidget'
+            ],
+
         #'console_scripts': [
         #       'fake_script = openalea.fakepackage.amodule:console_script', ],
         # 'gui_scripts': [
