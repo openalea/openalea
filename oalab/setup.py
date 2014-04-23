@@ -99,8 +99,13 @@ setup(
                                   'VisualeaApplet = openalea.oalab.plugins.visualea:VisualeaApplet',
                                   'RApplet = openalea.oalab.plugins.r:RApplet',
                                   ],
-        'oalab.widgets': [
+        'oalab.widget': [
             'HelpWidget = openalea.oalab.plugins.helpwidget:OALabHelpWidget'
+            ],
+
+
+        'oalab.extension': [
+            'OALabExtensionTissue = openalea.oalab.plugins.tissuelab:OALabExtensionTissue'
             ],
 
         #'console_scripts': [

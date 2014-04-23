@@ -50,11 +50,18 @@ def main2():
     if session.gui:
         from openalea.vpltk.qt import QtGui
         from openalea.oalab.gui.mainwindow2 import MainWindow
+        from openalea.vpltk.plugin import iter_plugins
+
 
         app = QtGui.QApplication(sys.argv)
-        win = MainWindow(session)
-        win.show()
-        win.raise_()
+
+        for factory_class in iter_plugins('oalab.extension'):
+            factory = factory_class()
+            win = MainWindow(session)
+            factory(win)
+            win.show()
+            win.raise_()
+
         app.exec_()
 
 def main_plantlab():

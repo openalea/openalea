@@ -7,10 +7,6 @@ class OALabHelpWidget(object):
         'oalab': {
             'extensions': ['plantlab', 'tissuelab'],
             },
-        'compatibility': {
-            'gui': ['PyQt4', 'PySide'],
-            'python': ['Python2', 'Python3']
-        },
         'implements' : ['IHelper', 'IQWidget', 'IOAGuiComponent']
     }
 
