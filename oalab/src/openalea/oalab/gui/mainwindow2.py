@@ -27,7 +27,6 @@ from openalea.core.path import path
 from openalea.core.settings import get_openalea_home_dir
 
 from openalea.oalab.gui.menu import PanedMenu
-from openalea.vpltk.plugin import discover
 
 class MainWindow(QtGui.QMainWindow):
     """
@@ -41,11 +40,6 @@ class MainWindow(QtGui.QMainWindow):
 
         self._dockwidgets = {}
         self._setWidgets()
-
-        # Must be done outside MainWindow
-        for plugin_factory in discover('oalab.widgets').itervalues():
-            widget_factory = plugin_factory.load()()
-            widget_factory(self)
 
     def _setWidgets(self):
         dock_menu = self.dockWidget("Menu", self.menu, position=QtCore.Qt.TopDockWidgetArea)
