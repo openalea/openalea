@@ -1,7 +1,7 @@
 # -*- python -*-
 #
 #       OALab start here
-# 
+#
 #       OpenAlea.OALab: Multi-Paradigm GUI
 #
 #       Copyright 2013 INRIA - CIRAD - INRA
@@ -41,7 +41,14 @@ def main():
 
 
 def main2():
-    # Create shortcut in project dir to oalab.share dir (only if necessary)
+    """
+    1. Parse command line arguments.
+    2. If GUI enabled (session.gui), launch QApplication
+    3. Search an extension in "oalab.extension" plugins.
+        - If found, launch extension
+        - If not found, quit application and shows available extensions
+    """
+
     create_project_shortcut()
 
     session = Session()
@@ -52,17 +59,35 @@ def main2():
         from openalea.oalab.gui.mainwindow2 import MainWindow
         from openalea.vpltk.plugin import iter_plugins
 
-
         app = QtGui.QApplication(sys.argv)
 
+        win = None
+        # Run all extension matching session.extension
+        available_extensions = []
         for factory_class in iter_plugins('oalab.extension'):
-            factory = factory_class()
-            win = MainWindow(session)
-            factory(win)
-            win.show()
-            win.raise_()
+            try:
+                ext = factory_class.data['extension_name']
+            except KeyError:
+                continue
+            else:
+                # register plugin info for user.
+                args = dict(EXT=ext, MODULE=factory_class.__module__, CLASS=factory_class.__name__)
+                text = '  - \033[94m%(EXT)s\033[0m (provided by class %(CLASS)s defined in %(MODULE)s)' % args
+                available_extensions.append(text)
 
-        app.exec_()
+            factory = factory_class()
+            if session.extension == ext:
+                win = MainWindow(session)
+                factory(win)
+                win.show()
+                win.raise_()
+
+        if win:
+            app.exec_()
+        else:
+            print 'Extension %r not found' % session.extension
+            print 'Please choose a valid \033[94mextension\033[0m:'
+            print '\n'.join(available_extensions)
 
 def main_plantlab():
     """
@@ -72,14 +97,14 @@ def main_plantlab():
     create_project_shortcut()
 
     session = Session()
-    session.extension = 'plant'  
-    
+    session.extension = 'plant'
+
     # Launch app
     if session.gui:
         from openalea.oalab.gui.app import OALab
         app = OALab(sys.argv, session)
         app.exec_()
-    
+
 def main_tissuelab():
     """
     OpenAleaLaboratory starts here
@@ -88,14 +113,14 @@ def main_tissuelab():
     create_project_shortcut()
 
     session = Session()
-    session.extension = 'tissue'     
-    
+    session.extension = 'tissue'
+
     # Launch app
     if session.gui:
         from openalea.oalab.gui.app import OALab
         app = OALab(sys.argv, session)
         app.exec_()
-    
+
 def main_3dlab():
     """
     OpenAleaLaboratory starts here
@@ -104,14 +129,14 @@ def main_3dlab():
     create_project_shortcut()
 
     session = Session()
-    session.extension = '3d'     
-    
+    session.extension = '3d'
+
     # Launch app
     if session.gui:
         from openalea.oalab.gui.app import OALab
         app = OALab(sys.argv, session)
         app.exec_()
-    
+
 def main_minilab():
     """
     OpenAleaLaboratory starts here
@@ -120,7 +145,7 @@ def main_minilab():
     create_project_shortcut()
 
     session = Session()
-    session.extension = 'mini'     
+    session.extension = 'mini'
 
     if session.gui:
         from openalea.oalab.gui.app import OALab
@@ -128,6 +153,6 @@ def main_minilab():
         app = OALab(sys.argv, session)
         app.exec_()
 
-    
-if( __name__ == "__main__"):
+
+if(__name__ == "__main__"):
     main()

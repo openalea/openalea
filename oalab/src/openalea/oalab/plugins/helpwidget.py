@@ -4,9 +4,7 @@ class OALabHelpWidget(object):
 
     data = {
         'name' : 'HelpWidget',
-        'oalab': {
-            'extensions': ['plantlab', 'tissuelab'],
-            },
+        'extensions': ['plant', 'tissue'],
         'implements' : ['IHelper', 'IQWidget', 'IOAGuiComponent']
     }
 
