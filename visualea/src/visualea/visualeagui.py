@@ -23,7 +23,7 @@ __revision__ = "$Id$"
 
 
 import sys
-from openalea.vpltk.qt import qt
+from openalea.vpltk import qt
 from openalea.core import logger
 from openalea.visualea.mainwindow import MainWindow
 from openalea.core.session import Session
@@ -36,7 +36,7 @@ class Openalea(qt.QtGui.QApplication):
     in a thread. It is safe to use once the sessionStarted
     signal has been emitted."""
 
-    sessionStarted = qt.QtCore.pyqtSignal(object)
+    sessionStarted = qt.QtCore.Signal(object)
 
     def __init__(self, args):
         qt.QtGui.QApplication.__init__(self, args)

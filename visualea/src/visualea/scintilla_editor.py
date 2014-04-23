@@ -208,9 +208,9 @@ class CodeWidget(Qsci.QsciScintilla):
 class CodeWidgetFindReplace(qt.QtGui.QWidget):
 
     # -- signals forwarded from internal widget --
-    textSearchRequest  = qt.QtCore.pyqtSignal(str, bool, bool)
-    textReplaceRequest = qt.QtCore.pyqtSignal(str, str, bool)
-    resultClearRequest = qt.QtCore.pyqtSignal()
+    textSearchRequest  = qt.QtCore.Signal(str, bool, bool)
+    textReplaceRequest = qt.QtCore.Signal(str, str, bool)
+    resultClearRequest = qt.QtCore.Signal()
 
 
     def __init__(self, parent=None):
@@ -236,7 +236,7 @@ class CodeWidgetFindReplace(qt.QtGui.QWidget):
 
         # --- general layout ---
         layout = qt.QtGui.QGridLayout()
-        layout.setMargin(3)
+        layout.setContentsMargins(3, 3, 3, 3)
         layout.setSpacing(2)
         layout.addWidget(findLabel, 0, 0)
         layout.addWidget(self.findLineEdit, 0, 1)
@@ -268,9 +268,9 @@ class CodeWidgetFindReplace(qt.QtGui.QWidget):
 class CodeWidgetPreferences(qt.QtGui.QWidget):
 
     # -- signals forwarded from internal widgets --
-    languageChanged   = qt.QtCore.pyqtSignal(str)
-    lineNumberToggled = qt.QtCore.pyqtSignal(bool)
-    foldingToggled    = qt.QtCore.pyqtSignal(bool)
+    languageChanged   = qt.QtCore.Signal(str)
+    lineNumberToggled = qt.QtCore.Signal(bool)
+    foldingToggled    = qt.QtCore.Signal(bool)
 
     def __init__(self, parent=None):
         qt.QtGui.QWidget.__init__(self, parent)
@@ -294,7 +294,7 @@ class CodeWidgetPreferences(qt.QtGui.QWidget):
 
         # --- general layout ---
         layout = qt.QtGui.QHBoxLayout()
-        layout.setMargin(3)
+        layout.setContentsMargins(3, 3, 3, 3)
         layout.setSpacing(2)
         layout.addLayout(langLayout)
         layout.addWidget(self.showLineCheckBox, 0, qt.QtCore.Qt.AlignLeft)
@@ -335,7 +335,7 @@ class SmallTabWidget(qt.QtGui.QTabWidget):
 class ScintillaCodeEditor(qt.QtGui.QWidget):
 
     # -- this signal makes us compatible with Openalea's NodeWidgets --
-    textChanged = qt.QtCore.pyqtSignal()
+    textChanged = qt.QtCore.Signal()
 
     def __init__(self, language="Python", *args, **kwargs):
         qt.QtGui.QWidget.__init__(self, *args, **kwargs)
@@ -364,7 +364,7 @@ class ScintillaCodeEditor(qt.QtGui.QWidget):
 
         # --- general layout ---
         layout = qt.QtGui.QVBoxLayout()
-        layout.setMargin(3)
+        layout.setContentsMargins(3, 3, 3, 3)
         layout.setSpacing(0)
         layout.addWidget(self.editor)
         layout.addWidget(tabWidget)

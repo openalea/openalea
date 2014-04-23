@@ -633,7 +633,7 @@ class NodeFactoryView(object):
 
         if(ret>0):
             dialog.create_nodefactory(pman)
-            self.main_win().reinit_treeview()
+            self.reinit_treeview()
 
 
     def add_composite_node(self):
@@ -646,7 +646,7 @@ class NodeFactoryView(object):
 
         if(ret>0):
             newfactory = dialog.create_cnfactory(pman)
-            self.main_win().reinit_treeview()
+            self.reinit_treeview()
 
 
     def add_data(self):
@@ -659,7 +659,7 @@ class NodeFactoryView(object):
 
         if(ret>0):
             newfactory = dialog.create_datafactory(pman)
-            self.main_win().reinit_treeview()
+            self.reinit_treeview()
 
 
 
@@ -689,7 +689,7 @@ class NodeFactoryView(object):
             return
 
         del pman[pkg.get_id()]
-        self.main_win().reinit_treeview()
+        self.reinit_treeview()
 
 
 
@@ -703,7 +703,7 @@ class NodeFactoryView(object):
         pix.save(fname)
         pkg.set_icon(fname)
 
-        self.main_win().reinit_treeview()
+        self.reinit_treeview()
 
 
     def edit_pkg_code(self):
@@ -735,7 +735,7 @@ class NodeFactoryView(object):
             return
 
         pman.reload(pkg)
-        self.main_win().reinit_treeview()
+        self.reinit_treeview()
 
 
     def duplicate_package(self):
@@ -759,7 +759,7 @@ class NodeFactoryView(object):
             newpkg = pman.create_user_package(name, metainfo, path)
             newpkg.clone_from_package(pkg)
             pman.add_package(newpkg)
-            self.main_win().reinit_treeview()
+            self.reinit_treeview()
 
 
     def move_package(self):
@@ -782,7 +782,7 @@ class NodeFactoryView(object):
             new_name = str(result)
             old_name = pkg.name
             pman.rename_package(old_name, new_name)
-            self.main_win().reinit_treeview()
+            self.reinit_treeview()
 
 
 
@@ -894,9 +894,10 @@ Do you want to continue?""",
 
             del(obj.package[obj.name])
             obj.package.write()
-            self.main_win().reinit_treeview()
+            self.reinit_treeview()
 
-
+    def reinit_treeview(self):
+        self.main_win().reinit_treeview()
 
 
 class NodeFactoryTreeView(NodeFactoryView, qt.QtGui.QTreeView):

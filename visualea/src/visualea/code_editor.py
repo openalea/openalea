@@ -128,10 +128,10 @@ class PythonCodeEditor(qt.QtGui.QWidget, AbstractCodeEditor):
         self.textedit = self.get_editor()
 
         vboxlayout = qt.QtGui.QVBoxLayout(self)
-        vboxlayout.setMargin(1)
+        vboxlayout.setContentsMargins(1, 1, 1, 1)
         vboxlayout.setSpacing(1)
         self.hboxlayout = qt.QtGui.QHBoxLayout()
-        self.hboxlayout.setMargin(1)
+        self.hboxlayout.setContentsMargins(1, 1, 1, 1)
         self.hboxlayout.setSpacing(1)
         self.applybut = qt.QtGui.QPushButton("Apply changes", self)
         self.hboxlayout.addWidget(self.applybut)
@@ -400,7 +400,7 @@ class EditorSelector(AbstractCodeEditor, qt.QtGui.QWidget):
         qt.QtGui.QWidget.__init__(self, parent)
 
         vboxlayout = qt.QtGui.QVBoxLayout(self)
-        vboxlayout.setMargin(3)
+        vboxlayout.setContentsMargins(3, 3, 3, 3)
         vboxlayout.setSpacing(5)
 
         self.editors = editors

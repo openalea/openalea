@@ -499,9 +499,9 @@ class SplittableUI(qt.QtGui.QWidget):
     # of the vertices in the binary tree will be serialized
     reprProps = ["amount", "splitDirection"]
 
-    widgetMenuRequest = qt.QtCore.pyqtSignal(qt.QtCore.QPoint, int)
-    dragEnterEventTest = qt.QtCore.pyqtSignal(object, qt.QtGui.QDragEnterEvent)
-    dropHandlerRequest = qt.QtCore.pyqtSignal(object, int, qt.QtGui.QDropEvent)
+    widgetMenuRequest = qt.QtCore.Signal(qt.QtCore.QPoint, int)
+    dragEnterEventTest = qt.QtCore.Signal(object, qt.QtGui.QDragEnterEvent)
+    dropHandlerRequest = qt.QtCore.Signal(object, int, qt.QtGui.QDropEvent)
 
 
     def __init__(self, parent=None, content=None):
@@ -1053,8 +1053,8 @@ class SplittableUI(qt.QtGui.QWidget):
     class TearOff(qt.QtGui.QWidget, DraggableWidget):
         """A widget drawn at top right and bottom left hand corner of each
         SplittableUI pane and that allows the user to split/collapse panes"""
-        splitRequest = qt.QtCore.pyqtSignal(int, qt.QtCore.Qt.Orientation, float)
-        collapseRequest = qt.QtCore.pyqtSignal(int, int, int)
+        splitRequest = qt.QtCore.Signal(int, qt.QtCore.Qt.Orientation, float)
+        collapseRequest = qt.QtCore.Signal(int, int, int)
 
         TearUp    = 0 #: The tear direction is upward
         TearRight = 1 #: The tear direction is to the right
@@ -1154,7 +1154,7 @@ class SplittableUI(qt.QtGui.QWidget):
         """Basically a reimplementation of qt.QtGui.QSplitterHandle.
         The original one needed a reference to a qt.QtGui.QSplitter.
         """
-        handleMoved = qt.QtCore.pyqtSignal(object,  object, object)
+        handleMoved = qt.QtCore.Signal(object,  object, object)
 
         def __init__(self, graph, refVid, orientation, parent):
             """Contruct a SplitterHandle.

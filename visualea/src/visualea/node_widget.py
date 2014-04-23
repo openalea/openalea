@@ -183,14 +183,14 @@ class DefaultNodeWidget(NodeWidget, qt.QtGui.QWidget):
         if  node.factory.view is None:
             # we create the widget in default way
             #print node.input_desc
-            layout.setMargin(3)
+            layout.setContentsMargins(3, 3, 3, 3)
             layout.setSpacing(2)
             for port in node.input_desc:
                 DefaultNodeWidget.place_item(widget, port, layout)
         else:
             #if node.factory.view.layout=="-": layout = qt.QtGui.QHBoxLayout(self)
             #elif node.factory.view.layout=="|": layout = qt.QtGui.QVBoxLayout(self)
-            #layout.setMargin(3)
+            #layout.setContentsMargins(3, 3, 3, 3)
             #layout.setSpacing(2)
             #
             ## we use custom view defined by user

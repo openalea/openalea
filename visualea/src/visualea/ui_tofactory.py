@@ -24,7 +24,7 @@ class Ui_FactorySelector(object):
         self.vboxlayout.setObjectName("vboxlayout")
         self.hboxlayout = qt.QtGui.QHBoxLayout()
         self.hboxlayout.setSpacing(6)
-        self.hboxlayout.setMargin(0)
+        self.hboxlayout.setContentsMargins(0, 0, 0, 0)
         self.hboxlayout.setObjectName("hboxlayout")
         self.label = qt.QtGui.QLabel(FactorySelector)
         self.label.setLayoutDirection(qt.QtCore.Qt.LeftToRight)

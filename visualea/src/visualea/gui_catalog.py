@@ -51,7 +51,7 @@ class IFloatWidget(IInterfaceWidget, qt.QtGui.QWidget):
         IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
 
         hboxlayout = qt.QtGui.QHBoxLayout(self)
-        hboxlayout.setMargin(3)
+        hboxlayout.setContentsMargins(3, 3, 3, 3)
         hboxlayout.setSpacing(5)
 
         self.label = qt.QtGui.QLabel(self)
@@ -105,7 +105,7 @@ class IIntWidget(IInterfaceWidget, qt.QtGui.QWidget):
         IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
 
         hboxlayout = qt.QtGui.QHBoxLayout(self)
-        hboxlayout.setMargin(3)
+        hboxlayout.setContentsMargins(3, 3, 3, 3)
         hboxlayout.setSpacing(5)
 
 
@@ -160,7 +160,7 @@ class IBoolWidget(IInterfaceWidget, qt.QtGui.QWidget):
         IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
 
         hboxlayout = qt.QtGui.QHBoxLayout(self)
-        hboxlayout.setMargin(3)
+        hboxlayout.setContentsMargins(3, 3, 3, 3)
         hboxlayout.setSpacing(5)
 
         self.checkbox = qt.QtGui.QCheckBox (parameter_str, self)
@@ -217,7 +217,7 @@ class IStrWidget(IInterfaceWidget, qt.QtGui.QWidget):
 
         self.hboxlayout = qt.QtGui.QHBoxLayout(self)
 
-        self.hboxlayout.setMargin(3)
+        self.hboxlayout.setContentsMargins(3, 3, 3, 3)
         self.hboxlayout.setSpacing(5)
 
 
@@ -274,7 +274,7 @@ class IDateTimeWidget(IInterfaceWidget, qt.QtGui.QWidget):
 
         self.hboxlayout = qt.QtGui.QHBoxLayout(self)
 
-        self.hboxlayout.setMargin(3)
+        self.hboxlayout.setContentsMargins(3, 3, 3, 3)
         self.hboxlayout.setSpacing(5)
 
 
@@ -333,7 +333,7 @@ class ITextStrWidget(IInterfaceWidget, qt.QtGui.QWidget):
 
         self.hboxlayout = qt.QtGui.QHBoxLayout(self)
 
-        self.hboxlayout.setMargin(3)
+        self.hboxlayout.setContentsMargins(3, 3, 3, 3)
         self.hboxlayout.setSpacing(5)
 
 
@@ -372,23 +372,40 @@ class ITextStrWidget(IInterfaceWidget, qt.QtGui.QWidget):
 
         self.subwidget.setText(s)
 
-
-class ICodeStrWidget(ITextStrWidget):
-
-    __interface__ = ICodeStr
+try:
     from scintilla_editor import ScintillaCodeEditor
-    __widgetclass__ = ScintillaCodeEditor
-
-    @lock_notify
-    def valueChanged(self):
-        self.node.set_input(self.param_str, str(self.subwidget.text()))
-
-    def notify(self, sender, event):
-        """ Notification sent by node """
-        s = self.node.get_input(self.param_str)
-        if s is not None:
-            s = str(s)
-            self.subwidget.setText(s)
+except ImportError:
+    class ICodeStrWidget(ITextStrWidget):
+    
+        __interface__ = ICodeStr
+    
+        @lock_notify
+        def valueChanged(self):
+            self.node.set_input(self.param_str, str(self.subwidget.text()))
+    
+        def notify(self, sender, event):
+            """ Notification sent by node """
+            s = self.node.get_input(self.param_str)
+            if s is not None:
+                s = str(s)
+                self.subwidget.setText(s)    
+else:
+    class ICodeStrWidget(ITextStrWidget):
+    
+        __interface__ = ICodeStr
+        from scintilla_editor import ScintillaCodeEditor
+        __widgetclass__ = ScintillaCodeEditor
+    
+        @lock_notify
+        def valueChanged(self):
+            self.node.set_input(self.param_str, str(self.subwidget.text()))
+    
+        def notify(self, sender, event):
+            """ Notification sent by node """
+            s = self.node.get_input(self.param_str)
+            if s is not None:
+                s = str(s)
+                self.subwidget.setText(s)
 
 
 class ISequenceWidget(IInterfaceWidget, qt.QtGui.QWidget):
@@ -409,7 +426,7 @@ class ISequenceWidget(IInterfaceWidget, qt.QtGui.QWidget):
         IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
 
         self.gridlayout = qt.QtGui.QGridLayout(self)
-        self.gridlayout.setMargin(3)
+        self.gridlayout.setContentsMargins(3, 3, 3, 3)
         self.gridlayout.setSpacing(5)
 
         self.button = qt.QtGui.QPushButton("Add Item", self)
@@ -591,7 +608,7 @@ class IDictWidget(IInterfaceWidget, qt.QtGui.QWidget):
 
         self.hboxlayout = qt.QtGui.QVBoxLayout(self)
 
-        self.hboxlayout.setMargin(3)
+        self.hboxlayout.setContentsMargins(3, 3, 3, 3)
         self.hboxlayout.setSpacing(5)
 
         self.label = qt.QtGui.QLabel(self)
@@ -812,7 +829,7 @@ class IEnumStrWidget(IInterfaceWidget, qt.QtGui.QWidget):
         IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
 
         self.hboxlayout = qt.QtGui.QHBoxLayout(self)
-        self.hboxlayout.setMargin(3)
+        self.hboxlayout.setContentsMargins(3, 3, 3, 3)
         self.hboxlayout.setSpacing(5)
 
         self.label = qt.QtGui.QLabel(self)
@@ -872,7 +889,7 @@ class IRGBColorWidget(IInterfaceWidget, qt.QtGui.QWidget):
         IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
 
         self.hboxlayout = qt.QtGui.QHBoxLayout(self)
-        self.hboxlayout.setMargin(3)
+        self.hboxlayout.setContentsMargins(3, 3, 3, 3)
         self.hboxlayout.setSpacing(5)
 
         self.label = qt.QtGui.QLabel(self)
@@ -939,7 +956,7 @@ class ITupleWidget(IInterfaceWidget, qt.QtGui.QWidget):
 
         self.hboxlayout = qt.QtGui.QHBoxLayout(self)
 
-        self.hboxlayout.setMargin(3)
+        self.hboxlayout.setContentsMargins(3, 3, 3, 3)
         self.hboxlayout.setSpacing(5)
 
 

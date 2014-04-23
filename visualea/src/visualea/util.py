@@ -104,7 +104,7 @@ def open_dialog(parent, widget, title, delete_on_close=True):
     widget.setParent(dialog)
 
     vboxlayout = qt.QtGui.QVBoxLayout(dialog)
-    vboxlayout.setMargin(3)
+    vboxlayout.setContentsMargins(3, 3, 3, 3)
     vboxlayout.setSpacing(5)
     vboxlayout.addWidget(widget, 0)#, qt.QtCore.Qt.AlignTop)
 

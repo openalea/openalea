@@ -14,7 +14,7 @@ class Ui_TableEditor(object):
         TableEditor.setObjectName("TableEditor")
         TableEditor.resize(261, 300)
         self.vboxlayout = qt.QtGui.QVBoxLayout(TableEditor)
-        self.vboxlayout.setMargin(9)
+        self.vboxlayout.setContentsMargins(9, 9, 9, 9)
         self.vboxlayout.setSpacing(6)
         self.vboxlayout.setObjectName("vboxlayout")
         self.tableWidget = qt.QtGui.QTableWidget(TableEditor)

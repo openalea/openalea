@@ -14,7 +14,7 @@ class Ui_NewGraphDialog(object):
         NewGraphDialog.setObjectName("NewGraphDialog")
         NewGraphDialog.resize(424, 326)
         self.gridlayout = qt.QtGui.QGridLayout(NewGraphDialog)
-        self.gridlayout.setMargin(9)
+        self.gridlayout.setContentsMargins(9, 9, 9, 9)
         self.gridlayout.setSpacing(6)
         self.gridlayout.setObjectName("gridlayout")
         self.buttonBox = qt.QtGui.QDialogButtonBox(NewGraphDialog)
