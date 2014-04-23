@@ -105,7 +105,8 @@ setup(
 
 
         'oalab.extension': [
-            'OALabExtensionTissue = openalea.oalab.plugins.tissuelab:OALabExtensionTissue'
+            'OALabExtensionTissue = openalea.oalab.plugins.tissuelab:OALabExtensionTissue',
+            'OALabExtensionMini = openalea.oalab.plugins.tissuelab:OALabExtensionMini',
             ],
 
         #'console_scripts': [
