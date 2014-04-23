@@ -46,6 +46,13 @@ def discover(group, name=None):
     plugin_map = {ep.name:ep for ep in pkg_resources.iter_entry_points(group,name)} 
     return plugin_map
 
+def iter_plugins(group, name=None):
+    for ep in pkg_resources.iter_entry_points(group, name):
+        try:
+            yield ep.load()
+        except ImportError:
+            pass
+
 class Plugin(object):
     """ Define a Plugin from an entry point. """
 
@@ -63,7 +70,7 @@ class Plugin(object):
     @property
     def dist(self):
         return self.ep.dist
-	
+
     def load(self, *args, **kwds):
         return self.ep.load(*args,**kwds)
 
