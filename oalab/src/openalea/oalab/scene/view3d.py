@@ -21,6 +21,8 @@ __revision__ = ""
 
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.plantgl.all import Scene, Sphere, Discretizer, GLRenderer, BoundingBox
+from openalea.core.observer import AbstractListener
+
 from PyQGLViewer import QGLViewer, Vec
 import sys
 
@@ -150,13 +152,15 @@ class view3D(QGLViewer):
             pass
 
 
-class Viewer(view3D):
+class Viewer(AbstractListener, view3D):
     """
     Widget of 3D Viewer to show the scene.
     """
 
     def __init__(self, session, controller, parent=None):
-        super(Viewer, self).__init__(parent=parent)
+#         super(Viewer, self).__init__()
+        AbstractListener.__init__(self)
+        view3D.__init__(self, parent=parent)
 
         self.setAccessibleName("3DViewer")
         self.setMinimumSize(100, 100)
@@ -191,8 +195,9 @@ class Viewer(view3D):
 
         QtCore.QObject.connect(actionShowFps, QtCore.SIGNAL('triggered(bool)'), self.show_fps)
 
-        QtCore.QObject.connect(controller.scene.signaler, QtCore.SIGNAL('SceneChanged'), self.setScene)
-        QtCore.QObject.connect(controller.scene.signaler, QtCore.SIGNAL('SceneChanged'), self.updateGL)
+        session.scene.register_listener(self)
+#         QtCore.QObject.connect(session.scene.signaler, QtCore.SIGNAL('SceneChanged'), self.setScene)
+#         QtCore.QObject.connect(session.scene.signaler, QtCore.SIGNAL('SceneChanged'), self.updateGL)
 
         self._actions = [["3D Viewer", "Zoom", actionResetZoom, 0],
                          ["3D Viewer", "Zoom", actionZoomOut, 0],
@@ -201,6 +206,11 @@ class Viewer(view3D):
                          ["3D Viewer", "Camera", actionShowGrid, 1],
                          ["3D Viewer", "Camera", actionRadius, 1],
                          ["3D Viewer", "Informations", actionShowFps, 1]]
+
+    def notify(self, sender, event=None):
+        signal, scene = event
+        self.setScene(scene)
+        self.updateGL()
 
     def actions(self):
         return self._actions

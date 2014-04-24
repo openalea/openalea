@@ -25,6 +25,7 @@ from openalea.vpltk.shell.shell import get_interpreter_class
 from openalea.vpltk.catalog import Catalog
 from openalea.vpltk.project.manager import ProjectManager
 from openalea.oalab.config.main import MainConfig
+from openalea.oalab.scene.vplscene import VPLScene
 
 class Session(object):
     """
@@ -41,6 +42,8 @@ class Session(object):
         
         self.project_manager = ProjectManager()
         
+        self.scene = VPLScene()
+
         interpreter_class = get_interpreter_class()
         self.interpreter = interpreter_class() 
         

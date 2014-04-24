@@ -64,18 +64,18 @@ def main2():
         win = None
         # Run all extension matching session.extension
         available_extensions = []
-        for factory_class in iter_plugins('oalab.extension'):
+        for plugin in iter_plugins('oalab.lab'):
             try:
-                ext = factory_class.data['extension_name']
-            except KeyError:
+                ext = plugin.name
+            except AttributeError:
                 continue
             else:
                 # register plugin info for user.
-                args = dict(EXT=ext, MODULE=factory_class.__module__, CLASS=factory_class.__name__)
+                args = dict(EXT=ext, MODULE=plugin.__module__, CLASS=plugin.__name__)
                 text = '  - \033[94m%(EXT)s\033[0m (provided by class %(CLASS)s defined in %(MODULE)s)' % args
                 available_extensions.append(text)
 
-            factory = factory_class()
+            factory = plugin()
             if session.extension == ext:
                 win = MainWindow(session)
                 factory(win)

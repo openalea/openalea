@@ -50,10 +50,12 @@ from openalea.lpy.gui.compile_ui import check_rc_generation
 check_rc_generation('resources.qrc')
 """
 
-big_btn_size = QtCore.QSize(80, 55)
-small_btn_size = QtCore.QSize(130, 20)
-big_icon_size = QtCore.QSize(30, 30)
-small_icon_size = QtCore.QSize(20, 20)
+size_policy_small = QtGui.QSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Maximum)
+
+big_btn_size = QtCore.QSize(25, 25)
+small_btn_size = QtCore.QSize(100, 16)
+big_icon_size = QtCore.QSize(24, 24)
+small_icon_size = QtCore.QSize(16, 16)
 
 toolbutton_style = """
     QToolButton {
@@ -180,6 +182,7 @@ class Pane(QtGui.QWidget):
 
         self.layout.setAlignment(QtCore.Qt.AlignLeft)
         self.setLayout(self.layout)
+        self.setSizePolicy(size_policy_small)
 
     def addGroup(self, name):
         grp = Group(name)
@@ -187,12 +190,12 @@ class Pane(QtGui.QWidget):
         self.layout.addWidget(grp, 0, column, QtCore.Qt.AlignHCenter)
         self.group_name.append(name)
 
-class Group(QtGui.QGroupBox):
+class Group(QtGui.QWidget):
 
     def __init__(self, name):
-        super(Group, self).__init__(name)
+        super(Group, self).__init__()
+        self.setToolTip(name)
         self.name = name
-        self.setFlat(True)
 
         self.layout = QtGui.QHBoxLayout()
         self.layout.setContentsMargins(0, 0, 0, 0)
@@ -202,6 +205,8 @@ class Group(QtGui.QGroupBox):
 
         self.layout.addWidget(SubGroupH())
         self.layout.addWidget(SubGroupGrid())
+
+#         self.setSizePolicy(size_policy_small)
 
     def addBtnByAction(self, action, style=PanedMenu.BigButton):
         if style == PanedMenu.BigButton:
@@ -324,12 +329,13 @@ class SubGroupH(QtGui.QWidget):
         self.layout.setSpacing(0)
         self.layout.setAlignment(QtCore.Qt.AlignLeft)
         self.setLayout(self.layout)
+        self.setSizePolicy(size_policy_small)
 
 class SubGroupV(QtGui.QWidget):
     def __init__(self):
         super(SubGroupV, self).__init__()
         self.layout = QtGui.QVBoxLayout()
-        self.layout.setContentsMargins(2, 2, 2, 2)
+        self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setSpacing(0)
         self.layout.setAlignment(QtCore.Qt.AlignTop)
         self.setLayout(self.layout)
@@ -356,12 +362,14 @@ class ToolButton(QtGui.QToolButton):
                 self.setIcon(icon)
 
         self.setStyleSheet(toolbutton_style)
+        self.setSizePolicy(size_policy_small)
+        self.setContentsMargins(0, 0, 0, 0)
 
 class BigToolButton(ToolButton):
     def __init__(self, action, icon=None):
         super(BigToolButton, self).__init__(action, icon)
 
-        self.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
+        self.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
         self.setIconSize(big_icon_size)
         self.setMinimumSize(big_btn_size)
         self.setMaximumSize(big_btn_size)
@@ -374,7 +382,6 @@ class SmallToolButton(ToolButton):
         self.setIconSize(small_icon_size)
         self.setMinimumSize(small_btn_size)
         self.setMaximumSize(small_btn_size)
-
 
 if __name__ == '__main__':
 

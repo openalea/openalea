@@ -1,7 +1,7 @@
 # -*- python -*-
 #
 #       LPy manager applet.
-# 
+#
 #       OpenAlea.OALab: Multi-Paradigm GUI
 #
 #       Copyright 2013 INRIA - CIRAD - INRA
@@ -31,7 +31,7 @@ from openalea.lpy.gui.scalar import ProduceScalar
 from openalea.core import logger
 
 def get_default_text():
-    return """Axiom: 
+    return """Axiom:
 
 derivation length: 1
 
@@ -46,7 +46,7 @@ def import_lpy_file(script):
     """
     Extract from an "old style" LPy file script part (str) and associated control (dict).
     Permit compatibility between LPy and OALab.
-    
+
     :param: script to filter (str)
     :return: lpy script (str) without end begining with "###### INITIALISATION ######"
     and a dict which contain the control (dict)
@@ -63,61 +63,61 @@ def import_lpy_file(script):
         context_to_translate = txts[1]
         context = Lsystem().context()
         try:
-            context.initialiseFrom(beginTag+context_to_translate)
+            context.initialiseFrom(beginTag + context_to_translate)
         except:
             logger.warning("Can't decode lpy file")
-           
+
         managers = get_managers()
         visualparameters = []
         scalars = []
         functions = []
         curves = []
         geoms = []
-        
+
         lpy_code_version = 1.0
         if context.has_key('__lpy_code_version__'):
             lpy_code_version = context['__lpy_code_version__']
         if context.has_key('__scalars__'):
-            scalars_ = context['__scalars__']   
-            scalars = [ ProduceScalar(v) for v in scalars_ ]            
+            scalars_ = context['__scalars__']
+            scalars = [ ProduceScalar(v) for v in scalars_ ]
         if context.has_key('__functions__') and lpy_code_version <= 1.0 :
             functions = context['__functions__']
-            for n,c in functions: c.name = n
-            functions = [ c for n,c in functions ]
+            for n, c in functions: c.name = n
+            functions = [ c for n, c in functions ]
             funcmanager = managers['Function']
-            geoms +=  [(funcmanager,func) for func in functions]
+            geoms += [(funcmanager, func) for func in functions]
         if context.has_key('__curves__') and lpy_code_version <= 1.0 :
             curves = context['__curves__']
-            for n,c in curves: c.name = n
-            curves = [ c for n,c in curves ]
+            for n, c in curves: c.name = n
+            curves = [ c for n, c in curves ]
             curvemanager = managers['Curve2D']
-            geoms += [ (curvemanager,curve) for curve in curves ]
+            geoms += [ (curvemanager, curve) for curve in curves ]
         if context.has_key('__parameterset__'):
-            for panelinfo,objects in context['__parameterset__']:
-                for typename,obj in objects:
-                    visualparameters.append((managers[typename],obj))
-        
+            for panelinfo, objects in context['__parameterset__']:
+                for typename, obj in objects:
+                    visualparameters.append((managers[typename], obj))
+
         control["color map"] = context.turtle.getColorList()
         for scalar in scalars:
         	control[unicode(scalar.name)] = scalar
         for (manager, geom) in geoms:
             if geom != list():
-                new_obj,new_name = geometry_2_piklable_geometry(manager, geom)
+                new_obj, new_name = geometry_2_piklable_geometry(manager, geom)
                 control[new_name] = new_obj
         for (manager, geom) in visualparameters:
             if geom != list():
-                new_obj,new_name = geometry_2_piklable_geometry(manager, geom)
+                new_obj, new_name = geometry_2_piklable_geometry(manager, geom)
                 control[new_name] = new_obj
-                
+
         return new_script, control
 
-class LPyApplet(object):   
+class LPyApplet(object):
     default_name = "LSystem"
     default_file_name = "script.lpy"
     pattern = "*.lpy"
     extension = "lpy"
     icon = ":/images/resources/logo.png"
-    
+
     def __init__(self, session, controller, parent=None, name="script.lpy", script=""):
         super(LPyApplet, self).__init__()
         logger.debug("init LPyApplet")
@@ -128,13 +128,13 @@ class LPyApplet(object):
         self.session = session
         self.controller = controller
         self.name = name
-        
+
         # dict is mutable =D
         # Usefull if you want change scene_name inside application
         self.parameters = dict()
         self.context = dict()
         self.context["scene_name"] = "lpy_scene"
-        
+
         if script == "":
             script = get_default_text()
 
@@ -145,59 +145,59 @@ class LPyApplet(object):
                 # if hasattr(self.parameters[parameter], "value"):
                     # self.parameters[parameter] = self.parameters[parameter].value
             controller.project_manager._load_control()
-        
+
         self.widget().set_text(script)
         self.lsystem = Lsystem()
         self.code = str()
         self.axialtree = AxialTree()
 
         registerPlotter(self.controller.applets['Viewer3D'])
-        
+
         # Link with color map from application
-        if hasattr(self.session.project,"control"):
+        if hasattr(self.session.project, "control"):
             if self.session.project.control.has_key("color map"):
                 i = 0
                 for color in self.session.project.control["color map"] :
                     self.lsystem.context().turtle.setMaterial(i, color)
                     i += 1
-        
+
         self.session.interpreter.locals['lsystem'] = self.lsystem
 
-        ## TODO : 
-        #self.session.interpreter.locals['lstring'] =       
-        
+        # # TODO :
+        # self.session.interpreter.locals['lstring'] =
+
     def focus_change(self):
         """
         Set doc string in Help widget when focus changed
         """
         txt = doc_lpy.getSpecification()
-        
+
         txt = """
 <H1><IMG SRC=%s
  ALT="icon"
  HEIGHT=25
  WIDTH=25
- TITLE="LPy logo">L-Py</H1>"""%str(self.icon) + txt[13:]
-        
+ TITLE="LPy logo">L-Py</H1>""" % str(self.icon) + txt[13:]
+
         self.controller.applets['HelpWidget'].setText(txt)
-         
+
     def widget(self):
         """
         :return: the edition widget
         """
         return self._widget
-        
+
     def run_selected_part(self):
         """
         Run selected code like a PYTHON code (not LPy code).
         If nothing selected, run like LPy (not Python).
-        """       
+        """
         code = self.widget().get_selected_text()
         if len(code) == 0:
             self.run()
         else:
             interp = self.controller.shell.get_interpreter()
-            #user_ns = self.session.interpreter.user_ns
+            # user_ns = self.session.interpreter.user_ns
             interp.runcode(code)
 
     def run(self):
@@ -211,21 +211,21 @@ class LPyApplet(object):
         for parameter in self.parameters:
             if hasattr(self.parameters[parameter], "value"):
                 self.parameters[parameter] = self.parameters[parameter].value
-            
+
         self.lsystem.setCode(code, self.parameters)
         self.axialtree = self.lsystem.iterate()
-        
+
         new_scene = self.lsystem.sceneInterpretation(self.axialtree)
         scene_name = self.context["scene_name"]
-        self.controller.scene[scene_name] = new_scene
-        self.controller.applets['Viewer3D'].update_radius()
-        
+        self.session.scene[scene_name] = new_scene
+        self.session.applets['Viewer3D'].update_radius()
+
     def step(self, i=None):
         """
         Increase current lsystem from one step
         If you set i, lsystem will go to step number i.
         """
-        
+
         # Get code from application
         code = str(self.widget().get_text())
 
@@ -239,27 +239,27 @@ class LPyApplet(object):
                     self.parameters[parameter] = self.parameters[parameter].value
             self.lsystem.setCode(code, self.parameters)
             self.code = code
-            
+
         # if you are at derivation length, reinit
-        if self.lsystem.getLastIterationNb() >= self.lsystem.derivationLength -1 :
+        if self.lsystem.getLastIterationNb() >= self.lsystem.derivationLength - 1 :
             i = 0
         # clasical case: evolve one step
         if i is None:
-            self.axialtree = self.lsystem.iterate(self.lsystem.getLastIterationNb()+2)    
+            self.axialtree = self.lsystem.iterate(self.lsystem.getLastIterationNb() + 2)
         # if you set i to a number, directly go to this step.
         # it is used with i=0 to reinit
         else:
-            self.axialtree = self.lsystem.iterate(i)    
+            self.axialtree = self.lsystem.iterate(i)
 
         new_scene = self.lsystem.sceneInterpretation(self.axialtree)
         if new_scene:
             self.controller.scene[self.context["scene_name"]] = new_scene
-        
+
     def stop(self):
         # TODO : to implement
         # print "stop lpy"
-        #self.lsystem.early_return = True
-        #self.lsystem.forceRelease()
+        # self.lsystem.early_return = True
+        # self.lsystem.forceRelease()
         pass
 
     def animate(self):
@@ -268,7 +268,7 @@ class LPyApplet(object):
         self.parameters.update(self.session.project.control)
         for parameter in self.parameters:
             if hasattr(self.parameters[parameter], "value"):
-                self.parameters[parameter] = self.parameters[parameter].value    
+                self.parameters[parameter] = self.parameters[parameter].value
         self.lsystem.setCode(code, self.parameters)
         self.step()
         self.lsystem.animate()
@@ -283,7 +283,7 @@ class LPyApplet2(object):
     pattern = "*.lpy"
     extension = "lpy"
     icon = ":/images/resources/logo.png"
-    
+
     def __init__(self, session, controller, parent=None, name="script.lpy", script=""):
         super(LPyApplet2, self).__init__()
         logger.debug("init LPyApplet")
@@ -295,25 +295,25 @@ class LPyApplet2(object):
         self.parameters["scene_name"] = "lpy_scene"
         self.lsystem = Lsystem()
         self.axialtree = AxialTree()
-        
+
         script, control = import_lpy_file(script)
         self.code = script
         if self.code == "":
             self.code = get_default_text()
         self.parameters.update(control)
-        
+
     def focus_change(self):
         """
         Set doc string in Help widget when focus changed
         """
         txt = doc_lpy.getSpecification()
         return txt
-        
+
     def run_selected_part(self, txt):
         """
         Run selected code like a PYTHON code (not LPy code).
         If nothing selected, run like LPy (not Python).
-        """       
+        """
         if len(txt) == 0:
             self.run()
         else:
@@ -326,14 +326,14 @@ class LPyApplet2(object):
         for parameter in self.parameters:
             if hasattr(self.parameters[parameter], "value"):
                 self.parameters[parameter] = self.parameters[parameter].value
-        
+
         self.lsystem.setCode(self.code, self.parameters)
         self.axialtree = self.lsystem.iterate()
         new_scene = self.lsystem.sceneInterpretation(self.axialtree)
         scene_name = self.parameters["scene_name"]
-        
+
         return scene_name, new_scene
-        
+
     def step(self, i=None):
         """
         Increase current lsystem from one step
@@ -346,32 +346,32 @@ class LPyApplet2(object):
         self.lsystem.setCode(self.code, self.parameters)
 
         # if you are at derivation length, reinit
-        if self.lsystem.getLastIterationNb() >= self.lsystem.derivationLength -1 :
+        if self.lsystem.getLastIterationNb() >= self.lsystem.derivationLength - 1 :
             i = 0
         # clasical case: evolve one step
         if i is None:
-            self.axialtree = self.lsystem.iterate(self.lsystem.getLastIterationNb()+2)    
+            self.axialtree = self.lsystem.iterate(self.lsystem.getLastIterationNb() + 2)
         # if you set i to a number, directly go to this step.
         # it is used with i=0 to reinit
         else:
-            self.axialtree = self.lsystem.iterate(i)                
+            self.axialtree = self.lsystem.iterate(i)
 
         new_scene = self.lsystem.sceneInterpretation(self.axialtree)
         scene_name = self.parameters["scene_name"]
-        
+
         return scene_name, new_scene
-        
+
     def stop(self):
         # TODO : to implement
-        #self.lsystem.early_return = True
-        #self.lsystem.forceRelease()
+        # self.lsystem.early_return = True
+        # self.lsystem.forceRelease()
         pass
 
     def animate(self):
         # Get code from application
         for parameter in self.parameters:
             if hasattr(self.parameters[parameter], "value"):
-                self.parameters[parameter] = self.parameters[parameter].value    
+                self.parameters[parameter] = self.parameters[parameter].value
         self.lsystem.setCode(code, self.parameters)
         scene_name, new_scene = self.step()
         self.lsystem.animate()

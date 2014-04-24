@@ -1,7 +1,7 @@
 
 import copy
 from openalea.vpltk.plugin import iter_plugins
-from openalea.oalab.plugins.minilab import OALabExtensionMini
+from openalea.oalab.plugins.minilab import MiniLab
 
 config_template = """
 # Configuration file for application.
@@ -70,8 +70,6 @@ c.MainWindowConfig.packagecategories = True
 """
 
 
-class OALabExtensionTissue(OALabExtensionMini):
+class TissueLab(MiniLab):
+    name = 'tissue'
 
-    data = copy.deepcopy(OALabExtensionMini.data)
-    data['extension_name'] = 'tissue'
-    data['config_template'] = config_template

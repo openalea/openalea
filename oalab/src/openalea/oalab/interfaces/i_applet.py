@@ -1,6 +1,9 @@
 from openalea.vpltk.catalog.interface import IInterface
 
 class IApplet(IInterface):
+    """
+    Associated entry_point : oalab.applet
+    """
     name = 'IApplet' # Unique identifier
 
     def __init__(self, session, controller, parent=None):
@@ -18,7 +21,7 @@ class IApplet(IInterface):
         Example::
 
             def actions(self):
-                return self._actions = [["Python IDE","Text Edit", self.actionUndo,0],
-                                        ["Python IDE","Text Edit", self.actionRedo,0]
+                return self._actions = [["Python IDE","Text Edit", self.actionUndo, 0],
+                                        ["Python IDE","Text Edit", self.actionRedo, 0]
                                        ]
         """
