@@ -27,21 +27,35 @@ from openalea.core.path import path
 from openalea.core.settings import get_openalea_home_dir
 
 from openalea.oalab.gui.menu import PanedMenu
+from openalea.vpltk.shell.shell import get_shell_class
 
 class MainWindow(QtGui.QMainWindow):
     """
-    Main Window Class
+    MainWindow provides:
+      - a PanedMenu menu (MainWindow.menu)
+      - a shell widget
+
     """
     def __init__(self, session, parent=None, args=None):
         super(QtGui.QMainWindow, self).__init__()
         self.session = session
 
+        self.areas = {}
+        for area in ('inputs', 'outputs', 'shell'):
+            self.areas[area] = QtGui.QTabWidget()
+
+        self.dockWidget("Inputs", self.areas['inputs'], name="Inputs",
+                         position=QtCore.Qt.LeftDockWidgetArea)
+        self.dockWidget("Outputs", self.areas['outputs'], name="Outputs",
+                         position=QtCore.Qt.RightDockWidgetArea)
+        self.dockWidget("Shell", self.areas['shell'], name="Shell, log and history",
+                         position=QtCore.Qt.BottomDockWidgetArea)
+
+        self.split = QtGui.QSplitter()
+        self.setCentralWidget(self.split)
+
+        # PanedMenu
         self.menu = PanedMenu()
-
-        self._dockwidgets = {}
-        self._setWidgets()
-
-    def _setWidgets(self):
         dock_menu = self.dockWidget("Menu", self.menu, position=QtCore.Qt.TopDockWidgetArea)
         dock_menu.setFeatures(QtGui.QDockWidget.NoDockWidgetFeatures)
         dock_menu.setContentsMargins(0, 0, 0, 0)
@@ -49,6 +63,24 @@ class MainWindow(QtGui.QMainWindow):
         dock_menu.setTitleBarWidget(widget)
         size_policy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Maximum)
         dock_menu.setSizePolicy(size_policy)
+
+        # Shell
+        self.shell = get_shell_class()(self.session.interpreter)
+        self.add_applet(self.shell, 'Shell', area='shell')
+
+        self._plugins = {}
+
+    def add_applet(self, applet, name, area=None):
+        if area in self.areas:
+            self.areas[area].addTab(applet, name)
+        elif area == 'central':
+            self.split.addWidget(applet)
+        else:
+            self.dockWidget(name, applet)
+
+    def add_plugin(self, plugin):
+        plugin(self)
+        self._plugins[plugin.name] = plugin
 
     def dockWidget(self, identifier, widget, name=None,
                     allowed_area=None, position=None, alias=None):
@@ -70,8 +102,16 @@ class MainWindow(QtGui.QMainWindow):
         dock_widget.setWidget(widget)
 
         self.addDockWidget(position, dock_widget)
-        self._dockwidgets[identifier] = dock_widget
-#         display = self.session.config.get('MainWindowConfig').get(identifier.lower(), False)
-#         dock_widget.setVisible(display)
 
         return dock_widget
+
+    def get_project_manager(self):
+        if 'ProjectManager' in self._applets:
+            return self._plugins['ProjectManager'].instance()
+
+    def get_applet_container(self):
+        if 'EditorManager' in self._applets:
+            return self._plugins['EditorManager'].instance()
+
+    applet_container = property(fget=get_applet_container)
+    project_manager = property(fget=get_project_manager)

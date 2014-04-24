@@ -60,7 +60,7 @@ class ProjectManagerWidget(QtGui.QWidget):
             QtGui.QApplication.translate("MainWindow", "Ctrl+O", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSaveProj = QtGui.QAction(QtGui.QIcon(":/images/resources/save.png"), "Save", self)
         self.actionSaveProjAs = QtGui.QAction(QtGui.QIcon(":/images/resources/save.png"), "Save As", self)
-        #self.actionSaveProj.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
+        # self.actionSaveProj.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
         self.actionCloseProj = QtGui.QAction(QtGui.QIcon(":/images/resources/closeButton.png"), "Close All", self)
 
         self.connect(self.actionNewProj, QtCore.SIGNAL('triggered(bool)'), self.new)
@@ -77,19 +77,22 @@ class ProjectManagerWidget(QtGui.QWidget):
                          ["Project", "Manage Project", self.actionSaveProj, 0],
                          ["Project", "Manage Project", self.actionSaveProjAs, 1],
                          ["Project", "Manage Project", self.actionCloseProj, 1],
-                         #["Model", "New Model", self.actionEditFile, 0],
+                         # ["Model", "New Model", self.actionEditFile, 0],
                          ["Model", "New Model", self.actionImportFile, 0]]
 
         self.extensions = ""
-        # Connect actions from applet_container.paradigms to menu (newPython, newLpy,...)       
+        self.connectParadigmContainer()
+
+        self.defaultProj()
+
+    def connectParadigmContainer(self):
+        # Connect actions from applet_container.paradigms to menu (newPython, newLpy,...)
         for applet in self.controller.applet_container.paradigms.values():
             action = QtGui.QAction(QtGui.QIcon(applet.icon), applet.default_name, self)
             action.triggered.connect(self.newModel)
-            self._actions.append(["Model", "New Model", action, 0], )
+            self._actions.append(["Model", "New Model", action, 0],)
             self.paradigms_actions.append(action)
             self.extensions = self.extensions + applet.pattern + " "
-
-        self.defaultProj()
 
     def defaultProj(self):
         proj = self.projectManager.load_default()
@@ -101,7 +104,7 @@ class ProjectManagerWidget(QtGui.QWidget):
 """
 OpenAlea Lab editor
 
-This temporary script is saved in temporary project in 
+This temporary script is saved in temporary project in
 %s
 
 You can rename/move this project thanks to the button "Save As" in menu.
@@ -120,7 +123,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         Then open project.
         """
         self.closeCurrent()
-        #self.controller.applet_container.closeAll()
+        # self.controller.applet_container.closeAll()
         """
         if name is False:
             name = showOpenProjectDialog()
@@ -157,7 +160,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         project.start()
         logger.debug("Project " + str(project) + " opened")
 
-        project.scene = self.controller.scene
+        project.scene = self.session.scene
         self.session._project = project
         self.session._is_proj = True
         self._project_changed()
@@ -246,16 +249,16 @@ You can rename/move this project thanks to the button "Save As" in menu.
     def newModel(self, applet_type=None, tab_name=None, script=""):
         """
         Create a new model of type 'applet_type
-        
+
         :param applet_type: type of applet to add. Can be Workflow, LSystem, Python, R
         """
         if self.session.current_is_project():
             if not applet_type:
                 button = self.sender()
-                applet_type = button.text()  # can be Workflow, LSystem, Python, R
-                #TODO: this approach is not reliable. If a developer change action name, it breaks the system
+                applet_type = button.text() # can be Workflow, LSystem, Python, R
+                # TODO: this approach is not reliable. If a developer change action name, it breaks the system
                 # a better approach should be to define a "newModel" method in IApplet and call it directly
-                # for instance in __init__ : action.triggered.connect(applet.newModel)        
+                # for instance in __init__ : action.triggered.connect(applet.newModel)
             Applet = self.controller.applet_container.paradigms[applet_type]
             if not tab_name:
                 tab_name = Applet.default_file_name
@@ -281,7 +284,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         """"
         Open a (script-type) file named "fname".
         If "fname"==None, display a dialog with filter "extension".
-        
+
         :param fname: filename to open. Default = None
         :param extension: extension of file to open. Default = "*.*"
         """
@@ -358,7 +361,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         logger.debug("Project changed")
         self.controller._update_locals()
         self._scene_change()
-        self._control_change()  #do nothing
+        self._control_change() # do nothing
         self._script_change()
         self._tree_view_change()
 
@@ -405,10 +408,10 @@ You can rename/move this project thanks to the button "Save As" in menu.
     def _scene_change(self):
         logger.debug("Scene changed")
         if self.session.current_is_project():
-            self.controller.scene.reset()
+            self.session.scene.reset()
             project = self.session.project
             for w in project.scene:
-                self.controller.scene.add(name=w, obj=project.scene[w])
+                self.session.scene.add(name=w, obj=project.scene[w])
 
 
 def showNewProjectDialog(default_name=None, text=None, parent=None):

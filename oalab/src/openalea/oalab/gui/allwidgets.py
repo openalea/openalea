@@ -4,7 +4,6 @@ from openalea.oalab.gui.help import HelpWidget
 from openalea.oalab.gui.menu import PanedMenu
 from openalea.vpltk.shell.shell import get_shell_class
 from openalea.oalab.applets.container import AppletContainer
-from openalea.oalab.scene.vplscene import VPLScene
 from openalea.oalab.project.manager import ProjectManagerWidget
 from openalea.oalab.project.treeview import ProjectLayoutWidget
 from openalea.oalab.package.widgets import PackageViewWidget, PackageCategorieViewWidget, PackageSearchWidget
@@ -21,8 +20,6 @@ class AllWidgets(QtGui.QWidget):
 
         self.applets = {}
         self.session = session
-
-        self.scene = VPLScene()
 
         # Menu
         self.menu = PanedMenu()
@@ -71,7 +68,7 @@ class AllWidgets(QtGui.QWidget):
 
     def _update_locals(self):
         self.session.interpreter.locals['project'] = self.session.project
-        self.session.interpreter.locals['scene'] = self.scene
+        self.session.interpreter.locals['scene'] = self.session.scene
 
         try:
             self.session.interpreter.locals['control'] = self.session.project.control

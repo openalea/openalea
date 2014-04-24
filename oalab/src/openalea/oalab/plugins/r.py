@@ -42,7 +42,7 @@ class RApplet(object):
         self._init = None
         
         # TODO : Do it only once
-        self.controller.shell.runcode(source="%load_ext rmagic",hidden=True)
+        self.session.shell.runcode(source="%load_ext rmagic", hidden=True)
         
         self.widget().set_text(script)
         
