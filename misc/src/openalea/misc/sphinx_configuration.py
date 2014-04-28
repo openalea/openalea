@@ -57,10 +57,12 @@ extensions = [
     'sphinx.ext.pngmath',
     'sphinx.ext.ifconfig',
     'sphinx.ext.inheritance_diagram',
+    'sphinx.ext.mathjax',    
     'sphinx.ext.viewcode',
     'numpyext.only_directives',
     'matplotlib.sphinxext.plot_directive',
     'openalea.misc.dataflow_directive',
+    'numfig',
     #'numpyext.numpydoc',
     #'numpyext.plot_directive',
     ]
