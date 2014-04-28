@@ -106,11 +106,11 @@ class MainWindow(QtGui.QMainWindow):
         return dock_widget
 
     def get_project_manager(self):
-        if 'ProjectManager' in self._applets:
+        if 'ProjectManager' in self._plugins:
             return self._plugins['ProjectManager'].instance()
 
     def get_applet_container(self):
-        if 'EditorManager' in self._applets:
+        if 'EditorManager' in self._plugins:
             return self._plugins['EditorManager'].instance()
 
     applet_container = property(fget=get_applet_container)
