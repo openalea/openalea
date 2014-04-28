@@ -26,6 +26,7 @@ from openalea.visualea.node_treeview import SearchModel
 from openalea.oalab.package.treeview import OALabTreeView, OALabSearchView
 from openalea.oalab.package.manager import package_manager
 
+
 class PackageViewWidget(OALabTreeView):
     """
     Widget for Package Manager
@@ -55,6 +56,7 @@ class PackageViewWidget(OALabTreeView):
     def reinit_treeview(self):
         """ Reinitialise package and category views """
         self.pkg_model.reset()
+
 
 class PackageCategorieViewWidget(OALabTreeView):
     """
