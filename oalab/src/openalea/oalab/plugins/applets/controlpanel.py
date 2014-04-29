@@ -13,4 +13,4 @@ class ControlPanel(PluginApplet):
         self._applet = ControlPanel(mainwindow.session, mainwindow)
         self._fill_menu(mainwindow, self._applet)
 
-        mainwindow.add_applet(self._applet, self.alias, area='inputs')
+        mainwindow.add_applet(self._applet, self.alias, area='outputs')
