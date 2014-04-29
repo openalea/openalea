@@ -105,9 +105,11 @@ setup(
             'HelpWidget = openalea.oalab.plugins.applets.helpwidget:HelpWidget',
             'ProjectManager = openalea.oalab.plugins.applets.projectmanager:ProjectManager',
             'Viewer3D = openalea.oalab.plugins.applets.viewer3d:Viewer3D',
+            'PkgManagerWidget = openalea.oalab.plugins.applets.packagemanager:PkgManagerWidget',
+            'Logger = openalea.oalab.plugins.applets.logger:Logger',
+            'ProjectWidget = openalea.oalab.plugins.applets.projectwidget:ProjectWidget',
+            'Store = openalea.oalab.plugins.applets.store:Store',
             ],
-
-
         'oalab.lab': [
             'TissueLab = openalea.oalab.plugins.labs.tissuelab:TissueLab',
             'MiniLab = openalea.oalab.plugins.labs.minilab:MiniLab',
