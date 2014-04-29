@@ -107,7 +107,7 @@ class ProjectTreeView(QtGui.QTreeView):
     def reinit_treeview(self):
         """ Reinitialise project view """
         
-        if self.session.current_is_project():
+        if self.session.project:
             self.project = self.session.project
         else:
             self.project = None
