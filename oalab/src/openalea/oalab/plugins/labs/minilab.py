@@ -4,10 +4,9 @@ from openalea.vpltk.plugin import iter_plugins
 class MiniLab(object):
 
     name = 'mini'
-    applets = ['HelpWidget', 'ControlPanel', 'Viewer3D', 'EditorManager', 'PkgManagerWidget',
-               'Logger']
+    applets = [ 'ControlPanel', 'EditorManager', 'ProjectManager']
     # Not works: 'ProjectManager', 'ProjectWidget'
-    # Works: 'Store'
+    # applets.extend(['HelpWidget','Viewer3D','PkgManagerWidget' 'Logger', 'Store'])
 
     def __call__(self, mainwin):
         import sys

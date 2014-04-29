@@ -46,8 +46,9 @@ class ProjectManagerWidget(QtGui.QWidget):
 
         self.projectManager = ProjectManager()
 
-        for proj in self.projectManager.projects:
-            self.session._project = proj
+        # CPL: ERROR HACK UGLY
+        #for proj in self.projectManager.projects:
+        #    self.session._project = proj
 
         self.actionEditFile = QtGui.QAction(QtGui.QIcon(":/images/resources/edit.png"), "Edit file", self)
         self.actionImportFile = QtGui.QAction(QtGui.QIcon(":/images/resources/import.png"), "Import", self)
@@ -87,7 +88,13 @@ class ProjectManagerWidget(QtGui.QWidget):
 
     def connectParadigmContainer(self):
         # Connect actions from applet_container.paradigms to menu (newPython, newLpy,...)
-        for applet in self.controller.applet_container.paradigms.values():
+        
+        #CPL
+        ac = self.controller.applet_container
+        if ac is None:
+            return 
+
+        for applet in ac.paradigms.values():
             action = QtGui.QAction(QtGui.QIcon(applet.icon), applet.default_name, self)
             action.triggered.connect(self.newModel)
             self._actions.append(["Model", "New Model", action, 0],)
@@ -259,11 +266,18 @@ You can rename/move this project thanks to the button "Save As" in menu.
                 # TODO: this approach is not reliable. If a developer change action name, it breaks the system
                 # a better approach should be to define a "newModel" method in IApplet and call it directly
                 # for instance in __init__ : action.triggered.connect(applet.newModel)
-            Applet = self.controller.applet_container.paradigms[applet_type]
-            if not tab_name:
+            
+            # ac is an instance of an editormanager plugin.
+            ac = self.controller.applet_container
+            if ac is None:
+                return # CPL: Do what is needed
+
+            Applet = ac.paradigms.get(applet_type)
+            if not tab_name and Applet:
                 tab_name = Applet.default_file_name
-            self.controller.applet_container.newTab(applet_type=applet_type, tab_name=tab_name, script=script)
-            text = self.controller.applet_container.applets[-1].widget().get_text()
+
+            ac.newTab(applet_type=applet_type, tab_name=tab_name, script=script)
+            text = ac.applets[-1].widget().get_text()
             self.session.project.add("src", tab_name, text)
             self.controller._update_locals()
             self._project_changed()
@@ -328,6 +342,9 @@ You can rename/move this project thanks to the button "Save As" in menu.
         """
         if self.session.current_is_project():
             container = self.controller.applet_container
+            if container is None: #CPL
+                return
+
             for i in range(container.count()):
                 container.setCurrentIndex(i)
                 name = container.tabText(i)
@@ -349,7 +366,8 @@ You can rename/move this project thanks to the button "Save As" in menu.
             self.session._project = None
             self.session._is_proj = False
             self._clear_control()
-            self.controller.applet_container.closeAll()
+            if self.controller.applet_container:
+                self.controller.applet_container.closeAll()
             self._project_changed()
         else:
             print "You are not working inside project. Please create or load one first."
@@ -359,6 +377,9 @@ You can rename/move this project thanks to the button "Save As" in menu.
         Update what is needed when the current project is changed
         """
         logger.debug("Project changed")
+        # CPL: CHECK FIRST IF THE OBJECTS EXISTS.
+        # This wil be not always the case.
+
         self.controller._update_locals()
         self._scene_change()
         self._control_change() # do nothing
@@ -372,33 +393,40 @@ You can rename/move this project thanks to the button "Save As" in menu.
         """
         Get control from project and put them into widgets
         """
-        if self.controller.applets.has_key('ControlPanel'):
+        applets = self.controller.applets 
+        if 'ControlPanel' in applets:
             logger.debug("Load Controls")
-            self.controller.applets['ControlPanel'].load()
-
+            try: 
+                applets['ControlPanel'].load()
+            except:
+                pass
     def _update_control(self):
         """
         Get control from widget and put them into project
         """
-        if self.controller.applets.has_key('ControlPanel'):
+        applets = self.controller.applets 
+        if 'ControlPanel' in applets:
             logger.debug("Update Controls")
-            self.controller.applets['ControlPanel'].update()
+            applets['ControlPanel'].update()
 
     def _clear_control(self):
-        if self.controller.applets.has_key('ControlPanel'):
+        applets = self.controller.applets 
+        if 'ControlPanel' in applets:
             logger.debug("Clear Controls")
-            self.controller.applets['ControlPanel'].clear()
+            applets['ControlPanel'].clear()
 
     def _control_change(self):
         pass
 
     def _tree_view_change(self):
         logger.debug("Tree View changed")
-        self.controller.applets['Project'].update()
+        applets = self.controller.applets 
+        if 'Project' in applets:
+            applets['Project'].update()
 
     def _script_change(self):
         logger.debug("Script changed")
-        if self.session.current_is_project():
+        if self.session.current_is_project() and self.controller.applet_container:
             project = self.session.project
             self.controller.applet_container.reset()
             for script in project.src:
