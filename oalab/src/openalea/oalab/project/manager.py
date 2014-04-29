@@ -204,7 +204,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
                 try:
                     self.controller.applet_container.newTab(applet_type=ext, tab_name=tab_name, script=txt)
                     project.add("src", filename, txt)
-                    self.controller._update_locals()
+                    self.controller.update_namespace()
                     self._tree_view_change()
                     logger.debug("Import file named " + tab_name)
                 except:
@@ -235,7 +235,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
                 f.close()
                 name = filename.splitpath()[1]
                 project.add("src", name, txt)
-                self.controller._update_locals()
+                self.controller.update_namespace()
                 self._project_changed()
                 logger.debug("Import file named " + name)
         else:
@@ -277,7 +277,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
             ac.newTab(applet_type=applet_type, tab_name=tab_name, script=script)
             text = ac.applets[-1].widget().get_text()
             self.session.project.add("src", tab_name, text)
-            self.controller._update_locals()
+            self.controller.update_namespace()
             self._project_changed()
         else:
             print "You are not working inside project. Please create or load one first."
@@ -381,7 +381,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         # CPL: CHECK FIRST IF THE OBJECTS EXISTS.
         # This wil be not always the case.
 
-        self.controller._update_locals()
+        self.controller.update_namespace()
         self._scene_change()
         self._control_change() # do nothing
         self._script_change()

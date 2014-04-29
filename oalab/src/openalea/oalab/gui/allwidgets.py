@@ -60,13 +60,13 @@ class AllWidgets(QtGui.QWidget):
 
         self.session.interpreter.locals['shell'] = self.shell
         self.session.interpreter.locals['controller'] = self
-        self._update_locals()
+        self.update_namespace()
 
         # self.applets['Store'] = Store(session=self.session, controller=self, parent=self)
 
         self.connect_all_actions()
 
-    def _update_locals(self):
+    def update_namespace(self):
         self.session.interpreter.locals['project'] = self.session.project
         self.session.interpreter.locals['scene'] = self.session.scene
 

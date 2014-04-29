@@ -101,9 +101,13 @@ class MainWindow(QtGui.QMainWindow):
 
         return dock_widget
 
-    def _update_locals(self):
-        """ Stub method from allwidgets. CPL: TODO"""
-        pass
+    def update_namespace(self):
+        """ Stub method from allwidgets. CPL: TODO
+
+        Definition: Update namespace
+        """
+        self.session.interpreter.locals['project'] = self.session.project
+        self.session.interpreter.locals['scene'] = self.session.scene
 
     def connect_all_actions(self):
         """ Stub method from allwidgets. JCE: TODO"""
