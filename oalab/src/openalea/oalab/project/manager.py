@@ -428,8 +428,8 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
     def _tree_view_change(self):
         if hasattr(self.controller, "_plugins"):
-            if self.controller._plugins.has_key('Project'):
-                self.controller._plugins['Project'].instance().update()
+            if self.controller._plugins.has_key('ProjectWidget'):
+                self.controller._plugins['ProjectWidget'].instance().update()
         else:
             if self.controller.applets.has_key('Project'):
                 self.controller.applets['Project'].update()
