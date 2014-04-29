@@ -68,7 +68,7 @@ class MainWindow(QtGui.QMainWindow):
         self.shell = get_shell_class()(self.session.interpreter)
         self.add_applet(self.shell, 'Shell', area='shell')
 
-        self._plugins = {}
+        self.applets = self._plugins = {}
 
     def add_applet(self, applet, name, area=None):
         if area in self.areas:
@@ -104,6 +104,11 @@ class MainWindow(QtGui.QMainWindow):
         self.addDockWidget(position, dock_widget)
 
         return dock_widget
+
+    def _update_locals(self):
+        """ Stub method from allwidgets. CPL: TODO"""
+        return 
+
 
     def get_project_manager(self):
         if 'ProjectManager' in self._plugins:
