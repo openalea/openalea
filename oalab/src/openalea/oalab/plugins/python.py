@@ -58,7 +58,13 @@ class PythonApplet(object):
 
 more informations: http://www.python.org/
 """%str(self.icon)
-        self.controller.applets['HelpWidget'].setText(txt)
+        if hasattr(self.controller, "_plugins"):
+            if self.controller._plugins.has_key('HelpWidget'):
+                self.controller._plugins['HelpWidget'].instance().setText(txt)
+        else:
+            if self.controller.applets.has_key('HelpWidget'):
+                self.controller.applets['HelpWidget'].setText(txt)
+
         
     def widget(self):
         """

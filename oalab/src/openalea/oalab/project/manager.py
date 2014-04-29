@@ -105,7 +105,6 @@ class ProjectManagerWidget(QtGui.QWidget):
         proj = self.projectManager.load_default()
         self.session._project = proj
         self.session._is_proj = True
-
         if not self.session.project.src:
             txt = '''# -*- coding: utf-8 -*-
 """
@@ -117,7 +116,6 @@ This temporary script is saved in temporary project in
 You can rename/move this project thanks to the button "Save As" in menu.
 """''' % str(self.session.project.path / self.session.project.name)
             self.session.project.add(category="src", name=".temp.py", value=txt)
-
         self._project_changed()
         self._load_control()
 
@@ -131,7 +129,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         """
         self.closeCurrent()
         # self.controller.applet_container.closeAll()
-        """
+
         if name is False:
             name = showOpenProjectDialog()
         if name:
@@ -155,7 +153,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
                 logger.warning("Project was not loaded...")
                 return -1
             else:
-                return self.openProject(proj)"""
+                return self.openProject(proj)
 
 
     def openProject(self, project):
@@ -361,8 +359,11 @@ You can rename/move this project thanks to the button "Save As" in menu.
         Close current project.
         """
         if self.session.current_is_project():
-            logger.debug("Close Project named %s" % self.session.project.name)
-            self.projectManager.close(self.session.project.name)
+            if hasattr(self.session, "name"):
+                logger.debug("Close Project named %s" % self.session.project.name)
+                self.projectManager.close(self.session.project.name)
+            else:
+                logger.debug("Close empty Project")
             self.session._project = None
             self.session._is_proj = False
             self._clear_control()
@@ -393,43 +394,57 @@ You can rename/move this project thanks to the button "Save As" in menu.
         """
         Get control from project and put them into widgets
         """
-        applets = self.controller.applets 
-        if 'ControlPanel' in applets:
-            logger.debug("Load Controls")
-            try: 
-                applets['ControlPanel'].load()
-            except:
-                pass
+        if hasattr(self.controller, "_plugins"):
+            if self.controller._plugins.has_key('ControlPanel'):
+                self.controller._plugins['ControlPanel'].instance().load()
+        else:
+            if self.controller.applets.has_key('ControlPanel'):
+                self.controller.applets['ControlPanel'].load()
+        logger.debug("Load Controls")
+
     def _update_control(self):
         """
         Get control from widget and put them into project
         """
-        applets = self.controller.applets 
-        if 'ControlPanel' in applets:
-            logger.debug("Update Controls")
-            applets['ControlPanel'].update()
+        if hasattr(self.controller, "_plugins"):
+            if self.controller._plugins.has_key('ControlPanel'):
+                self.controller._plugins['ControlPanel'].instance().update()
+        else:
+            if self.controller.applets.has_key('ControlPanel'):
+                self.controller.applets['ControlPanel'].update()
+        logger.debug("Update Controls")
 
     def _clear_control(self):
-        applets = self.controller.applets 
-        if 'ControlPanel' in applets:
-            logger.debug("Clear Controls")
-            applets['ControlPanel'].clear()
+        if hasattr(self.controller, "_plugins"):
+            if self.controller._plugins.has_key('ControlPanel'):
+                self.controller._plugins['ControlPanel'].instance().clear()
+        else:
+            if self.controller.applets.has_key('ControlPanel'):
+                self.controller.applets['ControlPanel'].clear()
+        logger.debug("Clear Controls")
 
     def _control_change(self):
         pass
 
     def _tree_view_change(self):
+        if hasattr(self.controller, "_plugins"):
+            if self.controller._plugins.has_key('Project'):
+                self.controller._plugins['Project'].instance().update()
+        else:
+            if self.controller.applets.has_key('Project'):
+                self.controller.applets['Project'].update()
         logger.debug("Tree View changed")
-        applets = self.controller.applets 
-        if 'Project' in applets:
-            applets['Project'].update()
 
     def _script_change(self):
         logger.debug("Script changed")
-        if self.session.current_is_project() and self.controller.applet_container:
+        print 1
+        if self.session.project:
             project = self.session.project
+            print 2, project
             self.controller.applet_container.reset()
+            print 3
             for script in project.src:
+                print 4
                 language = str(script).split('.')[-1]
                 self.controller.applet_container.openTab(language, script, project.src[script])
 
@@ -462,7 +477,7 @@ def showOpenProjectDialog(parent=None):
 
 def showOpenFileDialog(extension=None, where=None, parent=None):
     if extension is None:
-        extension = self.extensions
+        extension = ""
 
     if where is not None:
         my_path = path(str(where)).abspath().splitpath()[0]
