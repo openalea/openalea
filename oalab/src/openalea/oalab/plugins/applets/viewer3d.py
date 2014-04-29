@@ -13,4 +13,4 @@ class Viewer3D(PluginApplet):
         self._applet = Viewer(mainwindow.session, mainwindow)
         self._fill_menu(mainwindow, self._applet)
 
-        mainwindow.add_applet(self._applet, self.alias, area='central')
+        mainwindow.add_applet(self._applet, self.alias, area='outputs')
