@@ -22,7 +22,7 @@ __revision__ = ""
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.plantgl.all import Scene, Sphere, Discretizer, GLRenderer, BoundingBox
 from openalea.core.observer import AbstractListener
-
+from openalea.oalab.gui import resources_rc
 from PyQGLViewer import QGLViewer, Vec
 import sys
 
