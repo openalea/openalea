@@ -208,9 +208,18 @@ class AppletContainer(QtGui.QTabWidget):
         self.setCurrentWidget(self.applets[-1].widget())
         self.applets[-1].widget().name = tab_name
 
-        self.controller.connect_actions(self.applets[-1].widget(), self.controller.menu)
+        self.connect_actions()
         QtCore.QObject.connect(self, QtCore.SIGNAL('currentChanged(int)'),self.focusChange)
         self.setTabBlack()
+
+    def connect_actions(self):
+        widget = self.applets[-1].widget()
+        menu = self.controller.menu
+        if widget.actions():
+            for action in widget.actions():
+                print 1, action
+                # Add actions in PanedMenu
+                menu.addBtnByAction(*action)
         
     def focusChange(self):
         widget = self.currentWidget()

@@ -14,6 +14,17 @@ class PluginApplet(object):
                 # Add actions in PanedMenu
                 mainwindow.menu.addBtnByAction(*action)
 
+        # Show/Hide in menu
+        ## TODO
+        """
+        name = widget.windowTitle()
+        btn = QtGui.QCheckBox(name, self)
+        btn.setChecked(widget.isVisibleTo(self))
+        btn.toggled.connect(widget.setVisible)
+        # child.visibilityChanged.connect(btn.setChecked)
+        action = [["View", "Show", btn, "smallwidget"], ]
+        mainwindow.menu.addBtnByAction(action)"""
+
     def instance(self):
         return self._applet
 

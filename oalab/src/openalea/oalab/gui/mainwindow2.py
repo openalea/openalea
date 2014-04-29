@@ -109,14 +109,6 @@ class MainWindow(QtGui.QMainWindow):
         self.session.interpreter.locals['project'] = self.session.project
         self.session.interpreter.locals['scene'] = self.session.scene
 
-    def connect_all_actions(self):
-        """ Stub method from allwidgets. JCE: TODO"""
-        pass
-
-    def connect_actions(self, widget, menu=None):
-        """ Stub method from allwidgets. JCE: TODO"""
-        pass
-
     def get_project_manager(self):
         if 'ProjectManager' in self._plugins:
             return self._plugins['ProjectManager'].instance()
