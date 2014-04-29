@@ -437,14 +437,10 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
     def _script_change(self):
         logger.debug("Script changed")
-        print 1
         if self.session.project:
             project = self.session.project
-            print 2, project
             self.controller.applet_container.reset()
-            print 3
             for script in project.src:
-                print 4
                 language = str(script).split('.')[-1]
                 self.controller.applet_container.openTab(language, script, project.src[script])
 
