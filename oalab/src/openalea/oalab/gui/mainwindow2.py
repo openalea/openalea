@@ -22,10 +22,6 @@
 __revision__ = ""
 
 from openalea.vpltk.qt import QtGui, QtCore
-from openalea.core import logger
-from openalea.core.path import path
-from openalea.core.settings import get_openalea_home_dir
-
 from openalea.oalab.gui.menu import PanedMenu
 from openalea.vpltk.shell.shell import get_shell_class
 
@@ -107,8 +103,15 @@ class MainWindow(QtGui.QMainWindow):
 
     def _update_locals(self):
         """ Stub method from allwidgets. CPL: TODO"""
-        return 
+        pass
 
+    def connect_all_actions(self):
+        """ Stub method from allwidgets. JCE: TODO"""
+        pass
+
+    def connect_actions(self, widget, menu=None):
+        """ Stub method from allwidgets. JCE: TODO"""
+        pass
 
     def get_project_manager(self):
         if 'ProjectManager' in self._plugins:

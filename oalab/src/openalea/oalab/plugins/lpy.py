@@ -151,7 +151,12 @@ class LPyApplet(object):
         self.code = str()
         self.axialtree = AxialTree()
 
-        registerPlotter(self.controller.applets['Viewer3D'])
+        if hasattr(self.controller, "_plugins"):
+            if self.controller._plugins.has_key('Viewer3D'):
+                registerPlotter(self.controller._plugins['Viewer3D'].instance())
+        else:
+            if self.controller.applets.has_key('Viewer3D'):
+                registerPlotter(self.controller.applets['Viewer3D'])
 
         # Link with color map from application
         if hasattr(self.session.project, "control"):
@@ -179,7 +184,13 @@ class LPyApplet(object):
  WIDTH=25
  TITLE="LPy logo">L-Py</H1>""" % str(self.icon) + txt[13:]
 
-        self.controller.applets['HelpWidget'].setText(txt)
+        if hasattr(self.controller, "_plugins"):
+            if self.controller._plugins.has_key('HelpWidget'):
+                self.controller._plugins['HelpWidget'].instance().setText(txt)
+        else:
+            if self.controller.applets.has_key('HelpWidget'):
+                self.controller.applets['HelpWidget'].setText(txt)
+
 
     def widget(self):
         """
@@ -218,7 +229,12 @@ class LPyApplet(object):
         new_scene = self.lsystem.sceneInterpretation(self.axialtree)
         scene_name = self.context["scene_name"]
         self.session.scene[scene_name] = new_scene
-        self.session.applets['Viewer3D'].update_radius()
+        if hasattr(self.controller, "_plugins"):
+            if self.controller._plugins.has_key('Viewer3D'):
+                self.controller._plugins['Viewer3D'].instance().update_radius()
+        else:
+            if self.controller.applets.has_key('Viewer3D'):
+                self.controller.applets['Viewer3D'].update_radius()
 
     def step(self, i=None):
         """
@@ -272,7 +288,13 @@ class LPyApplet(object):
         self.lsystem.setCode(code, self.parameters)
         self.step()
         self.lsystem.animate()
-        self.controller.applets['Viewer3D'].update_radius()
+
+        if hasattr(self.controller, "_plugins"):
+            if self.controller._plugins.has_key('Viewer3D'):
+                self.controller._plugins['Viewer3D'].instance().update_radius()
+        else:
+            if self.controller.applets.has_key('Viewer3D'):
+                self.controller.applets['Viewer3D'].update_radius()
 
     def reinit(self):
         self.step(0)

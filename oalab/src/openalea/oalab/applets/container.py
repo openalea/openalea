@@ -207,7 +207,7 @@ class AppletContainer(QtGui.QTabWidget):
         self.addTab(self.applets[-1].widget(), QtGui.QIcon(icon), tab_name)
         self.setCurrentWidget(self.applets[-1].widget())
         self.applets[-1].widget().name = tab_name
-        
+
         self.controller.connect_actions(self.applets[-1].widget(), self.controller.menu)
         QtCore.QObject.connect(self, QtCore.SIGNAL('currentChanged(int)'),self.focusChange)
         self.setTabBlack()

@@ -42,7 +42,7 @@ class RApplet(object):
         self._init = None
         
         # TODO : Do it only once
-        self.session.shell.runcode(source="%load_ext rmagic", hidden=True)
+        self.controller.shell.runcode(source="%load_ext rmagic", hidden=True)
         
         self.widget().set_text(script)
         
@@ -59,6 +59,14 @@ class RApplet(object):
 
 more informations: http://www.r-project.org/
 """%str(self.icon)
+
+        if hasattr(self.controller, "_plugins"):
+            if self.controller._plugins.has_key('HelpWidget'):
+                self.controller._plugins['HelpWidget'].instance().setText(txt)
+        else:
+            if self.controller.applets.has_key('HelpWidget'):
+                self.controller.applets['HelpWidget'].setText(txt)
+
         self.controller.applets['HelpWidget'].setText(txt)
         
     def widget(self):

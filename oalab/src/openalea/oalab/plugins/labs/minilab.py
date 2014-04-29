@@ -5,8 +5,8 @@ class MiniLab(object):
 
     name = 'mini'
     applets = [ 'ControlPanel', 'EditorManager', 'ProjectManager']
-    # Not works: 'ProjectManager', 'ProjectWidget'
-    # applets.extend(['HelpWidget','Viewer3D','PkgManagerWidget' 'Logger', 'Store'])
+    applets.extend(['HelpWidget','Viewer3D','PkgManagerWidget', 'ProjectWidget', 'Logger'])
+    # applets.extend(['Store'])
 
     def __call__(self, mainwin):
         import sys

@@ -51,7 +51,13 @@ class PackageViewWidget(OALabTreeView):
             txt = factory.get_tip(asRst=True) + "\n\n"
             if factoryDoc is not None:
                 txt += "**Docstring:**\n" + factoryDoc
-            self.controller.helper.setText(txt)
+
+        if hasattr(self.controller, "_plugins"):
+            if self.controller._plugins.has_key('HelpWidget'):
+                self.controller._plugins['HelpWidget'].instance().setText(txt)
+        else:
+            if self.controller.applets.has_key('HelpWidget'):
+                self.controller.applets['HelpWidget'].setText(txt)
 
     def reinit_treeview(self):
         """ Reinitialise package and category views """
