@@ -129,21 +129,17 @@ class ProjectTreeView(QtGui.QTreeView):
 
             # If a file is selected
             # Permit to open it
-            if self.project:
-                item = self.getItem()
-                if self.hasParent():
-                    if item.parent().parent():
-                        editAction = QtGui.QAction('Open File',self)
-                        editAction.triggered.connect(self.open_file)
-                        menu.addAction(editAction)
-                        menu.addSeparator()
+            if self.is_file_selected():
+                editAction = QtGui.QAction('Open File',self)
+                editAction.triggered.connect(self.open_file)
+                menu.addAction(editAction)
+                menu.addSeparator()
 
         if self.controller.project_manager:
             editMetadataAction = QtGui.QAction('Edit/Show Metadata',self)
             editMetadataAction.triggered.connect(self.controller.project_manager.edit_metadata)
             menu.addAction(editMetadataAction)
             menu.addSeparator()
-
 
             # importAction = QtGui.QAction('Import Model',self)
             # importAction.triggered.connect(self.controller.applet_container.importFile)
@@ -158,19 +154,24 @@ class ProjectTreeView(QtGui.QTreeView):
         return menu
 
     def on_opened_file(self):
-        # If a file is selected
-            # Permit to open it
-            if self.project:
-                item = self.getItem()
-                if self.hasParent():
-                    if item.parent().parent():
-                        self.open_file()
+        if self.is_file_selected():
+            self.open_file()
 
     def open_file(self):
         item = self.getItem()
         filename = path(self.project.path)/self.project.name/item.parent().text()/item.text()
         self.controller.applet_container.open_file(filename=filename)
 
+    def is_file_selected(self):
+        """
+        :return: True if selected object is a file. Else, False.
+        """
+        if self.project:
+            item = self.getItem()
+            if self.hasParent():
+                if item.parent().parent():
+                    return True
+        return False
 
     def showMenu(self, event):
         """ function defining actions to do according to the menu's button chosen"""
