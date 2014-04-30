@@ -53,7 +53,7 @@ class AppletContainer(QtGui.QTabWidget):
 
         self.actionOpenFile = QtGui.QAction(QtGui.QIcon(":/images/resources/open.png"), "Open file", self)
 
-        self.actionSave = QtGui.QAction(QtGui.QIcon(":/images/resources/save.png"),"Save", self)
+        self.actionSave = QtGui.QAction(QtGui.QIcon(":/images/resources/save.png"),"Save File", self)
         self.actionRun = QtGui.QAction(QtGui.QIcon(":/images/resources/run.png"),"Run", self)
         self.actionAnimate = QtGui.QAction(QtGui.QIcon(":/images/resources/play.png"),"Animate", self)
         self.actionStep = QtGui.QAction(QtGui.QIcon(":/images/resources/step.png"),"Step", self)
@@ -108,19 +108,19 @@ class AppletContainer(QtGui.QTabWidget):
         self.actionStop.setEnabled(False)
         
         self._actions = [["Files", "Manage", self.actionOpenFile, 0],
+                         ["Files", "Manage",self.actionSave,0],
                          ["Simulation", "Play",self.actionRun,0],
                          ["Simulation", "Play",self.actionAnimate,0],
                          ["Simulation", "Play",self.actionStep,0],
                          ["Simulation", "Play",self.actionStop,0],
                          ["Simulation", "Play",self.actionInit,0],
-                         ["Simulation", "Text Edit",self.actionSave,0],
-                         ["Simulation", "Text Edit",self.actionUndo,1],
-                         ["Simulation", "Text Edit",self.actionRedo,1],
-                         ["Simulation", "Text Edit",self.actionRunSelection,0],
-                         ["Simulation", "Text Edit",self.actionSearch,1],
-                         ["Simulation", "Text Edit",self.actionGoto,1],
-                         ["Simulation", "Text Edit",self.actionComment,1],
-                         ["Simulation", "Text Edit",self.actionUnComment,1]]
+                         ["Files", "Text Edit",self.actionUndo,1],
+                         ["Files", "Text Edit",self.actionRedo,1],
+                         ["Files", "Text Edit",self.actionSearch,1],
+                         ["Files", "Text Edit",self.actionGoto,1],
+                         ["Files", "Text Edit",self.actionComment,1],
+                         ["Files", "Text Edit",self.actionUnComment,1],
+                         ["Files", "Text Edit",self.actionRunSelection,0]]
                                     
         QtCore.QObject.connect(self, QtCore.SIGNAL('tabCloseRequested(int)'), self.autoClose)
 
