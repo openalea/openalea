@@ -285,21 +285,27 @@ class AppletContainer(QtGui.QTabWidget):
             for value in self.paradigms.values():
                 if value.extension == applet_type:
                     Applet = value
-        
+
+        if Applet is None:
+            if "Python" in self.paradigms.keys():
+                Applet = self.paradigms["Python"]
+
         icon = ""
         if Applet is not None:            
             appl = Applet(session=self.session, controller=self.controller, parent=self.parent(), name=tab_name, script=script)
             self.applets.append(appl)
             icon = Applet.icon
             
-    
-        self.addTab(self.applets[-1].widget(), QtGui.QIcon(icon), tab_name)
-        self.setCurrentWidget(self.applets[-1].widget())
-        self.applets[-1].widget().name = tab_name
+            try:
+                self.addTab(self.applets[-1].widget(), QtGui.QIcon(icon), tab_name)
+                self.setCurrentWidget(self.applets[-1].widget())
+                self.applets[-1].widget().name = tab_name
 
-        self.connect_actions()
-        QtCore.QObject.connect(self, QtCore.SIGNAL('currentChanged(int)'),self.focusChange)
-        self.setTabBlack()
+                self.connect_actions()
+                QtCore.QObject.connect(self, QtCore.SIGNAL('currentChanged(int)'),self.focusChange)
+                self.setTabBlack()
+            except IndexError:
+                pass
 
     def connect_actions(self):
         widget = self.applets[-1].widget()

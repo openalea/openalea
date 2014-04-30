@@ -44,9 +44,6 @@ class ProjectManagerWidget(QtGui.QWidget):
 
         self.projectManager = ProjectManager()
 
-        # self.actionEditFile = QtGui.QAction(QtGui.QIcon(":/images/resources/edit.png"), "Edit file", self)
-        # self.actionImportFile = QtGui.QAction(QtGui.QIcon(":/images/resources/import.png"), "Import", self)
-
         self.actionNewProj = QtGui.QAction(QtGui.QIcon(":/images/resources/new.png"), "New", self)
         self.actionNewProj.setShortcut(
             QtGui.QApplication.translate("MainWindow", "Ctrl+N", None, QtGui.QApplication.UnicodeUTF8))
@@ -66,39 +63,16 @@ class ProjectManagerWidget(QtGui.QWidget):
         self.connect(self.actionCloseProj, QtCore.SIGNAL('triggered(bool)'), self.closeCurrent)
         self.connect(self.actionEditMeta, QtCore.SIGNAL('triggered(bool)'), self.edit_metadata)
 
-        # self.connect(self.actionImportFile, QtCore.SIGNAL('triggered(bool)'), self.importFile)
-        # self.connect(self.actionEditFile, QtCore.SIGNAL('triggered(bool)'), self.editFile)
-
         self._actions = [["Project", "Manage Project", self.actionNewProj, 1],
                          ["Project", "Manage Project", self.actionOpenProj, 0],
                          ["Project", "Manage Project", self.actionSaveProj, 0],
                          ["Project", "Manage Project", self.actionSaveProjAs, 1],
                          ["Project", "Manage Project", self.actionCloseProj, 1],
                          ["Project", "Manage Project", self.actionEditMeta, 1],
-                         # ["Model", "New Model", self.actionEditFile, 0],
-                         # ["Model", "New Model", self.actionImportFile, 0]
                          ]
 
-        # self.extensions = ""
-        # self.connectParadigmContainer()
 
         self.defaultProj()
-
-    # def connectParadigmContainer(self):
-    #     # Connect actions from applet_container.paradigms to menu (newPython, newLpy,...)
-    #     self.paradigms_actions = []
-    #
-    #     #CPL
-    #     ac = self.controller.applet_container
-    #     if ac is None:
-    #         return
-    #
-    #     for applet in ac.paradigms.values():
-    #         action = QtGui.QAction(QtGui.QIcon(applet.icon), applet.default_name, self)
-    #         action.triggered.connect(self.newModel)
-    #         self._actions.append(["Model", "New Model", action, 0],)
-    #         self.paradigms_actions.append(action)
-    #         self.extensions = self.extensions + applet.pattern + " "
 
     def defaultProj(self):
         proj = self.projectManager.load_default()
@@ -173,73 +147,6 @@ You can rename/move this project thanks to the button "Save As" in menu.
         logger.debug("Project opened: " + str(self.session._project))
         return self.session._project
 
-    # def editFile(self, filename=None, extension=None):
-    #     """
-    #     Permit to edit a file which is outside project.
-    #     And add link to file in project.
-    #     """
-    #     if extension is None:
-    #         extension = self.extensions
-    #
-    #     if self.session.current_is_project():
-    #         project = self.session.project
-    #         if not filename:
-    #             if extension:
-    #                 filename = showOpenFileDialog(extension)
-    #             else:
-    #                 filename = showOpenFileDialog()
-    #         if filename:
-    #             filename = path(filename).abspath()
-    #
-    #             f = open(filename, "r")
-    #             txt = f.read()
-    #             f.close()
-    #
-    #             tab_name = str(path(filename).splitpath()[-1])
-    #             ext = str(path(filename).splitext()[-1])
-    #             ext = ext.split(".")[-1]
-    #             logger.debug("Try to import file named " + tab_name + " . With applet_type " + ext)
-    #
-    #             try:
-    #                 self.controller.applet_container.newTab(applet_type=ext, tab_name=tab_name, script=txt)
-    #                 project.add("src", filename, txt)
-    #                 self.controller.update_namespace()
-    #                 self._tree_view_change()
-    #                 logger.debug("Import file named " + tab_name)
-    #             except:
-    #                 print "File extension " + ext + " not recognised"
-    #                 logger.warning("Can't import file named %s in current project. Unknow extension." % filename)
-    #     else:
-    #         print "You are not working inside project. Please create or load one first."
-
-
-    # def importFile(self, filename=None, extension=None):
-    #     """
-    #     Import a file and add it to the project.
-    #
-    #     :param filename: name of file to add in project
-    #     :param extension:
-    #     """
-    #     if extension is None:
-    #         extension = self.extensions
-    #
-    #     if self.session.current_is_project():
-    #         project = self.session.project
-    #         if not filename:
-    #             filename = showOpenFileDialog(extension)
-    #         if filename:
-    #             filename = path(filename)
-    #             f = open(filename, "r")
-    #             txt = f.read()
-    #             f.close()
-    #             name = filename.splitpath()[1]
-    #             project.add("src", name, txt)
-    #             self.controller.update_namespace()
-    #             self._project_changed()
-    #             logger.debug("Import file named " + name)
-    #     else:
-    #         print "You are not working inside project. Please create or load one first."
-
     def new(self):
         """
         Create an default empty project with a default name.
@@ -249,62 +156,6 @@ You can rename/move this project thanks to the button "Save As" in menu.
         self.project_creator = CreateProjectWidget()
         self.project_creator.show()
         self.connect(self.project_creator, QtCore.SIGNAL('ProjectMetadataSet(PyQt_PyObject)'), self.openProject)
-
-    # def newModel(self, applet_type=None, tab_name=None, script=""):
-    #     """
-    #     Create a new model of type 'applet_type
-    #
-    #     :param applet_type: type of applet to add. Can be Workflow, LSystem, Python, R
-    #     """
-    #     if self.session.current_is_project():
-    #         if not applet_type:
-    #             button = self.sender()
-    #             applet_type = button.text() # can be Workflow, LSystem, Python, R
-    #             # TODO: this approach is not reliable. If a developer change action name, it breaks the system
-    #             # a better approach should be to define a "newModel" method in IApplet and call it directly
-    #             # for instance in __init__ : action.triggered.connect(applet.newModel)
-    #
-    #         # ac is an instance of an editormanager plugin.
-    #         ac = self.controller.applet_container
-    #         if ac is None:
-    #             return # CPL: Do what is needed
-    #
-    #         Applet = ac.paradigms.get(applet_type)
-    #         if not tab_name and Applet:
-    #             tab_name = Applet.default_file_name
-    #
-    #         ac.newTab(applet_type=applet_type, tab_name=tab_name, script=script)
-    #         text = ac.applets[-1].widget().get_text()
-    #         self.session.project.add("src", tab_name, text)
-    #         self.controller.update_namespace()
-    #         self._project_changed()
-    #     else:
-    #         print "You are not working inside project. Please create or load one first."
-
-    # def removeModel(self, model_name):
-    #     """
-    #     :param model_name: Name of the model to remove in the current project
-    #     """
-    #     if self.session.current_is_project():
-    #         self.session.project.remove("src", model_name)
-    #         self._project_changed()
-    #     else:
-    #         print "You are not working inside project. Please create or load one first."
-
-    # def openModel(self, fname=None, extension="*.*"):
-    #     """"
-    #     Open a (script-type) file named "fname".
-    #     If "fname"==None, display a dialog with filter "extension".
-    #
-    #     :param fname: filename to open. Default = None
-    #     :param extension: extension of file to open. Default = "*.*"
-    #     """
-    #     if self.session.current_is_project():
-    #         self.importFile(filename=fname, extension=extension)
-    #         self._project_changed()
-    #     else:
-    #         print "You are not working inside project. Please create or load one first."
-
 
     def edit_metadata(self):
         self.project_creator = CreateProjectWidget(self.session._project)
@@ -395,8 +246,10 @@ You can rename/move this project thanks to the button "Save As" in menu.
         self.controller.update_namespace()
         self._scene_change()
         self._control_change() # do nothing
-        self.controller.applet_container.reset()
-        self.open_all_files_from_project()
+        if self.controller.applet_container:
+            self.controller.applet_container.reset()
+        self.open_all_scripts_from_project()
+        # self.open_all_files_from_project()
         self._tree_view_change()
 
     def update_from_widgets(self):
@@ -447,13 +300,22 @@ You can rename/move this project thanks to the button "Save As" in menu.
                 self.controller.applets['Project'].update()
         logger.debug("Tree View changed")
 
-    def open_all_files_from_project(self):
+    def open_all_scripts_from_project(self):
         logger.debug("Script changed")
         if self.session.project:
             project = self.session.project
             for script in project.src:
                 language = str(script).split('.')[-1]
                 self.controller.applet_container.openTab(language, script, project.src[script])
+
+    def open_all_files_from_project(self):
+        logger.debug("Script changed")
+        if self.session.project:
+            project = self.session.project
+            for category in project.files:
+                for file_ in project.files[category]:
+                    language = str(file_).split('.')[-1]
+                    self.controller.applet_container.openTab(language, file_, project.files[category][file_])
 
     def _scene_change(self):
         logger.debug("Scene changed")
