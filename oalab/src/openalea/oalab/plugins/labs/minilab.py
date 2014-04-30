@@ -8,8 +8,6 @@ class MiniLab(object):
     applets.extend(['HelpWidget', 'Viewer3D', 'PkgManagerWidget', 'ProjectWidget', 'Logger'])
     # applets.extend(['Store'])
 
-    applets = ['EditorManager', 'ProjectWidget', 'ProjectManager']
-
     def __call__(self, mainwin):
         import sys
         for plugin in iter_plugins('oalab.applet'):
