@@ -67,29 +67,23 @@ def save(self, name=None):
     controller = applet.controller
     project = session.project
 
-    if not name:
-        name = self.name
+    if name:
+        self.name = name
 
-    # print "save wf", name
-    wf_str = self.repr_workflow(name)
+    wf_str = self.repr_workflow(self.name)
 
-    if project.is_project():
-        project.scripts[name] = wf_str
+    if project:
+        project.scripts[self.name] = wf_str
         project._save("src")
-    elif project.is_script():
-        project[name] = wf_str
-        if name == (u"workflow.wpy"):
-            new_fname = QtGui.QFileDialog.getSaveFileName(self, 'Select name to save the file %s'%name,name)
-            if new_fname == u"":
-                new_fname = name
-            project[new_fname] = wf_str
-            del project[name]
-            self.name = new_fname
+    else:
+        if self.name == (u"workflow.wpy"):
+            new_fname = QtGui.QFileDialog.getSaveFileName(self, 'Select name to save the file %s'%self.name,self.name)
+            if new_fname != u"":
+                self.name = new_fname
             
         f = open(self.name, "w")
-        code = wf_str
-        code_enc = code.encode("utf8","ignore") 
-        f.write(code_enc)
+        code = str(wf_str).encode("utf8","ignore")
+        f.write(code)
         f.close()
 
 def mainMenu(self):

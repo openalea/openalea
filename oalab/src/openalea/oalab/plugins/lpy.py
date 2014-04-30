@@ -218,7 +218,8 @@ class LPyApplet(object):
         # Get code from application
         code = str(self.widget().get_text())
         # Get control
-        self.parameters.update(self.session.project.control)
+        if hasattr(self.session.project, "control"):
+            self.parameters.update(self.session.project.control)
         for parameter in self.parameters:
             if hasattr(self.parameters[parameter], "value"):
                 self.parameters[parameter] = self.parameters[parameter].value
