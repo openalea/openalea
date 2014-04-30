@@ -27,6 +27,15 @@ from openalea.oalab.package.treeview import OALabTreeView, OALabSearchView
 from openalea.oalab.package.manager import package_manager
 
 
+
+class PackageManagerTreeView(QtGui.QTabWidget):
+    def __init__(self, session, controller, parent=None):
+        super(PackageManagerTreeView, self).__init__(parent=parent)
+        self.addTab(PackageViewWidget(session=session, controller=controller), "Packages")
+        self.addTab(PackageCategorieViewWidget(session=session, controller=controller), "Packages Categories")
+        self.addTab(PackageSearchWidget(session=session, controller=controller), "Search Packages")
+
+
 class PackageViewWidget(OALabTreeView):
     """
     Widget for Package Manager
