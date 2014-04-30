@@ -42,6 +42,7 @@ class AppletContainer(QtGui.QTabWidget):
         self.applets = list()
         
         self.paradigms = dict()
+        self.paradigms_actions = []
         applets = discover('oalab.paradigm_applet')
         for app in applets.values():
             applet = Plugin(app)
@@ -199,6 +200,7 @@ class AppletContainer(QtGui.QTabWidget):
         for applet in self.paradigms.values():
             action = QtGui.QAction(QtGui.QIcon(applet.icon), "New " + applet.default_name, self)
             action.triggered.connect(self.new_file)
+            self.paradigms_actions.append(action)
             self._actions.append(["Files", "Manage", action, 0],)
             self.extensions = self.extensions + applet.pattern + " "
 
@@ -304,7 +306,6 @@ class AppletContainer(QtGui.QTabWidget):
         menu = self.controller.menu
         if widget.actions():
             for action in widget.actions():
-                print 1, action
                 # Add actions in PanedMenu
                 menu.addBtnByAction(*action)
         
