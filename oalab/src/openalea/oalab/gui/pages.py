@@ -210,45 +210,39 @@ class CreateFilePage(QtGui.QWidget):
 
         self.session = session
         self.controller = controller
-        layout = QtGui.QGridLayout()
-        layout.setAlignment(QtCore.Qt.AlignCenter)
+        app_cont = self.controller.get_applet_container()
+        if app_cont is not None:
+            layout = QtGui.QGridLayout()
+            layout.setAlignment(QtCore.Qt.AlignCenter)
 
-        max_size = QtCore.QSize(100, 80)
-        min_size = QtCore.QSize(100, 80)
+            max_size = QtCore.QSize(120, 80)
+            min_size = QtCore.QSize(120, 80)
 
-        text = QtGui.QLabel("Select type of file to create:")
-        layout.addWidget(text, 0, 0, 1, -1)
+            text = QtGui.QLabel("Select type of file to create:")
+            layout.addWidget(text, 0, 0, 1, -1)
 
-        i, j = 1, 0
-        for action in self.controller.project_manager.paradigms_actions:
-            newAction = QtGui.QToolButton()
-            newAction.setDefaultAction(action)
-            newAction.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
-            newAction.setMinimumSize(min_size)
-            layout.addWidget(newAction, i, j)
-            if j == 0:
-                j = 1
-            else:
-                j = 0
-                i += 1
+            i, j = 1, 0
+            for action in app_cont.paradigms_actions:
+                newAction = QtGui.QToolButton()
+                newAction.setDefaultAction(action)
+                newAction.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
+                newAction.setMinimumSize(min_size)
+                layout.addWidget(newAction, i, j)
+                if j == 0:
+                    j = 1
+                else:
+                    j = 0
+                    i += 1
 
-        text2 = QtGui.QLabel("You can add a file from your computer:")
-        layout.addWidget(text2, 10, 0, 1, -1)
+            text2 = QtGui.QLabel("You can add a file from your computer:")
+            layout.addWidget(text2, 10, 0, 1, -1)
 
-        editFile = QtGui.QToolButton()
-        editFile.setDefaultAction(self.controller.project_manager.actionEditFile)
-        editFile.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
-        editFile.setMinimumSize(min_size)
-        layout.addWidget(editFile, 11, 0, 1, -1)
-
-        importFile = QtGui.QToolButton()
-        importFile.setDefaultAction(self.controller.project_manager.actionImportFile)
-        importFile.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
-
-        importFile.setMinimumSize(min_size)
-        layout.addWidget(importFile, 11, 1, 1, -1)
-
-        self.setLayout(layout)
+            editFile = QtGui.QToolButton()
+            editFile.setDefaultAction(app_cont.actionOpenFile)
+            editFile.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
+            editFile.setMinimumSize(min_size)
+            layout.addWidget(editFile, 11, 0, 1, -1)
+            self.setLayout(layout)
 
         # fake methods, like if we have a real applet
         class FakeApplet(object):
