@@ -100,6 +100,9 @@ class ProjectTreeView(QtGui.QTreeView):
 
         self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         QtCore.QObject.connect(self,QtCore.SIGNAL('customContextMenuRequested(const QPoint&)'),self.showMenu)
+
+        self.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+        QtCore.QObject.connect(self,QtCore.SIGNAL('doubleClicked(const QModelIndex&)'),self.on_opened_file)
         
     def update(self):
         self.reinit_treeview()
@@ -153,6 +156,15 @@ class ProjectTreeView(QtGui.QTreeView):
             # renameAction.triggered.connect(self.controller.applet_container.renameCurrent)
             # menu.addAction(renameAction)
         return menu
+
+    def on_opened_file(self):
+        # If a file is selected
+            # Permit to open it
+            if self.project:
+                item = self.getItem()
+                if self.hasParent():
+                    if item.parent().parent():
+                        self.open_file()
 
     def open_file(self):
         item = self.getItem()
