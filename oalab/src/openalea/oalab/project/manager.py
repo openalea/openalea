@@ -55,6 +55,7 @@ class ProjectManagerWidget(QtGui.QWidget):
         # self.actionSaveProj.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
         self.actionCloseProj = QtGui.QAction(QtGui.QIcon(":/images/resources/closeButton.png"), "Close All", self)
         self.actionEditMeta = QtGui.QAction(QtGui.QIcon(":/images/resources/book.png"), "Edit Metadata", self)
+        self.actionAddFile = QtGui.QAction(QtGui.QIcon(":/images/resources/bool.png"), "Add Current", self)
 
         self.connect(self.actionNewProj, QtCore.SIGNAL('triggered(bool)'), self.new)
         self.connect(self.actionOpenProj, QtCore.SIGNAL('triggered(bool)'), self.open)
@@ -62,6 +63,7 @@ class ProjectManagerWidget(QtGui.QWidget):
         self.connect(self.actionSaveProj, QtCore.SIGNAL('triggered(bool)'), self.saveCurrent)
         self.connect(self.actionCloseProj, QtCore.SIGNAL('triggered(bool)'), self.closeCurrent)
         self.connect(self.actionEditMeta, QtCore.SIGNAL('triggered(bool)'), self.edit_metadata)
+        self.connect(self.actionAddFile, QtCore.SIGNAL('triggered(bool)'), self.add_file_to_project)
 
         self._actions = [["Project", "Manage Project", self.actionNewProj, 1],
                          ["Project", "Manage Project", self.actionOpenProj, 0],
@@ -69,6 +71,7 @@ class ProjectManagerWidget(QtGui.QWidget):
                          ["Project", "Manage Project", self.actionSaveProjAs, 1],
                          ["Project", "Manage Project", self.actionCloseProj, 1],
                          ["Project", "Manage Project", self.actionEditMeta, 1],
+                         ["Project", "Manage Project", self.actionAddFile, 1],
                          ]
 
 
@@ -165,6 +168,23 @@ You can rename/move this project thanks to the button "Save As" in menu.
     def metadata_edited(self, proj):
         self.session._project.metadata = proj.metadata
         return self.session._project
+
+    def add_file_to_project(self):
+        """
+        Add an opened file to the current project (in source for the moment).
+
+        :todo: propose to the user where to add it (not only in source)
+        """
+        ## TODO: check if it works
+        text = self.controller.applet_container.currentWidget().get_text()
+        index = self.controller.applet_container.currentIndex()
+        filename = self.controller.applet_container.tabText(index)
+        filename = path(filename).splitpath()[-1]
+        self.controller.applet_container.setTabText(index, filename)
+        self.session._project.add(category="src", name=filename, value=text)
+
+        self.controller.update_namespace()
+        self._tree_view_change()
 
     def renameCurrent(self, new_name=None):
         """
