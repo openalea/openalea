@@ -57,12 +57,14 @@ class ProjectManagerWidget(QtGui.QWidget):
         self.actionSaveProjAs = QtGui.QAction(QtGui.QIcon(":/images/resources/save.png"), "Save As", self)
         # self.actionSaveProj.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
         self.actionCloseProj = QtGui.QAction(QtGui.QIcon(":/images/resources/closeButton.png"), "Close All", self)
+        self.actionEditMeta = QtGui.QAction(QtGui.QIcon(":/images/resources/book.png"), "Edit Metadata", self)
 
         self.connect(self.actionNewProj, QtCore.SIGNAL('triggered(bool)'), self.new)
         self.connect(self.actionOpenProj, QtCore.SIGNAL('triggered(bool)'), self.open)
         self.connect(self.actionSaveProjAs, QtCore.SIGNAL('triggered(bool)'), self.saveAs)
         self.connect(self.actionSaveProj, QtCore.SIGNAL('triggered(bool)'), self.saveCurrent)
         self.connect(self.actionCloseProj, QtCore.SIGNAL('triggered(bool)'), self.closeCurrent)
+        self.connect(self.actionEditMeta, QtCore.SIGNAL('triggered(bool)'), self.edit_metadata)
 
         # self.connect(self.actionImportFile, QtCore.SIGNAL('triggered(bool)'), self.importFile)
         # self.connect(self.actionEditFile, QtCore.SIGNAL('triggered(bool)'), self.editFile)
@@ -72,6 +74,7 @@ class ProjectManagerWidget(QtGui.QWidget):
                          ["Project", "Manage Project", self.actionSaveProj, 0],
                          ["Project", "Manage Project", self.actionSaveProjAs, 1],
                          ["Project", "Manage Project", self.actionCloseProj, 1],
+                         ["Project", "Manage Project", self.actionEditMeta, 1],
                          # ["Model", "New Model", self.actionEditFile, 0],
                          # ["Model", "New Model", self.actionImportFile, 0]
                          ]
@@ -245,7 +248,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         """
         self.project_creator = CreateProjectWidget()
         self.project_creator.show()
-        self.connect(self.project_creator, QtCore.SIGNAL('ProjectOpened(PyQt_PyObject)'), self.openProject)
+        self.connect(self.project_creator, QtCore.SIGNAL('ProjectMetadataSet(PyQt_PyObject)'), self.openProject)
 
     # def newModel(self, applet_type=None, tab_name=None, script=""):
     #     """
@@ -302,6 +305,16 @@ You can rename/move this project thanks to the button "Save As" in menu.
     #     else:
     #         print "You are not working inside project. Please create or load one first."
 
+
+    def edit_metadata(self):
+        self.project_creator = CreateProjectWidget(self.session._project)
+        self.project_creator.show()
+        self.connect(self.project_creator, QtCore.SIGNAL('ProjectMetadataSet(PyQt_PyObject)'), self.metadata_edited)
+
+    def metadata_edited(self, proj):
+        self.session._project.metadata = proj.metadata
+        return self.session._project
+
     def renameCurrent(self, new_name=None):
         """
         Rename current project.
@@ -342,7 +355,9 @@ You can rename/move this project thanks to the button "Save As" in menu.
             for i in range(container.count()):
                 container.setCurrentIndex(i)
                 name = container.tabText(i)
-                container.widget(i).save(name)
+                wid = container.widget(i)
+                if hasattr(wid, "save"):
+                    wid.save(name)
             self._update_control()
             self.session.project.save()
             self._project_changed()

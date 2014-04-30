@@ -98,8 +98,8 @@ class ProjectTreeView(QtGui.QTreeView):
         self.setHeaderHidden(True)
         self.setModel(self.proj_model)
 
-        self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-        QtCore.QObject.connect(self,QtCore.SIGNAL('customContextMenuRequested(const QPoint&)'),self.showMenu)
+        # self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        # QtCore.QObject.connect(self,QtCore.SIGNAL('customContextMenuRequested(const QPoint&)'),self.showMenu)
         
     def update(self):
         self.reinit_treeview()
