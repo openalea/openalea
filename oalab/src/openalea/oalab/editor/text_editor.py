@@ -198,7 +198,7 @@ class TextEditor(QtGui.QTextEdit):
 
         txt = self.get_text()
 
-        if self.session.current_is_project():
+        if self.session.project:
             if name is not None:
                 self.name = name
             if self.name is None:
@@ -210,6 +210,18 @@ class TextEditor(QtGui.QTextEdit):
                 project._save("src")
                 self.controller.applet_container.setAllTabBlack()
                 logger.debug("Try to save script in project")
+        else:
+            if name:
+                self.name = name
+            if not self.name:
+                self.name = QtGui.QFileDialog.getSaveFileName(self, 'Select name to save the file', ".")
+            if self.name is not None:
+                f = open(self.name, "w")
+                code = str(txt).encode("utf8","ignore")
+                f.write(code)
+                f.close()
+                self.controller.applet_container.setTabBlack()
+                logger.debug("Try to save file in " + str(self.name))
 
     def keyPressEvent(self, event):
         # Auto-indent

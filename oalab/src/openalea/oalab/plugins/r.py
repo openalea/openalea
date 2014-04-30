@@ -67,8 +67,6 @@ more informations: http://www.r-project.org/
             if self.controller.applets.has_key('HelpWidget'):
                 self.controller.applets['HelpWidget'].setText(txt)
 
-        self.controller.applets['HelpWidget'].setText(txt)
-        
     def widget(self):
         """
         :return: the edition widget
