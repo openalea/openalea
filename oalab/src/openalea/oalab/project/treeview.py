@@ -98,8 +98,8 @@ class ProjectTreeView(QtGui.QTreeView):
         self.setHeaderHidden(True)
         self.setModel(self.proj_model)
 
-        # self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-        # QtCore.QObject.connect(self,QtCore.SIGNAL('customContextMenuRequested(const QPoint&)'),self.showMenu)
+        self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        QtCore.QObject.connect(self,QtCore.SIGNAL('customContextMenuRequested(const QPoint&)'),self.showMenu)
         
     def update(self):
         self.reinit_treeview()
@@ -117,26 +117,48 @@ class ProjectTreeView(QtGui.QTreeView):
     def create_menu(self):
         menu = QtGui.QMenu(self)
 
-        for applet in self.controller.applet_container.paradigms.values():
-            action = QtGui.QAction('New %s Model'%applet.default_name,self)
-            action.triggered.connect(self.controller.project_manager.newModel)
-            menu.addAction(action)  
-        menu.addSeparator()
-        # editAction = QtGui.QAction('Edit Model',self)
-        # editAction.triggered.connect(self.controller.project_manager.editFile)
-        # menu.addAction(editAction)
-        importAction = QtGui.QAction('Import Model',self)
-        importAction.triggered.connect(self.controller.project_manager.importFile)
-        menu.addAction(importAction)
-        #removeAction = QtGui.QAction('Remove Model',self)
-        #removeAction.triggered.connect(self.controller.project_manager.removeModel)
-        #menu.addAction(removeAction)
-        menu.addSeparator()
-        renameAction = QtGui.QAction('Rename Project',self)
-        renameAction.triggered.connect(self.controller.project_manager.renameCurrent)
-        menu.addAction(renameAction)  
-        
+        if self.controller.applet_container:
+            for applet in self.controller.applet_container.paradigms.values():
+                action = QtGui.QAction('New %s'%applet.default_name, self)
+                action.triggered.connect(self.controller.applet_container.new_file)
+                menu.addAction(action)
+            menu.addSeparator()
+
+            # If a file is selected
+            # Permit to open it
+            if self.project:
+                item = self.getItem()
+                if self.hasParent():
+                    if item.parent().parent():
+                        editAction = QtGui.QAction('Open File',self)
+                        editAction.triggered.connect(self.open_file)
+                        menu.addAction(editAction)
+                        menu.addSeparator()
+
+        if self.controller.project_manager:
+            editMetadataAction = QtGui.QAction('Edit/Show Metadata',self)
+            editMetadataAction.triggered.connect(self.controller.project_manager.edit_metadata)
+            menu.addAction(editMetadataAction)
+            menu.addSeparator()
+
+
+            # importAction = QtGui.QAction('Import Model',self)
+            # importAction.triggered.connect(self.controller.applet_container.importFile)
+            # menu.addAction(importAction)
+            #removeAction = QtGui.QAction('Remove Model',self)
+            #removeAction.triggered.connect(self.controller.project_manager.removeModel)
+            #menu.addAction(removeAction)
+            # menu.addSeparator()
+            # renameAction = QtGui.QAction('Rename Project',self)
+            # renameAction.triggered.connect(self.controller.applet_container.renameCurrent)
+            # menu.addAction(renameAction)
         return menu
+
+    def open_file(self):
+        item = self.getItem()
+        filename = path(self.project.path)/self.project.name/item.parent().text()/item.text()
+        self.controller.applet_container.open_file(filename=filename)
+
 
     def showMenu(self, event):
         """ function defining actions to do according to the menu's button chosen"""
@@ -148,13 +170,22 @@ class ProjectTreeView(QtGui.QTreeView):
         return self.selectionModel().hasSelection()
         
     def hasParent(self):
+        return bool(self.getParent())
+
+    def getParent(self):
+        if self.hasSelection():
+            item = self.getItem()
+            if item:
+                parent = item.parent()
+                return parent
+        return None
+
+    def getItem(self):
         if self.hasSelection():
             index = self.selectedIndexes()[0]
             item = index.model().itemFromIndex(index)
-            parent = item.parent()
-            return bool(parent)
-        else:
-            return False
+            return item
+        return None
 
     def mainMenu(self):
         """
