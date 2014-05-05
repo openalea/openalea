@@ -79,6 +79,35 @@ class MainWindow(QtGui.QMainWindow):
 
         self.applets = self._plugins = {}
 
+    def add_action_to_existing_menu(self, action, menu_name, sub_menu_name):
+        """
+        Permit to add in a classic menubar the action action int the menu menu_name in the sub_menu sub_menu_name
+        """
+        menubar = self.menuBar()
+        children = menubar.findChildren(QtGui.QMenu)
+        menu = None
+        submenu = None
+
+        for child in children:
+            if child.title() == menu_name:
+                menu = child
+                break
+        if not menu:
+            menu = menubar.addMenu(menu_name)
+
+        # warning: if a submenu and a menu have the same name, it will not work
+        # todo: find another way that just "findchildren" to get the menus
+        children = menubar.findChildren(QtGui.QMenu)
+        for child in children:
+            if child.title() == sub_menu_name:
+                submenu = child
+                break
+        if not submenu:
+            submenu = menu.addMenu(sub_menu_name)
+        submenu.addAction(action)
+
+        self.setMenuBar(menubar)
+
     def add_applet(self, applet, name, area=None):
         if area in self.areas:
             self.areas[area].addTab(applet, name)
