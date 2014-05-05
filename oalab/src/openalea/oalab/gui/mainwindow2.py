@@ -55,8 +55,11 @@ class MainWindow(QtGui.QMainWindow):
         dock_menu = self.dockWidget("Menu", self.menu, position=QtCore.Qt.TopDockWidgetArea)
         dock_menu.setFeatures(QtGui.QDockWidget.NoDockWidgetFeatures)
         dock_menu.setContentsMargins(0, 0, 0, 0)
-        widget = QtGui.QLabel('Menu')
-        dock_menu.setTitleBarWidget(widget)
+        # widget = QtGui.QLabel('Menu')
+        # dock_menu.setTitleBarWidget(widget)
+        # Remove title bar
+        dock_menu.setTitleBarWidget(QtGui.QWidget())
+
         size_policy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Maximum)
         dock_menu.setSizePolicy(size_policy)
 
@@ -96,6 +99,9 @@ class MainWindow(QtGui.QMainWindow):
         dock_widget.setObjectName("%sPanel" % identifier)
         dock_widget.setAllowedAreas(allowed_area)
         dock_widget.setWidget(widget)
+
+        # Remove title bar
+        dock_widget.setTitleBarWidget(QtGui.QWidget())
 
         self.addDockWidget(position, dock_widget)
 
