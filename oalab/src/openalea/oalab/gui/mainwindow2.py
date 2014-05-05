@@ -51,6 +51,7 @@ class MainWindow(QtGui.QMainWindow):
         self.setCentralWidget(self.split)
 
         # PanedMenu
+        self.setMenuBar(QtGui.QMenuBar())
         self.menu = PanedMenu()
         dock_menu = self.dockWidget("Menu", self.menu, position=QtCore.Qt.TopDockWidgetArea)
         dock_menu.setFeatures(QtGui.QDockWidget.NoDockWidgetFeatures)
