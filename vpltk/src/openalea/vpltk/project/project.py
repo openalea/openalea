@@ -27,7 +27,7 @@ stored in your computer.
     oaproject.cfg        (Configuration file)
     /src          (Files sources, Script Python, LPy...)
     /control       (Control, like color map or curve)
-    /scene          (scene, scene 3D)
+    /world          (scene, scene 3D)
     /cache          (Intermediary saved objects)
     /data           (Data files like images, .dat, ...)
     /startup          (Preprocessing scripts)
@@ -84,7 +84,7 @@ class Project(object):
             "control": dict(),
             "cache": dict(),
             "data": dict(),
-            "scene": dict(),
+            "world": dict(),
             "startup": dict(),
             "doc": dict()
         }
@@ -172,7 +172,7 @@ class Project(object):
         """
         Add an object in the project
         
-        :param category: *type* of object to add ("src", "control", "scene", ...)
+        :param category: *type* of object to add ("src", "control", "world", ...)
         :param name: filename of the object to add (path or str)
         :param value: to add (string)
 
@@ -189,7 +189,7 @@ class Project(object):
         
         Remove nothing on disk.
         
-        :param category: category of object to remove ("src", "control", "scene", ...) (str)
+        :param category: category of object to remove ("src", "control", "world", ...) (str)
         :param name: filename of the src to remove (path or str)
         """
         category = str(category)
@@ -202,10 +202,10 @@ class Project(object):
 
     def rename(self, category, old_name, new_name):
         """
-        Rename a src, a scene or a control in the project.
+        Rename a src, a world or a control in the project.
         If category is project, rename the entire project.
         
-        :param category: Can be "src", "control", "scene" or "project" (str)
+        :param category: Can be "src", "control", "world" or "project" (str)
         :param old_name: current name of thing to rename (str)
         :param new_name: future name of thing to rename (str)
         """
@@ -351,7 +351,7 @@ class Project(object):
                 Loader = get_loader("GenericLoader")
                 if object_type == "control":
                     Loader = get_loader("CPickleLoader")
-                if object_type == "scene":
+                if object_type == "world":
                     Loader = get_loader("BGEOMLoader")
                 loader = Loader()
                 result = loader.load(pathname)
@@ -383,7 +383,7 @@ class Project(object):
                 if sub_object.isabs():
                     # Permit to save object outside project
                     filename = sub_object
-                if object_type == "scene":
+                if object_type == "world":
                     # Save PlantGL objects
                     Saver = get_saver("BGEOMSaver")
                 elif object_type == "control":
@@ -450,9 +450,15 @@ class Project(object):
 
     def get_scene(self):
         """
-        :return: self.scene (dict)
+        :return: self.world (dict)
         """
-        return self.scene
+        return self.get_world()
+
+    def get_world(self):
+        """
+        :return: self.world (dict)
+        """
+        return self.world
 
     def is_project(self):
         """
@@ -594,11 +600,19 @@ class Project(object):
 
     @property
     def scene(self):
-        return self.files["scene"]
+        return self.files["world"]
 
     @scene.setter
     def scene(self, value):
-        self.files["scene"] = value
+        self.files["world"] = value
+
+    @property
+    def world(self):
+        return self.files["world"]
+
+    @world.setter
+    def world(self, value):
+        self.files["world"] = value
 
     @property
     def startup(self):
