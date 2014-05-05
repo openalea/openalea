@@ -114,13 +114,13 @@ class AppletContainer(QtGui.QTabWidget):
                          ["Simulation", "Play",self.actionStep,0],
                          ["Simulation", "Play",self.actionStop,0],
                          ["Simulation", "Play",self.actionInit,0],
-                         ["File", "Text Edit",self.actionUndo,1],
-                         ["File", "Text Edit",self.actionRedo,1],
-                         ["File", "Text Edit",self.actionSearch,1],
-                         ["File", "Text Edit",self.actionGoto,1],
-                         ["File", "Text Edit",self.actionComment,1],
-                         ["File", "Text Edit",self.actionUnComment,1],
-                         ["File", "Text Edit",self.actionRunSelection,0]]
+                         ["Edit", "Text Edit",self.actionUndo,1],
+                         ["Edit", "Text Edit",self.actionRedo,1],
+                         ["Edit", "Text Edit",self.actionSearch,1],
+                         ["Edit", "Text Edit",self.actionGoto,1],
+                         ["Edit", "Text Edit",self.actionComment,1],
+                         ["Edit", "Text Edit",self.actionUnComment,1],
+                         ["Edit", "Text Edit",self.actionRunSelection,0]]
                                     
         QtCore.QObject.connect(self, QtCore.SIGNAL('tabCloseRequested(int)'), self.autoClose)
 
