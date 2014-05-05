@@ -107,20 +107,20 @@ class AppletContainer(QtGui.QTabWidget):
         
         self.actionStop.setEnabled(False)
         
-        self._actions = [["Files", "Manage", self.actionOpenFile, 0],
-                         ["Files", "Manage",self.actionSave,0],
+        self._actions = [["File", "Manage", self.actionOpenFile, 0],
+                         ["File", "Manage",self.actionSave,0],
                          ["Simulation", "Play",self.actionRun,0],
                          ["Simulation", "Play",self.actionAnimate,0],
                          ["Simulation", "Play",self.actionStep,0],
                          ["Simulation", "Play",self.actionStop,0],
                          ["Simulation", "Play",self.actionInit,0],
-                         ["Files", "Text Edit",self.actionUndo,1],
-                         ["Files", "Text Edit",self.actionRedo,1],
-                         ["Files", "Text Edit",self.actionSearch,1],
-                         ["Files", "Text Edit",self.actionGoto,1],
-                         ["Files", "Text Edit",self.actionComment,1],
-                         ["Files", "Text Edit",self.actionUnComment,1],
-                         ["Files", "Text Edit",self.actionRunSelection,0]]
+                         ["File", "Text Edit",self.actionUndo,1],
+                         ["File", "Text Edit",self.actionRedo,1],
+                         ["File", "Text Edit",self.actionSearch,1],
+                         ["File", "Text Edit",self.actionGoto,1],
+                         ["File", "Text Edit",self.actionComment,1],
+                         ["File", "Text Edit",self.actionUnComment,1],
+                         ["File", "Text Edit",self.actionRunSelection,0]]
                                     
         QtCore.QObject.connect(self, QtCore.SIGNAL('tabCloseRequested(int)'), self.autoClose)
 
@@ -201,7 +201,7 @@ class AppletContainer(QtGui.QTabWidget):
             action = QtGui.QAction(QtGui.QIcon(applet.icon), "New " + applet.default_name, self)
             action.triggered.connect(self.new_file)
             self.paradigms_actions.append(action)
-            self._actions.append(["Files", "Manage", action, 0],)
+            self._actions.append(["File", "Manage", action, 0],)
             self.extensions = self.extensions + applet.pattern + " "
 
     def setTabRed(self, index=None):
