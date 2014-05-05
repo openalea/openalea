@@ -235,7 +235,7 @@ class PrjctModel(QtGui.QStandardItemModel):
         
         self.old_models = list()
         self.old_control = list()
-        self.old_scene = list()
+        self.old_world = list()
         
         self.proj = None
         self.set_proj(project)      
@@ -273,9 +273,9 @@ class PrjctModel(QtGui.QStandardItemModel):
                             if i not in self.old_control:
                                 self.proj.rename(category=parent.text(), old_name=i, new_name= item.text())
 
-                    if parent.text() == "Scene":
+                    if parent.text() == "World":
                         for i in children:
-                            if i not in self.old_scene:
+                            if i not in self.old_world:
                                 self.proj.rename(category=parent.text(), old_name=i, new_name= item.text())
                                 
                     # Save project
@@ -295,7 +295,7 @@ class PrjctModel(QtGui.QStandardItemModel):
         icon_project = QtGui.QIcon(":/images/resources/openalea_icon2.png")
         icon_src = QtGui.QIcon(":/images/resources/filenew.png")
         icon_control = QtGui.QIcon(":/images/resources/node.png")
-        icon_scene = QtGui.QIcon(":/images/resources/plant.png")
+        icon_world = QtGui.QIcon(":/images/resources/plant.png")
         icon_startup = QtGui.QIcon(":/images/resources/editredo.png")
         icon_data = QtGui.QIcon(":/images/resources/fileopen.png")
         icon_doc = QtGui.QIcon(":/images/resources/book.png")
@@ -392,7 +392,7 @@ class PrjctManagerModel(QtGui.QStandardItemModel):
         icon_project = QtGui.QIcon(":/images/resources/openalea_icon2.png")
         icon_src = QtGui.QIcon(":/images/resources/filenew.png")
         icon_control = QtGui.QIcon(":/images/resources/node.png")
-        icon_scene = QtGui.QIcon(":/images/resources/plant.png")
+        icon_world = QtGui.QIcon(":/images/resources/plant.png")
         icon_startup = QtGui.QIcon(":/images/resources/editredo.png")
         icon_data = QtGui.QIcon(":/images/resources/fileopen.png")
         icon_doc = QtGui.QIcon(":/images/resources/book.png")
