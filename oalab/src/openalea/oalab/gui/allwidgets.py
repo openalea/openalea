@@ -68,7 +68,7 @@ class AllWidgets(QtGui.QWidget):
 
     def update_namespace(self):
         self.session.interpreter.locals['project'] = self.session.project
-        self.session.interpreter.locals['scene'] = self.session.scene
+        self.session.interpreter.locals['world'] = self.session.world
 
         try:
             self.session.interpreter.locals['control'] = self.session.project.control

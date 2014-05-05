@@ -7,7 +7,7 @@ import numpy as np
 from random import sample
 
 name = "mangotree"
-tree = scene[name]
+tree = world[name]
 
 iter = 0
 nb_step = 20
@@ -39,7 +39,7 @@ def duplicate(plant, nb_plants=nb_step, nx=10, ny=10):
   pts = sample([(dXmin+i*x_step/2., dYmin+j*y_step/2.,0 ) for i in range(nx) for j in range(ny)], nb_plants)
     """
   for k,pt in enumerate(pts):
-    scene['%s_%d'%(name,(k+iter))] = Scene([Shape(Translated(pt,sh.geometry),sh.appearance) for sh in tree])
+    world['%s_%d'%(name,(k+iter))] = Scene([Shape(Translated(pt,sh.geometry),sh.appearance) for sh in tree])
 
 def step():
   global iter, nb_step
@@ -60,15 +60,15 @@ def animate():
 def init():
   global iter
   iter = 0
-  scene.block()
-  for plant_name in scene:
+  world.block()
+  for plant_name in world:
     if plant_name[-1].isdigit():
-      del scene[plant_name]
-  scene.release()
+      del world[plant_name]
+  world.release()
 
 def run():
-  scene.block()
+  world.block()
   animate()
-  scene.release()
+  world.release()
   
 run()

@@ -141,7 +141,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         project.start()
         logger.debug("Project " + str(project) + " opened")
 
-        project.scene = self.session.scene
+        project.world = self.session.world
         self.session._project = project
         self.session._is_proj = True
         self._project_changed()
@@ -340,10 +340,10 @@ You can rename/move this project thanks to the button "Save As" in menu.
     def _scene_change(self):
         logger.debug("Scene changed")
         if self.session.current_is_project():
-            self.session.scene.reset()
+            self.session.world.reset()
             project = self.session.project
-            for w in project.scene:
-                self.session.scene.add(name=w, obj=project.scene[w])
+            for w in project.world:
+                self.session.world.add(name=w, obj=project.world[w])
 
 
 def showNewProjectDialog(default_name=None, text=None, parent=None):

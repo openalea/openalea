@@ -123,7 +123,8 @@ class MainWindow(QtGui.QMainWindow):
         Definition: Update namespace
         """
         self.session.interpreter.locals['project'] = self.session.project
-        self.session.interpreter.locals['scene'] = self.session.scene
+        self.session.interpreter.locals['scene'] = self.session.world
+        self.session.interpreter.locals['world'] = self.session.world
 
     def get_project_manager(self):
         if 'ProjectManager' in self._plugins:

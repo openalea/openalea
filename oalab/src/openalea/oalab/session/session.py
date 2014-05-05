@@ -42,7 +42,7 @@ class Session(object):
         
         self.project_manager = ProjectManager()
         
-        self.scene = VPLScene()
+        self.world = VPLScene()
 
         interpreter_class = get_interpreter_class()
         self.interpreter = interpreter_class() 

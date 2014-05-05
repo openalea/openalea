@@ -9,7 +9,7 @@ g = MTG(data/'noylum2.mtg')
 dressing_data = dresser.DressingData(DiameterUnit=10)
 pf = PlantFrame(g,TopDiameter='TopDia',DressingData = dressing_data)
 
-scene['lpy_scene'] = pf.plot(gc=True, display=False)
+world['lpy_scene'] = pf.plot(gc=True, display=False)
 
 def init():
-  del scene['lpy_scene']
+  del world['lpy_scene']
