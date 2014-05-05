@@ -53,6 +53,15 @@ class MainWindow(QtGui.QMainWindow):
         # PanedMenu
         self.setMenuBar(QtGui.QMenuBar())
         self.menu = PanedMenu()
+
+        # Organize order of tabs
+        self.menu.addSpecialTab("File")
+        self.menu.addSpecialTab("Edit")
+        self.menu.addSpecialTab("Project")
+        self.menu.addSpecialTab("Simulation")
+        self.menu.addSpecialTab("3D Viewer")
+        self.menu.addSpecialTab("Help")
+
         dock_menu = self.dockWidget("Menu", self.menu, position=QtCore.Qt.TopDockWidgetArea)
         dock_menu.setFeatures(QtGui.QDockWidget.NoDockWidgetFeatures)
         dock_menu.setContentsMargins(0, 0, 0, 0)
