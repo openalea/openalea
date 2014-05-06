@@ -261,7 +261,7 @@ class MainWindow(QtGui.QMainWindow):
         dock_menu.setFeatures(QtGui.QDockWidget.NoDockWidgetFeatures)
 
         # Docks
-        self._dockWidget("Viewer3D", controller.applets["Viewer3D"], name="3D Viewer", position=QtCore.Qt.RightDockWidgetArea)
+        self._dockWidget("Viewer3D", controller.applets["Viewer3D"], name="Viewer", position=QtCore.Qt.RightDockWidgetArea)
         # self._dockWidget("Store", controller.applets["Store"], name="OpenAlea Store", position=QtCore.Qt.RightDockWidgetArea)
 
         self._dockWidget("HelpWidget", controller.applets["HelpWidget"], position=QtCore.Qt.RightDockWidgetArea, alias="Help")

@@ -4,7 +4,7 @@ from openalea.oalab.applets.plugin import PluginApplet
 class Viewer3D(PluginApplet):
 
     name = 'Viewer3D'
-    alias = 'World Viewer'
+    alias = 'Viewer'
 
     def __call__(self, mainwindow):
         # Load and instantiate graphical component that actually provide feature
