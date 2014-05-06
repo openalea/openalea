@@ -50,8 +50,17 @@ class MainWindow(QtGui.QMainWindow):
         self.split = QtGui.QSplitter()
         self.setCentralWidget(self.split)
 
+        # Classic menu
+        menubar = QtGui.QMenuBar()
+        menubar.addMenu("File")
+        menubar.addMenu("Edit")
+        menubar.addMenu("Project")
+        menubar.addMenu("Simulation")
+        menubar.addMenu("Viewer")
+        menubar.addMenu("Help")
+        self.setMenuBar(menubar)
+
         # PanedMenu
-        self.setMenuBar(QtGui.QMenuBar())
         self.menu = PanedMenu()
 
         # Organize order of tabs
@@ -59,7 +68,7 @@ class MainWindow(QtGui.QMainWindow):
         self.menu.addSpecialTab("Edit")
         self.menu.addSpecialTab("Project")
         self.menu.addSpecialTab("Simulation")
-        self.menu.addSpecialTab("3D Viewer")
+        self.menu.addSpecialTab("Viewer")
         self.menu.addSpecialTab("Help")
 
         dock_menu = self.dockWidget("Menu", self.menu, position=QtCore.Qt.TopDockWidgetArea)
@@ -95,6 +104,10 @@ class MainWindow(QtGui.QMainWindow):
         if not menu:
             menu = menubar.addMenu(menu_name)
 
+        menu.addAction(action)
+        """
+        ### This part is used if you want to set menu and submenus
+
         # warning: if a submenu and a menu have the same name, it will not work
         # todo: find another way that just "findchildren" to get the menus
         children = menubar.findChildren(QtGui.QMenu)
@@ -104,7 +117,7 @@ class MainWindow(QtGui.QMainWindow):
                 break
         if not submenu:
             submenu = menu.addMenu(sub_menu_name)
-        submenu.addAction(action)
+        submenu.addAction(action)"""
 
         self.setMenuBar(menubar)
 
