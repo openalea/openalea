@@ -18,48 +18,55 @@
 
 
 class Model(object):
-    def __init__(self, code="", inputs=[], outputs=[]):
+    default_name = ""
+    default_file_name = ""
+    pattern = ""
+    extension = ""
+    icon = ""
+    def __init__(self, name, code="", inputs=[], outputs=[]):
         """
-        :param code: code of the model, can be a string or whatever object
+        :param name: name of the model (name of the file?)
+        :param code: code of the model, can be a string or an other object
         :param inputs: list of identifier of inputs that come from outside model (from world for example)
         :param outputs: list of objects to return outside model (to world for example)
         """
         # TODO: how to manage time?
+        self.name = name
         self.code = code
         self.inputs = inputs
         self.outputs = outputs
 
-    def get_code(self):
+    def repr_code(self):
         """
-        :return: a string representation of model to save it
+        :return: a string representation of model to save it on disk
         """
         pass
 
-    def run(self):
+    def run(self, interpreter):
         """
         execute model
         """
         pass
 
-    def reset(self):
+    def reset(self, interpreter):
         """
-        go back to intial step
+        go back to initial step
         """
         pass
 
-    def step(self):
+    def step(self, interpreter):
         """
         execute only one step of the model
         """
         pass
 
-    def stop(self):
+    def stop(self, interpreter):
         """
         stop execution
         """
         pass
 
-    def animate(self):
+    def animate(self, interpreter):
         """
         run model step by step
         """
