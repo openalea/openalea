@@ -19,7 +19,7 @@
 ###############################################################################
 __revision__ = "$Id : "
 
-DEBUG =False
+DEBUG = False
 
 import types
 import sys
@@ -29,6 +29,7 @@ from openalea.visualea.graph_operator import GraphOperator
 from openalea.visualea import dataflowview
 from openalea.core.compositenode import CompositeNodeFactory
 from openalea.plantgl.wralea.visualization import viewernode
+
 
 def repr_workflow(self, name=None):
     """
@@ -58,6 +59,7 @@ def actions(self):
     """
     return self._actions    
 
+
 def save(self, name=None):
     """
     Save Current workflow
@@ -86,12 +88,14 @@ def save(self, name=None):
         f.write(code)
         f.close()
 
+
 def mainMenu(self):
     """
     :return: Name of menu tab to automatically set current when current widget
     begin current.
     """
     return "Simulation"
+
 
 class VisualeaApplet(object):
     default_name = "Workflow"
@@ -238,4 +242,3 @@ def adapt_widget(widget, methods):
     for m in method_list:
         widget.__setattr__(m, types.MethodType(methods[m], widget))
     return widget
-    

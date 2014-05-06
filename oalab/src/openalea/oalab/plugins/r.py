@@ -21,7 +21,8 @@ __revision__ = ""
 
 from openalea.oalab.editor.text_editor import RichTextEditor as Editor
 from openalea.oalab.editor.highlight import Highlighter
-    
+
+
 class RApplet(object):
     default_name = "R"
     default_file_name = "script.r"

@@ -23,6 +23,7 @@ class Model(object):
     pattern = ""
     extension = ""
     icon = ""
+    
     def __init__(self, name, code="", inputs=[], outputs=[]):
         """
         :param name: name of the model (name of the file?)

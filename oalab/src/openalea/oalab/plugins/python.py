@@ -21,8 +21,8 @@ __revision__ = ""
 
 from openalea.oalab.editor.text_editor import RichTextEditor as Editor
 from openalea.oalab.editor.highlight import Highlighter
-from openalea.vpltk.qt import QtCore
-    
+
+
 class PythonApplet(object):
     default_name = "Python"
     default_file_name = "script.py"
