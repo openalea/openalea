@@ -53,7 +53,7 @@ check_rc_generation('resources.qrc')
 size_policy_small = QtGui.QSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Maximum)
 
 big_btn_size = QtCore.QSize(25, 25)
-small_btn_size = QtCore.QSize(100, 16)
+small_btn_size = QtCore.QSize(120, 16)
 big_icon_size = QtCore.QSize(24, 24)
 small_icon_size = QtCore.QSize(16, 16)
 
