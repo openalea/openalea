@@ -109,6 +109,7 @@ setup(
             'Logger = openalea.oalab.plugins.applets.logger:Logger',
             'ProjectWidget = openalea.oalab.plugins.applets.projectwidget:ProjectWidget',
             'Store = openalea.oalab.plugins.applets.store:Store',
+            'FileBrowser = openalea.oalab.plugins.applets.filebrowser:FileBrowser',
             ],
         'oalab.lab': [
             'TissueLab = openalea.oalab.plugins.labs.tissuelab:TissueLab',
