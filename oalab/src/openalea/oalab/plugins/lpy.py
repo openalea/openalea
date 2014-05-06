@@ -30,6 +30,7 @@ from openalea.lpy.gui.objectmanagers import get_managers
 from openalea.lpy.gui.scalar import ProduceScalar
 from openalea.core import logger
 
+
 def get_default_text():
     return """Axiom:
 
@@ -41,6 +42,7 @@ interpretation:
 
 endlsystem
 """
+
 
 def import_lpy_file(script):
     """
@@ -110,6 +112,7 @@ def import_lpy_file(script):
                 control[new_name] = new_obj
 
         return new_script, control
+
 
 class LPyApplet(object):
     default_name = "LSystem"
