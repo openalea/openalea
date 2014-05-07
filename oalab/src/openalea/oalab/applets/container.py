@@ -54,6 +54,7 @@ class AppletContainer(QtGui.QTabWidget):
         self.actionOpenFile = QtGui.QAction(QtGui.QIcon(":/images/resources/open.png"), "Open file", self)
 
         self.actionSave = QtGui.QAction(QtGui.QIcon(":/images/resources/save.png"),"Save File", self)
+        self.actionSaveAs = QtGui.QAction(QtGui.QIcon(":/images/resources/save.png"),"Save As", self)
         self.actionRun = QtGui.QAction(QtGui.QIcon(":/images/resources/run.png"),"Run", self)
         self.actionAnimate = QtGui.QAction(QtGui.QIcon(":/images/resources/play.png"),"Animate", self)
         self.actionStep = QtGui.QAction(QtGui.QIcon(":/images/resources/step.png"),"Step", self)
@@ -90,6 +91,7 @@ class AppletContainer(QtGui.QTabWidget):
         QtCore.QObject.connect(self.actionOpenFile, QtCore.SIGNAL('triggered(bool)'),self.open_file)
 
         QtCore.QObject.connect(self.actionSave, QtCore.SIGNAL('triggered(bool)'),self.save)
+        QtCore.QObject.connect(self.actionSaveAs, QtCore.SIGNAL('triggered(bool)'),self.save_as)
         QtCore.QObject.connect(self.actionRun, QtCore.SIGNAL('triggered(bool)'),self.run)
         QtCore.QObject.connect(self.actionAnimate, QtCore.SIGNAL('triggered(bool)'),self.animate)
         QtCore.QObject.connect(self.actionStep, QtCore.SIGNAL('triggered(bool)'),self.step)
@@ -109,6 +111,7 @@ class AppletContainer(QtGui.QTabWidget):
         
         self._actions = [["File", "Manage", self.actionOpenFile, 0],
                          ["File", "Manage",self.actionSave,0],
+                         ["File", "Manage",self.actionSaveAs,1],
                          ["Simulation", "Play",self.actionRun,0],
                          ["Simulation", "Play",self.actionAnimate,0],
                          ["Simulation", "Play",self.actionStep,0],
@@ -355,7 +358,7 @@ class AppletContainer(QtGui.QTabWidget):
         """
         return "Simulation"     
     
-    def save(self,name=None):
+    def save(self, name=None):
         """
         Save current script
         """ 
@@ -363,6 +366,15 @@ class AppletContainer(QtGui.QTabWidget):
             name = self.tabText(self.currentIndex())
         logger.debug("Save model " + str(name))
         self.currentWidget().save(name=name)
+
+    def save_as(self):
+        """
+        Save current script as
+        """
+        filename = QtGui.QFileDialog.getSaveFileName(parent=self, caption="Save file as")
+        if filename:
+            self.setTabText(self.currentIndex(), filename)
+            self.currentWidget().save(name=filename)
     
     def save_all(self):
         """
