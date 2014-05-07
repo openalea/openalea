@@ -71,8 +71,7 @@ class ProjectManager(object):
         for path in self.find_links:
             for root, dirs, files in os.walk(path):
                 if "oaproject.cfg" in files:
-                    path = root
-                    path, name = path_(path).splitpath()
+                    path, name = path_(root).abspath().splitpath()
                     if not ((path in [proj.path for proj in self.projects]) and (
                         name in [proj.name for proj in self.projects])):
                         project = Project(name, path)
@@ -138,7 +137,6 @@ class ProjectManager(object):
             path = path_(settings.get_project_dir())
 
         self.cproject = Project(name, path)
-        self.cproject.create()
 
         return self.get_current()
 
@@ -213,7 +211,6 @@ def main():
     # Create or load project
     name = "project_test"
     proj = PM.load(name)
-    proj.shell = shellwdgt
 
     app.exec_()
 
