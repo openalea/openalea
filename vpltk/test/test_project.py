@@ -19,13 +19,11 @@ def test_load():
         assert hasattr(proj, category)
 
     for category in ["name", "icon", "author", "description", "version", "license", "dependencies"]:
-        assert proj.metadata.has_key(category)
+        assert category in proj.metadata
 
     assert len(proj.src.keys()) == 1
     assert len(proj.cache.keys()) == 4
     assert len(proj.startup.keys()) == 1
-
-    assert isinstance(proj.ns["radius"], int)
 
 
 def test_manifest():
@@ -50,14 +48,12 @@ def test_save_project():
     proj.control["my_float"] = 3.14
     proj.save()
 
-    assert len(proj.ns) == 0
     assert len(proj.src) == 1
     assert len(proj.control) == 2
 
     pm.close('my_new_temp_project')
     proj2 = pm.load('my_new_temp_project', path("data"))
 
-    assert len(proj2.ns) == 0
     assert len(proj2.src) == 1
     assert len(proj2.control) == 2
     assert proj2.control["my_integer"] == 42

@@ -89,11 +89,6 @@ class Project(object):
             "doc": dict()
         }
 
-        # Others
-        self._ns = dict()
-        self._shell = None
-        self._set_ipython()
-
     #----------------------------------------
     # Public API
     #----------------------------------------    
@@ -103,21 +98,25 @@ class Project(object):
 
         .. seealso:: :func:`start` :func:`load` :func:`load_manifest`
         """
+        warnings.warn("project.create() is deprecated. Please use project.start()")
         self.start()
 
-    def start(self):
+    def start(self, shell=None, namespace={}):
         """
         1. :func:`load` objects into project.
         2. Import startup.
         3. Run preprocessing.
+
+        :param shell: shell to run startup. Has to have the method "runcode(code)". Default, None.
+        :param namespace: dict used to run the sources. Default, empty dict.
 
         .. seealso:: :func:`load` :func:`load_manifest`
         """
         # Load in object
         self.load()
         # Load in shell
-        self._startup_import()
-        self._startup_run()
+        self._startup_import(shell, namespace)
+        self._startup_run(shell, namespace)
 
     def load(self):
         """
@@ -160,12 +159,8 @@ class Project(object):
         """
         if hasattr(self, category):
             cat = getattr(self, category)
-            if hasattr(cat, name):
+            if name in cat:
                 return cat[name]
-            elif hasattr(cat, "has_key"):
-                # if category is a dict
-                if cat.has_key(name):
-                    return cat[name]
         return None
 
     def add(self, category, name, value):
@@ -197,7 +192,7 @@ class Project(object):
 
         if hasattr(self, category):
             cat = getattr(self, category)
-            if cat.has_key(filename):
+            if filename in cat:
                 del cat[filename]
 
     def rename(self, category, old_name, new_name):
@@ -272,11 +267,11 @@ class Project(object):
         .. seealso:: :func:`save_manifest` :func:`load`
         """
         config = ConfigObj(self.path / self.name / self.config_file)
-        if config.has_key('metadata'):
+        if 'metadata' in config:
             for info in config["metadata"].keys():
                 setattr(self, info, config['metadata'][info])
 
-        if config.has_key('manifest'):
+        if 'manifest' in config:
             # Load file names in good place (dict.keys()) but don't load entire object:
             # ie. load keys but not values
             for files in config["manifest"].keys():
@@ -316,20 +311,24 @@ class Project(object):
         warnings.warn("project.remove_script(name) is deprecated. Please use project.remove('src', name) instead.")
         self.remove("src", name)
 
-    def run_src(self, name):
+    def run_src(self, name, namespace={}):
         """
         Try to run the source file named *name* into current shell
 
+        :param name: name of the source to run
+        :param namespace: dict used to run the sources. Default, empty dict.
         """
         src = self.get("src", name)
-        exec (src, self._ns)
+        exec(src, namespace)
 
     #----------------------------------------
     # Protected
     #---------------------------------------- 
-    def _load(self, object_type):
+    def _load(self, object_type, namespace={}):
         """
         Load files listed in self.object_type.keys()
+
+        :param namespace: dict used to run the sources. Default, empty dict.
         """
         object_type = str(object_type)
         return_object = dict()
@@ -360,7 +359,7 @@ class Project(object):
         # hack to add cache in namespace
         if object_type == "cache":
             for cache_name in return_object:
-                self._ns[cache_name] = eval(str(return_object[cache_name]), self._ns)
+                namespace[cache_name] = eval(str(return_object[cache_name]), namespace)
 
         return return_object
 
@@ -395,23 +394,33 @@ class Project(object):
         warnings.warn("project._save_scripts is deprecated. Please use project._save('src') instead.")
         self._save("src")
 
-    def _startup_import(self):
-        use_ip = self.use_ipython()
+    def _startup_import(self, shell=None, namespace={}):
+        """
+        :param shell: shell to run startup. Has to have the method "runcode(code)". Default, None.
+        :param namespace: dict used to run the sources. Default, empty dict.
+        """
+        if not shell:
+            shell = self.use_ipython()
 
         for s in self.startup:
             if s.find('import') != -1:
-                exec (self.startup[s], self._ns)
-                if use_ip:
-                    self._shell.runcode(self.startup[s])
+                exec (self.startup[s], namespace)
+                if shell:
+                    shell.runcode(self.startup[s])
 
-    def _startup_run(self):
-        use_ip = self.use_ipython()
+    def _startup_run(self, shell=None, namespace={}):
+        """
+        :param shell: shell to run startup. Has to have the method "runcode(code)". Default, None.
+        :param namespace: dict used to run the sources. Default, empty dict.
+        """
+        if not shell:
+            shell = self.use_ipython()
 
         for s in self.startup:
             if s.find('import') == -1:
-                exec (self.startup[s], self._ns)
-                if use_ip:
-                    self._shell.runcode(self.startup[s])
+                exec (self.startup[s], namespace)
+                if shell:
+                    shell.runcode(self.startup[s])
 
     def __repr__(self):
         txt = "Project named " + str(self.name) + " in path " + str(self.path) + """.
@@ -430,23 +439,18 @@ class Project(object):
 
         return txt
 
-    def _set_ipython(self, shell=None):
-        if not self.use_ipython():
-            try:
-                # Try to get automatically current IPython shell
-                shell = get_ipython()
-            except NameError:
-                shell = None
-        self._shell = shell
-
     def use_ipython(self):
         """
-        :return: True if project is instaciated with a shell IPython. Else, return False.
+        :return: the ipython shell if it exists. Else, return None.
         """
-        if self._shell == None:
-            return False
-        else:
-            return True
+        shell = None
+        try:
+            # Try to get automatically current IPython shell
+            shell = get_ipython()
+        except NameError:
+            pass
+
+        return shell
 
     def get_scene(self):
         """
@@ -471,10 +475,6 @@ class Project(object):
         :return: False
         """
         return False
-
-    @property
-    def ns(self):
-        return self._ns
 
     # Metadata
 

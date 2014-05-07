@@ -27,18 +27,18 @@ You can work directly on project:
     project1 = Project(name="mynewproj", path="/path/to/proj")
 
     project1.rename("project", "mynewproj", "hello_project")
-    project1.import()
+    project1.start()
     project1.authors = "OpenAlea Consortium and John Doe"
     project1.description = "Test project concept with numpy"
     project1.long_description = '''This project import numpy.
     Then, it create and display a numpy eye.
     We use it to test concept of Project.'''
 
-    project1.add(category="scripts", name"hello.py", value="print 'Hello World'")
+    project1.add(category="src", name"hello.py", value="print 'Hello World'")
     project1.description = "This project is used to said hello to everyone"
 
     project1.add("startup", "begin_numpy.py", "import numpy as np")
-    project1.add("scripts", "eye.py", "print np.eye(2)")
+    project1.add("src", "eye.py", "print np.eye(2)")
     project1.rename("scripts", "eye.py", "eye_numpy.py")
 
     project1.save()
@@ -64,7 +64,7 @@ Or, you can create or load a *project* thanks to the *project manager*.
     # Load
     project2 = project_manager.load("numpy_project")
     # Run startup
-    project2.import()
+    project2.start()
     # Run script
     project2.run_script("eye_numpy.py")
 
