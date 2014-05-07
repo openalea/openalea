@@ -20,10 +20,10 @@ The Project is a structure which permit to manage different objects.
 
 It store **metadata** (name, author, description, version, license, ...) and **data** (src, models, images, ...).
 
-You have here the default architecture of the project named "project_name",
+You have here the default architecture of the project named "name",
 stored in your computer.
 
-/project_name
+/name
     oaproject.cfg        (Configuration file)
     /src          (Files sources, Script Python, LPy...)
     /control       (Control, like color map or curve)
@@ -37,7 +37,7 @@ stored in your computer.
 :use:
     .. code-block:: python
 
-        project1 = Project(project_name="mynewproj", project_path="/path/to/proj")
+        project1 = Project(name="mynewproj", path="/path/to/proj")
         project1.start()
         project1.add(category="src", name"hello.py", value="print 'Hello World'")
         project1.author = "John Doe"
@@ -54,17 +54,17 @@ from openalea.vpltk.project.saver import get_saver
 
 
 class Project(object):
-    def __init__(self, project_name, project_path, icon="", author="OpenAlea Consortium", author_email="",
+    def __init__(self, name, path, icon="", author="OpenAlea Consortium", author_email="",
                  description="", long_description="", citation="", url="", dependencies=[], license="CeCILL-C",
                  version="0.1"):
         """
-        :param project_name: name of the project to create or load
-        :param project_path: path of the project to create or load
+        :param name: name of the project to create or load
+        :param path: path of the project to create or load
         """
         # Metadata
-        self.path = path_(project_path)
+        self.path = path_(path)
         self.metadata = {
-            "name": str(project_name),
+            "name": str(name),
             "icon": path_(icon),
             "author": str(author),
             "author_email": str(author_email),

@@ -24,7 +24,7 @@ You can work directly on project:
 
 .. code-block:: python
 
-    project1 = Project(project_name="mynewproj", project_path="/path/to/proj")
+    project1 = Project(name="mynewproj", path="/path/to/proj")
 
     project1.rename("project", "mynewproj", "hello_project")
     project1.import()
@@ -32,7 +32,7 @@ You can work directly on project:
     project1.description = "Test project concept with numpy"
     project1.long_description = '''This project import numpy.
     Then, it create and display a numpy eye.
-    We use it to test concept of Project.''
+    We use it to test concept of Project.'''
 
     project1.add(category="scripts", name"hello.py", value="print 'Hello World'")
     project1.description = "This project is used to said hello to everyone"

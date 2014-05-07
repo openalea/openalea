@@ -68,14 +68,14 @@ class ProjectManager(object):
             project_manager.discover()
         """
         self.clear()
-        for project_path in self.find_links:
-            for root, dirs, files in os.walk(project_path):
+        for path in self.find_links:
+            for root, dirs, files in os.walk(path):
                 if "oaproject.cfg" in files:
-                    project_path = root
-                    project_path, name = path_(project_path).splitpath()
-                    if not ((project_path in [proj.path for proj in self.projects]) and (
+                    path = root
+                    path, name = path_(path).splitpath()
+                    if not ((path in [proj.path for proj in self.projects]) and (
                         name in [proj.name for proj in self.projects])):
-                        project = Project(name, project_path)
+                        project = Project(name, path)
                         project.load()
                         self.projects.append(project)
 
@@ -103,8 +103,8 @@ class ProjectManager(object):
         """
         :return: a default empty project
         """
-        project_path = path_(settings.get_project_dir())
-        proj = Project(project_name="temp", project_path=project_path)
+        path = path_(settings.get_project_dir())
+        proj = Project(name="temp", path=path)
         proj.centralized = False
         return proj
 
@@ -114,15 +114,15 @@ class ProjectManager(object):
 
         :return: the default loaded project
         """
-        project_path = path_(settings.get_project_dir())
-        proj = self.load(project_name="temp", project_path=project_path)
+        path = path_(settings.get_project_dir())
+        proj = self.load(name="temp", path=path)
 
         if proj == -1:  # If can't load default project, create it
             proj = self.default()
 
         return proj
 
-    def create(self, project_name, project_path=None):
+    def create(self, name, path=None):
         """
         Create new project and return it.
 
@@ -130,19 +130,19 @@ class ProjectManager(object):
             >>> project1 = project_manager.create('project1')
             >>> project2 = project_manager.create('project2', '/path/to/project')
 
-        :param project_name: name of project to create (str)
-        :param project_path: path where project will be saved. By default, project_path is the user path of all projects ($HOME/.openalea/projects/).
+        :param name: name of project to create (str)
+        :param path: path where project will be saved. By default, path is the user path of all projects ($HOME/.openalea/projects/).
         :return: Project
         """
-        if project_path is None:
-            project_path = path_(settings.get_project_dir())
+        if path is None:
+            path = path_(settings.get_project_dir())
 
-        self.cproject = Project(project_name, project_path)
+        self.cproject = Project(name, path)
         self.cproject.create()
 
         return self.get_current()
 
-    def load(self, project_name, project_path=None):
+    def load(self, name, path=None):
         """
         Load existing project
 
@@ -150,26 +150,26 @@ class ProjectManager(object):
             >>> project1 = project_manager.load('project1')
             >>> project2 = project_manager.load('project2', '/path/to/project')
 
-        :param project_name: name of project to load. Must be a string.
-        :param project_path: path of project to load. Must be a path (see module path.py). By default, the path is the openaelea.core.settings.get_project_dir() ($HOME/.openalea/projects/).
+        :param name: name of project to load. Must be a string.
+        :param path: path of project to load. Must be a path (see module path.py). By default, the path is the openaelea.core.settings.get_project_dir() ($HOME/.openalea/projects/).
         :return: Project
         """
-        if not project_path:
-            project_path = path_(settings.get_project_dir())
+        if not path:
+            path = path_(settings.get_project_dir())
 
-        full_path = path_(project_path) / project_name
+        full_path = path_(path) / name
 
         if full_path.exists():
-            self.cproject = Project(project_name, project_path)
+            self.cproject = Project(name, path)
             self.cproject.load()
 
             return self.get_current()
         else:
-            #raise IOError('Project %s in repository %s does not exist' %(project_name,project_path))
-            #print 'Project %s in repository %s does not exist' %(project_name,project_path)
+            #raise IOError('Project %s in repository %s does not exist' %(name,path))
+            #print 'Project %s in repository %s does not exist' %(name,path)
             return -1
 
-    def close(self, project_name=None, project_path=None):
+    def close(self, name=None, path=None):
         """
         :TODO: not yet implemented
         """
@@ -178,9 +178,9 @@ class ProjectManager(object):
         # self.cproject = self.default()
 
     """
-    def __getitem__(self, project_name):
+    def __getitem__(self, name):
         try:
-            self.cproject = self.load(project_name)
+            self.cproject = self.load(name)
             return self.get_current()
         except:
             return self.default()"""
@@ -211,8 +211,8 @@ def main():
     PM = ProjectManager()
 
     # Create or load project
-    project_name = "project_test"
-    proj = PM.load(project_name)
+    name = "project_test"
+    proj = PM.load(name)
     proj.shell = shellwdgt
 
     app.exec_()
