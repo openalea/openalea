@@ -53,7 +53,8 @@ class WorldBrowser(GenericWorldBrowser, AbstractListener):
     def show_world_object(self, index):
         item = index.model().itemFromIndex(index)
         world_name = item.text()
-        print "World object named ", world_name, " : ", self.world[world_name]
+        if world_name in self.world:
+            print "World object named ", world_name, " : ", self.world[world_name]
 
     def set_world(self, world):
         self.world = world

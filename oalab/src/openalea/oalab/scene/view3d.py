@@ -86,7 +86,11 @@ class view3D(QGLViewer):
         """
         self.scene.clear()
         for s in scenes:
-            self.scene += scenes[s]
+            try:
+                self.scene += scenes[s]
+             #TODO: find the good exception
+            except:
+                pass
         self.draw()
 
 
