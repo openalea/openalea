@@ -26,6 +26,7 @@ from openalea.vpltk.catalog import Catalog
 from openalea.vpltk.project.manager import ProjectManager
 from openalea.oalab.config.main import MainConfig
 from openalea.oalab.scene.vplscene import VPLScene
+from openalea.oalab.world.world import World
 
 class Session(object):
     """
@@ -41,7 +42,9 @@ class Session(object):
         self.extension = None
         
         self.project_manager = ProjectManager()
-        
+
+        ## TODO: remove VPLScene and use World instead
+        self.world = World()
         self.world = VPLScene()
 
         interpreter_class = get_interpreter_class()

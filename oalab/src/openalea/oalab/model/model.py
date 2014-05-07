@@ -31,7 +31,6 @@ class Model(object):
         :param inputs: list of identifier of inputs that come from outside model (from world for example)
         :param outputs: list of objects to return outside model (to world for example)
         """
-        # TODO: how to manage time?
         self.name = name
         self.code = code
         self.inputs = inputs
