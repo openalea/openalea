@@ -110,6 +110,7 @@ setup(
             'ProjectWidget = openalea.oalab.plugins.applets.projectwidget:ProjectWidget',
             'Store = openalea.oalab.plugins.applets.store:Store',
             'FileBrowser = openalea.oalab.plugins.applets.filebrowser:FileBrowser',
+            'World = openalea.oalab.plugins.applets.worldwidget:World',
             ],
         'oalab.lab': [
             'TissueLab = openalea.oalab.plugins.labs.tissuelab:TissueLab',
