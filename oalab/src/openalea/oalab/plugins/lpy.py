@@ -232,7 +232,7 @@ class LPyApplet(object):
 
         new_scene = self.lsystem.sceneInterpretation(self.axialtree)
         scene_name = self.context["scene_name"]
-        self.session.scene[scene_name] = new_scene
+        self.session.world[scene_name] = new_scene
         if hasattr(self.controller, "_plugins"):
             if self.controller._plugins.has_key('Viewer3D'):
                 self.controller._plugins['Viewer3D'].instance().update_radius()
