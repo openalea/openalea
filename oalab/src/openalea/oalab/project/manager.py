@@ -55,7 +55,7 @@ class ProjectManagerWidget(QtGui.QWidget):
         # self.actionSaveProj.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
         self.actionCloseProj = QtGui.QAction(QtGui.QIcon(":/images/resources/closeButton.png"), "Close All", self)
         self.actionEditMeta = QtGui.QAction(QtGui.QIcon(":/images/resources/book.png"), "Edit Metadata", self)
-        self.actionAddFile = QtGui.QAction(QtGui.QIcon(":/images/resources/bool.png"), "Add Current", self)
+        self.actionAddFile = QtGui.QAction(QtGui.QIcon(":/images/resources/bool.png"), "Add To Proj", self)
 
         self.connect(self.actionNewProj, QtCore.SIGNAL('triggered(bool)'), self.new)
         self.connect(self.actionOpenProj, QtCore.SIGNAL('triggered(bool)'), self.open)
@@ -175,13 +175,23 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
         :todo: propose to the user where to add it (not only in source)
         """
-        ## TODO: check if it works
+
+        categories = self.session._project.files.keys()
+        self.selector = SelectCategory(categories)
+        self.selector.show()
+
+        self.selector.ok_button.clicked.connect(self.add_file)
+
+    def add_file(self):
+        category = self.selector.combo.currentText()
+        self.selector.hide()
+
         text = self.controller.applet_container.currentWidget().get_text()
         index = self.controller.applet_container.currentIndex()
         filename = self.controller.applet_container.tabText(index)
         filename = path_(filename).splitpath()[-1]
         self.controller.applet_container.setTabText(index, filename)
-        self.session._project.add(category="src", name=filename, value=text)
+        self.session._project.add(category=category, name=filename, value=text)
 
         self.controller.update_namespace()
         self._tree_view_change()
@@ -193,7 +203,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         if self.session.project:
             name = self.session.project.name
             if not new_name:
-                new_name = showNewProjectDialog(default_name=path(name) / "..",
+                new_name = showNewProjectDialog(default_name=path_(name) / "..",
                                                 text='Select new name to save project')
             self.session.project.rename(category="project", old_name=name, new_name=new_name)
             self._project_changed()
@@ -362,3 +372,26 @@ def showOpenProjectDialog(parent=None):
     fname = QtGui.QFileDialog.getExistingDirectory(parent, 'Select Project Directory',
                                                    my_path)
     return fname
+
+
+class SelectCategory(QtGui.QWidget):
+    def __init__(self, categories=["src"], parent=None):
+        super(SelectCategory, self).__init__(parent=parent)
+        self.categories = categories
+
+        layout = QtGui.QGridLayout(self)
+
+        self.label = QtGui.QLabel("Select in which category you want to add this file: ")
+
+        self.combo = QtGui.QComboBox(self)
+        self.combo.addItems(self.categories)
+        self.combo.setCurrentIndex(1)
+
+        self.ok_button = QtGui.QPushButton("Ok")
+
+        layout.addWidget(self.label, 0, 0)
+        layout.addWidget(self.combo, 0, 1)
+        layout.addWidget(self.ok_button, 0, 2)
+
+        self.setLayout(layout)
+
