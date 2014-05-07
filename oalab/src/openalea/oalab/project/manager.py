@@ -23,6 +23,7 @@ from openalea.core import settings
 from openalea.core import logger
 from openalea.vpltk.project.manager import ProjectManager
 from openalea.oalab.project.creator import CreateProjectWidget
+from openalea.oalab.project.pretty_preview import ProjectSelectorScroll
 from openalea.oalab.gui import resources_rc # do not remove this import else icon are not drawn
 
 class ProjectManagerWidget(QtGui.QWidget):
@@ -103,33 +104,35 @@ You can rename/move this project thanks to the button "Save As" in menu.
         If name==false, display a widget to choose project to open.
         Then open project.
         """
-        self.closeCurrent()
-        # self.controller.applet_container.closeAll()
+        self.session.project_manager.discover()
+        projs = self.session.project_manager.projects
+        self.proj_selector = ProjectSelectorScroll(projects=projs, open_project=self.openProject)
+        self.proj_selector.show()
 
-        if name is False:
-            name = showOpenProjectDialog()
-        if name:
-            proj_path = path_(name).abspath()
-            proj_name = proj_path.basename()
-            proj_path = proj_path.dirname()
-            if path:
-                proj_path = path_(path)
-            logger.debug("Open Project named " + proj_name)
-            if self.session.project:
-                if self.session.current_is_project():
-                    logger.debug("Close Project named " + self.session.project.name)
-                    self.projectManager.close(self.session.project.name)
-                    logger.debug("Project named " + self.session.project.name + " closed.")
-
-            proj = self.projectManager.load(proj_name, proj_path)
-
-            logger.debug("Project " + str(proj) + " loaded")
-
-            if proj == -1:
-                logger.warning("Project was not loaded...")
-                return -1
-            else:
-                return self.openProject(proj)
+        # if name is False:
+        #     name = showOpenProjectDialog()
+        # if name:
+        #     proj_path = path_(name).abspath()
+        #     proj_name = proj_path.basename()
+        #     proj_path = proj_path.dirname()
+        #     if path:
+        #         proj_path = path_(path)
+        #     logger.debug("Open Project named " + proj_name)
+        #     if self.session.project:
+        #         if self.session.current_is_project():
+        #             logger.debug("Close Project named " + self.session.project.name)
+        #             self.projectManager.close(self.session.project.name)
+        #             logger.debug("Project named " + self.session.project.name + " closed.")
+        #
+        #     proj = self.projectManager.load(proj_name, proj_path)
+        #
+        #     logger.debug("Project " + str(proj) + " loaded")
+        #
+        #     if proj == -1:
+        #         logger.warning("Project was not loaded...")
+        #         return -1
+        #     else:
+        #         return self.openProject(proj)
 
 
     def openProject(self, project):
@@ -138,6 +141,10 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
         :param project: opened project from vpltk
         """
+        if hasattr(self, "proj_selector"):
+            self.proj_selector.hide()
+        self.closeCurrent()
+
         project.start()
         logger.debug("Project " + str(project) + " opened")
 
