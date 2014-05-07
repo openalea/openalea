@@ -182,9 +182,9 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
         :todo: propose to the user where to add it (not only in source)
         """
-
+        text = self.controller.applet_container.tabText(self.controller.applet_container.currentIndex())
         categories = self.session._project.files.keys()
-        self.selector = SelectCategory(categories)
+        self.selector = SelectCategory(filename=text, categories=categories)
         self.selector.show()
 
         self.selector.ok_button.clicked.connect(self.add_file)
@@ -195,8 +195,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
         text = self.controller.applet_container.currentWidget().get_text()
         index = self.controller.applet_container.currentIndex()
-        filename = self.controller.applet_container.tabText(index)
-        filename = path_(filename).splitpath()[-1]
+        filename = self.selector.line.text()
         self.controller.applet_container.setTabText(index, filename)
         self.session._project.add(category=category, name=filename, value=text)
 
@@ -382,23 +381,26 @@ def showOpenProjectDialog(parent=None):
 
 
 class SelectCategory(QtGui.QWidget):
-    def __init__(self, categories=["src"], parent=None):
+    def __init__(self, filename="", categories=["src"], parent=None):
         super(SelectCategory, self).__init__(parent=parent)
         self.categories = categories
 
         layout = QtGui.QGridLayout(self)
 
         self.label = QtGui.QLabel("Select in which category you want to add this file: ")
-
+        self.label2 = QtGui.QLabel("New filename: ")
         self.combo = QtGui.QComboBox(self)
         self.combo.addItems(self.categories)
         self.combo.setCurrentIndex(1)
+        self.line = QtGui.QLineEdit(filename)
 
         self.ok_button = QtGui.QPushButton("Ok")
 
         layout.addWidget(self.label, 0, 0)
         layout.addWidget(self.combo, 0, 1)
-        layout.addWidget(self.ok_button, 0, 2)
+        layout.addWidget(self.label2, 1, 0)
+        layout.addWidget(self.line, 1, 1)
+        layout.addWidget(self.ok_button, 2, 0, 2, 2)
 
         self.setLayout(layout)
 
