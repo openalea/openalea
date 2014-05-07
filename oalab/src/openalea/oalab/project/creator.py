@@ -118,8 +118,8 @@ class CreateProjectWidget(QtGui.QWidget):
         # self.connect(self, QtCore.SIGNAL('ProjectOpened(PyQt_PyObject)'), self.catch_signal)
 
     def ok_clicked(self):
-        proj = Project(project_name=self.name_lineedit.text(),
-                       project_path=self.path_lineedit.text(),
+        proj = Project(name=self.name_lineedit.text(),
+                       path=self.path_lineedit.text(),
                        icon=self.icon_lineedit.text(),
                        author=self.author_lineedit.text(),
                        author_email=self.author_email_lineedit.text(),

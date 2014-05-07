@@ -18,7 +18,7 @@
 __revision__ = "$Id: "
 
 from openalea.vpltk.qt import QtGui, QtCore
-from openalea.core.path import path
+from openalea.core.path import path as path_
 from openalea.core import settings
 from openalea.core import logger
 from openalea.vpltk.project.manager import ProjectManager
@@ -98,7 +98,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
     def actions(self):
         return self._actions
 
-    def open(self, name=False, project_path=None):
+    def open(self, name=False, path=None):
         """
         If name==false, display a widget to choose project to open.
         Then open project.
@@ -109,11 +109,11 @@ You can rename/move this project thanks to the button "Save As" in menu.
         if name is False:
             name = showOpenProjectDialog()
         if name:
-            proj_path = path(name).abspath()
+            proj_path = path_(name).abspath()
             proj_name = proj_path.basename()
             proj_path = proj_path.dirname()
-            if project_path:
-                proj_path = path(project_path)
+            if path:
+                proj_path = path_(path)
             logger.debug("Open Project named " + proj_name)
             if self.session.project:
                 if self.session.current_is_project():
@@ -179,7 +179,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         text = self.controller.applet_container.currentWidget().get_text()
         index = self.controller.applet_container.currentIndex()
         filename = self.controller.applet_container.tabText(index)
-        filename = path(filename).splitpath()[-1]
+        filename = path_(filename).splitpath()[-1]
         self.controller.applet_container.setTabText(index, filename)
         self.session._project.add(category="src", name=filename, value=text)
 
@@ -347,7 +347,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
 
 def showNewProjectDialog(default_name=None, text=None, parent=None):
-    my_path = path(settings.get_project_dir())
+    my_path = path_(settings.get_project_dir())
     if default_name:
         my_path = my_path / default_name
     if not text:
@@ -358,7 +358,7 @@ def showNewProjectDialog(default_name=None, text=None, parent=None):
 
 
 def showOpenProjectDialog(parent=None):
-    my_path = path(settings.get_project_dir())
+    my_path = path_(settings.get_project_dir())
     fname = QtGui.QFileDialog.getExistingDirectory(parent, 'Select Project Directory',
                                                    my_path)
     return fname
