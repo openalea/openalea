@@ -25,6 +25,7 @@ from openalea.core import settings
 from openalea.core.path import path
 from openalea.oalab.gui import resources_rc # do not remove this import else icon are not drawn
 
+
 class AppletContainer(QtGui.QTabWidget):
     """
     Contains applets.

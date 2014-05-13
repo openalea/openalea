@@ -50,7 +50,7 @@ class LPyModel(Model):
         """
         return self.code
 
-    def run(self, interpreter):
+    def run(self, interpreter=None):
         """
         execute model thanks to interpreter
         """
@@ -59,13 +59,13 @@ class LPyModel(Model):
         self.axialtree = self.lsystem.iterate()
         return self.axialtree
 
-    def reset(self, interpreter):
+    def reset(self, interpreter=None):
         """
         go back to initial step
         """
         return self.step(interpreter, 0)
 
-    def step(self, interpreter, i=None):
+    def step(self, interpreter=None, i=None):
         """
         execute only one step of the model
         """
@@ -81,19 +81,19 @@ class LPyModel(Model):
             self.axialtree = self.lsystem.iterate(i)
         return self.axialtree
 
-    def stop(self, interpreter):
+    def stop(self, interpreter=None):
         """
         stop execution
         """
         # TODO : to implement
         pass
 
-    def animate(self, interpreter):
+    def animate(self, interpreter=None):
         """
         run model step by step
         """
         self.step(interpreter)
-        self.lsystem.animate()
+        return self.lsystem.animate()
 
 
 def get_default_text():

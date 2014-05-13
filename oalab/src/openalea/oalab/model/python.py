@@ -26,7 +26,7 @@ class PythonModel(Model):
     icon = ":/images/resources/Python-logo.png"
 
     def __init__(self, name="script.py", code="", inputs=[], outputs=[]):
-        super(PythonModel, self).__init__()
+        super(PythonModel, self).__init__(name=name, code=code, inputs=inputs, outputs=outputs)
         self._step = None
         self._animate = None
         self._init = None
@@ -37,12 +37,17 @@ class PythonModel(Model):
         """
         return self.code
 
-    def run(self, interpreter):
+    def run(self, interpreter=None):
         """
         execute model thanks to interpreter
         """
+        if not interpreter:
+            try:
+                interpreter = get_ipython()
+            except NameError:
+                raise("No interpreter is available to run model %s" % str(self))
         user_ns = interpreter.user_ns
-        interpreter.runcode(self.code)
+        result = interpreter.run_cell(self.code)
 
         ## Hack to store methods init, step and animate
         self._init = user_ns.get("init")
@@ -56,39 +61,40 @@ class PythonModel(Model):
         self._animate = user_ns.get("animate")
         if not callable(self._animate):
             self._animate = None
-            if self._step :
+            if self._step:
                 def animate():
                     for i in range(5):
                         self._step()
                 self._animate = animate
+        return result
 
-    def reset(self, interpreter):
+    def reset(self, interpreter=None):
         """
         go back to initial step
         """
         # TODO : get function from the current widget
         if self._init:
-            self._init()
+            return self._init()
 
-    def step(self, interpreter):
+    def step(self, interpreter=None):
         """
         execute only one step of the model
         """
         # TODO : get function from the current widget
         if self._step:
-            self._step()
+            return self._step()
 
-    def stop(self, interpreter):
+    def stop(self, interpreter=None):
         """
         stop execution
         """
         # TODO : to implement
         pass
 
-    def animate(self, interpreter):
+    def animate(self, interpreter=None):
         """
         run model step by step
         """
         # TODO : get function from the current widget
         if self._animate:
-            self._animate()
+            return self._animate()
