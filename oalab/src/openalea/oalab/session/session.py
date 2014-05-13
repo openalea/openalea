@@ -76,6 +76,16 @@ class Session(object):
     def load_config_file(self, filename, path=None):
         self._config.load_config_file(filename=filename, path=path)
 
+    def update_namespace(self):
+        """ Stub method from allwidgets. CPL: TODO
+
+        Definition: Update namespace
+        """
+        self.interpreter.locals['project'] = self.project
+        self.interpreter.locals['Model'] = self.project.model
+        self.interpreter.locals['scene'] = self.world
+        self.interpreter.locals['world'] = self.world
+
     config = property(fget=lambda self:self._config.config)
 
 

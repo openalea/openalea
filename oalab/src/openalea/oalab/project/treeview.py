@@ -243,8 +243,8 @@ class PrjctModel(QtGui.QStandardItemModel):
         #QtCore.QObject.connect(self,QtCore.SIGNAL('dataChanged( const QModelIndex &, const QModelIndex &)'),self.renamed)
         
         self.icons = dict()
-        for applet in self.controller.applet_container.paradigms.values():
-            self.icons[applet.extension] = applet.icon
+#         for applet in self.controller.applet_container.paradigms.values():
+#             self.icons[applet.extension] = applet.icon
         
     def renamed(self,x,y):
         if self.proj is not None:
