@@ -24,7 +24,7 @@ class Model(object):
     extension = ""
     icon = ""
     
-    def __init__(self, name, code="", inputs=[], outputs=[]):
+    def __init__(self, name="", code="", inputs=[], outputs=[]):
         """
         :param name: name of the model (name of the file?)
         :param code: code of the model, can be a string or an other object
@@ -71,4 +71,3 @@ class Model(object):
         run model step by step
         """
         pass
-

@@ -99,6 +99,11 @@ setup(
                                   'VisualeaApplet = openalea.oalab.plugins.visualea:VisualeaApplet',
                                   'RApplet = openalea.oalab.plugins.r:RApplet',
                                   ],
+        'oalab.model': ['PythonModel = openalea.oalab.model.python:PythonModel',
+                        'LPyModel = openalea.oalab.model.lpy:LPyModel',
+                        'VisualeaModel = openalea.oalab.model.visualea:VisualeaModel',
+                        'RModel = openalea.oalab.model.r:RModel',
+                        ],
         'oalab.applet': [
             'ControlPanel = openalea.oalab.plugins.applets.controlpanel:ControlPanel',
             'EditorManager = openalea.oalab.plugins.applets.editormanager:EditorManager',

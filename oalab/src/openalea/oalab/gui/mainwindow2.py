@@ -165,6 +165,7 @@ class MainWindow(QtGui.QMainWindow):
         Definition: Update namespace
         """
         self.session.interpreter.locals['project'] = self.session.project
+        self.session.interpreter.locals['Model'] = self.session.project.model
         self.session.interpreter.locals['scene'] = self.session.world
         self.session.interpreter.locals['world'] = self.session.world
 

@@ -57,33 +57,33 @@ class VisualeaModel(Model):
         repr_wf = (' = ').join(repr_wf.split(' = ')[1:])
         return repr_wf
 
-    def run(self, interpreter):
+    def run(self, interpreter=None):
         """
         execute model thanks to interpreter
         """
-        self._workflow.eval()
+        return self._workflow.eval()
 
-    def reset(self, interpreter):
+    def reset(self, interpreter=None):
         """
         go back to initial step
         """
-        self._workflow.reset()
+        return self._workflow.reset()
 
-    def step(self, interpreter):
+    def step(self, interpreter=None):
         """
         execute only one step of the model
         """
-        self._workflow.eval_as_expression(step=True)
+        return self._workflow.eval_as_expression(step=True)
 
-    def stop(self, interpreter):
+    def stop(self, interpreter=None):
         """
         stop execution
         """
         # TODO : to implement
         pass
 
-    def animate(self, interpreter):
+    def animate(self, interpreter=None):
         """
         run model step by step
         """
-        self._workflow.eval()
+        return self._workflow.eval()

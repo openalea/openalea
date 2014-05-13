@@ -37,16 +37,22 @@ class RModel(Model):
         """
         return self.code
 
-    def run(self, interpreter):
+    def run(self, interpreter=None):
         """
         execute model thanks to interpreter
         """
+        if not interpreter:
+            try:
+                interpreter= get_ipython()
+            except NameError:
+                raise("No intepreter is available to run model %s"%str(self))
+
         user_ns = interpreter.user_ns
         code = """%load_ext rmagic
 %%R
 
 """ + self.code
-        interpreter.runcode(code)
+        result = interpreter.run_cell(code)
 
         ## Hack to store methods init, step and animate
         self._init = user_ns.get("init")
@@ -66,13 +72,15 @@ class RModel(Model):
                         self._step()
                 self._animate = animate
 
+        return result
+
     def reset(self, interpreter):
         """
         go back to initial step
         """
         # TODO : get function from the current widget
         if self._init:
-            self._init()
+            return self._init()
 
     def step(self, interpreter):
         """
@@ -80,7 +88,7 @@ class RModel(Model):
         """
         # TODO : get function from the current widget
         if self._step:
-            self._step()
+            return self._step()
 
     def stop(self, interpreter):
         """
@@ -95,5 +103,5 @@ class RModel(Model):
         """
         # TODO : get function from the current widget
         if self._animate:
-            self._animate()
+            return self._animate()
 
