@@ -39,7 +39,7 @@ stored in your computer.
 
         project1 = Project(name="mynewproj", path="/path/to/proj")
         project1.start()
-        project1.add(category="src", name"hello.py", value="print 'Hello World'")
+        project1.add(category="src", name="hello.py", value="print 'Hello World'")
         project1.author = "John Doe"
         project1.description = "This project is used to said hello to everyone"
         project1.save()
@@ -52,9 +52,22 @@ from openalea.vpltk.project.configobj import ConfigObj
 from openalea.vpltk.project.loader import get_loader
 from openalea.vpltk.project.saver import get_saver
 
+def _model_factories():
+    models = {}
+    from openalea.vpltk.plugin import discover, Plugin
+    plugins = discover('oalab.model')
+    for plugin in plugins.values():
+        model = Plugin(plugin)
+        model = model.load()
+        models[model.extension] = model
+    return models
 
 class Project(object):
-    def __init__(self, name, path, icon="", author="OpenAlea Consortium", author_email="",
+    
+    model_klasses = _model_factories()
+
+    def __init__(self, name, path, 
+                 icon="", author="OpenAlea Consortium", author_email="",
                  description="", long_description="", citation="", url="", dependencies=[], license="CeCILL-C",
                  version="0.1"):
         """
@@ -291,7 +304,7 @@ class Project(object):
         names = name.split()
         return_models = []
 
-        if name == "*":
+        if "*" in names and len(names)==1:
             names = self.src.keys()
 
         for name in names:
@@ -301,23 +314,9 @@ class Project(object):
                 code = self.src[name]
 
                 filename = path_(name)
-                ext = str(filename.splitext()[-1])
-                ext = ext.split(".")[-1]
-
-                # discover plugins to convert src into model
-                models = []
-                from openalea.vpltk.plugin import discover, Plugin
-                plugins = discover('oalab.model')
-                for plugin in plugins.values():
-                    model = Plugin(plugin)
-                    model = model.load()
-                    models.append(model)
-
-                # look inside plugins if one correspond to extension
-                for model in models:
-                    if ext == model.extension:
-                        mod = model(name=name, code=code)
-                        return_models.append(mod)
+                ext = filename.ext[1:]
+                if ext in self.model_klasses:
+                    return_models.append(self.model_klasses[ext])
 
         if len(return_models) == 1:
             return return_models[0]
