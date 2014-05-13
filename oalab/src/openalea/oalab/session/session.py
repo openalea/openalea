@@ -81,8 +81,9 @@ class Session(object):
 
         Definition: Update namespace
         """
-        self.interpreter.locals['project'] = self.project
-        self.interpreter.locals['Model'] = self.project.model
+        if self.project:
+            self.interpreter.locals['project'] = self.project
+            self.interpreter.locals['Model'] = self.project.model
         self.interpreter.locals['scene'] = self.world
         self.interpreter.locals['world'] = self.world
 
