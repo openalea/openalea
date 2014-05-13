@@ -158,9 +158,10 @@ class ProjectTreeView(QtGui.QTreeView):
             self.open_file()
 
     def open_file(self):
-        item = self.getItem()
-        filename = path(self.project.path)/self.project.name/item.parent().text()/item.text()
-        self.controller.applet_container.open_file(filename=filename)
+        if self.controller.applet_container:
+            item = self.getItem()
+            filename = path(self.project.path)/self.project.name/item.parent().text()/item.text()
+            self.controller.applet_container.open_file(filename=filename)
 
     def is_file_selected(self):
         """
@@ -243,8 +244,11 @@ class PrjctModel(QtGui.QStandardItemModel):
         #QtCore.QObject.connect(self,QtCore.SIGNAL('dataChanged( const QModelIndex &, const QModelIndex &)'),self.renamed)
         
         self.icons = dict()
-#         for applet in self.controller.applet_container.paradigms.values():
-#             self.icons[applet.extension] = applet.icon
+
+    def find_icons(self):
+        if self.controller.applet_container:
+            for applet in self.controller.applet_container.paradigms.values():
+                self.icons[applet.extension] = applet.icon
         
     def renamed(self,x,y):
         if self.proj is not None:
@@ -280,7 +284,6 @@ class PrjctModel(QtGui.QStandardItemModel):
                                 
                     # Save project
                     self.proj.save()
-        
 
     def set_proj(self, proj=None):
         self.clear()
@@ -289,8 +292,9 @@ class PrjctModel(QtGui.QStandardItemModel):
             self.proj = proj
             self._set_levels()
 
-
     def _set_levels(self):
+        if self.icons == dict():
+            self.find_icons()
 
         icon_project = QtGui.QIcon(":/images/resources/openalea_icon2.png")
         icon_src = QtGui.QIcon(":/images/resources/filenew.png")
