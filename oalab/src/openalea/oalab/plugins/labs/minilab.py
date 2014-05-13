@@ -9,7 +9,6 @@ class MiniLab(object):
     # applets.extend(['Store'])
 
     def __call__(self, mainwin):
-        import sys
         for plugin in iter_plugins('oalab.applet'):
             if plugin.name in self.applets:
                 mainwin.add_plugin(plugin())

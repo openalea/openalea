@@ -50,34 +50,30 @@ class MainWindow(QtGui.QMainWindow):
         self.split = QtGui.QSplitter()
         self.setCentralWidget(self.split)
 
+        menu_names = ('File', 'Edit', 'Project', 'Simulation', 'Viewer', 'Help')
+
         # Classic menu
+        self.menu_classic = {}
         menubar = QtGui.QMenuBar()
-        menubar.addMenu("File")
-        menubar.addMenu("Edit")
-        menubar.addMenu("Project")
-        menubar.addMenu("Simulation")
-        menubar.addMenu("Viewer")
-        menubar.addMenu("Help")
+
+        for menu_name in menu_names:
+            self.menu_classic[menu_name] = menubar.addMenu(menu_name)
+
         self.setMenuBar(menubar)
 
         # PanedMenu
+        self.menu_paned = {}
         self.menu = PanedMenu()
 
         # Organize order of tabs
-        self.menu.addSpecialTab("File")
-        self.menu.addSpecialTab("Edit")
-        self.menu.addSpecialTab("Project")
-        self.menu.addSpecialTab("Simulation")
-        self.menu.addSpecialTab("Viewer")
-        self.menu.addSpecialTab("Help")
+        for menu_name in menu_names :
+            self.menu_paned[menu_name] = self.menu.addSpecialTab(menu_name)
 
         dock_menu = self.dockWidget("Menu", self.menu, position=QtCore.Qt.TopDockWidgetArea)
         dock_menu.setFeatures(QtGui.QDockWidget.NoDockWidgetFeatures)
         dock_menu.setContentsMargins(0, 0, 0, 0)
-        # widget = QtGui.QLabel('Menu')
-        # dock_menu.setTitleBarWidget(widget)
-        # Remove title bar
-        dock_menu.setTitleBarWidget(QtGui.QWidget())
+        widget = QtGui.QLabel()
+        dock_menu.setTitleBarWidget(widget)
 
         size_policy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Maximum)
         dock_menu.setSizePolicy(size_policy)
@@ -90,21 +86,17 @@ class MainWindow(QtGui.QMainWindow):
 
     def add_action_to_existing_menu(self, action, menu_name, sub_menu_name):
         """
-        Permit to add in a classic menubar the action action int the menu menu_name in the sub_menu sub_menu_name
+        Permit to add in a classic menubar the "action" in the menu "menu_name"
+        in the sub_menu "sub_menu_name"
         """
         menubar = self.menuBar()
-        children = menubar.findChildren(QtGui.QMenu)
-        menu = None
-        submenu = None
-
-        for child in children:
-            if child.title() == menu_name:
-                menu = child
-                break
-        if not menu:
-            menu = menubar.addMenu(menu_name)
+        if menu_name in self.menu_classic:
+            menu = self.menu_classic[menu_name]
+        else:
+            menu = self.menu_classic[menu_name] = menubar.addMenu(menu_name)
 
         menu.addAction(action)
+
         """
         ### This part is used if you want to set menu and submenus
 
@@ -153,21 +145,13 @@ class MainWindow(QtGui.QMainWindow):
         dock_widget.setWidget(widget)
 
         # Remove title bar
-        dock_widget.setTitleBarWidget(QtGui.QWidget())
+        dock_widget.setFeatures(QtGui.QDockWidget.NoDockWidgetFeatures)
+        title_bar = QtGui.QLabel()
+        dock_widget.setTitleBarWidget(title_bar)
 
         self.addDockWidget(position, dock_widget)
 
         return dock_widget
-
-    def update_namespace(self):
-        """ Stub method from allwidgets. CPL: TODO
-
-        Definition: Update namespace
-        """
-        self.session.interpreter.locals['project'] = self.session.project
-        self.session.interpreter.locals['Model'] = self.session.project.model
-        self.session.interpreter.locals['scene'] = self.session.world
-        self.session.interpreter.locals['world'] = self.session.world
 
     def get_project_manager(self):
         if 'ProjectManager' in self._plugins:

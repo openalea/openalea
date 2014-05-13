@@ -199,7 +199,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         self.controller.applet_container.setTabText(index, filename)
         self.session._project.add(category=category, name=filename, value=text)
 
-        self.controller.update_namespace()
+        self.session.update_namespace()
         self._tree_view_change()
 
     def renameCurrent(self, new_name=None):
@@ -279,7 +279,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         # CPL: CHECK FIRST IF THE OBJECTS EXISTS.
         # This wil be not always the case.
 
-        self.controller.update_namespace()
+        self.session.update_namespace()
         self._scene_change()
         self._control_change() # do nothing
         if self.controller.applet_container:

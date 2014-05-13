@@ -103,6 +103,7 @@ class PanedMenu(QtGui.QTabWidget):
         widget = Pane()
         self.tab_name.append(label)
         self.addTab(widget, label)
+        return widget
 
     def addBtns(self, pane_names, group_names, btn_names, btn_icons, btn_types):
         # TODO
