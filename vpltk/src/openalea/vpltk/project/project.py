@@ -281,8 +281,51 @@ class Project(object):
                 setattr(self, files, filedict)
 
     #----------------------------------------
+    # model
+    #----------------------------------------
+    def model(self, name):
+        """
+        :param name: name of the file in self.src to convert into model. Can pass various names split by spaces. Can pass "*".
+        :return: model corresponding to the source named *name* in self.src. If various values, return a list of models. If failed, return None.
+        """
+        names = name.split()
+        return_models = []
+
+        if name == "*":
+            names = self.src.keys()
+
+        for name in names:
+
+            if name in self.src:
+                # get code, filename and extension
+                code = self.src[name]
+
+                filename = path_(name)
+                ext = str(filename.splitext()[-1])
+                ext = ext.split(".")[-1]
+
+                # discover plugins to convert src into model
+                models = []
+                from openalea.vpltk.plugin import discover, Plugin
+                plugins = discover('oalab.model')
+                for plugin in plugins.values():
+                    model = Plugin(plugin)
+                    model = model.load()
+                    models.append(model)
+
+                # look inside plugins if one correspond to extension
+                for model in models:
+                    if ext == model.extension:
+                        mod = model(name=name, code=code)
+                        return_models.append(mod)
+
+        if len(return_models) == 1:
+            return return_models[0]
+        return return_models
+
+    #----------------------------------------
     # src
-    #---------------------------------------- 
+    #----------------------------------------
     def add_script(self, name, script):
         """
         Add a src in the project
