@@ -25,13 +25,12 @@ from openalea.vpltk.shell.shell import get_interpreter_class
 from openalea.vpltk.catalog import Catalog
 from openalea.vpltk.project.manager import ProjectManager
 from openalea.oalab.config.main import MainConfig
-from openalea.oalab.scene.vplscene import VPLScene
 from openalea.oalab.world.world import World
 
 class Session(object):
     """
     Manage session and instantiate all widgets.
-    
+
     MainWindow works thanks to the session
     """
     def __init__(self):
@@ -40,20 +39,18 @@ class Session(object):
 
         self._config = MainConfig()
         self.extension = None
-        
+
         self.project_manager = ProjectManager()
 
-        ## TODO: remove VPLScene and use World instead
         self.world = World()
-        self.world = VPLScene()
 
         interpreter_class = get_interpreter_class()
-        self.interpreter = interpreter_class() 
-        
+        self.interpreter = interpreter_class()
+
         self.interpreter.locals['session'] = self
-        
+
         self.catalog = Catalog()
-        
+
         self.gui = True
 
     @property
@@ -62,7 +59,7 @@ class Session(object):
         :return: current project if one is opened. Else return None.
         """
         return self._project
-            
+
     def current_is_project(self):
         """
         :return: True if current document is a project

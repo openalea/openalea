@@ -1,7 +1,7 @@
 # -*- python -*-
 #
 #       3D scene viewer for OALab Scene
-# 
+#
 #       OpenAlea.OALab: Multi-Paradigm GUI
 #
 #       Copyright 2013 INRIA - CIRAD - INRA
@@ -23,9 +23,11 @@ from openalea.vpltk.qt import QtGui, QtCore
 from openalea.plantgl.all import Scene, Sphere, Discretizer, GLRenderer, BoundingBox
 from openalea.core.observer import AbstractListener
 from openalea.oalab.gui import resources_rc
+from openalea.oalab.world.world import WorldObject
 from PyQGLViewer import QGLViewer, Vec
 import sys
 
+from openalea.oalab.service.geometry import to_shape3d
 
 class view3D(QGLViewer):
     """
@@ -41,12 +43,12 @@ class view3D(QGLViewer):
             scene = self.defaultScene()
         self.scene = scene
         # set some parameters
-        self.setAxisIsDrawn(False)  # show axis
-        self.setGridIsDrawn(True)  # show grid
+        self.setAxisIsDrawn(False) # show axis
+        self.setGridIsDrawn(True) # show grid
         position = Vec(0.0, -1.0, 0.1)
-        self.camera().setPosition(position)  # set camera
+        self.camera().setPosition(position) # set camera
         self.camera().lookAt(self.sceneCenter())
-        self.camera().setSceneRadius(1)  #Size of vectors x,y,z
+        self.camera().setSceneRadius(1) # Size of vectors x,y,z
         self.camera().showEntireScene()
         # connection
         self.connect(self, QtCore.SIGNAL("drawNeeded()"), self.draw)
@@ -69,11 +71,11 @@ class view3D(QGLViewer):
     def selection(self):
         return super(view3D, self).selection
 
-    # Method for lpy.registerPlotter to "animate"    
+    # Method for lpy.registerPlotter to "animate"
     def waitSelection(self, txt):
         return super(view3D, self).waitSelection(txt)
 
-    # Method for lpy.registerPlotter to "animate"    
+    # Method for lpy.registerPlotter to "animate"
     def save(self, fname, format):
         super(view3D, self).frameGL.saveImage(fname, format)
 
@@ -81,16 +83,22 @@ class view3D(QGLViewer):
         """
         Set the scene
         (erase old scene if necessary)
-        
+
         :param scene: dict with every sub-scenes to add
         """
         self.scene.clear()
         for s in scenes:
-            try:
-                self.scene += scenes[s]
-             #TODO: find the good exception
-            except:
-                pass
+            world_obj = scenes[s]
+            if isinstance(world_obj, WorldObject):
+                if world_obj.in_scene:
+                    obj = to_shape3d(world_obj.obj)
+                else:
+                    obj = None
+            else:
+                obj = to_shape3d(world_obj)
+
+            if obj:
+                self.scene += adapt(obj)
         self.draw()
 
 
@@ -103,7 +111,7 @@ class view3D(QGLViewer):
     def addToScene(self, obj):
         """
         Add a new object in existing scene
-        
+
         :param obj: object to add in the scene
         """
         scene = self.getScene()
@@ -125,7 +133,7 @@ class view3D(QGLViewer):
         """
         Create a default scene.
         Here she is empty.
-        
+
         :return: the scene
         """
         scene = Scene()
@@ -154,7 +162,6 @@ class view3D(QGLViewer):
             self.show_entire_scene()
         except:
             pass
-
 
 class Viewer(AbstractListener, view3D):
     """
@@ -212,9 +219,10 @@ class Viewer(AbstractListener, view3D):
                          ["Viewer", "Informations", actionShowFps, 1]]
 
     def notify(self, sender, event=None):
-        signal, scene = event
-        self.setScene(scene)
-        self.updateGL()
+        signal, data = event
+        if signal == 'WorldChanged':
+            self.setScene(data)
+            self.updateGL()
 
     def actions(self):
         return self._actions
@@ -249,18 +257,18 @@ class Viewer(AbstractListener, view3D):
 
     def show_hide_axis(self):
         if self.axis:
-            self.setAxisIsDrawn(False)  # hide axis
+            self.setAxisIsDrawn(False) # hide axis
             self.axis = False
         else:
-            self.setAxisIsDrawn(True)  # show axis
+            self.setAxisIsDrawn(True) # show axis
             self.axis = True
 
     def show_hide_grid(self):
         if self.grid:
-            self.setGridIsDrawn(False)  # hide grid
+            self.setGridIsDrawn(False) # hide grid
             self.grid = False
         else:
-            self.setGridIsDrawn(True)  # show grid
+            self.setGridIsDrawn(True) # show grid
             self.grid = True
 
     def show_entire_scene(self):
@@ -271,9 +279,9 @@ class Viewer(AbstractListener, view3D):
         """
         Set the scene
         (erase old scene if necessary)
-        
+
         Class overloaded to use an autofocus if you add a first object in the scene
-        
+
         :param scene: dict with every sub-scenes to add
         """
         super(Viewer, self).setScene(scenes)
@@ -290,5 +298,5 @@ def main():
     app.exec_()
 
 
-if ( __name__ == "__main__"):
+if (__name__ == "__main__"):
     main()

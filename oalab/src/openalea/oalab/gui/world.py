@@ -47,8 +47,9 @@ class WorldBrowser(GenericWorldBrowser, AbstractListener):
         QtCore.QObject.connect(self.tree, QtCore.SIGNAL('doubleClicked(const QModelIndex&)'), self.show_world_object)
 
     def notify(self, sender, event=None):
-        signal, world = event
-        self.set_world(world)
+        signal, data = event
+        if signal == 'WorldChanged':
+            self.set_world(data)
 
     def show_world_object(self, index):
         item = index.model().itemFromIndex(index)
