@@ -63,10 +63,10 @@ def _model_factories():
     return models
 
 class Project(object):
-    
+
     model_klasses = _model_factories()
 
-    def __init__(self, name, path, 
+    def __init__(self, name, path,
                  icon="", author="OpenAlea Consortium", author_email="",
                  description="", long_description="", citation="", url="", dependencies=[], license="CeCILL-C",
                  version="0.1"):
@@ -104,7 +104,7 @@ class Project(object):
 
     #----------------------------------------
     # Public API
-    #----------------------------------------    
+    #----------------------------------------
     def create(self):
         """
         Do the same thing that import method.
@@ -179,7 +179,7 @@ class Project(object):
     def add(self, category, name, value):
         """
         Add an object in the project
-        
+
         :param category: *type* of object to add ("src", "control", "world", ...)
         :param name: filename of the object to add (path or str)
         :param value: to add (string)
@@ -194,9 +194,9 @@ class Project(object):
     def remove(self, category, name):
         """
         Remove an object in the project
-        
+
         Remove nothing on disk.
-        
+
         :param category: category of object to remove ("src", "control", "world", ...) (str)
         :param name: filename of the src to remove (path or str)
         """
@@ -212,7 +212,7 @@ class Project(object):
         """
         Rename a src, a world or a control in the project.
         If category is project, rename the entire project.
-        
+
         :param category: Can be "src", "control", "world" or "project" (str)
         :param old_name: current name of thing to rename (str)
         :param new_name: future name of thing to rename (str)
@@ -242,7 +242,7 @@ class Project(object):
 
     #----------------------------------------
     # Manifest
-    #---------------------------------------- 
+    #----------------------------------------
     def save_manifest(self):
         """
         Save a manifest file on disk. His name is "*oaproject.cfg*".
@@ -274,7 +274,7 @@ class Project(object):
         2. Load metadata inside project from manifest.
         3. Load **filenames** of data files inside project from manifest.
         4. **Not** load data ! If you want to load data, please use :func:`load`.
-        
+
         :warning: load metadata and list of filenames but does not load files
 
         .. seealso:: :func:`save_manifest` :func:`load`
@@ -304,7 +304,7 @@ class Project(object):
         names = name.split()
         return_models = []
 
-        if "*" in names and len(names)==1:
+        if "*" in names and len(names) == 1:
             names = self.src.keys()
 
         for name in names:
@@ -342,7 +342,7 @@ class Project(object):
     def remove_script(self, name):
         """
         Add a src in the project
-        
+
         Remove nothing on disk.
 
         :deprecated: replace by :func:`remove` method
@@ -365,7 +365,7 @@ class Project(object):
 
     #----------------------------------------
     # Protected
-    #---------------------------------------- 
+    #----------------------------------------
     def _load(self, object_type, namespace={}):
         """
         Load files listed in self.object_type.keys()
@@ -671,3 +671,12 @@ class Project(object):
     @doc.setter
     def doc(self, value):
         self.files["doc"] = value
+
+    @property
+    def icon_path(self):
+        icon_name = None
+        if self.icon:
+            if not self.icon.startswith(':'):
+                # local icon
+                icon_name = path_(self.path) / self.name / self.icon
+        return icon_name
