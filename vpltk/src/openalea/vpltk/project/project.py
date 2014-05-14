@@ -316,7 +316,7 @@ class Project(object):
                 filename = path_(name)
                 ext = filename.ext[1:]
                 if ext in self.model_klasses:
-                    return_models.append(self.model_klasses[ext])
+                    return_models.append(self.model_klasses[ext](name=name, code=code))
 
         if len(return_models) == 1:
             return return_models[0]
