@@ -82,19 +82,24 @@ class ProjectTreeView(QtGui.QTreeView):
     def __init__(self, session, controller, parent=None):
         super(ProjectTreeView, self).__init__(parent) 
         #self.setIconSize(QtCore.QSize(30,30))
+
+        self.setDragEnabled(True)
+        self.setDropIndicatorShown(True)
+        self.setAcceptDrops(True)
+
         self.session = session
         self.controller = controller
-        
+
         if self.session.current_is_project():
             self.project = self.session.project
         else:
             self.project = None
-            
+
         self.projectview = QtGui.QWidget()
-        
+
         # project tree view
         self.proj_model = PrjctModel(session, controller, self.project)
-        
+
         self.setHeaderHidden(True)
         self.setModel(self.proj_model)
 
@@ -103,20 +108,20 @@ class ProjectTreeView(QtGui.QTreeView):
 
         self.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         QtCore.QObject.connect(self,QtCore.SIGNAL('doubleClicked(const QModelIndex&)'),self.on_opened_file)
-        
+
     def update(self):
         self.reinit_treeview()
-        
+
     def reinit_treeview(self):
         """ Reinitialise project view """
-        
+
         if self.session.project:
             self.project = self.session.project
         else:
             self.project = None
         self.proj_model.set_proj(self.project)
         self.expandAll()
-        
+
     def create_menu(self):
         menu = QtGui.QMenu(self)
 
@@ -158,10 +163,9 @@ class ProjectTreeView(QtGui.QTreeView):
             self.open_file()
 
     def open_file(self):
-        if self.controller.applet_container:
-            item = self.getItem()
-            filename = path(self.project.path)/self.project.name/item.parent().text()/item.text()
-            self.controller.applet_container.open_file(filename=filename)
+        item = self.getItem()
+        filename = path(self.project.path)/self.project.name/item.parent().text()/item.text()
+        self.controller.applet_container.open_file(filename=filename)
 
     def is_file_selected(self):
         """
@@ -174,6 +178,17 @@ class ProjectTreeView(QtGui.QTreeView):
                     return True
         return False
 
+    def is_src_selected(self):
+        """
+        :return: True if selected object is a src. Else, False.
+        """
+        if self.project:
+            item = self.getItem()
+            if self.hasParent():
+                if item.parent().text() == "src":
+                    return True
+        return False
+
     def showMenu(self, event):
         """ function defining actions to do according to the menu's button chosen"""
         menu = self.create_menu()
@@ -182,7 +197,7 @@ class ProjectTreeView(QtGui.QTreeView):
     def hasSelection(self):
         """function hasSelection: check if an object is selected, return True in this case"""
         return self.selectionModel().hasSelection()
-        
+
     def hasParent(self):
         return bool(self.getParent())
 
@@ -206,7 +221,55 @@ class ProjectTreeView(QtGui.QTreeView):
         :return: Name of menu tab to automatically set current when current widget
         begin current.
         """
-        return "Project"  
+        return "Project"
+
+    def startDrag(self, supportedActions):
+        item = self.getItem()
+        #Check item in src
+        # TODO move this part in dragEnterEvent with mimetype
+        if self.is_src_selected():
+            text = item.text()
+
+            text1 = text.split()[0].split(".")[0]
+
+            text = '%s = Model("%s")' % (text1, text)
+            icon = item.icon()
+            pixmap = icon.pixmap(20, 20)
+
+            mimeData = QtCore.QMimeData()
+            mimeData.setText(text)
+
+            drag = QtGui.QDrag(self)
+            drag.setMimeData(mimeData)
+            drag.setHotSpot(QtCore.QPoint(pixmap.width()/2, pixmap.height()/2))
+            drag.setPixmap(pixmap)
+
+            drag.start(QtCore.Qt.MoveAction)
+
+    def dragEnterEvent(self, event):
+        # TODO
+
+        # cf nodetreeview.py l 440 in visualea
+        # mimedata = event.mimeData()
+        event.accept()
+        #if mimedata.hasFormat(NodeFactory.mimetype) or mimedata.hasFormat(CompositeNodeFactory.mimetype):
+        #    event.accept()
+        #else:
+        #    event.ignore()
+
+    def dragMoveEvent(self, event):
+        # TODO
+
+        # mimedata = event.mimeData()
+        event.ignore()
+        #if mimedata.hasFormat(NodeFactory.mimetype) or mimedata.hasFormat(CompositeNodeFactory.mimetype):
+        #    event.setDropAction(qt.QtCore.Qt.MoveAction)
+        #    event.accept()
+        #else:
+        #    event.ignore()
+
+    def dropEvent(self, event):
+        event.ignore()
 
 
 class PrjctModel(QtGui.QStandardItemModel):
