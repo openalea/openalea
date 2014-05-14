@@ -3,7 +3,6 @@ from openalea.core.path import path
 from openalea.oalab.gui import resources_rc
 from openalea.oalab.project.preview import Preview, pretty_print
 from openalea.vpltk.project.manager import ProjectManager
-from math import sqrt
 import sys
 
 
@@ -21,13 +20,8 @@ class PrettyPreview(QtGui.QPushButton):
         self.project = project
 
         layout = QtGui.QGridLayout(self)
-        icon_name = ":/images/resources/openalealogo.png"
-        if project.icon:
-            if not project.icon.startswith(':'):
-                #local icon
-                icon_name = path(project.path) / project.name / project.icon
-                #else native icon from oalab.gui.resources
-
+        icon_path = project.icon_path
+        icon_name = icon_path if icon_path else ":/images/resources/openalealogo.png"
         text = pretty_print(project.name)
 
         pixmap = QtGui.QPixmap(icon_name)
@@ -38,38 +32,13 @@ class PrettyPreview(QtGui.QPushButton):
         painter.begin(pixmap)
         painter.setPen(QtCore.Qt.darkGreen)
         qsize = pixmap.size()
-        ytext = 0.85*qsize.height()
-        painter.drawText(0, ytext, qsize.width(), 0.2*qsize.height(), QtCore.Qt.AlignHCenter, text)
+        ytext = 0.85 * qsize.height()
+        painter.drawText(0, ytext, qsize.width(), 0.2 * qsize.height(), QtCore.Qt.AlignHCenter, text)
         painter.end()
 
         label.setPixmap(pixmap)
 
         layout.addWidget(label, 0, 0)
-
-        """
-        pixmap_icon = QtGui.QPixmap(icon_name)
-        size = pixmap_icon.size()
-        label = QtGui.QLabel()
-
-#        if (size.height() > wanted_size) or (size.width() > wanted_size):
-        #     # Auto-rescale if image is bigger than (wanted_size x wanted_size)
-        pixmap_icon = pixmap_icon.scaled(qsize, QtCore.Qt.KeepAspectRatio)
-        # #     label.setScaledContents(True)
-
-        pixmap = QtGui.QPixmap(qsize)
-        ytext = 0.8*qsize.height()
-
-        painter = QtGui.QPainter()
-        painter.begin(pixmap)
-        # painter.fillRect(0, 0, qsize.width(), qsize.height(), QtCore.Qt.white)
-        painter.drawPixmap(0, 0, wanted_size, wanted_size, pixmap_icon)
-#        painter.setPen()
-#         painter.fillRect(0, ytext, qsize.width(), 0.2*qsize.height(), QtCore.Qt.white)
-        painter.setPen(QtCore.Qt.white)
-        painter.drawText(0, ytext, qsize.width(), 0.2*qsize.height(), QtCore.Qt.AlignLeft, text)
-        painter.end()
-
-        label.setPixmap(pixmap)"""
 
 
 class ProjectSelector(QtGui.QWidget):
@@ -88,11 +57,11 @@ class ProjectSelector(QtGui.QWidget):
         # Here number of lines <= number of columns
         # <=4 -> 2x2 or 2x1, <=9 -> 3x3 or 3x2, <=16 -> 4x4 or 4x3, ...
         nb_proj = len(self.projects)
-        #maxcolumn = int(sqrt(nb_proj))
+        # maxcolumn = int(sqrt(nb_proj))
 
         # Pb: we want the size of QScrollArea and not self
         actual_width = self.size().width()
-        maxcolumn = int(actual_width/nb_proj)
+        maxcolumn = int(actual_width / nb_proj)
 
 
         if maxcolumn > 5:
@@ -124,17 +93,6 @@ class ProjectSelector(QtGui.QWidget):
         sender = self.sender()
         self.current_preview = Preview(project=sender.project, open_project=self.open_project)
         self.current_preview.show()
-
-        #preview_widget = Preview(project=sender.project)
-
-        ## remove old widget
-        #item = layout.itemAtPosition(maxcolumn,0)
-        #if item:
-        #wid = item.widget()
-        #layout.removeWidget(wid)
-        #wid.setParent(None)
-
-        #layout.addWidget(preview_widget, maxcolumn, 0, maxcolumn, maxcolumn)
 
     def refersh_project_list(self):
         project_manager = ProjectManager()
