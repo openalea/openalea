@@ -76,6 +76,12 @@ class ProjectManagerWidget(QtGui.QWidget):
                          ]
 
 
+        # Menu used to display all available projects.
+        # This menu is filled dynamically each time this menu is opened
+        self.menu_available_projects = QtGui.QMenu(u'Available Projects')
+        self.menu_available_projects.aboutToShow.connect(self._update_available_project_menu)
+        self.action_available_project = {} # Dict used to know what project corresponds to triggered action
+
         self.defaultProj()
 
     def defaultProj(self):
@@ -105,8 +111,8 @@ You can rename/move this project thanks to the button "Save As" in menu.
         Then open project.
         """
         self.session.project_manager.discover()
-        projs = self.session.project_manager.projects
-        self.proj_selector = ProjectSelectorScroll(projects=projs, open_project=self.openProject)
+        projects = self.session.project_manager.projects
+        self.proj_selector = ProjectSelectorScroll(projects=projects, open_project=self.openProject)
         self.proj_selector.show()
 
         # if name is False:
@@ -236,7 +242,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         """
         if self.session.current_is_project():
             container = self.controller.applet_container
-            if container is None: #CPL
+            if container is None: # CPL
                 return
 
             for i in range(container.count()):
@@ -361,6 +367,24 @@ You can rename/move this project thanks to the button "Save As" in menu.
             for w in project.world:
                 self.session.world.add(name=w, obj=project.world[w])
 
+    def _update_available_project_menu(self):
+        """
+        Discover all projects and generate an action for each one.
+        Then connect this action to _on_open_project_triggered
+        """
+        self.session.project_manager.discover()
+        self.menu_available_projects.clear()
+        self.action_available_project.clear()
+        for project in self.session.project_manager.projects:
+            icon_path = project.icon_path
+            icon_name = icon_path if icon_path else ":/images/resources/openalealogo.png"
+            action = QtGui.QAction(QtGui.QIcon(icon_name), project.name, self.menu_available_projects)
+            action.triggered.connect(self._on_open_project_triggered)
+            self.menu_available_projects.addAction(action)
+            self.action_available_project[action] = project
+
+    def _on_open_project_triggered(self):
+        self.openProject(self.action_available_project[self.sender()])
 
 def showNewProjectDialog(default_name=None, text=None, parent=None):
     my_path = path_(settings.get_project_dir())

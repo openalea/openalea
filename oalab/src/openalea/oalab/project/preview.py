@@ -15,6 +15,9 @@ def pretty_print(obj):
 
 
 class Preview(QtGui.QWidget):
+    """
+    This widget displays meta-information about project.
+    """
     def __init__(self, project, open_project=None, parent=None):
         super(Preview, self).__init__(parent)
         self.open_project = open_project

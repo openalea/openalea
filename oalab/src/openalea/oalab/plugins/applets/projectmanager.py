@@ -11,3 +11,4 @@ class ProjectManager(PluginApplet):
 
         self._applet = ProjectManagerWidget(mainwindow.session, mainwindow)
         self._fill_menu(mainwindow, self._applet)
+        mainwindow.menu_classic['Project'].addMenu(self._applet.menu_available_projects)
