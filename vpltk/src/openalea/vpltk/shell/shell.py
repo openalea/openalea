@@ -2,7 +2,7 @@
 #
 #       OpenAlea.Visualea: OpenAlea graphical user interface
 #
-#       Copyright 2006-2009 INRIA - CIRAD - INRA  
+#       Copyright 2006-2009 INRIA - CIRAD - INRA
 #
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #                       Christophe Pradal <christophe.prada@cirad.fr>
@@ -10,7 +10,7 @@
 #       Distributed under the CeCILL v2 License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL_V2-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ################################################################################
@@ -19,11 +19,12 @@
 __license__ = "CeCILL V2"
 __revision__ = " $Id: shell.py 3672 2012-12-05 12:28:19Z jcoste $"
 
+import sys
+from streamredirection import GraphicalStreamRedirection
+
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.vpltk.check.ipython import has_ipython
 from openalea.vpltk.check.ipython_deps import has_full_deps
-import os, sys
-from streamredirection import *
 
 def get_shell_class():
     """
@@ -40,26 +41,26 @@ def get_shell_class():
         try:
             from scishell import SciShell
             return SciShell
-        
+
         except ImportError:
             return PyCutExt
-    
+
 
 def get_interpreter_class():
     """
     :return: the interpreter class to instantiate the shell
     """
-    
+
     if has_ipython() and has_full_deps():
         # Test IPython
         from openalea.vpltk.shell.ipythoninterpreter import Interpreter
         return Interpreter
-    else:    
+    else:
         from code import InteractiveInterpreter
-        return InteractiveInterpreter    
-            
+        return InteractiveInterpreter
 
-class PyCutExt(QtGui.QTextEdit,GraphicalStreamRedirection):
+
+class PyCutExt(QtGui.QTextEdit, GraphicalStreamRedirection):
 
     """
     PyCute is a Python shell for PyQt.
@@ -70,14 +71,14 @@ class PyCutExt(QtGui.QTextEdit,GraphicalStreamRedirection):
 
     This class is inspired by PyCute.py : http://gerard.vermeulen.free.fr (GPL)
     """
-    
+
     def __init__(self, interpreter, message="", log='', parent=None):
         """Constructor.
         @param interpreter : InteractiveInterpreter in which
         the code will be executed
 
         @param message : welcome message string
-        
+
         @param 'log' : specifies the file in which the
         interpreter session is to be logged.
 
@@ -88,7 +89,7 @@ class PyCutExt(QtGui.QTextEdit,GraphicalStreamRedirection):
 
         QtGui.QTextEdit.__init__(self, parent)
         GraphicalStreamRedirection.__init__(self)
-        
+
         self.interpreter = interpreter
         self.colorizer = SyntaxColor()
 
@@ -101,25 +102,25 @@ class PyCutExt(QtGui.QTextEdit,GraphicalStreamRedirection):
         else:
             self.eofKey = None
 
-        
+
         # last line + last incomplete lines
-        self.line    = str()
-        self.lines   = []
+        self.line = str()
+        self.lines = []
         # the cursor position in the last line
-        self.point   = 0
-        # flag: the interpreter needs more input to run the last lines. 
-        self.more    = 0
+        self.point = 0
+        # flag: the interpreter needs more input to run the last lines.
+        self.more = 0
         # flag: readline() is being used for e.g. raw_input() and input()
         self.reading = 0
         # history
         self.history = []
         self.pointer = 0
-        self.cursor_pos   = 0
+        self.cursor_pos = 0
 
         # user interface setup
-        #self.setTextFormat(QtCore.Qt.PlainText)
+        # self.setTextFormat(QtCore.Qt.PlainText)
         self.setLineWrapMode(QtGui.QTextEdit.NoWrap)
-        #self.setCaption('Python Shell')
+        # self.setCaption('Python Shell')
 
 #         # font
 #         if os.name == 'posix':
@@ -153,18 +154,18 @@ class PyCutExt(QtGui.QTextEdit,GraphicalStreamRedirection):
                    (sys.version, sys.platform))
         self.write('Type "copyright", "credits" or "license"'
                    ' for more information on Python.\n')
-        self.write(message+'\n\n')
-        self.write('This is the standard Shell.\n'+
-                   'Autocompletion is not available unless QScintilla is installed:\n'+
+        self.write(message + '\n\n')
+        self.write('This is the standard Shell.\n' +
+                   'Autocompletion is not available unless QScintilla is installed:\n' +
                    'See http://www.riverbankcomputing.co.uk/qscintilla.\n\n')
         self.write(sys.ps1)
-        
+
 
     def get_interpreter(self):
         """ Return the interpreter object """
 
         return self.interpreter
-        
+
 
     def moveCursor(self, operation, mode=QtGui.QTextCursor.MoveAnchor):
         """
@@ -174,7 +175,7 @@ class PyCutExt(QtGui.QTextEdit,GraphicalStreamRedirection):
         cursor = self.textCursor()
         cursor.movePosition(operation, mode)
         self.setTextCursor(cursor)
-        
+
 
     def flush(self):
         """
@@ -192,8 +193,8 @@ class PyCutExt(QtGui.QTextEdit,GraphicalStreamRedirection):
 
     def clear(self):
         """ Clear """
-        
-    
+
+
 
     def readline(self):
         """
@@ -207,9 +208,9 @@ class PyCutExt(QtGui.QTextEdit,GraphicalStreamRedirection):
         if self.line.length() == 0:
             return '\n'
         else:
-            return str(self.line) 
+            return str(self.line)
 
-    
+
     def write(self, text):
         """
         Simulate stdin, stdout, and stderr.
@@ -231,7 +232,7 @@ class PyCutExt(QtGui.QTextEdit,GraphicalStreamRedirection):
         # Set the format
         cursor.setPosition(pos1, QtGui.QTextCursor.KeepAnchor)
         format = cursor.charFormat()
-        format.setForeground( QtGui.QBrush(QtGui.QColor(0,0,0)))
+        format.setForeground(QtGui.QBrush(QtGui.QColor(0, 0, 0)))
         cursor.setCharFormat(format)
 
 
@@ -252,7 +253,7 @@ class PyCutExt(QtGui.QTextEdit,GraphicalStreamRedirection):
             self.write('\n')
             self.__run()
 
-            
+
     def __run(self):
         """
         Append the last line to the history list, let the interpreter execute
@@ -265,7 +266,7 @@ class PyCutExt(QtGui.QTextEdit,GraphicalStreamRedirection):
         self.history.append(str(self.line))
         try:
             self.lines.append(str(self.line))
-        except Exception,e:
+        except Exception, e:
             print e
 
         source = '\n'.join(self.lines)
@@ -278,15 +279,15 @@ class PyCutExt(QtGui.QTextEdit,GraphicalStreamRedirection):
             self.lines = []
         self.__clearLine()
 
-        
+
     def __clearLine(self):
         """
         Clear input line buffer
         """
-        #self.line.truncate(0)    ## bug
+        # self.line.truncate(0)    ## bug
         self.point = 0
 
-        
+
     def __insertText(self, text):
         """
         Insert text at the current cursor position.
@@ -304,8 +305,8 @@ class PyCutExt(QtGui.QTextEdit,GraphicalStreamRedirection):
         """
         Handle user input a key at a time.
         """
-        text  = e.text()
-        key   = e.key()
+        text = e.text()
+        key = e.key()
 
         if key == QtCore.Qt.Key_Backspace:
             if self.point:
@@ -313,8 +314,8 @@ class PyCutExt(QtGui.QTextEdit,GraphicalStreamRedirection):
                 cursor.movePosition(QtGui.QTextCursor.PreviousCharacter, QtGui.QTextCursor.KeepAnchor)
                 cursor.removeSelectedText()
                 self.color_line()
-            
-                self.point -= 1 
+
+                self.point -= 1
                 self.line.remove(self.point, 1)
 
         elif key == QtCore.Qt.Key_Delete:
@@ -322,36 +323,36 @@ class PyCutExt(QtGui.QTextEdit,GraphicalStreamRedirection):
             cursor.movePosition(QtGui.QTextCursor.NextCharacter, QtGui.QTextCursor.KeepAnchor)
             cursor.removeSelectedText()
             self.color_line()
-                        
+
             self.line.remove(self.point, 1)
-            
+
         elif key == QtCore.Qt.Key_Return or key == QtCore.Qt.Key_Enter:
             self.write('\n')
             if self.reading:
                 self.reading = 0
             else:
                 self.__run()
-                
+
         elif key == QtCore.Qt.Key_Tab:
             self.__insertText(text)
         elif key == QtCore.Qt.Key_Left:
-            if self.point : 
+            if self.point :
                 self.moveCursor(QtGui.QTextCursor.Left)
-                self.point -= 1 
+                self.point -= 1
         elif key == QtCore.Qt.Key_Right:
             if self.point < self.line.length():
                 self.moveCursor(QtGui.QTextCursor.Right)
-                self.point += 1 
+                self.point += 1
 
         elif key == QtCore.Qt.Key_Home:
             cursor = self.textCursor ()
             cursor.setPosition(self.cursor_pos)
             self.setTextCursor (cursor)
-            self.point = 0 
+            self.point = 0
 
-        elif key ==QtCore.Qt.Key_End:
+        elif key == QtCore.Qt.Key_End:
             self.moveCursor(QtGui.QTextCursor.EndOfLine)
-            self.point = self.line.length() 
+            self.point = self.line.length()
 
         elif key == QtCore.Qt.Key_Up:
 
@@ -360,7 +361,7 @@ class PyCutExt(QtGui.QTextEdit,GraphicalStreamRedirection):
                     self.pointer = len(self.history)
                 self.pointer -= 1
                 self.__recall()
-                
+
         elif key == QtCore.Qt.Key_Down:
             if len(self.history):
                 self.pointer += 1
@@ -368,7 +369,7 @@ class PyCutExt(QtGui.QTextEdit,GraphicalStreamRedirection):
                     self.pointer = 0
                 self.__recall()
 
-        elif text.length():  ##len(text): ##
+        elif text.length(): # #len(text): ##
             self.__insertText(text)
             return
 
@@ -381,22 +382,22 @@ class PyCutExt(QtGui.QTextEdit,GraphicalStreamRedirection):
         Display the current item from the command history.
         """
         cursor = self.textCursor ()
-        cursor.select( QtGui.QTextCursor.LineUnderCursor )
+        cursor.select(QtGui.QTextCursor.LineUnderCursor)
         cursor.removeSelectedText()
 
         if self.more:
             self.write(sys.ps2)
         else:
             self.write(sys.ps1)
-            
+
 
         self.__clearLine()
         self.__insertText(self.history[self.pointer])
 
-        
+
 #     def focusNextPrevChild(self, next):
 #         """
-#         Suppress tabbing to the next window in multi-line commands. 
+#         Suppress tabbing to the next window in multi-line commands.
 #         """
 #         if next and self.more:
 #             return 0
@@ -408,24 +409,24 @@ class PyCutExt(QtGui.QTextEdit,GraphicalStreamRedirection):
         """
         if e.button() == QtCore.Qt.LeftButton:
             self.moveCursor(QtGui.QTextCursor.End)
-            
 
-    def contentsContextMenuEvent(self,ev):
+
+    def contentsContextMenuEvent(self, ev):
         """
         Suppress the right button context menu.
         """
         pass
 
-    
+
     def color_line(self):
         """ Color the current line """
-        
+
         cursor = self.textCursor()
         cursor.movePosition(QtGui.QTextCursor.StartOfLine)
 
         newpos = cursor.position()
         pos = -1
-        
+
         while(newpos != pos):
             cursor.movePosition(QtGui.QTextCursor.NextWord)
 
@@ -436,11 +437,11 @@ class PyCutExt(QtGui.QTextEdit,GraphicalStreamRedirection):
             word = str(cursor.selectedText ().toAscii())
 
             if(not word) : continue
-            
-            (R,G,B) = self.colorizer.get_color(word)
-            
+
+            (R, G, B) = self.colorizer.get_color(word)
+
             format = cursor.charFormat()
-            format.setForeground( QtGui.QBrush(QtGui.QColor(R,G,B)))
+            format.setForeground(QtGui.QBrush(QtGui.QColor(R, G, B)))
             cursor.setCharFormat(format)
 
 
@@ -456,14 +457,14 @@ class PyCutExt(QtGui.QTextEdit,GraphicalStreamRedirection):
         else:
             event.ignore()
 
-            
+
     def dropEvent(self, event):
 
         if(event.mimeData().hasFormat("text/plain")):
             line = event.mimeData().text()
             self.__insertTextAtEnd(line)
             self.setFocus()
-            
+
             event.setDropAction(QtCore.Qt.MoveAction)
             event.accept()
 
@@ -471,10 +472,10 @@ class PyCutExt(QtGui.QTextEdit,GraphicalStreamRedirection):
         else:
             event.ignore()
 
-    def customEvent(self,event):
-        GraphicalStreamRedirection.customEvent(self,event)
-        QtGui.QTextEdit.customEvent(self,event)
-            
+    def customEvent(self, event):
+        GraphicalStreamRedirection.customEvent(self, event)
+        QtGui.QTextEdit.customEvent(self, event)
+
 
 
 
@@ -486,27 +487,27 @@ class SyntaxColor:
                 "as", "elif", "global", "or", "with",
                 "assert", "else", "if", "pass", "yield",
                 "break", "except", "import", "print",
-                "class", "exec", "in", "raise",              
+                "class", "exec", "in", "raise",
                 "continue", "finally", "is", "return",
                 "def", "for", "lambda", "try"])
 
     def __init__(self):
         pass
-        
+
 
     def get_color(self, word):
         """ Return a color tuple (R,G,B) depending of the string word """
 
         stripped = word.strip()
-        
+
         if(stripped in self.keywords):
-            return (255, 132,0) # orange
-        
+            return (255, 132, 0) # orange
+
         elif(self.is_python_string(stripped)):
             return (61, 120, 9) # dark green
-        
+
         else:
-            return (0,0,0)
+            return (0, 0, 0)
 
     def is_python_string(self, str):
         """ Return True if str is enclosed by a string mark """
@@ -515,11 +516,11 @@ class SyntaxColor:
 #             (str.startswith("'''") and str.endswith("'''")) or
 #             (str.startswith('"""') and str.endswith('"""')) or
 #             (str.startswith("'") and str.endswith("'")) or
-#             (str.startswith('"') and str.endswith('"')) 
+#             (str.startswith('"') and str.endswith('"'))
 #             )
         return False
-        
-def main():        
+
+def main():
     # Test the widget independently.
     a = QtGui.QApplication(sys.argv)
 
@@ -528,19 +529,19 @@ def main():
 
     shellclass = get_shell_class()
     interpreterclass = get_interpreter_class()
-    
+
     ipyinterpreter = interpreterclass()
     aw = shellclass(ipyinterpreter)
 
     # static resize
-    aw.resize(600,400)
+    aw.resize(600, 400)
 
     aw.show()
     a.exec_()
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     main()
 
-    
+
 

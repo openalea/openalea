@@ -299,7 +299,7 @@ class Project(object):
     def model(self, name):
         """
         :param name: name of the file in self.src to convert into model. Can pass various names split by spaces. Can pass "*".
-        :return: model corresponding to the source named *name* in self.src. If various values, return a list of models. If failed, return None.
+        :return: model object corresponding to the source named *name* in self.src. If various values, return a list of models. If failed, return None.
         """
         names = name.split()
         return_models = []
