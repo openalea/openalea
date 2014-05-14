@@ -9,8 +9,8 @@ class VPLScene(OrderedDict, Observed):
     Scene for OALab. Singleton.
 
     This class inherit from ordered dict.
-    But when the dict is modified, self.signaler emit a qt signal (arg=self).
-    This is really usefull to realize automatic updates of viewer!
+    This scene also inherits from Observed, especially to know when Scene has changed.
+    (Notify listeners with WorldChanged event)
     """
 
     __metaclass__ = Singleton
@@ -65,7 +65,7 @@ class VPLScene(OrderedDict, Observed):
             warnings.warn("scene[%s] doesn't exist." % oldname)
 
         if obj is not None:
-            self.add(name=newname1, obj=obj)
+            self.add(name=newname, obj=obj)
             del self[oldname]
 
     def reset(self):
@@ -132,9 +132,9 @@ class VPLScene(OrderedDict, Observed):
 
     def _valueChanged(self):
         """
-        Emit Qt Signal when the dict change
+        Notify listeners with WorldChanged event
         """
         if not self._block:
-            self.notify_listeners(('SceneChanged', self))
+            self.notify_listeners(('WorldChanged', self))
 
 Scene = VPLScene

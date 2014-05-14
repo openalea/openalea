@@ -5,24 +5,24 @@
 Currently, the service convert object to PlantGL shapes.
 """
 
+__all__ = ['to_shape3d', 'register_shape3d']
+
 def find_plugins(plugin_name='oalab.service.to_shape3d'):
     """ Find plugins defined as entry points.
 
-    A Plugin return a registery of adapters.
-    A registery is a mapping between a type or a tuple of types and a functor returning a
+    A Plugin return a registry of adapters.
+    A registry is a mapping between a type or a tuple of types and a functor returning a
     3D model.
     """
     register = {}
     from openalea.vpltk.plugin import iter_plugins
     for plugin in iter_plugins(plugin_name):
-        register.update(plugin.registery)
+        register.update(plugin.registry)
     return register
-
-
 
 __registry = find_plugins()
 
-def register_geom(type_or_types, functor):
+def register_shape3d(type_or_types, functor):
     __registry[type_or_types] = functor
 
 def to_shape3d(obj):
@@ -30,7 +30,7 @@ def to_shape3d(obj):
     import collections
     if isinstance(obj, (pgl.Scene, pgl.Shape, pgl.Geometry)):
         return obj
-    
+
     if issubclass(type(obj), collections.Sequence):
         try:
             result = pgl.Scene(obj)
@@ -38,12 +38,12 @@ def to_shape3d(obj):
         except Exception, e:
             pass
 
-    # Case _repr_3d_
+    # Case _repr_geom_
     if hasattr(obj, "_repr_geom_"):
         return to_shape3d(obj._repr_geom_())
 
-    for types, function in _registry.iteritems():
+    for types, function in __registry.iteritems():
         if isinstance(obj, types):
-            return adapt(function(obj))
+            return to_shape3d(function(obj))
 
 del find_plugins
