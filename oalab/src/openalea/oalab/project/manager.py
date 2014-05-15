@@ -25,6 +25,7 @@ from openalea.vpltk.project.manager import ProjectManager
 from openalea.oalab.project.creator import CreateProjectWidget
 from openalea.oalab.project.pretty_preview import ProjectSelectorScroll
 from openalea.oalab.gui import resources_rc # do not remove this import else icon are not drawn
+from openalea.oalab.gui.utils import qicon
 
 class ProjectManagerWidget(QtGui.QWidget):
     """
@@ -45,26 +46,26 @@ class ProjectManagerWidget(QtGui.QWidget):
 
         self.projectManager = ProjectManager()
 
-        self.actionNewProj = QtGui.QAction(QtGui.QIcon(":/images/resources/new.png"), "New", self)
+        self.actionNewProj = QtGui.QAction(qicon("new.png"), "New", self)
         self.actionNewProj.setShortcut(
             QtGui.QApplication.translate("MainWindow", "Ctrl+N", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionOpenProj = QtGui.QAction(QtGui.QIcon(":/images/resources/open.png"), "Open", self)
+        self.actionOpenProj = QtGui.QAction(qicon("open.png"), "Open", self)
         self.actionOpenProj.setShortcut(
             QtGui.QApplication.translate("MainWindow", "Ctrl+O", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionSaveProj = QtGui.QAction(QtGui.QIcon(":/images/resources/save.png"), "Save", self)
-        self.actionSaveProjAs = QtGui.QAction(QtGui.QIcon(":/images/resources/save.png"), "Save As", self)
+        self.actionSaveProj = QtGui.QAction(qicon("save.png"), "Save", self)
+        self.actionSaveProjAs = QtGui.QAction(qicon("save.png"), "Save As", self)
         # self.actionSaveProj.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionCloseProj = QtGui.QAction(QtGui.QIcon(":/images/resources/closeButton.png"), "Close All", self)
-        self.actionEditMeta = QtGui.QAction(QtGui.QIcon(":/images/resources/book.png"), "Edit Metadata", self)
-        self.actionAddFile = QtGui.QAction(QtGui.QIcon(":/images/resources/bool.png"), "Add To Proj", self)
+        self.actionCloseProj = QtGui.QAction(qicon("closeButton.png"), "Close All", self)
+        self.actionEditMeta = QtGui.QAction(qicon("book.png"), "Edit Metadata", self)
+        self.actionAddFile = QtGui.QAction(qicon("bool.png"), "Add To Proj", self)
 
-        self.connect(self.actionNewProj, QtCore.SIGNAL('triggered(bool)'), self.new)
-        self.connect(self.actionOpenProj, QtCore.SIGNAL('triggered(bool)'), self.open)
-        self.connect(self.actionSaveProjAs, QtCore.SIGNAL('triggered(bool)'), self.saveAs)
-        self.connect(self.actionSaveProj, QtCore.SIGNAL('triggered(bool)'), self.saveCurrent)
-        self.connect(self.actionCloseProj, QtCore.SIGNAL('triggered(bool)'), self.closeCurrent)
-        self.connect(self.actionEditMeta, QtCore.SIGNAL('triggered(bool)'), self.edit_metadata)
-        self.connect(self.actionAddFile, QtCore.SIGNAL('triggered(bool)'), self.add_file_to_project)
+        self.actionNewProj.triggered.connects(self.new)
+        self.actionOpenProj.triggered.connect(self.open)
+        self.actionSaveProjAs.triggered.connect(self.saveAs)
+        self.actionSaveProj.triggered.connect(self.saveCurrent)
+        self.actionCloseProj.triggered.connect(self.closeCurrent)
+        self.actionEditMeta.triggered.connect(self.edit_metadata)
+        self.actionAddFile.triggered.connect(self.add_file_to_project)
 
         self._actions = [["Project", "Manage Project", self.actionNewProj, 1],
                          ["Project", "Manage Project", self.actionOpenProj, 0],
