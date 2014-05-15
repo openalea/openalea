@@ -98,7 +98,7 @@ class view3D(QGLViewer):
                 obj = to_shape3d(world_obj)
 
             if obj:
-                self.scene += adapt(obj)
+                self.scene += to_shape3d(obj)
         self.draw()
 
 
