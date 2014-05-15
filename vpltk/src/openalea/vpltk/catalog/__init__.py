@@ -18,4 +18,12 @@
 #
 ###############################################################################
 
+
+"""
+.. warning::
+
+    This module is just a proof of concept and is currently not used
+
+"""
+
 from catalog import Catalog

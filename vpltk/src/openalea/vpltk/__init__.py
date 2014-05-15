@@ -15,5 +15,3 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-from project.project import Project
-from project.manager import ProjectManager

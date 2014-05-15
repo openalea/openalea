@@ -5,7 +5,7 @@ import shutil
 
 
 def test_import_project():
-    from openalea.vpltk import Project, ProjectManager
+    from openalea.vpltk.project import Project, ProjectManager
     assert Project is not None
     assert ProjectManager is not None
 
