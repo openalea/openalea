@@ -27,18 +27,33 @@ from openalea.vpltk.shell.shell import get_shell_class
 
 class MainWindow(QtGui.QMainWindow):
     """
-    MainWindow provides:
+    This class is based on QMainWindow and provide widgets common to all openalea labs.
+    Some are inherited from QMainWindow:
+      - a status bar
+      - a menu bar
+      - a central widget
+    Other are specific to openalea's labs:
       - a PanedMenu menu (MainWindow.menu)
-      - a shell widget
+      - an IPython shell widget
 
+    MainWindow is a passive widget that host plugin widgets.
+    Nevertheless, it provides some method to ease widget integration
+    like adding menu and actions
+
+    MainWindow is composed of three distinct areas (shelves) reachable via areas dict.
+    Available keys are
+        - inputs
+        - outputs
+        - shell
     """
+
     def __init__(self, session, parent=None, args=None):
         super(QtGui.QMainWindow, self).__init__()
         self.session = session
 
         self.areas = {}
-        for area in ('inputs', 'outputs', 'shell'):
-            self.areas[area] = QtGui.QTabWidget()
+        for area_name in ('inputs', 'outputs', 'shell'):
+            self.areas[area_name] = QtGui.QTabWidget()
 
         self.dockWidget("Inputs", self.areas['inputs'], name="Inputs",
                          position=QtCore.Qt.LeftDockWidgetArea)

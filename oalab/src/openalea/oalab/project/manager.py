@@ -59,7 +59,7 @@ class ProjectManagerWidget(QtGui.QWidget):
         self.actionEditMeta = QtGui.QAction(qicon("book.png"), "Edit Metadata", self)
         self.actionAddFile = QtGui.QAction(qicon("bool.png"), "Add To Proj", self)
 
-        self.actionNewProj.triggered.connects(self.new)
+        self.actionNewProj.triggered.connect(self.new)
         self.actionOpenProj.triggered.connect(self.open)
         self.actionSaveProjAs.triggered.connect(self.saveAs)
         self.actionSaveProj.triggered.connect(self.saveCurrent)

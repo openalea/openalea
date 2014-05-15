@@ -22,16 +22,19 @@ __all__ = ['Session']
 
 import warnings
 from openalea.vpltk.shell.shell import get_interpreter_class
-from openalea.vpltk.catalog import Catalog
 from openalea.vpltk.project.manager import ProjectManager
 from openalea.oalab.config.main import MainConfig
 from openalea.oalab.world.world import World
 
 class Session(object):
     """
-    Manage session and instantiate all widgets.
+    Session is a non graphical class that centralize managers for ...
 
-    MainWindow works thanks to the session
+      - application settings (:class:`~openalea.oalab.config.main.MainConfig`)
+      - projects (:class:`~openalea.oalab.project.manager.ProjectManager`)
+      - world (:class:`~openalea.oalab.world.world.World`)
+      - interpreter (see :mod:`~openalea.vpltk.shell.shell`)
+
     """
     def __init__(self):
         self._project = None
@@ -48,8 +51,6 @@ class Session(object):
         self.interpreter = interpreter_class()
 
         self.interpreter.locals['session'] = self
-
-        self.catalog = Catalog()
 
         self.gui = True
 
