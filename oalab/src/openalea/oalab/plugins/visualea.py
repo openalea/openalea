@@ -75,7 +75,7 @@ def save(self, name=None):
     wf_str = self.repr_workflow(self.name)
 
     if project:
-        project.scripts[self.name] = wf_str
+        project.src[self.name] = wf_str
         project._save("src")
     else:
         if self.name == (u"workflow.wpy"):
