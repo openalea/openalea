@@ -99,7 +99,7 @@ This temporary script is saved in temporary project in
 
 You can rename/move this project thanks to the button "Save As" in menu.
 """''' % str(self.session.project.path / self.session.project.name)
-            self.session.project.add(category="src", name=".temp.py", value=txt)
+            self.session.project.add(category="src", name="temp.py", value=txt)
         self._project_changed()
         self._load_control()
 
