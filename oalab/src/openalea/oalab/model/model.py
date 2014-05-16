@@ -15,7 +15,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-
+import collections
 
 class Model(object):
     default_name = ""
@@ -33,8 +33,10 @@ class Model(object):
         """
         self.name = name
         self.code = code
-        self.inputs = inputs
-        self.outputs = outputs
+        self.inputs_info = inputs
+        self.outputs_info = outputs
+        self._inputs = []
+        self._outputs = []
 
     def repr_code(self):
         """
@@ -42,32 +44,84 @@ class Model(object):
         """
         pass
 
-    def run(self, interpreter):
+    def __call__(self, *args, **kwargs):
+        return self.run(*args, **kwargs)
+
+    def run(self, *args, **kwargs):
         """
         execute model
         """
         pass
 
-    def reset(self, interpreter):
+    def reset(self, *args, **kwargs):
         """
         go back to initial step
         """
         pass
 
-    def step(self, interpreter):
+    def step(self, *args, **kwargs):
         """
         execute only one step of the model
         """
         pass
 
-    def stop(self, interpreter):
+    def stop(self, *args, **kwargs):
         """
         stop execution
         """
         pass
 
-    def animate(self, interpreter):
+    def animate(self, *args, **kwargs):
         """
         run model step by step
         """
         pass
+
+    @property
+    def inputs(self):
+        """
+        List of inputs of the model.
+
+        :use:
+            >>> model.inputs = 4, 3
+            >>> model.run()
+        """
+        return self._inputs
+
+    @inputs.setter
+    def inputs(self, *args):
+        self._inputs = dict()
+        if args:
+            inputs = args[0]
+            if not isinstance(inputs, list):
+                if isinstance(inputs, collections.Iterable):
+                    inputs = list(inputs)
+                else:
+                    inputs = [inputs]
+            if isinstance(inputs[0], list):
+                inputs = inputs[0]
+            inputs.reverse()
+
+            for input_info in self.inputs_info:
+                if len(inputs):
+                    inp = inputs.pop()
+                elif input_info.default:
+                    inp = eval(input_info.default)
+                else:
+                    raise Exception("Model %s have inputs not setted. Please set %s ." %(self.name,input_info.name))
+                self._inputs[input_info.name] = inp
+
+    @property
+    def outputs(self):
+        """
+        Return outputs of the model after running it.
+
+        :use:
+            >>> model.run()
+            >>> print model.outputs
+        """
+        return self._outputs
+
+    @outputs.setter
+    def outputs(self, outputs=[]):
+        self._outputs = outputs
