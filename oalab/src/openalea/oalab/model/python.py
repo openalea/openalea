@@ -56,7 +56,7 @@ class PythonModel(Model):
             user_ns.update(self.inputs)
 
         # run
-        result = interpreter.run_cell(self.code)
+        interpreter.run_cell(self.code)
 
         # get outputs from namespace
         if self.outputs_info:
@@ -83,7 +83,7 @@ class PythonModel(Model):
                     for i in range(5):
                         self._step()
                 self._animate = animate
-        return result
+        return self.outputs
 
     def reset(self, *args, **kwargs):
         """
