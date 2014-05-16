@@ -16,6 +16,7 @@
 #
 ###############################################################################
 from openalea.oalab.model.model import Model
+from openalea.oalab.model.parse import parse_string
 
 
 class PythonModel(Model):
@@ -30,6 +31,9 @@ class PythonModel(Model):
         self._step = None
         self._animate = None
         self._init = None
+        model, inputs, outputs = parse_string(self.code)
+        self.inputs_info = inputs
+        self.outputs_info = outputs
 
     def repr_code(self):
         """
@@ -37,17 +41,30 @@ class PythonModel(Model):
         """
         return self.code
 
-    def run(self, interpreter=None):
+    def run(self, *args, **kwargs):
         """
         execute model thanks to interpreter
         """
-        if not interpreter:
-            try:
-                interpreter = get_ipython()
-            except NameError:
-                raise("No interpreter is available to run model %s" % str(self))
+        interpreter = self._set_interpreter(**kwargs)
         user_ns = interpreter.user_ns
+
+        if args:
+            self.inputs = args
+
+        # put inputs inside namespace
+        if self.inputs:
+            user_ns.update(self.inputs)
+
+        # run
         result = interpreter.run_cell(self.code)
+
+        # get outputs from namespace
+        if self.outputs_info:
+            self.outputs = []
+            if len(self.outputs_info) > 0:
+                for outp in self.outputs_info:
+                    if outp.name in user_ns:
+                        self.outputs.append(user_ns[outp.name])
 
         ## Hack to store methods init, step and animate
         self._init = user_ns.get("init")
@@ -68,7 +85,7 @@ class PythonModel(Model):
                 self._animate = animate
         return result
 
-    def reset(self, interpreter=None):
+    def reset(self, *args, **kwargs):
         """
         go back to initial step
         """
@@ -76,7 +93,7 @@ class PythonModel(Model):
         if self._init:
             return self._init()
 
-    def step(self, interpreter=None):
+    def step(self, *args, **kwargs):
         """
         execute only one step of the model
         """
@@ -84,17 +101,27 @@ class PythonModel(Model):
         if self._step:
             return self._step()
 
-    def stop(self, interpreter=None):
+    def stop(self, *args, **kwargs):
         """
         stop execution
         """
         # TODO : to implement
         pass
 
-    def animate(self, interpreter=None):
+    def animate(self, *args, **kwargs):
         """
         run model step by step
         """
         # TODO : get function from the current widget
         if self._animate:
             return self._animate()
+
+    def _set_interpreter(self, **kwargs):
+        if not "interpreter" in kwargs:
+            try:
+                interpreter = get_ipython()
+            except NameError:
+                raise("No interpreter is available to run model %s" % str(self))
+        else:
+            interpreter = kwargs["interpreter"]
+        return interpreter
