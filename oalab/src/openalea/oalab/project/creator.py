@@ -21,7 +21,7 @@ from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core.path import path
 from time import gmtime, strftime
 from openalea.core import settings
-from openalea.vpltk import Project
+from openalea.vpltk.project import Project
 
 
 class CreateProjectWidget(QtGui.QWidget):
