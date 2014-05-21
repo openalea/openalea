@@ -16,8 +16,7 @@
 #
 ###############################################################################
 from openalea.oalab.model.model import Model
-from openalea.oalab.model.parse import parse_docstring
-from openalea.oalab.model.parse import parse_functions
+from openalea.oalab.model.parse import parse_docstring, get_docstring, parse_functions
 
 
 class PythonModel(Model):
@@ -33,6 +32,7 @@ class PythonModel(Model):
         self._init = False
         self._run = False
         super(PythonModel, self).__init__(name=name, code=code, inputs=inputs, outputs=outputs)
+        self.code = code  # use it to force to parse doc, functions, inputs and outputs
 
     def repr_code(self):
         """
@@ -207,3 +207,4 @@ animate()
         self._code = code
         model, self.inputs_info, self.outputs_info = parse_docstring(code)
         self._init, self._step, self._animate, self._run = parse_functions(code)
+        self._doc = get_docstring(self._code)
