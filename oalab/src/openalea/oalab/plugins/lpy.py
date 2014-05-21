@@ -273,7 +273,7 @@ class LPyApplet(object):
 
         new_scene = self.lsystem.sceneInterpretation(self.axialtree)
         if new_scene:
-            self.controller.scene[self.context["scene_name"]] = new_scene
+            self.session.world[self.context["scene_name"]] = new_scene
 
     def stop(self):
         # TODO : to implement

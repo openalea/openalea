@@ -21,30 +21,60 @@ import abc
 
 class ControlABC:
     __metaclass__ = abc.ABCMeta
+
     def __init__(self):
+        """
+        A control is an object with a name and a value.
+        """
+        self.name = "default"
+        self.interface = None
         self.default()
-        
+
     @abc.abstractmethod
     def default(self):
         """
-        Create a default control
+        Reinitialize control to default value
         """
-        self.name = "default"
-        self.value = 0
-  
+        self._value = 0
+
     def rename(self, name):
         self.name = name
-        
-    @abc.abstractmethod    
-    def edit(self):
-        pass
-        
-    @abc.abstractmethod    
-    def thumbnail(self):
+
+    @abc.abstractmethod
+    def edit(self, synchro=SYNCHRO_NEVER):
+        """
+        Returns a widget able to edit data.
+        """
         pass
 
     @abc.abstractmethod
-    def save(self):
-        pass
+    def view(self):
+        """
+        Returns a widget able to display data
+        """
 
+    @abc.abstractmethod
+    def thumbnail(self):
+        """
+        Returns a preview
+        """
 
+    @abc.abstractmethod
+    def value(self):
+        """
+        Returns current value.
+        """
+
+    @abc.abstractmethod
+    def set_value(self, value):
+        """
+        Set input "data".
+        If this method is called, data is used as initial value or replaces current value.
+        Data passed as parameter is NEVER MODIFIED.
+
+        For example, for a text editor, you can pass a sample text.
+        This sample is a
+          - starting point for editing
+          - differs from control "default" (allow to custom controls)
+          - can be view thanks to control
+        """
