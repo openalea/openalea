@@ -25,7 +25,7 @@ import sys
 import os
 import weakref
 
-from openalea.vpltk.qt import qt
+from openalea.vpltk import qt
 from openalea.core.interface import InterfaceWidgetMap, IInterfaceMetaClass
 from openalea.core.observer import lock_notify, AbstractListener
 from openalea.core.traitsui import View, Item, Group
@@ -132,6 +132,7 @@ class DefaultNodeWidget(NodeWidget, qt.QtGui.QWidget):
 
         self.vboxlayout = qt.QtGui.QVBoxLayout(self)
         self.vboxlayout.setSizeConstraint(qt.QtGui.QLayout.SetMinimumSize)
+        self.vboxlayout.setContentsMargins(0, 0, 0, 0)
 
         DefaultNodeWidget.do_layout(self, node, self.vboxlayout)
 
@@ -183,19 +184,9 @@ class DefaultNodeWidget(NodeWidget, qt.QtGui.QWidget):
         if  node.factory.view is None:
             # we create the widget in default way
             #print node.input_desc
-            layout.setContentsMargins(3, 3, 3, 3)
-            layout.setSpacing(2)
             for port in node.input_desc:
                 DefaultNodeWidget.place_item(widget, port, layout)
         else:
-            #if node.factory.view.layout=="-": layout = qt.QtGui.QHBoxLayout(self)
-            #elif node.factory.view.layout=="|": layout = qt.QtGui.QVBoxLayout(self)
-            #layout.setContentsMargins(3, 3, 3, 3)
-            #layout.setSpacing(2)
-            #
-            ## we use custom view defined by user
-            #for i in node.factory.view.content:
-            #    self.place( self,  i, layout )
             DefaultNodeWidget.place_group(widget, node.factory.view, layout)
 
 
@@ -265,14 +256,16 @@ class DefaultNodeWidget(NodeWidget, qt.QtGui.QWidget):
         :raise Exception: <Description of situation raising `Exception`>
 
         """
-
         if group.layout=="-" or  group.layout=="|":
-            groupW = qt.QtGui.QGroupBox(widget)
+            groupW = qt.QtGui.QGroupBox()
             groupW.setTitle(group.label)
+            groupW.setFlat(True)
             layout.addWidget( groupW )
-            if group.layout=="-": nlayout = qt.QtGui.QHBoxLayout(widget)
-            else: nlayout = qt.QtGui.QVBoxLayout(widget)
-            groupW.setLayout(nlayout)
+            if group.layout == "-":
+                nlayout = qt.QtGui.QHBoxLayout(groupW)
+            else:
+                nlayout = qt.QtGui.QVBoxLayout(groupW)
+            nlayout.setContentsMargins(0, 0, 0, 0)
         else:
             tab=qt.QtGui.QTabWidget( widget )
             layout.addWidget( tab )
@@ -284,9 +277,11 @@ class DefaultNodeWidget(NodeWidget, qt.QtGui.QWidget):
                 groupW.setLayout(nlayout)
                 if isinstance( i, Item ):
                     name=widget.node.get_input_port( i.name ).get_label()
-                else: name=group.label
+                else:
+                    name = group.label
                 tab.addTab(groupW, name)
-            DefaultNodeWidget.place(groupW, i, nlayout)
+
+            DefaultNodeWidget.place(widget, i, nlayout)
 
 
 
