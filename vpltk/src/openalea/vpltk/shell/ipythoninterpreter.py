@@ -17,6 +17,9 @@ class Interpreter(InProcessKernel):
                 self.locals += l  
         self.user_ns = self.shell.user_ns
 
+    def run_cell(self, *args, **kwargs):
+        return self.shell.run_cell(*args, **kwargs)
+
                 
 def main():
     from shell import main as main_
