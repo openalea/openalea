@@ -308,13 +308,21 @@ class Project(object):
             names = self.src.keys()
 
         for name in names:
-
+            filenames_without_ext = [".".join(src.split(".")[:-1]) for src in self.src.keys()]
             if name in self.src:
                 # get code, filename and extension
                 code = self.src[name]
-
                 filename = path_(name)
                 ext = filename.ext[1:]
+                if ext in self.model_klasses:
+                    return_models.append(self.model_klasses[ext](name=name, code=code))
+            elif name in filenames_without_ext:
+                # Do the same thing but without extension in the name
+                for compete_name in self.src.keys():
+                    if name == ".".join(compete_name.split(".")[:-1]):
+                        code = self.src[compete_name]
+                        filename = path_(compete_name)
+                        ext = filename.ext[1:]
                 if ext in self.model_klasses:
                     return_models.append(self.model_klasses[ext](name=name, code=code))
 
