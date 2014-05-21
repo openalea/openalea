@@ -24,12 +24,12 @@ from openalea.oalab.editor.highlight import Highlighter
 from openalea.oalab.editor.lpy_lexer import LPyLexer
 from openalea.oalab.control.picklable_curves import geometry_2_piklable_geometry
 from openalea.lpy import Lsystem
-from openalea.lpy.gui import documentation as doc_lpy
 from openalea.lpy.__lpy_kernel__ import LpyParsing
 from openalea.lpy.gui.objectmanagers import get_managers
 from openalea.lpy.gui.scalar import ProduceScalar
 from openalea.core import logger
 from openalea.oalab.model.lpy import LPyModel
+from openalea.oalab.service.help import help
 
 
 def import_lpy_file(script):
@@ -160,15 +160,8 @@ class LPyModelController(object):
         """
         Set doc string in Help widget when focus changed
         """
-        txt = doc_lpy.getSpecification()
-
-        txt = """
-<H1><IMG SRC=%s
- ALT="icon"
- HEIGHT=25
- WIDTH=25
- TITLE="LPy logo">L-Py</H1>""" % str(self.icon) + txt[13:]
-        return txt
+        doc = self.model.get_documentation()
+        help(doc)
 
     def run_selected_part(self):
         """

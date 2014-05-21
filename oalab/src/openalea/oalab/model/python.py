@@ -34,6 +34,23 @@ class PythonModel(Model):
         super(PythonModel, self).__init__(name=name, code=code, inputs=inputs, outputs=outputs)
         self.code = code  # use it to force to parse doc, functions, inputs and outputs
 
+    def get_documentation(self):
+        """
+        :return: a string with the documentation of the model
+        """
+        if self._doc:
+            return self._doc
+        else:
+            return """
+<H1><IMG SRC=%s
+ ALT="icon"
+ HEIGHT=25
+ WIDTH=25
+ TITLE="Python logo">Python</H1>
+
+more informations: http://www.python.org/
+"""%str(self.icon)
+
     def repr_code(self):
         """
         :return: a string representation of model to save it on disk

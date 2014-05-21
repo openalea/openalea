@@ -157,6 +157,7 @@ class ModelNode(Node):
     def __init__(self, model, inputs=(), outputs=()):
         super(ModelNode, self).__init__(inputs=inputs, outputs=outputs)
         self.model = model
+        self.__doc__ = self.model.get_documentation()
 
     def __call__(self, inputs = ()):
         """ Call function. Must be overriden """

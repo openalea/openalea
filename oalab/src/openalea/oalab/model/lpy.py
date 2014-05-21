@@ -21,6 +21,7 @@ from openalea.lpy import Lsystem, AxialTree
 from openalea.lpy.__lpy_kernel__ import LpyParsing
 from openalea.lpy.gui.objectmanagers import get_managers
 from openalea.lpy.gui.scalar import ProduceScalar
+from openalea.lpy.gui import documentation as doc_lpy
 
 
 def get_default_text():
@@ -58,6 +59,20 @@ class LPyModel(Model):
         # TODO: update control of the project with new ones
 
         self.lsystem.setCode(self.code, self.parameters)
+
+    def get_documentation(self):
+        """
+        :return: a string with the documentation of the model
+        """
+        if self._doc:
+            return self._doc
+        else:
+            return """
+<H1><IMG SRC=""" + str(self.icon) + """
+ ALT="icon"
+ HEIGHT=25
+ WIDTH=25
+ TITLE="LPy logo">L-Py</H1>""" + doc_lpy.getSpecification()[13:]
 
     def repr_code(self):
         """
