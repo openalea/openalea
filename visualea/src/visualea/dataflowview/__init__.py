@@ -49,7 +49,8 @@ class DataflowView( qt.View ):
         # -- Configure the drop handlers --
         mimeFormatsMap = {node.NodeFactory.mimetype:self.node_factory_drop_handler,
                           compositenode.CompositeNodeFactory.mimetype:self.node_factory_drop_handler,
-                          "openalea/data_instance":self.node_datapool_drop_handler}
+                          "openalea/data_instance":self.node_datapool_drop_handler,
+                          "openalealab/model":self.node_model_factory_drop_handler}
         self.set_mime_handler_map(mimeFormatsMap)
 
         # -- handle the vanishing toolbar --
@@ -160,7 +161,7 @@ class DataflowView( qt.View ):
             dataStream = qt.QtCore.QDataStream(pieceData, qt.QtCore.QIODevice.ReadOnly)
             package_id = str(dataStream.readString())
             factory_id = str(dataStream.readString())  
-            
+
             # -- find node factory --
             pkgmanager = PackageManager()
             pkg = pkgmanager[str(package_id)]
@@ -176,6 +177,33 @@ class DataflowView( qt.View ):
             event.setDropAction(qt.QtCore.Qt.MoveAction)
             #event.accept()
 
+    def node_model_factory_drop_handler(self, event):
+        """ Drag and Drop from the Model """
+        mimedata = event.mimeData()
+        if mimedata.hasFormat("openalealab/model"):
+            # -- retreive the data from the event mimeData --
+            pieceData = event.mimeData().data("openalealab/model")
+            dataStream = qt.QtCore.QDataStream(pieceData, qt.QtCore.QIODevice.ReadOnly)
+            
+            dataStream.readString()
+            model_id = str(dataStream.readString())
+
+            try:
+                from openalea.oalab.model.model import ModelFactory
+            except ImportError:
+                event.ignore()
+                return
+            factory = ModelFactory(model_id)
+            """
+            # -- see if we can safely open this factory (with user input) --
+            if not self.__check_factory(factory):
+                return"""
+
+            # -- instantiate the new node at the given position --
+            position = self.mapToScene(event.pos())
+            self.__drop_from_factory(factory, [position.x(), position.y()])
+            event.setDropAction(qt.QtCore.Qt.MoveAction)
+            #event.accept()
 
     def node_datapool_drop_handler(self, event):
         # Drag and Drop from the DataPool
