@@ -12,14 +12,15 @@ data = shared_data(openalea.mtg)
 g2 = MTG(data / 'agraf.mtg')
 dressing_data2 = dresser.DressingData(DiameterUnit=15)
 pf2 = PlantFrame(g2, TopDiameter='TopDia', DressingData=dressing_data2)
-lpy_scene = pf2.plot(gc=True, display=False)
+pgl_scene = pf2.plot(gc=True, display=False)
 
 # Add it to world
-world['obj1'] = lpy_scene
+world['obj1'] = pgl_scene
 
 ################################################################################
 # 2. Object is not directly compatible but provides
-# a method (_repr_geom_) to convert himself to a compatible type
+# a method (_repr_geom_) to convert himself to a compatible type 
+# (Currently PlantGL geometry, shape or scene)
 ################################################################################
 
 # object type (generally defined in a separated module)
@@ -63,7 +64,10 @@ pf = PlantFrame(g, TopDiameter='TopDia', DressingData=dressing_data)
 
 # Add it to world
 world['obj3'] = pf
+world['obj3'].displayed = True
+world['obj3'].repr = 'geom'
 
+world['i1'] = 1
 
 def init():
-  del world['obj1'], world['obj2'], world['obj3']
+  del world['i1'], world['obj1'], world['obj2'], world['obj3']
