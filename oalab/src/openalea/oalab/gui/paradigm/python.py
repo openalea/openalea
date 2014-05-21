@@ -22,6 +22,7 @@ __revision__ = ""
 from openalea.oalab.editor.text_editor import RichTextEditor as Editor
 from openalea.oalab.editor.highlight import Highlighter
 from openalea.oalab.model.python import PythonModel
+from openalea.oalab.service.help import help
 
 
 class PythonModelController(object):
@@ -54,16 +55,8 @@ class PythonModelController(object):
         """
         Set doc string in Help widget when focus changed
         """
-        txt = """
-<H1><IMG SRC=%s
- ALT="icon"
- HEIGHT=25
- WIDTH=25
- TITLE="Python logo">Python</H1>
-
-more informations: http://www.python.org/
-"""%str(self.icon)
-        return txt
+        doc = self.model.get_documentation()
+        help(doc)
 
     def run_selected_part(self, *args, **kwargs):
         code = self.widget().get_selected_text()
