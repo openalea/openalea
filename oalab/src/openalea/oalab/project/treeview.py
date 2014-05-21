@@ -230,21 +230,22 @@ class ProjectTreeView(QtGui.QTreeView):
         if self.is_src_selected():
             text = item.text()
 
-            text1 = text.split()[0].split(".")[0]
+            name_without_ext = ".".join(text.split(".")[:-1])
+            name_without_space = "_".join(name_without_ext.split())
 
-            text2 = '%s = Model("%s")' % (text1, text)
+            python_call_string = '%s = Model("%s")' % (name_without_space, name_without_ext)
             icon = item.icon()
             pixmap = icon.pixmap(20, 20)
 
             itemData = QtCore.QByteArray()
             dataStream = QtCore.QDataStream(itemData, QtCore.QIODevice.WriteOnly)
             #filepath = path(self.project.path)/self.project.name/"src"/text
-            model_id = text
-            dataStream.writeString(str(text2))
+            model_id = name_without_ext
+            dataStream.writeString(str(python_call_string))
             dataStream.writeString(str(model_id))
 
             mimeData = QtCore.QMimeData()
-            mimeData.setText(text2)
+            mimeData.setText(python_call_string)
             mimeData.setData("openalealab/model", itemData)
 
             drag = QtGui.QDrag(self)
