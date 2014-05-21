@@ -171,8 +171,7 @@ class ProjectManager(object):
         """
         :TODO: not yet implemented
         """
-        pass
-        # del self.cproject
+        del self.cproject
         # self.cproject = self.default()
 
     """
