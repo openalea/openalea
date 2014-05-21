@@ -28,15 +28,15 @@ from openalea.core import settings
 
 
 class RichTextEditor(QtGui.QWidget):
-    def __init__(self, session, controller, parent=None):
+    def __init__(self, editor_container, parent=None):
         super(RichTextEditor, self).__init__(parent)
 
         self.completer = DictionaryCompleter(parent=self)
-        self.editor = TextEditor(session=session, controller=controller, parent=self)
+        self.editor = TextEditor(editor_container=editor_container, parent=self)
         # self.editor.setCompleter(self.completer)
 
         self.goto_widget = GoToWidget(parent=self.editor)
-        self.search_widget = SearchWidget(parent=self, session=session)
+        self.search_widget = SearchWidget(parent=self)
 
         self.layout = QtGui.QVBoxLayout()
         self.layout.setContentsMargins(0, 0, 0, 0)
@@ -109,11 +109,11 @@ class RichTextEditor(QtGui.QWidget):
             self.search_widget.hide()
             self.search_widget.hiden = True
 
+
 class TextEditor(QtGui.QTextEdit):
-    def __init__(self, session, controller, parent=None):
+    def __init__(self, editor_container, parent=None):
         super(TextEditor, self).__init__(parent)
-        self.session = session
-        self.controller = controller
+        self.editor_container = editor_container
         self.indentation = "    "
         self.completer = None
         self.name = None
@@ -125,23 +125,20 @@ class TextEditor(QtGui.QTextEdit):
         self.sidebar.setGeometry(0, 0, 50, 100)
         self.sidebar.show()
         QtCore.QObject.connect(self, QtCore.SIGNAL("cursorPositionChanged()"), self.display_line_number)
-        QtCore.QObject.connect(self, QtCore.SIGNAL("textChanged()"), self.controller.applet_container.setTabRed)
+        QtCore.QObject.connect(self, QtCore.SIGNAL("textChanged()"), self.editor_container.setTabRed)
         # QtCore.QObject.connect(self, QtCore.SIGNAL("cursorPositionChanged()"),self.highlightCurrentLine)
 
-        self.default_names = [applet.default_file_name for applet in self.controller.applet_container.paradigms.values()]
+        self.default_names = [applet.default_file_name for applet in self.editor_container.paradigms.values()]
 
     def set_tab_size(self):
         # Set tab size : to fix
-        try:
-            font = self.currentFont()
-            metrics = QtGui.QFontMetrics(font)
-            length = metrics.width(self.indentation)
-            if length > 0:
-                self.setTabStopWidth(length)
-            else:
-                self.setTabStopWidth(14)
-        except:
-            pass
+        font = self.currentFont()
+        metrics = QtGui.QFontMetrics(font)
+        length = metrics.width(self.indentation)
+        if length > 0:
+            self.setTabStopWidth(length)
+        else:
+            self.setTabStopWidth(14)
 
     def actions(self):
         """
@@ -154,7 +151,7 @@ class TextEditor(QtGui.QTextEdit):
 
     def setText(self, txt):
         self.setPlainText(txt)
-        self.controller.applet_container.setTabBlack()
+        self.editor_container.setTabBlack()
 
     def set_text(self, txt):
         """
@@ -197,31 +194,18 @@ class TextEditor(QtGui.QTextEdit):
         logger.debug("Try to save text")
 
         txt = self.get_text()
-
-        if self.session.project:
-            if name is not None:
-                self.name = name
-            if self.name is None:
-                temp_path = path(settings.get_project_dir())
-                self.name = QtGui.QFileDialog.getSaveFileName(self, 'Select name to save the file', temp_path)
-            if self.name is not None:
-                project = self.session.project
-                project.src[self.name] = txt
-                project._save("src")
-                self.controller.applet_container.setAllTabBlack()
-                logger.debug("Try to save script in project")
-        else:
-            if name:
-                self.name = name
-            if not self.name:
-                self.name = QtGui.QFileDialog.getSaveFileName(self, 'Select name to save the file', ".")
-            if self.name is not None:
-                f = open(self.name, "w")
-                code = str(txt).encode("utf8","ignore")
-                f.write(code)
-                f.close()
-                self.controller.applet_container.setTabBlack()
-                logger.debug("Try to save file in " + str(self.name))
+        if name:
+            self.name = name
+        if not self.name:
+            self.name = QtGui.QFileDialog.getSaveFileName(self, 'Select name to save the file', ".")
+        if self.name is not None:
+            f = open(self.name, "w")
+            code = str(txt).encode("utf8","ignore")
+            f.write(code)
+            f.close()
+            logger.debug("Try to save file in " + str(self.name))
+            return True
+        return False
 
     def keyPressEvent(self, event):
         # Auto-indent
@@ -465,10 +449,9 @@ class TextEditor(QtGui.QTextEdit):
     def display_line_number(self):
         lineno = self.textCursor().blockNumber() + 1
         columnno = self.textCursor().columnNumber()
-        try:
-            self.session.statusBar.showMessage("Cursor at line %s, column %s" % (lineno, columnno), 2000)
-        except:
-            pass
+        #todo
+        #statusBar.showMessage("Cursor at line %s, column %s" % (lineno, columnno), 2000)
+
 
     ####################################################################
     #### Line Number Area

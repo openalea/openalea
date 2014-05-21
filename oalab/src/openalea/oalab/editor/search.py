@@ -22,16 +22,11 @@ from openalea.core import logger
 
 class SearchWidget(QtGui.QWidget):
     def __init__(self, parent=None, session=None):
-        super(SearchWidget, self).__init__()
-        self.parent = parent
-        self.session = session
-        
+        super(SearchWidget, self).__init__(parent)
         self.hiden = True
         
         self.setMinimumSize(100,100)
         self.setWindowTitle("Search")
-
-
 
         self.actionSearch = QtGui.QAction("Search Next", self)
         self.actionBackSearch = QtGui.QAction("Search Previous", self)
@@ -90,13 +85,13 @@ class SearchWidget(QtGui.QWidget):
         
         to_search_txt = self.lineEdit.text()
         
-        try:
+        if hasattr(self.parent.editor, "find"):
             logger.debug("Search text: " + to_search_txt)
             if options is not None:
                 self.parent.editor.find(to_search_txt, options)
             else:
                 self.parent.editor.find(to_search_txt)
-        except:
+        else:
             logger.debug("Can't Search text " + to_search_txt)
 
     def searchBack(self):
@@ -110,10 +105,10 @@ class SearchWidget(QtGui.QWidget):
         
         to_search_txt = self.lineEdit.text()
         
-        try:
+        if hasattr(self.parent.editor, "find"):
             logger.debug("Search text: " + to_search_txt)
             self.parent.editor.find(to_search_txt, options)
-        except:
+        else:
             logger.debug("Can't Search text " + to_search_txt)
 
 

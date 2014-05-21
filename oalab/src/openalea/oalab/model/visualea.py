@@ -28,8 +28,9 @@ class VisualeaModel(Model):
 
     def __init__(self, name="workflow.wpy", code="", inputs=[], outputs=[]):
         super(VisualeaModel, self).__init__()
+        _name = self.name.split('.wpy')[0]
         if (code is None) or (code is ""):
-            self._workflow = CompositeNodeFactory(name).instantiate()
+            self._workflow = CompositeNodeFactory(_name).instantiate()
         elif isinstance(code, CompositeNodeFactory):
             self._workflow = code.instantiate()
         else:
@@ -46,7 +47,7 @@ class VisualeaModel(Model):
             name = name[-3:]
         elif name[-4:] in '.wpy':
             name = name[-4:]
-        cn = self.applet._workflow
+        cn = self._workflow
         cnf = CompositeNodeFactory(name)
         cn.to_factory(cnf)
 

@@ -22,35 +22,21 @@ __revision__ = "$Id : "
 DEBUG = False
 
 import types
-import sys
+#import sys
 
+from openalea.oalab.model.visualea import VisualeaModel
 from openalea.vpltk.qt import QtCore, QtGui
 from openalea.visualea.graph_operator import GraphOperator
 from openalea.visualea import dataflowview
 from openalea.core.compositenode import CompositeNodeFactory
-from openalea.plantgl.wralea.visualization import viewernode
+#from openalea.plantgl.wralea.visualization import viewernode
 
 
 def repr_workflow(self, name=None):
     """
     :return: workflow repr to save
     """
-    name = self.applet.name if not name else name
-
-    if name[-3:] in '.py':
-        name = name[-3:]
-    elif name[-4:] in '.wpy':
-        name = name[-4:]
-    cn = composite_node = self.applet._workflow
-    cnf = CompositeNodeFactory(name)
-    cn.to_factory(cnf)
-
-    repr_wf = repr(cnf.get_writer())
-    # hack to allow eval rather than exec...
-    # TODO: change the writer
-
-    repr_wf = (' = ').join(repr_wf.split(' = ')[1:])
-    return repr_wf
+    return self.applet.model.repr_code()
 
 
 def actions(self):
@@ -64,29 +50,21 @@ def save(self, name=None):
     """
     Save Current workflow
     """
-    applet = self.applet
-    session = applet.session
-    controller = applet.controller
-    project = session.project
-
     if name:
         self.name = name
 
     wf_str = self.repr_workflow(self.name)
 
-    if project:
-        project.src[self.name] = wf_str
-        project._save("src")
-    else:
-        if self.name == (u"workflow.wpy"):
-            new_fname = QtGui.QFileDialog.getSaveFileName(self, 'Select name to save the file %s'%self.name,self.name)
-            if new_fname != u"":
-                self.name = new_fname
-            
-        f = open(self.name, "w")
-        code = str(wf_str).encode("utf8","ignore")
-        f.write(code)
-        f.close()
+    if self.name == (u"workflow.wpy"):
+        new_fname = QtGui.QFileDialog.getSaveFileName(self, 'Select name to save the file %s' % self.name, self.name)
+        if new_fname != u"":
+            self.name = new_fname
+
+    f = open(self.name, "w")
+    code = str(wf_str).encode("utf8", "ignore")
+    f.write(code)
+    f.close()
+    return True
 
 
 def mainMenu(self):
@@ -97,42 +75,38 @@ def mainMenu(self):
     return "Simulation"
 
 
-class VisualeaApplet(object):
-    default_name = "Workflow"
-    default_file_name = "workflow.wpy"
-    pattern = "*.wpy"
-    extension = "wpy"
-    icon = ":/images/resources/openalealogo.png"
-    
-    def __init__(self, session, controller, parent=None, name="workflow.wpy", script=None):
-        super(VisualeaApplet, self).__init__() 
-        repr_model = script
-        self.name = name
-        self.session = session
-        self.controller = controller
-       
-        # Workflow Editor
-        _name = name.split('.wpy')[0]
-        if ((repr_model is None) or (repr_model=="")):
-            self._workflow = CompositeNodeFactory(_name).instantiate()
-        elif isinstance(repr_model, CompositeNodeFactory):
-            self._workflow = repr_model.instantiate()
-        else:
-            cnf = eval(repr_model,globals(),locals()) 
-            self._workflow = cnf.instantiate()
+class VisualeaModelController(object):
+    default_name = VisualeaModel.default_name
+    default_file_name = VisualeaModel.default_file_name
+    pattern = VisualeaModel.pattern
+    extension = VisualeaModel.extension
+    icon = VisualeaModel.icon
 
-        self._widget = dataflowview.GraphicalGraph.create_view(self._workflow, clone=True)
+    def __init__(self, name="workflow.wpy", code="", model=None, filepath=None, interpreter=None, editor_container=None, parent=None):
+        self.name = name
+        self.filepath = filepath
+        if model:
+            self.model = model
+        else:
+            self.model = VisualeaModel(name=name, code=code)
+        self.parent = parent
+        self.editor_container = editor_container
+        self._widget = None
+        self.interpreter = interpreter
+
+    def instanciate_widget(self):
+        self._widget = dataflowview.GraphicalGraph.create_view(self.model._workflow, clone=True)
         self._clipboard = CompositeNodeFactory("Clipboard")
 
-        GraphOperator.globalInterpreter = self.session.interpreter
-        self._operator = GraphOperator(graph = self._workflow,
+        GraphOperator.globalInterpreter = self.interpreter
+        self._operator = GraphOperator(graph = self.model._workflow,
                                  graphScene = self._widget.scene(),
                                  clipboard  = self._clipboard,
                                  )
         self._widget.mainMenu = types.MethodType(mainMenu, self._widget)
         self._widget.applet = self
         self._widget.actionSave = QtGui.QAction(QtGui.QIcon(":/images/resources/save.png"),"Save", self._widget)
-        
+
         self._widget._actions = None
         #self._widget._actions = ["Simulation",[["Workflow Edit",self._widget.actionSave,0]]]
 
@@ -142,35 +116,29 @@ class VisualeaApplet(object):
         methods['repr_workflow'] = repr_workflow
         methods['get_text'] = repr_workflow
         methods['mainMenu'] = mainMenu
-        
+
         self._widget = adapt_widget(self._widget, methods)
 
         #self._widget.actionSave.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
         #see Also QSignalMapper
-        QtCore.QObject.connect(self._widget.actionSave, QtCore.SIGNAL('triggered(bool)'),self.controller.applet_container.save)        
+        QtCore.QObject.connect(self._widget.actionSave, QtCore.SIGNAL('triggered(bool)'), self.editor_container.save)
 
-        if hasattr(self.controller, "_plugins"):
-            if self.controller._plugins.has_key('Viewer3D'):
-                viewernode.registerPlotter(self.controller._plugins['Viewer3D'].instance())
-        else:
-            if self.controller.applets.has_key('Viewer3D'):
-                viewernode.registerPlotter(self.controller.applets['Viewer3D'])
-        
-        #QtCore.QObject.connect(self.widget().scene(), QtCore.SIGNAL('focusedItemChanged(type?,type?)'), self.focus_change)
+        # todo
+        # viewernode.registerPlotter(self.controller._plugins['Viewer3D'].instance())
+
+        # todo: use services
         self.widget().scene().focusedItemChanged.connect(self.item_focus_change)
-        
+
+        return self.widget()
+
     def item_focus_change(self, scene, item):
         """
         Set doc string in Help widget when focus on node changed
         """
         assert isinstance(item, dataflowview.vertex.GraphicalVertex)
         txt = item.vertex().get_tip()
-        if hasattr(self.controller, "_plugins"):
-            if self.controller._plugins.has_key('HelpWidget'):
-                self.controller._plugins['HelpWidget'].instance().setText(txt)
-        else:
-            if self.controller.applets.has_key('HelpWidget'):
-                self.controller.applets['HelpWidget'].setText(txt)
+        # todo: use services
+        return txt
     
     def focus_change(self):
         """
@@ -185,13 +153,8 @@ class VisualeaApplet(object):
 
 More informations: http://openalea.gforge.inria.fr/doc/openalea/visualea/doc/_build/html/contents.html        
 """%str(self.icon)
-
-        if hasattr(self.controller, "_plugins"):
-            if self.controller._plugins.has_key('HelpWidget'):
-                self.controller._plugins['HelpWidget'].instance().setText(txt)
-        else:
-            if self.controller.applets.has_key('HelpWidget'):
-                self.controller.applets['HelpWidget'].setText(txt)
+        # todo: use services
+        return txt
 
     def widget(self):
         """
@@ -200,34 +163,38 @@ More informations: http://openalea.gforge.inria.fr/doc/openalea/visualea/doc/_bu
         return self._widget     
         
     def run(self):
+        # todo : register plotter
+        """
         viewernode = sys.modules['openalea.plantgl.wralea.visualization.viewernode']
         if hasattr(self.controller, "_plugins"):
             if self.controller._plugins.has_key('Viewer3D'):
                 viewernode.registerPlotter(self.controller._plugins['Viewer3D'].instance())
         else:
             if self.controller.applets.has_key('Viewer3D'):
-                viewernode.registerPlotter(self.controller.applets['Viewer3D'])
-        self._workflow.eval()
+                viewernode.registerPlotter(self.controller.applets['Viewer3D'])"""
+        return self.model()
 
     def animate(self):
+        # todo : register plotter
+        """
         viewernode = sys.modules['openalea.plantgl.wralea.visualization.viewernode']
         if hasattr(self.controller, "_plugins"):
             if self.controller._plugins.has_key('Viewer3D'):
                 viewernode.registerPlotter(self.controller._plugins['Viewer3D'].instance())
         else:
             if self.controller.applets.has_key('Viewer3D'):
-                viewernode.registerPlotter(self.controller.applets['Viewer3D'])
-        self._workflow.eval()
+                viewernode.registerPlotter(self.controller.applets['Viewer3D'])"""
+        return self.model.animate()
         
     def step(self):
-        self._workflow.eval_as_expression(step=True)
+        return self.model.step()
         
     def stop(self):
         # print "wf stop"
         pass
 
     def reinit(self):
-        self._workflow.reset()
+        return self.model.init()
 
 
 def adapt_widget(widget, methods):

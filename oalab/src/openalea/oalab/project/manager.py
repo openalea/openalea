@@ -153,6 +153,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         self.closeCurrent()
 
         project.start()
+        self.session.project_manager.cproject = project
         logger.debug("Project " + str(project) + " opened")
 
         project.world = self.session.world
