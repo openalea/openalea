@@ -41,6 +41,13 @@ class Model(object):
         self._outputs = []
         self._code = ""
         self.code = code
+        self._doc = ""
+
+    def get_documentation(self):
+        """
+        :return: a string with the documentation of the model
+        """
+        return self._doc
 
     def repr_code(self):
         """
@@ -177,9 +184,7 @@ class ModelFactory(AbstractFactory):
         if self._model is None:
             self.instantiate()
 
-        # TODO: retrieve documentation
-        # self._model.documentation
-        return ""
+        return self._model.get_documentation()
 
     def instantiate(self, call_stack=[]):
         """
