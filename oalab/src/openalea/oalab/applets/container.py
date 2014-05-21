@@ -26,6 +26,7 @@ from openalea.core.path import path
 from openalea.oalab.gui import resources_rc # do not remove this import else icon are not drawn
 from openalea.oalab.gui.utils import qicon
 
+
 class AppletContainer(QtGui.QTabWidget):
     """
     Contains applets.
@@ -165,13 +166,9 @@ class AppletContainer(QtGui.QTabWidget):
             ext = ext.split(".")[-1]
             logger.debug("Try to open file named " + tab_name + " . With applet_type " + ext)
 
-            try:
-                self.newTab(applet_type=ext, tab_name=tab_name, script=txt)
-                # project.add("src", filename, txt)
-                logger.debug("Open file named " + tab_name)
-            except:
-                print "File extension " + ext + " not recognised"
-                logger.warning("Can't import file named %s in current project. Unknow extension." % filename)
+            self.newTab(applet_type=ext, tab_name=tab_name, script=txt)
+            # project.add("src", filename, txt)
+            logger.debug("Open file named " + tab_name)
 
     def new_file(self, applet_type=None, tab_name=None, script=""):
         """
@@ -281,7 +278,7 @@ class AppletContainer(QtGui.QTabWidget):
 
         Applet = None
 
-        if self.paradigms.has_key(applet_type):
+        if applet_type in self.paradigms:
             # Check in paradigm.default_name
             Applet = self.paradigms[applet_type]
         else:
@@ -294,16 +291,20 @@ class AppletContainer(QtGui.QTabWidget):
             if "Python" in self.paradigms.keys():
                 Applet = self.paradigms["Python"]
 
-        icon = ""
+        filepath = tab_name
+        if self.session.project:
+            filepath = self.session.project.path/self.session.project.name/"src"/tab_name
+
         if Applet is not None:
-            appl = Applet(session=self.session, controller=self.controller, parent=self.parent(), name=tab_name, script=script)
+            appl = Applet(name=tab_name, code=script, model=None, filepath=filepath, interpreter=self.session.interpreter, editor_container=self, parent=self.parent())
+            widget = appl.instanciate_widget()
             self.applets.append(appl)
             icon = Applet.icon
 
             try:
-                self.addTab(self.applets[-1].widget(), QtGui.QIcon(icon), tab_name)
-                self.setCurrentWidget(self.applets[-1].widget())
-                self.applets[-1].widget().name = tab_name
+                self.addTab(widget, QtGui.QIcon(icon), tab_name)
+                self.setCurrentWidget(widget)
+                widget.name = tab_name
 
                 self.connect_actions()
                 self.connect(self, QtCore.SIGNAL('currentChanged(int)'), self.focusChange)
@@ -365,8 +366,12 @@ class AppletContainer(QtGui.QTabWidget):
         """
         if name in (False, None):
             name = self.tabText(self.currentIndex())
+        filepath = self.currentWidget().applet.filepath
+        if filepath:
+            name = filepath
         logger.debug("Save model " + str(name))
         self.currentWidget().save(name=name)
+        self.setTabBlack()
 
     def save_as(self):
         """
@@ -375,7 +380,8 @@ class AppletContainer(QtGui.QTabWidget):
         filename = QtGui.QFileDialog.getSaveFileName(parent=self, caption="Save file as")
         if filename:
             self.setTabText(self.currentIndex(), filename)
-            self.currentWidget().save(name=filename)
+            ret = self.currentWidget().save(name=filename)
+            self.setTabBlack()
 
     def save_all(self):
         """
@@ -387,92 +393,90 @@ class AppletContainer(QtGui.QTabWidget):
             wid = self.widget(i)
             name = wid.applet.name
             wid.save(name=name)
-            try:
+            if hasattr(self.widget(i), "editor"):
                 name = self.widget(i).editor.name
-            except:
+            else:
                 name = self.widget(i).name
             logger.debug("%s saved." % name)
             self.setTabText(i, name)
+            self.setTabBlack()
 
     def run_selected_part(self):
         if self.controller.project_manager:
             self.controller.project_manager.update_from_widgets()
-        try:
-            self.currentWidget().applet.run_selected_part()
-            logger.debug("Run selected part " + self.currentWidget().applet.name)
-        except:
-            logger.debug("Can't run selected part " + self.currentWidget().applet.name)
+        self.currentWidget().applet.run_selected_part(interpreter=self.session.interpreter)
+        logger.debug("Run selected part " + self.currentWidget().applet.name)
 
     def run(self):
         if self.controller.project_manager:
             self.controller.project_manager.update_from_widgets()
-        self.currentWidget().applet.run()
+        self.currentWidget().applet.run(interpreter=self.session.interpreter)
         logger.debug("Run " + self.currentWidget().applet.name)
 
     def animate(self):
         if self.controller.project_manager:
             self.controller.project_manager.update_from_widgets()
-        self.currentWidget().applet.animate()
+        self.currentWidget().applet.animate(interpreter=self.session.interpreter)
         logger.debug("Animate " + self.currentWidget().applet.name)
 
     def step(self):
         if self.controller.project_manager:
             self.controller.project_manager.update_from_widgets()
-        self.currentWidget().applet.step()
+        self.currentWidget().applet.step(interpreter=self.session.interpreter)
         logger.debug("Step " + self.currentWidget().applet.name)
 
     def stop(self):
         if self.controller.project_manager:
             self.controller.project_manager.update_from_widgets()
-        self.currentWidget().applet.stop()
+        self.currentWidget().applet.stop(interpreter=self.session.interpreter)
         logger.debug("Stop " + self.currentWidget().applet.name)
 
     def reinit(self):
         if self.controller.project_manager:
             self.controller.project_manager.update_from_widgets()
-        self.currentWidget().applet.reinit()
+        self.currentWidget().applet.reinit(interpreter=self.session.interpreter)
         logger.debug("Reinit " + self.currentWidget().applet.name)
 
     def undo(self):
-        try:
+        if hasattr(self.currentWidget(), "undo"):
             self.currentWidget().undo()
             logger.debug("Undo " + self.currentWidget().applet.name)
-        except:
+        else:
             logger.warning("Can't use method Undo in " + self.currentWidget().applet.name)
 
     def redo(self):
-        try:
+        if hasattr(self.currentWidget(), "redo"):
             self.currentWidget().redo()
             logger.debug("Redo " + self.currentWidget().applet.name)
-        except:
+        else:
             logger.warning("Can't use method Redo in " + self.currentWidget().applet.name)
 
     def search(self):
-        try:
+        if hasattr(self.currentWidget(), "search"):
             self.currentWidget().search()
             logger.debug("Search " + self.currentWidget().applet.name)
-        except:
+        else:
             logger.warning("Can't use method search in " + self.currentWidget().applet.name)
 
     def comment(self):
-        try:
+        if hasattr(self.currentWidget(), "comment"):
             self.currentWidget().comment()
             logger.debug("comment " + self.currentWidget().applet.name)
-        except:
+        else:
             logger.warning("Can't use method comment in " + self.currentWidget().applet.name)
 
     def uncomment(self):
-        try:
+        if hasattr(self.currentWidget(), "uncomment"):
             self.currentWidget().uncomment()
             logger.debug("uncomment " + self.currentWidget().applet.name)
-        except:
+        else:
             logger.warning("Can't use method uncomment in " + self.currentWidget().applet.name)
 
     def goto(self):
-        try:
+        if hasattr(self.currentWidget(), "goto"):
             self.currentWidget().goto()
             logger.debug("Goto " + self.currentWidget().applet.name)
-        except:
+        else:
             logger.warning("Can't use method Goto in " + self.currentWidget().applet.name)
 
 

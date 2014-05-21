@@ -15,25 +15,50 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-"""
-:use: model, inputs, outputs = parse_string(multiline_string_to_parse)
-"""
-
 import ast
 
 
-def parse_string(string):
+def ast_parse(string):
+    try:
+        M = ast.parse(string)
+    except SyntaxError, e:
+        print e
+        print "Syntax error when parsing: ", string[:20], "..."
+        M = ast.parse("")
+    return M
+
+
+#########################################
+## Detect inputs and outputs in docstring
+#########################################
+def parse_docstring(string):
+    """
+    parse a string (not a docstring), get the docstring and return information on the model.
+
+    :use: model, inputs, outputs = parse_docstring(multiline_string_to_parse)
+
+    :param string: docstring to parse (string)
+    :return: model, inputs, outputs
+    """
     d = get_docstring(string)
     model, inputs, outputs = parse_doc(d)
     return model, inputs, outputs
 
 
 def get_docstring(string):
-    M = ast.parse(string)
+    """
+    Get a docstring from a string
+    """
+    M = ast_parse(string)
     return ast.get_docstring(M)
 
 
 def parse_doc(docstring):
+    """
+    Parse a docstring.
+
+    :return: model, inputs, outputs
+    """
     model, inputs, outputs = parse_function(docstring)
 
     inputs2, outputs2 = parse_input_and_output(docstring)
@@ -55,35 +80,69 @@ def parse_doc(docstring):
 
 
 def parse_function(docstring):
+    """
+    Parse a docstring with format:
+        my_model(a:int=4, b)->r:int
+
+    Unused.
+
+    :return: model, inputs, outputs
+    """
     inputs = None
     outputs = None
     model = None
-    for docline in docstring.splitlines():
-        if ("->" in docline):
-            outputs = docline.split("->")[-1].split(",")
-            model = docline.split("->")[0].split("(")[0]
-            inputs = docline.split("(")[-1].split(")")[0].split(",")
+    if hasattr(docstring, "splitlines"):
+        for docline in docstring.splitlines():
+            if ("->" in docline):
+                outputs = docline.split("->")[-1].split(",")
+                model = docline.split("->")[0].split("(")[0]
+                inputs = docline.split("(")[-1].split(")")[0].split(",")
     return model, inputs, outputs
 
 
 def parse_input_and_output(docstring):
+    """
+    Parse a docstring with format:
+        inputs = input_name:input_type=input_default_value, ...
+        outputs = output_name:output_type, ...
+
+    :use:
+        >>> '''
+        >>> inputs = a:int=4, b
+        >>> outputs = r:float
+        >>> '''
+
+    :return: inputs, outputs
+    """
     inputs = None
     outputs = None
-    if 'input' in docstring:
-        in_code = docstring.split('input')[1]
-        in_code = '='.join(in_code.split("=")[1:])
-        line = in_code.split('\n')[0]
-        inputs = line.split(",")
-    if 'output' in docstring:
-        out_code = docstring.split('output')[1]
-        out_code = '='.join(out_code.split("=")[1:])
-        line = out_code.split('\n')[0]
-        outputs = line.split(",")
+    if hasattr(docstring, "split"):
+        if 'input' in docstring:
+            in_code = docstring.split('input')[1]
+            in_code = '='.join(in_code.split("=")[1:])
+            line = in_code.split('\n')[0]
+            inputs = line.split(",")
+        if 'output' in docstring:
+            out_code = docstring.split('output')[1]
+            out_code = '='.join(out_code.split("=")[1:])
+            line = out_code.split('\n')[0]
+            outputs = line.split(",")
     return inputs, outputs
 
 
+###########################
+## Input and Output Objects
+###########################
 class InputObj(object):
-    def __init__(self, string):
+    """
+    Inputs object with:
+        - an attribute *name*: name of the input obj (str) (mandatory)
+        - an attribute *interface*: interface/type of the input obj (str) (optional)
+        - an attribute *default*: default value of the input obj (str) (optional)
+
+    :param string: string object with format "input_name:input_type=input_default_value" or "input_name=input_default_value" or "input_name:input_type" or "input_name"
+    """
+    def __init__(self, string=''):
         self.name = None
         self.interface = None
         self.default = None
@@ -106,5 +165,67 @@ class InputObj(object):
 
 
 class OutputObj(InputObj):
+    """
+    Outputs object is the same as InputObj with a custom __repr__
+    """
     def __repr__(self):
         return "OutputObject. Name: " + str(self.name) + ". Interface: " + str(self.interface) + ". Default Value: " + str(self.default) + "."
+
+
+################################
+## Detect functions in docstring
+################################
+def parse_functions(codestring):
+    """
+    parse the code *codestring* and detect what are the functions defined inside (search *init*, *step*, *animate* and *run*)
+    :return: has_init(), has_step(), has_animate(), has_run() (list of bool)
+    """
+    return has_init(codestring), has_step(codestring), has_animate(codestring), has_run(codestring)
+
+
+def has_step(codestring):
+    """
+    :return: True if *docstring* define a function *"step"*
+    """
+    r = ast_parse(codestring)
+    functions_list = [x.name for x in ast.walk(r) if isinstance(x, ast.FunctionDef)]
+    if "step" in functions_list:
+        return True
+    else:
+        return False
+
+
+def has_animate(codestring):
+    """
+    :return: True if *docstring* define a function *"animate"*
+    """
+    r = ast_parse(codestring)
+    functions_list = [x.name for x in ast.walk(r) if isinstance(x, ast.FunctionDef)]
+    if "animate" in functions_list:
+        return True
+    else:
+        return False
+
+
+def has_init(codestring):
+    """
+    :return: True if *docstring* define a function *"init"*
+    """
+    r = ast_parse(codestring)
+    functions_list = [x.name for x in ast.walk(r) if isinstance(x, ast.FunctionDef)]
+    if "init" in functions_list:
+        return True
+    else:
+        return False
+
+
+def has_run(codestring):
+    """
+    :return: True if *docstring* define a function *"run"*
+    """
+    r = ast_parse(codestring)
+    functions_list = [x.name for x in ast.walk(r) if isinstance(x, ast.FunctionDef)]
+    if "run" in functions_list:
+        return True
+    else:
+        return False

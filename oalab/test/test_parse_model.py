@@ -15,7 +15,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-from openalea.oalab.model.parse import get_docstring, parse_function, parse_input_and_output, parse_string
+from openalea.oalab.model.parse import get_docstring, parse_function, parse_input_and_output, parse_docstring
 
 
 def test_ast_getdoc():
@@ -80,7 +80,7 @@ beautifull doc
 
 print "ok"
 '''
-    model, inputs, outputs = parse_string(model_src)
+    model, inputs, outputs = parse_docstring(model_src)
 
     assert model == "model1"
     assert len(inputs) == 2

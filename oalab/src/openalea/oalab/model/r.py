@@ -26,7 +26,7 @@ class RModel(Model):
     icon = ":/images/resources/RLogo.png"
 
     def __init__(self, name="script.r", code="", inputs=[], outputs=[]):
-        super(RModel, self).__init__()
+        super(RModel, self).__init__(name=name, code=code, inputs=inputs, outputs=outputs)
         self._step = None
         self._animate = None
         self._init = None
@@ -37,71 +37,73 @@ class RModel(Model):
         """
         return self.code
 
-    def run(self, interpreter=None):
+    def run(self, *args, **kwargs):
         """
         execute model thanks to interpreter
         """
-        if not interpreter:
-            try:
-                interpreter= get_ipython()
-            except NameError:
-                raise("No intepreter is available to run model %s"%str(self))
+        if args:
+            self.inputs = args
+
+        interpreter = self._set_interpreter(**kwargs)
 
         user_ns = interpreter.user_ns
+
+        # put inputs inside namespace
+        if self.inputs:
+            user_ns.update(self.inputs)
+
+        # run
         code = """%load_ext rmagic
 %%R
 
 """ + self.code
-        result = interpreter.run_cell(code)
+        interpreter.run_cell(code)
 
-        ## Hack to store methods init, step and animate
-        self._init = user_ns.get("init")
-        if not callable(self._init):
-            self._init = None
+        self.set_output_from_ns(user_ns)
 
-        self._step = user_ns.get("step")
-        if not callable(self._step):
-            self._step = None
+        return self.outputs
 
-        self._animate = user_ns.get("animate")
-        if not callable(self._animate):
-            self._animate = None
-            if self._step :
-                def animate():
-                    for i in range(5):
-                        self._step()
-                self._animate = animate
-
-        return result
-
-    def reset(self, interpreter):
+    def reset(self, *args, **kwargs):
         """
         go back to initial step
         """
-        # TODO : get function from the current widget
-        if self._init:
-            return self._init()
+        pass
 
-    def step(self, interpreter):
+    def step(self, *args, **kwargs):
         """
         execute only one step of the model
         """
-        # TODO : get function from the current widget
-        if self._step:
-            return self._step()
+        pass
 
-    def stop(self, interpreter):
+    def stop(self, *args, **kwargs):
         """
         stop execution
         """
-        # TODO : to implement
         pass
 
-    def animate(self, interpreter):
+    def animate(self, *args, **kwargs):
         """
         run model step by step
         """
-        # TODO : get function from the current widget
-        if self._animate:
-            return self._animate()
+        pass
 
+    def _set_interpreter(self, **kwargs):
+        if not "interpreter" in kwargs:
+            try:
+                from IPython.core.getipython import get_ipython
+                interpreter = get_ipython()
+            except NameError:
+                interpreter = None
+                #raise("No interpreter is available to run model %s" % str(self))
+        else:
+            interpreter = kwargs["interpreter"]
+        return interpreter
+
+    def set_output_from_ns(self, namespace):
+        # get outputs from namespace
+        if self.outputs_info:
+            self.outputs = []
+            if len(self.outputs_info) > 0:
+                for outp in self.outputs_info:
+                    if outp.name in namespace:
+                        self.outputs.append(namespace[outp.name])

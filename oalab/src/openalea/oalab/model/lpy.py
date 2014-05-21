@@ -23,6 +23,19 @@ from openalea.lpy.gui.objectmanagers import get_managers
 from openalea.lpy.gui.scalar import ProduceScalar
 
 
+def get_default_text():
+    return """Axiom:
+
+derivation length: 1
+
+production:
+
+interpretation:
+
+endlsystem
+"""
+
+
 class LPyModel(Model):
     default_name = "LSystem"
     default_file_name = "script.lpy"
@@ -30,10 +43,10 @@ class LPyModel(Model):
     extension = "lpy"
     icon = ":/images/resources/logo.png"
 
-    def __init__(self, name="script.lpy", code="", inputs=[], outputs=[]):
+    def __init__(self, name="script.lpy", code=None, inputs=[], outputs=[]):
         super(LPyModel, self).__init__()
-        if not code:
-            self.code = get_default_text()
+        if code == "":
+            code = get_default_text()
 
         # dict is mutable... It is useful if you want change scene_name inside application
         self.parameters = dict()
@@ -41,8 +54,10 @@ class LPyModel(Model):
         self.context["scene_name"] = "lpy_scene"
         self.lsystem = Lsystem()
         self.axialtree = AxialTree()
-        self.code, control = import_lpy_file(self.code)
+        self.code, control = import_lpy_file(code)
         # TODO: update control of the project with new ones
+
+        self.lsystem.setCode(self.code, self.parameters)
 
     def repr_code(self):
         """
@@ -55,7 +70,7 @@ class LPyModel(Model):
         execute model thanks to interpreter
         """
         # TODO: get control from application and set them into self.parameters
-        self.lsystem.setCode(self.code, self.parameters)
+        self.lsystem.setCode(self.code)
         self.axialtree = self.lsystem.iterate()
         return self.axialtree
 
@@ -129,10 +144,7 @@ def import_lpy_file(script):
         new_script = txts[0]
         context_to_translate = txts[1]
         context = Lsystem().context()
-        try:
-            context.initialiseFrom(beginTag + context_to_translate)
-        except:
-            logger.warning("Can't decode lpy file")
+        context.initialiseFrom(beginTag + context_to_translate)
 
         managers = get_managers()
         visualparameters = []

@@ -232,12 +232,20 @@ class ProjectTreeView(QtGui.QTreeView):
 
             text1 = text.split()[0].split(".")[0]
 
-            text = '%s = Model("%s")' % (text1, text)
+            text2 = '%s = Model("%s")' % (text1, text)
             icon = item.icon()
             pixmap = icon.pixmap(20, 20)
 
+            itemData = QtCore.QByteArray()
+            dataStream = QtCore.QDataStream(itemData, QtCore.QIODevice.WriteOnly)
+            #filepath = path(self.project.path)/self.project.name/"src"/text
+            model_id = text
+            dataStream.writeString(str(text2))
+            dataStream.writeString(str(model_id))
+
             mimeData = QtCore.QMimeData()
-            mimeData.setText(text)
+            mimeData.setText(text2)
+            mimeData.setData("openalealab/model", itemData)
 
             drag = QtGui.QDrag(self)
             drag.setMimeData(mimeData)
@@ -247,26 +255,17 @@ class ProjectTreeView(QtGui.QTreeView):
             drag.start(QtCore.Qt.MoveAction)
 
     def dragEnterEvent(self, event):
-        # TODO
-
-        # cf nodetreeview.py l 440 in visualea
-        # mimedata = event.mimeData()
-        event.accept()
-        #if mimedata.hasFormat(NodeFactory.mimetype) or mimedata.hasFormat(CompositeNodeFactory.mimetype):
-        #    event.accept()
-        #else:
-        #    event.ignore()
+        if event.mimeData().hasFormat("openalealab/model"):
+            event.accept()
+        else:
+            event.ignore()
 
     def dragMoveEvent(self, event):
-        # TODO
-
-        # mimedata = event.mimeData()
-        event.ignore()
-        #if mimedata.hasFormat(NodeFactory.mimetype) or mimedata.hasFormat(CompositeNodeFactory.mimetype):
-        #    event.setDropAction(qt.QtCore.Qt.MoveAction)
-        #    event.accept()
-        #else:
-        #    event.ignore()
+        if event.mimeData().hasFormat("openalealab/model"):
+            event.setDropAction(QtCore.Qt.MoveAction)
+            event.accept()
+        else:
+            event.ignore()
 
     def dropEvent(self, event):
         event.ignore()
