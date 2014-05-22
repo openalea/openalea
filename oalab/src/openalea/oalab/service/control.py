@@ -1,31 +1,6 @@
 
 __all__ = ["edit_qt", "edit_notebook", "edit_bash", "control"]
 
-class IColorList(object):
-    """
-
-    IIntControl is a Control with this specific method:
-        - set_range(range), with range a couple of int.
-    """
-    interface = 'IColorList'
-
-    def default(self):
-        """
-        Reinitialize control to default value
-        """
-        from openalea.plantgl.all import Material, Color3
-        value = [
-            Material("Color_0"),
-            Material("Color_0", Color3(65, 45, 15)), # Brown
-            Material("Color_2", Color3(30, 60, 10)), # Green
-            Material("Color_3", Color3(60, 0, 0)), # Red
-            Material("Color_4", Color3(60, 60, 15)), # Yellow
-            Material("Color_5", Color3(0, 0, 60)), # Blue
-            Material("Color_6", Color3(60, 0, 60)), # Purple
-            ]
-        return value
-
-
 def _discover_editors(control, plugins):
     _editors = {}
     for editor in plugins:
@@ -105,22 +80,8 @@ def control(variable):
     lack of plugins
     """
     from openalea.oalab.control.control import Control
-    from openalea.core.interface import IInt
+    from openalea.oalab.service.interface import interface
+    control = Control(interface(type(variable)))
+    control.set_value(variable)
+    return control
 
-    type_to_iname = {
-        int:'IInt',
-        float:'IFloat'
-    }
-
-    iname_to_interface = {
-        'IInt':IInt,
-        'IColorList':IColorList
-                          }
-
-    if type(variable) in type_to_iname:
-        iname = type_to_iname[type(variable)]
-        control = Control(iname_to_interface[iname])
-        control.set_value(variable)
-        return control
-    else:
-        raise ValueError, 'No controls for %s' % type(variable)

@@ -35,8 +35,8 @@ if __name__ == '__main__':
     # Manual approach
     #################
     from openalea.oalab.control.control import  Control
-    from openalea.oalab.service.control import IColorList
-    c2 = Control(IColorList)
+    from openalea.oalab.service.interface import interface
+    c2 = Control(interface('IColorList'))
 
     # customizations (optional)
     ###########################
