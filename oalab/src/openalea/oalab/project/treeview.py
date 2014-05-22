@@ -187,6 +187,8 @@ class ProjectTreeView(QtGui.QTreeView):
             if self.hasParent():
                 if item.parent().text() == "src":
                     return True
+                elif item.parent().text() == "model":
+                    return True
         return False
 
     def showMenu(self, event):
@@ -230,7 +232,8 @@ class ProjectTreeView(QtGui.QTreeView):
         if self.is_src_selected():
             text = item.text()
 
-            name_without_ext = ".".join(text.split(".")[:-1])
+            # name_without_ext = ".".join(text.split(".")[:-1])
+            name_without_ext = text
             name_without_space = "_".join(name_without_ext.split())
 
             python_call_string = '%s = Model("%s")' % (name_without_space, name_without_ext)
@@ -239,7 +242,6 @@ class ProjectTreeView(QtGui.QTreeView):
 
             itemData = QtCore.QByteArray()
             dataStream = QtCore.QDataStream(itemData, QtCore.QIODevice.WriteOnly)
-            #filepath = path(self.project.path)/self.project.name/"src"/text
             model_id = name_without_ext
             dataStream.writeString(str(python_call_string))
             dataStream.writeString(str(model_id))
@@ -395,6 +397,8 @@ class PrjctModel(QtGui.QStandardItemModel):
                 cat = getattr(project, category)
                 if len(cat) > 0:
                     item2 = QtGui.QStandardItem(category)
+                    if category == "src":
+                        item2 = QtGui.QStandardItem("model")
                     item.appendRow(item2)
                     try:
                         icon = eval(str("icon_"+category))
@@ -407,9 +411,12 @@ class PrjctModel(QtGui.QStandardItemModel):
 
                 if isinstance(cat,dict):
                     for obj in cat.keys():
+                        l = obj.split(".")
+                        name = ".".join(l[:-1])
+                        ext = l[-1]
                         item3 = QtGui.QStandardItem(obj)
                         if category == "src":
-                            ext = obj.split(".")[-1]
+                            item3 = QtGui.QStandardItem(name)
                             if ext in self.icons.keys():
                                 item3.setIcon(QtGui.QIcon(self.icons[ext]))
                         item2.appendRow(item3)
