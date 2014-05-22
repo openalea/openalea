@@ -17,6 +17,9 @@ class Control(Observed):
         self.name = name
         self.default()
 
+    def __str__(self):
+        return 'Control(%r, name=%r)' % (self._interface, self.name)
+
     def notify_change(self):
         self.notify_listeners(('ValueChanged', self._value))
 
