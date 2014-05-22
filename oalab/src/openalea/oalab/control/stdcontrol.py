@@ -139,6 +139,70 @@ class FloatControl(Control):
 
 import copy
 from openalea.oalab.control.control import Control as Control2
+from openalea.oalab.control.control import Restriction
+
+class MaximumRestriction(Restriction):
+
+    controls = ['IIntControl']
+
+    def __init__(self, limit, allow_equal=False):
+        self._limit = limit
+        self._equal = allow_equal
+
+    def __str__(self):
+        if self._equal:
+            return 'value <= %s' % self._limit
+        else:
+            return 'value < %s' % self._limit
+
+    def check(self, value):
+        if self._equal:
+            return value <= self._limit
+        else:
+            return value < self._limit
+
+    limit = property(fget=lambda self:self._limit)
+    equal = property(fget=lambda self:self._equal)
+
+
+class MinimumRestriction(Restriction):
+
+    controls = ['IIntControl']
+
+    def __init__(self, limit, allow_equal=False):
+        self._limit = limit
+        self._equal = allow_equal
+
+    def __str__(self):
+        if self._equal:
+            return 'value >= %s' % self._limit
+        else:
+            return 'value > %s' % self._limit
+
+    def check(self, value):
+        if self._equal:
+            return value >= self._limit
+        else:
+            return value > self._limit
+
+    limit = property(fget=lambda self:self._limit)
+    equal = property(fget=lambda self:self._equal)
+
+class EnumRestriction(Restriction):
+
+    controls = ['IIntControl', 'IStrControl']
+
+    def __init__(self, lst):
+        self._lst = lst
+
+    def check(self, value):
+        return value in self._lst
+
+    def __str__(self):
+        lst = ', '.join([repr(e) for e in self._lst])
+        return 'value in %s' % lst
+
+    lst = property(fget=lambda self:self._lst)
 
 class ColorListControl(Control2):
     """
@@ -164,9 +228,34 @@ class ColorListControl(Control2):
             ]
 
     def set_value(self, value):
+        self.check(value)
         self._user_value = value
         self._value = [material for material in value]
         self.notify_change()
+
+class IStrControl(Control2):
+    """
+
+    IIntControl is a Control with this specific method:
+        - set_range(range), with range a couple of int.
+    """
+    interface = 'IStr'
+    restrictions = [
+        'EnumRestriction'
+        ]
+
+    def default(self):
+        """
+        Reinitialize control to default value
+        """
+        self._value = str()
+
+    def set_value(self, value):
+        self.check(value)
+        self._user_value = value
+        self._value = copy.deepcopy(value)
+        self.notify_change()
+
 
 class IIntControl(Control2):
     """
@@ -175,6 +264,11 @@ class IIntControl(Control2):
         - set_range(range), with range a couple of int.
     """
     interface = 'IInt'
+    restrictions = [
+        'MaximumRestriction',
+        'MinimumRestriction',
+        'EnumRestriction'
+        ]
 
     def default(self):
         """
@@ -184,6 +278,7 @@ class IIntControl(Control2):
         self._range = (0, 100)
 
     def set_value(self, value):
+        self.check(value)
         self._user_value = value
         self._value = copy.deepcopy(value)
         self.notify_change()

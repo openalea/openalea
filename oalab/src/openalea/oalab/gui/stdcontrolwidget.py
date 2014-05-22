@@ -53,14 +53,74 @@ class QtControl(AbstractListener):
 
     def read(self, control):
         self.setValue(control.value())
-        range = control.range()
-        self.setMinimum(range[0])
-        self.setMaximum(range[1])
+        mini = control.restriction('MinimumRestriction')
+        maxi = control.restriction('MaximumRestriction')
+        if mini.equal:
+            self.setMinimum(mini.limit)
+        else:
+            self.setMinimum(mini.limit + 1)
+        if maxi.equal:
+            self.setMaximum(maxi.limit)
+        else:
+            self.setMaximum(maxi.limit - 1)
+
+    def notify(self, sender, event):
+        self.read(self._control)
+
+class StrComboBox(QtGui.QComboBox, AbstractListener):
+
+    def __init__(self):
+        AbstractListener.__init__(self)
+        QtGui.QComboBox.__init__(self)
+        self._control = None
+        self._lst = []
+        self.reset()
+
+    def reset(self):
+        self.set(None)
+        self.clear()
+
+    def set(self, control):
+        """
+        Use control to preset widget
+        """
+        self._control = control
+        if self._control:
+            self.initialise(self._control)
+            self.read(self._control)
+
+    def edit(self, control):
+        """
+        Modify control in place.
+        Control can be updated continuously or on explicit user action
+        (click on apply button for instance)
+        """
+        self.set(control)
+        self.show()
+
+    def view(self, control):
+        """
+        View control. This function never modify control.
+        If you finally want to modify it, you can call "apply" explicitly.
+        """
+        self.set(control)
+        self.register(control)
+        self.show()
+
+    def apply(self, control):
+        control.set_value(self.currentText())
+
+    def read(self, control):
+        enum = control.restriction('EnumRestriction')
+        self.clear()
+        for txt in sorted(enum.lst):
+            self.insertItem(-1, txt)
 
     def notify(self, sender, event):
         self.read(self._control)
 
 class IntSpinBox(QtGui.QSpinBox, QtControl):
+
     def __init__(self):
         QtGui.QSpinBox.__init__(self)
         QtControl.__init__(self)
@@ -74,6 +134,7 @@ class IntSpinBox(QtGui.QSpinBox, QtControl):
         QtControl.edit(self, control)
 
 class IntSlider(QtGui.QSlider, QtControl):
+
     def __init__(self):
         QtGui.QSlider.__init__(self)
         QtControl.__init__(self)
@@ -87,6 +148,7 @@ class IntSlider(QtGui.QSlider, QtControl):
         QtControl.edit(self, control)
 
 class IntIPython(object):
+
     def __init__(self):
         self._value = 0
         self._range = (0, 100)
