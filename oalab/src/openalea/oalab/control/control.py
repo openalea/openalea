@@ -1,20 +1,21 @@
 
 from openalea.core.observer import Observed
 
-SYNCHRO_AUTO = 1 # Control is always synchronized with editor
-SYNCHRO_NEVER = 2 # Control is never synchronize. Developper must do it manually
-SYNCHRO_ON_CLOSE = 3 # Control is synchronized when editor is deleted or closed
-SYNCHRO_ON_APPLY = 3 # Control is synchronized when user clicks on OK or Apply
+import copy
+import inspect
 
-class Restriction(object):
-    pass
+def deepcopy(value):
+    # Will become a service
+    return copy.deepcopy(value)
 
 class Control(Observed):
-    def __init__(self):
+    def __init__(self, interface, name='default'):
         Observed.__init__(self)
-        self.name = "default"
+        if inspect.isclass(interface):
+            interface = interface()
+        self._interface = interface
+        self.name = name
         self.default()
-        self._restrictions = []
 
     def notify_change(self):
         self.notify_listeners(('ValueChanged', self._value))
@@ -23,7 +24,7 @@ class Control(Observed):
         self.name = name
 
     def default(self):
-        raise NotImplementedError
+        self._value = self._interface.default()
 
     def value(self):
         return self._value
@@ -33,31 +34,10 @@ class Control(Observed):
         A deep copy of value must be saved in _value.
         Original one is stored in _user_value.
         """
-        raise NotImplementedError
+        self._value = deepcopy(value)
+        self.notify_change()
 
     def check(self, value):
-        txt = 'value = %r does not respect restrictions: ' % (value)
-        ok = True
-        for restriction in self._restrictions:
-            if not restriction.check(value):
-                ok = False
-                txt += '\n  - %s' % restriction
-        if not ok:
-            raise ValueError, txt
+        pass
 
-    def add_restriction(self, restriction):
-        self._restrictions.append(restriction)
-
-    def clear_restrictions(self):
-        for i in range(len(self._restrictions)):
-            self._restrictions.pop()
-
-    def restriction(self, name):
-        for restriction in self._restrictions:
-            if restriction.__class__.__name__ == name:
-                return restriction
-
-    def _get_restriction_names(self):
-        return sorted([r.__class__.__name__ for r in self._restrictions])
-
-    restriction_names = property(fget=_get_restriction_names)
+    interface = property(fget=lambda self:self._interface)

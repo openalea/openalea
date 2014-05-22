@@ -18,9 +18,9 @@ class ControlWidgetPlugin():
 
 class PluginIntSpinBox(ControlWidgetPlugin):
 
-    controls = ['IIntControl']
+    controls = ['IInt']
     name = 'IntSpinBox'
-    required = ['MaximumRestriction', 'MinimumRestriction']
+    required = ['IInt.min', 'IInt.max']
 
     @classmethod
     def load(cls):
@@ -29,9 +29,9 @@ class PluginIntSpinBox(ControlWidgetPlugin):
 
 class PluginIntSlider(ControlWidgetPlugin):
 
-    controls = ['IIntControl']
+    controls = ['IInt']
     name = 'IntSlider'
-    required = ['MaximumRestriction', 'MinimumRestriction']
+    required = ['IInt.min', 'IInt.max']
 
     @classmethod
     def load(cls):
@@ -40,9 +40,9 @@ class PluginIntSlider(ControlWidgetPlugin):
 
 class PluginIntIPython(ControlWidgetPlugin):
 
-    controls = ['IIntControl']
+    controls = ['IInt']
     name = 'IntIPython'
-    supported = ['MaximumRestriction', 'MinimumRestriction']
+    required = ['IInt.min', 'IInt.max']
 
     @classmethod
     def load(cls):
@@ -52,9 +52,9 @@ class PluginIntIPython(ControlWidgetPlugin):
 
 class PluginIntNotebook(ControlWidgetPlugin):
 
-    controls = ['IIntControl']
+    controls = ['IInt']
     name = 'IntNotebook'
-    required = ['MaximumRestriction', 'MinimumRestriction']
+    required = ['IInt.min', 'IInt.max']
 
 
     @classmethod
@@ -64,7 +64,7 @@ class PluginIntNotebook(ControlWidgetPlugin):
 
 
 class PluginColorListWidget(ControlWidgetPlugin):
-    controls = ['ColorListControl']
+    controls = ['IColorList']
     name = 'ColorListWidget'
 
     @classmethod
@@ -72,20 +72,3 @@ class PluginColorListWidget(ControlWidgetPlugin):
         from openalea.oalab.gui.stdcontrolwidget import ColorListWidget
         return ColorListWidget
 
-
-class PluginIIntControl(object):
-    interface = "IInt"
-    control = "IIntControl"
-    @classmethod
-    def load(cls):
-        from openalea.oalab.control.stdcontrol import IIntControl
-        return IIntControl
-
-
-class PluginColorListControl(object):
-    interface = "IColorList"
-    control = "ColorListControl"
-    @classmethod
-    def load(cls):
-        from openalea.oalab.control.stdcontrol import ColorListControl
-        return ColorListControl
