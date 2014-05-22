@@ -34,20 +34,21 @@ if __name__ == '__main__':
 
     # Manual approach
     #################
-    from openalea.oalab.control.stdcontrol import ColorListControl
+    from openalea.oalab.control.stdcontrol import ColorListControl, MinimumRestriction, MaximumRestriction
     c2 = ColorListControl()
 
     # customizations (optional)
     ###########################
     c1.name = 'nmax'
-    c1.set_range((0, 100))
+    c1.add_restriction(MinimumRestriction(0))
+    c1.add_restriction(MaximumRestriction(100))
     c1.set_value(a)
 
     # Edition
     #########
     w1 = edit_qt(c1)
-    w1b = edit_qt(c1)
-    w2 = edit_qt(c2)
+#     w1b = edit_qt(c1)
+#     w2 = edit_qt(c2)
 
     app.exec_()
 

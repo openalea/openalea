@@ -68,7 +68,18 @@ def _edit(control, synchro_mode, discover):
     classes = []
     cname = control.__class__.__name__
     for editor in editors[cname]:
-        classes.append(editor.load())
+        required = editor.required
+        supported = editor.supported
+        for req in required:
+            if req not in supported:
+                supported.append(req)
+
+        ok = True
+        for req in required:
+            if req not in control.restriction_names:
+                ok = False
+        if ok:
+            classes.append(editor.load())
 
     widget = classes[0]()
     widget.edit(control)
