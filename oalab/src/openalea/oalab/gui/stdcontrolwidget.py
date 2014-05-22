@@ -1,11 +1,5 @@
 
 from openalea.vpltk.qt import QtGui
-
-NO_SYNC = 0
-CONTROL_TO_EDITOR = 1
-EDITOR_TO_CONTROL = 2
-TWO_WAY = CONTROL_TO_EDITOR | EDITOR_TO_CONTROL
-
 from openalea.core.observer import AbstractListener
 
 class QtControl(AbstractListener):
@@ -53,16 +47,11 @@ class QtControl(AbstractListener):
 
     def read(self, control):
         self.setValue(control.value())
-        mini = control.restriction('MinimumRestriction')
-        maxi = control.restriction('MaximumRestriction')
-        if mini.equal:
-            self.setMinimum(mini.limit)
-        else:
-            self.setMinimum(mini.limit + 1)
-        if maxi.equal:
-            self.setMaximum(maxi.limit)
-        else:
-            self.setMaximum(maxi.limit - 1)
+
+        mini = control.interface.min
+        maxi = control.interface.max
+        self.setMinimum(mini)
+        self.setMaximum(maxi)
 
     def notify(self, sender, event):
         self.read(self._control)
@@ -111,10 +100,10 @@ class StrComboBox(QtGui.QComboBox, AbstractListener):
         control.set_value(self.currentText())
 
     def read(self, control):
-        enum = control.restriction('EnumRestriction')
         self.clear()
-        for txt in sorted(enum.lst):
-            self.insertItem(-1, txt)
+
+#         for txt in sorted(enum.lst):
+#             self.insertItem(-1, txt)
 
     def notify(self, sender, event):
         self.read(self._control)
@@ -184,7 +173,6 @@ class IntNotebook(IntSliderWidget):
 # Will move to openalea.lpy module
 from openalea.lpy.gui.materialeditor import MaterialEditor
 from openalea.plantgl.all import PglTurtle
-from openalea.oalab.control.control import SYNCHRO_AUTO
 
 class ColorListWidget(MaterialEditor):
     def __init__(self):
