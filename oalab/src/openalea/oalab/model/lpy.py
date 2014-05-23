@@ -58,7 +58,7 @@ class LPyModel(Model):
         self.code, control = import_lpy_file(code)
         # TODO: update control of the project with new ones
 
-        self.lsystem.setCode(self.code, self.parameters)
+
 
     def get_documentation(self):
         """
@@ -80,22 +80,22 @@ class LPyModel(Model):
         """
         return self.code
 
-    def run(self, interpreter=None):
+    def run(self, *args, **kwargs):
         """
         execute model thanks to interpreter
         """
         # TODO: get control from application and set them into self.parameters
-        self.lsystem.setCode(self.code)
+        self.lsystem.setCode(self.code, self.parameters)
         self.axialtree = self.lsystem.iterate()
         return self.axialtree
 
-    def reset(self, interpreter=None):
+    def reset(self, *args, **kwargs):
         """
         go back to initial step
         """
-        return self.step(interpreter, 0)
+        return self.step(i=0, *args, **kwargs)
 
-    def step(self, interpreter=None, i=None):
+    def step(self, i=None, *args, **kwargs):
         """
         execute only one step of the model
         """
@@ -111,14 +111,14 @@ class LPyModel(Model):
             self.axialtree = self.lsystem.iterate(i)
         return self.axialtree
 
-    def stop(self, interpreter=None):
+    def stop(self, *args, **kwargs):
         """
         stop execution
         """
         # TODO : to implement
         pass
 
-    def animate(self, interpreter=None):
+    def animate(self, *args, **kwargs):
         """
         run model step by step
         """
