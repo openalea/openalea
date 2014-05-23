@@ -770,3 +770,7 @@ class Project(object):
                 # local icon
                 icon_name = path_(self.path) / self.name / self.icon
         return icon_name
+
+    @property
+    def src(self):
+        return self.models()
