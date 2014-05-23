@@ -1,5 +1,5 @@
 
-from openalea.vpltk.qt import QtGui
+from openalea.vpltk.qt import QtGui, QtCore
 from openalea.oalab.gui.stdcontrolwidget import IntSpinBox
 from openalea.core.observer import AbstractListener, Observed
 from openalea.oalab.service.control import discover_qt_controls, edit_qt
@@ -17,6 +17,14 @@ class ControlManager(Observed):
         self.notify_listeners(('ControlManagerChanged', None))
 
     controls = property(fget=lambda self:self._controls)
+
+class ControlModel(QtGui.QStandardItemModel):
+    def flags(self, index):
+        default_flags = QtGui.QStringListModel.flags(index)
+        if (index.isValid()):
+            return QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsDropEnabled | default_flags
+        else:
+            return QtCore.Qt.ItemIsDropEnabled | default_flags
 
 class Dialog(QtGui.QDialog):
     def __init__(self, name='default'):
@@ -65,7 +73,7 @@ class ControlManagerWidget(QtGui.QWidget, AbstractListener):
 
         self._manager = manager
 
-        self.model = QtGui.QStandardItemModel()
+        self.model = ControlModel()
 
         self.view = QtGui.QTreeView()
         self.view.setModel(self.model)
