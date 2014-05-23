@@ -277,7 +277,8 @@ class AppletContainer(QtGui.QTabWidget):
         # tab_name = check_if_name_is_unique(tab_name, existing_tabs)
 
         if model is not None:
-            applet_type = model.default_name
+            if hasattr(model, "default_name"):
+                applet_type = model.default_name
 
         Applet = None
 
