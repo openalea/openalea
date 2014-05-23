@@ -44,8 +44,8 @@ class LPyModel(Model):
     extension = "lpy"
     icon = ":/images/resources/logo.png"
 
-    def __init__(self, name="script.lpy", code=None, inputs=[], outputs=[]):
-        super(LPyModel, self).__init__()
+    def __init__(self, name="script.lpy", code=None, filepath="", inputs=[], outputs=[]):
+        super(LPyModel, self).__init__(name=name, code=code, filepath=filepath, inputs=inputs, outputs=outputs)
         if code == "":
             code = get_default_text()
 

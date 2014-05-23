@@ -197,6 +197,13 @@ More informations: http://openalea.gforge.inria.fr/doc/openalea/visualea/doc/_bu
     def reinit(self):
         return self.model.init()
 
+    def save(self, name=None):
+        code = self.widget().repr_workflow()
+        if name:
+            self.model.filepath = name
+        self.model.code = code
+        self.widget().save(name=self.model.filepath)
+
 
 def adapt_widget(widget, methods):
     method_list = ['actions', 

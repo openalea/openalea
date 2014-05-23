@@ -134,7 +134,7 @@ class AppletContainer(QtGui.QTabWidget):
 
         self.reset()
 
-    def open_file(self, filename=None, extension=None):
+    def open_file(self, filename=None, extension=None, model=None):
         """
         Open a file.
 
@@ -166,13 +166,13 @@ class AppletContainer(QtGui.QTabWidget):
             ext = ext.split(".")[-1]
             logger.debug("Try to open file named " + tab_name + " . With applet_type " + ext)
 
-            self.newTab(applet_type=ext, tab_name=tab_name, script=txt)
+            self.newTab(applet_type=ext, tab_name=tab_name, script=txt, model=model)
             # project.add("src", filename, txt)
             logger.debug("Open file named " + tab_name)
 
-    def new_file(self, applet_type=None, tab_name=None, script=""):
+    def new_file(self, applet_type=None, tab_name=None, script="", model=None):
         """
-        Create a new model of type 'applet_type
+        Create a new model of type *applet_type*
 
         :param applet_type: type of applet to add. Can be Workflow, LSystem, Python, R
         """
@@ -186,7 +186,7 @@ class AppletContainer(QtGui.QTabWidget):
         Applet = self.paradigms.get(applet_type)
         if not tab_name and Applet:
             tab_name = Applet.default_file_name
-        self.newTab(applet_type=applet_type, tab_name=tab_name, script=script)
+        self.newTab(applet_type=applet_type, tab_name=tab_name, script=script, model=model)
 
         # # TODO: how to add a file to a project???
         """
@@ -254,13 +254,13 @@ class AppletContainer(QtGui.QTabWidget):
         """
         self.closeAll()
 
-    def openTab(self, applet_type, tab_name, script):
+    def openTab(self, applet_type=None, tab_name="", script="", model=None):
         """
         Open a tab with the widget 'applet_type'
         """
-        self.newTab(applet_type=applet_type, tab_name=tab_name, script=script)
+        self.newTab(applet_type=applet_type, tab_name=tab_name, script=script, model=model)
 
-    def newTab(self, applet_type, tab_name="", script=""):
+    def newTab(self, applet_type="", tab_name="", script="", model=None):
         """
         Open a tab with the widget 'applet_type'
 
@@ -275,6 +275,9 @@ class AppletContainer(QtGui.QTabWidget):
         # for name in self.session.project.src:
         #    existing_tabs.append(name)
         # tab_name = check_if_name_is_unique(tab_name, existing_tabs)
+
+        if model is not None:
+            applet_type = model.default_name
 
         Applet = None
 
@@ -296,7 +299,11 @@ class AppletContainer(QtGui.QTabWidget):
             filepath = self.session.project.path/self.session.project.name/"src"/tab_name
 
         if Applet is not None:
-            appl = Applet(name=tab_name, code=script, model=None, filepath=filepath, interpreter=self.session.interpreter, editor_container=self, parent=self.parent())
+            if model is not None:
+                tab_name = model.name
+                appl = Applet(model=model, interpreter=self.session.interpreter, editor_container=self, parent=self.parent())
+            else:
+                appl = Applet(name=tab_name, code=script, filepath=filepath, interpreter=self.session.interpreter, editor_container=self, parent=self.parent())
             widget = appl.instanciate_widget()
             self.applets.append(appl)
             icon = Applet.icon
@@ -364,23 +371,19 @@ class AppletContainer(QtGui.QTabWidget):
         """
         Save current script
         """
-        if name in (False, None):
-            name = self.tabText(self.currentIndex())
-        filepath = self.currentWidget().applet.filepath
-        if filepath:
-            name = filepath
-        logger.debug("Save model " + str(name))
-        self.currentWidget().save(name=name)
+        logger.debug("Save name: " + str(name))
+        self.currentWidget().applet.save(name=name)
         self.setTabBlack()
 
     def save_as(self):
         """
         Save current script as
         """
+        logger.debug("Save as")
         filename = QtGui.QFileDialog.getSaveFileName(parent=self, caption="Save file as")
         if filename:
             self.setTabText(self.currentIndex(), filename)
-            ret = self.currentWidget().save(name=filename)
+            self.save(name=filename)
             self.setTabBlack()
 
     def save_all(self):

@@ -26,12 +26,12 @@ class PythonModel(Model):
     extension = "py"
     icon = ":/images/resources/Python-logo.png"
 
-    def __init__(self, name="script.py", code="", inputs=[], outputs=[]):
+    def __init__(self, name="script.py", code="", filepath="", inputs=[], outputs=[]):
         self._step = False
         self._animate = False
         self._init = False
         self._run = False
-        super(PythonModel, self).__init__(name=name, code=code, inputs=inputs, outputs=outputs)
+        super(PythonModel, self).__init__(name=name, code=code, filepath=filepath, inputs=inputs, outputs=outputs)
         self.code = code  # use it to force to parse doc, functions, inputs and outputs
 
     def get_documentation(self):

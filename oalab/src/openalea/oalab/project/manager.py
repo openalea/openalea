@@ -89,9 +89,8 @@ class ProjectManagerWidget(QtGui.QWidget):
         proj = self.projectManager.load_default()
         self.session._project = proj
         self.session._is_proj = True
-        if not self.session.project.src:
-            txt = '''# -*- coding: utf-8 -*-
-"""
+        if not self.session.project.models():
+            txt = '''"""
 OpenAlea Lab editor
 
 This temporary script is saved in temporary project in
@@ -293,7 +292,6 @@ You can rename/move this project thanks to the button "Save As" in menu.
         if self.controller.applet_container:
             self.controller.applet_container.reset()
         self.open_all_scripts_from_project()
-        # self.open_all_files_from_project()
         self._tree_view_change()
 
     def update_from_widgets(self):
@@ -348,18 +346,11 @@ You can rename/move this project thanks to the button "Save As" in menu.
         logger.debug("Script changed")
         if self.session.project:
             project = self.session.project
-            for script in project.src:
-                language = str(script).split('.')[-1]
-                self.controller.applet_container.openTab(language, script, project.src[script])
-
-    def open_all_files_from_project(self):
-        logger.debug("Script changed")
-        if self.session.project:
-            project = self.session.project
-            for category in project.files:
-                for file_ in project.files[category]:
-                    language = str(file_).split('.')[-1]
-                    self.controller.applet_container.openTab(language, file_, project.files[category][file_])
+            models = project.models()
+            if not isinstance(models, list):
+                models = [models]
+            for model in models:
+                self.controller.applet_container.openTab(model=model)
 
     def _scene_change(self):
         logger.debug("Scene changed")
