@@ -75,7 +75,7 @@ class ProjectManager(object):
                     if not ((path in [proj.path for proj in self.projects]) and (
                         name in [proj.name for proj in self.projects])):
                         project = Project(name, path)
-                        project.load()
+                        project.load_manifest()
                         self.projects.append(project)
 
     def search(self, *args, **kwargs):
