@@ -1,6 +1,8 @@
 from openalea.core.path import path
 from openalea.vpltk.plugin import discover, Plugin
 import warnings
+import os
+
 
 def get_saver(name="GenericSaver"):
     savers = discover('vpltk.saver')
@@ -30,11 +32,15 @@ class GenericSaver(object):
         Store str(obj) into filename
         """
         filename = path(filename)
-
-        file_ = open(filename, "w")
+        try:
+            file_ = open(filename, "w")
+        except IOError:
+            os.makedirs(filename.splitpath()[0])
+            file_ = open(filename, "w")
         code = str(obj).encode("utf8","ignore")
         file_.write(code)
         file_.close()
+
 
 class CPickleSaver(object):
     """
@@ -47,12 +53,17 @@ class CPickleSaver(object):
         Store obj into filename
         """
         filename = path(filename)
-        file_ = open(filename, "w")
+        try:
+            file_ = open(filename, "w")
+        except IOError:
+            os.makedirs(filename.splitpath()[0])
+            file_ = open(filename, "w")
         try:
             import cPickle
             cPickle.dump(obj, file_)
         except ImportError:
             warnings.warn("You must install cPickle.")
+
 
 class BGEOMSaver(object):
     """
