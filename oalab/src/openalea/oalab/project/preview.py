@@ -58,7 +58,7 @@ class Preview(QtGui.QWidget):
             layout.addWidget(QtGui.QLabel(pretty_print(getattr(project, label))), i, 1)
             i += 1
 
-        layout.addWidget(QtGui.QLabel("src:"), 12, 0)
+        layout.addWidget(QtGui.QLabel("model:"), 12, 0)
         layout.addWidget(QtGui.QLabel(pretty_print(project.src.keys())), 12, 1)
 
         open_button = QtGui.QPushButton("Open this project")
