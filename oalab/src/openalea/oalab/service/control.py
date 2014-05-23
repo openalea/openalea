@@ -1,7 +1,11 @@
 
-__all__ = ["edit_qt", "edit_notebook", "edit_bash", "control"]
+__all__ = [
+           "qt_editors",
+           "edit_qt", "edit_notebook", "edit_bash",
+           "register_control", "get_control"
+           ]
 
-def _discover_editors(control, plugins):
+def _discover_editors(plugins):
     _editors = {}
     for editor in plugins:
         for control in editor.controls:
@@ -14,21 +18,22 @@ def _discover_editors(control, plugins):
 
 def discover_qt_controls():
     # Must move to entry_points oalab.qt_control
-    from openalea.oalab.control.plugins import *
+    from openalea.oalab.control.plugins import (
+        PluginIntSlider, PluginIntSpinBox, PluginColorListWidget)
     plugins = [
        PluginIntSlider,
        PluginIntSpinBox,
        PluginColorListWidget,
     ]
-    return _discover_editors(control, plugins)
+    return _discover_editors(plugins)
 
 def discover_bash_controls():
     # Must move to entry_points oalab.bash_control
-    from openalea.oalab.control.plugins import *
+    from openalea.oalab.control.plugins import PluginIntIPython
     plugins = [
        PluginIntIPython,
     ]
-    return _discover_editors(control, plugins)
+    return _discover_editors(plugins)
 
 def discover_notebook_controls():
     # Must move to entry_points oalab.notebook_control
@@ -36,7 +41,7 @@ def discover_notebook_controls():
     plugins = [
         PluginIntNotebook,
                         ]
-    return _discover_editors(control, plugins)
+    return _discover_editors(plugins)
 
 
 
@@ -46,15 +51,23 @@ def _edit(control, discover):
     lack of plugins
     """
     editors = discover()
-
-    classes = []
     cname = control.interface.__class__.__name__
-    for editor in editors[cname]:
-            classes.append(editor.load())
+    widget = None
+    if control.widget:
+        # Load widget specified with control
+        for editor in editors[cname]:
+            if cname in editor.controls:
+                widget = editor.load()()
+    else:
+        # Load first editor
+        for editor in editors[cname]:
+            widget = editor.load()()
 
-    widget = classes[0]()
-    widget.edit(control)
-    return widget
+    if widget:
+        widget.edit(control)
+        return widget
+    else :
+        raise ValueError, 'No editors for %s' % control
 
 
 def edit_qt(control):
@@ -74,14 +87,14 @@ def edit(control):
             return edit_qt(control)
     return edit_notebook(control)
 
-def control(variable):
-    """
-    Hard coded example. Must be replaced by a function handling plugins and
-    lack of plugins
-    """
-    from openalea.oalab.control.control import Control
-    from openalea.oalab.service.interface import interface
-    control = Control(interface(type(variable)))
-    control.set_value(variable)
-    return control
+def qt_editors(iname):
+    controls = discover_qt_controls()
+    return controls[iname]
 
+def register_control(name, value):
+    from openalea.oalab.control.manager import ControlManager
+    return ControlManager().new_control(name, value)
+
+def get_control(name):
+    from openalea.oalab.control.manager import ControlManager
+    return ControlManager().control(name)

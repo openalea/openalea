@@ -18,7 +18,7 @@
 __revision__ = "$Id: $"
 
 from openalea.vpltk.qt import QtGui
-from openalea.oalab.service.control import control, edit_qt
+from openalea.oalab.service.control import register_control, edit_qt
 
 
 if __name__ == '__main__':
@@ -30,18 +30,13 @@ if __name__ == '__main__':
     # Automatic approach
     ####################
     a = 5
-    c1 = control(a)
+    c1 = register_control('nmax', a)
 
     # Manual approach
     #################
     from openalea.oalab.control.control import  Control
-    from openalea.oalab.service.interface import interface
-    c2 = Control(interface('IColorList'))
-
-    # customizations (optional)
-    ###########################
-    c1.name = 'nmax'
-    c1.set_value(a)
+    from openalea.oalab.service.interface import get_interface
+    c2 = Control('color', get_interface('IColorList'))
 
     # Edition
     #########

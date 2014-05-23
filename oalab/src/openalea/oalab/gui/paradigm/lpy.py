@@ -149,7 +149,7 @@ class LPyModelController(object):
             if self.controller.applets.has_key('Viewer3D'):
                 registerPlotter(self.controller.applets['Viewer3D'])"""
 
-        self._widget = Editor(editor_container=self.editor_container, parent=self.parent)
+        self._widget = Editor(parent=self.parent)
         Highlighter(self._widget.editor, lexer=LPyLexer())
         self.widget().applet = self
 

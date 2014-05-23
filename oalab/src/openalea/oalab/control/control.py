@@ -1,5 +1,6 @@
 
 from openalea.core.observer import Observed
+from openalea.oalab.service.interface import get_interface
 
 import copy
 import inspect
@@ -9,15 +10,20 @@ def deepcopy(value):
     return copy.deepcopy(value)
 
 class Control(Observed):
-    def __init__(self, interface, name='default'):
+    def __init__(self, name, interface, value=None, widget=None):
         Observed.__init__(self)
+        if isinstance(interface, basestring):
+            interface = get_interface(interface)
         if inspect.isclass(interface):
             interface = interface()
         self._interface = interface
         self.name = name
+        self.widget = widget
         self.default()
+        if value:
+            self._value = value
 
-    def __str__(self):
+    def __repr__(self):
         return 'Control(%r, name=%r)' % (self._interface, self.name)
 
     def notify_change(self):
