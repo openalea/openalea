@@ -773,4 +773,4 @@ class Project(object):
 
     @property
     def src(self):
-        return self.models()
+        return self._model
