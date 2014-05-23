@@ -52,6 +52,7 @@ from openalea.vpltk.project.configobj import ConfigObj
 from openalea.vpltk.project.loader import get_loader
 from openalea.vpltk.project.saver import get_saver
 
+
 def _model_factories():
     models = {}
     from openalea.vpltk.plugin import discover, Plugin
@@ -61,6 +62,11 @@ def _model_factories():
         model = model.load()
         models[model.extension] = model
     return models
+
+
+def remove_extension(filename):
+    return ".".join(filename.split(".")[:-1])
+
 
 class Project(object):
 
@@ -93,7 +99,6 @@ class Project(object):
 
         # Data
         self.files = {
-            "src": dict(),
             "control": dict(),
             "cache": dict(),
             "data": dict(),
@@ -101,6 +106,9 @@ class Project(object):
             "startup": dict(),
             "doc": dict()
         }
+
+        self._model = dict()
+        self._model_names = []
 
     #----------------------------------------
     # Public API
@@ -144,6 +152,8 @@ class Project(object):
         for category in self.files.keys():
             obj = self._load(str(category))
             setattr(self, category, obj)
+        for model_name in self._model_names:
+            self._load("model", str(model_name))
 
     def save(self):
         """
@@ -156,6 +166,7 @@ class Project(object):
         """
         for category in self.files.keys():
             self._save(str(category))
+        self._save("model")
         self.save_manifest()
 
     def get(self, category, name):
@@ -264,6 +275,9 @@ class Project(object):
             if filenames.keys():
                 config['manifest'][files] = filenames.keys()
 
+        modelnames = [model.filepath for model in self._model.values()]
+        config['manifest']["model"] = modelnames
+
         config.write()
 
     def load_manifest(self):
@@ -288,10 +302,21 @@ class Project(object):
             # Load file names in good place (dict.keys()) but don't load entire object:
             # ie. load keys but not values
             for files in config["manifest"].keys():
-                filedict = dict()
-                for f in config['manifest'][files]:
-                    filedict[f] = ""
-                setattr(self, files, filedict)
+                if files == "model":
+                    self._model_names = config["manifest"]["model"]
+                else:
+                    # Hack to stay backward compatible with first versions of projects
+                    if files == "src":
+                        for mod_name in config["manifest"]["src"]:
+                            if path_(mod_name).isabs():
+                                self._model_names.append(mod_name)
+                            else:
+                                self._model_names.append(self.path/self.name/"src"/mod_name)
+                    else:
+                        filedict = dict()
+                        for f in config['manifest'][files]:
+                            filedict[f] = ""
+                        setattr(self, files, filedict)
 
     #----------------------------------------
     # model
@@ -305,30 +330,66 @@ class Project(object):
         return_models = []
 
         if "*" in names and len(names) == 1:
-            names = self.src.keys()
+            names = self._model.keys()
+
+        if not isinstance(names, list):
+            names = [names]
 
         for name in names:
+
+            if name in self._model:
+                return_models.append(self._model[name])
+            else:
+                name2 = remove_extension(name)
+                if name2 in self._model:
+                    return_models.append(self._model[name2])
+
+            """
+            filepath = self.path/self.name/"src"/name
             filenames_without_ext = [".".join(src.split(".")[:-1]) for src in self.src.keys()]
+
             if name in self.src:
-                # get code, filename and extension
-                code = self.src[name]
-                filename = path_(name)
-                ext = filename.ext[1:]
-                if ext in self.model_klasses:
-                    return_models.append(self.model_klasses[ext](name=name, code=code))
+                filename_without_ext = ".".join(name.split(".")[:-1])
+                if filename_without_ext in self._model:
+                    # if model exists yet, with a short name (without extension), return it
+                    return_models.append(self._model[filename_without_ext])
+                else:
+                    # if model doesn't exists yet, but is in self.src with a complete name (with extension),
+                    # Create model with src and return it
+                    code = self.src[name]
+                    filename = path_(name)
+                    ext = filename.ext[1:]
+                    if ext in self.model_klasses:
+                        # add model to existing models
+                        self._model[filename_without_ext] = self.model_klasses[ext](name=name, code=code, filepath=filepath)
+                        return_models.append(self._model[filename_without_ext])
             elif name in filenames_without_ext:
-                # Do the same thing but without extension in the name
-                for compete_name in self.src.keys():
-                    if name == ".".join(compete_name.split(".")[:-1]):
-                        code = self.src[compete_name]
-                        filename = path_(compete_name)
-                        ext = filename.ext[1:]
-                if ext in self.model_klasses:
-                    return_models.append(self.model_klasses[ext](name=name, code=code))
+                if name in self._model:
+                    # if model exists yet, with a short name (without extension), return it
+                    return_models.append(self._model[name])
+                else:
+                    # if model doesn't exists yet, but is in self.src with a short name (without extension),
+                    # Create model with src and return it
+                    for compete_name in self.src.keys():
+                        if name == ".".join(compete_name.split(".")[:-1]):
+                            code = self.src[compete_name]
+                            filename = path_(compete_name)
+                            ext = filename.ext[1:]
+                    if ext in self.model_klasses:
+                        # add model to existing models
+                        self._model[name] = self.model_klasses[ext](name=name, code=code, filepath=filepath+"."+ext)
+                        return_models.append(self._model[name])"""
+
 
         if len(return_models) == 1:
             return return_models[0]
         return return_models
+
+    def models(self):
+        """
+        return all models
+        """
+        return self.model("*")
 
     #----------------------------------------
     # src
@@ -374,7 +435,7 @@ class Project(object):
     #----------------------------------------
     # Protected
     #----------------------------------------
-    def _load(self, object_type, namespace={}):
+    def _load(self, object_type, object_name="", namespace={}):
         """
         Load files listed in self.object_type.keys()
 
@@ -383,62 +444,91 @@ class Project(object):
         object_type = str(object_type)
         return_object = dict()
 
-        if hasattr(self, object_type):
-            temp_path = self.path / self.name / object_type
+        if object_type == "model":
+            if path_(object_name).isabs():
+                filepath = path_(object_name)
 
-            if not temp_path.exists():
-                return return_object
+                new_filepath = (self.path/self.name/"src").relpathto(filepath)
+            else:
+                filepath = self.path/self.name/"model"/object_name
+                new_filepath = (self.path/self.name/"model").relpathto(filepath)
+            f = open(filepath, "r")
+            code = f.read()
+            f.close()
+            ext = path_(new_filepath).ext[1:]
+            filename_without_ext = remove_extension(new_filepath)
 
-            files = getattr(self, object_type)
-            files = files.keys()
-            for filename in files:
-                filename = path_(filename)
-                pathname = self.path / self.name / object_type / filename
-                if filename.isabs():
-                    # Load files that are outside project
-                    pathname = filename
-                Loader = get_loader("GenericLoader")
-                if object_type == "control":
-                    Loader = get_loader("CPickleLoader")
-                if object_type == "world":
-                    Loader = get_loader("BGEOMLoader")
-                loader = Loader()
-                result = loader.load(pathname)
-                return_object[filename] = result
+            if ext in self.model_klasses:
+                # add model to existing models
+                self._model[filename_without_ext] = self.model_klasses[ext](name=filename_without_ext, code=code, filepath=new_filepath)
+                return self._model[filename_without_ext]
+        else:
+            if hasattr(self, object_type):
+                temp_path = self.path / self.name / object_type
 
-        # hack to add cache in namespace
-        if object_type == "cache":
-            for cache_name in return_object:
-                namespace[cache_name] = eval(str(return_object[cache_name]), namespace)
+                if not temp_path.exists():
+                    return return_object
 
-        return return_object
+                files = getattr(self, object_type)
+                files = files.keys()
+                for filename in files:
+                    filename = path_(filename)
+                    pathname = self.path / self.name / object_type / filename
+                    if filename.isabs():
+                        # Load files that are outside project
+                        pathname = filename
+                    Loader = get_loader("GenericLoader")
+                    if object_type == "control":
+                        Loader = get_loader("CPickleLoader")
+                    if object_type == "world":
+                        Loader = get_loader("BGEOMLoader")
+                    loader = Loader()
+                    result = loader.load(pathname)
+                    return_object[filename] = result
+
+            # hack to add cache in namespace
+            if object_type == "cache":
+                for cache_name in return_object:
+                    namespace[cache_name] = eval(str(return_object[cache_name]), namespace)
+
+            return return_object
 
     def _save(self, object_type):
         object_type = str(object_type)
-        object_ = getattr(self, object_type)
-        if object_:
-            temp_path = self.path / self.name / object_type
-
-            # Make default directories if necessary
-            if not (self.path / self.name).exists():
-                os.mkdir(self.path / self.name)
-            if not temp_path.exists():
-                os.mkdir(temp_path)
-
-            for sub_object in object_:
-                filename = temp_path / sub_object
-                sub_object = path_(sub_object)
+        if object_type == "model":
+            for model_name in self._model:
+                model = self._model[model_name]
+                filepath = path_(model.filepath)
+                if not filepath.isabs():
+                    filepath = self.path/self.name/"model"/filepath
                 Saver = get_saver()
-                if sub_object.isabs():
-                    # Permit to save object outside project
-                    filename = sub_object
-                if object_type == "world":
-                    # Save PlantGL objects
-                    Saver = get_saver("BGEOMSaver")
-                elif object_type == "control":
-                    Saver = get_saver("CPickleSaver")
                 saver = Saver()
-                saver.save(object_[sub_object], filename)
+                saver.save(model.repr_code(), filepath)
+        else:
+            object_ = getattr(self, object_type)
+            if object_:
+                temp_path = self.path / self.name / object_type
+
+                # Make default directories if necessary
+                if not (self.path / self.name).exists():
+                    os.mkdir(self.path / self.name)
+                if not temp_path.exists():
+                    os.mkdir(temp_path)
+
+                for sub_object in object_:
+                    filename = temp_path / sub_object
+                    sub_object = path_(sub_object)
+                    Saver = get_saver()
+                    if sub_object.isabs():
+                        # Permit to save object outside project
+                        filename = sub_object
+                    if object_type == "world":
+                        # Save PlantGL objects
+                        Saver = get_saver("BGEOMSaver")
+                    elif object_type == "control":
+                        Saver = get_saver("CPickleSaver")
+                    saver = Saver()
+                    saver.save(object_[sub_object], filename)
 
     def _save_scripts(self):
         warnings.warn("project._save_scripts is deprecated. Please use project._save('src') instead.")
@@ -615,14 +705,6 @@ class Project(object):
     @version.setter
     def version(self, value):
         self.metadata["version"] = value
-
-    @property
-    def src(self):
-        return self.files["src"]
-
-    @src.setter
-    def src(self, value):
-        self.files["src"] = value
 
     @property
     def control(self):
