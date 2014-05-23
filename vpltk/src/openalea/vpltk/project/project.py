@@ -202,6 +202,26 @@ class Project(object):
         cat = getattr(self, category)
         cat[name] = value
 
+    def add_model(self, model):
+        """
+        Add an existing model to the project.
+
+        :param model: model to add to the project (have to exists)
+        """
+        self._model[model.name] = model
+
+    def new_model(self, name, code="", filepath="", inputs=[], outputs=[]):
+        """
+        Create a model and add it to the project
+
+        """
+        filename = path_(name)
+        ext = filename.ext[1:]
+        if ext in self.model_klasses:
+            # add model to existing models
+            model = self.model_klasses[ext](name=name, code=code, filepath=filepath, inputs=inputs, outputs=outputs)
+            self.add_model(model)
+
     def remove(self, category, name):
         """
         Remove an object in the project
@@ -379,7 +399,6 @@ class Project(object):
                         # add model to existing models
                         self._model[name] = self.model_klasses[ext](name=name, code=code, filepath=filepath+"."+ext)
                         return_models.append(self._model[name])"""
-
 
         if len(return_models) == 1:
             return return_models[0]
