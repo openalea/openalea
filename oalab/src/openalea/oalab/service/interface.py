@@ -1,4 +1,6 @@
 
+__all__ = ['get_interface']
+
 class IColorList(object):
     """
 
@@ -8,6 +10,9 @@ class IColorList(object):
     interface = 'IColorList'
     def __init__(self):
         self.value = self.default()
+
+    def __repr__(self):
+        return 'IColorList'
 
     def default(self):
         """
@@ -25,7 +30,7 @@ class IColorList(object):
             ]
         return value
 
-def interface(iname):
+def get_interface(iname):
     from openalea.core.interface import IInt
 
     type_to_iname = {

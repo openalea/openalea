@@ -44,7 +44,7 @@ class RModelController(object):
         self._widget = None
 
     def instanciate_widget(self):
-        self._widget = Editor(editor_container=self.editor_container, parent=self.parent)
+        self._widget = Editor(parent=self.parent)
         Highlighter(self._widget.editor)
         self.widget().applet = self
 

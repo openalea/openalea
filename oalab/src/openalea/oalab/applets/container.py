@@ -311,6 +311,10 @@ class AppletContainer(QtGui.QTabWidget):
 
             try:
                 self.addTab(widget, QtGui.QIcon(icon), tab_name)
+                if hasattr(widget, 'editor'):
+                    import warnings
+                    warnings.warn('TODO: create a generic signal StateChanged for all Paradigm widgets')
+                    widget.editor.textChanged.connect(self.setTabRed)
                 self.setCurrentWidget(widget)
                 widget.name = tab_name
 
