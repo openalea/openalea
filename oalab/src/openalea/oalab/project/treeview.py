@@ -165,6 +165,8 @@ class ProjectTreeView(QtGui.QTreeView):
     def open_file(self):
         item = self.getItem()
         filename = path(self.project.path)/self.project.name/item.parent().text()/item.text()
+        if self.is_src_selected():
+            filename = self.project.model(item.text()).filepath
         self.controller.applet_container.open_file(filename=filename)
 
     def is_file_selected(self):
@@ -369,6 +371,7 @@ class PrjctModel(QtGui.QStandardItemModel):
         icon_data = QtGui.QIcon(":/images/resources/fileopen.png")
         icon_doc = QtGui.QIcon(":/images/resources/book.png")
         icon_cache = QtGui.QIcon(":/images/resources/editcopy.png")
+        icon_model = QtGui.QIcon(":/images/resources/run.png")
 
         project = self.proj
         name = project.name
@@ -391,14 +394,24 @@ class PrjctModel(QtGui.QStandardItemModel):
         item.setIcon(icon)
         parentItem.appendRow(item)
 
+
+        item2 = QtGui.QStandardItem("model")
+        item.appendRow(item2)
+        item2.setIcon(icon_model)
+        model_names = project._model.keys()
+        for model_name in model_names:
+            model = project._model[model_name]
+            item3 = QtGui.QStandardItem(model_name)
+            item3.setIcon(QtGui.QIcon(model.icon))
+            item2.appendRow(item3)
+
+
         categories = files.keys()
         for category in categories:
             if hasattr(project, category):
                 cat = getattr(project, category)
                 if len(cat) > 0:
                     item2 = QtGui.QStandardItem(category)
-                    if category == "src":
-                        item2 = QtGui.QStandardItem("model")
                     item.appendRow(item2)
                     try:
                         icon = eval(str("icon_"+category))

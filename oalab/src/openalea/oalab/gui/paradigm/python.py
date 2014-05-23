@@ -33,12 +33,12 @@ class PythonModelController(object):
     icon = PythonModel.icon
 
     def __init__(self, name="", code="", model=None, filepath=None, interpreter=None, editor_container=None, parent=None):
-        self.name = name
         self.filepath = filepath
-        if model:
+        if model is not None:
             self.model = model
         else:
-            self.model = PythonModel(name=name, code=code)
+            self.model = PythonModel(name=name, code=code, filepath=filepath)
+        self.name = self.model.name
         self.parent = parent
         self.editor_container = editor_container
         self._widget = None
@@ -92,3 +92,11 @@ class PythonModelController(object):
         :return: the edition widget
         """
         return self._widget
+
+    def save(self, name=None):
+        code = self.widget().get_text()
+        if name:
+            self.model.filepath = name
+        self.model.code = code
+        self.widget().save(name=self.model.filepath)
+        self.focus_change()

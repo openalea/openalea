@@ -26,8 +26,8 @@ class VisualeaModel(Model):
     extension = "wpy"
     icon = ":/images/resources/openalealogo.png"
 
-    def __init__(self, name="workflow.wpy", code="", inputs=[], outputs=[]):
-        super(VisualeaModel, self).__init__()
+    def __init__(self, name="workflow.wpy", code="", filepath="", inputs=[], outputs=[]):
+        super(VisualeaModel, self).__init__(name=name, code=code, filepath=filepath, inputs=inputs, outputs=outputs)
         _name = self.name.split('.wpy')[0]
         if (code is None) or (code is ""):
             self._workflow = CompositeNodeFactory(_name).instantiate()
