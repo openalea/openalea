@@ -29,7 +29,7 @@ from openalea.lpy.gui.objectmanagers import get_managers
 from openalea.lpy.gui.scalar import ProduceScalar
 from openalea.core import logger
 from openalea.oalab.model.lpy import LPyModel
-from openalea.oalab.service.help import help
+from openalea.oalab.service.help import display_help
 
 
 def import_lpy_file(script):
@@ -161,7 +161,7 @@ class LPyModelController(object):
         Set doc string in Help widget when focus changed
         """
         doc = self.model.get_documentation()
-        help(doc)
+        display_help(doc)
 
     def run_selected_part(self):
         """

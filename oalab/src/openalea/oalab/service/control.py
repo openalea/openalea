@@ -1,7 +1,7 @@
 
 __all__ = [
            "qt_editors",
-           "edit_qt", "edit_notebook", "edit_bash",
+           "edit", "edit_qt", "edit_notebook", "edit_bash",
            "register_control", "get_control"
            ]
 

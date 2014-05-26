@@ -95,3 +95,6 @@ class HelpWidget(QtGui.QTextBrowser):
         """
         return "Help"  
 
+    def set_text(self, text):
+        self.setText(text)
+
