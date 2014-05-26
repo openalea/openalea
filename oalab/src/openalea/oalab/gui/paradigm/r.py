@@ -22,7 +22,7 @@ __revision__ = ""
 from openalea.oalab.editor.text_editor import RichTextEditor as Editor
 from openalea.oalab.editor.highlight import Highlighter
 from openalea.oalab.model.r import RModel
-from openalea.oalab.service.help import help
+from openalea.oalab.service.help import display_help
 
 
 class RModelController(object):
@@ -56,7 +56,7 @@ class RModelController(object):
         Set doc string in Help widget when focus changed
         """
         doc = self.model.get_documentation()
-        help(doc)
+        display_help(doc)
 
     def run_selected_part(self):
         code = self.widget().get_selected_text()

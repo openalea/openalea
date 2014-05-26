@@ -30,7 +30,7 @@ from openalea.visualea.graph_operator import GraphOperator
 from openalea.visualea import dataflowview
 from openalea.core.compositenode import CompositeNodeFactory
 #from openalea.plantgl.wralea.visualization import viewernode
-from openalea.oalab.service.help import help
+from openalea.oalab.service.help import display_help
 
 
 def repr_workflow(self, name=None):
@@ -139,7 +139,7 @@ class VisualeaModelController(object):
         assert isinstance(item, dataflowview.vertex.GraphicalVertex)
         txt = item.vertex().get_tip()
         # todo: use services
-        help(txt)
+        display_help(txt)
     
     def focus_change(self):
         """
@@ -155,7 +155,7 @@ class VisualeaModelController(object):
 More informations: http://openalea.gforge.inria.fr/doc/openalea/visualea/doc/_build/html/contents.html        
 """%str(self.icon)
         # todo: use services
-        help(txt)
+        display_help(txt)
 
     def widget(self):
         """
