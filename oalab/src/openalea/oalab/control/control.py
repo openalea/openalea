@@ -6,12 +6,14 @@ import copy
 import inspect
 
 class Control(Observed):
-    def __init__(self, name, interface, value=None, widget=None):
+    def __init__(self, name, interface, value=None, widget=None, constraints=None):
         Observed.__init__(self)
         if isinstance(interface, basestring):
             interface = get_interface(interface)
+        if constraints is None:
+            constraints = {}
         if inspect.isclass(interface):
-            interface = interface()
+            interface = interface(**constraints)
         self._interface = interface
         self.name = name
         self.widget = widget

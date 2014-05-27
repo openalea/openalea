@@ -1,4 +1,6 @@
 
+import weakref
+
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.oalab.gui.stdcontrolwidget import IntSpinBox
 from openalea.core.observer import AbstractListener, Observed
@@ -111,6 +113,7 @@ class ControlEditorDialog(QtGui.QDialog):
         self._layout.addWidget(QtGui.QLabel("Control"))
         self._layout.addWidget(widget)
         self._layout.addWidget(self._l_constraints)
+        self._layout.addStretch()
 
 
         controls = discover_qt_controls()
@@ -128,24 +131,26 @@ class ControlEditorDialog(QtGui.QDialog):
         interface_name = self.cb_interface.currentText()
         qt_controls = discover_qt_controls()[interface_name]
         widget = None
+
         for plugin in qt_controls :
             if widget_name == plugin.name:
                 widget = plugin.load()
                 break
-        if widget:
-            print "!!!!", widget, hasattr(widget, 'edit_constraints')
 
         if self._constraints:
-            self._layout.removeWidget(self._constraints)
-            self._constraints.close()
+            widget = self._constraints()
+            self._layout.removeWidget(widget)
+            widget.close()
             self._constraints = None
             self._l_constraints.hide()
 
-        if hasattr(widget, 'edit_constraints'):
-            self._constraints = widget.edit_constraints()
-            self._constraints.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        if widget and hasattr(widget, 'edit_constraints'):
+            widget_constraints = widget.edit_constraints()
+            widget_constraints.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+            self._layout.addWidget(widget_constraints)
             self._l_constraints.show()
-            self._layout.addWidget(self._constraints)
+
+            self._constraints = weakref.ref(widget_constraints)
 
     def refresh(self):
         iname = str(self.cb_interface.currentText())
@@ -159,8 +164,15 @@ class ControlEditorDialog(QtGui.QDialog):
             self.e_name.text(),
             self.cb_interface.currentText(),
             None,
-            self.cb_widget.currentText()
+            self.cb_widget.currentText(),
+            self.constraints()
             ]
+
+    def constraints(self):
+        if self._constraints:
+            return self._constraints().constraints()
+        else:
+            return {}
 
 
 class ControlManagerWidget(QtGui.QWidget, AbstractListener):
