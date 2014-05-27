@@ -79,8 +79,7 @@ more informations: http://www.python.org/
         """
         execute model thanks to interpreter
         """
-        if args:
-            self.inputs = args
+        self.inputs = args
 
         interpreter = self._set_interpreter(**kwargs)
 
@@ -111,8 +110,7 @@ more informations: http://www.python.org/
         go back to initial step
         """
         if self._init:
-            if args:
-                self.inputs = args
+            self.inputs = args
 
             interpreter = self._set_interpreter(**kwargs)
 
@@ -138,8 +136,7 @@ init()
         execute only one step of the model
         """
         if self._step:
-            if args:
-                self.inputs = args
+            self.inputs = args
 
             interpreter = self._set_interpreter(**kwargs)
             user_ns = interpreter.user_ns
@@ -169,8 +166,7 @@ step()
         run model step by step
         """
         if self._animate:
-            if args:
-                self.inputs = args
+            self.inputs = args
 
             interpreter = self._set_interpreter(**kwargs)
 
