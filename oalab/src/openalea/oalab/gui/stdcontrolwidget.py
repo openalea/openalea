@@ -1,27 +1,26 @@
 
-from openalea.vpltk.qt import QtGui
+from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core.observer import AbstractListener
 
-class QtControl(AbstractListener):
-    def __init__(self):
-        AbstractListener.__init__(self)
-        self._control = None
-        self.reset()
 
-    def reset(self):
-        self.set(None)
-        self.setValue(1)
-        self.setMinimum(0)
-        self.setMaximum(100)
+class IQtControl(AbstractListener):
+    def __init__(self):
+        """
+        """
+
+    def reset(self, value=None, *kargs):
+        """
+        Reset widget to default values.
+        """
+
+    # Part specific to control
+    ##########################
 
     def set(self, control):
         """
-        Use control to preset widget
+        Use control to preset widget.
+        Starts to listen to control events and read control's values
         """
-        self._control = control
-        if self._control:
-            self.initialise(self._control)
-            self.read(self._control)
 
     def edit(self, control):
         """
@@ -29,34 +28,87 @@ class QtControl(AbstractListener):
         Control can be updated continuously or on explicit user action
         (click on apply button for instance)
         """
-        self.set(control)
-        self.show()
 
     def view(self, control):
         """
         View control. This function never modify control.
         If you finally want to modify it, you can call "apply" explicitly.
         """
+
+    def apply(self, control):
+        """
+        Update control with widget values.
+        """
+
+    def read(self, control):
+        """
+        Update widget with control values
+        """
+
+    def notify(self, sender, event):
+        """
+        Method called when Observed control changes.
+        Generally, when control send an event "ValueChanged", we want to
+        refresh widget with new value.
+        """
+
+class AbstractIntWidget(AbstractListener):
+    def __init__(self):
+        AbstractListener.__init__(self)
+        self._control = None
+        self.reset()
+
+    def reset(self, value=1, minimum=0, maximum=100, **kwargs):
+        self.setValue(value)
+        self.setMinimum(minimum)
+        self.setMaximum(maximum)
+
+    # Part specific to control
+    ##########################
+
+    def set(self, control):
+        self._control = control
+        if self._control:
+            self.initialise(self._control)
+            self.read(self._control)
+
+    def edit(self, control):
+        self.set(control)
+        self.show()
+
+    def view(self, control):
         self.set(control)
         self.register(control)
         self.show()
 
     def apply(self, control):
         control.set_value(self.value())
-        control.set_range((self.minimum(), self.maximum()))
+        control.interface.min = self.minimum()
+        control.interface.max = self.maximum()
 
     def read(self, control):
-        self.setValue(control.value())
-
+        self._control = control
         mini = control.interface.min
         maxi = control.interface.max
-        self.setMinimum(mini)
-        self.setMaximum(maxi)
+        self.reset(control.value(), minimum=mini, maximum=maxi)
 
     def notify(self, sender, event):
-        self.read(self._control)
+        signal, data = event
+        if signal == 'ValueChanged':
+            self.read(sender)
+
+    @classmethod
+    def edit_constraints(self):
+        widget = QtGui.QWidget()
+        layout = QtGui.QFormLayout(widget)
+        layout.addRow(QtGui.QLabel('Minimum'), QtGui.QLineEdit())
+        layout.addRow(QtGui.QLabel('Maximum'), QtGui.QLineEdit())
+        return widget
 
 class StrComboBox(QtGui.QComboBox, AbstractListener):
+    """
+    For documentation, see :class:`~openalea.oalab.interfaces.all.IQtControl`
+    """
 
     def __init__(self):
         AbstractListener.__init__(self)
@@ -65,33 +117,15 @@ class StrComboBox(QtGui.QComboBox, AbstractListener):
         self._lst = []
         self.reset()
 
-    def reset(self):
+    def reset(self, value=None, **kwargs):
         self.set(None)
         self.clear()
 
-    def set(self, control):
-        """
-        Use control to preset widget
-        """
-        self._control = control
-        if self._control:
-            self.initialise(self._control)
-            self.read(self._control)
-
     def edit(self, control):
-        """
-        Modify control in place.
-        Control can be updated continuously or on explicit user action
-        (click on apply button for instance)
-        """
         self.set(control)
         self.show()
 
     def view(self, control):
-        """
-        View control. This function never modify control.
-        If you finally want to modify it, you can call "apply" explicitly.
-        """
         self.set(control)
         self.register(control)
         self.show()
@@ -102,39 +136,69 @@ class StrComboBox(QtGui.QComboBox, AbstractListener):
     def read(self, control):
         self.clear()
 
-#         for txt in sorted(enum.lst):
-#             self.insertItem(-1, txt)
-
     def notify(self, sender, event):
         self.read(self._control)
 
-class IntSpinBox(QtGui.QSpinBox, QtControl):
+class IntSpinBox(QtGui.QSpinBox, AbstractIntWidget):
+    """
+    For documentation, see :class:`~openalea.oalab.interfaces.all.IQtControl`
+    """
 
     def __init__(self):
         QtGui.QSpinBox.__init__(self)
-        QtControl.__init__(self)
-
-    def reset(self):
-        # self.valueChanged.disconnect()
-        QtControl.reset(self)
+        AbstractIntWidget.__init__(self)
 
     def edit(self, control):
         self.valueChanged.connect(control.set_value)
-        QtControl.edit(self, control)
+        AbstractIntWidget.edit(self, control)
 
-class IntSlider(QtGui.QSlider, QtControl):
+class IntSlider(QtGui.QWidget, AbstractIntWidget):
+    """
+    For documentation, see :class:`~openalea.oalab.interfaces.all.IQtControl`
+    """
 
     def __init__(self):
-        QtGui.QSlider.__init__(self)
-        QtControl.__init__(self)
+        QtGui.QWidget.__init__(self)
 
-    def reset(self):
-        # self.valueChanged.disconnect()
-        QtControl.reset(self)
+        self.slider = QtGui.QSlider(QtCore.Qt.Horizontal)
+        self.spinbox = QtGui.QSpinBox()
+
+        AbstractIntWidget.__init__(self)
+
+
+        # To be compatible with tree or table views, slider must keep focus
+        self.slider.setFocusPolicy(QtCore.Qt.StrongFocus)
+        self.setMinimumHeight(20)
+        self.spinbox.setMinimumHeight(18)
+        self.slider.setMinimumHeight(18)
+
+        layout = QtGui.QHBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+
+        layout.addWidget(self.spinbox)
+        layout.addWidget(self.slider)
 
     def edit(self, control):
-        self.valueChanged.connect(control.set_value)
-        QtControl.edit(self, control)
+        self.slider.valueChanged.connect(control.set_value)
+        self.spinbox.valueChanged.connect(control.set_value)
+        AbstractIntWidget.edit(self, control)
+
+    def reset(self, value=1, minimum=0, maximum=100, **kwargs):
+        self.setValue(value)
+
+        self.slider.setMinimum(minimum)
+        self.slider.setMaximum(maximum)
+
+        self.spinbox.setMinimum(minimum)
+        self.spinbox.setMaximum(maximum)
+
+    def value(self):
+        return self.spinbox.value()
+
+    def setValue(self, value):
+        self.slider.setValue(value)
+        self.spinbox.setValue(value)
+
 
 class IntIPython(object):
 

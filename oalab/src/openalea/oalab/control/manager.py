@@ -1,3 +1,5 @@
+import copy
+
 from openalea.core.observer import Observed
 from openalea.core.singleton import Singleton
 from openalea.oalab.control.control import Control
@@ -29,5 +31,11 @@ class ControlManager(Observed):
 
         self._controls[control.name] = control
         self.notify_listeners(('ControlManagerChanged', None))
+
+    def namespace(self):
+        ns = {}
+        for name, control in self._controls.iteritems():
+            ns[name] = copy.deepcopy(control.value())
+        return ns
 
     controls = property(fget=lambda self:self._controls)

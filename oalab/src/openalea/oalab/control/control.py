@@ -5,10 +5,6 @@ from openalea.oalab.service.interface import get_interface
 import copy
 import inspect
 
-def deepcopy(value):
-    # Will become a service
-    return copy.deepcopy(value)
-
 class Control(Observed):
     def __init__(self, name, interface, value=None, widget=None):
         Observed.__init__(self)
@@ -43,7 +39,8 @@ class Control(Observed):
         A deep copy of value must be saved in _value.
         Original one is stored in _user_value.
         """
-        self._value = deepcopy(value)
+        self._value = copy.deepcopy(value)
+        self._user_value = value
         self.notify_change()
 
     def check(self, value):
