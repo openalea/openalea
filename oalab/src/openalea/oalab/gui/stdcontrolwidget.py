@@ -52,6 +52,41 @@ class IQtControl(AbstractListener):
         refresh widget with new value.
         """
 
+class IConstraintWidget(object):
+    def constraints(self):
+        """
+        Returns a dict "constraint name" -> "value"
+        """
+
+class IntConstraintWidget(QtGui.QWidget):
+    def __init__(self):
+        QtGui.QWidget.__init__(self)
+        layout = QtGui.QFormLayout(self)
+
+        self.e_min = QtGui.QLineEdit('0')
+        self.e_max = QtGui.QLineEdit('100')
+        text = 'Can be an int (for instance -5) or empty (no limits)'
+        self.e_min.setToolTip(text)
+        self.e_min.setWhatsThis(text)
+        self.e_max.setToolTip(text)
+        self.e_max.setWhatsThis(text)
+
+        layout.addRow(QtGui.QLabel('Minimum'), self.e_min)
+        layout.addRow(QtGui.QLabel('Maximum'), self.e_max)
+
+    def constraints(self):
+        try:
+            minimum = int(self.e_min.text())
+        except ValueError:
+            minimum = None
+
+        try:
+            maximum = int(self.e_max.text())
+        except ValueError:
+            maximum = None
+
+        return dict(min=minimum, max=maximum)
+
 class AbstractIntWidget(AbstractListener):
     def __init__(self):
         AbstractListener.__init__(self)
@@ -99,10 +134,7 @@ class AbstractIntWidget(AbstractListener):
 
     @classmethod
     def edit_constraints(self):
-        widget = QtGui.QWidget()
-        layout = QtGui.QFormLayout(widget)
-        layout.addRow(QtGui.QLabel('Minimum'), QtGui.QLineEdit())
-        layout.addRow(QtGui.QLabel('Maximum'), QtGui.QLineEdit())
+        widget = IntConstraintWidget()
         return widget
 
 class StrComboBox(QtGui.QComboBox, AbstractListener):
