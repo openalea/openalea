@@ -56,12 +56,14 @@ def _edit(control, discover):
     if control.widget:
         # Load widget specified with control
         for editor in editors[cname]:
-            if cname in editor.controls:
+            if control.widget == editor.name:
                 widget = editor.load()()
+                break
     else:
         # Load first editor
         for editor in editors[cname]:
             widget = editor.load()()
+            break
 
     if widget:
         widget.edit(control)

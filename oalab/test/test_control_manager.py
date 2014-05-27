@@ -12,37 +12,17 @@ class ControlDelegate(QtGui.QStyledItemDelegate):
 
     def createEditor(self, parent, option, index):
         model = index.model()
-        col = index.column()
         control = model.control(index)
-        if col == 0: # Name
-            widget = QtGui.QLineEdit(control.name, parent)
-        elif col == 1: # Interface
-            widget = QtGui.QLineEdit(str(control.interface), parent)
-        elif col == 2: # Widget / Value
-            widget = edit_qt(control)
-            widget.setParent(parent)
-        else:
-            pass
+        widget = edit_qt(control)
+        widget.setParent(parent)
         return widget
 
     def setEditorData(self, editor, index):
+        pass
 
+    def paint(self, painter, option, index):
         model = index.model()
-        col = index.column()
         control = model.control(index)
-        if col == 0: # Name
-            editor.setText(str(control.name))
-        elif col == 1: # Interface
-            pass
-#             editor.setText(str(control.interface))
-        elif col == 2: # Widget / Value
-            pass
-        else:
-            pass
-
-#     def paint(self, painter, option, index):
-#         model = index.model()
-#         control = model.control(index)
 #
 # #         paint_cell = get_paint_function(item.datum, self.custom)
 # #         if paint_cell :
@@ -50,25 +30,10 @@ class ControlDelegate(QtGui.QStyledItemDelegate):
 # #             if not ok :
 # #                 QtGui.QStyledItemDelegate.paint(self, painter, option, index)
 # #         else :
-#         QtGui.QStyledItemDelegate.paint(self, painter, option, index)
+        QtGui.QStyledItemDelegate.paint(self, painter, option, index)
 
     def setModelData(self, editor, model, index):
-        col = index.column()
-        item = model.itemFromIndex(index)
-        control = model.control(index)
-        if col == 0: # Name
-            pass
-#             control.name = editor.text()
-#             item.setData(control.name, QtCore.Qt.DisplayRole)
-        elif col == 1: # Interface
-            pass
-#             control.interface = get_interface(editor.text())
-#             item.setData(editor.text(), QtCore.Qt.DisplayRole)
-        elif col == 2: # Widget / Value
-            pass
-        else:
-            pass
-
+        model.setData(index, str(editor.value()), QtCore.Qt.DisplayRole)
 
     def updateEditorGeometry(self, editor, option, index):
         editor.setGeometry(option.rect)
@@ -104,7 +69,7 @@ class ControlModel(QtGui.QStandardItemModel, AbstractListener):
         return qmime_data
 
     def _create_control(self, control):
-        args = [QtGui.QStandardItem(a) for a in [control.name, str(control.interface), control.widget]]
+        args = [QtGui.QStandardItem(a) for a in [control.name, str(control.value())]]
         self.appendRow(args)
 
     def notify(self, sender, event):
@@ -123,16 +88,30 @@ class ControlEditorDialog(QtGui.QDialog):
     def __init__(self, name='default'):
         QtGui.QDialog.__init__(self)
 
+        self._interfaces = []
+        self._constraints = None
+
         self.e_name = QtGui.QLineEdit(name)
         self.cb_interface = QtGui.QComboBox()
         self.cb_widget = QtGui.QComboBox()
 
-        self._layout = QtGui.QFormLayout(self)
-        self._layout.addRow(QtGui.QLabel(u'Name'), self.e_name)
-        self._layout.addRow(QtGui.QLabel(u'Interface'), self.cb_interface)
-        self._layout.addRow(QtGui.QLabel(u'Widget'), self.cb_widget)
 
-        self._interfaces = []
+        self._layout = QtGui.QVBoxLayout(self)
+
+
+        widget = QtGui.QWidget()
+        widget.setContentsMargins(0, 0, 0, 0)
+        self._layout_control = QtGui.QFormLayout(widget)
+        self._layout_control.addRow(QtGui.QLabel(u'Name'), self.e_name)
+        self._layout_control.addRow(QtGui.QLabel(u'Interface'), self.cb_interface)
+        self._layout_control.addRow(QtGui.QLabel(u'Widget'), self.cb_widget)
+
+        self._l_constraints = QtGui.QLabel("Constraints")
+
+        self._layout.addWidget(QtGui.QLabel("Control"))
+        self._layout.addWidget(widget)
+        self._layout.addWidget(self._l_constraints)
+
 
         controls = discover_qt_controls()
         for iname, widgets in controls.items() :
@@ -140,9 +119,33 @@ class ControlEditorDialog(QtGui.QDialog):
             self.cb_interface.addItem(iname)
 
         self.cb_interface.currentIndexChanged.connect(self.refresh)
+        self.cb_widget.currentIndexChanged.connect(self.on_widget_changed)
 
         self.refresh()
 
+    def on_widget_changed(self):
+        widget_name = self.cb_widget.currentText()
+        interface_name = self.cb_interface.currentText()
+        qt_controls = discover_qt_controls()[interface_name]
+        widget = None
+        for plugin in qt_controls :
+            if widget_name == plugin.name:
+                widget = plugin.load()
+                break
+        if widget:
+            print "!!!!", widget, hasattr(widget, 'edit_constraints')
+
+        if self._constraints:
+            self._layout.removeWidget(self._constraints)
+            self._constraints.close()
+            self._constraints = None
+            self._l_constraints.hide()
+
+        if hasattr(widget, 'edit_constraints'):
+            self._constraints = widget.edit_constraints()
+            self._constraints.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+            self._l_constraints.show()
+            self._layout.addWidget(self._constraints)
 
     def refresh(self):
         iname = str(self.cb_interface.currentText())
@@ -173,11 +176,11 @@ class ControlManagerWidget(QtGui.QWidget, AbstractListener):
         self.view = QtGui.QTreeView()
         self.view.setModel(self.model)
         self.view.pressed.connect(self.on_control_selected)
-#         self.view.setEditTriggers(self.view.SelectedClicked)
+        self.view.setEditTriggers(self.view.AllEditTriggers)
         self.view.setDragEnabled(True)
         self.view.setDragDropMode(self.view.DragOnly)
         self.view.setSortingEnabled(True)
-        self.view.setItemDelegate(ControlDelegate())
+        self.view.setItemDelegateForColumn(1, ControlDelegate())
 
         self._layout.addWidget(self.view)
 
@@ -213,14 +216,17 @@ if __name__ == '__main__':
     w.show()
 
     cm.add_control(Control('a', 'IInt', widget='IntSpinBox'))
-    cm.add_control(Control('b', 'IInt', widget='IntSlider'))
+    c2 = Control('b', 'IInt', widget='IntSlider')
+    c2.interface.min = 0
+    c2.interface.max = 100
+    cm.add_control(c2)
 
-    from openalea.oalab.editor.text_editor import TextEditor
-    from openalea.oalab.editor.highlight import Highlighter
-    text = TextEditor()
-    Highlighter(text)
-    text.show()
-    text.raise_()
+#     from openalea.oalab.editor.text_editor import TextEditor
+#     from openalea.oalab.editor.highlight import Highlighter
+#     text = TextEditor()
+#     Highlighter(text)
+#     text.show()
+#     text.raise_()
 
 #     w = Dialog()
 #     w.show()
@@ -229,4 +235,6 @@ if __name__ == '__main__':
     if instance is None :
         app.exec_()
 
+
+    print cm.namespace()
 

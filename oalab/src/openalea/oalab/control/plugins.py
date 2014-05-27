@@ -11,6 +11,11 @@ class ControlWidgetPlugin():
     name = 'ControlWidget'
     required = []
     supported = []
+    tags = [
+      'treeview-ready', # Can be embeded in a treeview (defines a paint method and is enough small)
+      'thumbnail-ready' # Can generate a thumbnail
+      'wide-widget' # Wide widget, generally
+      ]
 
     @classmethod
     def load(cls):
@@ -21,6 +26,7 @@ class PluginIntSpinBox(ControlWidgetPlugin):
     controls = ['IInt']
     name = 'IntSpinBox'
     required = ['IInt.min', 'IInt.max']
+
 
     @classmethod
     def load(cls):
