@@ -36,10 +36,8 @@ class ProjectLayoutWidget(QtGui.QWidget):
         super(ProjectLayoutWidget, self).__init__(parent=parent) 
         self.session = session
         self.treeview = ProjectTreeView(self.session, controller, parent)
-        self.label = ProjectLabel(self.session, controller, parent)
         
         layout = QtGui.QVBoxLayout()
-        layout.addWidget(self.label)
         layout.addWidget(self.treeview)
         
         self.setLayout(layout)
@@ -59,21 +57,6 @@ class ProjectLayoutWidget(QtGui.QWidget):
         """
         return self.treeview.mainMenu()
 
-class ProjectLabel(QtGui.QLabel):
-    """
-    Widget to display the name of the current project.
-    """
-    def __init__(self, session, controller, parent=None):
-        super(ProjectLabel, self).__init__(parent=None) 
-        self.session = session
-        self.update()
-        
-    def update(self):    
-        if self.session.current_is_project():
-            label = self.session.project.name
-        else:
-            label = ""
-        self.setText(label)  
 
 class ProjectTreeView(QtGui.QTreeView):
     """
