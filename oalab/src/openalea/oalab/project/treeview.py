@@ -44,11 +44,9 @@ class ProjectLayoutWidget(QtGui.QWidget):
         
     def clear(self):
         self.treeview.reinit_treeview()
-        self.label.setText("")  
         
     def update(self):
         self.treeview.update()
-        self.label.update()
         
     def mainMenu(self):
         """
