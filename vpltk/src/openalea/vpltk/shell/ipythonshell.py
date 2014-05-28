@@ -4,7 +4,7 @@ if has_new_ipython():
     from IPython.qt.console.rich_ipython_widget import RichIPythonWidget
 else:
     from IPython.frontend.qt.console.rich_ipython_widget import RichIPythonWidget
-    
+
 
 class ShellWidget(RichIPythonWidget, GraphicalStreamRedirection):
     """
@@ -66,7 +66,7 @@ class ShellWidget(RichIPythonWidget, GraphicalStreamRedirection):
             self.kernel_manager = km
             self.kernel_client = kernel_client
         # # For Debug Only
-        # self.interpreter.locals['shell'] = self 
+        # self.interpreter.locals['shell'] = self
         
     def get_interpreter(self):
         """ 
@@ -85,7 +85,6 @@ class ShellWidget(RichIPythonWidget, GraphicalStreamRedirection):
             if code is not None:
                 self.runcode(source=code, hidden=hidden, interactive=interactive)
 
-          
     def runcode(self, source=None, hidden=False, interactive=False):
         """
         TODO
@@ -98,7 +97,8 @@ class ShellWidget(RichIPythonWidget, GraphicalStreamRedirection):
             exec(source)
         except:
             raise    
-        finally: return executed
+        finally:
+            return executed
     
     def loadcode(self, source=None, namespace=None):
         """
@@ -110,9 +110,9 @@ class ShellWidget(RichIPythonWidget, GraphicalStreamRedirection):
         """
         # Not multiligne
         if namespace is None:
-            exec(source,namespace)
+            exec(source, namespace)
         else:    
-            exec(source,self.interpreter.locals,self.interpreter.locals)
+            exec(source, self.interpreter.locals, self.interpreter.locals)
     
     def write(self, txt):    
         """
@@ -131,21 +131,21 @@ class ShellWidget(RichIPythonWidget, GraphicalStreamRedirection):
             for v in var:
                 self.interpreter.locals += v
 
-    
-        
+
 def main():
     from openalea.vpltk.qt import qt as qt_
     from ipythoninterpreter import Interpreter
     import sys
     
     app = qt_.QtGui.QApplication(sys.argv)
-    
+
     # Set interpreter
     interpreter = Interpreter()
     
     interpreter.locals['interp'] = interpreter
     # Set Shell Widget
     shellwdgt = ShellWidget(interpreter)
+    interpreter.locals['shell'] = shellwdgt
     
     mainWindow = qt_.QtGui.QMainWindow()
     mainWindow.setCentralWidget(shellwdgt)
