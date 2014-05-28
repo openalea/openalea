@@ -26,6 +26,7 @@ from openalea.vpltk.project.manager import ProjectManager
 from openalea.oalab.config.main import MainConfig
 from openalea.oalab.world.world import World
 
+
 class Session(object):
     """
     Session is a non graphical class that centralize managers for ...
@@ -49,6 +50,7 @@ class Session(object):
 
         interpreter_class = get_interpreter_class()
         self.interpreter = interpreter_class()
+        self.interpreter.shell.events.register("post_execute", self.add_to_history)
 
         self.interpreter.locals['session'] = self
 
@@ -84,6 +86,17 @@ class Session(object):
             self.interpreter.locals['Model'] = self.project.model
         self.interpreter.locals['scene'] = self.world
         self.interpreter.locals['world'] = self.world
+
+    def add_to_history(self, *args, **kwargs):
+        """
+        Send the last sent of history to the components that display history
+        """
+        try:
+            from openalea.oalab.service.history import display_history
+        except ImportError:
+            pass
+        else:
+            display_history(str([record[2] for record in self.interpreter.shell.history_manager.get_range()][-1]))
 
     config = property(fget=lambda self:self._config.config)
 

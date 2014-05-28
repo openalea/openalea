@@ -103,6 +103,7 @@ setup(
             'ControlPanel = openalea.oalab.plugins.applets.controlpanel:ControlPanel',
             'EditorManager = openalea.oalab.plugins.applets.editormanager:EditorManager',
             'HelpWidget = openalea.oalab.plugins.applets.helpwidget:HelpWidget',
+            'HistoryWidget = openalea.oalab.plugins.applets.historywidget:HistoryWidget',
             'ProjectManager = openalea.oalab.plugins.applets.projectmanager:ProjectManager',
             'Viewer3D = openalea.oalab.plugins.applets.viewer3d:Viewer3D',
             'PkgManagerWidget = openalea.oalab.plugins.applets.packagemanager:PkgManagerWidget',
