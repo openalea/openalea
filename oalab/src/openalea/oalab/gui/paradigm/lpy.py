@@ -27,9 +27,18 @@ from openalea.lpy import Lsystem
 from openalea.lpy.__lpy_kernel__ import LpyParsing
 from openalea.lpy.gui.objectmanagers import get_managers
 from openalea.lpy.gui.scalar import ProduceScalar
-from openalea.core import logger
 from openalea.oalab.model.lpy import LPyModel
 from openalea.oalab.service.help import display_help
+from openalea.oalab.service.geometry import register_shape3d
+
+# from openalea.lpy import registerPlotter
+# from openalea.oalab.service.plot import get_plotters
+#
+#
+# plotters = get_plotters()
+# for plotter in plotters:
+#     print "plotter: ", plotter
+#     registerPlotter(plotter)
 
 
 def import_lpy_file(script):
@@ -86,7 +95,7 @@ def import_lpy_file(script):
 
         control["color map"] = context.turtle.getColorList()
         for scalar in scalars:
-        	control[unicode(scalar.name)] = scalar
+            control[unicode(scalar.name)] = scalar
         for (manager, geom) in geoms:
             if geom != list():
                 new_obj, new_name = geometry_2_piklable_geometry(manager, geom)
@@ -107,19 +116,16 @@ class LPyModelController(object):
     icon = LPyModel.icon
 
     def __init__(self, name="", code="", model=None, filepath=None, interpreter=None, editor_container=None, parent=None):
-        self.name = name
-        self.interpreter = interpreter
         self.filepath = filepath
         if model:
             self.model = model
         else:
             self.model = LPyModel(name=name, code=code)
+        self.name = self.model.name
         self.parent = parent
         self.editor_container = editor_container
         self._widget = None
 
-        self.lsystem = self.model.lsystem
-        self.axialtree = self.model.axialtree
         # todo get controls
         """
         if self.session.project is not None:
@@ -134,21 +140,15 @@ class LPyModelController(object):
             if self.session.project.control.has_key("color map"):
                 i = 0
                 for color in self.session.project.control["color map"] :
-                    self.lsystem.context().turtle.setMaterial(i, color)
+                    self.model.lsystem.context().turtle.setMaterial(i, color)
                     i += 1"""
 
-        self.interpreter.locals['lsystem'] = self.lsystem
+        if interpreter:
+            self.interpreter = interpreter
+            self.interpreter.locals['lsystem'] = self.model.lsystem
 
     def instanciate_widget(self):
         # todo register viewer
-        """
-        if hasattr(self.controller, "_plugins"):
-            if self.controller._plugins.has_key('Viewer3D'):
-                registerPlotter(self.controller._plugins['Viewer3D'].instance())
-        else:
-            if self.controller.applets.has_key('Viewer3D'):
-                registerPlotter(self.controller.applets['Viewer3D'])"""
-
         self._widget = Editor(parent=self.parent)
         Highlighter(self._widget.editor, lexer=LPyLexer())
         self.widget().applet = self
@@ -163,19 +163,24 @@ class LPyModelController(object):
         doc = self.model.get_documentation()
         display_help(doc)
 
-    def run_selected_part(self):
+    def run_selected_part(self, *args, **kwargs):
         """
         Run selected code like a PYTHON code (not LPy code).
         If nothing selected, run like LPy (not Python).
         """
+        if "interpreter" in kwargs:
+            self.interpreter = kwargs.pop("interpreter")
+
         code = self.widget().get_selected_text()
         if len(code) == 0:
             return self.model()
         else:
-            interp = self.interpreter
-            return interp.runcode(code)
+            return self.interpreter.runcode(code, *args, **kwargs)
 
-    def run(self):
+    def run(self, *args, **kwargs):
+        if "interpreter" in kwargs:
+            self.interpreter = kwargs.pop("interpreter")
+
         code = self.widget().get_text()
         self.model.code = code
 
@@ -186,18 +191,17 @@ class LPyModelController(object):
         for parameter in self.model.parameters:
             if hasattr(self.model.parameters[parameter], "value"):
                 self.model.parameters[parameter] = self.model.parameters[parameter].value
-        self.lsystem.setCode(code, self.model.parameters)"""
+        self.model.lsystem.setCode(code, self.model.parameters)"""
 
-        self.axialtree = self.model()
-        new_scene = self.lsystem.sceneInterpretation(self.axialtree)
-        scene_name = self.context["scene_name"]
-        # todo: put result in the world
-        # self.session.world[scene_name] = new_scene
-        return self.axialtree, new_scene, scene_name
+        # todo: put result in the world ?
+        return self.model(*args, **kwargs)
 
-    def step(self, i=None):
+    def step(self, i=None, *args, **kwargs):
+        if "interpreter" in kwargs:
+            self.interpreter = kwargs.pop("interpreter")
+
         code = self.widget().get_text()
-        if code != self.code:
+        if code != self.model.code:
             # todo set controls
             """
             # /!\ setCode method set the getLastIterationNb to zero
@@ -205,27 +209,24 @@ class LPyModelController(object):
             self.model.parameters.update(self.session.project.control)
             for parameter in self.model.parameters:
                 if hasattr(self.model.parameters[parameter], "value"):
-                    self.model.parameters[parameter] = self.model.parameters[parameter].value"""
-            self.lsystem.setCode(code, self.model.parameters)
-
+                    self.model.parameters[parameter] = self.model.parameters[parameter].value
+            """
             self.model.code = code
-        self.axialtree = self.model.step(i=i)
 
-        new_scene = self.lsystem.sceneInterpretation(self.axialtree)
-        scene_name = self.context["scene_name"]
-        # todo: put result in the world
-        """
-        if new_scene:
-            self.controller.scene[self.context["scene_name"]] = new_scene"""
+        # todo: put result in the world ?
+        return self.model.step(i=i, *args, **kwargs)
 
-        return self.axialtree, new_scene, scene_name
+    def stop(self, *args, **kwargs):
+        if "interpreter" in kwargs:
+            self.interpreter = kwargs.pop("interpreter")
 
-    def stop(self):
-        return self.model.stop()
+        return self.model.stop(*args, **kwargs)
 
-    def animate(self):
+    def animate(self, *args, **kwargs):
+        if "interpreter" in kwargs:
+            self.interpreter = kwargs.pop("interpreter")
+
         code = self.widget().get_text()
-
         # todo set controls
         """
         # /!\ setCode method set the getLastIterationNb to zero
@@ -234,35 +235,17 @@ class LPyModelController(object):
         for parameter in self.model.parameters:
             if hasattr(self.model.parameters[parameter], "value"):
                 self.model.parameters[parameter] = self.model.parameters[parameter].value"""
-        self.lsystem.setCode(code, self.model.parameters)
-
         self.model.code = code
 
-        self.axialtree = self.model.animate()
+        # todo: put result in the world ?
+        return self.model.animate(*args, **kwargs)
 
-        new_scene = self.lsystem.sceneInterpretation(self.axialtree)
-        scene_name = self.context["scene_name"]
-        # todo: put result in the world
-        """
-        if new_scene:
-            self.controller.scene[self.context["scene_name"]] = new_scene"""
-
-        return self.axialtree, new_scene, scene_name
-
-    def reinit(self):
+    def reinit(self, *args, **kwargs):
         code = self.widget().get_text()
         self.model.code = code
 
-        self.axialtree = self.model.init()
-
-        new_scene = self.lsystem.sceneInterpretation(self.axialtree)
-        scene_name = self.context["scene_name"]
-        # todo: put result in the world
-        """
-        if new_scene:
-            self.controller.scene[self.context["scene_name"]] = new_scene"""
-
-        return self.axialtree, new_scene, scene_name
+        # todo: put result in the world ?
+        return self.model.reset(*args, **kwargs)
 
     def widget(self):
         """

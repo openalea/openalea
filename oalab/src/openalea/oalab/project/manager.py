@@ -190,7 +190,8 @@ You can rename/move this project thanks to the button "Save As" in menu.
         :todo: propose to the user where to add it (not only in source)
         """
         text = self.controller.applet_container.tabText(self.controller.applet_container.currentIndex())
-        categories = self.session._project.files.keys()
+        categories = ["model"]
+        categories.extend(self.session._project.files.keys())
         self.selector = SelectCategory(filename=text, categories=categories)
         self.selector.show()
 
@@ -398,7 +399,7 @@ def showOpenProjectDialog(parent=None):
 
 
 class SelectCategory(QtGui.QWidget):
-    def __init__(self, filename="", categories=["src"], parent=None):
+    def __init__(self, filename="", categories=["model"], parent=None):
         super(SelectCategory, self).__init__(parent=parent)
         self.categories = categories
 
@@ -408,7 +409,7 @@ class SelectCategory(QtGui.QWidget):
         self.label2 = QtGui.QLabel("New filename: ")
         self.combo = QtGui.QComboBox(self)
         self.combo.addItems(self.categories)
-        self.combo.setCurrentIndex(1)
+        self.combo.setCurrentIndex(0)
         self.line = QtGui.QLineEdit(filename)
 
         self.ok_button = QtGui.QPushButton("Ok")
