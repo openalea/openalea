@@ -197,10 +197,13 @@ class Project(object):
 
         .. seealso:: :func:`get` :func:`remove`
         """
-        if not hasattr(self, category):
-            setattr(self, category, dict())
-        cat = getattr(self, category)
-        cat[name] = value
+        if category == "model":
+            self.new_model(name=name, code=value)
+        else:
+            if not hasattr(self, category):
+                setattr(self, category, dict())
+            cat = getattr(self, category)
+            cat[name] = value
 
     def add_model(self, model):
         """
@@ -217,6 +220,8 @@ class Project(object):
         """
         filename = path_(name)
         ext = filename.ext[1:]
+        if not filepath:
+            filepath = filename
         if ext in self.model_klasses:
             # add model to existing models
             model = self.model_klasses[ext](name=name, code=code, filepath=filepath, inputs=inputs, outputs=outputs)
