@@ -113,6 +113,7 @@ class RichTextEditor(QtGui.QWidget):
 class TextEditor(QtGui.QTextEdit):
     def __init__(self, parent=None):
         super(TextEditor, self).__init__(parent)
+        self.setLineWrapMode(QtGui.QTextEdit.NoWrap)
         self.indentation = "    "
         self.completer = None
         self.name = None
@@ -210,7 +211,6 @@ class TextEditor(QtGui.QTextEdit):
         else:
             return QtGui.QTextEdit.canInsertFromMimeData(self, source)
 
-
     def insertFromMimeData(self, source):
         if source.hasFormat('openalealab/control'):
             # TODO: move outside TextEditor
@@ -222,7 +222,6 @@ class TextEditor(QtGui.QTextEdit):
             cursor.insertText(pycode)
         else:
             return QtGui.QTextEdit.insertFromMimeData(self, source)
-
 
     def keyPressEvent(self, event):
         # Auto-indent
@@ -398,6 +397,7 @@ class TextEditor(QtGui.QTextEdit):
             end += 1
         cursor.endEditBlock()
         cursor.setPosition(pos, QtGui.QTextCursor.MoveAnchor)
+
     def uncomment(self):
         cursor = self.textCursor()
         beg = cursor.selectionStart()
@@ -468,7 +468,6 @@ class TextEditor(QtGui.QTextEdit):
         columnno = self.textCursor().columnNumber()
         # todo
         # statusBar.showMessage("Cursor at line %s, column %s" % (lineno, columnno), 2000)
-
 
     ####################################################################
     #### Line Number Area
