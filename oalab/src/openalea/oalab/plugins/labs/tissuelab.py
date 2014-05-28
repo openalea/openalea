@@ -1,5 +1,4 @@
 
-import copy
 from openalea.vpltk.plugin import iter_plugins
 from openalea.oalab.plugins.minilab import MiniLab
 
