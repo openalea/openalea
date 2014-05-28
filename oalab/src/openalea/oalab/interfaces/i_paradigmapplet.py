@@ -1,7 +1,7 @@
 
-from .i_applet import IApplet
+from openalea.core.interfaces import IInterface
 
-class IParadigmApplet(IApplet):
+class IParadigmApplet(IInterface):
     identifier = 'IParadigmApplet' # Unique identifier
     name = 'IParadigmApplet' # Human readable name
 

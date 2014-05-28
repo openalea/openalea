@@ -3,61 +3,99 @@
 
 """
 from openalea.core.observer import Observed
-from openalea.oalab.service.interface import get_interface
-
-import copy
-import inspect
+from openalea.oalab.service.interface import new_interface, default_value
 
 class Control(Observed):
-    """ TODO
-
+    """
+    A Control is an observable variable with
+      - name
+      - interface
+      - constraints on values
     """
     def __init__(self, name, interface, value=None, widget=None, constraints=None):
         """
-
+        :param name: Control name
+        :type name: basestring
+        :param interface: Interface name or class
+        :type interface: basestring or :class:`openalea.core.interface.IInterface`
+        :param value: value to initialise control [Default: use interface default value].
+        :type value: value compatible with interface
+        :param widget: name of preferred widget [Default: undefined]
+        :type widget: basestring
+        :param constraints: constraints to set to interface. See Interface documentation [Default: no constraints]
+        :type constraints: :obj:`dict`
         """
         Observed.__init__(self)
 
         self.name = name
         self.widget = widget
 
-        self._interface = get_interface(interface, constraints)
+        self._interface = new_interface(interface, constraints)
 
-        self._value = value 
-        if value is None: 
-            self._value = self.default_value(self._interface)  
+        self._value = value
+        if value is None:
+            self._value = default_value(self._interface)
 
     def __repr__(self):
-        # TODO: CPL : Update the function
-        return 'Control(name=%r, %r)' % (self._interface, self.name)
+        kargs = dict(
+            interface=self._interface,
+            name=self.name,
+            value=self._value,
+            )
+        return 'Control(%(name)r, %(interface)r, value=%(value)r)' % kargs
 
     def notify_change(self):
-        self.notify_listeners(('ValueChanged', self._value))
+        """
+        Send value_changed event
+        """
+        self.notify_listeners(('value_changed', self._value))
 
     def rename(self, name):
+        """
+        :param name: new name
+        :type name: basestring
+        """
         self.name = name
 
-    @staticmethod
-    def default_value(interface):
-        return interface.default()
-
+    @property
     def value(self):
         return self._value
 
+    @value.setter
+    def value(self, value):
+        self.set_value(value)
+
     def set_value(self, value):
         """
-        A deep copy of value must be saved in _value.
-        Original one is stored in _user_value.
+        TODO: CPL: To discuss !!!!
+        Deepcopy or not ?
+        Currently, standard python behaviour : copy for non mutable else reference
         """
-        # TODO: CPL: To discuss !!!!
-        #self._value = copy.deepcopy(value)
-        #self._user_value = value
+        self._value = value
         self.notify_change()
-
-    def check(self, value):
-        pass
 
     @property
     def interface(self):
         return self._interface
- 
+
+
+
+
+
+
+
+    def __getitem__(self, key):
+        if key == 'name':
+            return self.name
+        else:
+            raise KeyError, key
+
+    def get_input_port(self, name=None):
+        return self
+
+    def set_input(self, key, val=None, notify=True):
+        self.value = val
+
+    def get_label(self):
+        return self.name
+

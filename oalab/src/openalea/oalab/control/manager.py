@@ -15,27 +15,19 @@ class ControlManager(Observed):
     def control(self, uid):
         return self._controls[uid]
 
-    def new_control(self, name, value):
-        from openalea.oalab.service.interface import get_interface
-        control = Control(name, get_interface(type(value)))
-        control.set_value(value)
-        self.add_control(control)
-        return control
-
     def add_control(self, control):
         """
         :param control: Control object or tuple(name, interface, widget). widget can be None
         """
-        if not isinstance(control, Control):
-            control = Control(*control)
+        assert isinstance(control, Control)
 
         self._controls[control.name] = control
-        self.notify_listeners(('ControlManagerChanged', None))
+        self.notify_listeners(('state_changed', None))
 
     def namespace(self):
         ns = {}
         for name, control in self._controls.iteritems():
-            ns[name] = copy.deepcopy(control.value())
+            ns[name] = copy.deepcopy(control.value)
         return ns
 
     controls = property(fget=lambda self:self._controls)
