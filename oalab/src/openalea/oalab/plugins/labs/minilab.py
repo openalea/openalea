@@ -1,6 +1,5 @@
 from openalea.vpltk.plugin import iter_plugins
 
-
 class MiniLab(object):
 
     name = 'mini'
