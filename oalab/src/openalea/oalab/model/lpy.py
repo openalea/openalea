@@ -37,6 +37,22 @@ endlsystem
 """
 
 
+class LsysObj(object):
+    def __init__(self, lsystem, axialtree, name=""):
+        """
+        Object that can be interpreted in the world.
+
+        It contain the lsystem, the resulting axiatree and a name.
+        The lsysytem and the axialtree are used to convert object into PlantGL scene with _repr_geom_ method.
+        """
+        self.lsystem = lsystem
+        self.axialtree = axialtree
+        self.name = name
+
+    def _repr_geom_(self):
+        return self.lsystem.sceneInterpretation(self.axialtree)
+
+
 class LPyModel(Model):
     default_name = "LSystem"
     default_file_name = "script.lpy"
@@ -58,7 +74,16 @@ class LPyModel(Model):
         self.code, control = import_lpy_file(code)
         # TODO: update control of the project with new ones
 
+        from openalea.lpy import registerPlotter
+        from openalea.oalab.service.plot import get_plotters
 
+        plotters = get_plotters()
+        registerPlotter(plotters[0])
+        # print "p: ", plotters
+
+        # for plotter in plotters:
+        #     print "plotter: ", plotter
+        #     registerPlotter(plotter)
 
     def get_documentation(self):
         """
@@ -85,15 +110,22 @@ class LPyModel(Model):
         execute model thanks to interpreter
         """
         # TODO: get control from application and set them into self.parameters
-        self.lsystem.setCode(self.code, self.parameters)
+        self.lsystem.setCode(str(self.code), self.parameters)
         self.axialtree = self.lsystem.iterate()
-        return self.axialtree
+        scene_name = "scene"
+        # new_scene = self.lsystem.sceneInterpretation(self.axialtree)
+        if "scene_name" in self.context:
+            scene_name = self.context["scene_name"]
+
+        self.outputs = LsysObj(self.lsystem, self.axialtree, scene_name)
+        return self.outputs
 
     def reset(self, *args, **kwargs):
         """
         go back to initial step
         """
-        return self.step(i=0, *args, **kwargs)
+        self.outputs = self.step(i=1, *args, **kwargs)
+        return self.outputs
 
     def step(self, i=None, *args, **kwargs):
         """
@@ -109,21 +141,32 @@ class LPyModel(Model):
         # it is used with i=0 to reinit
         else:
             self.axialtree = self.lsystem.iterate(i)
-        return self.axialtree
+        scene_name = "scene"
+        # new_scene = self.lsystem.sceneInterpretation(self.axialtree)
+        if "scene_name" in self.context:
+            scene_name = self.context["scene_name"]
+        self.outputs = LsysObj(self.lsystem, self.axialtree, scene_name)
+        return self.outputs
 
     def stop(self, *args, **kwargs):
         """
         stop execution
         """
         # TODO : to implement
-        pass
+        self.outputs =  LsysObj(self.lsystem, self.axialtree)
+        return self.outputs
 
     def animate(self, *args, **kwargs):
         """
         run model step by step
         """
-        self.step(interpreter)
-        return self.lsystem.animate()
+        self.step(*args, **kwargs)
+        self.axialtree =  self.lsystem.animate()
+        if "scene_name" in self.context:
+            scene_name = self.context["scene_name"]
+        self.outputs = LsysObj(self.lsystem, self.axialtree, scene_name)
+        return self.outputs
+
 
 
 def get_default_text():

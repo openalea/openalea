@@ -50,6 +50,7 @@ class MainWindow(QtGui.QMainWindow):
     def __init__(self, session, parent=None, args=None):
         super(QtGui.QMainWindow, self).__init__()
         self.session = session
+        self.session.interpreter.locals['mainwindow'] = self
 
         self.areas = {}
         for area_name in ('inputs', 'outputs', 'shell'):
