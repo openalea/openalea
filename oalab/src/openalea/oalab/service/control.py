@@ -18,7 +18,7 @@ def _discover_editors(plugins):
 
 def discover_qt_controls():
     # Must move to entry_points oalab.qt_control
-    from openalea.oalab.control.plugins import (
+    from openalea.oalab.plugins.controls import (
         PluginIntSlider, PluginIntSpinBox, PluginColorListWidget)
     plugins = [
        PluginIntSlider,
@@ -29,7 +29,7 @@ def discover_qt_controls():
 
 def discover_bash_controls():
     # Must move to entry_points oalab.bash_control
-    from openalea.oalab.control.plugins import PluginIntIPython
+    from openalea.oalab.plugins.controls import PluginIntIPython
     plugins = [
        PluginIntIPython,
     ]
@@ -37,7 +37,7 @@ def discover_bash_controls():
 
 def discover_notebook_controls():
     # Must move to entry_points oalab.notebook_control
-    from openalea.oalab.control.plugins import *
+    from openalea.oalab.plugins.controls import *
     plugins = [
         PluginIntNotebook,
                         ]

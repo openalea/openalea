@@ -1,10 +1,3 @@
-"""
-plugin.py
-
-NO IMPORTS
-return IntSpinBox is normally replaced by module path.
-load uses Plugin.load to reach real class
-"""
 
 class ControlWidgetPlugin():
     controls = []
