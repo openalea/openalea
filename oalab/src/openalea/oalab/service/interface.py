@@ -1,7 +1,10 @@
 
 __all__ = ['get_interface']
 
-class IColorList(object):
+import inspect
+from openalea.core.interface import IInterface
+
+class IColorList(IInterface):
     """
 
     IIntControl is a Control with this specific method:
@@ -30,6 +33,18 @@ class IColorList(object):
             ]
         return value
 
+def new_interface(iname, constraints=None):
+    if constraints is None:
+        constraints = {}
+    interface_class = get_interface(iname)
+    return interface_class(**constraints)
+
+def default_value(interface):
+    if hasattr(interface, 'default'):
+        return interface.default()
+    else:
+        return None
+
 def get_interface(iname):
     from openalea.core.interface import IInt
 
@@ -47,5 +62,9 @@ def get_interface(iname):
         return iname_to_interface[iname]
     elif isinstance(iname, type):
         return iname_to_interface[type_to_iname[iname]]
+    elif inspect.isclass(inspect):
+        return iname
+    elif isinstance(iname, IInterface):
+        return iname.__class__
     else:
         raise ValueError, repr(iname)

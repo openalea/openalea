@@ -75,28 +75,30 @@ class IntConstraintWidget(QtGui.QWidget):
         layout.addRow(QtGui.QLabel('Maximum'), self.e_max)
 
     def constraints(self):
+        dic = {}
         try:
-            minimum = int(self.e_min.text())
+            dic['min'] = int(self.e_min.text())
         except ValueError:
-            minimum = None
+            pass
 
         try:
-            maximum = int(self.e_max.text())
+            dic['max'] = int(self.e_max.text())
         except ValueError:
-            maximum = None
+            pass
 
-        return dict(min=minimum, max=maximum)
+        return dic
 
 class AbstractIntWidget(AbstractListener):
     def __init__(self):
         AbstractListener.__init__(self)
         self._control = None
-        self.reset()
 
-    def reset(self, value=1, minimum=0, maximum=100, **kwargs):
+    def reset(self, value=1, minimum=None, maximum=None, **kwargs):
         self.setValue(value)
-        self.setMinimum(minimum)
-        self.setMaximum(maximum)
+        if maximum is not None:
+            self.setMinimum(minimum)
+        if minimum is not None:
+            self.setMaximum(maximum)
 
     # Part specific to control
     ##########################
@@ -117,7 +119,7 @@ class AbstractIntWidget(AbstractListener):
         self.show()
 
     def apply(self, control):
-        control.set_value(self.value())
+        control.value = self.value()
         control.interface.min = self.minimum()
         control.interface.max = self.maximum()
 
@@ -125,17 +127,121 @@ class AbstractIntWidget(AbstractListener):
         self._control = control
         mini = control.interface.min
         maxi = control.interface.max
-        self.reset(control.value(), minimum=mini, maximum=maxi)
+        self.reset(control.value, minimum=mini, maximum=maxi)
 
     def notify(self, sender, event):
-        signal, data = event
-        if signal == 'ValueChanged':
+        signal, value = event
+        if signal == 'value_changed':
             self.read(sender)
 
-    @classmethod
-    def edit_constraints(self):
+    @staticmethod
+    def edit_constraints():
         widget = IntConstraintWidget()
         return widget
+
+    def on_value_changed(self, value):
+        self._control.value = value
+
+class IntSpinBox(QtGui.QSpinBox, AbstractIntWidget):
+    """
+    For documentation, see :class:`~openalea.oalab.interfaces.all.IQtControl`
+    """
+
+    def __init__(self):
+        QtGui.QSpinBox.__init__(self)
+        AbstractIntWidget.__init__(self)
+
+    def edit(self, control):
+        self.valueChanged.connect(self.on_value_changed)
+        AbstractIntWidget.edit(self, control)
+
+class IntSlider(QtGui.QWidget, AbstractIntWidget):
+    """
+    For documentation, see :class:`~openalea.oalab.interfaces.all.IQtControl`
+    """
+
+    def __init__(self):
+        QtGui.QWidget.__init__(self)
+
+        self.slider = QtGui.QSlider(QtCore.Qt.Horizontal)
+        self.spinbox = QtGui.QSpinBox()
+
+        AbstractIntWidget.__init__(self)
+
+
+        # To be compatible with tree or table views, slider must keep focus
+        self.slider.setFocusPolicy(QtCore.Qt.StrongFocus)
+        self.setMinimumHeight(20)
+        self.spinbox.setMinimumHeight(18)
+        self.slider.setMinimumHeight(18)
+
+        layout = QtGui.QHBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+
+        layout.addWidget(self.spinbox)
+        layout.addWidget(self.slider)
+
+    def edit(self, control):
+        self.slider.valueChanged.connect(self.on_value_changed)
+        self.spinbox.valueChanged.connect(self.on_value_changed)
+        AbstractIntWidget.edit(self, control)
+
+    def reset(self, value=1, minimum=None, maximum=None, **kwargs):
+        self.setValue(value)
+
+        if minimum is not None:
+            self.slider.setMinimum(minimum)
+            self.spinbox.setMinimum(minimum)
+
+        if maximum is not None:
+            self.slider.setMaximum(maximum)
+            self.spinbox.setMaximum(maximum)
+
+    def value(self):
+        return self.spinbox.value()
+
+    def setValue(self, value):
+        self.slider.setValue(value)
+        self.spinbox.setValue(value)
+
+class IntIPython(object):
+
+    def __init__(self):
+        self._value = 0
+        self._range = (0, 100)
+
+    def set(self, control):
+        self._range = control.range()
+        self._value = control.value
+
+    def edit(self, control):
+        self.set(control)
+        val = raw_input('%s=? (range: %s, default: %s) ' % (
+            control.name, self._range, self._value))
+        if val.strip():
+            val = int(val)
+        self.apply(control)
+
+    def apply(self, control):
+        control.set_value(self._value)
+
+    def view(self, control):
+        print '%s=%d' % (control.name, control.value)
+
+from IPython.html.widgets.widget_int import IntSliderWidget
+class IntNotebook(IntSliderWidget):
+    def __init__(self):
+        IntSliderWidget.__init__(self)
+
+    def edit(self, control):
+        self.min = control.interface.min
+        self.max = control.interface.max
+        self.value = control.value
+
+    def apply(self, control):
+        control.interface.min = self.min
+        control.interface.max = self.max
+        control.value = self.value
 
 class StrComboBox(QtGui.QComboBox, AbstractListener):
     """
@@ -171,100 +277,6 @@ class StrComboBox(QtGui.QComboBox, AbstractListener):
     def notify(self, sender, event):
         self.read(self._control)
 
-class IntSpinBox(QtGui.QSpinBox, AbstractIntWidget):
-    """
-    For documentation, see :class:`~openalea.oalab.interfaces.all.IQtControl`
-    """
-
-    def __init__(self):
-        QtGui.QSpinBox.__init__(self)
-        AbstractIntWidget.__init__(self)
-
-    def edit(self, control):
-        self.valueChanged.connect(control.set_value)
-        AbstractIntWidget.edit(self, control)
-
-class IntSlider(QtGui.QWidget, AbstractIntWidget):
-    """
-    For documentation, see :class:`~openalea.oalab.interfaces.all.IQtControl`
-    """
-
-    def __init__(self):
-        QtGui.QWidget.__init__(self)
-
-        self.slider = QtGui.QSlider(QtCore.Qt.Horizontal)
-        self.spinbox = QtGui.QSpinBox()
-
-        AbstractIntWidget.__init__(self)
-
-
-        # To be compatible with tree or table views, slider must keep focus
-        self.slider.setFocusPolicy(QtCore.Qt.StrongFocus)
-        self.setMinimumHeight(20)
-        self.spinbox.setMinimumHeight(18)
-        self.slider.setMinimumHeight(18)
-
-        layout = QtGui.QHBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-
-        layout.addWidget(self.spinbox)
-        layout.addWidget(self.slider)
-
-    def edit(self, control):
-        self.slider.valueChanged.connect(control.set_value)
-        self.spinbox.valueChanged.connect(control.set_value)
-        AbstractIntWidget.edit(self, control)
-
-    def reset(self, value=1, minimum=0, maximum=100, **kwargs):
-        self.setValue(value)
-
-        self.slider.setMinimum(minimum)
-        self.slider.setMaximum(maximum)
-
-        self.spinbox.setMinimum(minimum)
-        self.spinbox.setMaximum(maximum)
-
-    def value(self):
-        return self.spinbox.value()
-
-    def setValue(self, value):
-        self.slider.setValue(value)
-        self.spinbox.setValue(value)
-
-
-class IntIPython(object):
-
-    def __init__(self):
-        self._value = 0
-        self._range = (0, 100)
-
-    def set(self, control):
-        self._range = control.range()
-        self._value = control.value()
-
-    def edit(self, control):
-        self.set(control)
-        val = raw_input('%s=? (range: %s, default: %s) ' % (
-            control.name, self._range, self._value))
-        if val.strip():
-            val = int(val)
-        self.apply(control)
-
-    def apply(self, control):
-        control.set_value(self._value)
-
-    def view(self, control):
-        print '%s=%d' % (control.name, control.value())
-
-from IPython.html.widgets.widget_int import IntSliderWidget
-class IntNotebook(IntSliderWidget):
-    def __init__(self):
-        IntSliderWidget.__init__(self)
-
-    def edit(self, control):
-        self.min = control.range()[0]
-        self.max = control.range()[1]
-        self.value = control.value()
 
 # Will move to openalea.lpy module
 from openalea.lpy.gui.materialeditor import MaterialEditor
@@ -279,7 +291,7 @@ class ColorListWidget(MaterialEditor):
         return clist
 
     def set(self, control):
-        value = control.value()
+        value = control.value
         turtle = PglTurtle()
         turtle.clearColorList()
         for material in value:

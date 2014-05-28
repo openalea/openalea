@@ -1,6 +1,5 @@
 
-__all__ = ['IApplet', 'IParadigmApplet', 'IQTextWidget']
+__all__ = ['IParadigmApplet', 'IQTextWidget']
 
-from .i_applet import IApplet
 from .i_paradigmapplet import IParadigmApplet
 from .i_qtextwidget import IQTextWidget, IHelper

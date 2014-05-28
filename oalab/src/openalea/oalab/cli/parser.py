@@ -31,7 +31,7 @@ class CommandLineParser(object):
             session = Session()
         self.session = session
         self.parser = argparse.ArgumentParser(description='OALab Command Line')
-        self.parser.add_argument('-e', '--extension', metavar='extension', type=str, default="mini",
+        self.parser.add_argument('-e', '--extension', metavar='extension', type=str, default="full",
                                  help='Lab extension to launch')
         self.parser.add_argument('--list-interfaces', action='store_true',
                                  help='List available interfaces')

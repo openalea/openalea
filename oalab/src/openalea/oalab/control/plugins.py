@@ -30,7 +30,7 @@ class PluginIntSpinBox(ControlWidgetPlugin):
 
     @classmethod
     def load(cls):
-        from openalea.oalab.gui.stdcontrolwidget import IntSpinBox
+        from openalea.oalab.gui.control.widgets import IntSpinBox
         return IntSpinBox
 
 class PluginIntSlider(ControlWidgetPlugin):
@@ -41,8 +41,19 @@ class PluginIntSlider(ControlWidgetPlugin):
 
     @classmethod
     def load(cls):
-        from openalea.oalab.gui.stdcontrolwidget import IntSlider
+        from openalea.oalab.gui.control.widgets import IntSlider
         return IntSlider
+
+# class PluginIntSpinBox2(ControlWidgetPlugin):
+#
+#     controls = ['IInt']
+#     name = 'IntSpinBox2'
+#     required = ['IInt.min', 'IInt.max']
+#
+#     @classmethod
+#     def load(cls):
+#         from openalea.oalab.gui.control.widgets import IntSpinBox2
+#         return IntSpinBox2
 
 class PluginIntIPython(ControlWidgetPlugin):
 
@@ -52,7 +63,7 @@ class PluginIntIPython(ControlWidgetPlugin):
 
     @classmethod
     def load(cls):
-        from openalea.oalab.gui.stdcontrolwidget import IntIPython
+        from openalea.oalab.gui.control.widgets import IntIPython
         return IntIPython
 
 
@@ -65,7 +76,7 @@ class PluginIntNotebook(ControlWidgetPlugin):
 
     @classmethod
     def load(cls):
-        from openalea.oalab.gui.stdcontrolwidget import IntNotebook
+        from openalea.oalab.gui.control.widgets import IntNotebook
         return IntNotebook
 
 
@@ -75,6 +86,6 @@ class PluginColorListWidget(ControlWidgetPlugin):
 
     @classmethod
     def load(cls):
-        from openalea.oalab.gui.stdcontrolwidget import ColorListWidget
+        from openalea.oalab.gui.control.widgets import ColorListWidget
         return ColorListWidget
 

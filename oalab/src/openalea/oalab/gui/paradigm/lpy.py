@@ -120,7 +120,7 @@ class LPyModelController(object):
 
         self.lsystem = self.model.lsystem
         self.axialtree = self.model.axialtree
-        #todo get controls
+        # todo get controls
         """
         if self.session.project is not None:
             self.session.project.control.update(control)
@@ -179,7 +179,7 @@ class LPyModelController(object):
         code = self.widget().get_text()
         self.model.code = code
 
-        #todo get control
+        # todo get control
         """ # Get control
         if hasattr(self.session.project, "control"):
             self.model.parameters.update(self.session.project.control)
@@ -198,7 +198,7 @@ class LPyModelController(object):
     def step(self, i=None):
         code = self.widget().get_text()
         if code != self.code:
-            #todo set controls
+            # todo set controls
             """
             # /!\ setCode method set the getLastIterationNb to zero
             # So, if you change code, next step will do a 'reinit()'
@@ -226,7 +226,7 @@ class LPyModelController(object):
     def animate(self):
         code = self.widget().get_text()
 
-        #todo set controls
+        # todo set controls
         """
         # /!\ setCode method set the getLastIterationNb to zero
         # So, if you change code, next step will do a 'reinit()'
