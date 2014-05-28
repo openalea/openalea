@@ -15,7 +15,7 @@ if __name__ == '__main__':
 
     cm = ControlManager()
 
-    w = ControlManagerWidget(cm)
+    w = ControlManagerWidget()
     w.show()
     w.raise_()
 
