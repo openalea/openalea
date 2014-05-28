@@ -78,3 +78,32 @@ class ControlABC:
           - differs from control "default" (allow to custom controls)
           - can be view thanks to control
         """
+
+
+from openalea.vpltk.qt import QtGui
+
+class ObserverPanel(QtGui.QWidget):
+    """
+    Widget to display observers
+    """
+    def __init__(self):
+        super(QtGui.QWidget, self).__init__()
+        'connected to current_project.observer'
+        pass
+
+    def add(self):
+        pass
+
+    def delete(self):
+        pass
+
+    def rename(self):
+        pass
+
+    def diplay_thumbnails(self):
+        """
+        Display thumbnails of all control.
+        - List control
+        - Call control.thumbnail() on each one
+        """
+        pass
