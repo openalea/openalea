@@ -285,13 +285,13 @@ class PrjctModel(QtGui.QStandardItemModel):
         self.old_models = list()
         self.old_control = list()
         self.old_world = list()
+
+        self.icons = dict()
         
         self.proj = None
         self.set_proj(project)      
 
         #QtCore.QObject.connect(self,QtCore.SIGNAL('dataChanged( const QModelIndex &, const QModelIndex &)'),self.renamed)
-        
-        self.icons = dict()
 
     def find_icons(self):
         if self.controller.applet_container:
