@@ -6,4 +6,5 @@ class FullLab(object):
 
     def __call__(self, mainwin):
         for plugin in iter_plugins('oalab.applet'):
-            mainwin.add_plugin(plugin())
+            if plugin.name != "Store":
+                mainwin.add_plugin(plugin())
