@@ -110,7 +110,7 @@ setup(
             'PkgManagerWidget = openalea.oalab.plugins.applets.packagemanager:PkgManagerWidget',
             'ProjectManager = openalea.oalab.plugins.applets.projectmanager:ProjectManager',
             'ProjectWidget = openalea.oalab.plugins.applets.projectwidget:ProjectWidget',
-            'Store = openalea.oalab.plugins.applets.store:Store',
+            # 'Store = openalea.oalab.plugins.applets.store:Store',
             'Viewer3D = openalea.oalab.plugins.applets.viewer3d:Viewer3D',
             'World = openalea.oalab.plugins.applets.worldwidget:World',
             ],
