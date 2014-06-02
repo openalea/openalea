@@ -47,8 +47,7 @@ class FileBrowser(GenericFileBrowser):
     def open_file(self, index):
         filename = self.model.filePath(index)
         if filename:
-            self.controller.applet_container.open_file(filename=filename)
-
+            self.controller.paradigm_container.open_file(filename=filename)
 
 
 def main():

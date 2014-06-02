@@ -8,9 +8,9 @@ class EditorManager(PluginApplet):
 
     def __call__(self, mainwindow):
         # Load and instantiate graphical component that actually provide feature
-        from openalea.oalab.applets.container import AppletContainer
+        from openalea.oalab.gui.container import ParadigmContainer
 
-        self._applet = AppletContainer(mainwindow.session, mainwindow)
+        self._applet = ParadigmContainer(mainwindow.session, mainwindow)
         self._fill_menu(mainwindow, self._applet)
 
         mainwindow.add_applet(self._applet, self.alias, area='central')
