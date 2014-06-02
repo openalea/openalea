@@ -21,13 +21,16 @@ if __name__ == '__main__':
 
     c1 = Control('a', 'IInt', widget='IntSpinBox')
     c2 = Control('b', 'IInt', widget='IntSlider')
-#     c3 = Control('b', 'IInt', widget='IntSpinBox2')
+    c3 = Control('c', 'IInt', widget='IntSpinBox')
     c2.interface.min = 15
     c2.interface.max = 100
 
     cm.add_control(c1)
     cm.add_control(c2)
-#     cm.add_control(c3)
+    cm.add_control(c3, 'test')
+
+
+    w.setModel('test')
 
 #     w = edit_qt(c3)
 #     w.show()
@@ -48,4 +51,5 @@ if __name__ == '__main__':
 
 
     print cm.namespace()
+    print cm.namespace('test')
 
