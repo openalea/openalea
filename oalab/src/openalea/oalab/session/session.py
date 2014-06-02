@@ -91,12 +91,15 @@ class Session(object):
         """
         Send the last sent of history to the components that display history
         """
-        try:
-            from openalea.oalab.service.history import display_history
-        except ImportError:
+        from openalea.oalab.service.history import display_history
+        records = self.interpreter.shell.history_manager.get_range()
+
+        input_ = ''
+        # loop all elements in iterator to get last one.
+        # TODO: search method returning directly last input
+        for session, line, input_ in records:
             pass
-        else:
-            display_history(str([record[2] for record in self.interpreter.shell.history_manager.get_range()][-1]))
+        display_history(input_)
 
     config = property(fget=lambda self:self._config.config)
 
