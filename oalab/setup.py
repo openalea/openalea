@@ -84,21 +84,26 @@ setup(
 
     # Declare src and wralea as entry_points (extensions) of your package
     entry_points={
-        'gui_scripts': ['oalab = openalea.oalab.main:main',
-                        'openalealab = openalea.oalab.main:main'],
-        'oalab.control': ['IntControl = openalea.oalab.control.stdcontrol:IntControl',
-                          'BoolControl = openalea.oalab.control.stdcontrol:BoolControl',
-                          'FloatControl = openalea.oalab.control.stdcontrol:FloatControl'],
-        'oalab.paradigm_applet': ['PythonApplet = openalea.oalab.gui.paradigm.python:PythonModelController',
-                                  'LPyApplet = openalea.oalab.gui.paradigm.lpy:LPyModelController',
-                                  'VisualeaApplet = openalea.oalab.gui.paradigm.visualea:VisualeaModelController',
-                                  'RApplet = openalea.oalab.gui.paradigm.r:RModelController',
-                                  ],
-        'oalab.model': ['PythonModel = openalea.oalab.model.python:PythonModel',
-                        'LPyModel = openalea.oalab.model.lpy:LPyModel',
-                        'VisualeaModel = openalea.oalab.model.visualea:VisualeaModel',
-                        'RModel = openalea.oalab.model.r:RModel',
-                        ],
+
+        'gui_scripts': [
+            'oalab = openalea.oalab.main:main',
+            'openalealab = openalea.oalab.main:main'
+            ],
+
+        'oalab.paradigm_applet': [
+            'LPyApplet = openalea.oalab.gui.paradigm.lpy:LPyModelController',
+            'PythonApplet = openalea.oalab.gui.paradigm.python:PythonModelController',
+            'RApplet = openalea.oalab.gui.paradigm.r:RModelController',
+            'VisualeaApplet = openalea.oalab.gui.paradigm.visualea:VisualeaModelController',
+            ],
+
+        'oalab.model': [
+            'LPyModel = openalea.oalab.model.lpy:LPyModel',
+            'PythonModel = openalea.oalab.model.python:PythonModel',
+            'RModel = openalea.oalab.model.r:RModel',
+            'VisualeaModel = openalea.oalab.model.visualea:VisualeaModel',
+            ],
+
         'oalab.applet': [
             'ControlManager = openalea.oalab.plugins.applets.controlmanager:ControlManager',
             'ControlPanel = openalea.oalab.plugins.applets.controlpanel:ControlPanel',
@@ -114,18 +119,28 @@ setup(
             'Viewer3D = openalea.oalab.plugins.applets.viewer3d:Viewer3D',
             'World = openalea.oalab.plugins.applets.worldwidget:World',
             ],
+
         'oalab.lab': [
             'FullLab = openalea.oalab.plugins.labs.fulllab:FullLab',
             'MiniLab = openalea.oalab.plugins.labs.minilab:MiniLab',
             'TissueLab = openalea.oalab.plugins.labs.tissuelab:TissueLab',
             ],
 
+        'oalab.interface': [
+            'OpenAleaLabInterfacePlugin = openalea.oalab.plugins.interfaces:OpenAleaLabInterfacePlugin',
+            ],
+
         # 'console_scripts': [
         #       'fake_script = openalea.fakepackage.amodule:console_script', ],
         # 'gui_scripts': [
         #      'fake_gui = openalea.fakepackage.amodule:gui_script',],
-        'wralea' : ['oalab = openalea.oalab_wralea'],
-        'plugin' : ['oalab = openalea.oalab_wralea']
+        'wralea' : [
+            'oalab = openalea.oalab_wralea',
+            ],
+
+        'plugin' : [
+            'oalab = openalea.oalab_wralea',
+            ]
         },
     )
 

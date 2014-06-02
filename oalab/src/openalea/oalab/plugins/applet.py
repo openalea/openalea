@@ -43,13 +43,29 @@ your python package.
 With **mypackage.plugins** python module path (equivalent to 'mypackage/plugins.py') and
 'PluginXyz' the class name.
 
+Details
+=======
+
+.. autoclass:: openalea.oalab.plugins.applet.IPluginApplet
+    :members: __call__, instance, name, alias
 
 """
 from openalea.vpltk.plugin import Plugin
+from openalea.core.interface import IInterface
+
+class IApplet(IInterface):
+    """
+    Autonomous Graphical component
+    """
+    def initialize(self):
+        """
+        Optional method, called after instantiation
+        """
 
 class IPluginApplet(Plugin):
     """
     Graphical component displayed in main window.
+    Component must respect :class:`~openalea.oalab.plugins.applet.IApplet` interface.
     """
 
     name = 'AppletName'
