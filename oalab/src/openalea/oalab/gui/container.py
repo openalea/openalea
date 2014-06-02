@@ -27,7 +27,7 @@ from openalea.oalab.gui import resources_rc # do not remove this import else ico
 from openalea.oalab.gui.utils import qicon
 
 
-class AppletContainer(QtGui.QTabWidget):
+class ParadigmContainer(QtGui.QTabWidget):
     """
     Contains applets.
     Each tab is an applet.
@@ -36,7 +36,7 @@ class AppletContainer(QtGui.QTabWidget):
     name = "Editor Container"
 
     def __init__(self, session, controller, parent=None):
-        super(AppletContainer, self).__init__(parent=parent)
+        super(ParadigmContainer, self).__init__(parent=parent)
         self.session = session
         self.controller = controller
         self.setTabsClosable(True)
@@ -90,8 +90,7 @@ class AppletContainer(QtGui.QTabWidget):
         self.actionStop.setShortcut(QtGui.QApplication.translate("MainWindow", "F4", None, QtGui.QApplication.UnicodeUTF8))
         self.actionInit.setShortcut(QtGui.QApplication.translate("MainWindow", "F5", None, QtGui.QApplication.UnicodeUTF8))
 
-        self.connect(self.actionOpenFile, QtCore.SIGNAL('triggered(bool)'), self.open_file)
-
+        self.actionOpenFile.triggered.connect(self.open_file)
         self.actionSave.triggered.connect(self.save)
         self.actionSaveAs.triggered.connect(self.save_as)
         self.actionRun.triggered.connect(self.run)
@@ -145,30 +144,38 @@ class AppletContainer(QtGui.QTabWidget):
         if extension is None:
             extension = self.extensions
 
-        if not filename:
-            if extension:
-                filename = showOpenFileDialog(extension)
-            else:
-                filename = showOpenFileDialog()
+        if model is not None:
+            if hasattr(model, "default_name"):
+                applet_type = model.default_name
+            tab_name = model.name
+            self.newTab(applet_type=applet_type, tab_name=tab_name, model=model)
+            logger.debug("Open model named " + tab_name)
+        else:
 
-        if filename:
-            filename = path(filename).abspath()
+            if not filename:
+                if extension:
+                    filename = showOpenFileDialog(extension)
+                else:
+                    filename = showOpenFileDialog()
 
-            f = open(filename, "r")
-            txt = f.read()
-            f.close()
+            if filename:
+                filename = path(filename).abspath()
 
-            # # here we use tabname to know where to save the file...
-            # # TODO use a more complete "file" object which store the code and the filename and use a short tabname
-            # tab_name = str(path(filename).splitpath()[-1])
-            tab_name = str(path(filename))
-            ext = str(path(filename).splitext()[-1])
-            ext = ext.split(".")[-1]
-            logger.debug("Try to open file named " + tab_name + " . With applet_type " + ext)
+                f = open(filename, "r")
+                txt = f.read()
+                f.close()
 
-            self.newTab(applet_type=ext, tab_name=tab_name, script=txt, model=model)
-            # project.add("src", filename, txt)
-            logger.debug("Open file named " + tab_name)
+                # # here we use tabname to know where to save the file...
+                # # TODO use a more complete "file" object which store the code and the filename and use a short tabname
+                # tab_name = str(path(filename).splitpath()[-1])
+                tab_name = str(path(filename))
+                ext = str(path(filename).splitext()[-1])
+                ext = ext.split(".")[-1]
+                logger.debug("Try to open file named " + tab_name + " . With applet_type " + ext)
+
+                self.newTab(applet_type=ext, tab_name=tab_name, script=txt, model=model)
+                # project.add("src", filename, txt)
+                logger.debug("Open file named " + tab_name)
 
     def new_file(self, applet_type=None, tab_name=None, script="", model=None):
         """
@@ -311,26 +318,27 @@ class AppletContainer(QtGui.QTabWidget):
 
             try:
                 self.addTab(widget, QtGui.QIcon(icon), tab_name)
-                if hasattr(widget, 'editor'):
-                    import warnings
-                    warnings.warn('TODO: create a generic signal StateChanged for all Paradigm widgets')
-                    widget.editor.textChanged.connect(self.setTabRed)
-                self.setCurrentWidget(widget)
-                widget.name = tab_name
-
-                self.connect_actions()
-                self.connect(self, QtCore.SIGNAL('currentChanged(int)'), self.focusChange)
-                self.setTabBlack()
             except IndexError:
                 pass
+
+            if hasattr(widget, 'editor'):
+                import warnings
+                warnings.warn('TODO: create a generic signal StateChanged for all Paradigm widgets')
+                widget.editor.textChanged.connect(self.setTabRed)
+            self.setCurrentWidget(widget)
+            widget.name = tab_name
+            self.connect_actions()
+            self.connect(self, QtCore.SIGNAL('currentChanged(int)'), self.focusChange)
+            self.setTabBlack()
 
     def connect_actions(self):
         widget = self.applets[-1].widget()
         menu = self.controller.menu
-        if widget.actions():
-            for action in widget.actions():
-                # Add actions in PanedMenu
-                menu.addBtnByAction(*action)
+        if widget:
+            if widget.actions():
+                for action in widget.actions():
+                    # Add actions in PanedMenu
+                    menu.addBtnByAction(*action)
 
     def focusChange(self):
         widget = self.currentWidget()

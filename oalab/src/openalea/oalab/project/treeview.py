@@ -106,10 +106,10 @@ class ProjectTreeView(QtGui.QTreeView):
     def create_menu(self):
         menu = QtGui.QMenu(self)
 
-        if self.controller.applet_container:
-            for applet in self.controller.applet_container.paradigms.values():
+        if self.controller.paradigm_container:
+            for applet in self.controller.paradigm_container.paradigms.values():
                 action = QtGui.QAction('New %s'%applet.default_name, self)
-                action.triggered.connect(self.controller.applet_container.new_file)
+                action.triggered.connect(self.controller.paradigm_container.new_file)
                 menu.addAction(action)
             menu.addSeparator()
 
@@ -128,14 +128,14 @@ class ProjectTreeView(QtGui.QTreeView):
             menu.addSeparator()
 
             # importAction = QtGui.QAction('Import Model',self)
-            # importAction.triggered.connect(self.controller.applet_container.importFile)
+            # importAction.triggered.connect(self.controller.paradigm_container.importFile)
             # menu.addAction(importAction)
             #removeAction = QtGui.QAction('Remove Model',self)
             #removeAction.triggered.connect(self.controller.project_manager.removeModel)
             #menu.addAction(removeAction)
             # menu.addSeparator()
             # renameAction = QtGui.QAction('Rename Project',self)
-            # renameAction.triggered.connect(self.controller.applet_container.renameCurrent)
+            # renameAction.triggered.connect(self.controller.paradigm_container.renameCurrent)
             # menu.addAction(renameAction)
         return menu
 
@@ -147,8 +147,10 @@ class ProjectTreeView(QtGui.QTreeView):
         item = self.getItem()
         filename = path(self.project.path)/self.project.name/item.parent().text()/item.text()
         if self.is_src_selected():
-            filename = self.project.model(item.text()).filepath
-        self.controller.applet_container.open_file(filename=filename)
+            model = self.project.model(item.text())
+            self.controller.paradigm_container.open_file(model=model)
+        else:
+            self.controller.paradigm_container.open_file(filename=filename)
 
     def is_file_selected(self):
         """
@@ -294,8 +296,8 @@ class PrjctModel(QtGui.QStandardItemModel):
         #QtCore.QObject.connect(self,QtCore.SIGNAL('dataChanged( const QModelIndex &, const QModelIndex &)'),self.renamed)
 
     def find_icons(self):
-        if self.controller.applet_container:
-            for applet in self.controller.applet_container.paradigms.values():
+        if self.controller.paradigm_container:
+            for applet in self.controller.paradigm_container.paradigms.values():
                 self.icons[applet.extension] = applet.icon
         
     def renamed(self,x,y):

@@ -35,7 +35,7 @@ class OALabTreeView(NodeFactoryTreeView):
         obj =  item.internalPointer()
 
         if(isinstance(obj, CompositeNodeFactory)):
-            self.controller.applet_container.newTab('Workflow',obj.name+'.wpy',obj)
+            self.controller.paradigm_container.newTab('Workflow',obj.name+'.wpy',obj)
 
         elif (not isinstance(obj, Package)):
             self.open_node()
@@ -54,7 +54,7 @@ class OALabSearchView(SearchListView):
         obj =  item.internalPointer()
 
         if(isinstance(obj, CompositeNodeFactory)):
-            self.controller.applet_container.newTab('Workflow',obj.name+'.wpy',obj)
+            self.controller.paradigm_container.newTab('Workflow',obj.name+'.wpy',obj)
 
         elif (not isinstance(obj, Package)):
             self.open_node()

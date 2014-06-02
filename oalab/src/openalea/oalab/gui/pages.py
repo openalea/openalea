@@ -112,7 +112,7 @@ class WelcomePage(QtGui.QWidget):
 
     def newScript(self):
         pass
-        # self.controller.applet_container.addCreateFileTab()
+        # self.controller.paradigm_container.addCreateFileTab()
 
     def open(self):
         self.session._is_proj = True
@@ -210,7 +210,7 @@ class CreateFilePage(QtGui.QWidget):
 
         self.session = session
         self.controller = controller
-        app_cont = self.controller.get_applet_container()
+        app_cont = self.controller.paradigm_container
         if app_cont is not None:
             layout = QtGui.QGridLayout()
             layout.setAlignment(QtCore.Qt.AlignCenter)

@@ -178,4 +178,5 @@ class MainWindow(QtGui.QMainWindow):
             return self._plugins['EditorManager'].instance()
 
     applet_container = property(fget=get_applet_container)
+    paradigm_container = applet_container
     project_manager = property(fget=get_project_manager)

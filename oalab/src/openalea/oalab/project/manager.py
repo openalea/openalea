@@ -189,7 +189,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
         :todo: propose to the user where to add it (not only in source)
         """
-        text = self.controller.applet_container.tabText(self.controller.applet_container.currentIndex())
+        text = self.controller.paradigm_container.tabText(self.controller.paradigm_container.currentIndex())
         categories = ["model"]
         categories.extend(self.session._project.files.keys())
         self.selector = SelectCategory(filename=text, categories=categories)
@@ -201,10 +201,10 @@ You can rename/move this project thanks to the button "Save As" in menu.
         category = self.selector.combo.currentText()
         self.selector.hide()
 
-        text = self.controller.applet_container.currentWidget().get_text()
-        index = self.controller.applet_container.currentIndex()
+        text = self.controller.paradigm_container.currentWidget().get_text()
+        index = self.controller.paradigm_container.currentIndex()
         filename = self.selector.line.text()
-        self.controller.applet_container.setTabText(index, filename)
+        self.controller.paradigm_container.setTabText(index, filename)
         self.session._project.add(category=category, name=filename, value=text)
 
         self.session.update_namespace()
@@ -243,7 +243,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         Save current project.
         """
         if self.session.current_is_project():
-            container = self.controller.applet_container
+            container = self.controller.paradigm_container
             if container is None: # CPL
                 return
 
@@ -273,8 +273,8 @@ You can rename/move this project thanks to the button "Save As" in menu.
             self.session._project = None
             self.session._is_proj = False
             self._clear_control()
-            if self.controller.applet_container:
-                self.controller.applet_container.closeAll()
+            if self.controller.paradigm_container:
+                self.controller.paradigm_container.closeAll()
             self._project_changed()
         else:
             print "You are not working inside project. Please create or load one first."
@@ -290,8 +290,8 @@ You can rename/move this project thanks to the button "Save As" in menu.
         self.session.update_namespace()
         self._scene_change()
         self._control_change() # do nothing
-        if self.controller.applet_container:
-            self.controller.applet_container.reset()
+        if self.controller.paradigm_container:
+            self.controller.paradigm_container.reset()
         self.open_all_scripts_from_project()
         self._tree_view_change()
 
@@ -351,7 +351,8 @@ You can rename/move this project thanks to the button "Save As" in menu.
             if not isinstance(models, list):
                 models = [models]
             for model in models:
-                self.controller.applet_container.openTab(model=model)
+                if self.controller.paradigm_container:
+                    self.controller.paradigm_container.openTab(model=model)
 
     def _scene_change(self):
         logger.debug("Scene changed")
