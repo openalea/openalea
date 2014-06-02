@@ -83,6 +83,7 @@ class ProjectManagerWidget(QtGui.QWidget):
         self.menu_available_projects.aboutToShow.connect(self._update_available_project_menu)
         self.action_available_project = {} # Dict used to know what project corresponds to triggered action
 
+    def initialize(self):
         self.defaultProj()
 
     def defaultProj(self):
@@ -351,8 +352,8 @@ You can rename/move this project thanks to the button "Save As" in menu.
             if not isinstance(models, list):
                 models = [models]
             for model in models:
-                if self.controller.paradigm_container:
-                    self.controller.paradigm_container.openTab(model=model)
+                # if self.controller.paradigm_container:
+                self.controller.paradigm_container.openTab(model=model)
 
     def _scene_change(self):
         logger.debug("Scene changed")
