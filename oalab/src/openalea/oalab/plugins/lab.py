@@ -39,6 +39,13 @@ your python package.
 With **mypackage.plugins** python module path (equivalent to 'mypackage/plugins.py') and
 'PluginXyz' the class name.
 
+
+Details
+=======
+
+.. autoclass:: openalea.oalab.plugins.lab.IPluginLab
+    :members: __call__, name
+
 """
 
 class IPluginLab(object):
