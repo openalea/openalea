@@ -41,7 +41,7 @@ class ControlABC:
         self.name = name
 
     @abc.abstractmethod
-    def edit(self, synchro=SYNCHRO_NEVER):
+    def edit(self, synchro):
         """
         Returns a widget able to edit data.
         """

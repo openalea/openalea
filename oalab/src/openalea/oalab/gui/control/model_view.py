@@ -7,6 +7,31 @@ from openalea.core.observer import AbstractListener
 from openalea.oalab.service.control import edit_qt
 from openalea.oalab.service.mimetype import encode
 from openalea.oalab.control.manager import ControlManager
+from openalea.oalab.gui.control.editor import ControlEditorDialog
+
+class ControlView(QtGui.QTreeView):
+    def __init__(self):
+        QtGui.QTreeView.__init__(self)
+        self.setEditTriggers(self.DoubleClicked)
+        self.setDragEnabled(True)
+        self.setDragDropMode(self.DragOnly)
+        self.setSortingEnabled(True)
+        self.setItemDelegateForColumn(1, ControlDelegate())
+        self.setHeaderHidden(False)
+        self._i = 1
+
+    def contextMenuEvent(self, event):
+        menu = QtGui.QMenu(self)
+        action = QtGui.QAction("New control", menu)
+        action.triggered.connect(self.new_control)
+        menu.addAction(action)
+        menu.exec_(event.globalPos())
+
+    def new_control(self):
+        dial = ControlEditorDialog('control_%d' % self._i)
+        dial.exec_()
+        self.model().add_control(dial.control())
+        self._i += 1
 
 class ControlDelegate(QtGui.QStyledItemDelegate):
 
@@ -42,12 +67,20 @@ class ControlDelegate(QtGui.QStyledItemDelegate):
         editor.setGeometry(option.rect)
 
 class ControlModel(QtGui.QStandardItemModel, AbstractListener):
-    def __init__(self, manager, *args, **kwargs):
-        QtGui.QStandardItemModel.__init__(self, *args, **kwargs)
+    def __init__(self, manager):
+        QtGui.QStandardItemModel.__init__(self)
         AbstractListener.__init__(self)
 
+        self._current_model = None
+
+        self._headers = [u'Name', u'Value']
+        self.setHorizontalHeaderLabels(self._headers)
         self._manager = manager
         self.initialise(manager)
+
+    def set(self, model_id=None):
+        self._current_model = model_id
+        self.refresh(model_id)
 
     def flags(self, index):
         default_flags = QtGui.QStandardItemModel.flags(self, index)
@@ -55,6 +88,11 @@ class ControlModel(QtGui.QStandardItemModel, AbstractListener):
             return QtCore.Qt.ItemIsDragEnabled | default_flags
         else:
             return QtCore.Qt.ItemIsDropEnabled | default_flags
+
+    def headerData(self, col, orientation, role):
+        if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
+            return self._headers[col]
+        return None
 
     def supportedDragActions(self, *args, **kwargs):
         return QtGui.QStandardItemModel.supportedDragActions(self, *args, **kwargs)
@@ -75,14 +113,26 @@ class ControlModel(QtGui.QStandardItemModel, AbstractListener):
         args = [QtGui.QStandardItem(a) for a in [control.name, str(control.value)]]
         self.appendRow(args)
 
+        # Example of child for a control. Could be used to display a preview
+        # name = args[0]
+        # name.appendRow(QtGui.QStandardItem("test"))
+
     def notify(self, sender, event):
         signal, data = event
         if isinstance(sender, ControlManager) and signal == 'state_changed':
-            self.clear()
-            for control in sender.controls.values():
-                self._create_control(control)
+            control, model = data
+            if model == self._current_model:
+                self.refresh(model)
+
+    def refresh(self, model=None):
+        self.clear()
+        for control in self._manager.controls(model).values():
+            self._create_control(control)
 
     def control(self, index):
         cnum = index.row()
         name = self.item(cnum, 0).text()
-        return self._manager.control(name)
+        return self._manager.control(name, model=self._current_model)
+
+    def add_control(self, control):
+        self._manager.add_control(control, model=self._current_model)
