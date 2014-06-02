@@ -16,6 +16,7 @@
 #
 ###############################################################################
 from openalea.oalab.model.model import Model
+from openalea.oalab.model.parse import parse_docstring
 from openalea.oalab.control.picklable_curves import geometry_2_piklable_geometry
 from openalea.lpy import Lsystem, AxialTree
 from openalea.lpy.__lpy_kernel__ import LpyParsing
@@ -68,10 +69,13 @@ class LPyModel(Model):
         # dict is mutable... It is useful if you want change scene_name inside application
         self.parameters = dict()
         self.context = dict()
-        self.context["scene_name"] = "lpy_scene"
+        self.scene_name = "lpy_scene"
+        self.context["scene_name"] = self.scene_name
         self.lsystem = Lsystem()
         self.axialtree = AxialTree()
         self.code, control = import_lpy_file(code)
+
+        self.return_obj = LsysObj(self.lsystem, self.axialtree, self.scene_name)
         # TODO: update control of the project with new ones
 
         from openalea.lpy import registerPlotter
@@ -112,19 +116,21 @@ class LPyModel(Model):
         # TODO: get control from application and set them into self.parameters
         self.lsystem.setCode(str(self.code), self.parameters)
         self.axialtree = self.lsystem.iterate()
-        scene_name = "scene"
         # new_scene = self.lsystem.sceneInterpretation(self.axialtree)
         if "scene_name" in self.context:
-            scene_name = self.context["scene_name"]
+            self.scene_name = self.context["scene_name"]
 
-        self.outputs = LsysObj(self.lsystem, self.axialtree, scene_name)
+        self.return_obj.axialtree = self.axialtree
+        self.return_obj.lsystem = self.lsystem
+        self.return_obj.name = self.scene_name
+
         return self.outputs
 
-    def reset(self, *args, **kwargs):
+    def init(self, *args, **kwargs):
         """
         go back to initial step
         """
-        self.outputs = self.step(i=1, *args, **kwargs)
+        self.step(i=0, *args, **kwargs)
         return self.outputs
 
     def step(self, i=None, *args, **kwargs):
@@ -136,16 +142,24 @@ class LPyModel(Model):
             i = 0
         # clasical case: evolve one step
         if i is None:
+            # Warning: getLastIterationNb return 0,0,1,2,3,4,...
+            # Hack: here step 0 -> step 2, 3, 4
+            # Warning: TODO: step 1 !
+            # Hack
             self.axialtree = self.lsystem.iterate(self.lsystem.getLastIterationNb() + 2)
         # if you set i to a number, directly go to this step.
         # it is used with i=0 to reinit
         else:
             self.axialtree = self.lsystem.iterate(i)
-        scene_name = "scene"
+
         # new_scene = self.lsystem.sceneInterpretation(self.axialtree)
         if "scene_name" in self.context:
-            scene_name = self.context["scene_name"]
-        self.outputs = LsysObj(self.lsystem, self.axialtree, scene_name)
+            self.scene_name = self.context["scene_name"]
+
+        self.return_obj.axialtree = self.axialtree
+        self.return_obj.lsystem = self.lsystem
+        self.return_obj.name = self.scene_name
+
         return self.outputs
 
     def stop(self, *args, **kwargs):
@@ -153,7 +167,10 @@ class LPyModel(Model):
         stop execution
         """
         # TODO : to implement
-        self.outputs =  LsysObj(self.lsystem, self.axialtree)
+        self.return_obj.axialtree = self.axialtree
+        self.return_obj.lsystem = self.lsystem
+        self.return_obj.name = self.scene_name
+
         return self.outputs
 
     def animate(self, *args, **kwargs):
@@ -161,12 +178,45 @@ class LPyModel(Model):
         run model step by step
         """
         self.step(*args, **kwargs)
-        self.axialtree =  self.lsystem.animate()
+        self.axialtree = self.lsystem.animate()
         if "scene_name" in self.context:
-            scene_name = self.context["scene_name"]
-        self.outputs = LsysObj(self.lsystem, self.axialtree, scene_name)
+            self.scene_name = self.context["scene_name"]
+
+        self.return_obj.axialtree = self.axialtree
+        self.return_obj.lsystem = self.lsystem
+        self.return_obj.name = self.scene_name
+
         return self.outputs
 
+    @property
+    def outputs(self):
+        """
+        Return outputs of the model after running it.
+
+        :use:
+            >>> model.run()
+            >>> print model.outputs
+        """
+        # if len(self._outputs) == 1:
+        #     return self._outputs[0]
+        # else:
+        outp = [self.return_obj]
+        if self._outputs:
+            outp.extend(self._outputs)
+        return outp
+
+    @outputs.setter
+    def outputs(self, outputs=[]):
+        self._outputs = outputs
+
+    @property
+    def code(self):
+        return self._code
+
+    @code.setter
+    def code(self, code=""):
+        self._code = code
+        model, self.inputs_info, self.outputs_info = parse_docstring(code)
 
 
 def get_default_text():

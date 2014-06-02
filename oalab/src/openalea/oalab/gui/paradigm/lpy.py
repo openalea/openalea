@@ -194,7 +194,13 @@ class LPyModelController(object):
         self.model.lsystem.setCode(code, self.model.parameters)"""
 
         # todo: put result in the world ?
-        return self.model(*args, **kwargs)
+        ret = self.model(*args, **kwargs)
+        sceneobj = ret[0]
+        # TODO: remove this hard link!
+        world = self.editor_container.session.world
+        world[sceneobj.name] = sceneobj
+
+        return ret
 
     def step(self, i=None, *args, **kwargs):
         if "interpreter" in kwargs:
@@ -214,13 +220,26 @@ class LPyModelController(object):
             self.model.code = code
 
         # todo: put result in the world ?
-        return self.model.step(i=i, *args, **kwargs)
+        ret = self.model.step(i=i, *args, **kwargs)
+        sceneobj = ret[0]
+        # TODO: remove this hard link!
+        world = self.editor_container.session.world
+        world[sceneobj.name] = sceneobj
+
+        return ret
 
     def stop(self, *args, **kwargs):
         if "interpreter" in kwargs:
             self.interpreter = kwargs.pop("interpreter")
 
-        return self.model.stop(*args, **kwargs)
+        # todo: put result in the world ?
+        ret = self.model.stop(*args, **kwargs)
+        sceneobj = ret[0]
+        # TODO: remove this hard link!
+        world = self.editor_container.session.world
+        world[sceneobj.name] = sceneobj
+
+        return ret
 
     def animate(self, *args, **kwargs):
         if "interpreter" in kwargs:
@@ -238,14 +257,29 @@ class LPyModelController(object):
         self.model.code = code
 
         # todo: put result in the world ?
-        return self.model.animate(*args, **kwargs)
+        ret = self.model.animate(*args, **kwargs)
+        sceneobj = ret[0]
+        # TODO: remove this hard link!
+        world = self.editor_container.session.world
+        world[sceneobj.name] = sceneobj
+
+        return ret
 
     def reinit(self, *args, **kwargs):
+        if "interpreter" in kwargs:
+            self.interpreter = kwargs.pop("interpreter")
+
         code = self.widget().get_text()
         self.model.code = code
 
         # todo: put result in the world ?
-        return self.model.reset(*args, **kwargs)
+        ret = self.model.init(*args, **kwargs)
+        sceneobj = ret[0]
+        # TODO: remove this hard link!
+        world = self.editor_container.session.world
+        world[sceneobj.name] = sceneobj
+
+        return ret
 
     def widget(self):
         """
