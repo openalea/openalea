@@ -16,14 +16,15 @@
 #
 ###############################################################################
 import ast
+from openalea.core import logger
 
 
 def ast_parse(string):
     try:
         M = ast.parse(string)
     except SyntaxError, e:
-        print e
-        print "Syntax error when parsing: ", string[:20], "..."
+        logger.warning(str(e))
+        logger.warning("Syntax error when parsing: " + string[:30] + "...")
         M = ast.parse("")
     return M
 
