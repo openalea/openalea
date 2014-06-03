@@ -136,7 +136,7 @@ def parse_lpy(string):
     Take a lpy string_file, parse it and return only the docstring of the file.
 
     :param string: string representation of lpy file
-    :return: docstring of the file if exists (must be a multiline docstring begining ate the first line!). If not found, return None.
+    :return: docstring of the file if exists (must be a multiline docstring!). If not found, return None.
 
     :use:
         >>> f = open(lpyfilename, "r")
@@ -152,22 +152,29 @@ def parse_lpy(string):
         >>>     print "inputs : ", inputs
         >>>     print "outputs : ", outputs
     """
-    # todo: parse docstring lpy
+    # TODO: need a code review
     begin = None
     begintype = None
     doclines = string.splitlines()
-    if doclines[0] == '"""':
-        begin = 1
-        begintype = '"""'
-    elif doclines[0] == "'''":
-        begin = 1
-        begintype = "'''"
-    elif doclines[1] == '"""':
-        begin = 2
-        begintype = '"""'
-    elif doclines[1] == "'''":
-        begin = 2
-        begintype = "'''"
+    i = 0
+    for docline in doclines:
+        i += 1
+        if docline == '"""':
+            begin = i
+            begintype = '"""'
+            break
+        elif docline == "'''":
+            begin = 1
+            begintype = "'''"
+            break
+        elif docline == '"""':
+            begin = 2
+            begintype = '"""'
+            break
+        elif docline == "'''":
+            begin = 2
+            begintype = "'''"
+            break
 
     if begin is not None:
         end = begin - 1
