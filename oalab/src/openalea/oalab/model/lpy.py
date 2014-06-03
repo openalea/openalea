@@ -16,7 +16,7 @@
 #
 ###############################################################################
 from openalea.oalab.model.model import Model
-from openalea.oalab.model.parse import parse_docstring
+from openalea.oalab.model.parse import parse_doc, parse_lpy
 from openalea.oalab.control.picklable_curves import geometry_2_piklable_geometry
 from openalea.lpy import Lsystem, AxialTree
 from openalea.lpy.__lpy_kernel__ import LpyParsing
@@ -216,7 +216,9 @@ class LPyModel(Model):
     @code.setter
     def code(self, code=""):
         self._code = code
-        model, self.inputs_info, self.outputs_info = parse_docstring(code)
+        docstring = parse_lpy(code)
+        if docstring is not None:
+            model, self.inputs_info, self.outputs_info = parse_doc(docstring)
 
 
 def get_default_text():
