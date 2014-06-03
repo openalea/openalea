@@ -26,27 +26,27 @@ __revision__ = '$Id$'
 
 from openalea.core import *
 from openalea.plantgl.all import Scene as PglScene
-from openalea.oalab.scene import Scene
+from openalea.oalab.world.world import World
 
-# Nodes for read/write in scene
+# Nodes for read/write in world
 
-class AbstractScene(Node):
+class AbstractWorld(Node):
     def __init__(self, inputs, outputs):
         Node.__init__(self, inputs, outputs)
-        self.scene = Scene()
+        self.world = World()
 
-class SceneReader(AbstractScene):
+class WorldReader(AbstractWorld):
     def __call__(self, inputs):
         """ inputs is the list of input values """
 
         key = inputs[0]
-        obj = self.scene.get(key)
-        if key in self.scene:
+        obj = self.world.get(key)
+        if key in self.world:
             self.set_caption("%s"%(key, ))
         return (obj, )
 
 
-class SceneWriter(AbstractScene):
+class WorldWriter(AbstractWorld):
 
     def __call__(self, inputs):
         """ inputs is the list of input values """
@@ -54,22 +54,22 @@ class SceneWriter(AbstractScene):
         key = inputs[0]
         obj = inputs[1]
         self.set_caption("%s = %s"%(key, obj))
-        self.scene[key] = obj
+        self.world[key] = obj
         self.key = key
         return (obj, )
 
     def reset(self):
         if hasattr(self,'key'):
-            del self.scene[self.key]
+            del self.world[self.key]
 
-class SceneDefault(AbstractScene):
+class WorldDefault(AbstractWorld):
     def __init__(self, *args, **kwds):
-        AbstractScene.__init__(self,*args, **kwds)
+        AbstractWorld.__init__(self, *args, **kwds)
         self.initial_state = True
 
     def reset(self):
         if hasattr(self,'key'):
-            self.scene[self.key] = default_value
+            self.world[self.key] = default_value
         self.initial_state = True
 
     def __call__(self, inputs):
@@ -78,9 +78,9 @@ class SceneDefault(AbstractScene):
         key = inputs[0]
         default_value = inputs[1]
         if self.initial_state:
-           self.default = default_value if key not in self.scene else self.scene[key]
+           self.default = default_value if key not in self.world else self.world[key]
         self.key = key
-        obj = self.scene.setdefault(key, default_value)
+        obj = self.world.setdefault(key, default_value)
         self.set_caption("%s"%(key,))
         return (obj, )
 
