@@ -67,7 +67,6 @@ class LPyModel(Model):
             code = get_default_text()
 
         # dict is mutable... It is useful if you want change scene_name inside application
-        self.parameters = dict()
         self.context = dict()
         self.scene_name = "lpy_scene"
         self.context["scene_name"] = self.scene_name
@@ -113,9 +112,18 @@ class LPyModel(Model):
         """
         execute model thanks to interpreter
         """
-        # TODO: get control from application and set them into self.parameters
-        self.lsystem.setCode(str(self.code), self.parameters)
+        # TODO: get control from application and set them into self.context
+        self.inputs = args
+        self.context.update(self.inputs)
+
+        self.lsystem.setCode(str(self.code), self.context)
+
         self.axialtree = self.lsystem.iterate()
+
+        self.lsystem.context().getNamespace(self.context)
+
+        self.set_output_from_ns(self.context)
+
         # new_scene = self.lsystem.sceneInterpretation(self.axialtree)
         if "scene_name" in self.context:
             self.scene_name = self.context["scene_name"]
@@ -137,6 +145,9 @@ class LPyModel(Model):
         """
         execute only one step of the model
         """
+        self.inputs = args
+        self.context.update(self.inputs)
+
         # if you are at derivation length, re-init
         if self.lsystem.getLastIterationNb() >= self.lsystem.derivationLength - 1:
             i = 0
@@ -151,6 +162,10 @@ class LPyModel(Model):
         # it is used with i=0 to reinit
         else:
             self.axialtree = self.lsystem.iterate(i)
+
+        self.lsystem.context().getNamespace(self.context)
+
+        self.set_output_from_ns(self.context)
 
         # new_scene = self.lsystem.sceneInterpretation(self.axialtree)
         if "scene_name" in self.context:
@@ -177,8 +192,15 @@ class LPyModel(Model):
         """
         run model step by step
         """
+        self.inputs = args
+        self.context.update(self.inputs)
         self.step(*args, **kwargs)
         self.axialtree = self.lsystem.animate()
+
+        self.lsystem.context().getNamespace(self.context)
+
+        self.set_output_from_ns(self.context)
+
         if "scene_name" in self.context:
             self.scene_name = self.context["scene_name"]
 
@@ -187,6 +209,15 @@ class LPyModel(Model):
         self.return_obj.name = self.scene_name
 
         return self.outputs
+
+    def set_output_from_ns(self, namespace):
+        # get outputs from namespace
+        if self.outputs_info:
+            self.outputs = []
+            if len(self.outputs_info) > 0:
+                for outp in self.outputs_info:
+                    if outp.name in namespace:
+                        self._outputs.append(namespace[outp.name])
 
     @property
     def outputs(self):
