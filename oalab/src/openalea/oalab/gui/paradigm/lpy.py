@@ -195,7 +195,7 @@ class LPyModelController(object):
 
         # todo: put result in the world ?
         ret = self.model(*args, **kwargs)
-        sceneobj = ret[0]
+        sceneobj = self.model.return_obj
         # TODO: remove this hard link!
         world = self.editor_container.session.world
         world[sceneobj.name] = sceneobj
@@ -221,7 +221,7 @@ class LPyModelController(object):
 
         # todo: put result in the world ?
         ret = self.model.step(i=i, *args, **kwargs)
-        sceneobj = ret[0]
+        sceneobj = self.model.return_obj
         # TODO: remove this hard link!
         world = self.editor_container.session.world
         world[sceneobj.name] = sceneobj
@@ -234,7 +234,7 @@ class LPyModelController(object):
 
         # todo: put result in the world ?
         ret = self.model.stop(*args, **kwargs)
-        sceneobj = ret[0]
+        sceneobj = self.model.return_obj
         # TODO: remove this hard link!
         world = self.editor_container.session.world
         world[sceneobj.name] = sceneobj
@@ -258,7 +258,7 @@ class LPyModelController(object):
 
         # todo: put result in the world ?
         ret = self.model.animate(*args, **kwargs)
-        sceneobj = ret[0]
+        sceneobj = self.model.return_obj
         # TODO: remove this hard link!
         world = self.editor_container.session.world
         world[sceneobj.name] = sceneobj
@@ -274,7 +274,7 @@ class LPyModelController(object):
 
         # todo: put result in the world ?
         ret = self.model.init(*args, **kwargs)
-        sceneobj = ret[0]
+        sceneobj = self.model.return_obj
         # TODO: remove this hard link!
         world = self.editor_container.session.world
         world[sceneobj.name] = sceneobj

@@ -23,6 +23,7 @@ from openalea.lpy.__lpy_kernel__ import LpyParsing
 from openalea.lpy.gui.objectmanagers import get_managers
 from openalea.lpy.gui.scalar import ProduceScalar
 from openalea.lpy.gui import documentation as doc_lpy
+import collections
 
 
 def get_default_text():
@@ -63,6 +64,7 @@ class LPyModel(Model):
 
     def __init__(self, name="script.lpy", code=None, filepath="", inputs=[], outputs=[]):
         super(LPyModel, self).__init__(name=name, code=code, filepath=filepath, inputs=inputs, outputs=outputs)
+        self.temp_axiom = None
         if code == "":
             code = get_default_text()
 
@@ -117,12 +119,15 @@ class LPyModel(Model):
         self.context.update(self.inputs)
 
         self.lsystem.setCode(str(self.code), self.context)
+        if self.temp_axiom is not None:
+            self.lsystem.axiom = self.temp_axiom
+            self.temp_axiom = None
 
         self.axialtree = self.lsystem.iterate()
 
         self.lsystem.context().getNamespace(self.context)
 
-        self.set_output_from_ns(self.context)
+        self._set_output_from_ns(self.context)
 
         # new_scene = self.lsystem.sceneInterpretation(self.axialtree)
         if "scene_name" in self.context:
@@ -165,7 +170,7 @@ class LPyModel(Model):
 
         self.lsystem.context().getNamespace(self.context)
 
-        self.set_output_from_ns(self.context)
+        self._set_output_from_ns(self.context)
 
         # new_scene = self.lsystem.sceneInterpretation(self.axialtree)
         if "scene_name" in self.context:
@@ -199,7 +204,7 @@ class LPyModel(Model):
 
         self.lsystem.context().getNamespace(self.context)
 
-        self.set_output_from_ns(self.context)
+        self._set_output_from_ns(self.context)
 
         if "scene_name" in self.context:
             self.scene_name = self.context["scene_name"]
@@ -210,7 +215,7 @@ class LPyModel(Model):
 
         return self.outputs
 
-    def set_output_from_ns(self, namespace):
+    def _set_output_from_ns(self, namespace):
         # get outputs from namespace
         if self.outputs_info:
             self.outputs = []
@@ -218,27 +223,63 @@ class LPyModel(Model):
                 for outp in self.outputs_info:
                     if outp.name in namespace:
                         self._outputs.append(namespace[outp.name])
+                    elif outp.name.lower() == "axialtree":
+                        self._outputs.append(self.axialtree)
+                    elif outp.name.lower() == "axiom":
+                        self._outputs.append(self.lsystem.axiom)
+                    elif outp.name.lower() == "lsystem":
+                        self._outputs.append(self.lsystem)
+                    elif outp.name.lower() == "scene":
+                        self._outputs.append(self.lsystem.sceneInterpretation(self.axialtree))
+                    elif outp.name.lower() == "lsysobj":
+                        self._outputs.append(self.return_obj)
 
     @property
-    def outputs(self):
+    def inputs(self):
         """
-        Return outputs of the model after running it.
+        List of inputs of the model.
 
         :use:
+            >>> model.inputs = 4, 3
             >>> model.run()
-            >>> print model.outputs
         """
-        # if len(self._outputs) == 1:
-        #     return self._outputs[0]
-        # else:
-        outp = [self.return_obj]
-        if self._outputs:
-            outp.extend(self._outputs)
-        return outp
+        return self._inputs
 
-    @outputs.setter
-    def outputs(self, outputs=[]):
-        self._outputs = outputs
+    @inputs.setter
+    def inputs(self, *args):
+        self._inputs = dict()
+        if args:
+            # inputs = args
+            inputs = list(args)
+            if len(inputs) == 1:
+                if isinstance(inputs, collections.Iterable):
+                    inputs = inputs[0]
+                if isinstance(inputs, collections.Iterable):
+                    inputs = list(inputs)
+                else:
+                    inputs = [inputs]
+            inputs.reverse()
+
+            if not self.inputs_info:
+                if len(inputs) == 1:
+                    # If we have no input declared but we give one, it must be the axiom!
+                    axiom = inputs[0]
+                    self.temp_axiom = axiom
+            else:
+                for input_info in self.inputs_info:
+                    if len(inputs):
+                        inp = inputs.pop()
+                    elif input_info.default:
+                        inp = eval(input_info.default)
+                    else:
+                        raise Exception("Model %s have inputs not setted. Please set %s ." %(self.name,input_info.name))
+
+                    if input_info.name:
+                        if input_info.name.lower() == "axiom":
+                            # If one of the declared input is "axiom" set the lsystem axiom
+                            self.temp_axiom = inp
+                        else:
+                            self._inputs[input_info.name] = inp
 
     @property
     def code(self):
