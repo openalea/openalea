@@ -117,14 +117,22 @@ def parse_input_and_output(docstring):
     """
     inputs = None
     outputs = None
-    if hasattr(docstring, "split"):
-        if 'input' in docstring:
-            in_code = docstring.split('input')[1]
+    if hasattr(docstring, "splitlines"):
+        docsplit = docstring.splitlines()
+        for line in docsplit:
+            if line[:5]=="input":
+                inputs = True
+            if line[:6]=="output":
+                outputs = True
+        if inputs:
+            docstring_input = [line for line in docsplit if line[:5]=="input"][0]
+            in_code = docstring_input.split('input')[1]
             in_code = '='.join(in_code.split("=")[1:])
             line = in_code.split('\n')[0]
             inputs = line.split(",")
-        if 'output' in docstring:
-            out_code = docstring.split('output')[1]
+        if outputs:
+            docstring_output = [line for line in docsplit if line[:6]=="output"][0]
+            out_code = docstring_output.split('output')[1]
             out_code = '='.join(out_code.split("=")[1:])
             line = out_code.split('\n')[0]
             outputs = line.split(",")
