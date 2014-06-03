@@ -60,3 +60,13 @@ class ControlManager(Observed):
         else:
             return self._model_controls[model]
 
+
+def control_dict():
+    """
+    Get the controls from the control manager in a dictionary (key = name, value = object)
+
+    :return: dict of controls
+    """
+    cm = ControlManager()
+    controls = cm.namespace()
+    return controls

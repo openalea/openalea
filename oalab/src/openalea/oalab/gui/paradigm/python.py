@@ -23,6 +23,7 @@ from openalea.oalab.editor.text_editor import RichTextEditor as Editor
 from openalea.oalab.editor.highlight import Highlighter
 from openalea.oalab.model.python import PythonModel
 from openalea.oalab.service.help import display_help
+from openalea.oalab.control.manager import control_dict
 
 
 class PythonModelController(object):
@@ -65,11 +66,15 @@ class PythonModelController(object):
         return self.model.run_code(code, *args, **kwargs)
 
     def run(self, *args, **kwargs):
+        controls = control_dict()
+        self.model.ns.update(controls)
         code = self.widget().get_text()
         self.model.code = code
         return self.model(*args, **kwargs)
 
     def step(self, *args, **kwargs):
+        controls = control_dict()
+        self.model.ns.update(controls)
         code = self.widget().get_text()
         self.model.code = code
         return self.model.step(*args, **kwargs)
@@ -78,11 +83,15 @@ class PythonModelController(object):
         return self.model.stop(*args, **kwargs)
 
     def animate(self, *args, **kwargs):
+        controls = control_dict()
+        self.model.ns.update(controls)
         code = self.widget().get_text()
         self.model.code = code
         return self.model.animate(*args, **kwargs)
 
     def reinit(self, *args, **kwargs):
+        controls = control_dict()
+        self.model.ns.update(controls)
         code = self.widget().get_text()
         self.model.code = code
         return self.model.init(*args, **kwargs)
