@@ -220,6 +220,8 @@ class ProjectTreeView(QtGui.QTreeView):
             # name_without_ext = ".".join(text.split(".")[:-1])
             name_without_ext = text
             name_without_space = "_".join(name_without_ext.split())
+            for sym in ["-", "+", "*", "/", "\""]:
+                name_without_space = "_".join(name_without_space.split(sym))
 
             python_call_string = '%s = Model("%s")' % (name_without_space, name_without_ext)
             icon = item.icon()
