@@ -195,10 +195,9 @@ class LPyModelController(object):
 
         # todo: put result in the world ?
         ret = self.model(*args, **kwargs)
-        sceneobj = self.model.return_obj
         # TODO: remove this hard link!
         world = self.editor_container.session.world
-        world[sceneobj.name] = sceneobj
+        world[self.model.scene_name] = self.model.axialtree
 
         return ret
 
@@ -221,10 +220,9 @@ class LPyModelController(object):
 
         # todo: put result in the world ?
         ret = self.model.step(i=i, *args, **kwargs)
-        sceneobj = self.model.return_obj
         # TODO: remove this hard link!
         world = self.editor_container.session.world
-        world[sceneobj.name] = sceneobj
+        world[self.model.scene_name] = self.model.axialtree
 
         return ret
 
@@ -234,10 +232,9 @@ class LPyModelController(object):
 
         # todo: put result in the world ?
         ret = self.model.stop(*args, **kwargs)
-        sceneobj = self.model.return_obj
         # TODO: remove this hard link!
         world = self.editor_container.session.world
-        world[sceneobj.name] = sceneobj
+        world[self.model.scene_name] = self.model.axialtree
 
         return ret
 
@@ -258,10 +255,9 @@ class LPyModelController(object):
 
         # todo: put result in the world ?
         ret = self.model.animate(*args, **kwargs)
-        sceneobj = self.model.return_obj
         # TODO: remove this hard link!
         world = self.editor_container.session.world
-        world[sceneobj.name] = sceneobj
+        world[self.model.scene_name] = self.model.axialtree
 
         return ret
 
@@ -274,10 +270,9 @@ class LPyModelController(object):
 
         # todo: put result in the world ?
         ret = self.model.init(*args, **kwargs)
-        sceneobj = self.model.return_obj
         # TODO: remove this hard link!
         world = self.editor_container.session.world
-        world[sceneobj.name] = sceneobj
+        world[self.model.scene_name] = self.model.axialtree
 
         return ret
 
