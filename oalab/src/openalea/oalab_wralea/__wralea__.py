@@ -16,44 +16,44 @@ __alias__ = []
 
 __all__ = []
 
-scenereader = Factory( name="scene reader",
-              description="Read data from the data scene.",
+worldreader = Factory( name="World reader",
+              description="Read data from the data world.",
               category="oalab control",
               nodemodule="openalea.oalab_wralea.oalabnode",
-              nodeclass="SceneReader",
+              nodeclass="WorldReader",
               inputs = (dict(name='Key', interface=IStr),),
               outputs = (dict(name='Obj', interface=None),),
               lazy = False,
               
               )
     
-__all__.append('scenereader')
+__all__.append('worldreader')
 
-scenewriter = Factory(name="scene writer",
-             description="Write data to the data scene.",
+worldwriter = Factory(name="World writer",
+             description="Write data to the data world.",
              category="oalab control",
              nodemodule="openalea.oalab_wralea.oalabnode",
-             nodeclass="SceneWriter",
+             nodeclass="WorldWriter",
              inputs = (dict(name='Key', interface=IStr),
                        dict(name='Obj', interface=None),),
              outputs = (dict(name='Obj', interface=None),),
              lazy = False,
              )
 
-__all__.append('scenewriter')
+__all__.append('worldwriter')
 
-scene_rw = Factory(name="scene setdefault",
-             description="scene.setdefault(key,value).",
+world_rw = Factory(name="World setdefault",
+             description="world.setdefault(key,value).",
              category="oalab control",
              nodemodule="openalea.oalab_wralea.oalabnode",
-             nodeclass="SceneDefault",
+             nodeclass="WorldDefault",
              inputs = (dict(name='Key', interface=IStr),
                        dict(name='Value', interface=None),),
              outputs = (dict(name='Obj', interface=None),),
              lazy = False,
              )
 
-__all__.append('scene_rw')
+__all__.append('world_rw')
 
 scene_2_geom = Factory(name='Scene to Geometry',
                 authors='F. Boudon, C. Pradal, J. Coste(wralea authors)',
