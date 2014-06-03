@@ -17,14 +17,14 @@
 ###############################################################################
 __revision__ = ""
 
-import time
 from openalea.oalab.scene.vplscene import VPLScene
+from openalea.core.observer import Observed, AbstractListener
 
 # from collections import OrderedDict
 # from openalea.core.observer import Observed
 # class World(OrderedDict, Observed):
 
-class World(VPLScene):
+class World(VPLScene, AbstractListener):
     """
     Contain objects of the world.
 
@@ -42,12 +42,23 @@ class World(VPLScene):
         currently only WorldChanged event is implemented
 
     """
+    def __init__(self):
+        VPLScene.__init__(self)
+        AbstractListener.__init__(self)
+
     def __setitem__(self, key, value):
         if not isinstance(value, WorldObject):
             world_obj = WorldObject(value)
+        self.initialise(world_obj)
         VPLScene.__setitem__(self, key, world_obj)
 
-class WorldObject(object):
+    def notify(self, sender, event=None):
+        self._valueChanged()
+
+    def __hash__(self):
+        return id(self)
+
+class WorldObject(Observed):
     """
     Object of the world.
 
@@ -64,8 +75,19 @@ class WorldObject(object):
         :param output_id: identifier of output of the model used to create this object
         :param in_scene: set to True if it is a part of the scene (so it is viewable)
         """
-        self.obj = obj
+        super(WorldObject, self).__init__()
+
+        self._obj = obj
         self.model_id = model_id
         self.output_id = output_id
         self.in_scene = True
+
+    @property
+    def obj(self):
+        return self._obj
+
+    @obj.setter
+    def obj(self, obj):
+        self.notify_listeners(('world_object_changed', (self, self._obj, obj)))
+        self._obj = obj
 
