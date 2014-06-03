@@ -16,6 +16,7 @@
 #
 ###############################################################################
 import collections
+import string
 from openalea.core.node import Node, AbstractFactory
 
 
