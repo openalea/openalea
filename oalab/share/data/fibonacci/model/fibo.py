@@ -7,6 +7,6 @@ input = a, b
 output = b, r
 """
 
-r = a, b  
+r = a + b  
 
 
