@@ -24,6 +24,7 @@ from openalea.lpy.gui.objectmanagers import get_managers
 from openalea.lpy.gui.scalar import ProduceScalar
 from openalea.lpy.gui import documentation as doc_lpy
 import collections
+import types
 
 
 def get_default_text():
@@ -37,6 +38,23 @@ interpretation:
 
 endlsystem
 """
+
+
+def adapt_axialtree(axialtree, lsystem):
+    """
+    Adapat an axialtree to be viewable in the world (add a method _repr_geom_)
+
+    :param axialtree: axialtree to adapt
+    :param lsystem: lsystem that can be used to create the 3d representation of axialtree
+    :return: adapted axialtree
+    """
+    def repr_geom(self):
+        return self._lsystem.sceneInterpretation(self)
+
+    axialtree._lsystem = lsystem
+    axialtree._repr_geom_ = types.MethodType(repr_geom, axialtree)
+
+    return axialtree
 
 
 class LsysObj(object):
@@ -76,7 +94,7 @@ class LPyModel(Model):
         self.axialtree = AxialTree()
         self.code, control = import_lpy_file(code)
 
-        self.return_obj = LsysObj(self.lsystem, self.axialtree, self.scene_name)
+        self.axialtree = adapt_axialtree(self.axialtree, self.lsystem)
         # TODO: update control of the project with new ones
 
         from openalea.lpy import registerPlotter
@@ -133,9 +151,7 @@ class LPyModel(Model):
         if "scene_name" in self.context:
             self.scene_name = self.context["scene_name"]
 
-        self.return_obj.axialtree = self.axialtree
-        self.return_obj.lsystem = self.lsystem
-        self.return_obj.name = self.scene_name
+        self.axialtree = adapt_axialtree(self.axialtree, self.lsystem)
 
         return self.outputs
 
@@ -176,9 +192,7 @@ class LPyModel(Model):
         if "scene_name" in self.context:
             self.scene_name = self.context["scene_name"]
 
-        self.return_obj.axialtree = self.axialtree
-        self.return_obj.lsystem = self.lsystem
-        self.return_obj.name = self.scene_name
+        self.axialtree = adapt_axialtree(self.axialtree, self.lsystem)
 
         return self.outputs
 
@@ -187,9 +201,7 @@ class LPyModel(Model):
         stop execution
         """
         # TODO : to implement
-        self.return_obj.axialtree = self.axialtree
-        self.return_obj.lsystem = self.lsystem
-        self.return_obj.name = self.scene_name
+        self.axialtree = adapt_axialtree(self.axialtree, self.lsystem)
 
         return self.outputs
 
@@ -209,9 +221,7 @@ class LPyModel(Model):
         if "scene_name" in self.context:
             self.scene_name = self.context["scene_name"]
 
-        self.return_obj.axialtree = self.axialtree
-        self.return_obj.lsystem = self.lsystem
-        self.return_obj.name = self.scene_name
+        self.axialtree = adapt_axialtree(self.axialtree, self.lsystem)
 
         return self.outputs
 
@@ -231,8 +241,6 @@ class LPyModel(Model):
                         self._outputs.append(self.lsystem)
                     elif outp.name.lower() == "scene":
                         self._outputs.append(self.lsystem.sceneInterpretation(self.axialtree))
-                    elif outp.name.lower() == "lsysobj":
-                        self._outputs.append(self.return_obj)
 
     @property
     def inputs(self):
