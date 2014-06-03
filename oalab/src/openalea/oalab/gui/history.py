@@ -53,8 +53,12 @@ class HistoryWidget(QtGui.QTextBrowser):
         """
         previous_txt = self.toPlainText()
         if previous_txt:
-            txt = previous_txt + """
+            # Check if previous line is not the same as the new one
+            if previous_txt.splitlines()[-1] != txt:
+                txt = previous_txt + """
 """ + txt
+            else:
+                txt = previous_txt
         self.setText(txt)
 
 
