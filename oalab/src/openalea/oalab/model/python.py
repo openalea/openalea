@@ -33,6 +33,7 @@ class PythonModel(Model):
         self._run = False
         super(PythonModel, self).__init__(name=name, code=code, filepath=filepath, inputs=inputs, outputs=outputs)
         self.code = code  # use it to force to parse doc, functions, inputs and outputs
+        self.ns = dict()
 
     def get_documentation(self):
         """
@@ -86,6 +87,8 @@ more informations: http://www.python.org/
         # if interpreter:
         user_ns = interpreter.user_ns
 
+        user_ns.update(self.ns)
+
         # put inputs inside namespace
         if self.inputs:
             user_ns.update(self.inputs)
@@ -117,6 +120,8 @@ more informations: http://www.python.org/
             if interpreter:
                 user_ns = interpreter.user_ns
 
+                user_ns.update(self.ns)
+
                 # put inputs inside namespace
                 if self.inputs:
                     user_ns.update(self.inputs)
@@ -140,6 +145,9 @@ init()
 
             interpreter = self._set_interpreter(**kwargs)
             user_ns = interpreter.user_ns
+
+            user_ns.update(self.ns)
+
             # put inputs inside namespace
             if self.inputs:
                 user_ns.update(self.inputs)
@@ -171,6 +179,8 @@ step()
             interpreter = self._set_interpreter(**kwargs)
 
             user_ns = interpreter.user_ns
+
+            user_ns.update(self.ns)
 
             # put inputs inside namespace
             if self.inputs:
@@ -206,9 +216,6 @@ animate()
             if len(self.outputs_info) > 0:
                 for outp in self.outputs_info:
                     if outp.name in namespace:
-                        # print "outp.name: ", outp.name
-                        # print "namespace[outp.name]: ", namespace[outp.name]
-                        # print "self.outputs: ", self.outputs
                         self.outputs.append(namespace[outp.name])
 
     @property

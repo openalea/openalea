@@ -29,16 +29,7 @@ from openalea.lpy.gui.objectmanagers import get_managers
 from openalea.lpy.gui.scalar import ProduceScalar
 from openalea.oalab.model.lpy import LPyModel
 from openalea.oalab.service.help import display_help
-from openalea.oalab.service.geometry import register_shape3d
-
-# from openalea.lpy import registerPlotter
-# from openalea.oalab.service.plot import get_plotters
-#
-#
-# plotters = get_plotters()
-# for plotter in plotters:
-#     print "plotter: ", plotter
-#     registerPlotter(plotter)
+from openalea.oalab.control.manager import control_dict
 
 
 def import_lpy_file(script):
@@ -181,6 +172,8 @@ class LPyModelController(object):
         if "interpreter" in kwargs:
             self.interpreter = kwargs.pop("interpreter")
 
+        self.model.context.update(control_dict())
+
         code = self.widget().get_text()
         self.model.code = code
 
@@ -204,6 +197,8 @@ class LPyModelController(object):
     def step(self, i=None, *args, **kwargs):
         if "interpreter" in kwargs:
             self.interpreter = kwargs.pop("interpreter")
+
+        self.model.context.update(control_dict())
 
         code = self.widget().get_text()
         if code != self.model.code:
@@ -230,6 +225,8 @@ class LPyModelController(object):
         if "interpreter" in kwargs:
             self.interpreter = kwargs.pop("interpreter")
 
+        self.model.context.update(control_dict())
+
         # todo: put result in the world ?
         ret = self.model.stop(*args, **kwargs)
         # TODO: remove this hard link!
@@ -241,6 +238,8 @@ class LPyModelController(object):
     def animate(self, *args, **kwargs):
         if "interpreter" in kwargs:
             self.interpreter = kwargs.pop("interpreter")
+
+        self.model.context.update(control_dict())
 
         code = self.widget().get_text()
         # todo set controls
@@ -264,6 +263,8 @@ class LPyModelController(object):
     def reinit(self, *args, **kwargs):
         if "interpreter" in kwargs:
             self.interpreter = kwargs.pop("interpreter")
+
+        self.model.context.update(control_dict())
 
         code = self.widget().get_text()
         self.model.code = code
