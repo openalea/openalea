@@ -13,8 +13,8 @@ def new_interface(iname, constraints=None):
     return interface_class(**constraints)
 
 def default_value(interface):
-    if hasattr(interface, 'default'):
-        return interface.default()
+    if hasattr(interface, 'sample'):
+        return interface.sample()
     else:
         return None
 

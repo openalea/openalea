@@ -16,9 +16,7 @@ class ControlEditorDialog(QtGui.QDialog):
         self.cb_interface = QtGui.QComboBox()
         self.cb_widget = QtGui.QComboBox()
 
-
         self._layout = QtGui.QVBoxLayout(self)
-
 
         widget = QtGui.QWidget()
         widget.setContentsMargins(0, 0, 0, 0)

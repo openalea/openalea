@@ -78,12 +78,10 @@ class Control(Observed):
     def interface(self):
         return self._interface
 
+    def reset(self):
+        self.value = default_value(self._interface)
 
-
-
-
-
-
+    # Tries to behave like Node and InputNode
     def __getitem__(self, key):
         if key == 'name':
             return self.name

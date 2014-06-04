@@ -123,7 +123,6 @@ setup(
         'oalab.lab': [
             'FullLab = openalea.oalab.plugins.labs.fulllab:FullLab',
             'MiniLab = openalea.oalab.plugins.labs.minilab:MiniLab',
-            'TissueLab = openalea.oalab.plugins.labs.tissuelab:TissueLab',
             ],
 
         'oalab.interface': [
