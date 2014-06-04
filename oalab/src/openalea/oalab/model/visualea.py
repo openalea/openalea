@@ -32,10 +32,18 @@ class VisualeaModel(Model):
         if (code is None) or (code is ""):
             self._workflow = CompositeNodeFactory(_name).instantiate()
         elif isinstance(code, CompositeNodeFactory):
+            # hakishhh
+            code.instantiate_node = monkey_patch_instantiate_node
             self._workflow = code.instantiate()
         else:
+            # Access to the current project
+            # 
             cnf = eval(code, globals(), locals())
+            # hakishhh
+            cnf.instantiate_node = monkey_patch_instantiate_node
             self._workflow = cnf.instantiate()
+
+
 
     def repr_code(self):
         """
@@ -88,3 +96,42 @@ class VisualeaModel(Model):
         run model step by step
         """
         return self._workflow.eval()
+
+def monkey_patch_instantiate_node(cnf, vid, call_stack=None):
+
+    from openalea.oalab.model.model import ModelFactory
+
+    self = cnf
+
+    (package_id, factory_id) = self.elt_factory[vid]
+    
+    # my temporary patch
+    if package_id in (None, ":projectmanager.current"):
+        factory = ModelFactory(fatory_id)
+    else:
+        pkgmanager = PackageManager()
+        pkg = pkgmanager[package_id]
+        factory = pkg.get_factory(factory_id)
+    
+    node = factory.instantiate(call_stack)
+
+    attributes = copy.deepcopy(self.elt_data[vid])
+    ad_hoc     = copy.deepcopy(self.elt_ad_hoc.get(vid, None))
+    self.load_ad_hoc_data(node, attributes, ad_hoc)
+
+    # copy node input data if any
+    values = copy.deepcopy(self.elt_value.get(vid, ()))
+
+    for vs in values:
+        try:
+            #the two first elements are the historical
+            #values : port Id and port value
+            #the values beyond are not used.
+            port, v = vs[:2]
+            node.set_input(port, eval(v))
+            node.input_desc[port].get_ad_hoc_dict().set_metadata("hide",
+                                                                 node.is_port_hidden(port))
+        except:
+            continue
+
+    return node
