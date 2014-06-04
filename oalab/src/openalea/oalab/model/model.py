@@ -177,6 +177,20 @@ class ModelFactory(AbstractFactory):
         self.alias = alias
         self._model = None
 
+    def get_id(self):
+        return str(self.name)
+
+    @property
+    def package(self):
+        class fake_package(object):
+            def get_id(self):
+                from openalea.vpltk.project.manager import ProjectManager
+                pm = ProjectManager()
+                # path_ = pm.cproject.path
+                name = pm.cproject.name
+                return str(name)
+        return fake_package()
+
     def get_classobj(self):
         module = self.get_node_module()
         classobj = module.__dict__.get(self.nodeclass_name, None)
@@ -245,12 +259,11 @@ class ModelFactory(AbstractFactory):
         autonomous=False):
         """ Return the corresponding widget initialised with node"""
         print "instanciate_widget"
+        # TODO: open corresponding model
 
     def get_writer(self):
         """ Return the writer class """
         return PyModelNodeFactoryWriter(self)
-
-
 
 
 class PyModelNodeFactoryWriter(object):
@@ -259,16 +272,8 @@ class PyModelNodeFactoryWriter(object):
     nodefactory_template = """
 
 $NAME = ModelFactory(name=$PNAME,
-                filepath=$FILEPATH,
-                authors=$AUTHORS,
-                description=$DESCRIPTION,
-                category=$CATEGORY,
-                nodemodule=$NODEMODULE,
-                nodeclass=$NODECLASS,
                 inputs=$LISTIN,
                 outputs=$LISTOUT,
-                widgetmodule=$WIDGETMODULE,
-                widgetclass=$WIDGETCLASS,
                )
 
 """
@@ -281,18 +286,9 @@ $NAME = ModelFactory(name=$PNAME,
         f = self.factory
         fstr = string.Template(self.nodefactory_template)
 
-        result = fstr.safe_substitute(NAME=f.get_python_name(),
-                                      FILEPATH=f.get_filepath(),
-                                      AUTHORS=repr(f.get_authors()),
-                                      PNAME=repr(f.name),
-                                      DESCRIPTION=repr(f.description),
-                                      CATEGORY=repr(f.category),
-                                      NODEMODULE=repr(f.nodemodule_name),
-                                      NODECLASS=repr(f.nodeclass_name),
+        result = fstr.safe_substitute(NAME=repr(f.name),
                                       LISTIN=repr(f.inputs),
-                                      LISTOUT=repr(f.outputs),
-                                      WIDGETMODULE=repr(f.widgetmodule_name),
-                                      WIDGETCLASS=repr(f.widgetclass_name), )
+                                      LISTOUT=repr(f.outputs),)
         return result
 
 
