@@ -248,8 +248,9 @@ class ModelFactory(AbstractFactory):
             return node
 
         else:
-            print "We can't instanciate node because we don't have model"
-            print pm.cproject
+            print "We can't instanciate node from project %s because we don't have model %s" %(pm.cproject.name,self.name)
+            print "We only have models : "
+            print [model.name for model in pm.cproject.models()]
 
     def instantiate_widget(self, node=None, parent=None, edit=False,
         autonomous=False):

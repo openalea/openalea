@@ -15,8 +15,10 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-from openalea.oalab.model.model import Model
+from openalea.oalab.model.model import Model, ModelFactory
 from openalea.core.compositenode import CompositeNodeFactory
+from openalea.core.pkgmanager import PackageManager
+import copy
 
 
 class VisualeaModel(Model):
@@ -33,14 +35,14 @@ class VisualeaModel(Model):
             self._workflow = CompositeNodeFactory(_name).instantiate()
         elif isinstance(code, CompositeNodeFactory):
             # hakishhh
-            code.instantiate_node = monkey_patch_instantiate_node
+            #CompositeNodeFactory.instantiate_node = monkey_patch_instantiate_node
             self._workflow = code.instantiate()
         else:
             # Access to the current project
             # 
             cnf = eval(code, globals(), locals())
             # hakishhh
-            cnf.instantiate_node = monkey_patch_instantiate_node
+            #CompositeNodeFactory.instantiate_node = monkey_patch_instantiate_node
             self._workflow = cnf.instantiate()
 
 
@@ -97,17 +99,12 @@ class VisualeaModel(Model):
         """
         return self._workflow.eval()
 
-def monkey_patch_instantiate_node(cnf, vid, call_stack=None):
-
-    from openalea.oalab.model.model import ModelFactory
-
-    self = cnf
-
+def monkey_patch_instantiate_node(self, vid, call_stack=None):
     (package_id, factory_id) = self.elt_factory[vid]
     
     # my temporary patch
     if package_id in (None, ":projectmanager.current"):
-        factory = ModelFactory(fatory_id)
+        factory = ModelFactory(factory_id)
     else:
         pkgmanager = PackageManager()
         pkg = pkgmanager[package_id]
@@ -115,8 +112,9 @@ def monkey_patch_instantiate_node(cnf, vid, call_stack=None):
     
     node = factory.instantiate(call_stack)
 
+    print "node ", factory, node
     attributes = copy.deepcopy(self.elt_data[vid])
-    ad_hoc     = copy.deepcopy(self.elt_ad_hoc.get(vid, None))
+    ad_hoc = copy.deepcopy(self.elt_ad_hoc.get(vid, None))
     self.load_ad_hoc_data(node, attributes, ad_hoc)
 
     # copy node input data if any
@@ -135,3 +133,5 @@ def monkey_patch_instantiate_node(cnf, vid, call_stack=None):
             continue
 
     return node
+
+CompositeNodeFactory.instantiate_node = monkey_patch_instantiate_node
