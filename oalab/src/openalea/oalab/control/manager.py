@@ -1,65 +1,72 @@
 import copy
 
-from openalea.core.observer import Observed
+from openalea.core.observer import Observed, AbstractListener
 from openalea.core.singleton import Singleton
 from openalea.oalab.control.control import Control
 
-class ControlManager(Observed):
+class ControlManager(Observed, AbstractListener):
 
     __metaclass__ = Singleton
 
     def __init__(self):
         Observed.__init__(self)
-        self._global_controls = {}
-        self._model_controls = {}
+        AbstractListener.__init__(self)
+        self._controls = {}
+        self._tagged_controls = {}
 
-    def control(self, uid, model=None):
-        return self.controls(model)[uid]
+    def control(self, uid, tag=None):
+        return self.controls(tag)[uid]
 
-    def add_control(self, control, model=None):
+    def add_control(self, control, tag=None):
         """
         :param control: Control object or tuple(name, interface, widget). widget can be None
-        :param model: If model is specified, link control to this model, else control is global to all models in current project.
+        :param tag: If tag is specified, link control to this tag, else control is global to all tags in current project.
         """
         assert isinstance(control, Control)
 
-        if model is None:
-            self._global_controls[control.name] = control
+        self.initialise(control)
+        if tag is None:
+            self._controls[control.name] = control
             self.notify_listeners(('global_control_changed', control))
         else:
-            if model not in self._model_controls:
-                self._model_controls[model] = {}
-            self._model_controls[model][control.name] = control
-            self.notify_listeners(('model_control_changed', (control, model)))
+            if tag not in self._tagged_controls:
+                self._tagged_controls[tag] = {}
+            self._tagged_controls[tag][control.name] = control
+            self.notify_listeners(('tag_control_changed', (control, tag)))
 
-        self.notify_listeners(('state_changed', (control, model)))
+        self.notify_listeners(('state_changed', (control, tag)))
 
-    def namespace(self, model=None):
+    def namespace(self, tag=None):
         """
         Returns namespace (dict control name -> value).
-        :param model: returns namespace corresponding to given model. Default, returns global namespace
+        :param tag: returns namespace corresponding to given tag. Default, returns global namespace
         """
         ns = {}
-        for name, control in self.controls(model).iteritems():
+        for name, control in self.controls(tag).iteritems():
             ns[name] = copy.deepcopy(control.value)
         return ns
 
     @property
     def global_controls(self):
-        return self._global_controls
+        return self._controls
 
     @property
-    def model_controls(self):
-        return self._model_controls
+    def tagged_controls(self):
+        return self._tagged_controls
 
-    def controls(self, model=None):
-        if model is None:
-            return self._global_controls
-        elif model is False:
+    def controls(self, tag=None):
+        if tag is None:
+            return self._controls
+        elif tag is False:
             return {}
         else:
-            return self._model_controls[model]
+            return self._tagged_controls[tag]
 
+    def notify(self, sender, event):
+        if isinstance(sender, Control):
+            signal, data = event
+            if signal == 'value_changed':
+                self.notify_listeners(('control_value_changed', (sender, data)))
 
 def control_dict():
     """
@@ -69,4 +76,5 @@ def control_dict():
     """
     cm = ControlManager()
     controls = cm.namespace()
+    print controls
     return controls

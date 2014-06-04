@@ -1,3 +1,20 @@
+# -*- python -*-
+#
+#       OpenAlea.OALab: Multi-Paradigm GUI
+#
+#       Copyright 2014 INRIA
+#
+#       File author(s): Guillaume Baty <guillaume.baty@inria.fr>
+#
+#       File contributor(s):
+#
+#       Distributed under the Cecill-C License.
+#       See accompanying file LICENSE.txt or copy at
+#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
+#
+#       OpenAlea WebSite : http://openalea.gforge.inria.fr
+#
+###############################################################################
 
 __all__ = [
            "qt_editors",
@@ -19,31 +36,24 @@ def _discover_editors(plugins):
 def discover_qt_controls():
     # Must move to entry_points oalab.qt_control
     from openalea.oalab.plugins.controls import (
-        PluginIntSlider, PluginIntSpinBox, PluginColorListWidget)
+        PluginIntSlider, PluginIntSpinBox, PluginColorListWidget, PluginCurve2DWidget)
     plugins = [
        PluginIntSlider,
        PluginIntSpinBox,
        PluginColorListWidget,
+       PluginCurve2DWidget,
     ]
     return _discover_editors(plugins)
 
 def discover_bash_controls():
     # Must move to entry_points oalab.bash_control
-    from openalea.oalab.plugins.controls import PluginIntIPython
-    plugins = [
-       PluginIntIPython,
-    ]
+    plugins = []
     return _discover_editors(plugins)
 
 def discover_notebook_controls():
     # Must move to entry_points oalab.notebook_control
-    from openalea.oalab.plugins.controls import *
-    plugins = [
-        PluginIntNotebook,
-                        ]
+    plugins = []
     return _discover_editors(plugins)
-
-
 
 def _edit(control, discover):
     """
@@ -52,28 +62,69 @@ def _edit(control, discover):
     """
     editors = discover()
     cname = control.interface.__class__.__name__
-    widget = None
+    widget_class = None
     if control.widget:
         # Load widget specified with control
         for editor in editors[cname]:
             if control.widget == editor.name:
-                widget = editor.load()()
+                widget_class = editor.load()
                 break
     else:
         # Load first editor
         for editor in editors[cname]:
-            widget = editor.load()()
+            widget_class = editor.load()
             break
 
-    if widget:
-        widget.edit(control)
+    if widget_class:
+        widget = widget_class.edit(control)
+        widget.set(control)
+        widget.show()
         return widget
     else :
         raise ValueError, 'No editors for %s' % control
 
 
-def edit_qt(control):
-    return _edit(control, discover_qt_controls)
+def edit_qt(control, shape=None):
+    editors = discover_qt_controls()
+    cname = control.interface.__class__.__name__
+    widget_class = None
+    if control.widget:
+        # Load widget specified with control
+        for editor in editors[cname]:
+            if control.widget == editor.name:
+                widget_class = editor.load()
+                break
+    else:
+        # Load first editor
+        for editor in editors[cname]:
+            widget_class = editor.load()
+            break
+
+    if widget_class:
+        widget = widget_class.edit(control, shape)
+        if widget is not None:
+            widget.set(control)
+            widget.show()
+        return widget
+    else :
+        raise ValueError, 'No editors for %s' % control
+
+def qt_paint_function(control):
+    editors = discover_qt_controls()
+    cname = control.interface.__class__.__name__
+    widget_class = None
+    if control.widget:
+        # Load widget specified with control
+        for editor in editors[cname]:
+            if control.widget == editor.name and editor.paint :
+                widget_class = editor.load()
+                return widget_class.paint
+
+    # Load first editor
+    for editor in editors[cname]:
+        if editor.paint:
+            widget_class = editor.load()
+            return widget_class.paint
 
 def edit_notebook(control):
     return _edit(control, discover_notebook_controls)

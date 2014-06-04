@@ -1,14 +1,29 @@
+# -*- python -*-
+#
+#       OpenAlea.OALab: Multi-Paradigm GUI
+#
+#       Copyright 2014 INRIA
+#
+#       File author(s): Guillaume Baty <guillaume.baty@inria.fr>
+#
+#       File contributor(s):
+#
+#       Distributed under the Cecill-C License.
+#       See accompanying file LICENSE.txt or copy at
+#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
+#
+#       OpenAlea WebSite : http://openalea.gforge.inria.fr
+#
+###############################################################################
 
 class ControlWidgetPlugin():
     controls = []
     name = 'ControlWidget'
-    required = []
-    supported = []
-    tags = [
-      'treeview-ready', # Can be embeded in a treeview (defines a paint method and is enough small)
-      'thumbnail-ready' # Can generate a thumbnail
-      'wide-widget' # Wide widget, generally
-      ]
+
+    edit_shape = [] # ['large', 'line', 'thumbnail']
+    view_shape = [] # ['large', 'line', 'thumbnail']
+    create_shape = [] # ['large', 'line', 'thumbnail']
+    paint = False
 
     @classmethod
     def load(cls):
@@ -19,7 +34,7 @@ class PluginIntSpinBox(ControlWidgetPlugin):
     controls = ['IInt']
     name = 'IntSpinBox'
     required = ['IInt.min', 'IInt.max']
-
+    edit_shape = ['line', 'thumbnail']
 
     @classmethod
     def load(cls):
@@ -31,54 +46,30 @@ class PluginIntSlider(ControlWidgetPlugin):
     controls = ['IInt']
     name = 'IntSlider'
     required = ['IInt.min', 'IInt.max']
+    edit_shape = ['line', 'thumbnail']
 
     @classmethod
     def load(cls):
         from openalea.oalab.gui.control.widgets import IntSlider
         return IntSlider
 
-# class PluginIntSpinBox2(ControlWidgetPlugin):
-#
-#     controls = ['IInt']
-#     name = 'IntSpinBox2'
-#     required = ['IInt.min', 'IInt.max']
-#
-#     @classmethod
-#     def load(cls):
-#         from openalea.oalab.gui.control.widgets import IntSpinBox2
-#         return IntSpinBox2
-
-class PluginIntIPython(ControlWidgetPlugin):
-
-    controls = ['IInt']
-    name = 'IntIPython'
-    required = ['IInt.min', 'IInt.max']
-
-    @classmethod
-    def load(cls):
-        from openalea.oalab.gui.control.widgets import IntIPython
-        return IntIPython
-
-
-class PluginIntNotebook(ControlWidgetPlugin):
-
-    controls = ['IInt']
-    name = 'IntNotebook'
-    required = ['IInt.min', 'IInt.max']
-
-
-    @classmethod
-    def load(cls):
-        from openalea.oalab.gui.control.widgets import IntNotebook
-        return IntNotebook
-
-
 class PluginColorListWidget(ControlWidgetPlugin):
     controls = ['IColorList']
     name = 'ColorListWidget'
+    paint = True
 
     @classmethod
     def load(cls):
         from openalea.oalab.gui.control.widgets import ColorListWidget
         return ColorListWidget
 
+
+class PluginCurve2DWidget(ControlWidgetPlugin):
+    controls = ['ICurve2D']
+    name = 'Curve2DWidget'
+    paint = True
+
+    @classmethod
+    def load(cls):
+        from openalea.oalab.gui.control.widgets import Curve2DWidget
+        return Curve2DWidget

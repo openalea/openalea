@@ -172,6 +172,23 @@ class LPyModelController(object):
         if "interpreter" in kwargs:
             self.interpreter = kwargs.pop("interpreter")
 
+        controls = control_dict()
+        # Extract one colorlist to set as THE colormap.
+        # In case of ambiguity, select the one whose the name contains lpy.
+        # Else select a random one.
+        def select_colormap():
+            from openalea.oalab.control.manager import ControlManager
+            from openalea.oalab.gui.control.widgets import to_material
+            ctrls = ControlManager().controls()
+            cm = dict((k, v.value) for k, v in ctrls.iteritems() if 'IColorList' in str(v.interface))
+            for k in cm:
+                materials = to_material(cm[k])
+                return materials
+
+        materials = select_colormap()
+        if materials:
+            for i, mat in enumerate(materials):
+                self.model.lsystem.context().turtle.setMaterial(i, mat)
         self.model.context.update(control_dict())
 
         code = self.widget().get_text()
