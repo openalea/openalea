@@ -184,11 +184,7 @@ class ModelFactory(AbstractFactory):
     def package(self):
         class fake_package(object):
             def get_id(self):
-                from openalea.vpltk.project.manager import ProjectManager
-                pm = ProjectManager()
-                # path_ = pm.cproject.path
-                name = pm.cproject.name
-                return str(name)
+                return ":projectmanager.current"
         return fake_package()
 
     def get_classobj(self):
