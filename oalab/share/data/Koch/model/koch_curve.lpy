@@ -1,0 +1,22 @@
+"""
+input = axiom="_(0.001)F(1)-(90)F(1)-(90)F(1)-(90)F(1)"
+output = axialtree
+"""
+scene_name = "koch"
+a = True
+
+try:
+  N
+except NameError:
+    N = 4
+
+#Axiom: _(0.001)-(90)F(1)
+derivation length: N
+
+production: 
+
+F(x) :
+  produce  F(x/3.0)+F(x/3.0)--F(x/3.0)+F(x/3.0)
+
+
+endlsystem
