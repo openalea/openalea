@@ -101,7 +101,8 @@ class LPyModel(Model):
         from openalea.oalab.service.plot import get_plotters
 
         plotters = get_plotters()
-        registerPlotter(plotters[0])
+        if len(plotters):
+            registerPlotter(plotters[0])
         # print "p: ", plotters
 
         # for plotter in plotters:

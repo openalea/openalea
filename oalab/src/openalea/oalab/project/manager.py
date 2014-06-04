@@ -144,16 +144,19 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
     def openProject(self, project):
         """
-        Open a project in application from project
+        Open a project in application
 
         :param project: opened project from vpltk
         """
+        project_name = project.name
+        project_path = project.path
         if hasattr(self, "proj_selector"):
             self.proj_selector.hide()
         self.closeCurrent()
 
-        project.start()
-        self.session.project_manager.cproject = project
+        project = self.session.project_manager.load(project_name, project_path)
+
+
         logger.debug("Project " + str(project) + " opened")
 
         project.world = self.session.world
