@@ -76,5 +76,4 @@ def control_dict():
     """
     cm = ControlManager()
     controls = cm.namespace()
-    print controls
     return controls

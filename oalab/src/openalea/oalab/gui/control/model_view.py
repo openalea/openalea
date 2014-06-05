@@ -60,18 +60,16 @@ class ControlDelegate(QtGui.QStyledItemDelegate):
     def createEditor(self, parent, option, index):
         model = index.model()
         control = model.control(index)
-        widget = edit_qt(control, shape='line')
+        widget = edit_qt(control, shape='hline')
         if widget is None:
             self.edit(index)
         else:
             widget.setParent(parent)
+            widget.set(control, True, True)
         return widget
 
     def setEditorData(self, editor, index):
-        model = index.model()
-        control = model.control(index)
-        # Force editor refresh
-        control.notify_change()
+        pass
 
     def paint(self, painter, option, index):
         model = index.model()
@@ -84,6 +82,9 @@ class ControlDelegate(QtGui.QStyledItemDelegate):
 
     def setModelData(self, editor, model, index):
         model.setData(index, str(editor.value()), QtCore.Qt.DisplayRole)
+        model.setData(index, editor.value(), QtCore.Qt.EditRole)
+        control = model.control(index)
+        editor.set(control, False, False)
 
     def updateEditorGeometry(self, editor, option, index):
         editor.setGeometry(option.rect)

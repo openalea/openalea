@@ -18,7 +18,7 @@
 __revision__ = "$Id: $"
 
 from openalea.vpltk.qt import QtGui, QtCore
-from openalea.lpy.gui.materialeditor import MaterialEditor
+from openalea.plantgl.gui.materialeditor import MaterialEditor
 from openalea.lpy.gui.objectpanel import ObjectPanelManager, TriggerParamFunc, ObjectListDisplay
 from openalea.lpy.gui.scalareditor import ScalarEditor
 from openalea.lpy.gui.objectmanagers import get_managers

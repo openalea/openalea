@@ -36,12 +36,20 @@ def _discover_editors(plugins):
 def discover_qt_controls():
     # Must move to entry_points oalab.qt_control
     from openalea.oalab.plugins.controls import (
-        PluginIntSlider, PluginIntSpinBox, PluginColorListWidget, PluginCurve2DWidget)
+#         PluginIntSlider,
+#         PluginIntSpinBox,
+        PluginBoolController,
+        PluginIntController,
+#         PluginColorListWidget,
+#         PluginCurve2DWidget
+        )
     plugins = [
-       PluginIntSlider,
-       PluginIntSpinBox,
-       PluginColorListWidget,
-       PluginCurve2DWidget,
+#        PluginIntSlider,
+#        PluginIntSpinBox,
+#        PluginColorListWidget,
+#        PluginCurve2DWidget,
+       PluginIntController,
+       PluginBoolController,
     ]
     return _discover_editors(plugins)
 
@@ -142,7 +150,9 @@ def edit(control):
 
 def qt_editors(iname):
     controls = discover_qt_controls()
-    return controls[iname]
+    if iname in controls:
+        return controls[iname]
+    return []
 
 def register_control(name, value):
     from openalea.oalab.control.manager import ControlManager

@@ -14,9 +14,7 @@ For example Xyz -> HelpApplet
 
 .. code-block :: python
 
-    from openalea.vpltk.plugin import Plugin
-
-    class PluginXyz(Plugin):
+    class PluginXyz(object):
 
         name = 'Xyz'
         alias = 'Xyz'
@@ -27,6 +25,15 @@ For example Xyz -> HelpApplet
         def instance(self):
             # Write your code here
 
+
+To avoid to rewrite all plugins from scratch, you can derivate your plugin from
+:class:`~openalea.oalab.plugins.applets.PluginApplet` :
+
+.. code-block :: python
+
+    from openalea.oalab.plugins.applets import PluginApplet
+    class PluginXyz(PluginApplet):
+        pass
 
 2. Once this class has been written, just register it in the setup.py file of
 your python package.
@@ -43,14 +50,17 @@ your python package.
 With **mypackage.plugins** python module path (equivalent to 'mypackage/plugins.py') and
 'PluginXyz' the class name.
 
+
 Details
 =======
 
 .. autoclass:: openalea.oalab.plugins.applet.IPluginApplet
     :members: __call__, instance, name, alias
 
+.. autoclass:: openalea.oalab.plugins.applets.PluginApplet
+    :members: __call__, instance, _fill_menu
+
 """
-from openalea.vpltk.plugin import Plugin
 from openalea.core.interface import IInterface
 
 class IApplet(IInterface):
@@ -62,7 +72,7 @@ class IApplet(IInterface):
         Optional method, called after instantiation
         """
 
-class IPluginApplet(Plugin):
+class IPluginApplet(object):
     """
     Graphical component displayed in main window.
     Component must respect :class:`~openalea.oalab.plugins.applet.IApplet` interface.

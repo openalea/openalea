@@ -18,7 +18,7 @@
 __revision__ = ""
 
 from openalea.vpltk.qt import QtCore, QtGui
-from openalea.vpltk.plugin import discover, Plugin
+from openalea.vpltk.plugin import iter_plugins
 from openalea.core import logger
 from openalea.oalab.gui.pages import WelcomePage, CreateFilePage
 from openalea.core import settings
@@ -45,10 +45,7 @@ class ParadigmContainer(QtGui.QTabWidget):
 
         self.paradigms = dict()
         self.paradigms_actions = []
-        applets = discover('oalab.paradigm_applet')
-        for app in applets.values():
-            applet = Plugin(app)
-            applet = applet.load()
+        for applet in iter_plugins('oalab.paradigm_applet'):
             self.paradigms[applet.default_name] = applet
 
         self.setAccessibleName("Container")
