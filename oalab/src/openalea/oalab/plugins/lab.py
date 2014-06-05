@@ -14,9 +14,7 @@ For example Xyz -> PythonLab
 
 .. code-block :: python
 
-    from openalea.vpltk.plugin import Plugin
-
-    class PluginXyz(Plugin):
+    class PluginXyz(object):
 
         name = 'Xyz'
 

@@ -16,25 +16,14 @@
 #
 ###############################################################################
 
-class ControlWidgetPlugin():
-    controls = []
-    name = 'ControlWidget'
-
-    edit_shape = [] # ['large', 'line', 'thumbnail']
-    view_shape = [] # ['large', 'line', 'thumbnail']
-    create_shape = [] # ['large', 'line', 'thumbnail']
-    paint = False
-
-    @classmethod
-    def load(cls):
-        raise NotImplementedError
-
+from openalea.oalab.plugins.controls.plugin import ControlWidgetPlugin
+"""
 class PluginIntSpinBox(ControlWidgetPlugin):
 
     controls = ['IInt']
     name = 'IntSpinBox'
     required = ['IInt.min', 'IInt.max']
-    edit_shape = ['line', 'thumbnail']
+    edit_shape = ['line', 'small']
 
     @classmethod
     def load(cls):
@@ -46,13 +35,39 @@ class PluginIntSlider(ControlWidgetPlugin):
     controls = ['IInt']
     name = 'IntSlider'
     required = ['IInt.min', 'IInt.max']
-    edit_shape = ['line', 'thumbnail']
+    edit_shape = ['line', 'small']
 
     @classmethod
     def load(cls):
         from openalea.oalab.gui.control.widgets import IntSlider
         return IntSlider
+"""
 
+class PluginIntController(ControlWidgetPlugin):
+
+    controls = ['IInt']
+    name = 'IntController'
+    required = ['IInt.min', 'IInt.max']
+    edit_shape = ['responsive']
+
+    @classmethod
+    def load(cls):
+        from openalea.oalab.gui.control.controllers import IntController
+        return IntController
+
+
+class PluginBoolController(ControlWidgetPlugin):
+
+    controls = ['IBool']
+    name = 'BoolController'
+    edit_shape = ['responsive']
+
+    @classmethod
+    def load(cls):
+        from openalea.oalab.gui.control.controllers import BoolController
+        return BoolController
+
+"""
 class PluginColorListWidget(ControlWidgetPlugin):
     controls = ['IColorList']
     name = 'ColorListWidget'
@@ -73,3 +88,4 @@ class PluginCurve2DWidget(ControlWidgetPlugin):
     def load(cls):
         from openalea.oalab.gui.control.widgets import Curve2DWidget
         return Curve2DWidget
+"""

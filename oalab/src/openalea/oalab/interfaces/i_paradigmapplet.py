@@ -1,5 +1,5 @@
 
-from openalea.core.interfaces import IInterface
+from openalea.core.interface import IInterface
 
 class IParadigmApplet(IInterface):
     identifier = 'IParadigmApplet' # Unique identifier

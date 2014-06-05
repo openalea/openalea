@@ -15,15 +15,21 @@ def new_interface(iname, constraints=None):
 def default_value(interface):
     if hasattr(interface, 'sample'):
         return interface.sample()
+    elif hasattr(interface, 'default'):
+        return interface.default()
     else:
         return None
+
+def interfaces():
+    for plugin in iter_plugins('oalab.interface'):
+        for interface in plugin()():
+            yield interface
 
 def get_interface(iname):
 
     iname_to_interface = {}
-    for plugin in iter_plugins('oalab.interface'):
-        for interface in plugin()():
-            iname_to_interface[interface.__name__] = interface
+    for interface in interfaces():
+        iname_to_interface[interface.__name__] = interface
 
     type_to_iname = {
         int:'IInt',
@@ -32,11 +38,11 @@ def get_interface(iname):
 
     if isinstance(iname, basestring):
         return iname_to_interface[iname]
-    elif isinstance(iname, type):
-        return iname_to_interface[type_to_iname[iname]]
-    elif inspect.isclass(inspect):
-        return iname
     elif isinstance(iname, IInterface):
         return iname.__class__
+    elif issubclass(iname, IInterface):
+        return iname
+    elif isinstance(iname, type):
+        return iname_to_interface[type_to_iname[iname]]
     else:
         raise ValueError, repr(iname)

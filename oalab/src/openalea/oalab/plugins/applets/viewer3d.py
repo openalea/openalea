@@ -1,4 +1,4 @@
-from openalea.oalab.applets.plugin import PluginApplet
+from openalea.oalab.plugins.applets import PluginApplet
 
 
 class Viewer3D(PluginApplet):
