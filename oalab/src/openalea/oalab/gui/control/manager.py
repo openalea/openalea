@@ -41,9 +41,6 @@ def preview(control, size):
         else:
             return QtGui.QLabel(unicode(control.value))
 
-def edit(control, size):
-    widget = edit_qt(control, shape='small')
-    return widget
 
 class ControlManagerWidget(QtGui.QWidget, AbstractListener):
     def __init__(self):
@@ -54,11 +51,9 @@ class ControlManagerWidget(QtGui.QWidget, AbstractListener):
         self._manager = ControlManager()
 
         self.model = ControlModel(self._manager)
-        self.model_tagged = ControlModel(self._manager)
 
         self.view = ControlView()
         self.view.setModel(self.model)
-
 
         self._layout.setSpacing(0)
         self._layout.setContentsMargins(0, 0, 0, 0)
@@ -69,7 +64,6 @@ class ControlManagerWidget(QtGui.QWidget, AbstractListener):
         self._i = 1
 
         self._index = None
-
 
 class ControlPanel(QtGui.QWidget):
     def __init__(self):
