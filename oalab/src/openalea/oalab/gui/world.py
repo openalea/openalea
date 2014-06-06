@@ -46,6 +46,13 @@ class WorldBrowser(GenericWorldBrowser, AbstractListener):
 
         QtCore.QObject.connect(self.tree, QtCore.SIGNAL('doubleClicked(const QModelIndex&)'), self.show_world_object)
 
+        actionClearWorld = QtGui.QAction(QtGui.QIcon(":/images/resources/plant.png"), "Clear World", self)
+        actionClearWorld.triggered.connect(self.world.clear)
+        self._actions = [["Simulation", "World", actionClearWorld, 0]]
+
+    def actions(self):
+        return self._actions
+
     def notify(self, sender, event=None):
         signal, data = event
         if signal == 'WorldChanged':

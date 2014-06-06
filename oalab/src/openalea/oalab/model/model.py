@@ -136,9 +136,9 @@ class Model(object):
             >>> model.run()
             >>> print model.outputs
         """
-        # if len(self._outputs) == 1:
-        #     return self._outputs[0]
-        # else:
+        if self.outputs_info and self._outputs:
+            if len(self.outputs_info) == 1 and len(self._outputs) == 1:
+                return self._outputs[0]
         return self._outputs
 
     @outputs.setter

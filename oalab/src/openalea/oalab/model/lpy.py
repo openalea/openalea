@@ -16,7 +16,7 @@
 #
 ###############################################################################
 from openalea.oalab.model.model import Model
-from openalea.oalab.model.parse import parse_doc, parse_lpy
+from openalea.oalab.model.parse import parse_doc, parse_lpy, OutputObj
 from openalea.oalab.control.picklable_curves import geometry_2_piklable_geometry
 from openalea.lpy import Lsystem, AxialTree
 from openalea.lpy.__lpy_kernel__ import LpyParsing
@@ -49,9 +49,10 @@ def adapt_axialtree(axialtree, lsystem):
     :return: adapted axialtree
     """
     def repr_geom(self):
-        return self._lsystem.sceneInterpretation(self)
+        return self.__scene
 
-    axialtree._lsystem = lsystem
+    scene = lsystem.sceneInterpretation(axialtree)
+    axialtree.__scene = scene
     axialtree._repr_geom_ = types.MethodType(repr_geom, axialtree)
 
     return axialtree
@@ -88,7 +89,7 @@ class LPyModel(Model):
 
         # dict is mutable... It is useful if you want change scene_name inside application
         self.context = dict()
-        self.scene_name = "lpy_scene"
+        self.scene_name = self.name + "_scene"
         self.context["scene_name"] = self.scene_name
         self.lsystem = Lsystem()
         self.axialtree = AxialTree()
@@ -234,10 +235,8 @@ class LPyModel(Model):
                 for outp in self.outputs_info:
                     if outp.name in namespace:
                         self._outputs.append(namespace[outp.name])
-                    elif outp.name.lower() == "axialtree":
+                    elif outp.name.lower() in ["axialtree", "lstring"]:
                         self._outputs.append(self.axialtree)
-                    elif outp.name.lower() == "axiom":
-                        self._outputs.append(self.lsystem.axiom)
                     elif outp.name.lower() == "lsystem":
                         self._outputs.append(self.lsystem)
                     elif outp.name.lower() == "scene":
@@ -281,11 +280,11 @@ class LPyModel(Model):
                     elif input_info.default:
                         inp = eval(input_info.default)
                     else:
-                        raise Exception("Model %s have inputs not setted. Please set %s ." %(self.name,input_info.name))
+                        raise Exception("Model %s have inputs not setted. Please set %s ." % (self.name, input_info.name))
 
                     if input_info.name:
-                        if input_info.name.lower() == "axiom":
-                            # If one of the declared input is "axiom" set the lsystem axiom
+                        if input_info.name.lower() in ["axiom", "lstring"]:
+                            # If one of the declared input is "axiom" or "lstring" set the lsystem axiom
                             self.temp_axiom = inp
                         else:
                             self._inputs[input_info.name] = inp
@@ -300,6 +299,10 @@ class LPyModel(Model):
         docstring = parse_lpy(code)
         if docstring is not None:
             model, self.inputs_info, self.outputs_info = parse_doc(docstring)
+
+            # Dafault output
+            if not self.outputs_info:
+                self.outputs_info = [OutputObj("lstring:IStr")]
 
 
 def get_default_text():
