@@ -50,7 +50,7 @@ from ConfigParser import NoSectionError,NoOptionError
 
 # Exceptions
 import time
-DEBUG = True
+DEBUG = False
 SEARCH_OUTSIDE_ENTRY_POINTS = True
 
 class UnknowFileType(Exception):
