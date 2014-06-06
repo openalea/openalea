@@ -29,6 +29,7 @@ import sys
 
 from openalea.oalab.service.geometry import to_shape3d
 
+
 class view3D(QGLViewer):
     """
     This class is used to create and manipulate a 3 dimensions scene.
@@ -66,8 +67,7 @@ class view3D(QGLViewer):
         self.setScene(scenedict)
         self.updateGL()
 
-        # Method for lpy.registerPlotter to "animate"
-
+    # Method for lpy.registerPlotter to "animate"
     def selection(self):
         return super(view3D, self).selection
 
@@ -100,7 +100,6 @@ class view3D(QGLViewer):
             if obj:
                 self.scene += to_shape3d(obj)
         self.draw()
-
 
     def getScene(self):
         """
@@ -163,6 +162,7 @@ class view3D(QGLViewer):
         except:
             pass
 
+
 class Viewer(AbstractListener, view3D):
     """
     Widget of 3D Viewer to show the scene.
@@ -192,9 +192,15 @@ class Viewer(AbstractListener, view3D):
         actionShowAxis.setShortcut(
             QtGui.QApplication.translate("MainWindow", "Ctrl+A", None, QtGui.QApplication.UnicodeUTF8))
         actionShowGrid.setShortcut(
-            QtGui.QApplication.translate("MainWindow", "Ctrl+G", None, QtGui.QApplication.UnicodeUTF8))
+            QtGui.QApplication.translate("MainWindow", "Ctrl+I", None, QtGui.QApplication.UnicodeUTF8))
         actionRadius.setShortcut(
-            QtGui.QApplication.translate("MainWindow", "Ctrl+F", None, QtGui.QApplication.UnicodeUTF8))
+            QtGui.QApplication.translate("MainWindow", "Ctrl+M", None, QtGui.QApplication.UnicodeUTF8))
+        actionResetZoom.setShortcut(
+            QtGui.QApplication.translate("MainWindow", "Ctrl+0", None, QtGui.QApplication.UnicodeUTF8))
+        actionZoomOut.setShortcut(
+            QtGui.QApplication.translate("MainWindow", "Ctrl+-", None, QtGui.QApplication.UnicodeUTF8))
+        actionZoomIn.setShortcut(
+            QtGui.QApplication.translate("MainWindow", "Ctrl++", None, QtGui.QApplication.UnicodeUTF8))
 
         QtCore.QObject.connect(actionResetZoom, QtCore.SIGNAL('triggered(bool)'), self.resetzoom)
         QtCore.QObject.connect(actionZoomOut, QtCore.SIGNAL('triggered(bool)'), self.zoomout)
@@ -207,8 +213,6 @@ class Viewer(AbstractListener, view3D):
         QtCore.QObject.connect(actionShowFps, QtCore.SIGNAL('triggered(bool)'), self.show_fps)
 
         session.world.register_listener(self)
-#         QtCore.QObject.connect(session.world.signaler, QtCore.SIGNAL('SceneChanged'), self.setScene)
-#         QtCore.QObject.connect(session.world.signaler, QtCore.SIGNAL('SceneChanged'), self.updateGL)
 
         self._actions = [["Viewer", "Zoom", actionResetZoom, 0],
                          ["Viewer", "Zoom", actionZoomOut, 0],

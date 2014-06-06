@@ -163,7 +163,7 @@ More informations: http://openalea.gforge.inria.fr/doc/openalea/visualea/doc/_bu
         """
         return self._widget     
         
-    def run(self):
+    def run(self, *args, **kwargs):
         # todo : register plotter
         """
         viewernode = sys.modules['openalea.plantgl.wralea.visualization.viewernode']
@@ -173,9 +173,9 @@ More informations: http://openalea.gforge.inria.fr/doc/openalea/visualea/doc/_bu
         else:
             if self.controller.applets.has_key('Viewer3D'):
                 viewernode.registerPlotter(self.controller.applets['Viewer3D'])"""
-        return self.model()
+        return self.model(*args, **kwargs)
 
-    def animate(self):
+    def animate(self, *args, **kwargs):
         # todo : register plotter
         """
         viewernode = sys.modules['openalea.plantgl.wralea.visualization.viewernode']
@@ -185,17 +185,16 @@ More informations: http://openalea.gforge.inria.fr/doc/openalea/visualea/doc/_bu
         else:
             if self.controller.applets.has_key('Viewer3D'):
                 viewernode.registerPlotter(self.controller.applets['Viewer3D'])"""
-        return self.model.animate()
+        return self.model.animate(*args, **kwargs)
         
-    def step(self):
-        return self.model.step()
+    def step(self, *args, **kwargs):
+        return self.model.step(*args, **kwargs)
         
-    def stop(self):
-        # print "wf stop"
-        pass
+    def stop(self, *args, **kwargs):
+        return self.stop(*args, **kwargs)
 
-    def reinit(self):
-        return self.model.init()
+    def reinit(self, *args, **kwargs):
+        return self.model.init(*args, **kwargs)
 
     def save(self, name=None):
         code = self.widget().repr_workflow()

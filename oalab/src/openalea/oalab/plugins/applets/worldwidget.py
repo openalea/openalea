@@ -30,5 +30,5 @@ class World(PluginApplet):
         from openalea.oalab.gui.world import WorldBrowser
 
         self._applet = WorldBrowser(mainwindow.session.world)
-
+        self._fill_menu(mainwindow, self._applet)
         mainwindow.add_applet(self._applet, self.alias, area='inputs')

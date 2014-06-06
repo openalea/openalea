@@ -45,8 +45,6 @@ class VisualeaModel(Model):
             #CompositeNodeFactory.instantiate_node = monkey_patch_instantiate_node
             self._workflow = cnf.instantiate()
 
-
-
     def repr_code(self):
         """
         :return: a string representation of model to save it on disk
@@ -68,32 +66,32 @@ class VisualeaModel(Model):
         repr_wf = (' = ').join(repr_wf.split(' = ')[1:])
         return repr_wf
 
-    def run(self, interpreter=None):
+    def run(self, *args, **kwargs):
         """
         execute model thanks to interpreter
         """
         return self._workflow.eval()
 
-    def reset(self, interpreter=None):
+    def reset(self, *args, **kwargs):
         """
         go back to initial step
         """
         return self._workflow.reset()
 
-    def step(self, interpreter=None):
+    def step(self, *args, **kwargs):
         """
         execute only one step of the model
         """
         return self._workflow.eval_as_expression(step=True)
 
-    def stop(self, interpreter=None):
+    def stop(self, *args, **kwargs):
         """
         stop execution
         """
         # TODO : to implement
         pass
 
-    def animate(self, interpreter=None):
+    def animate(self, *args, **kwargs):
         """
         run model step by step
         """
@@ -112,7 +110,6 @@ def monkey_patch_instantiate_node(self, vid, call_stack=None):
     
     node = factory.instantiate(call_stack)
 
-    print "node ", factory, node
     attributes = copy.deepcopy(self.elt_data[vid])
     ad_hoc = copy.deepcopy(self.elt_ad_hoc.get(vid, None))
     self.load_ad_hoc_data(node, attributes, ad_hoc)

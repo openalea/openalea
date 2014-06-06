@@ -106,7 +106,7 @@ setup(
 
         'oalab.applet': [
             'ControlManager = openalea.oalab.plugins.applets.controlmanager:ControlManager',
-            'ControlPanel = openalea.oalab.plugins.applets.controlpanel:ControlPanel',
+            # 'ControlPanel = openalea.oalab.plugins.applets.controlpanel:ControlPanel',
             'EditorManager = openalea.oalab.plugins.applets.editormanager:EditorManager',
             'FileBrowser = openalea.oalab.plugins.applets.filebrowser:FileBrowser',
             'HelpWidget = openalea.oalab.plugins.applets.helpwidget:HelpWidget',
