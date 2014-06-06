@@ -182,7 +182,7 @@ class DataflowView( qt.View ):
         mimedata = event.mimeData()
         if mimedata.hasFormat("openalealab/model"):
             # -- retreive the data from the event mimeData --
-            pieceData = event.mimeData().data("openalealab/model")
+            pieceData = mimedata.data("openalealab/model")
             dataStream = qt.QtCore.QDataStream(pieceData, qt.QtCore.QIODevice.ReadOnly)
             
             dataStream.readString()
