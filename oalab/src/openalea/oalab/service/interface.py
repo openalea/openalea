@@ -20,6 +20,13 @@ def default_value(interface):
     else:
         return None
 
+def alias(interface):
+    interface = get_interface(interface)
+    if hasattr(interface, '__alias__'):
+        return interface.__alias__
+    else:
+        return str(interface)
+
 def interfaces():
     for plugin in iter_plugins('oalab.interface'):
         for interface in plugin()():

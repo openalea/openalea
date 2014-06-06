@@ -22,6 +22,8 @@ __all__ = [
            "register_control", "get_control"
            ]
 
+from openalea.vpltk.qt import QtGui
+
 def _discover_editors(plugins):
     _editors = {}
     for editor in plugins:
@@ -38,18 +40,18 @@ def discover_qt_controls():
     from openalea.oalab.plugins.controls import (
 #         PluginIntSlider,
 #         PluginIntSpinBox,
-        PluginBoolController,
-        PluginIntController,
-#         PluginColorListWidget,
-#         PluginCurve2DWidget
+        PluginBoolWidgetSelector,
+        PluginIntWidgetSelector,
+        PluginColorListWidget,
+        PluginCurve2DWidget
         )
     plugins = [
 #        PluginIntSlider,
 #        PluginIntSpinBox,
-#        PluginColorListWidget,
-#        PluginCurve2DWidget,
-       PluginIntController,
-       PluginBoolController,
+       PluginColorListWidget,
+       PluginCurve2DWidget,
+       PluginIntWidgetSelector,
+       PluginBoolWidgetSelector,
     ]
     return _discover_editors(plugins)
 
@@ -92,11 +94,12 @@ def _edit(control, discover):
         raise ValueError, 'No editors for %s' % control
 
 
-def edit_qt(control, shape=None):
+def edit_qt(control, shape=None, preferred_widget=None):
     editors = discover_qt_controls()
     cname = control.interface.__class__.__name__
     widget_class = None
-    if control.widget:
+
+    if preferred_widget:
         # Load widget specified with control
         for editor in editors[cname]:
             if control.widget == editor.name:
@@ -105,17 +108,20 @@ def edit_qt(control, shape=None):
     else:
         # Load first editor
         for editor in editors[cname]:
-            widget_class = editor.load()
-            break
+            if 'responsive' in editor.edit_shape or shape in editor.edit_shape:
+                widget_class = editor.load()
+                break
 
     if widget_class:
-        widget = widget_class.edit(control, shape)
+        widget = None
+        if issubclass(widget_class, QtGui.QWidget):
+            widget = widget_class()
+        else:
+            widget = widget_class.edit(control, shape)
         if widget is not None:
             widget.set(control)
             widget.show()
         return widget
-    else :
-        raise ValueError, 'No editors for %s' % control
 
 def qt_paint_function(control):
     editors = discover_qt_controls()

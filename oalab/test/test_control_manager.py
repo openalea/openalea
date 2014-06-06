@@ -34,7 +34,7 @@ if __name__ == '__main__':
             c = Control('%d_%s_%s' % (i, editor.name, iname), iname, widget=editor.name)
             cs.append(c)
             cm.add_control(c)
-            layout2.addWidget(edit_qt(c, shape='hline'))
+            layout2.addWidget(edit_qt(c))
 
 
 #     w.showTag('test')

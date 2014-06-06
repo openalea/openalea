@@ -17,6 +17,8 @@
 ###############################################################################
 
 from openalea.oalab.plugins.controls.plugin import ControlWidgetPlugin
+from openalea.deploy.shared_data import shared_data
+import openalea.oalab
 """
 class PluginIntSpinBox(ControlWidgetPlugin):
 
@@ -43,34 +45,37 @@ class PluginIntSlider(ControlWidgetPlugin):
         return IntSlider
 """
 
-class PluginIntController(ControlWidgetPlugin):
+class PluginIntWidgetSelector(ControlWidgetPlugin):
 
     controls = ['IInt']
-    name = 'IntController'
+    name = 'IntWidgetSelector'
     required = ['IInt.min', 'IInt.max']
     edit_shape = ['responsive']
+    icon_path = shared_data(openalea.oalab, 'icons/IntWidgetSelector_hline.png')
 
     @classmethod
     def load(cls):
-        from openalea.oalab.gui.control.controllers import IntController
-        return IntController
+        from openalea.oalab.gui.control.selectors import IntWidgetSelector
+        return IntWidgetSelector
 
 
-class PluginBoolController(ControlWidgetPlugin):
+class PluginBoolWidgetSelector(ControlWidgetPlugin):
 
     controls = ['IBool']
-    name = 'BoolController'
+    name = 'BoolWidgetSelector'
     edit_shape = ['responsive']
+    icon_path = shared_data(openalea.oalab, 'icons/BoolCheckBox.png')
 
     @classmethod
     def load(cls):
-        from openalea.oalab.gui.control.controllers import BoolController
-        return BoolController
+        from openalea.oalab.gui.control.widgets import BoolCheckBox
+        return BoolCheckBox
 
-"""
+
 class PluginColorListWidget(ControlWidgetPlugin):
     controls = ['IColorList']
     name = 'ColorListWidget'
+    edit_shape = ['large']
     paint = True
 
     @classmethod
@@ -82,10 +87,11 @@ class PluginColorListWidget(ControlWidgetPlugin):
 class PluginCurve2DWidget(ControlWidgetPlugin):
     controls = ['ICurve2D']
     name = 'Curve2DWidget'
+    edit_shape = ['large']
     paint = True
 
     @classmethod
     def load(cls):
         from openalea.oalab.gui.control.widgets import Curve2DWidget
         return Curve2DWidget
-"""
+

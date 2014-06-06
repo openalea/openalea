@@ -53,6 +53,13 @@ class ControlView(QtGui.QTreeView):
         self.model().add_control(dial.control())
         self._i += 1
 
+    def selectionChanged(self, selected, deselected):
+        rows = set()
+        for index in selected.indexes():
+            rows.add(index.row())
+        for row in rows:
+            print row
+
 class ControlDelegate(QtGui.QStyledItemDelegate):
 
     external_edit_required = QtCore.Signal(QtCore.QModelIndex)
@@ -62,7 +69,7 @@ class ControlDelegate(QtGui.QStyledItemDelegate):
         control = model.control(index)
         widget = edit_qt(control, shape='hline')
         if widget is None:
-            self.edit(index)
+            self.external_edition(index)
         else:
             widget.setParent(parent)
             widget.set(control, True, True)
@@ -89,7 +96,7 @@ class ControlDelegate(QtGui.QStyledItemDelegate):
     def updateEditorGeometry(self, editor, option, index):
         editor.setGeometry(option.rect)
 
-    def edit(self, index):
+    def external_edition(self, index):
         self.external_edit_required.emit(index)
 
 class ControlModel(QtGui.QStandardItemModel, AbstractListener):

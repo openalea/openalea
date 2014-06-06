@@ -2,6 +2,7 @@
 class ControlWidgetPlugin():
     controls = []
     name = 'ControlWidget'
+    icon_path = None
 
     edit_shape = [] # ['large', 'line', 'small']
     view_shape = [] # ['large', 'line', 'small']
@@ -11,4 +12,5 @@ class ControlWidgetPlugin():
     @classmethod
     def load(cls):
         raise NotImplementedError
+
 
