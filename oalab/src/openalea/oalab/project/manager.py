@@ -37,11 +37,12 @@ class ProjectManagerWidget(QtGui.QWidget):
     :TODO: Refactor it
     """
 
-    def __init__(self, session, controller, parent=None):
+    def __init__(self, session, controller, editor_manager, parent=None):
         super(ProjectManagerWidget, self).__init__(parent)
         self._actions = []
         self.session = session
         self.controller = controller
+        self.editor_manager = editor_manager
         self.setAccessibleName("Project Manager")
 
         self.projectManager = ProjectManager()
@@ -193,22 +194,24 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
         :todo: propose to the user where to add it (not only in source)
         """
-        text = self.controller.paradigm_container.tabText(self.controller.paradigm_container.currentIndex())
+        text = self.editor_manager.tabText(self.editor_manager.currentIndex())
+        text = path_(text).splitall()[-1]
+        text = path_(text).splitext()[0]
         categories = ["model"]
         categories.extend(self.session._project.files.keys())
         self.selector = SelectCategory(filename=text, categories=categories)
         self.selector.show()
 
-        self.selector.ok_button.clicked.connect(self.add_file)
+        self.selector.ok_button.clicked.connect(self._add_file_from_selector)
 
-    def add_file(self):
+    def _add_file_from_selector(self):
         category = self.selector.combo.currentText()
         self.selector.hide()
 
-        text = self.controller.paradigm_container.currentWidget().get_text()
-        index = self.controller.paradigm_container.currentIndex()
+        text = self.editor_manager.currentWidget().get_text()
+        index = self.editor_manager.currentIndex()
         filename = self.selector.line.text()
-        self.controller.paradigm_container.setTabText(index, filename)
+        self.editor_manager.setTabText(index, filename)
         self.session._project.add(category=category, name=filename, value=text)
 
         self.session.update_namespace()
@@ -247,7 +250,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         Save current project.
         """
         if self.session.current_is_project():
-            container = self.controller.paradigm_container
+            container = self.editor_manager
             if container is None: # CPL
                 return
 
@@ -277,8 +280,8 @@ You can rename/move this project thanks to the button "Save As" in menu.
             self.session._project = None
             self.session._is_proj = False
             self._clear_control()
-            if self.controller.paradigm_container:
-                self.controller.paradigm_container.closeAll()
+            if self.editor_manager:
+                self.editor_manager.closeAll()
             self._project_changed()
         else:
             print "You are not working inside project. Please create or load one first."
@@ -294,8 +297,8 @@ You can rename/move this project thanks to the button "Save As" in menu.
         self.session.update_namespace()
         self._scene_change()
         self._control_change() # do nothing
-        if self.controller.paradigm_container:
-            self.controller.paradigm_container.reset()
+        if self.editor_manager:
+            self.editor_manager.reset()
         self.open_all_scripts_from_project()
         self._tree_view_change()
 
@@ -355,8 +358,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
             if not isinstance(models, list):
                 models = [models]
             for model in models:
-                # if self.controller.paradigm_container:
-                self.controller.paradigm_container.openTab(model=model)
+                self.editor_manager.openTab(model=model)
 
     def _scene_change(self):
         logger.debug("Scene changed")
