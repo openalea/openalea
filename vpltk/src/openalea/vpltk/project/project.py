@@ -351,7 +351,10 @@ class Project(object):
         :param name: name of the file in self.src to convert into model. Can pass various names split by spaces. Can pass "*".
         :return: model object corresponding to the source named *name* in self.src. If various values, return a list of models. If failed, return None.
         """
-        names = name.split()
+        if hasattr(name, "split"):
+            names = name.split()
+        else:
+            names = [str(name)]
         return_models = []
 
         if "*" in names and len(names) == 1:
@@ -361,13 +364,19 @@ class Project(object):
             names = [names]
 
         for name in names:
-
+            name2 = remove_extension(name)
             if name in self._model:
                 return_models.append(self._model[name])
-            else:
-                name2 = remove_extension(name)
-                if name2 in self._model:
-                    return_models.append(self._model[name2])
+            elif name2 in self._model:
+                return_models.append(self._model[name2])
+            elif name in self._model_names:
+                # if manifest is loaded but not models: load model
+                self._load("model", object_name=name)
+                return_models.append(self._model[name])
+            elif name2 in self._model_names:
+                # if manifest is loaded but not models: load model
+                self._load("model", object_name=name2)
+                return_models.append(self._model[name2])
 
             """
             filepath = self.path/self.name/"src"/name
@@ -484,7 +493,8 @@ class Project(object):
 
             if ext in self.model_klasses:
                 # add model to existing models
-                self._model[filename_without_ext] = self.model_klasses[ext](name=filename_without_ext, code=code, filepath=new_filepath)
+                mod = self.model_klasses[ext](name=filename_without_ext, code=code, filepath=new_filepath)
+                self._model[filename_without_ext] = mod
                 return self._model[filename_without_ext]
         else:
             if hasattr(self, object_type):

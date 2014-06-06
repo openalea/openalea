@@ -87,7 +87,12 @@ class ProjectManager(object):
 
         :TODO: not implemented yet
         """
-        return self.projects
+        if args:
+            name = args[0]
+        proj = [proj for proj in self.projects if proj.name == name]
+        if len(proj):
+            return proj[0]
+        return None
 
     def get_current(self):
         """
