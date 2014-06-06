@@ -71,10 +71,16 @@ class CreateProjectWidget(QtGui.QWidget):
             layout.addWidget(QtGui.QLabel("path"), 12, 0)
             path_ = path(settings.get_project_dir())
             self.path_lineedit =  QtGui.QLineEdit(str(path_))
+
+            # TODO: remove this line when Project Manager works fine and permit to search outside default directory
+            self.path_lineedit.setReadOnly(True)
+
             layout.addWidget(self.path_lineedit, 12, 1)
-            self.btn_path = QtGui.QPushButton("   ...   ")
-            layout.addWidget(self.btn_path, 12, 2)
-            self.connect(self.btn_path, QtCore.SIGNAL('clicked()'), self.select_path)
+
+            # TODO: uncomment this lines ...
+            # self.btn_path = QtGui.QPushButton("   ...   ")
+            # layout.addWidget(self.btn_path, 12, 2)
+            # self.connect(self.btn_path, QtCore.SIGNAL('clicked()'), self.select_path)
 
             self.ok_btn = QtGui.QPushButton("Create metadata set")
             layout.addWidget(self.ok_btn, 13, 0, 1, 3)
@@ -105,17 +111,21 @@ class CreateProjectWidget(QtGui.QWidget):
             layout.addWidget(self.version_lineedit, 11, 1)
 
             layout.addWidget(QtGui.QLabel("path"), 12, 0)
-            path_ = path(settings.get_project_dir())
             self.path_lineedit =  QtGui.QLineEdit(str(proj.path))
+
+            # TODO: remove this line when Project Manager works fine and permit to search outside default directory
+            self.path_lineedit.setReadOnly(True)
+
             layout.addWidget(self.path_lineedit, 12, 1)
-            self.btn_path = QtGui.QPushButton("   ...   ")
-            layout.addWidget(self.btn_path, 12, 2)
-            self.connect(self.btn_path, QtCore.SIGNAL('clicked()'), self.select_path)
+
+            # TODO: uncomment this lines ...
+            # self.btn_path = QtGui.QPushButton("   ...   ")
+            # layout.addWidget(self.btn_path, 12, 2)
+            # self.connect(self.btn_path, QtCore.SIGNAL('clicked()'), self.select_path)
 
             self.ok_btn = QtGui.QPushButton("Set metadata")
             layout.addWidget(self.ok_btn, 13, 0, 1, 3)
             self.connect(self.ok_btn, QtCore.SIGNAL('clicked()'), self.ok_clicked)
-        # self.connect(self, QtCore.SIGNAL('ProjectOpened(PyQt_PyObject)'), self.catch_signal)
 
     def ok_clicked(self):
         proj = Project(name=self.name_lineedit.text(),
@@ -140,9 +150,6 @@ class CreateProjectWidget(QtGui.QWidget):
         fpath = QtGui.QFileDialog.getExistingDirectory(self.parent(), text, my_path)
         if fpath:
             self.path_lineedit.setText(fpath)
-
-    # def catch_signal(self, proj):
-    #     print proj
 
 
 def main():
