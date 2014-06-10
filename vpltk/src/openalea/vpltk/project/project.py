@@ -202,7 +202,7 @@ class Project(object):
         Add an object in the project
 
         :param category: *type* of object to add ("src", "control", "world", ...)
-        :param name: filename of the object to add (path or str)
+        :param name: filename of the object to add with extension (path or str)
         :param value: to add (string)
 
         .. seealso:: :func:`get` :func:`remove`
@@ -229,7 +229,7 @@ class Project(object):
         """
         Create a model and add it to the project.
 
-        :param name: name of model to create
+        :param name: name of model to create with extension
         :param code: object that will be manipulated as model
         :param filepath: path where model will be saved
         :param inputs: list of inputs of the model
@@ -292,6 +292,7 @@ class Project(object):
         else:
             if category == "model":
                 old_model = self._model[old_name]
+                old_model.name = new_name
                 self._model[new_name] = old_model
             elif hasattr(self, category):
                 cat = getattr(self, category)
