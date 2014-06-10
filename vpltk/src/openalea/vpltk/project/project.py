@@ -212,12 +212,13 @@ class Project(object):
         .. seealso:: :func:`get` :func:`remove`
         """
         if category == "model":
-            self.new_model(name=name, code=value)
+            return self.new_model(name=name, code=value)
         else:
             if not hasattr(self, category):
                 setattr(self, category, dict())
             cat = getattr(self, category)
             cat[name] = value
+            return True
 
     def add_model(self, model):
         """
@@ -239,6 +240,8 @@ class Project(object):
         :param inputs: list of inputs of the model
         :param outputs: list of outputs of the model
 
+        :return: True if add with success
+
         .. seealso:: :func:`get` :func:`add_model`
         """
         filename = path_(name)
@@ -249,6 +252,8 @@ class Project(object):
             # add model to existing models
             model = self.model_klasses[ext](name=name, code=code, filepath=filepath, inputs=inputs, outputs=outputs)
             self.add_model(model)
+            return True
+        return False
 
     def remove(self, category, name):
         """
