@@ -18,6 +18,7 @@
 import collections
 import string
 from openalea.core.node import Node, AbstractFactory
+from openalea.vpltk.project.project import remove_extension
 
 
 class Model(object):
@@ -31,9 +32,11 @@ class Model(object):
         """
         :param name: name of the model (name of the file?)
         :param code: code of the model, can be a string or an other object
+        :param filepath: path to save the model on disk
         :param inputs: list of identifier of inputs that come from outside model (from world for example)
         :param outputs: list of objects to return outside model (to world for example)
         """
+        name = remove_extension(name)
         self.name = name
         self.filepath = filepath
         self.inputs_info = inputs
@@ -54,40 +57,43 @@ class Model(object):
         """
         :return: a string representation of model to save it on disk
         """
-        pass
+        raise NotImplementedError
 
     def __call__(self, *args, **kwargs):
         return self.run(*args, **kwargs)
+
+    def __repr__(self):
+        return "Instance of model " + str(type(self)) + " named " + str(self.name)
 
     def run(self, *args, **kwargs):
         """
         execute model
         """
-        pass
+        raise NotImplementedError
 
     def init(self, *args, **kwargs):
         """
         go back to initial step
         """
-        pass
+        raise NotImplementedError
 
     def step(self, *args, **kwargs):
         """
         execute only one step of the model
         """
-        pass
+        raise NotImplementedError
 
     def stop(self, *args, **kwargs):
         """
         stop execution
         """
-        pass
+        raise NotImplementedError
 
     def animate(self, *args, **kwargs):
         """
         run model step by step
         """
-        pass
+        raise NotImplementedError
 
     @property
     def inputs(self):
@@ -160,7 +166,7 @@ class ModelNode(Node):
         self.model = model
         self.__doc__ = self.model.get_documentation()
 
-    def __call__(self, inputs = ()):
+    def __call__(self, inputs=()):
         """ Call function. Must be overriden """
         return self.model(*inputs)
 
@@ -255,7 +261,7 @@ class ModelFactory(AbstractFactory):
     def instantiate_widget(self, node=None, parent=None, edit=False,
         autonomous=False):
         """ Return the corresponding widget initialised with node"""
-        print "instanciate_widget"
+        pass
         # TODO: open corresponding model
 
     def get_writer(self):
