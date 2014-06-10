@@ -63,6 +63,13 @@ class Session(object):
         """
         return self._project
 
+    @project.setter
+    def project(self, project):
+        """
+        Set the project
+        """
+        self._project = project
+
     def current_is_project(self):
         """
         :return: True if current document is a project
