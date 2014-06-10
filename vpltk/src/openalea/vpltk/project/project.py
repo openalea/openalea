@@ -65,7 +65,11 @@ def _model_factories():
 
 
 def remove_extension(filename):
-    return ".".join(filename.split(".")[:-1])
+    filename_split = filename.split(".")
+    if len(filename_split) > 1:
+        return ".".join(filename_split[:-1])
+    else:
+        return filename_split[0]
 
 
 def safe_remove(dirpath):
