@@ -22,6 +22,7 @@ from openalea.core.path import path as path_
 from openalea.core import settings
 from openalea.core import logger
 from openalea.vpltk.project.manager import ProjectManager
+from openalea.vpltk.project.project import remove_extension
 from openalea.oalab.project.creator import CreateProjectWidget
 from openalea.oalab.project.pretty_preview import ProjectSelectorScroll
 from openalea.oalab.gui import resources_rc # do not remove this import else icon are not drawn
@@ -184,9 +185,12 @@ You can rename/move this project thanks to the button "Save As" in menu.
         text = self.editor_manager.currentWidget().get_text()
         index = self.editor_manager.currentIndex()
         filename = self.selector.line.text()
-        self.editor_manager.setTabText(index, filename)
-        self.session.project.add(category=category, name=filename, value=text)
-
+        filename_without_ext = remove_extension(filename)
+        ret = self.session.project.add(category=category, name=filename, value=text)
+        if ret:
+            self.editor_manager.setTabText(index, filename_without_ext)
+        else:
+            print("We can't add model %s to current project. The extension of model seems to be unknown."%str(filename))
         self.session.update_namespace()
 
     def renameCurrent(self, new_name=None):
