@@ -26,6 +26,8 @@ from openalea.oalab.project.creator import CreateProjectWidget
 from openalea.oalab.project.pretty_preview import ProjectSelectorScroll
 from openalea.oalab.gui import resources_rc # do not remove this import else icon are not drawn
 from openalea.oalab.gui.utils import qicon
+from openalea.oalab.service.control import get_control, register_control
+
 
 class ProjectManagerWidget(QtGui.QWidget):
     """
@@ -47,18 +49,18 @@ class ProjectManagerWidget(QtGui.QWidget):
 
         self.projectManager = ProjectManager()
 
-        self.actionNewProj = QtGui.QAction(qicon("new.png"), "New", self)
+        self.actionNewProj = QtGui.QAction(qicon("new.png"), "New Project", self)
         self.actionNewProj.setShortcut(
             QtGui.QApplication.translate("MainWindow", "Ctrl+N", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionOpenProj = QtGui.QAction(qicon("open.png"), "Open", self)
+        self.actionOpenProj = QtGui.QAction(qicon("open.png"), "Open Project", self)
         self.actionOpenProj.setShortcut(
             QtGui.QApplication.translate("MainWindow", "Ctrl+O", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionSaveProj = QtGui.QAction(qicon("save.png"), "Save", self)
+        self.actionSaveProj = QtGui.QAction(qicon("save.png"), "Save project", self)
         self.actionSaveProjAs = QtGui.QAction(qicon("save.png"), "Save As", self)
         # self.actionSaveProj.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionCloseProj = QtGui.QAction(qicon("closeButton.png"), "Close All", self)
+        self.actionCloseProj = QtGui.QAction(qicon("closeButton.png"), "Close project", self)
         self.actionEditMeta = QtGui.QAction(qicon("book.png"), "Edit Metadata", self)
-        self.actionAddFile = QtGui.QAction(qicon("bool.png"), "Add To Proj", self)
+        self.actionAddFile = QtGui.QAction(qicon("bool.png"), "Add model to current Project", self)
 
         self.actionNewProj.triggered.connect(self.new)
         self.actionOpenProj.triggered.connect(self.open)
@@ -74,9 +76,8 @@ class ProjectManagerWidget(QtGui.QWidget):
                          ["Project", "Manage Project", self.actionSaveProjAs, 1],
                          ["Project", "Manage Project", self.actionCloseProj, 1],
                          ["Project", "Manage Project", self.actionEditMeta, 1],
-                         ["Project", "Manage Project", self.actionAddFile, 1],
+                         ["Project", "Manage Project", self.actionAddFile, 0],
                          ]
-
 
         # Menu used to display all available projects.
         # This menu is filled dynamically each time this menu is opened
@@ -89,7 +90,7 @@ class ProjectManagerWidget(QtGui.QWidget):
 
     def defaultProj(self):
         proj = self.projectManager.load_default()
-        self.session._project = proj
+        self.session.project = proj
         self.session._is_proj = True
         if not self.session.project.models():
             txt = '''"""
@@ -102,7 +103,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
 """''' % str(self.session.project.path / self.session.project.name)
             self.session.project.new_model(name="temp.py", code=txt)
         self._project_changed()
-        self._load_control()
+        self._set_control()
 
     def actions(self):
         return self._actions
@@ -112,36 +113,10 @@ You can rename/move this project thanks to the button "Save As" in menu.
         If name==false, display a widget to choose project to open.
         Then open project.
         """
-        self.session.project_manager.discover()
-        projects = self.session.project_manager.projects
+        self.projectManager.discover()
+        projects = self.projectManager.projects
         self.proj_selector = ProjectSelectorScroll(projects=projects, open_project=self.openProject)
         self.proj_selector.show()
-
-        # if name is False:
-        #     name = showOpenProjectDialog()
-        # if name:
-        #     proj_path = path_(name).abspath()
-        #     proj_name = proj_path.basename()
-        #     proj_path = proj_path.dirname()
-        #     if path:
-        #         proj_path = path_(path)
-        #     logger.debug("Open Project named " + proj_name)
-        #     if self.session.project:
-        #         if self.session.current_is_project():
-        #             logger.debug("Close Project named " + self.session.project.name)
-        #             self.projectManager.close(self.session.project.name)
-        #             logger.debug("Project named " + self.session.project.name + " closed.")
-        #
-        #     proj = self.projectManager.load(proj_name, proj_path)
-        #
-        #     logger.debug("Project " + str(proj) + " loaded")
-        #
-        #     if proj == -1:
-        #         logger.warning("Project was not loaded...")
-        #         return -1
-        #     else:
-        #         return self.openProject(proj)
-
 
     def openProject(self, project):
         """
@@ -155,19 +130,18 @@ You can rename/move this project thanks to the button "Save As" in menu.
             self.proj_selector.hide()
         self.closeCurrent()
 
-        project = self.session.project_manager.load(project_name, project_path)
-
+        project = self.projectManager.load(project_name, project_path)
 
         logger.debug("Project " + str(project) + " opened")
 
         project.world = self.session.world
-        self.session._project = project
+        self.session.project = project
         self.session._is_proj = True
         self._project_changed()
-        self._load_control()
+        self._set_control()
 
-        logger.debug("Project opened: " + str(self.session._project))
-        return self.session._project
+        logger.debug("Project opened: " + str(self.session.project.name))
+        return self.session.project
 
     def new(self):
         """
@@ -180,13 +154,13 @@ You can rename/move this project thanks to the button "Save As" in menu.
         self.connect(self.project_creator, QtCore.SIGNAL('ProjectMetadataSet(PyQt_PyObject)'), self.openProject)
 
     def edit_metadata(self):
-        self.project_creator = CreateProjectWidget(self.session._project)
+        self.project_creator = CreateProjectWidget(self.session.project)
         self.project_creator.show()
         self.connect(self.project_creator, QtCore.SIGNAL('ProjectMetadataSet(PyQt_PyObject)'), self.metadata_edited)
 
     def metadata_edited(self, proj):
-        self.session._project.metadata = proj.metadata
-        return self.session._project
+        self.session.project.metadata = proj.metadata
+        return self.session.project
 
     def add_file_to_project(self):
         """
@@ -196,9 +170,8 @@ You can rename/move this project thanks to the button "Save As" in menu.
         """
         text = self.editor_manager.tabText(self.editor_manager.currentIndex())
         text = path_(text).splitall()[-1]
-        text = path_(text).splitext()[0]
         categories = ["model"]
-        categories.extend(self.session._project.files.keys())
+        categories.extend(self.session.project.files.keys())
         self.selector = SelectCategory(filename=text, categories=categories)
         self.selector.show()
 
@@ -212,10 +185,9 @@ You can rename/move this project thanks to the button "Save As" in menu.
         index = self.editor_manager.currentIndex()
         filename = self.selector.line.text()
         self.editor_manager.setTabText(index, filename)
-        self.session._project.add(category=category, name=filename, value=text)
+        self.session.project.add(category=category, name=filename, value=text)
 
         self.session.update_namespace()
-        self._tree_view_change()
 
     def renameCurrent(self, new_name=None):
         """
@@ -277,12 +249,12 @@ You can rename/move this project thanks to the button "Save As" in menu.
                 self.projectManager.close(self.session.project.name)
             else:
                 logger.debug("Close empty Project")
-            self.session._project = None
+            self.session.project = None
             self.session._is_proj = False
-            self._clear_control()
             if self.editor_manager:
                 self.editor_manager.closeAll()
             self._project_changed()
+            self._set_control()
         else:
             print "You are not working inside project. Please create or load one first."
 
@@ -296,7 +268,6 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
         self.session.update_namespace()
         self._scene_change()
-        self._control_change() # do nothing
         if self.editor_manager:
             self.editor_manager.reset()
         self.open_all_scripts_from_project()
@@ -305,50 +276,28 @@ You can rename/move this project thanks to the button "Save As" in menu.
     def update_from_widgets(self):
         self._update_control()
 
-    def _load_control(self):
+    def _set_control(self):
         """
         Get control from project and put them into widgets
         """
-        if hasattr(self.controller, "_plugins"):
-            if self.controller._plugins.has_key('ControlPanel'):
-                self.controller._plugins['ControlPanel'].instance().load()
-        else:
-            if self.controller.applets.has_key('ControlPanel'):
-                self.controller.applets['ControlPanel'].load()
+        # TODO:
+        # ctrls = self.session.project.controls
+        # for name, value in ctrls:
+        #     register_control(name=name, value=value)
         logger.debug("Load Controls")
 
     def _update_control(self):
         """
         Get control from widget and put them into project
         """
-        if hasattr(self.controller, "_plugins"):
-            if self.controller._plugins.has_key('ControlPanel'):
-                self.controller._plugins['ControlPanel'].instance().update()
-        else:
-            if self.controller.applets.has_key('ControlPanel'):
-                self.controller.applets['ControlPanel'].update()
+        # TODO:
+        # ctrls = get_control()
+        # self.project.controls = ctrls
         logger.debug("Update Controls")
 
-    def _clear_control(self):
-        if hasattr(self.controller, "_plugins"):
-            if self.controller._plugins.has_key('ControlPanel'):
-                self.controller._plugins['ControlPanel'].instance().clear()
-        else:
-            if self.controller.applets.has_key('ControlPanel'):
-                self.controller.applets['ControlPanel'].clear()
-        logger.debug("Clear Controls")
-
-    def _control_change(self):
-        pass
-
     def _tree_view_change(self):
-        if hasattr(self.controller, "_plugins"):
-            if self.controller._plugins.has_key('ProjectWidget'):
-                self.controller._plugins['ProjectWidget'].instance().update()
-        else:
-            if self.controller.applets.has_key('Project'):
-                self.controller.applets['Project'].update()
-        logger.debug("Tree View changed")
+        # TODO: use observed listener methods with project
+        pass
 
     def open_all_scripts_from_project(self):
         logger.debug("Script changed")
@@ -373,10 +322,10 @@ You can rename/move this project thanks to the button "Save As" in menu.
         Discover all projects and generate an action for each one.
         Then connect this action to _on_open_project_triggered
         """
-        self.session.project_manager.discover()
+        self.projectManager.discover()
         self.menu_available_projects.clear()
         self.action_available_project.clear()
-        for project in self.session.project_manager.projects:
+        for project in self.projectManager.projects:
             icon_path = project.icon_path
             icon_name = icon_path if icon_path else ":/images/resources/openalealogo.png"
             action = QtGui.QAction(QtGui.QIcon(icon_name), project.name, self.menu_available_projects)
@@ -428,4 +377,3 @@ class SelectCategory(QtGui.QWidget):
         layout.addWidget(self.ok_button, 2, 0, 2, 2)
 
         self.setLayout(layout)
-
