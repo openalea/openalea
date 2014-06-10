@@ -26,24 +26,21 @@ from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core.path import path
 from openalea.oalab.gui import resources_rc
 from openalea.core.observer import AbstractListener
+from openalea.vpltk.project import ProjectManager
 
 
 class ProjectLayoutWidget(QtGui.QWidget, AbstractListener):
     """
     Widget to display the name of the current project AND the project
     """
-    def __init__(self, session, controller, parent=None):
+    def __init__(self, controller, parent=None):
         super(ProjectLayoutWidget, self).__init__(parent)
-        self.session = session
-        self.treeview = ProjectTreeView(self.session, controller, parent)
+        self.treeview = ProjectTreeView(controller, parent)
         
         layout = QtGui.QVBoxLayout()
         layout.addWidget(self.treeview)
         
         self.setLayout(layout)
-
-    def initialize(self):
-        self.update()
 
     def clear(self):
         self.treeview.reinit_treeview()
@@ -63,7 +60,7 @@ class ProjectTreeView(QtGui.QTreeView, AbstractListener):
     """
     Widget to display Tree View of project.
     """
-    def __init__(self, session, controller, parent=None):
+    def __init__(self, controller, parent=None):
         AbstractListener.__init__(self)
         QtGui.QTreeView.__init__(self, parent=parent)
         #self.setIconSize(QtCore.QSize(30,30))
@@ -72,21 +69,15 @@ class ProjectTreeView(QtGui.QTreeView, AbstractListener):
         self.setDropIndicatorShown(True)
         self.setAcceptDrops(True)
 
-        self.session = session
         self.controller = controller
 
-        if self.session.current_is_project():
-            self.project = self.session.project
-            self.project.register_listener(self)
-            self._registered = True
-        else:
-            self.project = None
-            self._registered = False
+        project_manager = ProjectManager()
+        project_manager.register_listener(self)
 
         self.projectview = QtGui.QWidget()
 
         # project tree view
-        self.proj_model = PrjctModel(session, controller, self.project)
+        self.proj_model = PrjctModel(controller)
 
         self.setHeaderHidden(True)
         self.setModel(self.proj_model)
@@ -99,7 +90,7 @@ class ProjectTreeView(QtGui.QTreeView, AbstractListener):
 
     def notify(self, sender, event=None):
         signal, data = event
-        if signal == 'project_change':
+        if signal == 'current_project_change':
             self.update()
 
     def update(self):
@@ -107,14 +98,7 @@ class ProjectTreeView(QtGui.QTreeView, AbstractListener):
 
     def reinit_treeview(self):
         """ Reinitialise project view """
-        if self.session.project:
-            self.project = self.session.project
-            if not self._registered:
-                self.project.register_listener(self)
-                self._registered = True
-        else:
-            self.project = None
-        self.proj_model.set_proj(self.project)
+        self.proj_model.set_proj()
         self.expandAll()
 
     def create_menu(self):
@@ -303,7 +287,7 @@ class PrjctModel(QtGui.QStandardItemModel):
     # Display
     treeView.show()
     """
-    def __init__(self, session, controller, project, parent=None):
+    def __init__(self, controller, parent=None):
         super(PrjctModel, self).__init__(parent)
         
         # Use it to store evrything to compare with new when a change occure
@@ -316,7 +300,7 @@ class PrjctModel(QtGui.QStandardItemModel):
         self.icons = dict()
         
         self.proj = None
-        self.set_proj(project)      
+        self.set_proj()
 
         #QtCore.QObject.connect(self,QtCore.SIGNAL('dataChanged( const QModelIndex &, const QModelIndex &)'),self.renamed)
 
@@ -360,7 +344,8 @@ class PrjctModel(QtGui.QStandardItemModel):
                     # Save project
                     self.proj.save()
 
-    def set_proj(self, proj=None):
+    def set_proj(self):
+        proj = ProjectManager().cproject
         self.clear()
         
         if proj is not None:
@@ -558,7 +543,6 @@ class PrjctManagerModel(QtGui.QStandardItemModel):
 
 
 def main():
-    from openalea.vpltk.project.manager import ProjectManager
     import sys
     app = QtGui.QApplication(sys.argv)
     
