@@ -51,6 +51,7 @@ from openalea.core.path import path as path_
 from openalea.vpltk.project.configobj import ConfigObj
 from openalea.vpltk.project.loader import get_loader
 from openalea.vpltk.project.saver import get_saver
+from openalea.core.observer import Observed
 
 
 def _model_factories():
@@ -86,10 +87,12 @@ def safe_remove(dirpath):
                 return True
             except IOError:
                 pass
+            except OSError:
+                pass
     return False
 
 
-class Project(object):
+class Project(Observed):
     model_klasses = _model_factories()
 
     def __init__(self, name, path,
@@ -100,6 +103,7 @@ class Project(object):
         :param name: name of the project to create or load
         :param path: path of the project to create or load
         """
+        Observed.__init__(self)
         # Metadata
         self.path = path_(path)
         self.metadata = {
@@ -129,6 +133,7 @@ class Project(object):
 
         self._model = dict()
         self._model_names = []
+        self.notify_listeners(('project_change', self))
 
     #----------------------------------------
     # Public API
@@ -149,6 +154,7 @@ class Project(object):
         # Load in shell
         self._startup_import(shell, namespace)
         self._startup_run(shell, namespace)
+        self.notify_listeners(('project_change', self))
 
     def load(self):
         """
@@ -165,6 +171,7 @@ class Project(object):
             setattr(self, category, obj)
         for model_name in self._model_names:
             self._load("model", str(model_name))
+        self.notify_listeners(('project_change', self))
 
     def save(self):
         """
@@ -179,6 +186,7 @@ class Project(object):
             self._save(str(category))
         self._save("model")
         self.save_manifest()
+        self.notify_listeners(('project_change', self))
 
     def get(self, category, name):
         """
@@ -219,6 +227,7 @@ class Project(object):
             cat = getattr(self, category)
             cat[name] = value
             return True
+        self.notify_listeners(('project_change', self))
 
     def add_model(self, model):
         """
@@ -229,6 +238,7 @@ class Project(object):
         .. seealso:: :func:`get` :func:`new_model`
         """
         self._model[model.name] = model
+        self.notify_listeners(('project_change', self))
 
     def new_model(self, name, code="", filepath="", inputs=[], outputs=[]):
         """
@@ -277,6 +287,7 @@ class Project(object):
         # Try to remove on disk
         temp_path = self.path / self.name / category / name
         safe_remove(temp_path)
+        self.notify_listeners(('project_change', self))
 
     def rename(self, category, old_name, new_name):
         """
@@ -293,10 +304,12 @@ class Project(object):
         # rename project
         if category == "project":
             # TODO: check if it works
+            new_path, new_name = path_(new_name).abspath().splitpath()
+            self.path = new_path
             self.name = new_name
             self.save()
-            # Try to remove on disk
-            safe_remove(self.path / old_name)
+            ## Try to remove on disk
+            # safe_remove(self.path / old_name)
         # rename a part of project
         else:
             if category == "model":
@@ -308,6 +321,7 @@ class Project(object):
                 cat[new_name] = cat[old_name]
             # Remove inside project
             self.remove(category, old_name)
+        self.notify_listeners(('project_change', self))
 
     #----------------------------------------
     # Manifest
@@ -617,6 +631,7 @@ class Project(object):
     @name.setter
     def name(self, value):
         self.metadata["name"] = value
+        self.notify_listeners(('project_change', self))
 
     @property
     def icon(self):
@@ -625,6 +640,7 @@ class Project(object):
     @icon.setter
     def icon(self, value):
         self.metadata["icon"] = value
+        self.notify_listeners(('project_change', self))
 
     @property
     def author(self):
@@ -633,6 +649,7 @@ class Project(object):
     @author.setter
     def author(self, value):
         self.metadata["author"] = value
+        self.notify_listeners(('project_change', self))
 
     @property
     def author_email(self):
@@ -641,6 +658,7 @@ class Project(object):
     @author_email.setter
     def author_email(self, value):
         self.metadata["author_email"] = value
+        self.notify_listeners(('project_change', self))
 
     @property
     def description(self):
@@ -649,6 +667,7 @@ class Project(object):
     @description.setter
     def description(self, value):
         self.metadata["description"] = value
+        self.notify_listeners(('project_change', self))
 
     @property
     def long_description(self):
@@ -657,6 +676,7 @@ class Project(object):
     @long_description.setter
     def long_description(self, value):
         self.metadata["long_description"] = value
+        self.notify_listeners(('project_change', self))
 
     @property
     def citation(self):
@@ -665,6 +685,7 @@ class Project(object):
     @citation.setter
     def citation(self, value):
         self.metadata["citation"] = value
+        self.notify_listeners(('project_change', self))
 
     @property
     def url(self):
@@ -673,6 +694,7 @@ class Project(object):
     @url.setter
     def url(self, value):
         self.metadata["url"] = value
+        self.notify_listeners(('project_change', self))
 
     @property
     def dependencies(self):
@@ -681,6 +703,7 @@ class Project(object):
     @dependencies.setter
     def dependencies(self, value):
         self.metadata["dependencies"] = value
+        self.notify_listeners(('project_change', self))
 
     @property
     def license(self):
@@ -689,6 +712,7 @@ class Project(object):
     @license.setter
     def license(self, value):
         self.metadata["license"] = value
+        self.notify_listeners(('project_change', self))
 
     @property
     def version(self):
@@ -697,6 +721,7 @@ class Project(object):
     @version.setter
     def version(self, value):
         self.metadata["version"] = value
+        self.notify_listeners(('project_change', self))
 
     @property
     def control(self):
@@ -705,6 +730,7 @@ class Project(object):
     @control.setter
     def control(self, value):
         self.files["control"] = value
+        self.notify_listeners(('project_change', self))
 
     @property
     def cache(self):
@@ -713,6 +739,7 @@ class Project(object):
     @cache.setter
     def cache(self, value):
         self.files["cache"] = value
+        self.notify_listeners(('project_change', self))
 
     @property
     def data(self):
@@ -721,6 +748,7 @@ class Project(object):
     @data.setter
     def data(self, value):
         self.files["data"] = value
+        self.notify_listeners(('project_change', self))
 
     @property
     def scene(self):
@@ -729,6 +757,7 @@ class Project(object):
     @scene.setter
     def scene(self, value):
         self.files["world"] = value
+        self.notify_listeners(('project_change', self))
 
     @property
     def world(self):
@@ -737,6 +766,7 @@ class Project(object):
     @world.setter
     def world(self, value):
         self.files["world"] = value
+        self.notify_listeners(('project_change', self))
 
     @property
     def startup(self):
@@ -745,6 +775,7 @@ class Project(object):
     @startup.setter
     def startup(self, value):
         self.files["startup"] = value
+        self.notify_listeners(('project_change', self))
 
     @property
     def doc(self):
@@ -756,6 +787,7 @@ class Project(object):
     @doc.setter
     def doc(self, value):
         self.files["doc"] = value
+        self.notify_listeners(('project_change', self))
 
     @property
     def icon_path(self):
