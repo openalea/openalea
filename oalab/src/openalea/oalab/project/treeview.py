@@ -147,9 +147,10 @@ class ProjectTreeView(QtGui.QTreeView, AbstractListener):
 
     def open_file(self):
         item = self.getItem()
-        filename = path(self.project.path)/self.project.name/item.parent().text()/item.text()
+        proj = ProjectManager().cproject
+        filename = path(proj.path)/proj.name/item.parent().text()/item.text()
         if self.is_src_selected():
-            model = self.project.model(item.text())
+            model = proj.model(item.text())
             self.controller.paradigm_container.open_file(model=model)
         else:
             self.controller.paradigm_container.open_file(filename=filename)
@@ -163,7 +164,7 @@ class ProjectTreeView(QtGui.QTreeView, AbstractListener):
         """
         :return: True if selected object is a file. Else, False.
         """
-        if self.project:
+        if ProjectManager().cproject:
             item = self.getItem()
             if self.hasParent():
                 if item.parent().parent():
@@ -174,7 +175,7 @@ class ProjectTreeView(QtGui.QTreeView, AbstractListener):
         """
         :return: True if selected object is a src. Else, False.
         """
-        if self.project:
+        if ProjectManager().cproject:
             item = self.getItem()
             if self.hasParent():
                 if item.parent().text() == "src":
