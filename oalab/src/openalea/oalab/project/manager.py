@@ -62,6 +62,8 @@ class ProjectManagerWidget(QtGui.QWidget):
         self.actionCloseProj = QtGui.QAction(qicon("closeButton.png"), "Close project", self)
         self.actionEditMeta = QtGui.QAction(qicon("book.png"), "Edit Metadata", self)
         self.actionAddFile = QtGui.QAction(qicon("bool.png"), "Add model to current Project", self)
+        self.actionRenameProject = QtGui.QAction(qicon("editpaste.png"), "Rename Project", self)
+        self.actionRenameModel = QtGui.QAction(qicon("editcopy.png"), "Rename Model", self)
 
         self.actionNewProj.triggered.connect(self.new)
         self.actionOpenProj.triggered.connect(self.open)
@@ -70,6 +72,8 @@ class ProjectManagerWidget(QtGui.QWidget):
         self.actionCloseProj.triggered.connect(self.closeCurrent)
         self.actionEditMeta.triggered.connect(self.edit_metadata)
         self.actionAddFile.triggered.connect(self.add_file_to_project)
+        self.actionRenameProject.triggered.connect(self.renameCurrent)
+        self.actionRenameModel.triggered.connect(self.on_model_renamed)
 
         self._actions = [["Project", "Manage Project", self.actionNewProj, 1],
                          ["Project", "Manage Project", self.actionOpenProj, 0],
@@ -78,6 +82,8 @@ class ProjectManagerWidget(QtGui.QWidget):
                          ["Project", "Manage Project", self.actionCloseProj, 1],
                          ["Project", "Manage Project", self.actionEditMeta, 1],
                          ["Project", "Manage Project", self.actionAddFile, 0],
+                         ["Project", "Manage Project", self.actionRenameProject, 1],
+                         ["Project", "Manage Project", self.actionRenameModel, 1],
                          ]
 
         # Menu used to display all available projects.
@@ -202,11 +208,42 @@ You can rename/move this project thanks to the button "Save As" in menu.
             if not new_name:
                 new_name = showNewProjectDialog(default_name=path_(name) / "..",
                                                 text='Select new name to save project')
-            self.session.project.rename(category="project", old_name=name, new_name=new_name)
+            if new_name:
+                self.session.project.rename(category="project", old_name=name, new_name=new_name)
+                self._project_changed()
+
+    def on_model_renamed(self, model_name=""):
+        """
+        Display a pop up to rename a model.
+
+        :param model_name: name of model to remane
+        """
+        if self.session.project:
+            models = self.session.project.models()
+            if isinstance(models, list):
+                list_models = [mod.name for mod in models]
+            else:
+                list_models = [models.name]
+            self.renamer = RenameModel(list_models, model_name)
+            self.renamer.show()
+            self.renamer.ok_button.clicked.connect(self._rename_model_from_renamer)
+
+    def _rename_model_from_renamer(self):
+        """
+        Get informations from the pop up and rename the model
+        """
+        model_name = self.renamer.combo.currentText()
+        new_name = self.renamer.line.text()
+        self.renamer.hide()
+        self.rename_model(model_name, new_name)
+
+    def rename_model(self, old_name, new_name):
+        """
+        Rename the model.
+        """
+        if old_name and new_name:
+            self.session.project.rename(category="model", old_name=old_name, new_name=new_name)
             self._project_changed()
-        else:
-            print(
-                "You are not working inside project, so you can't use 'rename project'. Please create or load one first.")
 
     def saveAs(self):
         """
@@ -216,7 +253,6 @@ You can rename/move this project thanks to the button "Save As" in menu.
             name = showNewProjectDialog(default_name=None, text="Select name to save project")
             if name:
                 self.session.project.rename(category="project", old_name=self.session.project.name, new_name=name)
-                self._tree_view_change()
                 self.saveCurrent()
         else:
             print "You are not working inside project. Please create or load one first."
@@ -275,7 +311,6 @@ You can rename/move this project thanks to the button "Save As" in menu.
         if self.editor_manager:
             self.editor_manager.reset()
         self.open_all_scripts_from_project()
-        self._tree_view_change()
 
     def update_from_widgets(self):
         self._update_control()
@@ -298,10 +333,6 @@ You can rename/move this project thanks to the button "Save As" in menu.
         # ctrls = get_control()
         # self.project.controls = ctrls
         logger.debug("Update Controls")
-
-    def _tree_view_change(self):
-        # TODO: use observed listener methods with project
-        pass
 
     def open_all_scripts_from_project(self):
         logger.debug("Script changed")
@@ -340,6 +371,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
     def _on_open_project_triggered(self):
         self.openProject(self.action_available_project[self.sender()])
 
+
 def showNewProjectDialog(default_name=None, text=None, parent=None):
     my_path = path_(settings.get_project_dir())
     if default_name:
@@ -371,6 +403,33 @@ class SelectCategory(QtGui.QWidget):
         self.combo.addItems(self.categories)
         self.combo.setCurrentIndex(0)
         self.line = QtGui.QLineEdit(filename)
+
+        self.ok_button = QtGui.QPushButton("Ok")
+
+        layout.addWidget(self.label, 0, 0)
+        layout.addWidget(self.combo, 0, 1)
+        layout.addWidget(self.label2, 1, 0)
+        layout.addWidget(self.line, 1, 1)
+        layout.addWidget(self.ok_button, 2, 0, 2, 2)
+
+        self.setLayout(layout)
+
+
+class RenameModel(QtGui.QWidget):
+    def __init__(self, models, model_name="", parent=None):
+        super(RenameModel, self).__init__(parent=parent)
+        self.models = models
+
+        layout = QtGui.QGridLayout(self)
+
+        self.label = QtGui.QLabel("Select model you want to rename: ")
+        self.label2 = QtGui.QLabel("Write new name: ")
+        self.combo = QtGui.QComboBox(self)
+        self.combo.addItems(self.models)
+        self.combo.setCurrentIndex(0)
+        if not model_name:
+            model_name = self.models[0]
+        self.line = QtGui.QLineEdit(str(model_name))
 
         self.ok_button = QtGui.QPushButton("Ok")
 

@@ -24,16 +24,16 @@ __revision__ = "$Id: "
 
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core.path import path
-from openalea.core import settings
 from openalea.oalab.gui import resources_rc
-import os
+from openalea.core.observer import AbstractListener
 
-class ProjectLayoutWidget(QtGui.QWidget):
+
+class ProjectLayoutWidget(QtGui.QWidget, AbstractListener):
     """
     Widget to display the name of the current project AND the project
     """
     def __init__(self, session, controller, parent=None):
-        super(ProjectLayoutWidget, self).__init__(parent=parent) 
+        super(ProjectLayoutWidget, self).__init__(parent)
         self.session = session
         self.treeview = ProjectTreeView(self.session, controller, parent)
         
@@ -41,7 +41,10 @@ class ProjectLayoutWidget(QtGui.QWidget):
         layout.addWidget(self.treeview)
         
         self.setLayout(layout)
-        
+
+    def initialize(self):
+        self.update()
+
     def clear(self):
         self.treeview.reinit_treeview()
         
@@ -56,12 +59,13 @@ class ProjectLayoutWidget(QtGui.QWidget):
         return self.treeview.mainMenu()
 
 
-class ProjectTreeView(QtGui.QTreeView):
+class ProjectTreeView(QtGui.QTreeView, AbstractListener):
     """
     Widget to display Tree View of project.
     """
     def __init__(self, session, controller, parent=None):
-        super(ProjectTreeView, self).__init__(parent) 
+        AbstractListener.__init__(self)
+        QtGui.QTreeView.__init__(self, parent=parent)
         #self.setIconSize(QtCore.QSize(30,30))
 
         self.setDragEnabled(True)
@@ -73,8 +77,11 @@ class ProjectTreeView(QtGui.QTreeView):
 
         if self.session.current_is_project():
             self.project = self.session.project
+            self.project.register_listener(self)
+            self._registered = True
         else:
             self.project = None
+            self._registered = False
 
         self.projectview = QtGui.QWidget()
 
@@ -90,14 +97,21 @@ class ProjectTreeView(QtGui.QTreeView):
         self.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         QtCore.QObject.connect(self,QtCore.SIGNAL('doubleClicked(const QModelIndex&)'),self.on_opened_file)
 
+    def notify(self, sender, event=None):
+        signal, data = event
+        if signal == 'project_change':
+            self.update()
+
     def update(self):
         self.reinit_treeview()
 
     def reinit_treeview(self):
         """ Reinitialise project view """
-
         if self.session.project:
             self.project = self.session.project
+            if not self._registered:
+                self.project.register_listener(self)
+                self._registered = True
         else:
             self.project = None
         self.proj_model.set_proj(self.project)
@@ -121,11 +135,15 @@ class ProjectTreeView(QtGui.QTreeView):
                 menu.addAction(editAction)
                 menu.addSeparator()
 
+            if self.is_src_selected():
+                renameModelAction = QtGui.QAction('Rename Model',self)
+                renameModelAction.triggered.connect(self.rename_model)
+                menu.addAction(renameModelAction)
+
         if self.controller.project_manager:
             editMetadataAction = QtGui.QAction('Edit/Show Metadata',self)
             editMetadataAction.triggered.connect(self.controller.project_manager.edit_metadata)
             menu.addAction(editMetadataAction)
-            menu.addSeparator()
 
             # importAction = QtGui.QAction('Import Model',self)
             # importAction.triggered.connect(self.controller.paradigm_container.importFile)
@@ -134,9 +152,9 @@ class ProjectTreeView(QtGui.QTreeView):
             #removeAction.triggered.connect(self.controller.project_manager.removeModel)
             #menu.addAction(removeAction)
             # menu.addSeparator()
-            # renameAction = QtGui.QAction('Rename Project',self)
-            # renameAction.triggered.connect(self.controller.paradigm_container.renameCurrent)
-            # menu.addAction(renameAction)
+            renameAction = QtGui.QAction('Rename Project',self)
+            renameAction.triggered.connect(self.controller.project_manager.renameCurrent)
+            menu.addAction(renameAction)
         return menu
 
     def on_opened_file(self):
@@ -151,6 +169,11 @@ class ProjectTreeView(QtGui.QTreeView):
             self.controller.paradigm_container.open_file(model=model)
         else:
             self.controller.paradigm_container.open_file(filename=filename)
+
+    def rename_model(self):
+        item = self.getItem()
+        model_name = item.text()
+        self.controller.project_manager.on_model_renamed(model_name=model_name)
 
     def is_file_selected(self):
         """
