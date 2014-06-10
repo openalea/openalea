@@ -68,8 +68,24 @@ def remove_extension(filename):
     return ".".join(filename.split(".")[:-1])
 
 
-class Project(object):
+def safe_remove(dirpath):
+    """
+    Try to remove directories *dirpath*
+    :param dirpath: path of directory to remove
+    :return: True if success, else False
+    """
+    dirpath = path_(dirpath)
+    if dirpath.isdir():
+        if dirpath.exists():
+            try:
+                dirpath.removedirs()
+                return True
+            except IOError:
+                pass
+    return False
 
+
+class Project(object):
     model_klasses = _model_factories()
 
     def __init__(self, name, path,
@@ -113,15 +129,6 @@ class Project(object):
     #----------------------------------------
     # Public API
     #----------------------------------------
-    def create(self):
-        """
-        Do the same thing that import method.
-
-        .. seealso:: :func:`start` :func:`load` :func:`load_manifest`
-        """
-        warnings.warn("project.create() is deprecated. Please use project.start()")
-        self.start()
-
     def start(self, shell=None, namespace={}):
         """
         1. :func:`load` objects into project.
@@ -177,11 +184,14 @@ class Project(object):
         :param name: name of object to get
         :return: object named *name* in the category *category* if it exists. Else, None.
 
-        :use: >>> get(category="src", name="myscript.py")
+        :use: >>> get(category="model", name="myscript.py")
 
         .. seealso:: :func:`add`
         """
-        if hasattr(self, category):
+        if category == "model":
+            if name in self._model:
+                return self.model(name)
+        elif hasattr(self, category):
             cat = getattr(self, category)
             if name in cat:
                 return cat[name]
@@ -210,13 +220,22 @@ class Project(object):
         Add an existing model to the project.
 
         :param model: model to add to the project (have to exists)
+
+        .. seealso:: :func:`get` :func:`new_model`
         """
         self._model[model.name] = model
 
     def new_model(self, name, code="", filepath="", inputs=[], outputs=[]):
         """
-        Create a model and add it to the project
+        Create a model and add it to the project.
 
+        :param name: name of model to create
+        :param code: object that will be manipulated as model
+        :param filepath: path where model will be saved
+        :param inputs: list of inputs of the model
+        :param outputs: list of outputs of the model
+
+        .. seealso:: :func:`get` :func:`add_model`
         """
         filename = path_(name)
         ext = filename.ext[1:]
@@ -231,7 +250,7 @@ class Project(object):
         """
         Remove an object in the project
 
-        Remove nothing on disk.
+        Remove on disk too.
 
         :param category: category of object to remove ("src", "control", "world", ...) (str)
         :param name: filename of the src to remove (path or str)
@@ -239,42 +258,46 @@ class Project(object):
         category = str(category)
         filename = path_(name)
 
-        if hasattr(self, category):
+        if category == "model":
+            if name in self._model:
+                del self._model[name]
+        elif hasattr(self, category):
             cat = getattr(self, category)
             if filename in cat:
                 del cat[filename]
+        # Try to remove on disk
+        temp_path = self.path / self.name / category / name
+        safe_remove(temp_path)
 
     def rename(self, category, old_name, new_name):
         """
-        Rename a src, a world or a control in the project.
-        If category is project, rename the entire project.
+        Rename a *model*, a *world*, a *control*, ... in the project.
+        If category is *project*, rename the entire project.
 
-        :param category: Can be "src", "control", "world" or "project" (str)
+        :param category: Can be "model", "control", "world" or "project" (str)
         :param old_name: current name of thing to rename (str)
         :param new_name: future name of thing to rename (str)
         """
-        if (category == "project"):
+        category = str(category)
+        old_name = str(old_name)
+        new_name = str(new_name)
+        # rename project
+        if category == "project":
+            # TODO: check if it works
             self.name = new_name
             self.save()
-            if (self.path / old_name).exists():
-                try:
-                    (self.path / old_name).removedirs()
-                except IOError:
-                    pass
+            # Try to remove on disk
+            safe_remove(self.path / old_name)
+        # rename a part of project
         else:
-            if hasattr(self, category):
+            if category == "model":
+                old_model = self._model[old_name]
+                self._model[new_name] = old_model
+            elif hasattr(self, category):
                 cat = getattr(self, category)
-                # Rename in project
-                cat[str(new_name)] = cat[str(old_name)]
-                # Remove inside project
-                self.remove(category, old_name)
-                # TODO: Remove on disk
-                # temp_path = self.path / self.name / category / old_name
-                # if temp_path.exists():
-                #     try:
-                #         path_(temp_path).removedirs()
-                #     except IOError:
-                #         pass
+                cat[new_name] = cat[old_name]
+            # Remove inside project
+            self.remove(category, old_name)
 
     #----------------------------------------
     # Manifest
@@ -288,7 +311,12 @@ class Project(object):
         .. seealso:: :func:`load_manifest`
         """
         config = ConfigObj()
-        config.filename = self.path / self.name / self.config_file
+
+        proj_path = path_(self.path) / self.name
+        config.filename = proj_path / self.config_file
+
+        if not proj_path.exists():
+            proj_path.makedirs()
 
         config['metadata'] = dict()
         config['manifest'] = dict()
@@ -348,8 +376,11 @@ class Project(object):
     #----------------------------------------
     def model(self, name):
         """
+        Get one or various instances of models from this project.
         :param name: name of the file in self.src to convert into model. Can pass various names split by spaces. Can pass "*".
         :return: model object corresponding to the source named *name* in self.src. If various values, return a list of models. If failed, return None.
+
+        .. seealso:: :func:`models`
         """
         if hasattr(name, "split"):
             names = name.split()
@@ -377,93 +408,18 @@ class Project(object):
                 # if manifest is loaded but not models: load model
                 self._load("model", object_name=name2)
                 return_models.append(self._model[name2])
-
-            """
-            filepath = self.path/self.name/"src"/name
-            filenames_without_ext = [".".join(src.split(".")[:-1]) for src in self.src.keys()]
-
-            if name in self.src:
-                filename_without_ext = ".".join(name.split(".")[:-1])
-                if filename_without_ext in self._model:
-                    # if model exists yet, with a short name (without extension), return it
-                    return_models.append(self._model[filename_without_ext])
-                else:
-                    # if model doesn't exists yet, but is in self.src with a complete name (with extension),
-                    # Create model with src and return it
-                    code = self.src[name]
-                    filename = path_(name)
-                    ext = filename.ext[1:]
-                    if ext in self.model_klasses:
-                        # add model to existing models
-                        self._model[filename_without_ext] = self.model_klasses[ext](name=name, code=code, filepath=filepath)
-                        return_models.append(self._model[filename_without_ext])
-            elif name in filenames_without_ext:
-                if name in self._model:
-                    # if model exists yet, with a short name (without extension), return it
-                    return_models.append(self._model[name])
-                else:
-                    # if model doesn't exists yet, but is in self.src with a short name (without extension),
-                    # Create model with src and return it
-                    for compete_name in self.src.keys():
-                        if name == ".".join(compete_name.split(".")[:-1]):
-                            code = self.src[compete_name]
-                            filename = path_(compete_name)
-                            ext = filename.ext[1:]
-                    if ext in self.model_klasses:
-                        # add model to existing models
-                        self._model[name] = self.model_klasses[ext](name=name, code=code, filepath=filepath+"."+ext)
-                        return_models.append(self._model[name])"""
-
+        # If only one model, don't return a list
         if len(return_models) == 1:
             return return_models[0]
         return return_models
 
     def models(self):
         """
-        return all models
+        :return: all models
+
+        .. seealso:: :func:`model`
         """
         return self.model("*")
-
-    #----------------------------------------
-    # src
-    #----------------------------------------
-    def add_script(self, name, script):
-        """
-        Add a src in the project
-
-        :deprecated: replace by :func:`add` method
-        :param name: filename of the src to add (path or str)
-        :param script: to add (string)
-
-        .. seealso:: :func:`add`
-        """
-        warnings.warn(
-            "project.add_script(name, script) is deprecated. Please use project.add('src', name, script) instead.")
-        self.add("src", name, script)
-
-    def remove_script(self, name):
-        """
-        Add a src in the project
-
-        Remove nothing on disk.
-
-        :deprecated: replace by :func:`remove` method
-        :param name: filename of the src to remove (path or str)
-
-        .. seealso:: :func:`remove`
-        """
-        warnings.warn("project.remove_script(name) is deprecated. Please use project.remove('src', name) instead.")
-        self.remove("src", name)
-
-    def run_src(self, name, namespace={}):
-        """
-        Try to run the source file named *name* into current shell
-
-        :param name: name of the source to run
-        :param namespace: dict used to run the sources. Default, empty dict.
-        """
-        src = self.get("src", name)
-        exec(src, namespace)
 
     #----------------------------------------
     # Protected
@@ -474,6 +430,7 @@ class Project(object):
 
         :param namespace: dict used to run the sources. Default, empty dict.
         """
+        # TODO: use service to know how to load objects
         object_type = str(object_type)
         return_object = dict()
 
@@ -528,6 +485,7 @@ class Project(object):
             return return_object
 
     def _save(self, object_type):
+        # TODO: use service to know how to save objects
         object_type = str(object_type)
         if object_type == "model":
             for model_name in self._model:
@@ -564,10 +522,6 @@ class Project(object):
                     saver = Saver()
                     saver.save(object_[sub_object], filename)
 
-    def _save_scripts(self):
-        warnings.warn("project._save_scripts is deprecated. Please use project._save('src') instead.")
-        self._save("src")
-
     def _startup_import(self, shell=None, namespace={}):
         """
         :param shell: shell to run startup. Has to have the method "runcode(code)". Default, None.
@@ -598,19 +552,10 @@ class Project(object):
 
     def __repr__(self):
         txt = "Project named " + str(self.name) + " in path " + str(self.path) + """.
-
 """
         for metada in self.metadata:
             if self.metadata[metada]:
                 txt = txt + metada + " : " + str(self.metadata[metada]) + ". "
-
-        txt = txt + """
-
-"""
-        for file_ in self.files:
-            if self.files[file_]:
-                txt = txt + file_ + " : " + str(self.files[file_])
-
         return txt
 
     def use_ipython(self):
@@ -790,6 +735,9 @@ class Project(object):
 
     @property
     def doc(self):
+        """
+        :return: the documentation of the project (str)
+        """
         return self.files["doc"]
 
     @doc.setter
@@ -798,6 +746,9 @@ class Project(object):
 
     @property
     def icon_path(self):
+        """
+        :return: the complete path of the icon. To modify it, you have to modify the path of project, the name of project and/or the self.icon.
+        """
         icon_name = None
         if self.icon:
             if not self.icon.startswith(':'):

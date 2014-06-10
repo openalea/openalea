@@ -25,7 +25,7 @@ from openalea.core.singleton import Singleton
 
 class ProjectManager(object):
     """
-    Object which manage projects: creation, loading, saving, searching, ...
+    Object which permit to access to projects: creation, loading, searching, ...
 
     It is a singleton.
     """
@@ -78,17 +78,18 @@ class ProjectManager(object):
                         project.load_manifest()
                         self.projects.append(project)
 
-    def search(self, *args, **kwargs):
+    def search(self, name):
         """
         Search a specific project that match filters.
 
         :use:
-            >>> project_manager.search(name="*mtg*", author="*Godin*")
+            >>> project_manager.search(name="myproject")
 
-        :TODO: not implemented yet
+        :param name: name of project to search (str)
+        :return: project if it is find, else None
+
+        :TODO: implement with real filter (ex: name = "*mtg*", authors = "*OpenAlea*", ...)
         """
-        if args:
-            name = args[0]
         proj = [proj for proj in self.projects if proj.name == name]
         if len(proj):
             return proj[0]
@@ -174,18 +175,15 @@ class ProjectManager(object):
 
     def close(self, name=None, path=None):
         """
+        Close current project.
+
         :TODO: not yet implemented
         """
         del self.cproject
-        # self.cproject = self.default()
 
-    """
     def __getitem__(self, name):
-        try:
-            self.cproject = self.load(name)
-            return self.get_current()
-        except:
-            return self.default()"""
+        self.cproject = self.search(name)
+        return self.get_current()
 
     def clear(self):
         """
