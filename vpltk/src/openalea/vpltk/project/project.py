@@ -495,12 +495,7 @@ class Project(object):
         if object_type == "model":
             for model_name in self._model:
                 model = self._model[model_name]
-                filepath = path_(model.filepath)
-                if not filepath.isabs():
-                    filepath = self.path/self.name/"model"/filepath
-                Saver = get_saver()
-                saver = Saver()
-                saver.save(model.repr_code(), filepath)
+                self._save_model(model)
         else:
             object_ = getattr(self, object_type)
             if object_:
@@ -526,6 +521,14 @@ class Project(object):
                         Saver = get_saver("CPickleSaver")
                     saver = Saver()
                     saver.save(object_[sub_object], filename)
+
+    def _save_model(self, model):
+        filepath = path_(model.filepath)
+        if not filepath.isabs():
+            filepath = self.path/self.name/"model"/filepath
+        Saver = get_saver()
+        saver = Saver()
+        saver.save(model.repr_code(), filepath)
 
     def _startup_import(self, shell=None, namespace={}):
         """
