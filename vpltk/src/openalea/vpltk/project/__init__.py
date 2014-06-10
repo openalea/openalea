@@ -24,6 +24,7 @@ You can work directly on project:
 
 .. code-block:: python
 
+    from openalea.vpltk.project import Project
     project1 = Project(name="mynewproj", path="/path/to/proj")
 
     project1.rename("project", "mynewproj", "hello_project")
@@ -34,12 +35,12 @@ You can work directly on project:
     Then, it create and display a numpy eye.
     We use it to test concept of Project.'''
 
-    project1.add(category="src", name"hello.py", value="print 'Hello World'")
+    project1.add(category="model", name="hello.py", value="print('Hello World')")
     project1.description = "This project is used to said hello to everyone"
 
-    project1.add("startup", "begin_numpy.py", "import numpy as np")
-    project1.add("src", "eye.py", "print np.eye(2)")
-    project1.rename("scripts", "eye.py", "eye_numpy.py")
+    project1.add("startup", "begin_numpy", "import numpy as np")
+    project1.add("model", "eye.py", "print np.eye(2)")
+    project1.rename("model", "eye", "eye_numpy")
 
     project1.save()
 
@@ -47,7 +48,7 @@ Or, you can create or load a *project* thanks to the *project manager*.
 
 .. code-block:: python
 
-    from openalea.vpltk.project.manager import ProjectManager
+    from openalea.vpltk.project import ProjectManager
     # Instanciate ProjectManager
     project_manager = ProjectManager()
     # Discover available projects
@@ -65,8 +66,9 @@ Or, you can create or load a *project* thanks to the *project manager*.
     project2 = project_manager.load("numpy_project")
     # Run startup
     project2.start()
-    # Run script
-    project2.run_script("eye_numpy.py")
+    # Run model
+    model = project2.model("eye_numpy")
+    model()
 
 To search projects that are not located inside default directories:
 
