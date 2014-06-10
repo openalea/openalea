@@ -21,9 +21,10 @@ from openalea.core.path import path as path_
 from openalea.core import settings
 from openalea.vpltk.project.project import Project
 from openalea.core.singleton import Singleton
+from openalea.core.observer import Observed, AbstractListener
 
 
-class ProjectManager(object):
+class ProjectManager(Observed, AbstractListener):
     """
     Object which permit to access to projects: creation, loading, searching, ...
 
@@ -32,7 +33,8 @@ class ProjectManager(object):
     __metaclass__ = Singleton
 
     def __init__(self):
-        super(ProjectManager, self).__init__()
+        Observed.__init__(self)
+        AbstractListener.__init__(self)
         self.projects = []
         self.cproject = self.default()
         self.find_links = [path_(settings.get_project_dir())]
@@ -67,7 +69,7 @@ class ProjectManager(object):
             project_manager.find_links.append('path/to/search/projects')
             project_manager.discover()
         """
-        self.clear()
+        self.projects = []
         for path in self.find_links:
             for root, dirs, files in os.walk(path):
                 if "oaproject.cfg" in files:
@@ -191,6 +193,21 @@ class ProjectManager(object):
         """
         self.projects = []
         self.cproject = self.default()
+
+    def notify(self, sender, event=None):
+        signal, data = event
+        if signal == 'project_change':
+            self.notify_listeners(('current_project_change', self))
+
+    @property
+    def cproject(self):
+        return self._cproject
+
+    @cproject.setter
+    def cproject(self, project):
+        self._cproject = project
+        project.register_listener(self)
+        self.notify_listeners(('current_project_change', self))
 
 
 def main():
