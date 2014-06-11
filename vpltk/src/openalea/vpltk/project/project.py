@@ -298,7 +298,7 @@ class Project(Observed):
         :param old_name: current name of thing to rename (str)
         :param new_name: future name of thing to rename (str)
         """
-        category = str(category)
+        category = str(category).lower()
         old_name = str(old_name)
         new_name = str(new_name)
         # rename project
@@ -312,9 +312,10 @@ class Project(Observed):
             # safe_remove(self.path / old_name)
         # rename a part of project
         else:
-            if category == "model":
+            if category in ["model", "models"]:
                 old_model = self._model[old_name]
                 old_model.name = new_name
+                old_model.filepath = path_(new_name)
                 self._model[new_name] = old_model
             elif hasattr(self, category):
                 cat = getattr(self, category)
@@ -514,7 +515,7 @@ class Project(Observed):
         if object_type == "model":
             for model_name in self._model:
                 model = self._model[model_name]
-                self._save_model(model)
+                self.save_model(model)
         else:
             object_ = getattr(self, object_type)
             if object_:
@@ -541,7 +542,7 @@ class Project(Observed):
                     saver = Saver()
                     saver.save(object_[sub_object], filename)
 
-    def _save_model(self, model):
+    def save_model(self, model):
         filepath = path_(model.filepath)
         if not filepath.isabs():
             filepath = self.path/self.name/"model"/filepath
