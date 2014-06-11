@@ -25,11 +25,12 @@ class GenericFileBrowser(QtGui.QWidget):
         super(GenericFileBrowser, self).__init__()
         layout = QtGui.QGridLayout()
         self.model = QtGui.QFileSystemModel()
-        self.model.setRootPath(".")
         self.tree = QtGui.QTreeView()
         self.tree.setModel(self.model)
-        project_dir = settings.get_project_dir()
-        self.tree.setRootIndex(self.model.index(project_dir))
+        home_dir = settings.get_default_home_dir()
+        root_dir = "."
+        self.model.setRootPath(root_dir)
+        self.tree.setRootIndex(self.model.index(home_dir))
         layout.addWidget(self.tree)
         self.setLayout(layout)
 
