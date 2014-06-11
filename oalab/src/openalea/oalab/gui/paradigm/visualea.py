@@ -33,9 +33,9 @@ from openalea.core.compositenode import CompositeNodeFactory
 from openalea.oalab.service.help import display_help
 
 
-def repr_workflow(self, name=None):
+def get_code(self):
     """
-    :return: workflow repr to save
+    :return: workflow string representation to save it on disk
     """
     return self.applet.model.repr_code()
 
@@ -44,28 +44,7 @@ def actions(self):
     """
     :return: list of actions to set in the menu.
     """
-    return self._actions    
-
-
-def save(self, name=None):
-    """
-    Save Current workflow
-    """
-    if name:
-        self.name = name
-
-    wf_str = self.repr_workflow(self.name)
-
-    if self.name == (u"workflow.wpy"):
-        new_fname = QtGui.QFileDialog.getSaveFileName(self, 'Select name to save the file %s' % self.name, self.name)
-        if new_fname != u"":
-            self.name = new_fname
-
-    f = open(self.name, "w")
-    code = str(wf_str).encode("utf8", "ignore")
-    f.write(code)
-    f.close()
-    return True
+    return self._actions
 
 
 def mainMenu(self):
@@ -106,24 +85,14 @@ class VisualeaModelController(object):
                                  )
         self._widget.mainMenu = types.MethodType(mainMenu, self._widget)
         self._widget.applet = self
-        self._widget.actionSave = QtGui.QAction(QtGui.QIcon(":/images/resources/save.png"),"Save", self._widget)
-
         self._widget._actions = None
-        #self._widget._actions = ["Simulation",[["Workflow Edit",self._widget.actionSave,0]]]
 
         methods = {}
         methods['actions'] = actions
-        methods['save'] = save
-        methods['repr_workflow'] = repr_workflow
-        methods['get_text'] = repr_workflow
+        methods['get_code'] = get_code
         methods['mainMenu'] = mainMenu
 
         self._widget = adapt_widget(self._widget, methods)
-
-        #self._widget.actionSave.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
-        #see Also QSignalMapper
-        QtCore.QObject.connect(self._widget.actionSave, QtCore.SIGNAL('triggered(bool)'), self.editor_container.save)
-
         # todo
         # viewernode.registerPlotter(self.controller._plugins['Viewer3D'].instance())
 
@@ -196,18 +165,9 @@ More informations: http://openalea.gforge.inria.fr/doc/openalea/visualea/doc/_bu
     def reinit(self, *args, **kwargs):
         return self.model.init(*args, **kwargs)
 
-    def save(self, name=None):
-        code = self.widget().repr_workflow()
-        if name:
-            self.model.filepath = name
-        self.model.code = code
-        self.widget().save(name=self.model.filepath)
-
 
 def adapt_widget(widget, methods):
-    method_list = ['actions', 
-                   'save', 
-                   'repr_workflow', 'get_text', 'mainMenu']
+    method_list = ['actions', 'get_code', 'mainMenu']
     def check():
         for m in method_list:
             if m not in methods:

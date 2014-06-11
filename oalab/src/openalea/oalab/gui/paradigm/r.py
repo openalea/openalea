@@ -92,10 +92,3 @@ class RModelController(object):
         :return: the edition widget
         """
         return self._widget
-
-    def save(self, name=None):
-        code = self.widget().get_text()
-        if name:
-            self.model.filepath = name
-        self.model.code = code
-        self.widget().save(name=self.model.filepath)

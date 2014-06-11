@@ -25,6 +25,7 @@ from openalea.core import settings
 from openalea.core.path import path
 from openalea.oalab.gui import resources_rc # do not remove this import else icon are not drawn
 from openalea.oalab.gui.utils import qicon
+from openalea.vpltk.project import ProjectManager
 
 
 class ParadigmContainer(QtGui.QTabWidget):
@@ -377,42 +378,76 @@ class ParadigmContainer(QtGui.QTabWidget):
         """
         return "Simulation"
 
-    def save(self, name=None):
+    def save_all(self):
+        """
+        Save all opened files
+        """
+        n = self.count()
+        for i in range(n):
+            self.setCurrentIndex(i)
+            self.save()
+
+    def save(self):
         """
         Save current script
         """
-        logger.debug("Save name: " + str(name))
-        self.currentWidget().applet.save(name=name)
+        code = self.currentWidget().get_code()
+        model = self.currentWidget().applet.model
+        model.code = code
+
+
+        proj = ProjectManager().cproject
+
+        if proj:
+            models = proj.models()
+            if not isinstance(models, list):
+                models = [models]
+            if model.name in [mod.name for mod in models]:
+                logger.debug("1 Save model inside project.")
+                proj.save_model(model)
+                proj.save_manifest()
+            else:
+                logger.debug("2 Save model outside project but work inside project.")
+                f = open(model.name, "w")
+                code = str(code).encode("utf8", "ignore")
+                f.write(code)
+                f.close()
+        else:
+            logger.debug("3 Save model outside project.")
+            f = open(model.name, "w")
+            code = str(code).encode("utf8", "ignore")
+            f.write(code)
+            f.close()
+
         self.setTabBlack()
+
+        # TODO: save as
+        logger.debug("Model named " + str(model.name) + " saved.")
 
     def save_as(self):
         """
         Save current script as
         """
-        logger.debug("Save as")
+        logger.debug("Save model As")
         filename = QtGui.QFileDialog.getSaveFileName(parent=self, caption="Save file as")
+        model = self.currentWidget().applet.model
         if filename:
-            self.setTabText(self.currentIndex(), filename)
-            self.save(name=filename)
-            self.setTabBlack()
-
-    def save_all(self):
-        """
-        Save all opened src
-        """
-        logger.debug("Save all models")
-        n = self.count()
-        for i in range(n):
-            wid = self.widget(i)
-            name = wid.applet.name
-            wid.save(name=name)
-            if hasattr(self.widget(i), "editor"):
-                name = self.widget(i).editor.name
+            #rename
+            proj = ProjectManager().cproject
+            if proj:
+                models = proj.models()
+                if not isinstance(models, list):
+                    models = [models]
+                if model.name in [mod.name for mod in models]:
+                    old_name = self.tabText(self.currentIndex())
+                    proj.rename("model", old_name, filename)
+                else:
+                    model.name = filename
             else:
-                name = self.widget(i).name
-            logger.debug("%s saved." % name)
-            self.setTabText(i, name)
-            self.setTabBlack()
+                model.name = filename
+            self.setTabText(self.currentIndex(), filename)
+            # save
+            self.save()
 
     def run_selected_part(self):
         if self.controller.project_manager:

@@ -77,10 +77,10 @@ class RichTextEditor(QtGui.QWidget):
         :param end: is the end of what you want to get
         :return: text which is contained in the editor between 'start' and 'end'
         """
-        return self.editor.get_text(start='sof', end='eof')
+        return self.editor.get_text(start=start, end=end)
 
-    def save(self, name=None):
-        self.editor.save(name)
+    def get_code(self, start='sof', end='eof'):
+        return self.get_text(start=start, end=end)
 
     def goto(self):
         self.goto_widget.show()
@@ -179,31 +179,6 @@ class TextEditor(QtGui.QTextEdit):
         if txt is None:
             txt = ""
         return txt
-
-    def save(self, name=None):
-        """
-        Save current file.
-
-        :param name: name of the file to save.
-        If not name, self.name is used.
-        If self.name is not setted and name is not give in parameter,
-        a File Dialog is opened.
-        """
-        logger.debug("Try to save text")
-
-        txt = self.get_text()
-        if name:
-            self.name = name
-        if not self.name:
-            self.name = QtGui.QFileDialog.getSaveFileName(self, 'Select name to save the file', ".")
-        if self.name is not None:
-            f = open(self.name, "w")
-            code = str(txt).encode("utf8", "ignore")
-            f.write(code)
-            f.close()
-            logger.debug("Try to save file in " + str(self.name))
-            return True
-        return False
 
     def canInsertFromMimeData(self, source):
         if source.hasFormat('openalealab/control'):
