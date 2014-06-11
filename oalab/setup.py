@@ -109,7 +109,7 @@ setup(
             'ControlManager = openalea.oalab.plugins.applets.controlmanager:ControlManager',
             # 'ControlPanel = openalea.oalab.plugins.applets.controlpanel:ControlPanel',
             'EditorManager = openalea.oalab.plugins.applets.editormanager:EditorManager',
-            # 'FileBrowser = openalea.oalab.plugins.applets.filebrowser:FileBrowser',
+            'FileBrowser = openalea.oalab.plugins.applets.filebrowser:FileBrowser',
             'HelpWidget = openalea.oalab.plugins.applets.helpwidget:HelpWidget',
             'HistoryWidget = openalea.oalab.plugins.applets.historywidget:HistoryWidget',
             'Logger = openalea.oalab.plugins.applets.logger:Logger',
