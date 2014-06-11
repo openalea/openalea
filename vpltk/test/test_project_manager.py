@@ -44,9 +44,17 @@ def test_add_path():
 def test_search():
     pm = ProjectManager()
     pm.discover()
-    projs = pm.search()
-    assert type(projs) is list
-    assert projs is pm.projects
+    proj = pm.search()
+
+    if proj:
+        if not isinstance(pm.projects, list):
+            pm.projects = [pm.projects]
+        names = [pro.name for pro in pm.projects]
+        assert proj.name in names
+    else:
+        assert proj is None
+        assert pm.projects == []
+
 
 
 def test_load_default():

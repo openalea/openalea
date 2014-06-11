@@ -80,7 +80,7 @@ class ProjectManager(Observed, AbstractListener):
                         project.load_manifest()
                         self.projects.append(project)
 
-    def search(self, name):
+    def search(self, name=None):
         """
         Search a specific project that match filters.
 
@@ -90,9 +90,16 @@ class ProjectManager(Observed, AbstractListener):
         :param name: name of project to search (str)
         :return: project if it is find, else None
 
+        If various projects are find, return the first (arbitrary)
+
         :TODO: implement with real filter (ex: name = "*mtg*", authors = "*OpenAlea*", ...)
         """
-        proj = [proj for proj in self.projects if proj.name == name]
+        if name:
+            proj = [proj for proj in self.projects if proj.name == name]
+        else:
+            proj = self.projects
+            if not isinstance(proj, list):
+                proj = [proj]
         if len(proj):
             return proj[0]
         return None
@@ -181,7 +188,8 @@ class ProjectManager(Observed, AbstractListener):
 
         :TODO: not yet implemented
         """
-        del self.cproject
+        # TODO: cleaner!
+        del self._cproject
 
     def __getitem__(self, name):
         self.cproject = self.search(name)
