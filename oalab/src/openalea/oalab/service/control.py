@@ -18,8 +18,8 @@
 
 __all__ = [
            "qt_editors",
-           "edit", "edit_qt", "edit_notebook", "edit_bash",
-           "register_control", "get_control"
+           "edit", "edit_qt", "edit_notebook", "edit_bash", "clear_ctrl_manager"
+           "register_control", "get_control", "save_controls", "load_controls"
            ]
 
 from openalea.vpltk.qt import QtGui
@@ -167,3 +167,37 @@ def register_control(name, value):
 def get_control(name):
     from openalea.oalab.control.manager import ControlManager
     return ControlManager().control(name)
+
+
+def save_controls(controls, filepath):
+    """
+    Save controls on disk.
+
+    :param controls: controls objects
+    :param filepath: complete path of file which will contain controls
+    :return: True if success.
+    """
+    # TODO
+    # @GBY
+    pass
+
+
+def load_controls(filepath):
+    """
+    Get controls from disk.
+
+    :param filename: complete path of file which contain controls
+    :return: controls objects
+    """
+    # TODO
+    # @GBY
+    pass
+
+
+def clear_ctrl_manager():
+    """
+    Empty the control manager
+    """
+    # TODO
+    # @GBY
+    pass
