@@ -13,9 +13,9 @@ def test_import_project():
 def test_load():
     pm = ProjectManager()
     current_path = path('.')
-    proj = pm.load('test_project_lpy', current_path / 'data')  # load in globals context and python as startup
+    proj = pm.load(name='test_project_lpy', path=current_path / 'data')  # load in globals context and python as startup
 
-    for category in ["src", "cache", "control", "scene", "startup"]:
+    for category in ["src", "cache", "scene", "startup"]:
         assert hasattr(proj, category)
 
     for category in ["name", "icon", "author", "description", "version", "license", "dependencies"]:
@@ -43,22 +43,22 @@ def test_save_project():
         shutil.rmtree(name)
 
     proj = pm.create('my_new_temp_project', path("data"))
-    proj.src["plop.py"] = "print 'hello world'"
-    proj.control["my_integer"] = 42
-    proj.control["my_float"] = 3.14
+    proj.add("model", "plop.py", "print 'hello world'")
+    # proj.control["my_integer"] = 42
+    # proj.control["my_float"] = 3.14
     proj.save()
 
     assert len(proj.src) == 1
-    assert len(proj.control) == 2
+    # assert len(proj.control) == 2
 
     pm.close('my_new_temp_project')
     proj2 = pm.load('my_new_temp_project', path("data"))
 
     assert len(proj2.src) == 1
-    assert len(proj2.control) == 2
-    assert proj2.control["my_integer"] == 42
-    assert proj2.control["my_float"] == 3.14
-    assert proj2.src["plop.py"] == "print 'hello world'"
+    # assert len(proj2.control) == 2
+    # assert proj2.control["my_integer"] == 42
+    # assert proj2.control["my_float"] == 3.14
+    assert proj2.src["plop"].code == "print 'hello world'"
 
     pm.close('my_new_temp_project')
     shutil.rmtree(name)
@@ -67,11 +67,11 @@ def test_save_project():
 def test_add_script():
     pm = ProjectManager()
     proj = pm.create('my_new_temp_project', path("data"))
-    proj.add("src", "1", "blablabla")
-    proj.add("src", "2", "blablabla2")
-    proj.add("src", "3", "blablabla3")
-    proj.add("src", "4", "blablabla4")
-    assert len(proj.src) == 4
+    proj.add("model", "1.py", "blablabla")
+    proj.add("model", "2.py", "blablabla2")
+    proj.add("model", "3.py", "blablabla3")
+    proj.add("model", "4.py", "blablabla4")
+    assert len(proj.models()) == 4
     assert proj.is_project() is True
     assert proj.is_script() is False
 
@@ -79,16 +79,16 @@ def test_add_script():
 def test_rename():
     pm = ProjectManager()
     proj = pm.create('my_new_temp_project', path("data"))
-    proj.add("src", "1", "blablabla")
-    proj.rename("src", "1", "2")
+    proj.add("model", "1.py", "blablabla")
+    proj.rename("model", "1", "2")
     assert len(proj.src) == 1
-    assert proj.src["2"] == "blablabla"
+    assert proj.src["2"].repr_code() == "blablabla"
 
 
 def test_rename_project():
     pm = ProjectManager()
     proj = pm.create('my_new_temp_project', path("data"))
-    proj.add("src", "1", "blablabla")
+    proj.add("model", "1.py", "blablabla")
     proj.rename("project", "my_new_temp_project", "new_name")
     assert proj.name == "new_name"
 
