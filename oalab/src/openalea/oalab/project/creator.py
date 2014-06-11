@@ -82,7 +82,7 @@ class CreateProjectWidget(QtGui.QWidget):
             # layout.addWidget(self.btn_path, 12, 2)
             # self.connect(self.btn_path, QtCore.SIGNAL('clicked()'), self.select_path)
 
-            self.ok_btn = QtGui.QPushButton("Create metadata set")
+            self.ok_btn = QtGui.QPushButton("Ok")
             layout.addWidget(self.ok_btn, 13, 0, 1, 3)
             self.connect(self.ok_btn, QtCore.SIGNAL('clicked()'), self.ok_clicked)
         else:
