@@ -60,7 +60,7 @@ class ProjectManager(Observed, AbstractListener):
 
         :use:
             >>> project_manager.discover()
-            >>> print project_manager.projects
+            >>> list_of_projects = project_manager.projects
 
         To discover new projects, you can add path into *self.find_links*
 
@@ -164,23 +164,25 @@ class ProjectManager(Observed, AbstractListener):
             >>> project2 = project_manager.load('project2', '/path/to/project')
 
         :param name: name of project to load. Must be a string.
-        :param path: path of project to load. Must be a path (see module path.py). By default, the path is the openaelea.core.settings.get_project_dir() ($HOME/.openalea/projects/).
+        :param path: path of project to load. Must be a path (see module path.py). By default, try to guess with name only. If there are various projects with the same name, return the first.
         :return: Project
         """
         if not path:
-            path = path_(settings.get_project_dir())
-
-        full_path = path_(path) / name
-
-        if full_path.exists():
-            self.cproject = Project(name, path)
-            self.cproject.load()
-
-            return self.get_current()
+            for project in self.projects:
+                if project.name == name:
+                    self.cproject = project
+                    project.load()
+                    return self.get_current()
         else:
-            #raise IOError('Project %s in repository %s does not exist' %(name,path))
-            #print 'Project %s in repository %s does not exist' %(name,path)
-            return -1
+            full_path = path_(path) / name
+
+            if full_path.exists():
+                self.cproject = Project(name, path)
+                self.cproject.load()
+                return self.get_current()
+        #raise IOError('Project %s in repository %s does not exist' %(name,path))
+        #print 'Project %s in repository %s does not exist' %(name,path)
+        return -1
 
     def close(self, name=None, path=None):
         """

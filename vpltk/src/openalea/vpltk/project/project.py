@@ -39,7 +39,7 @@ stored in your computer.
 
         project1 = Project(name="mynewproj", path="/path/to/proj")
         project1.start()
-        project1.add(category="src", name="hello.py", value="print 'Hello World'")
+        project1.add(category="model", name="hello.py", value="print 'Hello World'")
         project1.author = "John Doe"
         project1.description = "This project is used to said hello to everyone"
         project1.save()
@@ -93,16 +93,16 @@ def safe_remove(dirpath):
 
 
 class Project(Observed):
+    """
+    :param name: name of the project to create or load
+    :param path: path of the project to create or load
+    """
     model_klasses = _model_factories()
 
     def __init__(self, name, path,
                  icon="", author="OpenAlea Consortium", author_email="",
                  description="", long_description="", citation="", url="", dependencies=[], license="CeCILL-C",
                  version="0.1"):
-        """
-        :param name: name of the project to create or load
-        :param path: path of the project to create or load
-        """
         Observed.__init__(self)
         # Metadata
         self.path = path_(path)
@@ -196,8 +196,6 @@ class Project(Observed):
         :param category: category of object to get
         :param name: name of object to get
         :return: object named *name* in the category *category* if it exists. Else, None.
-
-        :use: >>> get(category="model", name="myscript.py")
 
         .. seealso:: :func:`add`
         """
