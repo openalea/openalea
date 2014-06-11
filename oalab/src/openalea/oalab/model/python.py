@@ -34,6 +34,7 @@ class PythonModel(Model):
         super(PythonModel, self).__init__(name=name, code=code, filepath=filepath, inputs=inputs, outputs=outputs)
         self.code = code  # use it to force to parse doc, functions, inputs and outputs
         self.ns = dict()
+        self._interpreter = None
 
     def get_documentation(self):
         """
@@ -199,15 +200,23 @@ animate()
 
     def _set_interpreter(self, **kwargs):
         if not "interpreter" in kwargs:
-            try:
-                from IPython.core.getipython import get_ipython
-                interpreter = get_ipython()
-            except NameError:
-                interpreter = None
-                #raise("No interpreter is available to run model %s" % str(self))
+            if not hasattr(self, "_interpreter"):
+                try:
+                    from IPython.core.getipython import get_ipython
+                    self._interpreter = get_ipython()
+                except NameError:
+                    self._interpreter = None
+                    raise("No interpreter is available to run model %s" % str(self))
+            elif self._interpreter is None:
+                try:
+                    from IPython.core.getipython import get_ipython
+                    self._interpreter = get_ipython()
+                except NameError:
+                    self._interpreter = None
+                    raise("No interpreter is available to run model %s" % str(self))
         else:
-            interpreter = kwargs["interpreter"]
-        return interpreter
+            self._interpreter = kwargs["interpreter"]
+        return self._interpreter
 
     def set_output_from_ns(self, namespace):
         # get outputs from namespace
