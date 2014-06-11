@@ -123,7 +123,6 @@ class Project(Observed):
 
         # Data
         self.files = {
-            "control": dict(),
             "cache": dict(),
             "data": dict(),
             "world": dict(),
@@ -133,6 +132,8 @@ class Project(Observed):
 
         self._model = dict()
         self._model_names = []
+        self._control = None
+        self._control_name = ["ctrls"]
         self.notify_listeners(('project_change', self))
 
     #----------------------------------------
@@ -356,6 +357,11 @@ class Project(Observed):
         modelnames = [model.filepath for model in self._model.values()]
         config['manifest']["model"] = modelnames
 
+        if self.control:
+            # @GBY
+            # Only used for introspection
+            config['manifest']["control"] = self._control_name
+
         config.write()
 
     def load_manifest(self):
@@ -382,6 +388,10 @@ class Project(Observed):
             for files in config["manifest"].keys():
                 if files == "model":
                     self._model_names = config["manifest"]["model"]
+                elif files == "control":
+                    # @GBY
+                    # Only used for introspection
+                    self._control_name = config["manifest"]["control"]
                 else:
                     # Hack to stay backward compatible with first versions of projects
                     if files == "src":
@@ -482,7 +492,7 @@ class Project(Observed):
         elif object_type == "control":
             # @GBY: 3 following lines
             from openalea.oalab.service.control import load_controls
-            filepath = self.path / self.name / object_type / "ctrls"
+            filepath = self.path / self.name / object_type / self._control_name
             self.control = load_controls(filepath)
 
         else:
@@ -529,7 +539,7 @@ class Project(Observed):
             # @GBY: 4 following lines
             from openalea.oalab.service.control import save_controls
             ctrls = self.control
-            filepath = self.path / self.name / object_type / "ctrls"
+            filepath = self.path / self.name / object_type / self._control_name
             save_controls(ctrls, filepath)
 
         else:
@@ -743,11 +753,11 @@ class Project(Observed):
 
     @property
     def control(self):
-        return self.files["control"]
+        return self._control
 
     @control.setter
     def control(self, value):
-        self.files["control"] = value
+        self._control = value
         self.notify_listeners(('project_change', self))
 
     @property
