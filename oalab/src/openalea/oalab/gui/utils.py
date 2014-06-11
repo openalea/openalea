@@ -23,3 +23,26 @@ from openalea.vpltk.qt import QtGui
 
 def qicon(filename):
     return QtGui.QIcon(":/images/resources/%s" % filename)
+
+
+class ModalDialog(QtGui.QDialog):
+    def __init__(self, widget, parent=None):
+        QtGui.QDialog.__init__(self, parent)
+        self.setContentsMargins(0, 0, 0, 0)
+        self.setModal(True)
+
+        _bbox = QtGui.QDialogButtonBox
+        bbox = _bbox(_bbox.Ok | _bbox.Cancel)
+        bbox.accepted.connect(self.accept)
+        bbox.rejected.connect(self.reject)
+
+        ok = bbox.button(_bbox.Ok)
+        ok.setDefault(True)
+
+        layout = QtGui.QVBoxLayout(self)
+        layout.setSpacing(0)
+        layout.setContentsMargins(0, 5, 0, 5)
+        layout.addWidget(widget)
+        layout.addWidget(bbox)
+
+

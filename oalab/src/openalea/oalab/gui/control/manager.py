@@ -16,30 +16,14 @@
 #
 ###############################################################################
 
+import weakref
+
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core.observer import AbstractListener
 
 from openalea.oalab.gui.control.model_view import ControlModel, ControlView
 from openalea.oalab.control.manager import ControlManager
-from openalea.oalab.service.control import edit_qt, qt_paint_function
-
-def preview(control, size):
-    paint = qt_paint_function(control)
-    if paint:
-        pixmap = QtGui.QPixmap(size)
-        painter = QtGui.QPainter()
-        painter.begin(pixmap)
-        paint(control, painter, pixmap.rect(), None)
-        painter.end()
-        widget = QtGui.QLabel()
-        widget.setPixmap(pixmap)
-        return widget
-    else:
-        widget = edit_qt(control, shape='small')
-        if widget:
-            return widget
-        else:
-            return QtGui.QLabel(unicode(control.value))
+from openalea.oalab.service.control import qt_editor
 
 
 class ControlManagerWidget(QtGui.QWidget, AbstractListener):
@@ -54,6 +38,7 @@ class ControlManagerWidget(QtGui.QWidget, AbstractListener):
 
         self.view = ControlView()
         self.view.setModel(self.model)
+        self.view.controlsSelected.connect(self.on_controls_selected)
 
         self._layout.setSpacing(0)
         self._layout.setContentsMargins(0, 0, 0, 0)
@@ -61,33 +46,41 @@ class ControlManagerWidget(QtGui.QWidget, AbstractListener):
         self._layout.addWidget(QtGui.QLabel("Global controls"))
         self._layout.addWidget(self.view)
 
+        self._l_edit = QtGui.QLabel("Control editor")
+        self._l_no_edit = QtGui.QWidget()
+        self._l_no_edit.setMinimumSize(300, 300)
+
+        self._layout.addWidget(self._l_edit)
+        self._layout.addWidget(self._l_no_edit)
+
         self._i = 1
 
         self._index = None
+        self._widget_edit = None
 
-class ControlPanel(QtGui.QWidget):
-    def __init__(self):
-        QtGui.QWidget.__init__(self)
-        self._layout = QtGui.QHBoxLayout(self)
-        self.setAcceptDrops(True)
+    def on_controls_selected(self, controls):
+        if self._widget_edit:
+            widget = self._widget_edit()
+            self._layout.removeWidget(widget)
+            widget.close()
+            self._widget_edit = None
+            self._l_no_edit.show()
+            del widget
 
-    def sizeHint(self):
-        return QtCore.QSize(300, 300)
+        if not controls:
+            return
 
-    def dragEnterEvent(self, event):
-        if event.mimeData().hasFormat('openalealab/control'):
-            event.acceptProposedAction()
-        else:
-            return QtGui.QWidget.dragEnterEvent(self, event)
+        widget = QtGui.QWidget()
+        widget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        size = self._l_no_edit.size()
+        widget.setMinimumSize(size.width(), size.height())
+        widget.setMaximumSize(size.width(), size.height())
+        self._l_no_edit.hide()
 
-    def dropEvent(self, event):
-        source = event.mimeData()
-        if source.hasFormat('openalealab/control'):
-            from openalea.oalab.service.mimetype import decode
-            control = decode('openalealab/control', source.data('openalealab/control'))
-            widget = preview(control, (300, 300))
-            if widget:
-                self._layout.addWidget(widget)
-                event.acceptProposedAction()
-        else:
-            return QtGui.QWidget.dropEvent(self, event)
+        layout = QtGui.QVBoxLayout(widget)
+        print [c.name for c in controls]
+        for control in controls:
+            subwidget = qt_editor(control, shape='large', preferred=control.widget)
+            layout.addWidget(subwidget)
+        self._layout.addWidget(widget)
+        self._widget_edit = weakref.ref(widget)

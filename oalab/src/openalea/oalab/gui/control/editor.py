@@ -3,25 +3,13 @@ import weakref
 from openalea.vpltk.qt import QtGui, QtCore
 
 from openalea.oalab.service import interface
-from openalea.oalab.service.control import discover_qt_controls, qt_editors
+from openalea.oalab.service.control import qt_widget_plugins
 from openalea.oalab.control.control import Control
 
-
-# class ControlDataEditor(QtGui.):
-#     def __init__(self):
-#         QtGui.QGroupBox._
-#
-# class ControlConstraintEditor():
-#     pass
-#
-# class ControlWidgetPreview():
-#     def set(self, widgetname):
-#         pass
-
-
-class ControlEditorDialog(QtGui.QDialog):
+class ControlEditor(QtGui.QWidget):
     def __init__(self, name='default'):
-        QtGui.QDialog.__init__(self)
+        QtGui.QWidget.__init__(self)
+        self.setContentsMargins(0, 0, 0, 0)
 
         self._interfaces = []
         self._constraints = None
@@ -31,6 +19,7 @@ class ControlEditorDialog(QtGui.QDialog):
         self.cb_widget = QtGui.QComboBox()
 
         self._layout = QtGui.QVBoxLayout(self)
+        self._layout.setContentsMargins(0, 0, 0, 0)
 
         self.widget_control = QtGui.QWidget()
         self.widget_control.setContentsMargins(0, 0, 0, 0)
@@ -52,9 +41,8 @@ class ControlEditorDialog(QtGui.QDialog):
         self._layout.addWidget(self._l_constraints)
         self._layout.addStretch()
 
-
-        controls = discover_qt_controls()
-        for iname, widgets in controls.items() :
+        plugins = qt_widget_plugins()
+        for iname in plugins :
             alias = interface.alias(iname)
             self._interfaces.append(iname)
             self.cb_interface.addItem(alias)
@@ -65,12 +53,12 @@ class ControlEditorDialog(QtGui.QDialog):
         self.refresh()
 
     def on_widget_changed(self):
-        widget_name = self.cb_widget.currentText()
-        interface_name = self._interfaces[self.cb_interface.currentIndex()]
-        qt_controls = discover_qt_controls()[interface_name]
         widget = None
+        widget_name = self.cb_widget.currentText()
+        iname = self._interfaces[self.cb_interface.currentIndex()]
 
-        for plugin in qt_controls :
+        plugins = qt_widget_plugins(iname)
+        for plugin in plugins :
             if widget_name == plugin.name:
                 widget = plugin.load()
                 if hasattr(plugin, 'icon_path'):
@@ -96,7 +84,7 @@ class ControlEditorDialog(QtGui.QDialog):
 
     def refresh(self):
         interface_name = self._interfaces[self.cb_interface.currentIndex()]
-        editors = qt_editors(interface_name)
+        editors = qt_widget_plugins(interface_name)
         self.cb_widget.clear()
         for widget in editors:
             self.cb_widget.addItem(str(widget.name))

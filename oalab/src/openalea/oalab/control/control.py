@@ -3,7 +3,7 @@
 
 """
 from openalea.core.observer import Observed
-from openalea.oalab.service.interface import new_interface, default_value
+from openalea.oalab.service.interface import new, default_value
 
 class Control(Observed):
     """
@@ -12,7 +12,7 @@ class Control(Observed):
       - interface
       - constraints on values
     """
-    def __init__(self, name, interface, value=None, widget=None, constraints=None):
+    def __init__(self, name, interface=None, value=None, widget=None, constraints=None):
         """
         :param name: Control name
         :type name: basestring
@@ -30,7 +30,9 @@ class Control(Observed):
         self.name = name
         self.widget = widget
 
-        self._interface = new_interface(interface, constraints)
+        if constraints is None:
+            constraints = {}
+        self._interface = new(interface, value, **constraints)
 
         self._value = value
         if value is None:
