@@ -120,29 +120,30 @@ class ProjectTreeView(QtGui.QTreeView, AbstractListener):
                 menu.addSeparator()
 
             if self.is_src_selected():
-                renameModelAction = QtGui.QAction('Rename Model',self)
+                renameModelAction = QtGui.QAction('Rename',self)
                 renameModelAction.triggered.connect(self.rename_model)
                 menu.addAction(renameModelAction)
 
-                removeModelAction = QtGui.QAction('Remove Model',self)
+                removeModelAction = QtGui.QAction('Remove',self)
                 removeModelAction.triggered.connect(self.remove_model)
                 menu.addAction(removeModelAction)
 
         if self.controller.project_manager:
-            editMetadataAction = QtGui.QAction('Edit/Show Metadata',self)
-            editMetadataAction.triggered.connect(self.controller.project_manager.edit_metadata)
-            menu.addAction(editMetadataAction)
+            if self.is_project_selected():
+                editMetadataAction = QtGui.QAction('Edit/Show Metadata',self)
+                editMetadataAction.triggered.connect(self.controller.project_manager.edit_metadata)
+                menu.addAction(editMetadataAction)
 
-            # importAction = QtGui.QAction('Import Model',self)
-            # importAction.triggered.connect(self.controller.paradigm_container.importFile)
-            # menu.addAction(importAction)
-            #removeAction = QtGui.QAction('Remove Model',self)
-            #removeAction.triggered.connect(self.controller.project_manager.removeModel)
-            #menu.addAction(removeAction)
-            # menu.addSeparator()
-            renameAction = QtGui.QAction('Rename Project',self)
-            renameAction.triggered.connect(self.controller.project_manager.renameCurrent)
-            menu.addAction(renameAction)
+                # importAction = QtGui.QAction('Import Model',self)
+                # importAction.triggered.connect(self.controller.paradigm_container.importFile)
+                # menu.addAction(importAction)
+                #removeAction = QtGui.QAction('Remove Model',self)
+                #removeAction.triggered.connect(self.controller.project_manager.removeModel)
+                #menu.addAction(removeAction)
+                # menu.addSeparator()
+                renameAction = QtGui.QAction('Rename',self)
+                renameAction.triggered.connect(self.controller.project_manager.renameCurrent)
+                menu.addAction(renameAction)
         return menu
 
     def on_opened_file(self):
@@ -191,6 +192,15 @@ class ProjectTreeView(QtGui.QTreeView, AbstractListener):
                     return True
                 elif item.parent().text() == "model":
                     return True
+        return False
+
+    def is_project_selected(self):
+        """
+        :return: True if selected object is the project. Else, False.
+        """
+        if ProjectManager().cproject:
+            if not self.hasParent():
+                return True
         return False
 
     def showMenu(self, event):
