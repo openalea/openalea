@@ -27,7 +27,7 @@ from openalea.oalab.project.creator import CreateProjectWidget
 from openalea.oalab.project.pretty_preview import ProjectSelectorScroll
 from openalea.oalab.gui import resources_rc  # do not remove this import else icon are not drawn
 from openalea.oalab.gui.utils import qicon
-from openalea.oalab.service.control import get_control, register_control
+from openalea.oalab.service.control import get_control, register_control, clear_ctrl_manager
 
 
 class ProjectManagerWidget(QtGui.QWidget):
@@ -40,11 +40,10 @@ class ProjectManagerWidget(QtGui.QWidget):
     :TODO: Refactor it
     """
 
-    def __init__(self, session, controller, editor_manager, parent=None):
+    def __init__(self, session, editor_manager, parent=None):
         super(ProjectManagerWidget, self).__init__(parent)
         self._actions = []
         self.session = session
-        self.controller = controller
         self.editor_manager = editor_manager
         self.setAccessibleName("Project Manager")
 
@@ -113,7 +112,8 @@ You can rename/move this project thanks to the button "Save As" in menu.
         self.session.update_namespace()
         self.open_all_scripts_from_project()
         self._scene_change()
-        # TODO: set controls and world
+        self.set_controls_in_control_manager(proj)
+        # TODO: set world
 
     def actions(self):
         return self._actions
@@ -147,7 +147,8 @@ You can rename/move this project thanks to the button "Save As" in menu.
         project.world = self.session.world
         self.session.project = project
         self.session._is_proj = True
-        # TODO: set controls in control panel
+
+        self.set_controls_in_control_manager(project)
 
         self.session.update_namespace()
         self.open_all_scripts_from_project()
@@ -274,7 +275,8 @@ You can rename/move this project thanks to the button "Save As" in menu.
             if container is None:  # CPL
                 return
             container.save_all()
-            # TODO save controls
+            proj = self.session.project
+            proj.control = self.get_controls_from_control_manager(proj)
             self.session.project.save()
         else:
             logger.debug("You are not working inside project. Please create or load one first, before saving project.")
@@ -293,7 +295,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
             self.session._is_proj = False
             if self.editor_manager:
                 self.editor_manager.closeAll()
-            # TODO: clear controls
+            self.clear_ctrl_mngr()
             self.session.update_namespace()
             self._scene_change()
         else:
@@ -336,6 +338,36 @@ You can rename/move this project thanks to the button "Save As" in menu.
     def _on_open_project_triggered(self):
         self.openProject(self.action_available_project[self.sender()])
 
+    def clear_ctrl_mngr(self):
+        """
+        Clear the *control manager*
+        :return:
+        """
+        # @GBY
+        clear_ctrl_manager()
+
+    def set_controls_in_control_manager(self, project):
+        """
+        Set control in *control manager* from loaded project.
+
+        :param project: project to get controls
+        """
+        # @GBY
+        ctrls = project.control
+
+        self.clear_ctrl_mngr()
+        for ctrl in ctrls:
+            register_control(ctrl)
+
+    def get_controls_from_control_manager(self, project):
+        """
+        Get control from *control manager* and set them into current project.
+
+        :param project: project to set controls
+        """
+        # @GBY
+        ctrls = get_control("*")
+        project.control = ctrls
 
 def showNewProjectDialog(default_name=None, text=None, parent=None):
     my_path = path_(settings.get_project_dir())
