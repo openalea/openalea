@@ -124,6 +124,10 @@ class ProjectTreeView(QtGui.QTreeView, AbstractListener):
                 renameModelAction.triggered.connect(self.rename_model)
                 menu.addAction(renameModelAction)
 
+                removeModelAction = QtGui.QAction('Remove Model',self)
+                removeModelAction.triggered.connect(self.remove_model)
+                menu.addAction(removeModelAction)
+
         if self.controller.project_manager:
             editMetadataAction = QtGui.QAction('Edit/Show Metadata',self)
             editMetadataAction.triggered.connect(self.controller.project_manager.edit_metadata)
@@ -159,6 +163,11 @@ class ProjectTreeView(QtGui.QTreeView, AbstractListener):
         item = self.getItem()
         model_name = item.text()
         self.controller.project_manager.on_model_renamed(model_name=model_name)
+
+    def remove_model(self):
+        item = self.getItem()
+        model_name = item.text()
+        self.controller.project_manager.del_model(model_name)
 
     def is_file_selected(self):
         """
