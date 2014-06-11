@@ -341,9 +341,6 @@ class PrjctModel(QtGui.QStandardItemModel):
                         for i in children:
                             if i not in self.old_world:
                                 self.proj.rename(category=parent.text(), old_name=i, new_name= item.text())
-                                
-                    # Save project
-                    self.proj.save()
 
     def set_proj(self):
         proj = ProjectManager().cproject

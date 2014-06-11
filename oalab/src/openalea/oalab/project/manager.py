@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-#       OpenAlea.OALab: Multi-Paradigm GUI
+# OpenAlea.OALab: Multi-Paradigm GUI
 #
 #       Copyright 2013 INRIA - CIRAD - INRA
 #
@@ -25,7 +25,7 @@ from openalea.vpltk.project.manager import ProjectManager
 from openalea.vpltk.project.project import remove_extension
 from openalea.oalab.project.creator import CreateProjectWidget
 from openalea.oalab.project.pretty_preview import ProjectSelectorScroll
-from openalea.oalab.gui import resources_rc # do not remove this import else icon are not drawn
+from openalea.oalab.gui import resources_rc  # do not remove this import else icon are not drawn
 from openalea.oalab.gui.utils import qicon
 from openalea.oalab.service.control import get_control, register_control
 
@@ -84,16 +84,17 @@ class ProjectManagerWidget(QtGui.QWidget):
                          ["Project", "Manage Project", self.actionAddFile, 0],
                          ["Project", "Manage Project", self.actionRenameProject, 1],
                          ["Project", "Manage Project", self.actionRenameModel, 1],
-                         ]
+        ]
 
         # Menu used to display all available projects.
         # This menu is filled dynamically each time this menu is opened
         self.menu_available_projects = QtGui.QMenu(u'Available Projects')
         self.menu_available_projects.aboutToShow.connect(self._update_available_project_menu)
-        self.action_available_project = {} # Dict used to know what project corresponds to triggered action
+        self.action_available_project = {}  # Dict used to know what project corresponds to triggered action
 
     def initialize(self):
         self.defaultProj()
+        self.saveCurrent()
 
     def defaultProj(self):
         proj = self.projectManager.load_default()
@@ -109,8 +110,10 @@ This temporary script is saved in temporary project in
 You can rename/move this project thanks to the button "Save As" in menu.
 """''' % str(self.session.project.path / self.session.project.name)
             self.session.project.new_model(name="temp.py", code=txt)
-        self._project_changed()
-        self._set_control()
+        self.session.update_namespace()
+        self.open_all_scripts_from_project()
+        self._scene_change()
+        # TODO: set controls and world
 
     def actions(self):
         return self._actions
@@ -144,8 +147,11 @@ You can rename/move this project thanks to the button "Save As" in menu.
         project.world = self.session.world
         self.session.project = project
         self.session._is_proj = True
-        self._project_changed()
-        self._set_control()
+        # TODO: set controls in control panel
+
+        self.session.update_namespace()
+        self.open_all_scripts_from_project()
+        self._scene_change()
 
         logger.debug("Project opened: " + str(self.session.project.name))
         return self.session.project
@@ -181,7 +187,6 @@ You can rename/move this project thanks to the button "Save As" in menu.
         categories.extend(self.session.project.files.keys())
         self.selector = SelectCategory(filename=text, categories=categories)
         self.selector.show()
-
         self.selector.ok_button.clicked.connect(self._add_file_from_selector)
 
     def _add_file_from_selector(self):
@@ -196,7 +201,8 @@ You can rename/move this project thanks to the button "Save As" in menu.
         if ret:
             self.editor_manager.setTabText(index, filename_without_ext)
         else:
-            print("We can't add model %s to current project. The extension of model seems to be unknown."%str(filename))
+            print(
+            "We can't add model %s to current project. The extension of model seems to be unknown." % str(filename))
         self.session.update_namespace()
 
     def renameCurrent(self, new_name=None):
@@ -210,7 +216,6 @@ You can rename/move this project thanks to the button "Save As" in menu.
                                                 text='Select new name to save project')
             if new_name:
                 self.session.project.rename(category="project", old_name=name, new_name=new_name)
-                self._project_changed()
 
     def on_model_renamed(self, model_name=""):
         """
@@ -243,7 +248,9 @@ You can rename/move this project thanks to the button "Save As" in menu.
         """
         if old_name and new_name:
             self.session.project.rename(category="model", old_name=old_name, new_name=new_name)
-            self._project_changed()
+
+    def del_model(self, model_name):
+        self.session.project.remove(category="model", name=model_name)
 
     def saveAs(self):
         """
@@ -255,7 +262,8 @@ You can rename/move this project thanks to the button "Save As" in menu.
                 self.session.project.rename(category="project", old_name=self.session.project.name, new_name=name)
                 self.saveCurrent()
         else:
-            print "You are not working inside project. Please create or load one first."
+            logger.debug(
+                "You are not working inside project. Please create or load one first, before *saving as* project.")
 
     def saveCurrent(self):
         """
@@ -263,21 +271,13 @@ You can rename/move this project thanks to the button "Save As" in menu.
         """
         if self.session.current_is_project():
             container = self.editor_manager
-            if container is None: # CPL
+            if container is None:  # CPL
                 return
-
-            for i in range(container.count()):
-                container.setCurrentIndex(i)
-                name = container.tabText(i)
-                wid = container.widget(i)
-                if hasattr(wid, "save"):
-                    wid.save(name)
-            self._update_control()
+            container.save_all()
+            # TODO save controls
             self.session.project.save()
-            self._project_changed()
-
         else:
-            print "You are not working inside project. Please create or load one first."
+            logger.debug("You are not working inside project. Please create or load one first, before saving project.")
 
     def closeCurrent(self):
         """
@@ -293,49 +293,14 @@ You can rename/move this project thanks to the button "Save As" in menu.
             self.session._is_proj = False
             if self.editor_manager:
                 self.editor_manager.closeAll()
-            self._project_changed()
-            self._set_control()
+            # TODO: clear controls
+            self.session.update_namespace()
+            self._scene_change()
         else:
-            print "You are not working inside project. Please create or load one first."
-
-    def _project_changed(self):
-        """
-        Update what is needed when the current project is changed
-        """
-        logger.debug("Project changed")
-        # CPL: CHECK FIRST IF THE OBJECTS EXISTS.
-        # This wil be not always the case.
-
-        self.session.update_namespace()
-        self._scene_change()
-        if self.editor_manager:
-            self.editor_manager.reset()
-        self.open_all_scripts_from_project()
-
-    def update_from_widgets(self):
-        self._update_control()
-
-    def _set_control(self):
-        """
-        Get control from project and put them into widgets
-        """
-        # TODO:
-        # ctrls = self.session.project.controls
-        # for name, value in ctrls:
-        #     register_control(name=name, value=value)
-        logger.debug("Load Controls")
-
-    def _update_control(self):
-        """
-        Get control from widget and put them into project
-        """
-        # TODO:
-        # ctrls = get_control()
-        # self.project.controls = ctrls
-        logger.debug("Update Controls")
+            logger.debug("You are not working inside project. Please create or load one first before closing one...")
 
     def open_all_scripts_from_project(self):
-        logger.debug("Script changed")
+        logger.debug("Open All models")
         if self.session.project:
             project = self.session.project
             models = project.models()
