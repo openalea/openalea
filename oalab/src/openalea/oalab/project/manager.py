@@ -356,8 +356,9 @@ You can rename/move this project thanks to the button "Save As" in menu.
         ctrls = project.control
 
         self.clear_ctrl_mngr()
-        for ctrl in ctrls:
-            register_control(ctrl)
+        if ctrls:
+            for ctrl in ctrls:
+                register_control(ctrl)
 
     def get_controls_from_control_manager(self, project):
         """
@@ -366,7 +367,10 @@ You can rename/move this project thanks to the button "Save As" in menu.
         :param project: project to set controls
         """
         # @GBY
-        ctrls = get_control("*")
+        ctrls = None
+        #TODO:
+        # We want all controls, so we can imagine something like that:
+        # ctrls = get_control("*")
         project.control = ctrls
 
 def showNewProjectDialog(default_name=None, text=None, parent=None):

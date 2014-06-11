@@ -410,14 +410,15 @@ class PrjctModel(QtGui.QStandardItemModel):
         for category in categories:
             if hasattr(project, category):
                 cat = getattr(project, category)
-                if len(cat) > 0:
-                    item2 = QtGui.QStandardItem(category)
-                    item.appendRow(item2)
-                    try:
-                        icon = eval(str("icon_"+category))
-                    except NameError:
-                        icon = QtGui.QIcon()
-                    item2.setIcon(icon)
+                if cat is not None:
+                    if len(cat) > 0:
+                        item2 = QtGui.QStandardItem(category)
+                        item.appendRow(item2)
+                        try:
+                            icon = eval(str("icon_"+category))
+                        except NameError:
+                            icon = QtGui.QIcon()
+                        item2.setIcon(icon)
                 else:
                     # hide name of category if we don't have object of this category
                     pass
