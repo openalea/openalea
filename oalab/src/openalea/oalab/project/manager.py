@@ -74,7 +74,7 @@ class ProjectManagerWidget(QtGui.QWidget):
         self.actionRenameProject.triggered.connect(self.renameCurrent)
         self.actionRenameModel.triggered.connect(self.on_model_renamed)
 
-        self._actions = [["Project", "Manage Project", self.actionNewProj, 1],
+        self._actions = [["Project", "Manage Project", self.actionNewProj, 0],
                          ["Project", "Manage Project", self.actionOpenProj, 0],
                          ["Project", "Manage Project", self.actionSaveProj, 0],
                          ["Project", "Manage Project", self.actionSaveProjAs, 1],
