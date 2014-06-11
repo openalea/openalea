@@ -27,7 +27,7 @@ from openalea.oalab.project.creator import CreateProjectWidget
 from openalea.oalab.project.pretty_preview import ProjectSelectorScroll
 from openalea.oalab.gui import resources_rc  # do not remove this import else icon are not drawn
 from openalea.oalab.gui.utils import qicon
-from openalea.oalab.service.control import get_control, register_control, clear_ctrl_manager
+from openalea.oalab.service.control import get_control, register, clear_ctrl_manager
 
 
 class ProjectManagerWidget(QtGui.QWidget):
@@ -358,7 +358,8 @@ You can rename/move this project thanks to the button "Save As" in menu.
         self.clear_ctrl_mngr()
         if ctrls:
             for ctrl in ctrls:
-                register_control(ctrl)
+                # @GBY
+                pass
 
     def get_controls_from_control_manager(self, project):
         """

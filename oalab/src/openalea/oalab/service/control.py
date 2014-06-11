@@ -20,7 +20,8 @@ __all__ = [
            "qt_widget_plugins",
            "edit", "qt_editor", "qt_painter",
            "new", "get", "get_control",
-           "clear_ctrl_manager", "register_control", 
+           "register", "unregister",
+           "clear_ctrl_manager", 
            "save_controls", "load_controls"
            ]
 
