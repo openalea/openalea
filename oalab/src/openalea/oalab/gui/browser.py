@@ -16,6 +16,7 @@
 #
 ###############################################################################
 from openalea.vpltk.qt import QtGui, QtCore
+from openalea.core import settings
 import sys
 
 
@@ -27,7 +28,8 @@ class GenericFileBrowser(QtGui.QWidget):
         self.model.setRootPath(".")
         self.tree = QtGui.QTreeView()
         self.tree.setModel(self.model)
-        # tree.setRootIndex(model.index(QtCore.QDir.currentPath()))
+        project_dir = settings.get_project_dir()
+        self.tree.setRootIndex(self.model.index(project_dir))
         layout.addWidget(self.tree)
         self.setLayout(layout)
 
