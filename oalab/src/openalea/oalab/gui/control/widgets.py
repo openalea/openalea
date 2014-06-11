@@ -78,14 +78,27 @@ class AbstractControlWidget(AbstractListener):
     def autoapply(self, control, auto=True):
         if auto is True:
             self._control_out = control
-            if self.value_changed_signal:
-                self.value_changed_signal.connect(self.on_value_changed)
+            signal = self.value_changed_signal
+            if signal:
+                if hasattr(signal, 'connect') and hasattr(signal, 'disconnect'):
+                    signal.connect(self.on_value_changed)
+                elif isinstance(signal, basestring):
+                    self.connect(self, QtCore.SIGNAL(signal), self.on_value_changed)
+                else:
+                    raise NotImplementedError, 'Signal %s support is not implemented' % signal
         else:
             self._control_out = None
-            if self.value_changed_signal:
-                self.disconnect(self, QtCore.SIGNAL(self.value_changed_signal.signal), self.on_value_changed)
+            signal = self.value_changed_signal
+            if signal:
+                if hasattr(signal, 'connect') and hasattr(signal, 'disconnect'):
+                    signal = signal.signal
+                elif isinstance(signal, basestring):
+                    pass
+                else:
+                    raise NotImplementedError, 'Signal %s support is not implemented' % signal
+                self.disconnect(self, QtCore.SIGNAL(signal), self.on_value_changed)
 
-    def on_value_changed(self, value):
+    def on_value_changed(self, *args, **kwargs):
         if self._control_out:
             self.apply(self._control_out)
 
@@ -275,9 +288,13 @@ from openalea.plantgl.gui.materialeditor import MaterialEditor
 from openalea.plantgl.all import PglTurtle
 
 class ColorListWidget(MaterialEditor, AbstractControlWidget):
+
     def __init__(self):
         AbstractControlWidget.__init__(self)
         MaterialEditor.__init__(self, parent=None)
+
+        # Signal used by "autoapply" method
+        self.value_changed_signal = 'valueChanged()'
 
     def reset(self, value=[], **kwargs):
         self.setValue(value)
@@ -294,16 +311,9 @@ class ColorListWidget(MaterialEditor, AbstractControlWidget):
         self.setTurtle(turtle)
 
     @classmethod
-    def paint(cls, control, painter, rectangle, option=None):
-        r = rectangle
-        x = r.bottomLeft().x()
-        y = r.topRight().y()
-        ncolor = len(control.value)
-        if ncolor:
-            lx = r.width() / ncolor
-            for name, color in control.value:
-                painter.fillRect(x, y, lx, r.height(), QtGui.QColor(*color))
-                x += lx
+    def paint(self, control, shape=None):
+        if shape == 'hline':
+            return PainterColorList()
 
 
 from openalea.plantgl.gui.curve2deditor import Curve2DEditor
@@ -324,13 +334,76 @@ class Curve2DWidget(Curve2DEditor, AbstractControlWidget):
         self.setCurve(value)
 
     @classmethod
-    def paint(cls, control, painter, rectangle, option=None):
+    def paint(self, control, shape=None):
+        if shape == 'hline':
+            return PainterInterfaceObject()
+
+
+'''
+    @classmethod
+    def _paint(cls, control, painter, rectangle, option=None):
         x = rectangle.bottomLeft().x()
         y = rectangle.topRight().y()
         w = rectangle.width()
         h = rectangle.height()
         if h > 50 and w > 50 :
             painter.fillRect(x, y, w, h, QtGui.QColor(255, 0, 255))
-            print control.value
+'''
+
+from openalea.oalab.service.interface import alias
+from openalea.oalab.control.control import Control
+
+class AbstractPainter(object):
+
+    def __call__(self, data, painter, rectangle, option=None):
+        if isinstance(data, Control):
+            self.paint_control(data, painter, rectangle, option)
         else:
-            painter.drawText(QtCore.QRectF(rectangle), 'Curve Object')
+            self.paint_data(data, painter, rectangle, option)
+
+    def paint_control(self, control, painter, rectangle, option=None):
+        self.paint_data(control.value, painter, rectangle, option)
+
+    def paint_data(self, data, painter, rectangle, option=None):
+        raise NotImplementedError
+
+
+class PainterColorList(AbstractPainter):
+
+    def paint_data(self, data, painter, rectangle, option=None):
+        painter.save()
+        r = rectangle
+        x = r.bottomLeft().x()
+        y = r.topRight().y()
+        ncolor = len(data)
+        if ncolor:
+            lx = r.width() / ncolor
+            for name, color in data:
+                painter.fillRect(x, y, lx, r.height(), QtGui.QColor(*color))
+                x += lx
+        painter.restore()
+
+
+class PainterInterfaceObject(AbstractPainter):
+
+    def paint_control(self, control, painter, rectangle, option=None):
+        self.paint_data(alias(control.interface), painter, rectangle, option)
+
+    def paint_data(self, data, painter, rectangle, option=None):
+        painter.save()
+
+        pen = QtGui.QPen()
+        if option and option.state & QtGui.QStyle.State_Selected:
+            painter.fillRect(option.rect, option.palette.highlight())
+            pen.setColor(option.palette.highlightedText().color())
+        else:
+            pen.setColor(QtCore.Qt.blue)
+        painter.setPen(pen)
+
+        painter.setRenderHint(painter.Antialiasing, True)
+
+        text_option = QtGui.QTextOption()
+        text_option.setAlignment(QtCore.Qt.AlignHCenter)
+        painter.drawText(QtCore.QRectF(rectangle), data, text_option)
+        painter.restore()
+

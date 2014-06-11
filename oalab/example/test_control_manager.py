@@ -3,8 +3,9 @@
 from openalea.vpltk.qt import QtGui
 from openalea.oalab.control.control import Control
 from openalea.oalab.control.manager import ControlManager
-from openalea.oalab.gui.control.manager import ControlManagerWidget, ControlPanel
-from openalea.oalab.service.control import edit_qt
+from openalea.oalab.gui.control.manager import ControlManagerWidget
+from openalea.oalab.gui.control.panel import ControlPanel
+from openalea.oalab.service import control as scontrol
 
 if __name__ == '__main__':
     instance = QtGui.QApplication.instance()
@@ -15,33 +16,21 @@ if __name__ == '__main__':
 
     cm = ControlManager()
 
-    w = ControlManagerWidget()
-#     cp = ControlPanel()
+    cmw = ControlManagerWidget()
+    cp = ControlPanel()
 
-    from openalea.oalab.service.interface import get_interface
-    b_interface = get_interface('IInt')(min=15, max=100)
-
-    from openalea.oalab.service.control import qt_editors
     from openalea.oalab.service.interface import interfaces
 
-    editors = QtGui.QWidget()
-    layout2 = QtGui.QVBoxLayout(editors)
 
-    cs = []
     for interface in interfaces():
         iname = interface.__name__
-        for i, editor in enumerate(qt_editors(iname)):
-            c = Control('%d_%s_%s' % (i, editor.name, iname), iname, widget=editor.name)
-            cs.append(c)
-            cm.add_control(c)
-            layout2.addWidget(edit_qt(c))
+        for i, editor in enumerate(scontrol.qt_widget_plugins(iname)):
+            name = '%s_%s' % (editor.name, iname)
+            c = scontrol.new(name, iname)
 
+    c = scontrol.new('colors', 'IInt')
+    cp.add_control(c)
 
-#     w.showTag('test')
-
-#     w = edit_qt(c3)
-#     w.show()
-#     w.raise_()
 
 #     from openalea.oalab.editor.text_editor import TextEditor
 #     from openalea.oalab.editor.highlight import Highlighter
@@ -49,10 +38,6 @@ if __name__ == '__main__':
 #     Highlighter(text)
 #     text.show()
 #     text.raise_()
-
-#     w = Dialog()
-#     w.show()
-
 
 
     from openalea.vpltk.shell.ipythoninterpreter import Interpreter
@@ -68,8 +53,8 @@ if __name__ == '__main__':
 
     shellwdgt = ShellWidget(interpreter)
 
-    layout.addWidget(w)
-    layout.addWidget(editors)
+    layout.addWidget(cmw)
+    layout.addWidget(cp)
     layout.addWidget(shellwdgt)
 
     layout.setSpacing(0)
@@ -82,7 +67,6 @@ if __name__ == '__main__':
 
 
     print cm.namespace()
-#     print cm.namespace('test')
 
 """
 from openalea.oalab.control.manager import ControlManager

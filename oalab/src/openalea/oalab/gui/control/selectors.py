@@ -78,7 +78,7 @@ class IntWidgetSelector(AbstractIntWidgetSelector):
             shape = 'hline'
 
         if shape == 'hline':
-            widget = IntSpinBox()
+            widget = IntSlider()
         elif shape == 'vline':
             widget = IntSimpleSlider()
             widget.setOrientation(QtCore.Qt.Vertical)

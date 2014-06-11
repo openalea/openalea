@@ -17,23 +17,17 @@
 ###############################################################################
 
 __all__ = [
-           "qt_editors",
-           "edit", "edit_qt", "edit_notebook", "edit_bash", "clear_ctrl_manager"
-           "register_control", "get_control", "save_controls", "load_controls"
+           "qt_widget_plugins",
+           "edit", "qt_editor", "qt_painter",
+           "new", "get", "get_control",
+           "clear_ctrl_manager", "register_control", 
+           "save_controls", "load_controls"
            ]
 
 from openalea.vpltk.qt import QtGui
 
-def _discover_editors(plugins):
-    _editors = {}
-    for editor in plugins:
-        for control in editor.controls:
-            if control in _editors :
-                _editors[control].append(editor)
-            else:
-                _editors[control] = [editor]
-    return _editors
-
+from openalea.oalab.control.control import Control
+from openalea.oalab.control.manager import ControlManager
 
 def discover_qt_controls():
     # Must move to entry_points oalab.qt_control
@@ -53,63 +47,34 @@ def discover_qt_controls():
        PluginIntWidgetSelector,
        PluginBoolWidgetSelector,
     ]
-    return _discover_editors(plugins)
+    return plugins
 
 def discover_bash_controls():
     # Must move to entry_points oalab.bash_control
     plugins = []
-    return _discover_editors(plugins)
+    return plugins
 
 def discover_notebook_controls():
     # Must move to entry_points oalab.notebook_control
     plugins = []
-    return _discover_editors(plugins)
+    return plugins
 
-def _edit(control, discover):
-    """
-    Hard coded example. Must be replaced by a function handling plugins and
-    lack of plugins
-    """
-    editors = discover()
+def qt_editor(control, shape=None, preferred=None):
     cname = control.interface.__class__.__name__
+    widget_plugins = qt_widget_plugins(cname)
     widget_class = None
-    if control.widget:
+
+    if preferred:
         # Load widget specified with control
-        for editor in editors[cname]:
-            if control.widget == editor.name:
-                widget_class = editor.load()
+        for plugin in widget_plugins:
+            if preferred == plugin.name:
+                widget_class = plugin.load()
                 break
     else:
         # Load first editor
-        for editor in editors[cname]:
-            widget_class = editor.load()
-            break
-
-    if widget_class:
-        widget = widget_class.edit(control)
-        widget.set(control)
-        widget.show()
-        return widget
-    else :
-        raise ValueError, 'No editors for %s' % control
-
-
-def edit_qt(control, shape=None, preferred_widget=None):
-    editors = discover_qt_controls()
-    cname = control.interface.__class__.__name__
-    widget_class = None
-
-    if preferred_widget:
-        # Load widget specified with control
-        for editor in editors[cname]:
-            if control.widget == editor.name:
-                widget_class = editor.load()
-                break
-    else:
-        # Load first editor
-        for editor in editors[cname]:
-            if 'responsive' in editor.edit_shape or shape in editor.edit_shape:
-                widget_class = editor.load()
+        for plugin in widget_plugins:
+            if 'responsive' in plugin.edit_shape or shape in plugin.edit_shape:
+                widget_class = plugin.load()
                 break
 
     if widget_class:
@@ -123,50 +88,100 @@ def edit_qt(control, shape=None, preferred_widget=None):
             widget.show()
         return widget
 
-def qt_paint_function(control):
-    editors = discover_qt_controls()
+def qt_viewer(control, shape=None):
+    pass
+
+def qt_painter(control, shape=None, preferred=None):
     cname = control.interface.__class__.__name__
+    widget_plugins = qt_widget_plugins(cname)
     widget_class = None
-    if control.widget:
+    if preferred:
         # Load widget specified with control
-        for editor in editors[cname]:
-            if control.widget == editor.name and editor.paint :
-                widget_class = editor.load()
-                return widget_class.paint
+        for plugin in widget_plugins:
+            if preferred == plugin.name and plugin.paint :
+                widget_class = plugin.load()
+                return widget_class.paint(control, shape)
 
     # Load first editor
-    for editor in editors[cname]:
-        if editor.paint:
-            widget_class = editor.load()
-            return widget_class.paint
-
-def edit_notebook(control):
-    return _edit(control, discover_notebook_controls)
-
-def edit_bash(control):
-    return _edit(control, discover_bash_controls)
+    for plugin in widget_plugins:
+        if plugin.paint:
+            widget_class = plugin.load()
+            return widget_class.paint(control, shape)
 
 def edit(control):
     import sys
     if 'PyQt4.QtGui' in sys.modules or 'PySide.QtGui' in sys.modules:
         from openalea.vpltk.qt import QtGui
         if QtGui.QApplication.instance():
-            return edit_qt(control)
-    return edit_notebook(control)
+            return qt_editor(control)
+    else:
+        raise NotImplementedError, 'Only Qt editors are supported'
 
-def qt_editors(iname):
-    controls = discover_qt_controls()
-    if iname in controls:
-        return controls[iname]
-    return []
 
-def register_control(name, value):
-    from openalea.oalab.control.manager import ControlManager
-    return ControlManager().new_control(name, value)
+def qt_widget_plugins(iname=None):
+    """
+    if iname is None, returns {'iname':[widget_plugin1, widget_plugin2, ...]}
+    else: returns widget plugins for interface iname
+    """
+    if iname is None:
+        plugins = discover_qt_controls()
+        widget_plugins = {}
+        for plugin in plugins :
+            for iname in plugin.controls:
+                widget_plugins.setdefault(iname, []).append(plugin)
+        return widget_plugins
+    else:
+        widget_plugins = qt_widget_plugins()
+        try:
+            return widget_plugins[iname]
+        except KeyError:
+            return []
+
+
+def create(name, iname=None, value=None, constraints=None):
+    """
+    Create a new Control object.
+    This object is local and standalone.
+    To track it, use register service.
+    """
+    if iname is None and value is None:
+        raise ValueError, 'You must define a least a value or an interface'
+    control = Control(name, iname, value, constraints=constraints)
+    return control
+
+def register(control):
+    """
+    Ask application to track control.
+    """
+    cm = ControlManager()
+    cm.add_control(control)
+
+def unregister(control):
+    """
+    Ask application to stop tracking control.
+    """
+    cm = ControlManager()
+    cm.remove_control(control)
+
+def new(name, iname=None, value=None, constraints=None):
+    """
+    Create a new tracked control.
+    """
+    control = create(name, iname, value, constraints)
+    register(control)
+    return control
+
+def get(name):
+    """
+    Get a tracked control by name.
+    If multiple control with same name exists, returns a list of controls.
+    """
+    cm = ControlManager()
+    return cm.control(name)
+
 
 def get_control(name):
-    from openalea.oalab.control.manager import ControlManager
-    return ControlManager().control(name)
+    return get(name)
 
 
 def save_controls(controls, filepath):
@@ -200,4 +215,4 @@ def clear_ctrl_manager():
     """
     # TODO
     # @GBY
-    pass
+
