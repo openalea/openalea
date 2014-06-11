@@ -478,6 +478,13 @@ class Project(Observed):
                 mod = self.model_klasses[ext](name=filename_without_ext, code=code, filepath=new_filepath)
                 self._model[filename_without_ext] = mod
                 return self._model[filename_without_ext]
+
+        elif object_type == "control":
+            # @GBY: 3 following lines
+            from openalea.oalab.service.control import load_controls
+            filepath = self.path / self.name / object_type / "ctrls"
+            self.control = load_controls(filepath)
+
         else:
             if hasattr(self, object_type):
                 temp_path = self.path / self.name / object_type
@@ -495,6 +502,7 @@ class Project(Observed):
                         pathname = filename
                     Loader = get_loader("GenericLoader")
                     if object_type == "control":
+                        # TODO: to remove:
                         Loader = get_loader("CPickleLoader")
                     if object_type == "world":
                         Loader = get_loader("BGEOMLoader")
@@ -516,6 +524,14 @@ class Project(Observed):
             for model_name in self._model:
                 model = self._model[model_name]
                 self.save_model(model)
+
+        elif object_type == "control":
+            # @GBY: 4 following lines
+            from openalea.oalab.service.control import save_controls
+            ctrls = self.control
+            filepath = self.path / self.name / object_type / "ctrls"
+            save_controls(ctrls, filepath)
+
         else:
             object_ = getattr(self, object_type)
             if object_:
@@ -538,6 +554,7 @@ class Project(Observed):
                         # Save PlantGL objects
                         Saver = get_saver("BGEOMSaver")
                     elif object_type == "control":
+                        # TODO: to remove:
                         Saver = get_saver("CPickleSaver")
                     saver = Saver()
                     saver.save(object_[sub_object], filename)
