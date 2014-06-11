@@ -450,38 +450,26 @@ class ParadigmContainer(QtGui.QTabWidget):
             self.save()
 
     def run_selected_part(self):
-        if self.controller.project_manager:
-            self.controller.project_manager.update_from_widgets()
         self.currentWidget().applet.run_selected_part(interpreter=self.session.interpreter)
         logger.debug("Run selected part " + self.currentWidget().applet.name)
 
     def run(self):
-        if self.controller.project_manager:
-            self.controller.project_manager.update_from_widgets()
         self.currentWidget().applet.run(interpreter=self.session.interpreter)
         logger.debug("Run " + self.currentWidget().applet.name)
 
     def animate(self):
-        if self.controller.project_manager:
-            self.controller.project_manager.update_from_widgets()
         self.currentWidget().applet.animate(interpreter=self.session.interpreter)
         logger.debug("Animate " + self.currentWidget().applet.name)
 
     def step(self):
-        if self.controller.project_manager:
-            self.controller.project_manager.update_from_widgets()
         self.currentWidget().applet.step(interpreter=self.session.interpreter)
         logger.debug("Step " + self.currentWidget().applet.name)
 
     def stop(self):
-        if self.controller.project_manager:
-            self.controller.project_manager.update_from_widgets()
         self.currentWidget().applet.stop(interpreter=self.session.interpreter)
         logger.debug("Stop " + self.currentWidget().applet.name)
 
     def reinit(self):
-        if self.controller.project_manager:
-            self.controller.project_manager.update_from_widgets()
         self.currentWidget().applet.reinit(interpreter=self.session.interpreter)
         logger.debug("Reinit " + self.currentWidget().applet.name)
 
