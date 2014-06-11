@@ -17,6 +17,7 @@
 ###############################################################################
 import collections
 import string
+from copy import copy
 from openalea.core.node import Node, AbstractFactory
 from openalea.vpltk.project.project import remove_extension
 
@@ -108,8 +109,9 @@ class Model(object):
 
     @inputs.setter
     def inputs(self, *args):
-        self._inputs = dict()
         if args:
+            old_inputs = copy(self._inputs)
+            self._inputs = dict()
             # inputs = args
             inputs = list(args)
             if len(inputs) == 1:
@@ -121,7 +123,9 @@ class Model(object):
                     inputs = [inputs]
             inputs.reverse()
 
-            if self.inputs_info:
+            if inputs == []:
+                self._inputs = old_inputs
+            elif self.inputs_info:
                 for input_info in self.inputs_info:
                     if len(inputs):
                         inp = inputs.pop()
