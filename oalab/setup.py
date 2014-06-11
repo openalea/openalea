@@ -105,16 +105,16 @@ setup(
             ],
 
         'oalab.applet': [
+            'ProjectWidget = openalea.oalab.plugins.applets.projectwidget:ProjectWidget',
             'ControlManager = openalea.oalab.plugins.applets.controlmanager:ControlManager',
             # 'ControlPanel = openalea.oalab.plugins.applets.controlpanel:ControlPanel',
             'EditorManager = openalea.oalab.plugins.applets.editormanager:EditorManager',
-            'FileBrowser = openalea.oalab.plugins.applets.filebrowser:FileBrowser',
+            # 'FileBrowser = openalea.oalab.plugins.applets.filebrowser:FileBrowser',
             'HelpWidget = openalea.oalab.plugins.applets.helpwidget:HelpWidget',
             'HistoryWidget = openalea.oalab.plugins.applets.historywidget:HistoryWidget',
             'Logger = openalea.oalab.plugins.applets.logger:Logger',
             'PkgManagerWidget = openalea.oalab.plugins.applets.packagemanager:PkgManagerWidget',
             'ProjectManager = openalea.oalab.plugins.applets.projectmanager:ProjectManager',
-            'ProjectWidget = openalea.oalab.plugins.applets.projectwidget:ProjectWidget',
             # 'Store = openalea.oalab.plugins.applets.store:Store',
             'Viewer3D = openalea.oalab.plugins.applets.viewer3d:Viewer3D',
             'World = openalea.oalab.plugins.applets.worldwidget:World',
