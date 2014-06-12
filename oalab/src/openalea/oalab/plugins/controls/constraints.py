@@ -1,11 +1,6 @@
+# -*- coding: utf-8 -*-
 
-from openalea.vpltk.qt import QtGui, QtCore
-
-class IConstraintWidget(object):
-    def constraints(self):
-        """
-        Returns a dict "constraint name" -> "value"
-        """
+from openalea.vpltk.qt import QtGui    
 
 class IntConstraintWidget(QtGui.QWidget):
     def __init__(self):

@@ -26,29 +26,14 @@ __all__ = [
            ]
 
 from openalea.vpltk.qt import QtGui
+from openalea.vpltk.plugin import iter_plugins
 
 from openalea.oalab.control.control import Control
 from openalea.oalab.control.manager import ControlManager
 
 def discover_qt_controls():
     # Must move to entry_points oalab.qt_control
-    from openalea.oalab.plugins.controls import (
-#         PluginIntSlider,
-#         PluginIntSpinBox,
-        PluginBoolWidgetSelector,
-        PluginIntWidgetSelector,
-        PluginColorListWidget,
-        PluginCurve2DWidget
-        )
-    plugins = [
-#        PluginIntSlider,
-#        PluginIntSpinBox,
-       PluginColorListWidget,
-       PluginCurve2DWidget,
-       PluginIntWidgetSelector,
-       PluginBoolWidgetSelector,
-    ]
-    return plugins
+    return [plugin for plugin in iter_plugins('oalab.qt_control')]
 
 def discover_bash_controls():
     # Must move to entry_points oalab.bash_control

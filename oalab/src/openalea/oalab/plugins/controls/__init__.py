@@ -16,7 +16,7 @@
 #
 ###############################################################################
 
-from openalea.oalab.plugins.controls.plugin import ControlWidgetPlugin
+from openalea.oalab.plugins.control import ControlWidgetPlugin
 from openalea.deploy.shared_data import shared_data
 import openalea.oalab
 """
@@ -55,7 +55,7 @@ class PluginIntWidgetSelector(ControlWidgetPlugin):
 
     @classmethod
     def load(cls):
-        from openalea.oalab.gui.control.selectors import IntWidgetSelector
+        from openalea.oalab.plugins.controls.selectors import IntWidgetSelector
         return IntWidgetSelector
 
 
@@ -68,30 +68,6 @@ class PluginBoolWidgetSelector(ControlWidgetPlugin):
 
     @classmethod
     def load(cls):
-        from openalea.oalab.gui.control.widgets import BoolCheckBox
+        from openalea.oalab.plugins.controls.widgets import BoolCheckBox
         return BoolCheckBox
-
-
-class PluginColorListWidget(ControlWidgetPlugin):
-    controls = ['IColorList']
-    name = 'ColorListWidget'
-    edit_shape = ['large']
-    paint = True
-
-    @classmethod
-    def load(cls):
-        from openalea.oalab.gui.control.widgets import ColorListWidget
-        return ColorListWidget
-
-
-class PluginCurve2DWidget(ControlWidgetPlugin):
-    controls = ['ICurve2D']
-    name = 'Curve2DWidget'
-    edit_shape = ['large']
-    paint = True
-
-    @classmethod
-    def load(cls):
-        from openalea.oalab.gui.control.widgets import Curve2DWidget
-        return Curve2DWidget
 

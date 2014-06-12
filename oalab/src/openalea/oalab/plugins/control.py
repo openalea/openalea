@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # -*- python -*-
 #
 #       OpenAlea.OALab: Multi-Paradigm GUI
@@ -16,11 +17,65 @@
 #
 ###############################################################################
 
-from openalea.core.observer import AbstractListener
-from openalea.oalab.gui.control.constraints import IntConstraintWidget
-from openalea.vpltk.qt import QtGui, QtCore
+"""
+===========================
+Control plugin documentation
+===========================
+"""
 
-class IWidgetSelector(AbstractListener):
+from openalea.core.interface import IInterface
+
+
+class ControlWidgetPlugin():
+    controls = []
+    name = 'ControlWidget'
+    icon_path = None
+
+    edit_shape = [] # ['large', 'line', 'small']
+    view_shape = [] # ['large', 'line', 'small']
+    create_shape = [] # ['large', 'line', 'small']
+    paint = False
+
+    @classmethod
+    def load(cls):
+        raise NotImplementedError
+
+
+
+
+class IControlWidget(IInterface):
+    """
+    """
+
+    def reset(self, value=None, *kargs):
+        """
+        Reset widget to default values.
+        """
+
+    def set(self, control):
+        """
+        Use control to preset widget.
+        Starts to listen to control events and read control's values
+        """
+
+    def apply(self, control):
+        """
+        Update control with widget values.
+        """
+
+    def read(self, control):
+        """
+        Update widget with control values
+        """
+
+    def notify(self, sender, event):
+        """
+        Method called when Observed control changes.
+        Generally, when control send an event "ValueChanged", we want to
+        refresh widget with new value.
+        """
+
+class IWidgetSelector(IInterface):
     def __init__(self):
         """
 
@@ -62,28 +117,11 @@ class IWidgetSelector(AbstractListener):
         This function never modify control.
         """
 
-class AbstractIntWidgetSelector(object):
 
-    @classmethod
-    def edit_constraints(cls):
-        widget = IntConstraintWidget()
-        return widget
+class IConstraintWidget(IInterface):
+    def constraints(self):
+        """
+        Returns a dict "constraint name" -> "value"
+        """
 
-from openalea.oalab.gui.control.widgets import IntSimpleSlider, IntSpinBox, IntSlider, IntDial, BoolCheckBox
 
-class IntWidgetSelector(AbstractIntWidgetSelector):
-    @classmethod
-    def edit(cls, control, shape=None):
-        if shape is None:
-            shape = 'hline'
-
-        if shape == 'hline':
-            widget = IntSlider()
-        elif shape == 'vline':
-            widget = IntSimpleSlider()
-            widget.setOrientation(QtCore.Qt.Vertical)
-        elif shape in ('large', 'small', 'responsive'):
-            widget = IntDial()
-        else:
-            widget = None
-        return widget

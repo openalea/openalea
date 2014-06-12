@@ -177,8 +177,9 @@ class LPyModelController(object):
         # In case of ambiguity, select the one whose the name contains lpy.
         # Else select a random one.
         def select_colormap():
+            #@GBY must move to plantgl or lpy
             from openalea.oalab.control.manager import ControlManager
-            from openalea.oalab.gui.control.widgets import to_material
+            from openalea.plantgl.plugins.controls import to_material
             ctrls = ControlManager().controls()
             cm = dict((k, v.value) for k, v in ctrls.iteritems() if 'IColorList' in str(v.interface))
             for k in cm:
