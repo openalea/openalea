@@ -50,8 +50,8 @@ def iter_plugins(group, name=None):
     for ep in pkg_resources.iter_entry_points(group, name):
         try:
             yield ep.load()
-        except ImportError:
-            pass
+        except ImportError, err:
+            print err
 
 class Plugin(object):
     """ Define a Plugin from an entry point. """
@@ -72,6 +72,6 @@ class Plugin(object):
         return self.ep.dist
 
     def load(self, *args, **kwds):
-        return self.ep.load(*args,**kwds)
+        return self.ep.load(*args, **kwds)
 
 

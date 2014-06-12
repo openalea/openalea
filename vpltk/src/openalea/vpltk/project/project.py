@@ -23,16 +23,17 @@ It store **metadata** (name, author, description, version, license, ...) and **d
 You have here the default architecture of the project named "name",
 stored in your computer.
 
-/name
-    oaproject.cfg        (Configuration file)
-    /src          (Files sources, Script Python, LPy...)
-    /control       (Control, like color map or curve)
-    /world          (scene, scene 3D)
-    /cache          (Intermediary saved objects)
-    /data           (Data files like images, .dat, ...)
-    /startup          (Preprocessing scripts)
-        *.py            (Preprocessing scripts)
-        *import*.py     (Libs and packages to import in preprocessing)
+
+    /name
+        oaproject.cfg        (Configuration file)
+        /src          (Files sources, Script Python, LPy...)
+        /control       (Control, like color map or curve)
+        /world          (scene, scene 3D)
+        /cache          (Intermediary saved objects)
+        /data           (Data files like images, .dat, ...)
+        /startup          (Preprocessing scripts)
+            *.py            (Preprocessing scripts)
+            *import*.py     (Libs and packages to import in preprocessing)
 
 :use:
     .. code-block:: python
@@ -52,18 +53,12 @@ from openalea.vpltk.project.loader import get_loader
 from openalea.vpltk.project.saver import get_saver
 from openalea.core.observer import Observed
 
+from openalea.vpltk.plugin import iter_plugins
 
 def _model_factories():
     models = {}
-    from openalea.vpltk.plugin import discover, Plugin
-    plugins = discover('oalab.model')
-    for plugin in plugins.values():
-        model = Plugin(plugin)
-        try:
-            model = model.load()
-            models[model.extension] = model
-        except ImportError:
-            pass
+    for model in iter_plugins('oalab.model'):
+        models[model.extension] = model
     return models
 
 
