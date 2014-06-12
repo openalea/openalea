@@ -46,7 +46,6 @@ stored in your computer.
 """
 
 import os
-import warnings
 from openalea.core.path import path as path_
 from openalea.vpltk.project.configobj import ConfigObj
 from openalea.vpltk.project.loader import get_loader
@@ -60,8 +59,11 @@ def _model_factories():
     plugins = discover('oalab.model')
     for plugin in plugins.values():
         model = Plugin(plugin)
-        model = model.load()
-        models[model.extension] = model
+        try:
+            model = model.load()
+            models[model.extension] = model
+        except ImportError:
+            pass
     return models
 
 
