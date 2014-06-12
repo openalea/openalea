@@ -111,26 +111,40 @@ class ProjectTreeView(QtGui.QTreeView, AbstractListener):
                 menu.addAction(action)
             menu.addSeparator()
 
+            startupAction = QtGui.QAction('New Startup File', self)
+            startupAction.triggered.connect(self.new_startup)
+            menu.addAction(startupAction)
+            menu.addSeparator()
+
             # If a file is selected
             # Permit to open it
             if self.is_file_selected():
-                editAction = QtGui.QAction('Open File',self)
+                editAction = QtGui.QAction('Open File', self)
                 editAction.triggered.connect(self.open_file)
                 menu.addAction(editAction)
                 menu.addSeparator()
 
+            if self.is_startup_selected():
+                renameStartupAction = QtGui.QAction('Rename', self)
+                renameStartupAction.triggered.connect(self.rename_startup)
+                menu.addAction(renameStartupAction)
+
+                removeStartupAction = QtGui.QAction('Remove', self)
+                removeStartupAction.triggered.connect(self.remove_startup)
+                menu.addAction(removeStartupAction)
+
             if self.is_src_selected():
-                renameModelAction = QtGui.QAction('Rename',self)
+                renameModelAction = QtGui.QAction('Rename', self)
                 renameModelAction.triggered.connect(self.rename_model)
                 menu.addAction(renameModelAction)
 
-                removeModelAction = QtGui.QAction('Remove',self)
+                removeModelAction = QtGui.QAction('Remove', self)
                 removeModelAction.triggered.connect(self.remove_model)
                 menu.addAction(removeModelAction)
 
         if self.controller.project_manager:
             if self.is_project_selected():
-                editMetadataAction = QtGui.QAction('Edit/Show Metadata',self)
+                editMetadataAction = QtGui.QAction('Edit/Show Metadata', self)
                 editMetadataAction.triggered.connect(self.controller.project_manager.edit_metadata)
                 menu.addAction(editMetadataAction)
 
@@ -141,10 +155,21 @@ class ProjectTreeView(QtGui.QTreeView, AbstractListener):
                 #removeAction.triggered.connect(self.controller.project_manager.removeModel)
                 #menu.addAction(removeAction)
                 # menu.addSeparator()
-                renameAction = QtGui.QAction('Rename',self)
+                renameAction = QtGui.QAction('Rename', self)
                 renameAction.triggered.connect(self.controller.project_manager.renameCurrent)
                 menu.addAction(renameAction)
         return menu
+
+    def new_startup(self):
+        """
+        Create a startup file and add it to the project.
+        """
+        self.controller.project_manager.new_startup()
+
+    def rename_startup(self):
+        item = self.getItem()
+        startup_name = item.text()
+        self.controller.project_manager.on_startup_rename(startup_name=startup_name)
 
     def on_opened_file(self):
         if self.is_file_selected():
@@ -170,6 +195,11 @@ class ProjectTreeView(QtGui.QTreeView, AbstractListener):
         model_name = item.text()
         self.controller.project_manager.del_model(model_name)
 
+    def remove_startup(self):
+        item = self.getItem()
+        startup_name = item.text()
+        self.controller.project_manager.del_startup(startup_name)
+
     def is_file_selected(self):
         """
         :return: True if selected object is a file. Else, False.
@@ -191,6 +221,17 @@ class ProjectTreeView(QtGui.QTreeView, AbstractListener):
                 if item.parent().text() == "src":
                     return True
                 elif item.parent().text() == "model":
+                    return True
+        return False
+
+    def is_startup_selected(self):
+        """
+        :return: True if selected object is a startup file. Else, False.
+        """
+        if ProjectManager().cproject:
+            item = self.getItem()
+            if self.hasParent():
+                if item.parent().text() == "startup":
                     return True
         return False
 
@@ -293,12 +334,9 @@ class PrjctModel(QtGui.QStandardItemModel):
     Item model to use TreeView with a project.
     
     Use:
-    
-    # Project to display
-    project = ...
 
     # Model to transform a project into a tree
-    proj_model = PrjctModel(project)
+    proj_model = PrjctModel()
 
     # Create tree view and set model
     treeView = QtGui.QTreeView()
@@ -309,8 +347,7 @@ class PrjctModel(QtGui.QStandardItemModel):
     """
     def __init__(self, controller, parent=None):
         super(PrjctModel, self).__init__(parent)
-        
-        # Use it to store evrything to compare with new when a change occure
+
         self.controller = controller
         
         self.old_models = list()

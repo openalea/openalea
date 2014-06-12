@@ -395,9 +395,7 @@ class ParadigmContainer(QtGui.QTabWidget):
         model = self.currentWidget().applet.model
         model.code = code
 
-
         proj = ProjectManager().cproject
-
         if proj:
             models = proj.models()
             if not isinstance(models, list):
@@ -408,13 +406,13 @@ class ParadigmContainer(QtGui.QTabWidget):
                 proj.save_manifest()
             else:
                 logger.debug("2 Save model outside project but work inside project.")
-                f = open(model.name, "w")
+                f = open(model.filepath, "w")
                 code = str(code).encode("utf8", "ignore")
                 f.write(code)
                 f.close()
         else:
             logger.debug("3 Save model outside project.")
-            f = open(model.name, "w")
+            f = open(model.filepath, "w")
             code = str(code).encode("utf8", "ignore")
             f.write(code)
             f.close()
