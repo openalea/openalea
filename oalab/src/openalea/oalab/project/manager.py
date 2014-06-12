@@ -144,6 +144,10 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
         logger.debug("Project " + str(project) + " opened")
 
+        ns = self.session.interpreter.locals
+        project.start(namespace=ns)
+        logger.debug("Project " + str(project) + " started")
+
         project.world = self.session.world
         self.session.project = project
         self.session._is_proj = True
@@ -218,6 +222,32 @@ You can rename/move this project thanks to the button "Save As" in menu.
             if new_name:
                 self.session.project.rename(category="project", old_name=name, new_name=new_name)
 
+    def new_startup(self):
+        """
+        Create a startup file and add it to the project.
+        """
+        proj = self.session.project
+        if proj:
+            ret = self.session.project.add(category="startup", name="start.py", value="")
+            proj._save("startup")
+            proj.save_manifest()
+            if ret:
+                filename = proj.path/proj.name/"startup"/"start.py"
+                self.editor_manager.open_file(filename=filename)
+
+    def on_startup_rename(self, startup_name=""):
+        """
+        Display a pop up to rename a startup file.
+
+        :param startup_name: name of startup file to remane
+        """
+        if self.session.project:
+            startups = self.session.project.startup
+            list_startups = startups.keys()
+            self.renamer = RenameModel(list_startups, startup_name)
+            self.renamer.show()
+            self.renamer.ok_button.clicked.connect(self._rename_startup_from_renamer)
+
     def on_model_renamed(self, model_name=""):
         """
         Display a pop up to rename a model.
@@ -243,6 +273,15 @@ You can rename/move this project thanks to the button "Save As" in menu.
         self.renamer.hide()
         self.rename_model(model_name, new_name)
 
+    def _rename_startup_from_renamer(self):
+        """
+        Get informations from the pop up and rename the startup
+        """
+        startup_name = self.renamer.combo.currentText()
+        new_name = self.renamer.line.text()
+        self.renamer.hide()
+        self.rename_startup(startup_name, new_name)
+
     def rename_model(self, old_name, new_name):
         """
         Rename the model.
@@ -250,8 +289,18 @@ You can rename/move this project thanks to the button "Save As" in menu.
         if old_name and new_name:
             self.session.project.rename(category="model", old_name=old_name, new_name=new_name)
 
+    def rename_startup(self, old_name, new_name):
+        """
+        Rename a startup file.
+        """
+        if old_name and new_name:
+            self.session.project.rename(category="startup", old_name=old_name, new_name=new_name)
+
     def del_model(self, model_name):
         self.session.project.remove(category="model", name=model_name)
+
+    def del_startup(self, startup_name):
+        self.session.project.remove(category="startup", name=startup_name)
 
     def saveAs(self):
         """
@@ -402,7 +451,10 @@ class SelectCategory(QtGui.QWidget):
         self.label = QtGui.QLabel("Select in which category you want to add this file: ")
         self.label2 = QtGui.QLabel("New filename: ")
         self.combo = QtGui.QComboBox(self)
-        self.combo.addItems(self.categories)
+        # Hack: other categories doens't work for the moment
+        # Todo: check that it is working for every categories
+        # self.combo.addItems(self.categories)
+        self.combo.addItems(["model"])
         self.combo.setCurrentIndex(0)
         self.line = QtGui.QLineEdit(filename)
 

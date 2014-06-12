@@ -74,7 +74,7 @@ class Preview(QtGui.QWidget):
 
     def on_project_opened(self):
         if self.open_project:
-            self.open_project(self.project.name, self.project.path)
+            self.open_project(self.project)
             self.hide()
 
 
