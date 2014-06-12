@@ -19,6 +19,49 @@ import ast
 from openalea.core import logger
 
 
+#########################################
+## Function to define to parse r model
+#########################################
+def parse_docstring_r(string):
+    """
+    parse a string (not a docstring), get the docstring and return information on the model.
+
+    :use: model, inputs, outputs = parse_docstring_r(multiline_string_to_parse)
+
+    :param string: docstring to parse (string)
+    :return: model, inputs, outputs
+    """
+
+    # TODO
+    return
+
+
+def get_docstring_r(string):
+    """
+    Get a docstring from a string
+    """
+
+    # TODO
+    return
+
+
+def parse_functions_r(docstring):
+    """
+    Parse a docstring with format:
+        my_model(a:int=4, b)->r:int
+
+    Unused.
+
+    :return: model, inputs, outputs
+    """
+
+    # TODO
+    return
+
+#########################################
+## Safe ast parsing
+#########################################
+
 def ast_parse(string):
     try:
         M = ast.parse(string)

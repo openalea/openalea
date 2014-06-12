@@ -113,6 +113,10 @@ You can rename/move this project thanks to the button "Save As" in menu.
         self.open_all_scripts_from_project()
         self._scene_change()
         self.set_controls_in_control_manager(proj)
+
+        ns = self.session.interpreter.locals
+        proj.start(namespace=ns)
+        logger.debug("Project " + str(proj) + " started")
         # TODO: set world
 
     def actions(self):

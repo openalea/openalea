@@ -16,6 +16,7 @@
 #
 ###############################################################################
 from openalea.oalab.model.model import Model
+from openalea.oalab.model.parse import parse_docstring_r, get_docstring_r, parse_functions_r
 
 
 class RModel(Model):
@@ -30,6 +31,9 @@ class RModel(Model):
         self._step = None
         self._animate = None
         self._init = None
+        self.ns = dict()
+        self.code = code  # use it to force to parse doc, functions, inputs and outputs
+        self._interpreter = None
 
     def get_documentation(self):
         """
@@ -54,16 +58,28 @@ more informations: http://www.r-project.org/
         """
         return self.code
 
+    def run_code(self, code, *args, **kwargs):
+        """
+        execute subpart of a model (only code *code*)
+        """
+        interpreter = self._set_interpreter(**kwargs)
+
+        if interpreter:
+            # run
+            return interpreter.run_cell(code)
+
     def run(self, *args, **kwargs):
         """
         execute model thanks to interpreter
         """
+        # TODO: check if we can do by an other way for inputs, outputs (ex %%R -i inputs, -o outputs)
         if args:
             self.inputs = args
 
         interpreter = self._set_interpreter(**kwargs)
 
         user_ns = interpreter.user_ns
+        user_ns.update(self.ns)
 
         # put inputs inside namespace
         if self.inputs:
@@ -80,17 +96,65 @@ more informations: http://www.r-project.org/
 
         return self.outputs
 
-    def reset(self, *args, **kwargs):
+    def init(self, *args, **kwargs):
         """
         go back to initial step
         """
-        pass
+        if self._init:
+            self.inputs = args
+
+            interpreter = self._set_interpreter(**kwargs)
+
+            if interpreter:
+                user_ns = interpreter.user_ns
+
+                user_ns.update(self.ns)
+
+                # put inputs inside namespace
+                if self.inputs:
+                    user_ns.update(self.inputs)
+                # TODO: check if *init* function can be call like that *init()*. Else, change it.
+                code = """%load_ext rmagic
+%%R
+
+""" + self.code + """
+
+init()
+"""
+                interpreter.run_cell(code)
+
+                self.set_output_from_ns(user_ns)
+
+                return self.outputs
 
     def step(self, *args, **kwargs):
         """
         execute only one step of the model
         """
-        pass
+        if self._step:
+            self.inputs = args
+
+            interpreter = self._set_interpreter(**kwargs)
+            user_ns = interpreter.user_ns
+
+            user_ns.update(self.ns)
+
+            # put inputs inside namespace
+            if self.inputs:
+                user_ns.update(self.inputs)
+            # TODO: check if *step* function can be call like that *step()*. Else, change it.
+            code = """%load_ext rmagic
+%%R
+
+""" + self.code + """
+
+step()
+"""
+            # run
+            interpreter.run_cell(code)
+            self.set_output_from_ns(user_ns)
+
+            return self.outputs
 
     def stop(self, *args, **kwargs):
         """
@@ -102,19 +166,52 @@ more informations: http://www.r-project.org/
         """
         run model step by step
         """
-        pass
+        if self._animate:
+            self.inputs = args
+
+            interpreter = self._set_interpreter(**kwargs)
+
+            user_ns = interpreter.user_ns
+
+            user_ns.update(self.ns)
+
+            # put inputs inside namespace
+            if self.inputs:
+                user_ns.update(self.inputs)
+            # TODO: check if *animate* function can be call like that *animate()*. Else, change it.
+            code = """%load_ext rmagic
+%%R
+
+""" + self.code + """
+
+animate()
+"""
+            # run
+            interpreter.run_cell(code)
+
+            self.set_output_from_ns(user_ns)
+
+            return self.outputs
 
     def _set_interpreter(self, **kwargs):
         if not "interpreter" in kwargs:
-            try:
-                from IPython.core.getipython import get_ipython
-                interpreter = get_ipython()
-            except NameError:
-                interpreter = None
-                #raise("No interpreter is available to run model %s" % str(self))
+            if not hasattr(self, "_interpreter"):
+                try:
+                    from IPython.core.getipython import get_ipython
+                    self._interpreter = get_ipython()
+                except NameError:
+                    self._interpreter = None
+                    raise("No interpreter is available to run model %s" % str(self))
+            elif self._interpreter is None:
+                try:
+                    from IPython.core.getipython import get_ipython
+                    self._interpreter = get_ipython()
+                except NameError:
+                    self._interpreter = None
+                    raise("No interpreter is available to run model %s" % str(self))
         else:
-            interpreter = kwargs["interpreter"]
-        return interpreter
+            self._interpreter = kwargs["interpreter"]
+        return self._interpreter
 
     def set_output_from_ns(self, namespace):
         # get outputs from namespace
@@ -124,3 +221,15 @@ more informations: http://www.r-project.org/
                 for outp in self.outputs_info:
                     if outp.name in namespace:
                         self.outputs.append(namespace[outp.name])
+
+    @property
+    def code(self):
+        return self._code
+
+    @code.setter
+    def code(self, code=""):
+        self._code = code
+        # TODO define the 3 functions parse_docstring_r, parse_functions_r, get_docstring_r
+        # model, self.inputs_info, self.outputs_info = parse_docstring_r(code)
+        # self._init, self._step, self._animate, self._run = parse_functions_r(code)
+        # self._doc = get_docstring_r(self._code)

@@ -23,6 +23,7 @@ from openalea.oalab.editor.text_editor import RichTextEditor as Editor
 from openalea.oalab.editor.highlight import Highlighter
 from openalea.oalab.model.r import RModel
 from openalea.oalab.service.help import display_help
+from openalea.oalab.control.manager import control_dict
 
 
 class RModelController(object):
@@ -32,13 +33,13 @@ class RModelController(object):
     extension = RModel.extension
     icon = RModel.icon
 
-    def __init__(self, name="script.R", code="", model=None, filepath=None, interpreter=None, editor_container=None, parent=None):
-        self.name = name
+    def __init__(self, name="", code="", model=None, filepath=None, interpreter=None, editor_container=None, parent=None):
         self.filepath = filepath
-        if model:
+        if model is not None:
             self.model = model
         else:
-            self.model = RModel(name=name, code=code)
+            self.model = RModel(name=name, code=code, filepath=filepath)
+        self.name = self.model.name
         self.parent = parent
         self.editor_container = editor_container
         self._widget = None
@@ -58,34 +59,43 @@ class RModelController(object):
         doc = self.model.get_documentation()
         display_help(doc)
 
-    def run_selected_part(self):
+    def run_selected_part(self, *args, **kwargs):
         code = self.widget().get_selected_text()
         if len(code) == 0:
-            code = self.widget().get_text()
-        return self.model.run_code(code)
+            code = """%%R
+""" + self.widget().get_text()
+        return self.model.run_code(code, *args, **kwargs)
 
-    def run(self):
+    def run(self, *args, **kwargs):
+        controls = control_dict()
+        self.model.ns.update(controls)
         code = self.widget().get_text()
         self.model.code = code
-        return self.model()
+        return self.model(*args, **kwargs)
 
-    def step(self):
+    def step(self, *args, **kwargs):
+        controls = control_dict()
+        self.model.ns.update(controls)
         code = self.widget().get_text()
         self.model.code = code
-        return self.model.step()
+        return self.model.step(*args, **kwargs)
 
-    def stop(self):
-        return self.model.stop()
+    def stop(self, *args, **kwargs):
+        return self.model.stop(*args, **kwargs)
 
-    def animate(self):
+    def animate(self, *args, **kwargs):
+        controls = control_dict()
+        self.model.ns.update(controls)
         code = self.widget().get_text()
         self.model.code = code
-        return self.model.animate()
+        return self.model.animate(*args, **kwargs)
 
-    def reinit(self):
+    def reinit(self, *args, **kwargs):
+        controls = control_dict()
+        self.model.ns.update(controls)
         code = self.widget().get_text()
         self.model.code = code
-        return self.model.init()
+        return self.model.init(*args, **kwargs)
 
     def widget(self):
         """
