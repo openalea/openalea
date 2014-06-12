@@ -1,14 +1,11 @@
 from openalea.core.path import path
-from openalea.vpltk.plugin import discover, Plugin
+from openalea.vpltk.plugin import iter_plugins
 import warnings
 import os
 
 
 def get_saver(name="GenericSaver"):
-    savers = discover('vpltk.saver')
-    for saver in savers.values():
-        saver = Plugin(saver)
-        saver = saver.load()
+    for saver in iter_plugins('vpltk.saver'):
         if saver.default_name == name:
             return saver
 
@@ -37,7 +34,7 @@ class GenericSaver(object):
         except IOError:
             os.makedirs(filename.splitpath()[0])
             file_ = open(filename, "w")
-        code = str(obj).encode("utf8","ignore")
+        code = str(obj).encode("utf8", "ignore")
         file_.write(code)
         file_.close()
 
@@ -85,4 +82,4 @@ class BGEOMSaver(object):
             warnings.warn("You must install PlantGL if you want to load a BGEOM object.")
         except Exception, e:
             print e
-            warnings.warn("Impossible to save the scene for object %s into %s"%(obj,filename))        
+            warnings.warn("Impossible to save the scene for object %s into %s" % (obj, filename))
