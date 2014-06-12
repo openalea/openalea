@@ -286,6 +286,7 @@ class Project(Observed):
         # Try to remove on disk
         temp_path = self.path / self.name / category / name
         safe_remove(temp_path)
+        self.save_manifest()
         self.notify_listeners(('project_change', self))
 
     def rename(self, category, old_name, new_name):
@@ -319,8 +320,10 @@ class Project(Observed):
             elif hasattr(self, category):
                 cat = getattr(self, category)
                 cat[new_name] = cat[old_name]
+                self._save(category)
             # Remove inside project
             self.remove(category, old_name)
+            self.save_manifest()
         self.notify_listeners(('project_change', self))
 
     #----------------------------------------
@@ -361,6 +364,7 @@ class Project(Observed):
             config['manifest']["control"] = self._control_name
 
         config.write()
+        self.notify_listeners(('project_change', self))
 
     def load_manifest(self):
         """
