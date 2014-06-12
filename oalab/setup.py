@@ -120,6 +120,12 @@ setup(
             'World = openalea.oalab.plugins.applets.worldwidget:World',
             ],
 
+
+        'oalab.qt_control':[
+            'PluginBoolWidgetSelector = openalea.oalab.plugins.controls:PluginBoolWidgetSelector',
+            'PluginIntWidgetSelector = openalea.oalab.plugins.controls:PluginIntWidgetSelector',
+        ],
+
         'oalab.lab': [
             'FullLab = openalea.oalab.plugins.labs.fulllab:FullLab',
             'MiniLab = openalea.oalab.plugins.labs.minilab:MiniLab',
