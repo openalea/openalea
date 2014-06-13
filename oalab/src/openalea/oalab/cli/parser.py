@@ -30,34 +30,44 @@ class CommandLineParser(object):
         if session is None:
             session = Session()
         self.session = session
-        
+
         self.parser = argparse.ArgumentParser(description='OALab Command Line')
         self.parser.add_argument('-e', '--extension', metavar='extension', type=str, default="full",
                                  help='Lab extension to launch')
-        self.parser.add_argument('--list-plugin-categories', action='store_true',
-                                 help='List plugin categories used in OpenAleaLab')
-        self.parser.add_argument('--list-plugins', metavar='category', type=str, default='',
-                                 help='List available plugin for given category')
-        self.parser.add_argument('--debug-plugins', metavar='category', default='',
-                                 help='Raise error while loading instead of passing it silently')
+        group = self.parser.add_argument_group('Plugin development')
+        group.add_argument('--list-plugins', metavar='category', type=str, default='',
+                           help='List available plugin for given category. If all, list all plugins. If summary, list only categories')
+        group.add_argument('--debug-plugins', metavar='category', default='',
+                            help='Raise error while loading instead of passing it silently. Use "all" to debug all plugins')
 
         args = self.parser.parse_args()
         self.session.gui = True
 
 
-        if args.list_plugin_categories:
-            self.session.gui = False
-            from openalea.vpltk.plugin import iter_groups
-            for category in sorted(iter_groups()):
-                if category.startswith('oalab') or category.startswith('vpltk'):
-                    print '  - %s' % category
-
         if args.list_plugins:
             self.session.gui = False
             import pkg_resources
-            print 'Plugins for category %r' % args.list_plugins
-            for ep in pkg_resources.iter_entry_points(args.list_plugins):
-                print '  -', ep
+            from openalea.vpltk.plugin import iter_groups
+
+            if args.list_plugins in ['summary', 'all']:
+                for category in sorted(iter_groups()):
+                    if category.startswith('oalab') or category.startswith('vpltk'):
+                        eps = [ep for ep in pkg_resources.iter_entry_points(category)]
+                        if args.list_plugins == 'all':
+                            print '\033[91m%s\033[0m' % category
+                            print
+                            for ep in eps:
+                                print '  -', ep
+                            print
+                            print
+                        else:
+                            print '  - \033[91m%s\033[0m (%d plugins)' % (category, len(eps))
+
+            elif args.list_plugins:
+                print 'Plugins for category %r' % args.list_plugins
+                for ep in pkg_resources.iter_entry_points(args.list_plugins):
+                    print '  -', ep
+
 
         if args.debug_plugins:
             self.session.debug_plugins = args.debug_plugins

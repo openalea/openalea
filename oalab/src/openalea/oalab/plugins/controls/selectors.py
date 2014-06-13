@@ -23,15 +23,8 @@ from openalea.core.observer import AbstractListener
 from openalea.oalab.plugins.controls.constraints import IntConstraintWidget
 from openalea.oalab.plugins.controls.widgets import IntSimpleSlider, IntSpinBox, IntSlider, IntDial, BoolCheckBox
 
-class AbstractIntWidgetSelector(object):
 
-    @classmethod
-    def edit_constraints(cls):
-        widget = IntConstraintWidget()
-        return widget
-
-
-class IntWidgetSelector(AbstractIntWidgetSelector):
+class IntWidgetSelector(object):
     @classmethod
     def edit(cls, control, shape=None):
         if shape is None:
@@ -46,4 +39,9 @@ class IntWidgetSelector(AbstractIntWidgetSelector):
             widget = IntDial()
         else:
             widget = None
+        return widget
+
+    @classmethod
+    def edit_constraints(cls):
+        widget = IntConstraintWidget()
         return widget
