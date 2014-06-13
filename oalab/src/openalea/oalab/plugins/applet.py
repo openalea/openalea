@@ -1,11 +1,16 @@
 """
-===========================
-Applet plugin documentation
-===========================
+=======
+Applets
+=======
 
-To define an applet plugin, you must
-  #. write an AppletPlugin class that respects IPluginApplet interface (see below)
-  #. add it to group "oalab.applet"
+Overview
+========
+
+.. note::
+
+    To define an applet plugin, you must
+      #. write an AppletPlugin class that respects IPluginApplet interface (see below)
+      #. add it to group :dfn:`oalab.applet`
 
 1. Copy paste this code and fill it with right names and instructions.
 (replace all xyz, respecting case, with your applet name).
@@ -50,6 +55,87 @@ your python package.
 With **mypackage.plugins** python module path (equivalent to 'mypackage/plugins.py') and
 'PluginXyz' the class name.
 
+Example
+=======
+
+The module called oalab.gui.help provides this help widget:
+
+    .. code-block:: python
+        :filename: oalab/gui/help.py
+        :linenos:
+
+        class HelpWidget(QtGui.QWidget):
+            def openWeb(self, url):
+                # Specific to this applet
+                pass
+
+            def actions(self):
+                # optionnal, common to all applets
+                pass
+
+            def initialize(self):
+                # optionnal, common to all applets
+                pass
+
+OpenAleaLab is the main application that gather all widgets.
+We want to add HelpWidget in the MainWindow and allow communication between both classes.
+For that purpose, we create a Plugin called HelpWidgetPlugin in helper package:
+
+.. code-block:: python
+    :filename: helper/plugins/oalab/helpwidget.py
+    :linenos:
+
+    class HelpWidgetPlugin(object):
+
+        data = {
+        # Data that describe plugin
+        }
+
+        def __call__(self, mainwindow):
+            # 1. Import widget and instantiate it
+            # 2. Ask to mainwindow to place it
+            # 3. Fill menus, actions, toolbars, ...
+
+            # 1.
+            from mypackage import MyApplet
+            self._applet = MyApplet()
+
+            # 2
+            mainwindow.add_applet(self._applet, self.alias, area='inputs')
+
+            # 3.
+            if self._applet.actions():
+                for action in self._applet.actions():
+                    # Add actions in PanedMenu
+                    mainwindow.menu.addBtnByAction(*action)
+
+                    # add action in classical menu
+                    pane_name, group_name, act, btn_type = action
+                    mainwindow.add_action_to_existing_menu(action=act, menu_name=pane_name, sub_menu_name=group_name)
+
+It is very important to notice that adding widget in the right area is done by
+the plugin, not the application. Application does almost nothing, it is just
+a container of widgets. Real application intelligence is delegated to Plugins
+(placing and linking components) and components (doing real treatments).
+
+Finally, we register this plugin in setup.py of package helper.
+
+.. code-block:: python
+    :filename: helper/setup.py
+    :linenos:
+    :emphasize-lines: 5,7
+
+    setup(
+        # setup instructions
+
+        entry_points = {
+            'oalab.applet':                                                  # Plugin category
+                [
+                'HelpWidgetPlugin = helper.plugins.oalab:HelpWidgetPlugin'   # Plugin name = path to plugin (factory)
+                ]
+            }
+        )
+
 
 Details
 =======
@@ -67,10 +153,19 @@ class IApplet(IInterface):
     """
     Autonomous Graphical component
     """
+
     def initialize(self):
         """
         Optional method, called after instantiation
         """
+
+    def actions(self):
+        """
+        Optionnal, common to all applets
+        """
+        pass
+
+
 
 class IPluginApplet(object):
     """
@@ -85,26 +180,6 @@ class IPluginApplet(object):
         """
         Load and instantiate graphical component that actually provide feature.
         Then, place it in mainwindow (QMainWindow).
-
-
-        Example:
-
-        .. code-block :: python
-
-            from mypackage import MyApplet
-
-            self._applet = MyApplet()
-            if self._applet.actions():
-                for action in self._applet.actions():
-                    # Add actions in PanedMenu
-                    mainwindow.menu.addBtnByAction(*action)
-
-                    # add action in classical menu
-                    pane_name, group_name, act, btn_type = action
-                    mainwindow.add_action_to_existing_menu(action=act, menu_name=pane_name, sub_menu_name=group_name)
-
-            mainwindow.add_applet(self._applet, self.alias, area='inputs')
-
         """
 
     def instance(self):

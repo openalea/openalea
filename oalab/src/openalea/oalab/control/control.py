@@ -46,6 +46,15 @@ class Control(Observed):
             )
         return 'Control(%(name)r, %(interface)r, value=%(value)r)' % kargs
 
+    def __json__(self):
+        from openalea.oalab.service.serialization import serialize
+        return {
+                'name':self.name,
+                'interface':repr(self.interface),
+                'value':serialize(self._value, fmt='json'),
+                'widget':self.widget
+            }
+
     def notify_change(self):
         """
         Send value_changed event

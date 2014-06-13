@@ -46,7 +46,7 @@ class ParadigmContainer(QtGui.QTabWidget):
 
         self.paradigms = dict()
         self.paradigms_actions = []
-        for applet in iter_plugins('oalab.paradigm_applet'):
+        for applet in iter_plugins('oalab.paradigm_applet', debug=self.session.debug_plugins):
             self.paradigms[applet.default_name] = applet
 
         self.setAccessibleName("Container")
@@ -302,7 +302,7 @@ class ParadigmContainer(QtGui.QTabWidget):
 
         filepath = tab_name
         if self.session.project:
-            filepath = self.session.project.path/self.session.project.name/"src"/tab_name
+            filepath = self.session.project.path / self.session.project.name / "src" / tab_name
 
         if Applet is not None:
             if model is not None:
@@ -430,7 +430,7 @@ class ParadigmContainer(QtGui.QTabWidget):
         filename = QtGui.QFileDialog.getSaveFileName(parent=self, caption="Save file as")
         model = self.currentWidget().applet.model
         if filename:
-            #rename
+            # rename
             proj = ProjectManager().cproject
             if proj:
                 models = proj.models()

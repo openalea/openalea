@@ -6,6 +6,21 @@ from openalea.oalab.service import interface
 from openalea.oalab.service.control import qt_widget_plugins
 from openalea.oalab.control.control import Control
 
+class QtControlEditor(QtGui.QWidget):
+    def __init__(self, control=None):
+        QtGui.QWidget.__init__(self)
+        self.set_control(control)
+
+        self._layout = QtGui.QVBoxLayout(self)
+        self._qt_editor = None
+
+    def set_control(self, control=None):
+        self._control = control
+
+
+
+
+
 class ControlEditor(QtGui.QWidget):
     def __init__(self, name='default'):
         QtGui.QWidget.__init__(self)

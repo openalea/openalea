@@ -6,6 +6,7 @@ class MiniLab(object):
     applets = ['EditorManager']
 
     def __call__(self, mainwin):
-        for plugin in iter_plugins('oalab.applet'):
+        session = mainwin.session
+        for plugin in iter_plugins('oalab.applet', debug=session.debug_plugins):
             if plugin.name in self.applets:
                 mainwin.add_plugin(plugin())

@@ -54,8 +54,15 @@ def get_name(interface=None):
         return cls.__name__
 
 def get(interface, *args, **kwargs):
-    iclass = get_class(interface)
-    return iclass(*args, **kwargs)
+    """
+    If interface is yet an instance of interface, returns it else, return an
+    instance based on interface.
+    """
+    if isinstance(interface, IInterface):
+        return interface
+    else:
+        iclass = get_class(interface)
+        return iclass(*args, **kwargs)
 
 def check(value, interface):
     print 'check %s match %s' % (value, interface)
@@ -63,9 +70,9 @@ def check(value, interface):
 
 def new(interface=None, value=None, *args, **kwargs):
     if interface is not None and value is None:
-        return get(interface, *args,**kwargs)
+        return get(interface, *args, **kwargs)
     elif interface is not None and value is not None:
-        interface = get(interface, *args,**kwargs)
+        interface = get(interface, *args, **kwargs)
         check(value, interface)
         return interface
     elif interface is None and value is not None:
@@ -77,13 +84,13 @@ def new(interface=None, value=None, *args, **kwargs):
     else:
         raise ValueError, 'you must define at least one of interface or value'
 
-def interfaces():
-    for plugin in iter_plugins('oalab.interface'):
+def interfaces(debug=False):
+    for plugin in iter_plugins('oalab.interface', debug=debug):
         for interface in plugin()():
             yield interface
 
-def names():
-    for plugin in iter_plugins('oalab.interface'):
+def names(debug=False):
+    for plugin in iter_plugins('oalab.interface', debug=debug):
         for interface in plugin()():
             yield interface.__name__
 
