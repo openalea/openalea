@@ -1,6 +1,5 @@
 from openalea.oalab.plugins.applets import PluginApplet
 
-
 class Viewer3D(PluginApplet):
     name = 'Viewer3D'
     alias = 'Viewer'

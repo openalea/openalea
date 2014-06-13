@@ -24,8 +24,7 @@ from openalea.vpltk.qt.compat import to_qvariant
 from openalea.core.observer import AbstractListener
 from openalea.oalab.service.control import qt_painter, qt_editor
 from openalea.oalab.service.mimetype import encode
-from openalea.oalab.control.manager import ControlManager
-from openalea.oalab.control.control import Control
+from openalea.oalab.control.manager import ControlContainer
 from openalea.oalab.gui.control.editor import ControlEditor
 from openalea.oalab.gui.utils import ModalDialog
 
@@ -70,7 +69,7 @@ class ControlView(QtGui.QTreeView):
         self.controlsSelected.emit(controls)
 
     def keyPressEvent(self, event):
-        key=event.key()
+        key = event.key()
         if key == QtCore.Qt.Key_Delete:
             print 'rm'
 
@@ -179,7 +178,7 @@ class ControlModel(QtGui.QStandardItemModel, AbstractListener):
 
     def notify(self, sender, event):
         signal, data = event
-        if isinstance(sender, ControlManager):
+        if isinstance(sender, ControlContainer):
             if signal == 'state_changed':
                 self.refresh()
             elif signal == 'control_value_changed':

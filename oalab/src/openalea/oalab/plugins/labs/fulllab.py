@@ -6,7 +6,8 @@ class FullLab(object):
 
     def __call__(self, mainwin):
         plugins_used = []
-        plugins_to_use = [plug for plug in iter_plugins('oalab.applet')]
+        session = mainwin.session
+        plugins_to_use = [plug for plug in iter_plugins('oalab.applet', debug=session.debug_plugins)]
 
         # Set editor manager, because it is used by other plugins
         for plugin in plugins_to_use:

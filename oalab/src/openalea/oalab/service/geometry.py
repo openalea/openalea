@@ -7,7 +7,7 @@ Currently, the service convert object to PlantGL shapes.
 
 __all__ = ['to_shape3d', 'register_shape3d']
 
-def find_plugins(plugin_name='oalab.service.to_shape3d'):
+def find_plugins(plugin_name='oalab.service.to_shape3d', debug=False):
     """ Find plugins defined as entry points.
 
     A Plugin return a registry of adapters.
@@ -16,7 +16,7 @@ def find_plugins(plugin_name='oalab.service.to_shape3d'):
     """
     register = {}
     from openalea.vpltk.plugin import iter_plugins
-    for plugin in iter_plugins(plugin_name):
+    for plugin in iter_plugins(plugin_name, debug=debug):
         register.update(plugin.registry)
     return register
 

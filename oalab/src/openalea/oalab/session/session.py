@@ -53,6 +53,7 @@ class Session(object):
         self.interpreter.shell.events.register("post_execute", self.add_to_history)
 
         self.interpreter.locals['session'] = self
+        self.debug_plugins = ''
 
         self.gui = True
 

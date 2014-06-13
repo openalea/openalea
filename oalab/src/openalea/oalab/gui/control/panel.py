@@ -162,9 +162,10 @@ class ControlPanelScene(QtGui.QGraphicsScene):
 
     def dropEvent(self, event):
         source = event.mimeData()
-        if source.hasFormat('openalealab/control'):
+        fmt = 'openalealab/control'
+        if source.hasFormat(fmt):
             from openalea.oalab.service.mimetype import decode
-            control = decode('openalealab/control', source.data('openalealab/control'))
+            control = decode(fmt, source.data(fmt))
             pos = event.scenePos()
             self.add_control(control, pos)
             event.acceptProposedAction()

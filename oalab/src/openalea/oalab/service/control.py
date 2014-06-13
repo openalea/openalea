@@ -21,7 +21,7 @@ __all__ = [
            "edit", "qt_editor", "qt_painter",
            "new", "get", "get_control",
            "register", "unregister",
-           "clear_ctrl_manager", 
+           "clear_ctrl_manager",
            "save_controls", "load_controls"
            ]
 
@@ -30,10 +30,14 @@ from openalea.vpltk.plugin import iter_plugins
 
 from openalea.oalab.control.control import Control
 from openalea.oalab.control.manager import ControlManager
+from openalea.oalab.service import interface as s_interface
+
+from openalea.oalab.session.session import Session
+session = Session()
 
 def discover_qt_controls():
     # Must move to entry_points oalab.qt_control
-    return [plugin for plugin in iter_plugins('oalab.qt_control')]
+    return [plugin for plugin in iter_plugins('oalab.qt_control', debug=session.debug_plugins)]
 
 def discover_bash_controls():
     # Must move to entry_points oalab.bash_control
@@ -46,8 +50,8 @@ def discover_notebook_controls():
     return plugins
 
 def qt_editor(control, shape=None, preferred=None):
-    cname = control.interface.__class__.__name__
-    widget_plugins = qt_widget_plugins(cname)
+    iname = s_interface.get_name(control.interface)
+    widget_plugins = qt_widget_plugins(iname)
     widget_class = None
 
     if preferred:

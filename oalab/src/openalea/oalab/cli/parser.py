@@ -3,7 +3,7 @@
 #
 #       Main Window class
 #       VPlantsLab GUI is created here
-# 
+#
 #       OpenAlea.OALab: Multi-Paradigm GUI
 #
 #       Copyright 2013 INRIA - CIRAD - INRA
@@ -30,24 +30,37 @@ class CommandLineParser(object):
         if session is None:
             session = Session()
         self.session = session
+        
         self.parser = argparse.ArgumentParser(description='OALab Command Line')
         self.parser.add_argument('-e', '--extension', metavar='extension', type=str, default="full",
                                  help='Lab extension to launch')
-        self.parser.add_argument('--list-interfaces', action='store_true',
-                                 help='List available interfaces')
-        self.parser.add_argument('--list-implementations', action='store_true',
-                                 help='List available implementations')
+        self.parser.add_argument('--list-plugin-categories', action='store_true',
+                                 help='List plugin categories used in OpenAleaLab')
+        self.parser.add_argument('--list-plugins', metavar='category', type=str, default='',
+                                 help='List available plugin for given category')
+        self.parser.add_argument('--debug-plugins', metavar='category', default='',
+                                 help='Raise error while loading instead of passing it silently')
+
         args = self.parser.parse_args()
-        session.gui = True
+        self.session.gui = True
 
-        if args.list_interfaces:
-            from openalea.vpltk.catalog.tools import list_interfaces
-            list_interfaces()
-            session.gui = False
 
-        if args.list_implementations:
-            from openalea.vpltk.catalog.tools import list_implementations
-            list_implementations()
-            session.gui = False
+        if args.list_plugin_categories:
+            self.session.gui = False
+            from openalea.vpltk.plugin import iter_groups
+            for category in sorted(iter_groups()):
+                if category.startswith('oalab') or category.startswith('vpltk'):
+                    print '  - %s' % category
+
+        if args.list_plugins:
+            self.session.gui = False
+            import pkg_resources
+            print 'Plugins for category %r' % args.list_plugins
+            for ep in pkg_resources.iter_entry_points(args.list_plugins):
+                print '  -', ep
+
+        if args.debug_plugins:
+            self.session.debug_plugins = args.debug_plugins
+
 
         self.session.extension = args.extension

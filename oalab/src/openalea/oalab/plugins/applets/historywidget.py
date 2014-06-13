@@ -14,4 +14,4 @@ class HistoryWidget(PluginApplet):
         register_history_diplayer(self._applet)
         self._fill_menu(mainwindow, self._applet)
 
-        mainwindow.add_applet(self._applet, self.alias, area='outputs')
+        mainwindow.add_applet(self._applet, self.alias, area='shell')

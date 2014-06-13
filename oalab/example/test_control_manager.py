@@ -1,11 +1,10 @@
 
 
 from openalea.vpltk.qt import QtGui
-from openalea.oalab.control.control import Control
-from openalea.oalab.control.manager import ControlManager
+from openalea.oalab.control.manager import ControlManager, ControlContainer
 from openalea.oalab.gui.control.manager import ControlManagerWidget
 from openalea.oalab.gui.control.panel import ControlPanel
-from openalea.oalab.service import control as scontrol
+from openalea.oalab.service import control, interface
 
 if __name__ == '__main__':
     instance = QtGui.QApplication.instance()
@@ -15,21 +14,23 @@ if __name__ == '__main__':
         app = instance
 
     cm = ControlManager()
+    cc1 = ControlContainer()
+    cc2 = ControlContainer()
 
     cmw = ControlManagerWidget()
+    cmw.model.set_manager(cc1)
     cp = ControlPanel()
 
-    from openalea.oalab.service.interface import interfaces
-
-
-    for interface in interfaces():
-        iname = interface.__name__
-        for i, editor in enumerate(scontrol.qt_widget_plugins(iname)):
+    # Fill al
+    for iname in interface.names():
+        for i, editor in enumerate(control.qt_widget_plugins(iname)):
             name = '%s_%s' % (editor.name, iname)
-            c = scontrol.new(name, iname)
+            c = control.new(name, iname)
+            cc1.add_control(c)
 
-    c = scontrol.new('colors', 'IInt')
-    cp.add_control(c)
+    percent = interface.get('IInt', min=0, max=100)
+    c = control.new('i', percent)
+    cc2.add_control(c)
 
 
 #     from openalea.oalab.editor.text_editor import TextEditor
