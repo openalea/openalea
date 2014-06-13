@@ -25,12 +25,22 @@ class AbstractControlWidget(AbstractListener):
     def __init__(self):
         AbstractListener.__init__(self)
         self._control_in = None
-        self._control_out = None
-        self.value_changed_signal = None
 
     def set(self, control, autoread=True, autoapply=True):
         self.autoread(control, autoread)
         self.autoapply(control, autoapply)
+
+    def apply(self, control):
+        control.value = self.value()
+
+    def read(self, control):
+        self.reset(control.value)
+
+    def notify(self, sender, event):
+        # If autoread is False, widget is not registered as listener, so this method is never called automatically
+        signal, value = event
+        if signal == 'value_changed':
+            self.read(sender)
 
     def autoread(self, control, auto=True):
         if auto is True:
@@ -42,6 +52,28 @@ class AbstractControlWidget(AbstractListener):
                 self._control_in.unregister_listener(self)
                 self._control_in = None
             # unregister listener
+
+    def autoapply(self, control, auto=True):
+        raise NotImplementedError
+
+    def on_value_changed(self, *args, **kwargs):
+        raise NotImplementedError
+
+    def reset(self, value=None, *kargs):
+        raise NotImplementedError
+
+    def setValue(self, value):
+        raise NotImplementedError
+
+    def value(self):
+        raise NotImplementedError
+
+class AbstractQtControlWidget(AbstractControlWidget):
+    def __init__(self):
+        AbstractControlWidget.__init__(self)
+
+        self._control_out = None
+        self.value_changed_signal = None
 
     def autoapply(self, control, auto=True):
         if auto is True:
@@ -69,17 +101,6 @@ class AbstractControlWidget(AbstractListener):
     def on_value_changed(self, *args, **kwargs):
         if self._control_out:
             self.apply(self._control_out)
-
-    def apply(self, control):
-        control.value = self.value()
-
-    def read(self, control):
-        self.reset(control.value)
-
-    def notify(self, sender, event):
-        signal, value = event
-        if signal == 'value_changed':
-            self.read(sender)
 
     def reset(self, value=None, *kargs):
         raise NotImplementedError

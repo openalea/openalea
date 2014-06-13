@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from openalea.vpltk.qt import QtCore, QtGui
-from openalea.oalab.gui.control.widget import AbstractControlWidget
+from openalea.oalab.gui.control.widget import AbstractQtControlWidget
 
-class BoolCheckBox(QtGui.QCheckBox, AbstractControlWidget):
+class BoolCheckBox(QtGui.QCheckBox, AbstractQtControlWidget):
 
     def __init__(self):
         QtGui.QCheckBox.__init__(self)
-        AbstractControlWidget.__init__(self)
+        AbstractQtControlWidget.__init__(self)
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.setAutoFillBackground(True)
         self.value_changed_signal = self.stateChanged
@@ -22,9 +22,9 @@ class BoolCheckBox(QtGui.QCheckBox, AbstractControlWidget):
         return self.isChecked()
 
 
-class AbstractIntWidget(AbstractControlWidget):
+class AbstractIntWidget(AbstractQtControlWidget):
     def __init__(self):
-        AbstractControlWidget.__init__(self)
+        AbstractQtControlWidget.__init__(self)
 
     def reset(self, value=1, minimum=None, maximum=None, **kwargs):
         self.setValue(value)
@@ -39,7 +39,7 @@ class AbstractIntWidget(AbstractControlWidget):
         self.reset(control.value, minimum=mini, maximum=maxi)
 
     def apply(self, control):
-        AbstractControlWidget.apply(self, control)
+        AbstractQtControlWidget.apply(self, control)
         control.interface.min = self.minimum()
         control.interface.max = self.maximum()
 
@@ -115,7 +115,7 @@ class IntSlider(QtGui.QWidget, AbstractIntWidget):
             self.spinbox.setMaximum(maximum)
 
     def apply(self, control):
-        AbstractControlWidget.apply(self, control)
+        AbstractQtControlWidget.apply(self, control)
         control.interface.min = self.slider.minimum()
         control.interface.max = self.slider.maximum()
 

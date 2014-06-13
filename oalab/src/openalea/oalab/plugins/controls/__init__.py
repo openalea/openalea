@@ -16,11 +16,11 @@
 #
 ###############################################################################
 
-from openalea.oalab.plugins.control import ControlWidgetPlugin
+from openalea.oalab.plugins.control import ControlWidgetSelectorPlugin
 from openalea.deploy.shared_data import shared_data
 import openalea.oalab
 """
-class PluginIntSpinBox(ControlWidgetPlugin):
+class PluginIntSpinBox(ControlWidgetSelectorPlugin):
 
     controls = ['IInt']
     name = 'IntSpinBox'
@@ -32,7 +32,7 @@ class PluginIntSpinBox(ControlWidgetPlugin):
         from openalea.oalab.gui.control.widgets import IntSpinBox
         return IntSpinBox
 
-class PluginIntSlider(ControlWidgetPlugin):
+class PluginIntSlider(ControlWidgetSelectorPlugin):
 
     controls = ['IInt']
     name = 'IntSlider'
@@ -45,7 +45,7 @@ class PluginIntSlider(ControlWidgetPlugin):
         return IntSlider
 """
 
-class PluginIntWidgetSelector(ControlWidgetPlugin):
+class PluginIntWidgetSelector(ControlWidgetSelectorPlugin):
 
     controls = ['IInt']
     name = 'IntWidgetSelector'
@@ -59,7 +59,7 @@ class PluginIntWidgetSelector(ControlWidgetPlugin):
         return IntWidgetSelector
 
 
-class PluginBoolWidgetSelector(ControlWidgetPlugin):
+class PluginBoolWidgetSelector(ControlWidgetSelectorPlugin):
 
     controls = ['IBool']
     name = 'BoolWidgetSelector'
