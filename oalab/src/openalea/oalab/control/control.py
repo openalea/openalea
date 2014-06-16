@@ -38,6 +38,12 @@ class Control(Observed):
         if value is None:
             self._value = default_value(self._interface)
 
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            raise NotImplementedError
+        else:
+            return self.value == other
+
     def __repr__(self):
         kargs = dict(
             interface=self._interface,

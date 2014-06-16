@@ -17,7 +17,7 @@ Overview
 For example Xyz -> HelpApplet
 
 
-.. code-block :: python
+.. testcode::
 
     class PluginXyz(object):
 
@@ -26,15 +26,17 @@ For example Xyz -> HelpApplet
 
         def __call__(self, mainwindow):
             # Write your code here
+            pass
 
         def instance(self):
             # Write your code here
+            pass
 
 
 To avoid to rewrite all plugins from scratch, you can derivate your plugin from
 :class:`~openalea.oalab.plugins.applets.PluginApplet` :
 
-.. code-block :: python
+.. testcode::
 
     from openalea.oalab.plugins.applets import PluginApplet
     class PluginXyz(PluginApplet):
@@ -43,7 +45,7 @@ To avoid to rewrite all plugins from scratch, you can derivate your plugin from
 2. Once this class has been written, just register it in the setup.py file of
 your python package.
 
-.. code-block :: python
+.. testcode::
 
     entry_points={
         'oalab.applet': [
@@ -60,22 +62,24 @@ Example
 
 The module called oalab.gui.help provides this help widget:
 
-    .. code-block:: python
-        :filename: oalab/gui/help.py
-        :linenos:
+.. code-block:: python
+    :filename: oalab/gui/help.py
+    :linenos:
 
-        class HelpWidget(QtGui.QWidget):
-            def openWeb(self, url):
-                # Specific to this applet
-                pass
+    from openalea.vpltk.qt import QtGui
 
-            def actions(self):
-                # optionnal, common to all applets
-                pass
+    class HelpWidget(QtGui.QWidget):
+        def openWeb(self, url):
+            # Specific to this applet
+            pass
 
-            def initialize(self):
-                # optionnal, common to all applets
-                pass
+        def actions(self):
+            # optionnal, common to all applets
+            pass
+
+        def initialize(self):
+            # optionnal, common to all applets
+            pass
 
 OpenAleaLab is the main application that gather all widgets.
 We want to add HelpWidget in the MainWindow and allow communication between both classes.

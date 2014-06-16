@@ -111,7 +111,7 @@ class CreateProjectWidget(QtGui.QWidget):
             layout.addWidget(self.version_lineedit, 11, 1)
 
             layout.addWidget(QtGui.QLabel("path"), 12, 0)
-            self.path_lineedit =  QtGui.QLineEdit(str(proj.path))
+            self.path_lineedit = QtGui.QLineEdit(str(proj.projectdir))
 
             # TODO: remove this line when Project Manager works fine and permit to search outside default directory
             self.path_lineedit.setReadOnly(True)

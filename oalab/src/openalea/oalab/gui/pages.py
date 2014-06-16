@@ -126,7 +126,7 @@ class WelcomePage(QtGui.QWidget):
             logger.debug("Can't restore previous session. May be it is empty")
         elif proj.is_project():
             self.session._is_proj = True
-            name = path(proj.path).abspath() / proj.name
+            name = proj.path.abspath()
             self.controller.project_manager.open(name)
             logger.debug("Restore previous session. (project)")
 

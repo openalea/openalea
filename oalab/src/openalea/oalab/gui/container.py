@@ -302,7 +302,7 @@ class ParadigmContainer(QtGui.QTabWidget):
 
         filepath = tab_name
         if self.session.project:
-            filepath = self.session.project.path / self.session.project.name / "src" / tab_name
+            filepath = self.session.project.path / "src" / tab_name
 
         if Applet is not None:
             if model is not None:
