@@ -370,10 +370,9 @@ class BigToolButton(ToolButton):
     def __init__(self, action, icon=None):
         super(BigToolButton, self).__init__(action, icon)
 
-        self.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
+        self.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
         self.setIconSize(big_icon_size)
         self.setMinimumSize(big_btn_size)
-        self.setMaximumSize(big_btn_size)
 
 class SmallToolButton(ToolButton):
     def __init__(self, action, icon=None):
