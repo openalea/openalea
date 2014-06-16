@@ -249,7 +249,7 @@ class LPyModel(Model):
 
         :use:
             >>> model.inputs = 4, 3
-            >>> model.run()
+            >>> rvalue = model.run()
         """
         return self._inputs
 

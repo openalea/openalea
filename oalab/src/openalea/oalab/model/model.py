@@ -103,7 +103,7 @@ class Model(object):
 
         :use:
             >>> model.inputs = 4, 3
-            >>> model.run()
+            >>> rvalue = model.run()
         """
         return self._inputs
 
@@ -143,8 +143,9 @@ class Model(object):
         Return outputs of the model after running it.
 
         :use:
-            >>> model.run()
-            >>> print model.outputs
+            >>> outputs = model.run()
+            >>> outputs == model.outputs
+            True
         """
         if self.outputs_info and self._outputs:
             if len(self.outputs_info) == 1 and len(self._outputs) == 1:

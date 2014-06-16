@@ -64,9 +64,7 @@ If your widget fits well to all contexts, the easiest way is to use the widget c
 "Control widget" and "Control widget selector".
  You just need to define the widget part as this widget will be used in all cases described in plugin.
 
-.. code-block:: python
-    :filename: mypackage/plugins/widgets.py
-    :linenos:
+.. testcode::
 
     from openalea.oalab.gui.control.widget import AbstractQtControlWidget
     class XyzControlWidget(AbstractQtControlWidget):

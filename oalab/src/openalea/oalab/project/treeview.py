@@ -36,18 +36,18 @@ class ProjectLayoutWidget(QtGui.QWidget, AbstractListener):
     def __init__(self, controller, parent=None):
         super(ProjectLayoutWidget, self).__init__(parent)
         self.treeview = ProjectTreeView(controller, parent)
-        
+
         layout = QtGui.QVBoxLayout()
         layout.addWidget(self.treeview)
-        
+
         self.setLayout(layout)
 
     def clear(self):
         self.treeview.reinit_treeview()
-        
+
     def update(self):
         self.treeview.update()
-        
+
     def mainMenu(self):
         """
         :return: Name of menu tab to automatically set current when current widget
@@ -63,7 +63,7 @@ class ProjectTreeView(QtGui.QTreeView, AbstractListener):
     def __init__(self, controller, parent=None):
         AbstractListener.__init__(self)
         QtGui.QTreeView.__init__(self, parent=parent)
-        #self.setIconSize(QtCore.QSize(30,30))
+        # self.setIconSize(QtCore.QSize(30,30))
 
         self.setDragEnabled(True)
         self.setDropIndicatorShown(True)
@@ -83,18 +83,25 @@ class ProjectTreeView(QtGui.QTreeView, AbstractListener):
         self.setModel(self.proj_model)
 
         self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-        QtCore.QObject.connect(self,QtCore.SIGNAL('customContextMenuRequested(const QPoint&)'),self.showMenu)
+        QtCore.QObject.connect(self, QtCore.SIGNAL('customContextMenuRequested(const QPoint&)'), self.showMenu)
 
         self.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-        QtCore.QObject.connect(self,QtCore.SIGNAL('doubleClicked(const QModelIndex&)'),self.on_opened_file)
+        QtCore.QObject.connect(self, QtCore.SIGNAL('doubleClicked(const QModelIndex&)'), self.on_opened_file)
 
     def notify(self, sender, event=None):
         signal, data = event
         if signal == 'current_project_change':
             self.update()
+            self.setDirty(sender.get_current().dirty)
 
     def update(self):
         self.reinit_treeview()
+
+    def setDirty(self, dirty):
+        if dirty:
+            self.setStyleSheet('background-color:rgba(255,255,100,255);')
+        else:
+            self.setStyleSheet('')
 
     def reinit_treeview(self):
         """ Reinitialise project view """
@@ -106,7 +113,7 @@ class ProjectTreeView(QtGui.QTreeView, AbstractListener):
 
         if self.controller.paradigm_container:
             for applet in self.controller.paradigm_container.paradigms.values():
-                action = QtGui.QAction('New %s'%applet.default_name, self)
+                action = QtGui.QAction('New %s' % applet.default_name, self)
                 action.triggered.connect(self.controller.paradigm_container.new_file)
                 menu.addAction(action)
             menu.addSeparator()
@@ -151,9 +158,9 @@ class ProjectTreeView(QtGui.QTreeView, AbstractListener):
                 # importAction = QtGui.QAction('Import Model',self)
                 # importAction.triggered.connect(self.controller.paradigm_container.importFile)
                 # menu.addAction(importAction)
-                #removeAction = QtGui.QAction('Remove Model',self)
-                #removeAction.triggered.connect(self.controller.project_manager.removeModel)
-                #menu.addAction(removeAction)
+                # removeAction = QtGui.QAction('Remove Model',self)
+                # removeAction.triggered.connect(self.controller.project_manager.removeModel)
+                # menu.addAction(removeAction)
                 # menu.addSeparator()
                 renameAction = QtGui.QAction('Rename', self)
                 renameAction.triggered.connect(self.controller.project_manager.renameCurrent)
@@ -178,7 +185,7 @@ class ProjectTreeView(QtGui.QTreeView, AbstractListener):
     def open_file(self):
         item = self.getItem()
         proj = ProjectManager().cproject
-        filename = path(proj.path)/proj.name/item.parent().text()/item.text()
+        filename = proj.path / item.parent().text() / item.text()
         if self.is_src_selected():
             model = proj.model(item.text())
             self.controller.paradigm_container.open_file(model=model)
@@ -280,7 +287,7 @@ class ProjectTreeView(QtGui.QTreeView, AbstractListener):
 
     def startDrag(self, supportedActions):
         item = self.getItem()
-        #Check item in src
+        # Check item in src
         # TODO move this part in dragEnterEvent with mimetype
         if self.is_src_selected():
             text = item.text()
@@ -307,7 +314,7 @@ class ProjectTreeView(QtGui.QTreeView, AbstractListener):
 
             drag = QtGui.QDrag(self)
             drag.setMimeData(mimeData)
-            drag.setHotSpot(QtCore.QPoint(pixmap.width()/2, pixmap.height()/2))
+            drag.setHotSpot(QtCore.QPoint(pixmap.width() / 2, pixmap.height() / 2))
             drag.setPixmap(pixmap)
 
             drag.start(QtCore.Qt.MoveAction)
@@ -332,7 +339,7 @@ class ProjectTreeView(QtGui.QTreeView, AbstractListener):
 class PrjctModel(QtGui.QStandardItemModel):
     """
     Item model to use TreeView with a project.
-    
+
     Use:
 
     # Model to transform a project into a tree
@@ -341,7 +348,7 @@ class PrjctModel(QtGui.QStandardItemModel):
     # Create tree view and set model
     treeView = QtGui.QTreeView()
     treeView.setModel(proj_model)
-    
+
     # Display
     treeView.show()
     """
@@ -349,24 +356,24 @@ class PrjctModel(QtGui.QStandardItemModel):
         super(PrjctModel, self).__init__(parent)
 
         self.controller = controller
-        
+
         self.old_models = list()
         self.old_control = list()
         self.old_world = list()
 
         self.icons = dict()
-        
+
         self.proj = None
         self.set_proj()
 
-        #QtCore.QObject.connect(self,QtCore.SIGNAL('dataChanged( const QModelIndex &, const QModelIndex &)'),self.renamed)
+        # QtCore.QObject.connect(self,QtCore.SIGNAL('dataChanged( const QModelIndex &, const QModelIndex &)'),self.renamed)
 
     def find_icons(self):
         if self.controller.paradigm_container:
             for applet in self.controller.paradigm_container.paradigms.values():
                 self.icons[applet.extension] = applet.icon
-        
-    def renamed(self,x,y):
+
+    def renamed(self, x, y):
         if self.proj is not None:
             if self.proj.is_project():
                 # Get item and his parent
@@ -374,34 +381,34 @@ class PrjctModel(QtGui.QStandardItemModel):
                 # Check if you have the right to rename
                 if parent:
                     item = parent.child(x.row())
-                
+
                     # List brothers of item
                     children = list()
                     raw = parent.rowCount()
                     for i in range(raw):
                         child = parent.child(i)
                         children.append(child.text())
-                    
+
                     # Search which is the old_item which was changed and rename it
                     if parent.text() == "Models":
                         for i in self.old_models:
                             if i not in children:
-                                self.proj.rename(category=parent.text(), old_name=i, new_name= item.text())
+                                self.proj.rename(category=parent.text(), old_name=i, new_name=item.text())
 
                     if parent.text() == "Control":
                         for i in children:
                             if i not in self.old_control:
-                                self.proj.rename(category=parent.text(), old_name=i, new_name= item.text())
+                                self.proj.rename(category=parent.text(), old_name=i, new_name=item.text())
 
                     if parent.text() == "World":
                         for i in children:
                             if i not in self.old_world:
-                                self.proj.rename(category=parent.text(), old_name=i, new_name= item.text())
+                                self.proj.rename(category=parent.text(), old_name=i, new_name=item.text())
 
     def set_proj(self):
         proj = ProjectManager().cproject
         self.clear()
-        
+
         if proj is not None:
             self.proj = proj
             self._set_levels()
@@ -434,9 +441,9 @@ class PrjctModel(QtGui.QStandardItemModel):
             icon_name = project.icon
             if len(icon_name):
                 if icon_name[0] is not ":":
-                    #local icon
-                    icon_name = path(project.path)/name/icon_name
-                    #else native icon from oalab.gui.resources
+                    # local icon
+                    icon_name = project.path / icon_name
+                    # else native icon from oalab.gui.resources
                 icon = QtGui.QIcon(icon_name)
         item.setIcon(icon)
         parentItem.appendRow(item)
@@ -462,7 +469,7 @@ class PrjctModel(QtGui.QStandardItemModel):
                         item2 = QtGui.QStandardItem(category)
                         item.appendRow(item2)
                         try:
-                            icon = eval(str("icon_"+category))
+                            icon = eval(str("icon_" + category))
                         except NameError:
                             icon = QtGui.QIcon()
                         item2.setIcon(icon)
@@ -470,7 +477,7 @@ class PrjctModel(QtGui.QStandardItemModel):
                     # hide name of category if we don't have object of this category
                     pass
 
-                if isinstance(cat,dict):
+                if isinstance(cat, dict):
                     for obj in cat.keys():
                         l = obj.split(".")
                         name = ".".join(l[:-1])
@@ -490,13 +497,13 @@ class PrjctModel(QtGui.QStandardItemModel):
 class PrjctManagerModel(QtGui.QStandardItemModel):
     """
     Item model to use TreeView with the project manager.
-    
-    Use: 
+
+    Use:
 
         from openalea.vpltk.project.manager import ProjectManager
         import sys
         app = QtGui.QApplication(sys.argv)
-        
+
         project_manager = ProjectManager()
         project_manager.discover()
 
@@ -515,7 +522,7 @@ class PrjctManagerModel(QtGui.QStandardItemModel):
     def __init__(self, project_manager, parent=None):
         super(PrjctManagerModel, self).__init__(parent)
         self.projects = []
-        self.set_proj_manag(project_manager)      
+        self.set_proj_manag(project_manager)
 
     def set_proj_manag(self, project_manager):
         self.clear()
@@ -539,7 +546,7 @@ class PrjctManagerModel(QtGui.QStandardItemModel):
             item = QtGui.QStandardItem(name)
 
             files = project.files
-            
+
             # Propose icon by default.
             # If project have another one, use it
             icon = icon_project
@@ -547,14 +554,14 @@ class PrjctManagerModel(QtGui.QStandardItemModel):
                 icon_name = project.icon
                 if len(icon_name):
                     if icon_name[0] is not ":":
-                        #local icon
-                        icon_name = path(project.path)/name/icon_name
-                        #else native icon from oalab.gui.resources
+                        # local icon
+                        icon_name = project.path / icon_name
+                        # else native icon from oalab.gui.resources
                     icon = QtGui.QIcon(icon_name)
 
             item.setIcon(icon)
             parentItem.appendRow(item)
-                        
+
             categories = files.keys()
             for category in categories:
                 if hasattr(project, category):
@@ -563,16 +570,16 @@ class PrjctManagerModel(QtGui.QStandardItemModel):
                         item2 = QtGui.QStandardItem(category)
                         item.appendRow(item2)
                         try:
-                            icon = eval(str("icon_"+category))
+                            icon = eval(str("icon_" + category))
                         except NameError:
                             icon = QtGui.QIcon()
                         item2.setIcon(icon)
                     else:
                         # hide name of category if we don't have object of this category
                         pass
-                
-                    
-                    if isinstance(cat,dict):
+
+
+                    if isinstance(cat, dict):
                         for obj in cat.keys():
                             item3 = QtGui.QStandardItem(obj)
 
@@ -582,7 +589,7 @@ class PrjctManagerModel(QtGui.QStandardItemModel):
 
 
                             item2.appendRow(item3)
-                    else:    
+                    else:
                         # Useful for category "localized" which store a bool and not a list
                         item3 = QtGui.QStandardItem(cat)
                         item2.appendRow(item3)
@@ -590,7 +597,7 @@ class PrjctManagerModel(QtGui.QStandardItemModel):
     def _set_level_0_only(self):
         """
         Use it if you just want to see projects path
-        """                   
+        """
         for name in self.projects:
             parentItem = self.invisibleRootItem()
             item = QtGui.QStandardItem(name)
@@ -600,7 +607,7 @@ class PrjctManagerModel(QtGui.QStandardItemModel):
 def main():
     import sys
     app = QtGui.QApplication(sys.argv)
-    
+
     project_manager = ProjectManager()
 
     # Model to transform a project into a tree
@@ -609,7 +616,7 @@ def main():
     # Create tree view and set model
     treeView = QtGui.QTreeView()
     treeView.setModel(proj_model)
-    #treeView.expandAll()
+    # treeView.expandAll()
 
     # Display
     treeView.show()

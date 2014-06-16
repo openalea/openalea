@@ -29,7 +29,7 @@ class Preview(QtGui.QWidget):
         if len(project.icon):
             if project.icon[0] is not ":":
                 #local icon
-                icon_name = path(project.path) / project.name / project.icon
+                icon_name = project.path / project.icon
                 #else native icon from oalab.gui.resources
 
         image = QtGui.QImage(icon_name)

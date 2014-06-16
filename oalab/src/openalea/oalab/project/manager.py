@@ -107,7 +107,7 @@ This temporary script is saved in temporary project in
 %s
 
 You can rename/move this project thanks to the button "Save As" in menu.
-"""''' % str(self.session.project.path / self.session.project.name)
+"""''' % str(self.session.project.path)
             self.session.project.new_model(name="temp.py", code=txt)
         self.session.update_namespace()
         self.open_all_scripts_from_project()
@@ -139,7 +139,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         :param project: opened project from vpltk
         """
         project_name = project.name
-        project_path = project.path
+        project_path = project.projectdir
         if hasattr(self, "proj_selector"):
             self.proj_selector.hide()
         self.closeCurrent()
@@ -236,7 +236,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
             proj._save("startup")
             proj.save_manifest()
             if ret:
-                filename = proj.path/proj.name/"startup"/"start.py"
+                filename = proj.path / "startup" / "start.py"
                 self.editor_manager.open_file(filename=filename)
 
     def on_startup_rename(self, startup_name=""):
