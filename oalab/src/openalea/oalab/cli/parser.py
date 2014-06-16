@@ -25,6 +25,17 @@ __all__ = ['CommandLineParser']
 import argparse
 from openalea.oalab.session.all import Session
 
+
+def print_plugin_name(ep):
+    try:
+        name = ep.load().name
+    except ImportError:
+        pass
+    except AttributeError:
+        print '  -%s (%s)' % (ep.name, ep)
+    else:
+        print '  - %s (%s)' % (name, ep)
+
 class CommandLineParser(object):
     def __init__(self, args, session=None):
         if session is None:
@@ -32,7 +43,7 @@ class CommandLineParser(object):
         self.session = session
 
         self.parser = argparse.ArgumentParser(description='OALab Command Line')
-        self.parser.add_argument('-e', '--extension', metavar='extension', type=str, default="full",
+        self.parser.add_argument('-e', '--extension', metavar='extension', type=str, default="plant",
                                  help='Lab extension to launch')
         group = self.parser.add_argument_group('Plugin development')
         group.add_argument('--list-plugins', metavar='category', type=str, default='',
@@ -57,7 +68,7 @@ class CommandLineParser(object):
                             print '\033[91m%s\033[0m' % category
                             print
                             for ep in eps:
-                                print '  -', ep
+                                print_plugin_name(ep)
                             print
                             print
                         else:
@@ -66,7 +77,7 @@ class CommandLineParser(object):
             elif args.list_plugins:
                 print 'Plugins for category %r' % args.list_plugins
                 for ep in pkg_resources.iter_entry_points(args.list_plugins):
-                    print '  -', ep
+                    print_plugin_name(ep)
 
 
         if args.debug_plugins:

@@ -41,13 +41,13 @@ class IColorList(IInterface):
         """
         from openalea.plantgl.all import Material, Color3
         value = [
-            ("Color_0", (80, 80, 80, 255)), # Grey
-            ("Color_1", (65, 45, 15)), # Brown
-            ("Color_2", (30, 60, 10)), # Green
-            ("Color_3", (60, 0, 0)), # Red
-            ("Color_4", (60, 60, 15)), # Yellow
-            ("Color_5", (0, 0, 60)), # Blue
-            ("Color_6", (60, 0, 60)), # Purple
+            ("Color_0", (80, 80, 80, 255), 2.), # Grey
+            ("Color_1", (65, 45, 15), 2.), # Brown
+            ("Color_2", (30, 60, 10), 2.), # Green
+            ("Color_3", (60, 0, 0), 2.), # Red
+            ("Color_4", (60, 60, 15), 2.), # Yellow
+            ("Color_5", (0, 0, 60), 2.), # Blue
+            ("Color_6", (60, 0, 60), 2.), # Purple
             ]
         return value
 

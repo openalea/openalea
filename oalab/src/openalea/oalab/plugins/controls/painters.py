@@ -30,7 +30,8 @@ class PainterColorList(AbstractPainter):
         ncolor = len(data)
         if ncolor:
             lx = r.width() / ncolor
-            for name, color in data:
+            for name, color, diffuse in data:
+                color = [diffuse * c for c in color]
                 painter.fillRect(x, y, lx, r.height(), QtGui.QColor(*color))
                 x += lx
         painter.restore()
