@@ -90,7 +90,7 @@ class Control(Node):
     def __init__(self, inputs, outputs):
         Node.__init__(self, inputs, outputs)
         self.cm = ControlManager()
-:
+
     def __call__(self, inputs):
         """ inputs is the list of input values """
 
@@ -98,7 +98,7 @@ class Control(Node):
         if key in self.cm:
             obj = self.cm.control(key)
             self.set_caption("%s"%(key, ))
-        return (obj, )
+        return (obj.value, )
 
 
 class Scene2Geom(Node):
