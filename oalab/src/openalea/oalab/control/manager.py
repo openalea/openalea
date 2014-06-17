@@ -60,6 +60,10 @@ class ControlContainer(Observed, AbstractListener):
             if signal == 'value_changed':
                 self.notify_listeners(('control_value_changed', (sender, data)))
 
+    def __contains__(self, key):
+        return key in self._controls
+
+
 class ControlManager(ControlContainer):
     __metaclass__ = Singleton
 
