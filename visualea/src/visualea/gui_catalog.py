@@ -242,7 +242,7 @@ class IStrWidget(IInterfaceWidget, qt.QtGui.QWidget):
     def notify(self, sender, event):
         """ Notification sent by node """
 
-        s = str(self.get_value()
+        s = str(self.get_value())
 
         if(len(s) > self.MAX_LEN) :
             s = "String too long..."
