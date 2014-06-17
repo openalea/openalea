@@ -50,7 +50,9 @@ class DataflowView( qt.View ):
         mimeFormatsMap = {node.NodeFactory.mimetype:self.node_factory_drop_handler,
                           compositenode.CompositeNodeFactory.mimetype:self.node_factory_drop_handler,
                           "openalea/data_instance":self.node_datapool_drop_handler,
-                          "openalealab/model":self.node_model_factory_drop_handler}
+                          "openalealab/model":self.node_model_factory_drop_handler,
+                          "openalealab/control":self.node_control_drop_handler,
+                          }
         self.set_mime_handler_map(mimeFormatsMap)
 
         # -- handle the vanishing toolbar --
@@ -204,6 +206,28 @@ class DataflowView( qt.View ):
             self.__drop_from_factory(factory, [position.x(), position.y()])
             event.setDropAction(qt.QtCore.Qt.MoveAction)
             #event.accept()
+
+    def node_control_drop_handler(self, event):
+        # Drag and Drop from the DataPool
+        if(event.mimeData().hasFormat("openalealab/control")):
+            # -- retreive the data from the event mimeData --
+            pieceData = event.mimeData().data("openalealab/control")
+            dataStream = qt.QtCore.QDataStream(pieceData, qt.QtCore.QIODevice.ReadOnly)
+            data_key = str(pieceData)
+
+            # -- find node factory --
+            pkgmanager = PackageManager()
+            pkg = pkgmanager["openalea.oalab"]
+            factory = pkg.get_factory("control")
+
+            # -- instantiate the new node at the given position --
+            position = self.mapToScene(event.pos())
+            node = self.__drop_from_factory(factory, [position.x(), position.y()])
+            if node:
+                node.set_input(0, data_key)
+                node.set_caption(data_key)
+            event.setDropAction(qt.QtCore.Qt.MoveAction)
+            event.accept()
 
     def node_datapool_drop_handler(self, event):
         # Drag and Drop from the DataPool
