@@ -91,7 +91,8 @@ class IInterfaceMetaClass(type):
             TypeInterfaceMap().declare_interface(None, cls)
         if isinstance(cls.__color__, str):
             cls.__color__ = color_palette.HTMLColorToRGB(cls.__color__)
-        IInterfaceMetaClass.all.append(cls)
+        if cls not in IInterfaceMetaClass.all:
+            IInterfaceMetaClass.all.append(cls)
 
     def __repr__(cls):
         return cls.__name__
@@ -359,12 +360,12 @@ class IInterfaceWidget(AbstractListener):
         """ Enable or disable widget depending of connection status """
 
         #i = self.node.get_input_index(self.param_str)
-        state = self.node.get_input_state(self.param_str)
+        state = self.get_state()
 
         # By default, disable the entire widget
         try:
             notconnected = bool(state != "connected")
-            if(self.node.internal_data.get('minimal', False)):
+            if(self.internal_data().get('minimal', False)):
                 self.setVisible(notconnected)
             else:
                 self.setEnabled(notconnected)
@@ -375,3 +376,22 @@ class IInterfaceWidget(AbstractListener):
         """ Notification sent by node """
         pass
 
+    def set_value(self, value):
+        self.node.set_input(self.param_str, newval)
+
+    def get_value(self, value):
+        return self.node.get_input(self.param_str)
+
+    def get_state(self):
+        return self.node.get_input_state(self.param_str)
+
+    def internal_data(self):
+        "return a dict: minimal"
+        return self.node.internal_data()
+
+    @classmethod
+    def get_label(cls, node, parameter_str):
+        return node.get_input_port(name=parameter_str).get_label()
+
+    def unvalidate(self):
+        self.node.unvalidate_input(self.param_str)
