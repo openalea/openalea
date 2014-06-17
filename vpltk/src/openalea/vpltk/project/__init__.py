@@ -20,29 +20,31 @@ Working with Project class
 --------------------------
 
 You can work directly on project:
+
     >>> from openalea.vpltk.project import Project
     >>> # Get the correct path
     >>> from openalea.deploy.shared_data import shared_data
     >>> from openalea import oalab
     >>> path_of_my_proj = shared_data(oalab)
     >>> # Real work on project:
-    >>> project1 = Project(name="mynewproj", path=path_of_my_proj)
+    >>> project1 = Project(name="mynewproj", projectdir=path_of_my_proj)
     >>> project1.rename("project", "mynewproj", "hello_project")
     >>> project1.start()
 
-Project metadata manipulation:
+Change metadata:
+
     >>> project1.authors = "OpenAlea Consortium and John Doe"
     >>> project1.description = "Test project concept with numpy"
     >>> project1.long_description = 'This project import numpy. Then, it create and display a numpy eye. We use it to test concept of Project.'
 
-Project file, models, ... management:
+... project file, models, ... :
+
     >>> success = project1.add(category="model", name="hello.py", value="print('Hello World')")
     >>> project1.description = "This project is used to said hello to everyone"
     >>> success = project1.add("startup", "begin_numpy", "import numpy as np")
     >>> success = project1.add("model", "eye.py", "print np.eye(2)")
     >>> project1.rename("model", "eye", "eye_numpy")
 
-    >>> project1.save()
 
 Creation and Manipulation with Project Manager
 ----------------------------------------------
@@ -57,7 +59,7 @@ Discover available projects
 
 Create project in default directory or in specific one
     >>> p1 = project_manager.create('project1')
-    >>> p2 = project_manager.create(name='project2', path=".")
+    >>> p2 = project_manager.create(name='project2', projectdir=".")
 
 Load project from default directory
     >>> p3 = project_manager.load('sum')
