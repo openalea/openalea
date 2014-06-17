@@ -38,7 +38,7 @@ stored in your computer.
 :use:
     .. code-block:: python
 
-        project1 = Project(name="mynewproj", path="/path/to/proj")
+        project1 = Project(name="mynewproj", projectdir="/path/to/proj")
         project1.start()
         project1.add(category="model", name="hello.py", value="print 'Hello World'")
         project1.author = "John Doe"
@@ -81,11 +81,12 @@ def safe_remove(dirpath):
         if dirpath.exists():
             try:
                 dirpath.removedirs()
-                return True
             except IOError:
                 pass
             except OSError:
                 pass
+            else:
+                return True
     return False
 
 
@@ -96,13 +97,13 @@ class Project(Observed):
     """
     model_klasses = _model_factories()
 
-    def __init__(self, name, path,
+    def __init__(self, name, projectdir,
                  icon="", author="OpenAlea Consortium", author_email="",
                  description="", long_description="", citation="", url="", dependencies=[], license="CeCILL-C",
                  version="0.1"):
         Observed.__init__(self)
         # Metadata
-        self.path = path_(path)
+        self.projectdir = path_(projectdir)
         self.metadata = {
             "name": str(name),
             "icon": path_(icon),
@@ -114,6 +115,7 @@ class Project(Observed):
             "url": str(url),
             "dependencies": dependencies,
             "license": str(license),
+
             "version": str(version),
         }
         self.config_file = "oaproject.cfg"
@@ -131,6 +133,7 @@ class Project(Observed):
         self._model_names = []
         self._control = None
         self._control_name = ["ctrls"]
+        self._dirty = {'project':False}
         self.notify_listeners(('project_change', self))
 
     #----------------------------------------
@@ -215,15 +218,21 @@ class Project(Observed):
 
         .. seealso:: :func:`get` :func:`remove`
         """
+        self._dirty[category] = True
         if category == "model":
-            return self.new_model(name=name, code=value)
+            success = self.new_model(name=name, code=value)
         else:
             if not hasattr(self, category):
                 setattr(self, category, dict())
             cat = getattr(self, category)
             cat[name] = value
-            return True
-        self.notify_listeners(('project_change', self))
+            success = True
+
+        if success:
+            self._save(category)
+            self.save_manifest()
+            self.notify_listeners(('project_change', self))
+            return success
 
     def add_model(self, model):
         """
@@ -246,10 +255,11 @@ class Project(Observed):
         :param inputs: list of inputs of the model
         :param outputs: list of outputs of the model
 
-        :return: True if add with success
+        :return: True if added with success
 
         .. seealso:: :func:`get` :func:`add_model`
         """
+        self._dirty['model'] = True
         filename = path_(name)
         ext = filename.ext[1:]
         if not filepath:
@@ -281,7 +291,7 @@ class Project(Observed):
             if filename in cat:
                 del cat[filename]
         # Try to remove on disk
-        temp_path = self.path / self.name / category / name
+        temp_path = self.path / category / name
         safe_remove(temp_path)
         self.save_manifest()
         self.notify_listeners(('project_change', self))
@@ -291,36 +301,47 @@ class Project(Observed):
         Rename a *model*, a *world*, a *control*, ... in the project.
         If category is *project*, rename the entire project.
 
+
         :param category: Can be "model", "control", "world" or "project" (str)
         :param old_name: current name of thing to rename (str)
         :param new_name: future name of thing to rename (str)
         """
-        category = str(category).lower()
         old_name = str(old_name)
         new_name = str(new_name)
+
+        if old_name == new_name:
+            return
+
+        self._dirty[category] = True
+        category = str(category).lower()
+
         # rename project
         if category == "project":
-            # TODO: check if it works
             new_path, new_name = path_(new_name).abspath().splitpath()
-            self.path = new_path
+            self.projectdir = new_path
             self.name = new_name
             self.save()
-            ## Try to remove on disk
-            # safe_remove(self.path / old_name)
+            safe_remove(self.projectdir / old_name)
+
         # rename a part of project
         else:
             if category in ["model", "models"]:
                 old_model = self._model[old_name]
                 old_model.name = new_name
-                old_model.filepath = path_(new_name)
+                if old_model.extension :
+                    old_model.filepath = path_('%s.%s' % (new_name, old_model.extension))
+                else:
+                    old_model.filepath = path_(new_name)
                 self._model[new_name] = old_model
+                self._save(category)
+                self.remove(category, old_name)
             elif hasattr(self, category):
                 cat = getattr(self, category)
                 cat[new_name] = cat[old_name]
                 self._save(category)
-            # Remove inside project
-            self.remove(category, old_name)
+                self.remove(category, old_name)
             self.save_manifest()
+
         self.notify_listeners(('project_change', self))
 
     #----------------------------------------
@@ -336,7 +357,7 @@ class Project(Observed):
         """
         config = ConfigObj()
 
-        proj_path = path_(self.path) / self.name
+        proj_path = path_(self.projectdir) / self.name
         config.filename = proj_path / self.config_file
 
         if not proj_path.exists():
@@ -376,7 +397,7 @@ class Project(Observed):
 
         .. seealso:: :func:`save_manifest` :func:`load`
         """
-        config = ConfigObj(self.path / self.name / self.config_file)
+        config = ConfigObj(self.path / self.config_file)
         if 'metadata' in config:
             for info in config["metadata"].keys():
                 setattr(self, info, config['metadata'][info])
@@ -398,7 +419,7 @@ class Project(Observed):
                             if path_(mod_name).isabs():
                                 self._model_names.append(mod_name)
                             else:
-                                self._model_names.append(self.path/self.name/"src"/mod_name)
+                                self._model_names.append(self.path / "src" / mod_name)
                     else:
                         filedict = dict()
                         for f in config['manifest'][files]:
@@ -472,10 +493,10 @@ class Project(Observed):
             if path_(object_name).isabs():
                 filepath = path_(object_name)
 
-                new_filepath = (self.path/self.name/"src").relpathto(filepath)
+                new_filepath = (self.path / "src").relpathto(filepath)
             else:
-                filepath = self.path/self.name/"model"/object_name
-                new_filepath = (self.path/self.name/"model").relpathto(filepath)
+                filepath = self.path / "model" / object_name
+                new_filepath = (self.path / "model").relpathto(filepath)
             f = open(filepath, "r")
             code = f.read()
             f.close()
@@ -491,12 +512,12 @@ class Project(Observed):
         elif object_type == "control":
             # @GBY: 3 following lines
             from openalea.oalab.service.control import load_controls
-            filepath = self.path / self.name / object_type / self._control_name
+            filepath = self.path / object_type / self._control_name
             self.control = load_controls(filepath)
 
         else:
             if hasattr(self, object_type):
-                temp_path = self.path / self.name / object_type
+                temp_path = self.path / object_type
 
                 if not temp_path.exists():
                     return return_object
@@ -505,7 +526,7 @@ class Project(Observed):
                 files = files.keys()
                 for filename in files:
                     filename = path_(filename)
-                    pathname = self.path / self.name / object_type / filename
+                    pathname = self.path / object_type / filename
                     if filename.isabs():
                         # Load files that are outside project
                         pathname = filename
@@ -530,25 +551,24 @@ class Project(Observed):
         # TODO: use service to know how to save objects
         object_type = str(object_type)
         if object_type == "model":
-            for model_name in self._model:
-                model = self._model[model_name]
+            for model in self._model.itervalues():
                 self.save_model(model)
 
         elif object_type == "control":
             # @GBY: 4 following lines
             from openalea.oalab.service.control import save_controls
             ctrls = self.control
-            filepath = self.path / self.name / object_type / self._control_name
+            filepath = self.path / object_type / self._control_name
             save_controls(ctrls, filepath)
 
         else:
             object_ = getattr(self, object_type)
             if object_:
-                temp_path = self.path / self.name / object_type
+                temp_path = self.path / object_type
 
                 # Make default directories if necessary
-                if not (self.path / self.name).exists():
-                    os.mkdir(self.path / self.name)
+                if not (self.path).exists():
+                    os.mkdir(self.path)
                 if not temp_path.exists():
                     os.mkdir(temp_path)
 
@@ -568,10 +588,13 @@ class Project(Observed):
                     saver = Saver()
                     saver.save(object_[sub_object], filename)
 
+        if object_type in self._dirty:
+            self._dirty[object_type] = False
+
     def save_model(self, model):
         filepath = path_(model.filepath)
         if not filepath.isabs():
-            filepath = self.path/self.name/"model"/filepath
+            filepath = self.path / "model" / filepath
         Saver = get_saver()
         saver = Saver()
         saver.save(model.repr_code(), filepath)
@@ -604,13 +627,17 @@ class Project(Observed):
                 if shell:
                     shell.runcode(self.startup[s])
 
-    def __repr__(self):
-        txt = "Project named " + str(self.name) + " in path " + str(self.path) + """.
+    def __str__(self):
+        txt = "Project named " + str(self.name) + " in path " + str(self.projectdir) + """.
 """
         for metada in self.metadata:
             if self.metadata[metada]:
                 txt = txt + metada + " : " + str(self.metadata[metada]) + ". "
         return txt
+
+
+    def __repr__(self):
+        return "%s(%r, %r)" % (self.__class__.__name__, self.name, self.projectdir)
 
     def use_ipython(self):
         """
@@ -817,6 +844,10 @@ class Project(Observed):
         self.notify_listeners(('project_change', self))
 
     @property
+    def path(self):
+        return self.projectdir / self.name
+
+    @property
     def icon_path(self):
         """
         :return: the complete path of the icon. To modify it, you have to modify the path of project, the name of project and/or the self.icon.
@@ -825,9 +856,16 @@ class Project(Observed):
         if self.icon:
             if not self.icon.startswith(':'):
                 # local icon
-                icon_name = path_(self.path) / self.name / self.icon
+                icon_name = path_(self.projectdir) / self.name / self.icon
         return icon_name
 
     @property
     def src(self):
         return self._model
+
+    @property
+    def dirty(self):
+        for dirty in self._dirty:
+            if dirty is True:
+                return dirty
+        return False

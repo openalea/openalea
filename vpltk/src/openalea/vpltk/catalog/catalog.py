@@ -257,3 +257,5 @@ class Catalog(object):
             services.append(self.create_service(object_factory, *args, **kargs))
         return services
 
+    suppliers = services
+    supplier = service

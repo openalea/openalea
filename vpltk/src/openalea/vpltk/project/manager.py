@@ -29,6 +29,10 @@ class ProjectManager(Observed, AbstractListener):
     Object which permit to access to projects: creation, loading, searching, ...
 
     It is a singleton.
+
+    >>> from openalea.vpltk.project import ProjectManager
+    >>> project_manager = ProjectManager()
+
     """
     __metaclass__ = Singleton
 
@@ -74,7 +78,7 @@ class ProjectManager(Observed, AbstractListener):
             for root, dirs, files in os.walk(path):
                 if "oaproject.cfg" in files:
                     path, name = path_(root).abspath().splitpath()
-                    if not ((path in [proj.path for proj in self.projects]) and (
+                    if not ((path in [proj.projectdir for proj in self.projects]) and (
                         name in [proj.name for proj in self.projects])):
                         project = Project(name, path)
                         project.load_manifest()
@@ -85,10 +89,10 @@ class ProjectManager(Observed, AbstractListener):
         Search a specific project that match filters.
 
         :use:
-            >>> project_manager.search(name="myproject")
+            >>> project = project_manager.search(name="myproject")
 
         :param name: name of project to search (str)
-        :return: project if it is find, else None
+        :return: project if it is found, else None
 
         If various projects are find, return the first (arbitrary)
 
@@ -118,7 +122,7 @@ class ProjectManager(Observed, AbstractListener):
         :return: a default empty project
         """
         path = path_(settings.get_project_dir())
-        proj = Project(name="temp", path=path)
+        proj = Project(name="temp", projectdir=path)
         proj.centralized = False
         return proj
 
@@ -136,7 +140,7 @@ class ProjectManager(Observed, AbstractListener):
 
         return proj
 
-    def create(self, name, path=None):
+    def create(self, name, projectdir=None):
         """
         Create new project and return it.
 
@@ -148,10 +152,10 @@ class ProjectManager(Observed, AbstractListener):
         :param path: path where project will be saved. By default, path is the user path of all projects ($HOME/.openalea/projects/).
         :return: Project
         """
-        if path is None:
-            path = path_(settings.get_project_dir())
+        if projectdir is None:
+            projectdir = settings.get_project_dir()
 
-        self.cproject = Project(name, path)
+        self.cproject = Project(name, projectdir)
 
         return self.get_current()
 

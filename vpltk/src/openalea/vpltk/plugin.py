@@ -1,7 +1,7 @@
 # -*- python -*-
 #
 #       Plugin System for vpltk
-# 
+#
 #       OpenAlea.VPLTk: Virtual Plants Lab Toolkit
 #
 #       Copyright 2013 INRIA - CIRAD - INRA
@@ -29,6 +29,8 @@ Plugin fundamentals are:
 """
 
 import pkg_resources
+import site
+import sys
 
 def discover(group, name=None):
     """
@@ -40,18 +42,40 @@ def discover(group, name=None):
     :Returns:
         - plugins : dict of name:plugin
 
-    :todo: check that the same name is not used by several plugins 
-    """	
+    :todo: check that the same name is not used by several plugins
+    """
 
-    plugin_map = {ep.name:ep for ep in pkg_resources.iter_entry_points(group,name)} 
+    plugin_map = {ep.name:ep for ep in pkg_resources.iter_entry_points(group, name)}
     return plugin_map
 
-def iter_plugins(group, name=None):
+def iter_groups():
+    groups = set()
+    paths = site.getsitepackages()
+    usersite = site.getusersitepackages()
+    if isinstance(usersite, basestring):
+        paths.append(usersite)
+    elif isinstance(usersite, (tuple, list)):
+        paths += list(usersite)
+    paths += sys.path
+    # scan all entry_point and list different groups
+    for path in set(paths):
+        distribs = pkg_resources.find_distributions(path)
+        for distrib in distribs :
+            for group in distrib.get_entry_map():
+                groups.add(group)
+    for group in groups:
+        yield group
+
+
+def iter_plugins(group, name=None, debug=False):
     for ep in pkg_resources.iter_entry_points(group, name):
-        try:
+        if debug is True or debug == 'all' or debug == group:
             yield ep.load()
-        except ImportError, err:
-            print err
+        else:
+            try:
+                yield ep.load()
+            except Exception, err:
+                print err
 
 class Plugin(object):
     """ Define a Plugin from an entry point. """

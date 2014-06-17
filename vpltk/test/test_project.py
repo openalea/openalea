@@ -1,6 +1,6 @@
 from openalea.vpltk.project.manager import ProjectManager
 from openalea.vpltk.project.project import Project
-from openalea.core.path import path
+from openalea.core.path import path, tempdir
 import shutil
 
 
@@ -13,13 +13,13 @@ def test_import_project():
 def test_load():
     pm = ProjectManager()
     current_path = path('.')
-    proj = pm.load(name='test_project_lpy', path=current_path / 'data')  # load in globals context and python as startup
+    proj = pm.load(name='test_project_lpy', path=current_path / 'data') # load in globals context and python as startup
 
     for category in ["src", "cache", "scene", "startup"]:
         assert hasattr(proj, category)
 
-    for category in ["name", "icon", "author", "description", "version", "license", "dependencies"]:
-        assert category in proj.metadata
+    for metadata in ["name", "icon", "author", "description", "version", "license", "dependencies"]:
+        assert metadata in proj.metadata
 
     assert len(proj.src.keys()) == 1
     assert len(proj.cache.keys()) == 4
@@ -37,12 +37,11 @@ def test_manifest():
 
 def test_save_project():
     pm = ProjectManager()
-    name = path("data") / "my_new_temp_project"
 
-    if name.exists():
-        shutil.rmtree(name)
+    # Work in temporary directory
+    tmpprojectdir = tempdir()
 
-    proj = pm.create('my_new_temp_project', path("data"))
+    proj = pm.create('my_new_temp_project', tmpprojectdir)
     proj.add("model", "plop.py", "print 'hello world'")
     # proj.control["my_integer"] = 42
     # proj.control["my_float"] = 3.14
@@ -52,7 +51,7 @@ def test_save_project():
     # assert len(proj.control) == 2
 
     pm.close('my_new_temp_project')
-    proj2 = pm.load('my_new_temp_project', path("data"))
+    proj2 = pm.load('my_new_temp_project', tmpprojectdir)
 
     assert len(proj2.src) == 1
     # assert len(proj2.control) == 2
@@ -61,7 +60,9 @@ def test_save_project():
     assert proj2.src["plop"].code == "print 'hello world'"
 
     pm.close('my_new_temp_project')
-    shutil.rmtree(name)
+
+    # Delete temporary dir
+    tmpprojectdir.rmtree()
 
 
 def test_add_script():
@@ -77,13 +78,28 @@ def test_add_script():
 
 
 def test_rename():
+    tmpprojectdir = tempdir()
+
     pm = ProjectManager()
-    proj = pm.create('my_new_temp_project', path("data"))
+    proj = pm.create('my_new_temp_project', tmpprojectdir)
     proj.add("model", "1.py", "blablabla")
+
+    model1_path = proj.path / 'model' / '1.py'
+    model2_path = proj.path / 'model' / '2.py'
+
+    assert model1_path.isfile()
+
     proj.rename("model", "1", "2")
     assert len(proj.src) == 1
     assert proj.src["2"].repr_code() == "blablabla"
 
+    # Old bug, path lost extension at rename
+    model2_badpath = proj.path / 'model' / '2'
+    assert model2_badpath.exists() is False
+    assert model2_path.isfile()
+
+
+    tmpprojectdir.rmtree()
 
 def test_rename_project():
     pm = ProjectManager()

@@ -38,7 +38,7 @@ import os
 #     proj = pm.load('test_project_lpy','data') # load in globals context and python as startup
 #
 #     for s in proj.src:
-#         script_filename = proj.path/proj.name/'src'/s
+#         script_filename = proj.projectdir/proj.name/'src'/s
 #     tree2, lsys2 = run_lpy(str(script_filename), parameters=proj.ns)
 #
 #     assert len(tree) == len(tree2)
@@ -52,7 +52,7 @@ import os
 #     proj = pm.load('test_project_lpy','data')
 #
 #     for s in proj.src:
-#         script_filename = proj.path/proj.name/'src'/s
+#         script_filename = proj.projectdir/proj.name/'src'/s
 #
 #     code = open(script_filename).read()
 #
