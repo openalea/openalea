@@ -364,6 +364,7 @@ Glossary
 
     control shape
         shape supported by a control editor or viewer:
+
         - hline: widget fits well in an horizontal line for example in a cell in a table or spreadsheet, in a 200x20px widget, ...
         - vline: widget fits well in a vertical line, for example in 20x200px widget
         - small: widget fits well in a small squared widget (100x100 px to 300x300 px)
