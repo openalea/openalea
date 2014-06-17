@@ -83,35 +83,6 @@ If your widget fits well to all contexts, the easiest way is to use the widget c
         def value(self):
             raise NotImplementedError
 
-
-register plugin
----------------
-
-.. code-block:: python
-    :filename: helper/setup.py
-    :linenos:
-    :emphasize-lines: 5,7
-
-    setup(
-        # setup instructions
-
-        entry_points = {
-            'oalab.qt_control':                                                         # Plugin category
-                [
-                'PluginXyzWidgetSelector = mypackage.plugins:PluginXyzWidgetSelector'   # Plugin name = path to plugin (factory)
-                ]
-            }
-        )
-
-
-.. seealso::
-
-    See IBool example for real case
-
-
-Advanced widget integration
-===========================
-
 Plugin
 ------
 
@@ -139,7 +110,7 @@ explicitly defined are empty (edit_shape, view_shape), null (icon_path='') or di
     from openalea.oalab.plugins.control import ControlWidgetSelectorPlugin
     from openalea.deploy.shared_data import shared_data
 
-    class PluginXyzWidgetSelector(ControlWidgetSelectorPlugin):
+    class PluginXyzWidget(ControlWidgetSelectorPlugin):
 
         controls = ['IXyz'] # Interface name like IInt
         name = 'XyzWidgetSelector'
@@ -149,8 +120,36 @@ explicitly defined are empty (edit_shape, view_shape), null (icon_path='') or di
 
         @classmethod
         def load(cls):
-            from mypackage.plugins.selectors import XyzWidgetSelector
-            return XyzWidgetSelector
+            from mypackage.plugins.widgets import XyzControlWidget
+            return XyzControlWidget
+
+register plugin
+---------------
+
+.. code-block:: python
+    :filename: helper/setup.py
+    :linenos:
+    :emphasize-lines: 5,7
+
+    setup(
+        # setup instructions
+
+        entry_points = {
+            'oalab.qt_control':                                         # Plugin category
+                [
+                'PluginXyzWidget = mypackage.plugins:PluginXyzWidget'   # Plugin name = path to plugin (factory)
+                ]
+            }
+        )
+
+
+.. seealso::
+
+    See IBool example for real case
+
+
+Advanced widget integration
+===========================
 
 
 Widget
@@ -221,6 +220,29 @@ Widget selector
         def edit_constraints(cls):
             return None
 
+
+
+ Plugin
+ ------
+
+Here plugin is exactly the same as simple approach, except that it returns
+XyzControlWidgetSelector instead of XyzControlWidget.
+
+.. code-block:: python
+
+     from openalea.oalab.plugins.control import ControlWidgetSelectorPlugin
+     from openalea.deploy.shared_data import shared_data
+
+     class PluginXyzWidgetSelector(ControlWidgetSelectorPlugin):
+
+         controls = ['IXyz'] # Interface name like IInt
+         edit_shape = ['responsive']
+         name = 'XyzWidgetSelector'
+
+         @classmethod
+         def load(cls):
+             from mypackage.plugins.selectors import XyzControlWidgetSelector
+             return XyzControlWidgetSelector
 
 .. seealso::
 
