@@ -44,37 +44,48 @@ class CreateProjectWidget(QtGui.QWidget):
 
         if not proj:
             date = strftime("%Y-%m-%d_%H-%M-%S", gmtime())
+            
             self.name_lineedit = QtGui.QLineEdit('project_%s' % date)
             self.name_lineedit.setMinimumWidth(300)
             layout.addWidget(self.name_lineedit, 1, 1)
+            
             self.author_lineedit = QtGui.QLineEdit('OpenAlea Consortium')
             layout.addWidget(self.author_lineedit, 2, 1)
+            
             self.author_email_lineedit = QtGui.QLineEdit('')
             layout.addWidget(self.author_email_lineedit, 3, 1)
+            
             self.description_lineedit = QtGui.QLineEdit('')
             layout.addWidget(self.description_lineedit, 4, 1)
+            
             self.long_description_lineedit = QtGui.QLineEdit('')
             layout.addWidget(self.long_description_lineedit, 5, 1)
+            
             self.citation_lineedit = QtGui.QLineEdit('')
             layout.addWidget(self.citation_lineedit, 6, 1)
+            
             self.url_lineedit = QtGui.QLineEdit('')
             layout.addWidget(self.url_lineedit, 7, 1)
+            
             self.icon_lineedit = QtGui.QLineEdit('')
             layout.addWidget(self.icon_lineedit, 8, 1)
+            
             self.dependencies_lineedit = QtGui.QLineEdit('[]')
             layout.addWidget(self.dependencies_lineedit, 9, 1)
+            
             self.license_lineedit = QtGui.QLineEdit('CeCILL-C')
             layout.addWidget(self.license_lineedit, 10, 1)
+            
             self.version_lineedit = QtGui.QLineEdit('0.1')
             layout.addWidget(self.version_lineedit, 11, 1)
 
             layout.addWidget(QtGui.QLabel("path"), 12, 0)
             path_ = path(settings.get_project_dir())
+            
             self.path_lineedit =  QtGui.QLineEdit(str(path_))
 
             # TODO: remove this line when Project Manager works fine and permit to search outside default directory
             self.path_lineedit.setReadOnly(True)
-
             layout.addWidget(self.path_lineedit, 12, 1)
 
             # TODO: uncomment this lines ...
@@ -89,24 +100,34 @@ class CreateProjectWidget(QtGui.QWidget):
             self.name_lineedit = QtGui.QLineEdit(proj.name)
             self.name_lineedit.setMinimumWidth(300)
             layout.addWidget(self.name_lineedit, 1, 1)
+            
             self.author_lineedit = QtGui.QLineEdit(proj.author)
             layout.addWidget(self.author_lineedit, 2, 1)
+            
             self.author_email_lineedit = QtGui.QLineEdit(proj.author_email)
             layout.addWidget(self.author_email_lineedit, 3, 1)
+            
             self.description_lineedit = QtGui.QLineEdit(proj.description)
             layout.addWidget(self.description_lineedit, 4, 1)
+            
             self.long_description_lineedit = QtGui.QLineEdit(proj.long_description)
             layout.addWidget(self.long_description_lineedit, 5, 1)
+            
             self.citation_lineedit = QtGui.QLineEdit(proj.citation)
             layout.addWidget(self.citation_lineedit, 6, 1)
+            
             self.url_lineedit = QtGui.QLineEdit(proj.url)
             layout.addWidget(self.url_lineedit, 7, 1)
+            
             self.icon_lineedit = QtGui.QLineEdit(proj.icon)
             layout.addWidget(self.icon_lineedit, 8, 1)
+            
             self.dependencies_lineedit = QtGui.QLineEdit(str(proj.dependencies))
             layout.addWidget(self.dependencies_lineedit, 9, 1)
+            
             self.license_lineedit = QtGui.QLineEdit(proj.license)
             layout.addWidget(self.license_lineedit, 10, 1)
+            
             self.version_lineedit = QtGui.QLineEdit(proj.version)
             layout.addWidget(self.version_lineedit, 11, 1)
 
@@ -129,7 +150,7 @@ class CreateProjectWidget(QtGui.QWidget):
 
     def ok_clicked(self):
         proj = Project(name=self.name_lineedit.text(),
-                       path=self.path_lineedit.text(),
+                       projectdir=self.path_lineedit.text(),
                        icon=self.icon_lineedit.text(),
                        author=self.author_lineedit.text(),
                        author_email=self.author_email_lineedit.text(),

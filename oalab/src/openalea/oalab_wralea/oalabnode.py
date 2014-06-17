@@ -27,6 +27,7 @@ __revision__ = '$Id$'
 from openalea.core import *
 from openalea.plantgl.all import Scene as PglScene
 from openalea.oalab.world.world import World
+from openalea.oalab.control.manager import ControlManager
 
 # Nodes for read/write in world
 
@@ -83,6 +84,22 @@ class WorldDefault(AbstractWorld):
         obj = self.world.setdefault(key, default_value)
         self.set_caption("%s"%(key,))
         return (obj, )
+
+
+class Control(Node):
+    def __init__(self, inputs, outputs):
+        Node.__init__(self, inputs, outputs)
+        self.cm = ControlManager()
+:
+    def __call__(self, inputs):
+        """ inputs is the list of input values """
+
+        key = inputs[0]
+        if key in self.cm:
+            obj = self.cm.control(key)
+            self.set_caption("%s"%(key, ))
+        return (obj, )
+
 
 class Scene2Geom(Node):
     def __init__(self):

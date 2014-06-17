@@ -55,6 +55,19 @@ world_rw = Factory(name="World setdefault",
 
 __all__.append('world_rw')
 
+controlreader = Factory( name="Control",
+              description="Get the control object from the control manager.",
+              category="oalab control",
+              nodemodule="openalea.oalab_wralea.oalabnode",
+              nodeclass="Control",
+              inputs = (dict(name='Key', interface=IStr),),
+              outputs = (dict(name='Obj', interface=None),),
+              lazy = False,
+              
+              )
+    
+__all__.append('controlreader')
+
 scene_2_geom = Factory(name='Scene to Geometry',
                 authors='F. Boudon, C. Pradal, J. Coste(wralea authors)',
                 description='Extract geometry from scene',

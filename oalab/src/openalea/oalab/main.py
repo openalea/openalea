@@ -59,6 +59,7 @@ def main():
                 available_extensions.append(text)
 
             factory = plugin()
+
             if session.extension == ext:
                 win = MainWindow(session)
                 factory(win)
