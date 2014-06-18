@@ -2,7 +2,12 @@
 __all__ = []
 
 from openalea.vpltk.plugin import iter_plugins
-from openalea.core.interface import IInterface
+from openalea.core.interface import IInterface, TypeInterfaceMap
+
+# Need to load interface classes to auto register them
+# (see :class:`openalea.core.interface.IInterfaceMetaClass`)
+for plugin in iter_plugins('oalab.interface'):
+    plugin()()
 
 def guess(obj):
     """
@@ -11,14 +16,8 @@ def guess(obj):
     >>> guess(1)
     ['IInt']
     """
-    type_to_iname = {
-        int:['IInt'],
-        float:['IFloat']
-    }
-    if type(obj) in type_to_iname:
-        return type_to_iname[type(obj)]
-    else:
-        return []
+    type_to_iname = {typ: [interface.__name__] for (typ, interface) in TypeInterfaceMap().items()}
+    return type_to_iname.get(type(obj), [])
 
 def get_class(interface=None):
     """
@@ -85,15 +84,14 @@ def new(interface=None, value=None, *args, **kwargs):
         raise ValueError, 'you must define at least one of interface or value'
 
 def interfaces(debug=False):
-    for plugin in iter_plugins('oalab.interface', debug=debug):
-        for interface in plugin()():
-            yield interface
+    for interface in IInterface.all:
+        yield interface
+
 
 def names(debug=False):
     for plugin in iter_plugins('oalab.interface', debug=debug):
-        for interface in plugin()():
+        for interface in interfaces():
             yield interface.__name__
-
 
 def default_value(interface):
     if hasattr(interface, 'sample'):
