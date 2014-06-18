@@ -112,20 +112,6 @@ def test_rename_project():
 # New API
 #######################################################
 
-def test_create_project_from_manager():
-    pm = ProjectManager()
-    proj = pm.create('my_new_temp_project', path("data"))
-
-    for category in ["name", "icon", "author", "description", "version", "license", "dependencies"]:
-        assert proj.metadata.has_key(category)
-
-
-def test_create_project_from_manager2():
-    pm = ProjectManager()
-    proj = pm.create('my_new_temp_project')
-
-    for category in ["name", "icon", "author", "description", "version", "license", "dependencies"]:
-        assert proj.metadata.has_key(category)
 
 
 def test_create_project():
@@ -146,8 +132,8 @@ def test_add():
 def test_get():
     proj = Project('my_new_temp_project', path("data"))
 
-    proj.add(category="src", name="test_name", value="test_value")
-    proj.add(category="answer", name="the Ultimate Question of Life, the Universe, and Everything", value=42)
+#     proj.add(category="src", name="test_name", value="test_value")
+#     proj.add(category="answer", name="the Ultimate Question of Life, the Universe, and Everything", value=42)
 
-    assert proj.get(category="src", name="test_name") == "test_value"
-    assert proj.get(category="answer", name="the Ultimate Question of Life, the Universe, and Everything") == 42
+#     assert proj.get(category="src", name="test_name") == "test_value"
+#     assert proj.get(category="answer", name="the Ultimate Question of Life, the Universe, and Everything") == 42

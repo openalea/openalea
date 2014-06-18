@@ -135,7 +135,7 @@ class ProjectManager(Observed, AbstractListener):
         path = path_(settings.get_project_dir())
         proj = self.load(name="temp", path=path)
 
-        if proj == -1:  # If can't load default project, create it
+        if proj is None: # If can't load default project, create it
             proj = self.default()
 
         return proj
@@ -184,9 +184,9 @@ class ProjectManager(Observed, AbstractListener):
                 self.cproject = Project(name, path)
                 self.cproject.load()
                 return self.get_current()
-        #raise IOError('Project %s in repository %s does not exist' %(name,path))
-        #print 'Project %s in repository %s does not exist' %(name,path)
-        return -1
+        # raise IOError('Project %s in repository %s does not exist' %(name,path))
+        # print 'Project %s in repository %s does not exist' %(name,path)
+        return None
 
     def close(self, name=None, path=None):
         """
@@ -248,5 +248,5 @@ def main():
     app.exec_()
 
 
-if ( __name__ == "__main__"):
-    main()                  
+if (__name__ == "__main__"):
+    main()

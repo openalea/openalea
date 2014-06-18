@@ -1,4 +1,22 @@
 from openalea.vpltk.project.manager import ProjectManager
+from openalea.core.path import path, tempdir
+
+def test_create_project_from_manager():
+    pm = ProjectManager()
+    proj = pm.create('my_new_temp_project', path("data"))
+
+    for category in ["name", "icon", "author", "description", "version", "license", "dependencies"]:
+        assert proj.metadata.has_key(category)
+
+    proj = pm.create('my_new_temp_project', path("data"))
+    print proj
+
+def test_create_project_from_manager2():
+    pm = ProjectManager()
+    proj = pm.create('my_new_temp_project')
+
+    for category in ["name", "icon", "author", "description", "version", "license", "dependencies"]:
+        assert proj.metadata.has_key(category)
 
 
 def test_discover():
