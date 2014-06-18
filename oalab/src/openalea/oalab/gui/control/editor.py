@@ -5,6 +5,8 @@ from openalea.vpltk.qt import QtGui, QtCore
 from openalea.oalab.service import interface
 from openalea.oalab.service.qt_control import qt_widget_plugins
 from openalea.oalab.control.control import Control
+from openalea.deploy.shared_data import shared_data
+import openalea.oalab
 
 class QtControlEditor(QtGui.QWidget):
     def __init__(self, control=None):
@@ -41,6 +43,8 @@ class ControlEditor(QtGui.QWidget):
 
         self.widget_preview = QtGui.QLabel("No preview")
         self.widget_preview.setContentsMargins(0, 0, 0, 0)
+        self.widget_preview.setMinimumSize(400, 50)
+        self.widget_preview.setMaximumSize(400, 400)
 
         self._layout_control = QtGui.QFormLayout(self.widget_control)
         self._layout_control.addRow(QtGui.QLabel(u'Name'), self.e_name)
@@ -77,7 +81,19 @@ class ControlEditor(QtGui.QWidget):
             if widget_name == plugin.name:
                 widget = plugin.load()
                 if hasattr(plugin, 'icon_path'):
-                    self.widget_preview.setPixmap(QtGui.QPixmap(plugin.icon_path))
+                    icon_path = plugin.icon_path
+                    if icon_path and not icon_path.exists():
+                        icon_path = None
+                if icon_path is None:
+                    icon_path = shared_data(openalea.oalab, 'icons/preview_%s.png' % iname)
+                if not icon_path.exists():
+                    icon_path = None
+
+                if icon_path:
+                    pixmap = QtGui.QPixmap(icon_path)
+                    if pixmap.width() >= 400 or pixmap.height() >= 400:
+                        pixmap = pixmap.scaled(400, 400, QtCore.Qt.KeepAspectRatio)
+                    self.widget_preview.setPixmap(pixmap)
                 else:
                     self.widget_preview.setText("No preview")
                 break
