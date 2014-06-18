@@ -70,12 +70,23 @@ def iter_groups():
 def iter_plugins(group, name=None, debug=False):
     for ep in pkg_resources.iter_entry_points(group, name):
         if debug is True or debug == 'all' or debug == group:
-            yield ep.load()
+            ep = ep.load()
+            if isinstance(ep, (list, tuple)):
+                for item in ep:
+                    yield item
+            else:
+                yield ep
         else:
             try:
-                yield ep.load()
+                ep = ep.load()
             except Exception, err:
                 print err
+            else:
+                if isinstance(ep, (list, tuple)):
+                    for item in ep:
+                        yield item
+                else:
+                    yield ep
 
 class Plugin(object):
     """ Define a Plugin from an entry point. """

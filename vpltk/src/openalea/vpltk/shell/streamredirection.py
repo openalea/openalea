@@ -17,7 +17,7 @@
 
 
 import sys
-from openalea.vpltk.qt import qt
+from openalea.vpltk import qt
 
 RedirectionEventId = qt.QtCore.QEvent.User+100
 sys_stderr = None
