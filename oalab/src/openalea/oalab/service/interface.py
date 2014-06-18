@@ -1,14 +1,28 @@
+# TODO: Header
+#
 
-__all__ = []
+""" TODO: Documentation
+
+"""
 
 from openalea.vpltk.plugin import iter_plugins
 from openalea.core.interface import IInterface, TypeInterfaceMap
+
+# CPL: I move the line after the import
+__all__ = []
+
+# CPL: I will prefer to write the code in a function even if you call the function in the module.
+# This will increase the readibility of the code.
+# You can document the function, modify it, ...
 
 # Need to load interface classes to auto register them
 # (see :class:`openalea.core.interface.IInterfaceMetaClass`)
 for plugin in iter_plugins('oalab.interface'):
     plugin()()
 
+# guess is not explicit enough
+# interface(1) is better than guess(1)
+# or to_interface(obj) -> interface
 def guess(obj):
     """
     Returns interfaces than can correspond to object
