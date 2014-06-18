@@ -7,6 +7,7 @@ class PlantLab(object):
         'HelpWidget',
         'HistoryWidget',
         'Logger',
+        'PkgManagerWidget',
         'ProjectManager',
         'ProjectWidget',
         'Viewer3D',
