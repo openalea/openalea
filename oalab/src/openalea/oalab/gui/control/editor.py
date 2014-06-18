@@ -3,7 +3,7 @@ import weakref
 from openalea.vpltk.qt import QtGui, QtCore
 
 from openalea.oalab.service import interface
-from openalea.oalab.service.control import qt_widget_plugins
+from openalea.oalab.service.qt_control import qt_widget_plugins
 from openalea.oalab.control.control import Control
 
 class QtControlEditor(QtGui.QWidget):

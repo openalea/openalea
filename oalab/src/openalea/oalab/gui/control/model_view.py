@@ -22,7 +22,7 @@ from openalea.vpltk.qt import QtGui, QtCore
 from openalea.vpltk.qt.compat import to_qvariant
 
 from openalea.core.observer import AbstractListener
-from openalea.oalab.service.control import qt_painter, qt_editor
+from openalea.oalab.service.qt_control import qt_painter, qt_editor
 from openalea.oalab.service.mimetype import encode
 from openalea.oalab.control.manager import ControlContainer
 from openalea.oalab.gui.control.editor import ControlEditor
@@ -73,6 +73,9 @@ class ControlView(QtGui.QTreeView):
         if key == QtCore.Qt.Key_Delete:
             print 'rm'
 
+    def onRowsInserted(self, *args, **kwargs):
+        self.resizeColumnToContents(0)
+
 class ControlDelegate(QtGui.QStyledItemDelegate):
 
     external_edit_required = QtCore.Signal(QtCore.QModelIndex)
@@ -113,6 +116,7 @@ class ControlDelegate(QtGui.QStyledItemDelegate):
         self.external_edit_required.emit(index)
 
 class ControlModel(QtGui.QStandardItemModel, AbstractListener):
+
     def __init__(self, manager=None):
         QtGui.QStandardItemModel.__init__(self)
         AbstractListener.__init__(self)

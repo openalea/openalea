@@ -32,7 +32,7 @@ def print_plugin_name(ep):
     except ImportError:
         pass
     except AttributeError:
-        print '  -%s (%s)' % (ep.name, ep)
+        print '  - %s (%s)' % (ep.name, ep)
     else:
         print '  - %s (%s)' % (name, ep)
 

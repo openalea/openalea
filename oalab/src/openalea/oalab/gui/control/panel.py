@@ -1,7 +1,7 @@
 
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core.observer import AbstractListener
-from openalea.oalab.service.control import qt_editor
+from openalea.oalab.service.qt_control import qt_editor
 
 from openalea.oalab.gui.control.ui_widget_container import Ui_WidgetContainer
 

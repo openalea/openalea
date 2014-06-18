@@ -18,7 +18,7 @@ class BoolCheckBox(QtGui.QCheckBox, AbstractQtControlWidget):
     def setValue(self, value):
         return self.setChecked(value)
 
-    def value(self):
+    def value(self, interface=None):
         return self.isChecked()
 
 
@@ -119,7 +119,7 @@ class IntSlider(QtGui.QWidget, AbstractIntWidget):
         control.interface.min = self.slider.minimum()
         control.interface.max = self.slider.maximum()
 
-    def value(self):
+    def value(self, interface=None):
         return self.spinbox.value()
 
     def setValue(self, value):
