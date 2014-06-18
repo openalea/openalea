@@ -17,8 +17,9 @@
 ###############################################################################
 
 
-from openalea.vpltk.qt import QtGui, QtCore
+from openalea.vpltk.qt import QtCore
 from openalea.core.observer import AbstractListener
+from openalea.oalab.service.interface import get_class
 
 
 class AbstractControlWidget(AbstractListener):
@@ -67,6 +68,46 @@ class AbstractControlWidget(AbstractListener):
 
     def value(self):
         raise NotImplementedError
+
+
+class AbstractInterfaceWidgetControl(AbstractControlWidget):
+
+    def __init__(self, interface_widget, iname):
+        self._control_out = None
+        self._control_in = None
+
+        AbstractControlWidget.__init__(self)
+        interface_widget.__init__(self, None, None, None, interface=get_class(iname)())
+        try:
+            self.label.hide()
+        except AttributeError:
+            pass
+
+    def apply(self, control):
+        control.value = self.value()
+
+    def read(self, control):
+        self.reset(control.value)
+
+    def autoapply(self, control, auto=True):
+        if auto is True:
+            self._control_out = control
+        else:
+            self._control_out = None
+
+    def _notify(self, sender, event):
+        if event is None:
+            return
+        signal, value = event
+        if signal == 'value_changed':
+            self.read(sender)
+
+    def on_value_changed(self, value):
+        if self._control_out:
+            self.apply(self._control_out)
+
+    def reset(self, value=None, *kargs):
+        self.setValue(value)
 
 class AbstractQtControlWidget(AbstractControlWidget):
     def __init__(self):

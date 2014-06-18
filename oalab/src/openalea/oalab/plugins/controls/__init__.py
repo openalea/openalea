@@ -71,3 +71,34 @@ class PluginBoolWidgetSelector(ControlWidgetSelectorPlugin):
         from openalea.oalab.plugins.controls.widgets import BoolCheckBox
         return BoolCheckBox
 
+class PluginFloatWidgetSelector(ControlWidgetSelectorPlugin):
+
+    controls = ['IFloat']
+    name = 'FloatWidgetSelector'
+    edit_shape = ['large', 'hline']
+
+    @classmethod
+    def load(cls):
+        from openalea.oalab.plugins.controls.visualea_widgets import FloatWidget
+        return FloatWidget
+
+class PluginDateTimeWidgetSelector(ControlWidgetSelectorPlugin):
+
+    controls = ['IDateTime']
+    name = 'DateTimeSelector'
+    edit_shape = ['large', 'hline']
+
+    @classmethod
+    def load(cls):
+        from openalea.oalab.plugins.controls.visualea_widgets import DateTimeWidget
+        return DateTimeWidget
+
+PluginOpenAleaLabWidgetSelectors = [
+    PluginBoolWidgetSelector,
+    PluginIntWidgetSelector
+]
+
+PluginVisualeaWidgetSelectors = [
+    PluginFloatWidgetSelector,
+    PluginDateTimeWidgetSelector
+    ]

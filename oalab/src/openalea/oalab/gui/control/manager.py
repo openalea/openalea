@@ -23,7 +23,7 @@ from openalea.core.observer import AbstractListener
 
 from openalea.oalab.gui.control.model_view import ControlModel, ControlView
 from openalea.oalab.control.manager import ControlManager
-from openalea.oalab.service.control import qt_editor
+from openalea.oalab.service.qt_control import qt_editor
 
 
 class ControlManagerWidget(QtGui.QWidget, AbstractListener):
@@ -39,6 +39,8 @@ class ControlManagerWidget(QtGui.QWidget, AbstractListener):
         self.view = ControlView()
         self.view.setModel(self.model)
         self.view.controlsSelected.connect(self.on_controls_selected)
+
+        self.model.rowsInserted.connect(self.view.onRowsInserted)
 
         self._layout.setSpacing(0)
         self._layout.setContentsMargins(0, 0, 0, 0)
