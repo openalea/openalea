@@ -376,10 +376,10 @@ class IInterfaceWidget(AbstractListener):
         """ Notification sent by node """
         pass
 
-    def set_value(self, value):
-        self.node.set_input(self.param_str, value)
+    def set_value(self, newval):
+        self.node.set_input(self.param_str, newval)
 
-    def get_value(self, value):
+    def get_value(self):
         return self.node.get_input(self.param_str)
 
     def get_state(self):
