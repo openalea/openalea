@@ -77,7 +77,7 @@ class AbstractInterfaceWidgetControl(AbstractControlWidget):
         self._control_in = None
 
         AbstractControlWidget.__init__(self)
-        interface_widget.__init__(self, None, None, None, interface=get_class(iname)())
+        
         try:
             self.label.hide()
         except AttributeError:
