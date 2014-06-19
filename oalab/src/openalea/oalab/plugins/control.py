@@ -395,7 +395,7 @@ Details
 from openalea.core.interface import IInterface
 
 
-class ControlWidgetSelectorPlugin():
+class ControlWidgetSelectorPlugin(object):
     """
 
     """

@@ -16,6 +16,11 @@
 #
 ###############################################################################
 
+
+################################################################################
+# Manual definition of Qt control widgets from openalea node widgets
+################################################################################
+
 from openalea.oalab.plugins.control import ControlWidgetSelectorPlugin
 from openalea.deploy.shared_data import shared_data
 import openalea.oalab
@@ -64,41 +69,72 @@ class PluginBoolWidgetSelector(ControlWidgetSelectorPlugin):
     controls = ['IBool']
     name = 'BoolWidgetSelector'
     edit_shape = ['responsive']
-    icon_path = shared_data(openalea.oalab, 'icons/BoolCheckBox.png')
 
     @classmethod
     def load(cls):
         from openalea.oalab.plugins.controls.widgets import BoolCheckBox
         return BoolCheckBox
 
-class PluginFloatWidgetSelector(ControlWidgetSelectorPlugin):
-
-    controls = ['IFloat']
-    name = 'FloatWidgetSelector'
-    edit_shape = ['large', 'hline']
-
-    @classmethod
-    def load(cls):
-        from openalea.oalab.plugins.controls.visualea_widgets import FloatWidget
-        return FloatWidget
-
-class PluginDateTimeWidgetSelector(ControlWidgetSelectorPlugin):
-
-    controls = ['IDateTime']
-    name = 'DateTimeSelector'
-    edit_shape = ['large', 'hline']
-
-    @classmethod
-    def load(cls):
-        from openalea.oalab.plugins.controls.visualea_widgets import DateTimeWidget
-        return DateTimeWidget
 
 PluginOpenAleaLabWidgetSelectors = [
     PluginBoolWidgetSelector,
     PluginIntWidgetSelector
 ]
 
-PluginVisualeaWidgetSelectors = [
-    PluginFloatWidgetSelector,
-    PluginDateTimeWidgetSelector
-    ]
+################################################################################
+# Dynamic generation of Qt control widgets from openalea node widgets
+################################################################################
+
+PluginVisualeaWidgetSelectors = []
+
+import openalea.visualea.gui_catalog
+from openalea.core.interface import InterfaceWidgetMap
+from openalea.vpltk.qt import QtCore, QtGui
+from openalea.oalab.gui.control.widget import AbstractQtControlWidget
+from openalea.oalab.plugins.controls.visualea_widgets import OpenAleaControlWidget
+
+
+def OpenAleaControlWidgetFactory(OpenAleaControlWidget, OpenAleaWidget, interface):
+    def __init__(self, **kwargs):
+        OpenAleaControlWidget.__init__(self)
+        OpenAleaWidget.__init__(self, None, None, None, interface)
+        self.setAutoFillBackground(True)
+        try:
+            self.label.hide()
+        except AttributeError:
+            pass
+
+    name = OpenAleaWidget.__name__ + 'Control'
+    bases = [OpenAleaControlWidget, OpenAleaWidget]
+
+    klass = type(name, tuple(bases), {'__init__':__init__})
+    return klass
+
+def new_plugin(widget_class, interface, shape=None):
+    if shape is None :
+        shape = ['large', 'hline']
+
+    @classmethod
+    def load(cls):
+        return OpenAleaControlWidgetFactory(OpenAleaControlWidget, widget_class, interface())
+
+    name = 'PluginOpenAlea%s' % interface.__name__
+    klass = type(name, (ControlWidgetSelectorPlugin,), dict(load=load))
+    klass.controls = [interface.__name__]
+    klass.name = interface.__name__[1:] + 'Widget'
+    klass.edit_shape = shape
+
+    return klass
+
+shapes = {
+    'ISequence':['large'],
+    'IFloat':None,
+    'IDateTime':None,
+}
+for interface, widget_class in InterfaceWidgetMap().items():
+    iname = interface.__name__
+    if iname  in shapes:
+        shape = shapes[iname]
+        plugin = new_plugin(widget_class, interface, shape=shape)
+        PluginVisualeaWidgetSelectors.append(plugin)
+
