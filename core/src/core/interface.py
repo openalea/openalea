@@ -382,6 +382,12 @@ class IInterfaceWidget(AbstractListener):
     def get_value(self):
         return self.node.get_input(self.param_str)
 
+    def set_widget_value(self, newval):
+        self.set_value(newval)
+
+    def get_widget_value(self):
+        return self.get_value()
+
     def get_state(self):
         return self.node.get_input_state(self.param_str)
 
