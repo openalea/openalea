@@ -3,6 +3,10 @@
 from openalea.vpltk.qt import QtCore, QtGui
 from openalea.oalab.gui.control.widget import AbstractQtControlWidget
 
+"""
+For documentation, see :class:`~openalea.oalab.plugins.control`
+"""
+
 class BoolCheckBox(QtGui.QCheckBox, AbstractQtControlWidget):
 
     def __init__(self):
@@ -45,10 +49,6 @@ class AbstractIntWidget(AbstractQtControlWidget):
 
 
 class IntSpinBox(QtGui.QSpinBox, AbstractIntWidget):
-    """
-    For documentation, see :class:`~openalea.oalab.interfaces.all.IQtControl`
-    """
-
     def __init__(self):
         QtGui.QSpinBox.__init__(self)
         AbstractIntWidget.__init__(self)
@@ -56,10 +56,6 @@ class IntSpinBox(QtGui.QSpinBox, AbstractIntWidget):
 
 
 class IntSimpleSlider(QtGui.QSlider, AbstractIntWidget):
-    """
-    For documentation, see :class:`~openalea.oalab.interfaces.all.IQtControl`
-    """
-
     def __init__(self):
         QtGui.QSlider.__init__(self)
         AbstractIntWidget.__init__(self)
@@ -67,9 +63,6 @@ class IntSimpleSlider(QtGui.QSlider, AbstractIntWidget):
 
 
 class IntSlider(QtGui.QWidget, AbstractIntWidget):
-    """
-    For documentation, see :class:`~openalea.oalab.interfaces.all.IQtControl`
-    """
     valueChanged = QtCore.Signal(int)
 
     def __init__(self):
@@ -128,10 +121,6 @@ class IntSlider(QtGui.QWidget, AbstractIntWidget):
 
 
 class IntDial(QtGui.QDial, AbstractIntWidget):
-    """
-    For documentation, see :class:`~openalea.oalab.interfaces.all.IQtControl`
-    """
-
     def __init__(self):
         QtGui.QDial.__init__(self)
         AbstractIntWidget.__init__(self)

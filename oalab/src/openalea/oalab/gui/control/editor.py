@@ -86,8 +86,8 @@ class ControlEditor(QtGui.QWidget):
                         icon_path = None
                 if icon_path is None:
                     icon_path = shared_data(openalea.oalab, 'icons/preview_%s.png' % iname)
-                if not icon_path.exists():
-                    icon_path = None
+                    if icon_path and not icon_path.exists():
+                        icon_path = None
 
                 if icon_path:
                     pixmap = QtGui.QPixmap(icon_path)
