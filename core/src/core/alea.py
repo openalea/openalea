@@ -47,7 +47,7 @@ def start_qt(factory, node):
     widget.setParent(dialog)
 
     vboxlayout = QtGui.QVBoxLayout(dialog)
-    vboxlayout.setMargin(3)
+    vboxlayout.setContentsMargins(3, 3, 3, 3)
     vboxlayout.setSpacing(5)
     vboxlayout.addWidget(widget)
 

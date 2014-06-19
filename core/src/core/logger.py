@@ -146,7 +146,7 @@ defaultHandlerNames = ["file",  #TimedRotatingFileHandler
 
 #: The QLogHandlerItemModel class is only created if PyQt4 is already loaded
 # otherwise ties core with PyQt and could prevent UI-less usage of core.
-    
+
 if "PyQt4.QtCore" in sys.modules and "PyQt4.QtGui" in sys.modules:
     QtCore = sys.modules["PyQt4.QtCore"]
     QtGui  = sys.modules["PyQt4.QtGui"]
