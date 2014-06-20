@@ -137,4 +137,6 @@ for interface, widget_class in InterfaceWidgetMap().items():
         shape = shapes[iname]
         plugin = new_plugin(widget_class, interface, shape=shape)
         PluginVisualeaWidgetSelectors.append(plugin)
+    else:
+        print iname, 'not yet supported'
 
