@@ -18,8 +18,8 @@ if __name__ == '__main__':
     cc2 = ControlContainer()
 
     cmw = ControlManagerWidget()
+    cmw.model.set_manager(cc2)
     cmw.view.new_control()
-    cmw.model.set_manager(cc1)
     cp = ControlPanel()
 
     # Fill al
