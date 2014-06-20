@@ -21,8 +21,7 @@ from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core.path import path
 from time import gmtime, strftime
 from openalea.core import settings
-from openalea.vpltk.project import Project
-
+from openalea.vpltk.project import Project, ProjectManager
 
 class CreateProjectWidget(QtGui.QWidget):
     """
@@ -30,7 +29,6 @@ class CreateProjectWidget(QtGui.QWidget):
     """
     def __init__(self, proj=None, parent=None):
         super(CreateProjectWidget, self).__init__(parent)
-        self.project = None
         layout = QtGui.QGridLayout(self)
 
         layout.addWidget(QtGui.QLabel("Fill this to set metadata of your project"), 0, 0)
@@ -81,8 +79,7 @@ class CreateProjectWidget(QtGui.QWidget):
 
             layout.addWidget(QtGui.QLabel("path"), 12, 0)
             path_ = path(settings.get_project_dir())
-            
-            self.path_lineedit =  QtGui.QLineEdit(str(path_))
+            self.path_lineedit = QtGui.QLineEdit(str(path_))
 
             # TODO: remove this line when Project Manager works fine and permit to search outside default directory
             self.path_lineedit.setReadOnly(True)
@@ -92,10 +89,6 @@ class CreateProjectWidget(QtGui.QWidget):
             # self.btn_path = QtGui.QPushButton("   ...   ")
             # layout.addWidget(self.btn_path, 12, 2)
             # self.connect(self.btn_path, QtCore.SIGNAL('clicked()'), self.select_path)
-
-            self.ok_btn = QtGui.QPushButton("Ok")
-            layout.addWidget(self.ok_btn, 13, 0, 1, 3)
-            self.connect(self.ok_btn, QtCore.SIGNAL('clicked()'), self.ok_clicked)
         else:
             self.name_lineedit = QtGui.QLineEdit(proj.name)
             self.name_lineedit.setMinimumWidth(300)
@@ -146,9 +139,11 @@ class CreateProjectWidget(QtGui.QWidget):
 
             self.ok_btn = QtGui.QPushButton("Set metadata")
             layout.addWidget(self.ok_btn, 13, 0, 1, 3)
-            self.connect(self.ok_btn, QtCore.SIGNAL('clicked()'), self.ok_clicked)
 
-    def ok_clicked(self):
+    def setMetaDataMode(self, enable=True):
+        self.name_lineedit.setEnabled(not enable)
+
+    def project(self):
         proj = Project(name=self.name_lineedit.text(),
                        projectdir=self.path_lineedit.text(),
                        icon=self.icon_lineedit.text(),
@@ -161,9 +156,10 @@ class CreateProjectWidget(QtGui.QWidget):
                        dependencies=self.url_lineedit.text(),
                        license=self.license_lineedit.text(),
                        version=self.version_lineedit.text())
-        self.project = proj
-        self.emit(QtCore.SIGNAL('ProjectMetadataSet(PyQt_PyObject)'), proj)
-        self.hide()
+        return proj
+
+    def metadata(self):
+        return self.project().metadata
 
     def select_path(self):
         text = "Select path where to save your project"

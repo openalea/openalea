@@ -18,6 +18,7 @@ if __name__ == '__main__':
     cc2 = ControlContainer()
 
     cmw = ControlManagerWidget()
+    cmw.view.new_control()
     cmw.model.set_manager(cc1)
     cp = ControlPanel()
 
@@ -71,7 +72,9 @@ if __name__ == '__main__':
         app.exec_()
 
 
-    print cm.namespace()
+    import sys
+    for k, v in cc1.namespace().items():
+        print >> sys.__stdout__, k, v
 
 """
 from openalea.oalab.control.manager import ControlManager

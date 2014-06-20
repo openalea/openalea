@@ -54,6 +54,7 @@ class PluginIntWidgetSelector(ControlWidgetSelectorPlugin):
 
     controls = ['IInt']
     name = 'IntWidgetSelector'
+    alias = 'Integer editor'
     required = ['IInt.min', 'IInt.max']
     edit_shape = ['responsive']
     icon_path = shared_data(openalea.oalab, 'icons/IntWidgetSelector_hline.png')
@@ -126,17 +127,37 @@ def new_plugin(widget_class, interface, shape=None):
 
     return klass
 
+DEFAULT_SHAPES = ['large', 'hline']
 shapes = {
     'ISequence':['large'],
-    'IFloat':None,
-    'IDateTime':None,
+    'IFloat':DEFAULT_SHAPES,
+    'IDateTime':DEFAULT_SHAPES,
+    'ITuple':DEFAULT_SHAPES,
+    'IColor':DEFAULT_SHAPES,
+    'ITextStr':DEFAULT_SHAPES,
+    'IRGBColor':DEFAULT_SHAPES,
+    'IInt':DEFAULT_SHAPES,
+    'ICodeStr':['large'],
+    'IStr':DEFAULT_SHAPES,
+    'IColor':DEFAULT_SHAPES,
+    'IDict':DEFAULT_SHAPES,
+    'IEnumStr':DEFAULT_SHAPES,
+    'IColor':DEFAULT_SHAPES,
+    'IFileStr':DEFAULT_SHAPES,
+    'IDirStr':DEFAULT_SHAPES,
+    'IBool':DEFAULT_SHAPES,
 }
+
+rejected = ['IInt']
+
 for interface, widget_class in InterfaceWidgetMap().items():
     iname = interface.__name__
+    if iname in rejected:
+        continue
     if iname  in shapes:
         shape = shapes[iname]
-        plugin = new_plugin(widget_class, interface, shape=shape)
-        PluginVisualeaWidgetSelectors.append(plugin)
     else:
-        print iname, 'not yet supported'
+        shape = None
+    plugin = new_plugin(widget_class, interface, shape=shape)
+    PluginVisualeaWidgetSelectors.append(plugin)
 
