@@ -8,17 +8,17 @@
 from openalea.vpltk.plugin import iter_plugins
 from openalea.core.interface import IInterface, TypeInterfaceMap
 
-# CPL: I move the line after the import
 __all__ = []
 
-# CPL: I will prefer to write the code in a function even if you call the function in the module.
-# This will increase the readibility of the code.
-# You can document the function, modify it, ...
+def load_interfaces():
+    """
+    Need to load interface classes to auto register them
+    (see :class:`openalea.core.interface.IInterfaceMetaClass`)
+    """
+    for plugin in iter_plugins('oalab.interface'):
+        plugin()()
 
-# Need to load interface classes to auto register them
-# (see :class:`openalea.core.interface.IInterfaceMetaClass`)
-for plugin in iter_plugins('oalab.interface'):
-    plugin()()
+load_interfaces()
 
 # guess is not explicit enough
 # interface(1) is better than guess(1)

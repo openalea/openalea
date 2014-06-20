@@ -2,7 +2,7 @@
 import weakref
 from openalea.vpltk.qt import QtGui, QtCore
 
-from openalea.oalab.service import interface
+from openalea.oalab.service.interface import alias as interface_alias
 from openalea.oalab.service.qt_control import qt_widget_plugins
 from openalea.oalab.control.control import Control
 from openalea.deploy.shared_data import shared_data
@@ -21,63 +21,74 @@ class QtControlEditor(QtGui.QWidget):
 
 
 
+from openalea.oalab.gui.control.ui_editor import Ui_ControlEditor
 
+class ControlEditor(QtGui.QWidget, Ui_ControlEditor):
+    counters = {}
 
-class ControlEditor(QtGui.QWidget):
     def __init__(self, name='default'):
         QtGui.QWidget.__init__(self)
-        self.setContentsMargins(0, 0, 0, 0)
+        Ui_ControlEditor.__init__(self)
+        self.setupUi(self)
 
         self._interfaces = []
         self._constraints = None
 
-        self.e_name = QtGui.QLineEdit(name)
-        self.cb_interface = QtGui.QComboBox()
-        self.cb_widget = QtGui.QComboBox()
+        self.e_name.setText(name)
+        self._autoname = True
+        self.e_name.textEdited.connect(self.on_user_edit)
 
-        self._layout = QtGui.QVBoxLayout(self)
-        self._layout.setContentsMargins(0, 0, 0, 0)
-
-        self.widget_control = QtGui.QWidget()
-        self.widget_control.setContentsMargins(0, 0, 0, 0)
-
-        self.widget_preview = QtGui.QLabel("No preview")
-        self.widget_preview.setContentsMargins(0, 0, 0, 0)
-        self.widget_preview.setMinimumSize(400, 50)
-        self.widget_preview.setMaximumSize(400, 400)
-
-        self._layout_control = QtGui.QFormLayout(self.widget_control)
-        self._layout_control.addRow(QtGui.QLabel(u'Name'), self.e_name)
-        self._layout_control.addRow(QtGui.QLabel(u'Type'), self.cb_interface)
-        self._layout_control.addRow(QtGui.QLabel(u'Widget'), self.cb_widget)
-
-        self._l_constraints = QtGui.QLabel("Constraints")
-
-        self._layout.addWidget(QtGui.QLabel("Control"))
-        self._layout.addWidget(self.widget_control)
-        self._layout.addWidget(QtGui.QLabel("Preview"))
-        self._layout.addWidget(self.widget_preview)
-        self._layout.addWidget(self._l_constraints)
-        self._layout.addStretch()
+        self.aliases = {}
+        self.tooltips = {}
 
         plugins = qt_widget_plugins()
+        self.alias_to_dict = {}
         for iname in plugins :
-            alias = interface.alias(iname)
+            alias = interface_alias(iname)
+            self.aliases[iname] = alias
+            self.alias_to_dict[alias] = iname
+            self.tooltips[iname] = '<b>%s</b><br />Interface name:%s' % (alias, iname)
+
+        for alias in sorted(self.alias_to_dict) :
+            iname = self.alias_to_dict[alias]
+            tooltip = self.tooltips[iname]
+
+            item = QtGui.QListWidgetItem(alias)
+            item.setToolTip(tooltip)
+            item.setStatusTip(tooltip)
+
             self._interfaces.append(iname)
             self.cb_interface.addItem(alias)
+
+#         plugins = qt_widget_plugins()
+#
+#         aliases = {}
+#         tooltips = {}
+#         for iname in plugins :
+#             alias = interface.alias(iname)
+#             aliases[alias] = interface
+#             tooltips[alias] = '<h1>%s</h1>Interface name:%s' % (alias, iname)
+#
+#         for alias in sorted(aliases.keys()) :
+#             iname = aliases[alias]
+#             self._interfaces.append(iname)
+#             self.cb_interface.addItem(alias)
+#         print self._interfaces
 
         self.cb_interface.currentIndexChanged.connect(self.refresh)
         self.cb_widget.currentIndexChanged.connect(self.on_widget_changed)
 
         self.refresh()
 
+    def on_user_edit(self):
+        self._autoname = False
+
     def on_widget_changed(self):
         widget = None
         widget_name = self.cb_widget.currentText()
         iname = self._interfaces[self.cb_interface.currentIndex()]
 
-        plugins = qt_widget_plugins(iname)
-        for plugin in plugins :
+        for plugin in qt_widget_plugins(iname):
             if widget_name == plugin.name:
                 widget = plugin.load()
                 if hasattr(plugin, 'icon_path'):
@@ -114,16 +125,23 @@ class ControlEditor(QtGui.QWidget):
             self._constraints = weakref.ref(widget_constraints)
 
     def refresh(self):
-        interface_name = self._interfaces[self.cb_interface.currentIndex()]
-        editors = qt_widget_plugins(interface_name)
+        iname = self._interfaces[self.cb_interface.currentIndex()]
+        if self._autoname:
+            i = self.__class__.counters.setdefault(iname, 0)
+            self.e_name.setText('%s_%d' % (iname[1:].lower(), i))
+        self.l_type.setToolTip(self.tooltips[iname])
+        editors = qt_widget_plugins(iname)
         self.cb_widget.clear()
         for widget in editors:
             self.cb_widget.addItem(str(widget.name))
 
     def control(self):
-        return Control(self.e_name.text(), self._interfaces[self.cb_interface.currentIndex()],
+        iname = self._interfaces[self.cb_interface.currentIndex()]
+        control = Control(self.e_name.text(), iname,
                        widget=self.cb_widget.currentText(),
                        constraints=self.constraints())
+        self.__class__.counters[iname] = self.__class__.counters.setdefault(iname, 0) + 1
+        return control
 
     def constraints(self):
         if self._constraints:

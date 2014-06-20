@@ -25,9 +25,10 @@ from openalea.vpltk.project.manager import ProjectManager
 from openalea.vpltk.project.project import remove_extension
 from openalea.oalab.project.creator import CreateProjectWidget
 from openalea.oalab.project.pretty_preview import ProjectSelectorScroll
-from openalea.oalab.gui import resources_rc  # do not remove this import else icon are not drawn
+from openalea.oalab.gui import resources_rc # do not remove this import else icon are not drawn
 from openalea.oalab.gui.utils import qicon
 from openalea.oalab.service.control import get_control, register, clear_ctrl_manager
+from openalea.oalab.gui.utils import ModalDialog
 
 
 class ProjectManagerWidget(QtGui.QWidget):
@@ -89,7 +90,7 @@ class ProjectManagerWidget(QtGui.QWidget):
         # This menu is filled dynamically each time this menu is opened
         self.menu_available_projects = QtGui.QMenu(u'Available Projects')
         self.menu_available_projects.aboutToShow.connect(self._update_available_project_menu)
-        self.action_available_project = {}  # Dict used to know what project corresponds to triggered action
+        self.action_available_project = {} # Dict used to know what project corresponds to triggered action
 
     def initialize(self):
         self.defaultProj()
@@ -163,6 +164,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         self._scene_change()
 
         logger.debug("Project opened: " + str(self.session.project.name))
+        self.session.project = project
         return self.session.project
 
     def new(self):
@@ -171,17 +173,24 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
         Open a window to define metadata of the project.
         """
-        self.project_creator = CreateProjectWidget()
-        self.project_creator.show()
-        self.connect(self.project_creator, QtCore.SIGNAL('ProjectMetadataSet(PyQt_PyObject)'), self.openProject)
+        project_creator = CreateProjectWidget()
+        dialog = ModalDialog(project_creator)
+        if dialog.exec_():
+            _project = project_creator.project()
+            project = self.projectManager.create(_project.name, _project.projectdir)
+            project.metadata = _project.metadata
+            self.session.project = project
+
 
     def edit_metadata(self):
-        self.project_creator = CreateProjectWidget(self.session.project)
-        self.project_creator.show()
-        self.connect(self.project_creator, QtCore.SIGNAL('ProjectMetadataSet(PyQt_PyObject)'), self.metadata_edited)
+        project_creator = CreateProjectWidget()
+        project_creator.setMetaDataMode()
+        dialog = ModalDialog(project_creator)
+        if dialog.exec_():
+            self.metadata_edited(project_creator.metadata())
 
-    def metadata_edited(self, proj):
-        self.session.project.metadata = proj.metadata
+    def metadata_edited(self, metadata):
+        self.session.project.metadata = metadata
         return self.session.project
 
     def add_file_to_project(self):
@@ -325,7 +334,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         """
         if self.session.current_is_project():
             container = self.editor_manager
-            if container is None:  # CPL
+            if container is None: # CPL
                 return
             container.save_all()
             proj = self.session.project
@@ -422,7 +431,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         """
         # @GBY
         ctrls = None
-        #TODO:
+        # TODO:
         # We want all controls, so we can imagine something like that:
         # ctrls = get_control("*")
         project.control = ctrls
