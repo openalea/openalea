@@ -21,8 +21,8 @@
 __license__ = "CeCILL V2"
 __revision__ = " $Id$"
 
-from openalea.vpltk.qt import qt
-from openalea.core.interface import * #IGNORE:W0614,W0401
+from openalea.vpltk import qt
+from openalea.core.interface import * # IGNORE:W0614,W0401
 from openalea.core.observer import lock_notify
 
 def isiterable(seq):
@@ -76,16 +76,21 @@ class IFloatWidget(IInterfaceWidget, qt.QtGui.QWidget):
 
     def notify(self, sender, event):
         """ Notification sent by node """
+        print 'not', sender, event
         try:
             v = float(self.get_value())
         except:
             v = 0.
-            #print "FLOAT SPIN : cannot set value : ", \
+            # print "FLOAT SPIN : cannot set value : ", \
             #    self.node.get_input(self.param_str)
 
-        self.spin.setValue(v)
+        self.set_widget_value(v)
 
+    def set_widget_value(self, newval):
+        self.spin.setValue(newval)
 
+    def get_widget_value(self):
+        return self.spin.value()
 
 class IIntWidget(IInterfaceWidget, qt.QtGui.QWidget):
     """
@@ -136,7 +141,7 @@ class IIntWidget(IInterfaceWidget, qt.QtGui.QWidget):
             v = int(self.get_value())
         except:
             v = 0
-            #print "INT SPIN : cannot set value : ", self.node.get_input(self.param_str)
+            # print "INT SPIN : cannot set value : ", self.node.get_input(self.param_str)
 
         self.spin.setValue(v)
 
@@ -194,7 +199,6 @@ class IBoolWidget(IInterfaceWidget, qt.QtGui.QWidget):
             self.checkbox.setCheckState(qt.QtCore.Qt.Unchecked)
 
 
-
 class IStrWidget(IInterfaceWidget, qt.QtGui.QWidget):
     """
     Line Edit widget
@@ -202,7 +206,7 @@ class IStrWidget(IInterfaceWidget, qt.QtGui.QWidget):
 
     __interface__ = IStr
     __metaclass__ = make_metaclass()
-    __widgetclass__ = qt.QtGui.QTextEdit#qt.QtGui.QLineEdit#
+    __widgetclass__ = qt.QtGui.QTextEdit # qt.QtGui.QLineEdit#
 
     MAX_LEN = 100000
 
@@ -236,8 +240,7 @@ class IStrWidget(IInterfaceWidget, qt.QtGui.QWidget):
     @lock_notify
     def valueChanged(self):
         if(not self.too_long):
-            self.set_value(str(self.subwidget.toPlainText()))
-
+            self.set_value(self.get_widget_value())
 
     def notify(self, sender, event):
         """ Notification sent by node """
@@ -250,9 +253,21 @@ class IStrWidget(IInterfaceWidget, qt.QtGui.QWidget):
         else:
             self.too_long = False
 
-        self.subwidget.setText(s)
+        self.set_widget_value(s)
 
+    def get_widget_value(self):
+        if isinstance(self.subwidget, qt.QtGui.QTextEdit):
+            return self.subwidget.toPlainText()
+        elif isinstance(self.subwidget, qt.QtGui.QLineEdit):
+            return self.subwidget.text()
+        else:
+            raise NotImplementedError
 
+    def set_widget_value(self, newval):
+        if isinstance(self.subwidget, (qt.QtGui.QTextEdit, qt.QtGui.QLineEdit)):
+            self.subwidget.setText(newval)
+        else:
+            raise NotImplementedError
 
 class IDateTimeWidget(IInterfaceWidget, qt.QtGui.QWidget):
     """
@@ -316,8 +331,8 @@ class ITextStrWidget(IInterfaceWidget, qt.QtGui.QWidget):
     Multi-Line Edit widget
     """
 
-    __interface__   = ITextStr
-    __metaclass__   = make_metaclass()
+    __interface__ = ITextStr
+    __metaclass__ = make_metaclass()
     __widgetclass__ = qt.QtGui.QTextEdit
 
     MAX_LEN = 1000000
@@ -376,30 +391,30 @@ try:
     from scintilla_editor import ScintillaCodeEditor
 except ImportError:
     class ICodeStrWidget(ITextStrWidget):
-    
+
         __interface__ = ICodeStr
-    
+
         @lock_notify
         def valueChanged(self):
             self.set_value(str(self.subwidget.text()))
-    
+
         def notify(self, sender, event):
             """ Notification sent by node """
             s = self.get_value()
             if s is not None:
                 s = str(s)
-                self.subwidget.setText(s)    
+                self.subwidget.setText(s)
 else:
     class ICodeStrWidget(ITextStrWidget):
-    
+
         __interface__ = ICodeStr
         from scintilla_editor import ScintillaCodeEditor
         __widgetclass__ = ScintillaCodeEditor
-    
+
         @lock_notify
         def valueChanged(self):
             self.set_value(str(self.subwidget.text()))
-    
+
         def notify(self, sender, event):
             """ Notification sent by node """
             s = self.get_value()
@@ -430,20 +445,20 @@ class ISequenceWidget(IInterfaceWidget, qt.QtGui.QWidget):
         self.gridlayout.setSpacing(5)
 
         self.button = qt.QtGui.QPushButton("Add Item", self)
-        self.gridlayout.addWidget(self.button,2,0,1,2)
+        self.gridlayout.addWidget(self.button, 2, 0, 1, 2)
 
         self.buttonplus = qt.QtGui.QPushButton(" + ", self)
-        self.gridlayout.addWidget(self.buttonplus,3,1,1,1)
+        self.gridlayout.addWidget(self.buttonplus, 3, 1, 1, 1)
 
         self.buttonmoins = qt.QtGui.QPushButton(" - ", self)
-        self.gridlayout.addWidget(self.buttonmoins,3,0,1,1)
+        self.gridlayout.addWidget(self.buttonmoins, 3, 0, 1, 1)
 
         self.label = qt.QtGui.QLabel(self)
         self.label.setText(self.get_label(node, parameter_str))
-        self.gridlayout.addWidget(self.label,0,0,1,1)
+        self.gridlayout.addWidget(self.label, 0, 0, 1, 1)
 
         self.subwidget = qt.QtGui.QListWidget (self)
-        self.gridlayout.addWidget(self.subwidget,1,0,1,2)
+        self.gridlayout.addWidget(self.subwidget, 1, 0, 1, 2)
 
         self.connect(self.subwidget, qt.QtCore.SIGNAL("itemDoubleClicked(QListWidgetItem*)"),
                      self.itemclick)
@@ -475,7 +490,7 @@ class ISequenceWidget(IInterfaceWidget, qt.QtGui.QWidget):
             if(self.connected):
                 item.setFlags(qt.QtCore.Qt.ItemIsSelectable)
             else:
-                item.setFlags(qt.QtCore.Qt.ItemIsEditable|qt.QtCore.Qt.ItemIsEnabled|
+                item.setFlags(qt.QtCore.Qt.ItemIsEditable | qt.QtCore.Qt.ItemIsEnabled |
                               qt.QtCore.Qt.ItemIsSelectable)
         self.updating = False
 
@@ -489,7 +504,9 @@ class ISequenceWidget(IInterfaceWidget, qt.QtGui.QWidget):
     def update_list(self):
         """ Rebuild the list """
         seq = self.get_value()
+        self.set_widget_value(seq)
 
+    def set_widget_value(self, seq):
         # do not call itemchanged
         self.updating = True
 
@@ -498,18 +515,20 @@ class ISequenceWidget(IInterfaceWidget, qt.QtGui.QWidget):
         if not isiterable(seq): return
         for elt in seq :
             item = qt.QtGui.QListWidgetItem(str(elt))
-            item.setFlags(qt.QtCore.Qt.ItemIsEditable|qt.QtCore.Qt.ItemIsEnabled|
+            item.setFlags(qt.QtCore.Qt.ItemIsEditable | qt.QtCore.Qt.ItemIsEnabled |
                           qt.QtCore.Qt.ItemIsSelectable)
             self.subwidget.addItem(item)
         self.updating = False
 
+    def get_widget_value(self):
+        return [self.subwidget.item(i).text() for i in range(self.subwidget.count())]
 
     @lock_notify
     def button_clicked(self):
         seq = self.get_value()
         seq.append(None)
         item = qt.QtGui.QListWidgetItem(str(None))
-        item.setFlags(qt.QtCore.Qt.ItemIsEditable|qt.QtCore.Qt.ItemIsEnabled|
+        item.setFlags(qt.QtCore.Qt.ItemIsEditable | qt.QtCore.Qt.ItemIsEnabled |
                       qt.QtCore.Qt.ItemIsSelectable)
         self.subwidget.addItem(item)
         self.unvalidate()
@@ -519,7 +538,7 @@ class ISequenceWidget(IInterfaceWidget, qt.QtGui.QWidget):
     def buttonplus_clicked(self):
         seq = self.get_value()
         row = self.subwidget.currentRow()
-        if(row<0): return
+        if(row < 0): return
         val = seq[row]
         del(seq[row])
         row = (row + 1) % (len(seq) + 1)
@@ -533,7 +552,7 @@ class ISequenceWidget(IInterfaceWidget, qt.QtGui.QWidget):
     def buttonmoins_clicked(self):
         seq = self.get_value()
         row = self.subwidget.currentRow ()
-        if(row<0): return
+        if(row < 0): return
         val = seq[row]
         del(seq[row])
         row -= 1
@@ -577,7 +596,7 @@ class ISequenceWidget(IInterfaceWidget, qt.QtGui.QWidget):
         if(self.connected): return
         key = e.key()
         seq = self.get_value()
-        if( key == qt.QtCore.Qt.Key_Delete):
+        if(key == qt.QtCore.Qt.Key_Delete):
             selectlist = self.subwidget.selectedItems()
             for i in selectlist:
                 row = self.subwidget.row(i)
@@ -640,7 +659,7 @@ class IDictWidget(IInterfaceWidget, qt.QtGui.QWidget):
             if(self.connected):
                 item.setFlags(qt.QtCore.Qt.ItemIsSelectable)
             else:
-                item.setFlags(qt.QtCore.Qt.ItemIsEnabled|
+                item.setFlags(qt.QtCore.Qt.ItemIsEnabled |
                               qt.QtCore.Qt.ItemIsSelectable)
 
 
@@ -660,8 +679,8 @@ class IDictWidget(IInterfaceWidget, qt.QtGui.QWidget):
             keys.sort()
             for key in keys:
                 elt = dic[key]
-                item = qt.QtGui.QListWidgetItem("%s : %s"%(str(key), str(elt)))
-                item.setFlags(qt.QtCore.Qt.ItemIsEnabled|qt.QtCore.Qt.ItemIsSelectable)
+                item = qt.QtGui.QListWidgetItem("%s : %s" % (str(key), str(elt)))
+                item.setFlags(qt.QtCore.Qt.ItemIsEnabled | qt.QtCore.Qt.ItemIsSelectable)
                 self.subwidget.addItem(item)
                 self.rowkey.append(key)
         except Exception, e:
@@ -672,8 +691,8 @@ class IDictWidget(IInterfaceWidget, qt.QtGui.QWidget):
     def button_clicked(self):
         """ Add add an element in the dictionary """
         dic = self.get_value()
-        (text, ok) = qt.QtGui.QInputDialog.getText(self, "Key", "Key", )
-        if (not ok or len(text)==0):
+        (text, ok) = qt.QtGui.QInputDialog.getText(self, "Key", "Key",)
+        if (not ok or len(text) == 0):
             return
 
         try:
@@ -695,17 +714,17 @@ class IDictWidget(IInterfaceWidget, qt.QtGui.QWidget):
         key = self.rowkey[i]
 
         (text, ok) = qt.QtGui.QInputDialog.getText(self, "Value", "Value")
-        if (not ok or len(text)==0):
+        if (not ok or len(text) == 0):
             return
 
         try:
             obj = eval(str(text))
             dic[key] = obj
-            item.setText("%s : %s"%(str(key), str(obj)))
+            item.setText("%s : %s" % (str(key), str(obj)))
         except :
             item.setText(text)
             dic[key] = str(text)
-            item.setText("%s : %s"%(str(key), str(text)))
+            item.setText("%s : %s" % (str(key), str(text)))
 
         self.unvalidate()
 
@@ -713,11 +732,11 @@ class IDictWidget(IInterfaceWidget, qt.QtGui.QWidget):
     @lock_notify
     def keyPressEvent(self, e):
         if(self.connected): return
-        key   = e.key()
+        key = e.key()
         seq = self.get_value()
 
         # Delete Row
-        if( key == qt.QtCore.Qt.Key_Delete):
+        if(key == qt.QtCore.Qt.Key_Delete):
             selectlist = self.subwidget.selectedItems()
             for i in selectlist:
                 row = self.subwidget.row(i)
@@ -737,6 +756,7 @@ class IFileStrWidget(IStrWidget):
 
     __interface__ = IFileStr
     __metaclass__ = make_metaclass()
+    __widgetclass__ = qt.QtGui.QLineEdit
 
     last_result = qt.QtCore.QDir.homePath()
 
@@ -755,7 +775,7 @@ class IFileStrWidget(IStrWidget):
         self.hboxlayout.addWidget(self.checkbox)
         self.filter = interface.filter
         self.open = not interface.save
-        #self.open = False
+        # self.open = False
 
         self.connect(self.button, qt.QtCore.SIGNAL("clicked()"), self.button_clicked)
 
@@ -763,7 +783,7 @@ class IFileStrWidget(IStrWidget):
     def button_clicked(self):
 
 
-        if(not self.open or self.checkbox.checkState()== qt.QtCore.Qt.Checked):
+        if(not self.open or self.checkbox.checkState() == qt.QtCore.Qt.Checked):
             result = qt.QtGui.QFileDialog.getSaveFileName(self, "Select File",
                                                        self.last_result, self.filter)
 
@@ -783,6 +803,7 @@ class IDirStrWidget(IStrWidget):
 
     __interface__ = IDirStr
     __metaclass__ = make_metaclass()
+    __widgetclass__ = qt.QtGui.QLineEdit
 
     last_result = qt.QtCore.QDir.homePath()
 
@@ -899,7 +920,7 @@ class IRGBColorWidget(IInterfaceWidget, qt.QtGui.QWidget):
         self.colorwidget = qt.QtGui.QWidget(self)
         self.colorwidget.setAutoFillBackground(True)
 
-        self.colorwidget.setMinimumSize(qt.QtCore.QSize(50,50))
+        self.colorwidget.setMinimumSize(qt.QtCore.QSize(50, 50))
         self.colorwidget.setBackgroundRole(qt.QtGui.QPalette.Window)
         self.colorwidget.mouseDoubleClickEvent = self.widget_clicked
         self.notify(node, None)
@@ -907,13 +928,13 @@ class IRGBColorWidget(IInterfaceWidget, qt.QtGui.QWidget):
         self.hboxlayout.addWidget(self.colorwidget)
 
 
-    def widget_clicked(self,event):
+    def widget_clicked(self, event):
 
         try:
-            (r,g,b) = self.get_value()
-            oldcolor = qt.QtGui.QColor(r,g,b)
+            (r, g, b) = self.get_value()
+            oldcolor = qt.QtGui.QColor(r, g, b)
         except:
-            oldcolor = qt.QtGui.QColor(0,0,0)
+            oldcolor = qt.QtGui.QColor(0, 0, 0)
 
         color = qt.QtGui.QColorDialog.getColor(oldcolor, self)
 
@@ -926,13 +947,13 @@ class IRGBColorWidget(IInterfaceWidget, qt.QtGui.QWidget):
         """ Notification sent by node """
 
         try:
-            (r,g,b) = self.get_value()
+            (r, g, b) = self.get_value()
         except:
-            (r,g,b) = (0,0,0)
-            self.set_value((r,g,b))
+            (r, g, b) = (0, 0, 0)
+            self.set_value((r, g, b))
 
         palette = self.colorwidget.palette()
-        palette.setColor(qt.QtGui.QPalette.Window, qt.QtGui.QColor(r,g,b))
+        palette.setColor(qt.QtGui.QPalette.Window, qt.QtGui.QColor(r, g, b))
         self.colorwidget.setPalette(palette)
         self.colorwidget.update()
 
