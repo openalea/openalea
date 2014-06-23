@@ -180,11 +180,9 @@ class LPyModelController(object):
             #@GBY must move to plantgl or lpy
             from openalea.oalab.control.manager import ControlManager
             from openalea.plantgl.plugins.controls import to_material
-            ctrls = ControlManager().controls()
-            cm = dict((k, v.value) for k, v in ctrls.iteritems() if 'IColorList' in str(v.interface))
-            for k in cm:
-                materials = to_material(cm[k])
-                return materials
+            controls = ControlManager().namespace(interface='IColorList')
+            for v in controls.values():
+                return to_material(v)
 
         materials = select_colormap()
         if materials:
