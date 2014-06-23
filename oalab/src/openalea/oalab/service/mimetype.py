@@ -7,7 +7,7 @@ def decode(mimetype, mimedata):
     """
     if mimetype == 'openalealab/control':
         from openalea.oalab.control.manager import ControlManager
-        return ControlManager().control(str(mimedata))
+        return ControlManager().control(mimedata)
 
 def encode(data):
     """

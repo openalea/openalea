@@ -75,6 +75,15 @@ class Control(Observed):
         self.name = name
 
     @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, name):
+        self._name = name
+        self.notify_listeners(('name_changed', self._name))
+
+    @property
     def value(self):
         return self._value
 
