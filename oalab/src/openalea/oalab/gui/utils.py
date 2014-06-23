@@ -20,6 +20,7 @@
 __all__ = ['qicon']
 
 from openalea.vpltk.qt import QtGui
+from openalea.core.customexception import CustomException, cast_error
 
 def qicon(filename):
     return QtGui.QIcon(":/images/resources/%s" % filename)
@@ -46,3 +47,20 @@ class ModalDialog(QtGui.QDialog):
         layout.addWidget(bbox)
 
 
+def make_error_dialog(e, parent=None, icon=QtGui.QMessageBox.Critical):
+    if not isinstance(e, CustomException):
+        e = cast_error(e, CustomException)
+
+    mbox = QtGui.QMessageBox(parent)
+    mbox.setDetailedText(e.getDesc())
+    mbox.setText(e.getMessage())
+    mbox.setWindowTitle(e.getTitle())
+    mbox.setStandardButtons(QtGui.QMessageBox.Ok)
+    mbox.setDefaultButton(QtGui.QMessageBox.Ok)
+    mbox.setIcon(QtGui.QMessageBox.Information)
+
+    return mbox.exec_()
+
+
+def make_info_dialog(e, parent=None):
+    return make_error_dialog(e, parent, icon=QtGui.QMessageBox.Information)

@@ -71,6 +71,7 @@ class Session(object):
         """
         self._project = project
 
+    # GBY: it is not the role of session to handle projects
     def current_is_project(self):
         """
         :return: True if current document is a project

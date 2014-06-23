@@ -17,11 +17,11 @@
 ###############################################################################
 __revision__ = "$Id: "
 
-from openalea.vpltk.qt import QtGui, QtCore
+from openalea.vpltk.qt import QtGui
 from openalea.core.path import path
 from time import gmtime, strftime
 from openalea.core import settings
-from openalea.vpltk.project import Project, ProjectManager
+from openalea.vpltk.project import Project
 
 class CreateProjectWidget(QtGui.QWidget):
     """
@@ -40,40 +40,41 @@ class CreateProjectWidget(QtGui.QWidget):
             layout.addWidget(wid, i, 0)
             i += 1
 
+        # GBY review: need to refactorize this code, copy/paste code is hard to read, extend or modify
         if not proj:
             date = strftime("%Y-%m-%d_%H-%M-%S", gmtime())
-            
+
             self.name_lineedit = QtGui.QLineEdit('project_%s' % date)
             self.name_lineedit.setMinimumWidth(300)
             layout.addWidget(self.name_lineedit, 1, 1)
-            
+
             self.author_lineedit = QtGui.QLineEdit('OpenAlea Consortium')
             layout.addWidget(self.author_lineedit, 2, 1)
-            
+
             self.author_email_lineedit = QtGui.QLineEdit('')
             layout.addWidget(self.author_email_lineedit, 3, 1)
-            
+
             self.description_lineedit = QtGui.QLineEdit('')
             layout.addWidget(self.description_lineedit, 4, 1)
-            
+
             self.long_description_lineedit = QtGui.QLineEdit('')
             layout.addWidget(self.long_description_lineedit, 5, 1)
-            
+
             self.citation_lineedit = QtGui.QLineEdit('')
             layout.addWidget(self.citation_lineedit, 6, 1)
-            
+
             self.url_lineedit = QtGui.QLineEdit('')
             layout.addWidget(self.url_lineedit, 7, 1)
-            
+
             self.icon_lineedit = QtGui.QLineEdit('')
             layout.addWidget(self.icon_lineedit, 8, 1)
-            
+
             self.dependencies_lineedit = QtGui.QLineEdit('[]')
             layout.addWidget(self.dependencies_lineedit, 9, 1)
-            
+
             self.license_lineedit = QtGui.QLineEdit('CeCILL-C')
             layout.addWidget(self.license_lineedit, 10, 1)
-            
+
             self.version_lineedit = QtGui.QLineEdit('0.1')
             layout.addWidget(self.version_lineedit, 11, 1)
 
@@ -93,34 +94,34 @@ class CreateProjectWidget(QtGui.QWidget):
             self.name_lineedit = QtGui.QLineEdit(proj.name)
             self.name_lineedit.setMinimumWidth(300)
             layout.addWidget(self.name_lineedit, 1, 1)
-            
+
             self.author_lineedit = QtGui.QLineEdit(proj.author)
             layout.addWidget(self.author_lineedit, 2, 1)
-            
+
             self.author_email_lineedit = QtGui.QLineEdit(proj.author_email)
             layout.addWidget(self.author_email_lineedit, 3, 1)
-            
+
             self.description_lineedit = QtGui.QLineEdit(proj.description)
             layout.addWidget(self.description_lineedit, 4, 1)
-            
+
             self.long_description_lineedit = QtGui.QLineEdit(proj.long_description)
             layout.addWidget(self.long_description_lineedit, 5, 1)
-            
+
             self.citation_lineedit = QtGui.QLineEdit(proj.citation)
             layout.addWidget(self.citation_lineedit, 6, 1)
-            
+
             self.url_lineedit = QtGui.QLineEdit(proj.url)
             layout.addWidget(self.url_lineedit, 7, 1)
-            
+
             self.icon_lineedit = QtGui.QLineEdit(proj.icon)
             layout.addWidget(self.icon_lineedit, 8, 1)
-            
+
             self.dependencies_lineedit = QtGui.QLineEdit(str(proj.dependencies))
             layout.addWidget(self.dependencies_lineedit, 9, 1)
-            
+
             self.license_lineedit = QtGui.QLineEdit(proj.license)
             layout.addWidget(self.license_lineedit, 10, 1)
-            
+
             self.version_lineedit = QtGui.QLineEdit(proj.version)
             layout.addWidget(self.version_lineedit, 11, 1)
 
@@ -132,13 +133,6 @@ class CreateProjectWidget(QtGui.QWidget):
 
             layout.addWidget(self.path_lineedit, 12, 1)
 
-            # TODO: uncomment this lines ...
-            # self.btn_path = QtGui.QPushButton("   ...   ")
-            # layout.addWidget(self.btn_path, 12, 2)
-            # self.connect(self.btn_path, QtCore.SIGNAL('clicked()'), self.select_path)
-
-            self.ok_btn = QtGui.QPushButton("Set metadata")
-            layout.addWidget(self.ok_btn, 13, 0, 1, 3)
 
     def setMetaDataMode(self, enable=True):
         self.name_lineedit.setEnabled(not enable)
