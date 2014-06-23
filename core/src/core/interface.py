@@ -1,4 +1,5 @@
 # -*- python -*-
+# -*- coding:utf8 -*-
 #
 #       OpenAlea.Core
 #
@@ -23,7 +24,7 @@ from openalea.core.metaclass import make_metaclass
 from openalea.core.singleton import Singleton
 from openalea.core.observer import AbstractListener
 
-import color_palette #used for colors of interfaces
+import color_palette # used for colors of interfaces
 import types
 
 # Dictionary to map Interface with corresponding python type
@@ -85,7 +86,7 @@ class IInterfaceMetaClass(type):
 
     def __init__(cls, name, bases, dic):
         super(IInterfaceMetaClass, cls).__init__(name, bases, dic)
-        if( hasattr(cls, "__pytype__") ):
+        if(hasattr(cls, "__pytype__")):
             TypeInterfaceMap().declare_interface(cls.__pytype__, cls)
         else:
             TypeInterfaceMap().declare_interface(None, cls)
@@ -105,7 +106,7 @@ class IInterface(object):
     """ Abstract base class for all interfaces """
     __metaclass__ = IInterfaceMetaClass
     __pytype__ = None
-    __color__  = None
+    __color__ = None
 
     @classmethod
     def default(cls):
@@ -114,19 +115,20 @@ class IInterface(object):
     def __init__(self, **kargs):
         """ Default init"""
 
-        ## the desc should be used as  a dynamic description of IInterace
-        ## default visualisation in widget is done with tooltip
-        #self.desc = kargs.get('desc', None)
-        ## the label should be used to describe the default static description
-        ## default visualisation in widget is done with label
-        #self.label = kargs.get('label', None)
+        # # the desc should be used as  a dynamic description of IInterace
+        # # default visualisation in widget is done with tooltip
+        # self.desc = kargs.get('desc', None)
+        # # the label should be used to describe the default static description
+        # # default visualisation in widget is done with label
+        # self.label = kargs.get('label', None)
 
 
 class IStr(IInterface):
     """ String interface """
 
     __pytype__ = types.StringType
-    __color__  = color_palette.maroon
+    __color__ = color_palette.maroon
+    __alias__ = u'Short Text'
 
     @classmethod
     def default(cls):
@@ -136,11 +138,13 @@ class ISlice(IInterface):
     """ String interface """
 
     __pytype__ = types.SliceType
-    __color__  = color_palette.maroon
+    __color__ = color_palette.maroon
+    __alias__ = u'Slice'
 
 class IFileStr(IStr):
     """ File Path interface """
-    __color__  = color_palette.maroon
+    __color__ = color_palette.maroon
+    __alias__ = u'File path'
 
     def __init__(self, filter="All (*)", save=False, **kargs):
         IInterface.__init__(self, **kargs)
@@ -157,15 +161,18 @@ class IFileStr(IStr):
 
 class IDirStr(IStr):
     """ Directory Path interface """
+    __alias__ = u'Directory path'
     pass
 
 
 class ITextStr(IStr):
     """ Long String interface """
+    __alias__ = u'Long text'
     pass
 
 class ICodeStr(IStr):
     """ Source code interface """
+    __alias__ = u'Programming code'
     pass
 
 
@@ -173,9 +180,10 @@ class IFloat(IInterface):
     """ Float interface """
 
     __pytype__ = types.FloatType
-    __color__  = color_palette.blue
+    __color__ = color_palette.blue
+    __alias__ = u'Float'
 
-    def __init__(self, min = -2.**24, max = 2.**24, step=1., **kargs):
+    def __init__(self, min= -2.**24, max=2.**24, step=1., **kargs):
         IInterface.__init__(self, **kargs)
         self.min = min
         self.max = max
@@ -186,8 +194,8 @@ class IFloat(IInterface):
         return 0.
 
     def __repr__(self):
-        default_min = -2**24
-        default_max = 2**24
+        default_min = -2 ** 24
+        default_max = 2 ** 24
         default_step = 1.
         if (self.min == default_min and
             self.max == default_max and
@@ -201,9 +209,10 @@ class IFloat(IInterface):
 class IInt(IInterface):
     """ Int interface """
     __pytype__ = types.IntType
-    __color__  = color_palette.blue
+    __color__ = color_palette.blue
+    __alias__ = u'ℤ Integer'
 
-    def __init__(self, min = -2**24, max = 2**24, step=1, **kargs):
+    def __init__(self, min= -2 ** 24, max=2 ** 24, step=1, **kargs):
         IInterface.__init__(self, **kargs)
         self.min = min
         self.max = max
@@ -213,9 +222,12 @@ class IInt(IInterface):
     def default(cls):
         return 0
 
+    def example(self):
+        return self.min + 2
+
     def __repr__(self):
-        default_min = -2**24
-        default_max = 2**24
+        default_min = -2 ** 24
+        default_max = 2 ** 24
         default_step = 1
         if (self.min == default_min and
             self.max == default_max and
@@ -230,7 +242,8 @@ class IBool(IInterface):
     """ Bool interface """
 
     __pytype__ = types.BooleanType
-    __color__  = color_palette.aqua
+    __color__ = color_palette.aqua
+    __alias__ = 'Boolean (True/False)'
 
     @classmethod
     def default(cls):
@@ -239,9 +252,10 @@ class IBool(IInterface):
 
 class IEnumStr(IStr):
     """ String enumeration """
-    __color__  = color_palette.purple
+    __color__ = color_palette.purple
+    __alias__ = 'Predefined texts'
 
-    def __init__(self, enum = [], **kargs):
+    def __init__(self, enum=[], **kargs):
         IInterface.__init__(self, **kargs)
         self.enum = enum
 
@@ -251,19 +265,22 @@ class IEnumStr(IStr):
 
 class IRGBColor(IInterface):
     """ RGB Color """
-    __color__  = color_palette.lime
+    __color__ = color_palette.lime
+    __alias__ = 'Color (RGB)'
     pass
 
 
 class IDateTime(IInterface):
     """ DateTime """
-    __color__  = color_palette.teal
+    __color__ = color_palette.teal
+    __alias__ = 'Date'
     pass
 
 
 class ITuple3(IInterface):
     """ Tuple3 """
-    __color__  = color_palette.fuchsia
+    __color__ = color_palette.fuchsia
+    __alias__ = 'Triple'
 
     @classmethod
     def default(cls):
@@ -271,19 +288,21 @@ class ITuple3(IInterface):
 
 class ITuple(IInterface):
     """ Tuple """
+    __alias__ = 'Tuple'
     __pytype__ = types.TupleType
-    __color__  = color_palette.fuchsia
+    __color__ = color_palette.fuchsia
 
 class IFunction(IInterface):
     """ Function interface """
-    __color__  = color_palette.white
+    __color__ = color_palette.white
     __pytype__ = types.FunctionType
 
 
 class ISequence(IInterface):
     """ Sequence interface (list, tuple, ...) """
     __pytype__ = types.ListType
-    __color__  = color_palette.green
+    __color__ = color_palette.green
+    __alias__ = 'Sequence'
 
     @classmethod
     def default(cls):
@@ -293,7 +312,8 @@ class ISequence(IInterface):
 class IDict(IInterface):
     """ Dictionary interface """
     __pytype__ = types.DictType
-    __color__  = color_palette.olive
+    __color__ = color_palette.olive
+    __alias__ = 'Mapping key, value (dictionary)'
 
     @classmethod
     def default(cls):
@@ -303,7 +323,8 @@ class IDict(IInterface):
 
 class IData(IStr):
     """ Package data interface """
-    __color__  = color_palette.silver
+    __color__ = color_palette.silver
+    __alias__ = 'Data'
 
 # Dictionary to map Interface with corresponding widget
 
@@ -359,7 +380,7 @@ class IInterfaceWidget(AbstractListener):
     def update_state(self):
         """ Enable or disable widget depending of connection status """
 
-        #i = self.node.get_input_index(self.param_str)
+        # i = self.node.get_input_index(self.param_str)
         state = self.get_state()
 
         # By default, disable the entire widget

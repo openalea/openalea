@@ -46,7 +46,7 @@ from openalea.core.pkgdict import PackageDict, is_protected, protected
 from openalea.core.category import PackageManagerCategory
 from openalea.core import logger
 
-from ConfigParser import NoSectionError,NoOptionError
+from ConfigParser import NoSectionError, NoOptionError
 
 # Exceptions
 import time
@@ -59,7 +59,7 @@ class UnknowFileType(Exception):
 class UnknownPackageError (Exception):
     def __init__(self, name):
         Exception.__init__(self)
-        self.message = "Cannot find package : %s"%(name)
+        self.message = "Cannot find package : %s" % (name)
 
     def __str__(self):
         return self.message
@@ -67,7 +67,7 @@ class UnknownPackageError (Exception):
 class IllFormedUrlError (Exception):
     def __init__(self, url):
         Exception.__init__(self)
-        self.message = "Url is ill-formed : %s"%(url)
+        self.message = "Url is ill-formed : %s" % (url)
 
     def __str__(self):
         return self.message
@@ -93,9 +93,9 @@ class Logger(object):
         """ Write to log file """
 
         f = open(self.log_file, 'a')
-        f.write("%i %s\n"%(self.log_index, msg))
+        f.write("%i %s\n" % (self.log_index, msg))
         f.close()
-        self.log_index +=1
+        self.log_index += 1
         pmanLogger.debug(msg)
 
     def print_log(self):
@@ -123,12 +123,12 @@ class PackageManager(Observed):
         Observed.__init__(self)
         self.log = Logger()
 
-        #make urlparse correctly handle the glorious "oa" protocol :)
+        # make urlparse correctly handle the glorious "oa" protocol :)
         urlparse.uses_query.append("oa")
 
         self.verbose = verbose
         # remove namespace option
-        #self.include_namespace = self.get_include_namespace()
+        # self.include_namespace = self.get_include_namespace()
 
         # save system path
         self.old_syspath = sys.path[:]
@@ -235,29 +235,29 @@ class PackageManager(Observed):
 
             # Get Deprecated packages
             if self.verbose:
-                pmanLogger.debug(epoint.name +" "+ epoint.module_name)
+                pmanLogger.debug(epoint.name + " " + epoint.module_name)
             if(epoint.module_name == "deprecated"):
                 self.deprecated_pkg.add(epoint.name.lower())
                 continue
 
-            #base = epoint.dist.location
-            #m = epoint.module_name.split('.')
-            #p = os.path.join(base, *m)
+            # base = epoint.dist.location
+            # m = epoint.module_name.split('.')
+            # p = os.path.join(base, *m)
 
             # Be careful, this lines will import __init__.py and all its predecessor
             # to find the path.
             try:
                 m = __import__(epoint.module_name, fromlist=epoint.module_name)
             except ImportError, e:
-                logger.error("Cannot load %s : %s"%(epoint.module_name, e))
-                #self.log.add("Cannot load %s : %s"%(epoint.module_name, e))
+                logger.error("Cannot load %s : %s" % (epoint.module_name, e))
+                # self.log.add("Cannot load %s : %s"%(epoint.module_name, e))
                 continue
 
             l = list(m.__path__)
             for p in l :
                 p = os.path.abspath(p)
-                logger.info("Wralea entry point: %s (%s) "%(epoint.module_name, p))
-                #self.log.add("Wralea entry point: %s (%s) "%(epoint.module_name, p))
+                logger.info("Wralea entry point: %s (%s) " % (epoint.module_name, p))
+                # self.log.add("Wralea entry point: %s (%s) "%(epoint.module_name, p))
                 self.add_wralea_path(p, self.sys_wralea_path)
 
         # Search the path based on the old method (by hand).
@@ -340,8 +340,8 @@ class PackageManager(Observed):
         for p in container:
             common = os.path.commonprefix((p, path))
             # the path is already in wraleapth
-            if( common == p and
-                os.path.join(common, path[len(common):]) == path ):
+            if(common == p and
+                os.path.join(common, path[len(common):]) == path):
                 return
             # the new path is more generic, we keep it
             if(common == path and
@@ -364,12 +364,12 @@ class PackageManager(Observed):
 
         # Test if the package is deprecated
         if(package.name.lower() in self.deprecated_pkg):
-            logger.warning("Deprecated : Ignoring %s"%(package.name))
-            #self.log.add("Deprecated : Ignoring %s"%(package.name))
+            logger.warning("Deprecated : Ignoring %s" % (package.name))
+            # self.log.add("Deprecated : Ignoring %s"%(package.name))
             del(package)
             return
 
-        #if( not self.pkgs.has_key(package.get_id())):
+        # if( not self.pkgs.has_key(package.get_id())):
         self[package.get_id()] = package
         self.update_category(package)
 
@@ -413,14 +413,14 @@ class PackageManager(Observed):
 
                 # search for the sub category (split by .)
                 try:
-                    c_root, c_others = c.split('.',1)
-                except: #if there is no '.', c_others is empty
+                    c_root, c_others = c.split('.', 1)
+                except: # if there is no '.', c_others is empty
                     c_root = c
                     c_others = ''
 
                 if c_root in self.user_category.keywords:
                     # reconstruct the name of the category
-                    c_temp = self.user_category.keywords[c_root]+'.'+c_others.title()
+                    c_temp = self.user_category.keywords[c_root] + '.' + c_others.title()
                     self.category.add_name(c_temp, nf)
                 else:
                     self.category.add_name(c.title(), nf)
@@ -443,8 +443,8 @@ class PackageManager(Observed):
 
         if(not os.path.exists(dirname) or
            not os.path.isdir(dirname)):
-            logger.error("Package directory : %s does not exists."%(dirname,))
-            #self.log.add("Package directory : %s does not exists."%(dirname,))
+            logger.error("Package directory : %s does not exists." % (dirname,))
+            # self.log.add("Package directory : %s does not exists."%(dirname,))
             return None
 
         self.add_wralea_path(dirname, self.user_wralea_path)
@@ -453,15 +453,15 @@ class PackageManager(Observed):
         readers = self.find_wralea_dir(dirname)
         if not readers:
             logger.info("Search Vlab objects.")
-            #self.log.add("Search Vlab objects.")
+            # self.log.add("Search Vlab objects.")
             readers = self.find_vlab_dir(dirname)
         ret = None
         for r in readers:
             if r:
                 ret = r.register_packages(self)
             else:
-                logger.error("Unable to load package %s."%(dirname, ))
-                #self.log.add("Unable to load package %s."%(dirname, ))
+                logger.error("Unable to load package %s." % (dirname,))
+                # self.log.add("Unable to load package %s."%(dirname, ))
                 ret = None
 
         if(readers):
@@ -485,20 +485,20 @@ class PackageManager(Observed):
         spec_files = set()
         if(not os.path.isdir(directory)):
             logger.error("Not a directory", directory, repr(directory))
-            #self.log.add("Not a directory", directory, repr(directory))
+            # self.log.add("Not a directory", directory, repr(directory))
             return []
 
         p = path(directory).abspath()
         spec_name = '*specifications'
         # search for wralea.py
         if(recursive and SEARCH_OUTSIDE_ENTRY_POINTS):
-            spec_files.update( p.walkfiles(spec_name) )
+            spec_files.update(p.walkfiles(spec_name))
         else:
-            spec_files.update( p.glob(spec_name) )
+            spec_files.update(p.glob(spec_name))
 
         for f in spec_files:
             logger.info("Package Manager : found  VLAB %s" % p)
-            #self.log.add("Package Manager : found  VLAB %s" % p)
+            # self.log.add("Package Manager : found  VLAB %s" % p)
 
         return map(self.get_pkgreader, spec_files)
 
@@ -516,8 +516,8 @@ class PackageManager(Observed):
 
         wralea_files = set()
         if(not os.path.isdir(directory)):
-            logger.warning("%s Not a directory"%repr(directory))
-            #self.log.add("%s Not a directory"%repr(directory))
+            logger.warning("%s Not a directory" % repr(directory))
+            # self.log.add("%s Not a directory"%repr(directory))
             return []
 
         p = path(directory).abspath()
@@ -528,23 +528,23 @@ class PackageManager(Observed):
             for f in p.walkfiles("*wralea*.py"):
                 wralea_files.add(str(f))
         else:
-            wralea_files.update( p.glob("*wralea*.py") )
+            wralea_files.update(p.glob("*wralea*.py"))
 
         for f in wralea_files:
             logger.info("Package Manager : found %s" % f)
-            #self.log.add("Package Manager : found %s" % f)
+            # self.log.add("Package Manager : found %s" % f)
 
         if DEBUG:
             t1 = time.clock()
             dt = t1 - t0
-            print 'search wralea files takes %f sec'%dt
+            print 'search wralea files takes %f sec' % dt
 
         readers = map(self.get_pkgreader, wralea_files)
 
         if DEBUG:
             t2 = time.clock()
             dt1 = t2 - t1
-            print 'readers takes %f sec: '% (dt1,)
+            print 'readers takes %f sec: ' % (dt1,)
 
         return readers
 
@@ -573,10 +573,10 @@ class PackageManager(Observed):
 
         directories = self.get_wralea_path()
         if DEBUG:
-            #print '      ~~~~~~~~~~'
+            # print '      ~~~~~~~~~~'
             t2 = time.clock()
-            #print '      get_wralea_path %f sec'%(t2-t1)
-            #print '\n'.join(directories)
+            # print '      get_wralea_path %f sec'%(t2-t1)
+            # print '\n'.join(directories)
 
         recursive = True
 
@@ -586,14 +586,14 @@ class PackageManager(Observed):
             if(ret):
                 readers += ret
             if DEBUG:
-                #print '      ~~~~~~~~~~'
+                # print '      ~~~~~~~~~~'
                 t1 = time.clock()
-                #print '      find_wralea %s %f sec'%(wp, t1-t0)
+                # print '      find_wralea %s %f sec'%(wp, t1-t0)
 
         if DEBUG:
-            #print '      ~~~~~~~~~~'
+            # print '      ~~~~~~~~~~'
             t3 = time.clock()
-            #print '      find_wralea_dir %f sec'%(t3-t2)
+            # print '      find_wralea_dir %f sec'%(t3-t2)
 
         return readers
 
@@ -608,15 +608,15 @@ class PackageManager(Observed):
         directories = self.get_wralea_path()
         recursive = True
         if not SEARCH_OUTSIDE_ENTRY_POINTS:
-            recursive = False 
+            recursive = False
         if recursive:
-            files = set( f.abspath() for p in directories for f in path(p).walkfiles('*wralea*.py'))
+            files = set(f.abspath() for p in directories for f in path(p).walkfiles('*wralea*.py'))
         else:
-            files = set( f.abspath() for p in directories for f in path(p).glob('*wralea*.py'))
+            files = set(f.abspath() for p in directories for f in path(p).glob('*wralea*.py'))
         return files
 
     def create_readers(self, wralea_files):
-        return  filter(None,(self.get_pkgreader(f) for f in wralea_files))
+        return  filter(None, (self.get_pkgreader(f) for f in wralea_files))
 
 
     def get_pkgreader(self, filename):
@@ -652,23 +652,23 @@ class PackageManager(Observed):
         wralea_files = self.find_all_wralea()
         readerlist = self.create_readers(wralea_files)
 
-        #readerlist = self.find_wralea_files()
+        # readerlist = self.find_wralea_files()
 
         if DEBUG:
             t2 = time.clock()
             print '-------------------'
-            print 'find_wralea_files takes %f seconds'%(t2-t1)
+            print 'find_wralea_files takes %f seconds' % (t2 - t1)
 
         for x in readerlist:
             if DEBUG:
                 tn = time.clock()
             x.register_packages(self)
             if DEBUG:
-                print 'register package ', x.get_pkg_name(), 'in ', time.clock() -tn
+                print 'register package ', x.get_pkg_name(), 'in ', time.clock() - tn
         if DEBUG:
             t3 = time.clock()
             print '-------------------'
-            print 'register_packages takes %f seconds'%(t3-t2)
+            print 'register_packages takes %f seconds' % (t3 - t2)
 #        self.save_cache()
 
         self.rebuild_category()
@@ -758,7 +758,7 @@ class PackageManager(Observed):
         self.pkgs[old_name].name = new_name
 
         if(self.pkgs[old_name].metainfo.has_key('alias')):
-               self.pkgs[old_name].metainfo['alias'].append(old_name)
+            self.pkgs[old_name].metainfo['alias'].append(old_name)
 
         self.pkgs[old_name].write()
         del(self.pkgs[old_name])
@@ -830,7 +830,7 @@ class PackageManager(Observed):
         "factoryName" is the of factory
         "factoryType" is one of {"CompositeNodeFactory", "NodeFactory", "DataFactory"}
         """
-        pkg, queries = self.get_package_from_url(url)#url.path.strip("/") #the path is preceded by one "/"
+        pkg, queries = self.get_package_from_url(url) # url.path.strip("/") #the path is preceded by one "/"
         if "fac" not in queries:
             raise IllFormedUrlError(url.geturl())
         factory_id = queries["fac"][0]
@@ -841,8 +841,8 @@ class PackageManager(Observed):
         if isinstance(url, str):
             url = urlparse.urlparse(url)
         assert isinstance(url, urlparse.ParseResult)
-        queries  = urlparse.parse_qs(url.query)
-        pkg_id = url.path.strip("/") #the path is preceded by one "/"
+        queries = urlparse.parse_qs(url.query)
+        pkg_id = url.path.strip("/") # the path is preceded by one "/"
         pkg = self[pkg_id]
         return pkg, queries
 
@@ -854,7 +854,7 @@ class PackageManager(Observed):
         return factory.instantiate()
 
 
-    def search_node(self, search_str, nb_inputs=-1, nb_outputs=-1):
+    def search_node(self, search_str, nb_inputs= -1, nb_outputs= -1):
         """
         Return a list of Factory corresponding to search_str
         If nb_inputs or nb_outputs is specified,
@@ -894,7 +894,7 @@ class PackageManager(Observed):
                 fname = factory.name.upper()
                 if search_str in fname:
                     l = float(len(fname))
-                    facNameScore = long(100*(1-fname.index(search_str)/l))
+                    facNameScore = long(100 * (1 - fname.index(search_str) / l))
 
                 facDescScore = long(factory.description.upper().count(search_str))
                 facCateScore = long(factory.category.upper().count(search_str))
@@ -902,17 +902,17 @@ class PackageManager(Observed):
                 pname = pkg.name.upper()
                 if search_str in pname:
                     l = float(len(pname))
-                    pkgNameScore = long(100*(1-pname.index(search_str)/l))
+                    pkgNameScore = long(100 * (1 - pname.index(search_str) / l))
 
-                score = facNameScore << (32*3) | facDescScore << (32*2) | \
-                        facCateScore << (32*1) | pkgNameScore << (32)
+                score = facNameScore << (32 * 3) | facDescScore << (32 * 2) | \
+                        facCateScore << (32 * 1) | pkgNameScore << (32)
                 if score > 0:
                     match.append((score, factory))
 
         # Filter ports
-        if(nb_inputs>=0):
+        if(nb_inputs >= 0):
             match = filter(lambda (sc, x): x and x.inputs and len(x.inputs) == nb_inputs, match)
-        if(nb_outputs>=0):
+        if(nb_outputs >= 0):
             match = filter(lambda (sc, x): x and x.outputs and len(x.outputs) == nb_outputs, match)
 
         if not len(match):
@@ -941,11 +941,11 @@ class PackageManager(Observed):
         return [self[p] for p in pkgs]
 
 
-    def get_data(self, pattern='*.*',pkg_name=None, as_paths=False):
+    def get_data(self, pattern='*.*', pkg_name=None, as_paths=False):
         """ Return all data that match the pattern. """
         pkgs = self.get_packages(pkg_name)
-        datafiles = [(pj(p.path,f.name) if as_paths else f) for p in pkgs \
-                         for f in p.itervalues() if not is_protected(f.name) and f.is_data() and fnmatch(f.name,pattern)]
+        datafiles = [(pj(p.path, f.name) if as_paths else f) for p in pkgs \
+                         for f in p.itervalues() if not is_protected(f.name) and f.is_data() and fnmatch(f.name, pattern)]
         return datafiles
 
     def get_composite_nodes(self, pkg_name=None):
@@ -963,13 +963,13 @@ class PackageManager(Observed):
         if not f.is_composite_node():
             return
 
-        for p,n in f.elt_factory.values():
+        for p, n in f.elt_factory.values():
             if is_protected(p) or is_protected(n):
                 continue
             try:
                 fact = self[p][n]
             except:
-                #print p, n
+                # print p, n
                 continue
             yield fact
 
@@ -982,7 +982,7 @@ class PackageManager(Observed):
         if not f.is_composite_node():
             return
 
-        for p,n in f.elt_factory.values():
+        for p, n in f.elt_factory.values():
             if is_protected(p) or is_protected(n):
                 continue
             try:
@@ -992,14 +992,14 @@ class PackageManager(Observed):
                 continue
             yield fact
 
-            for df in self._missing_dependencies(fact,l):
+            for df in self._missing_dependencies(fact, l):
                 yield df
 
     def _missing(self, factory, l=[]):
-        list(self._missing_dependencies(factory,l))
+        list(self._missing_dependencies(factory, l))
         return l
 
-    def missing_dependencies(self,package_or_factory=None):
+    def missing_dependencies(self, package_or_factory=None):
         """ Return all the dependencies of a package or a factory. """
         f = package_or_factory
         if f is None:
@@ -1047,17 +1047,17 @@ class PackageManager(Observed):
         return d
     def _missing_pkg_dependencies(self, package):
         cns = [f for f in package.itervalues() if f.is_composite_node() ]
-        l=[]
+        l = []
         for cn in cns:
-           self._missing(cn,l)
+           self._missing(cn, l)
         factories = set(l)
         if factories:
             return sorted(factories)
         return None
 
     def _missing_cn_dependencies(self, factory):
-        l=[]
-        factories = set(self._missing(factory,l))
+        l = []
+        factories = set(self._missing(factory, l))
         if factories:
             return sorted(factories)
         return None
@@ -1125,7 +1125,7 @@ class PseudoGroup(PackageDict):
         splitted = name.split(self.sep, 1)
         key = splitted[0]
 
-        if(len(splitted)>1):
+        if(len(splitted) > 1):
             remain = splitted[1]
         else:
             remain = None
@@ -1137,12 +1137,12 @@ class PseudoGroup(PackageDict):
         try:
             self[key].add_name(remain, value)
         except Exception, e:
-            print 'Package %s[%s]'%(self.name, name)
+            print 'Package %s[%s]' % (self.name, name)
             print e
             try:
                 self[str(id(key))].add_name(remain, value)
             except Exception, e:
-                print 'Unable to find these nodes: %s'%value
+                print 'Unable to find these nodes: %s' % value
                 print e
                 pass
 
@@ -1164,7 +1164,7 @@ class PseudoPackage(PseudoGroup):
         """todo"""
         if(self.item) : return self.item.get_tip()
 
-        return "Sub Package : %s" % (self.name, )
+        return "Sub Package : %s" % (self.name,)
 
     def get_metainfo(self, key):
         """todo"""

@@ -33,7 +33,7 @@ import types
 from copy import copy, deepcopy
 from weakref import ref, proxy
 
-#from signature import get_parameters
+# from signature import get_parameters
 import signature as sgn
 from observer import Observed, AbstractListener
 from actor import IActor
@@ -164,7 +164,7 @@ class AbstractPort(dict, Observed, HasAdHoc):
         return id(self)
 
     def __eq__(self, other):
-        return id(self)==id(other)
+        return id(self) == id(other)
 
     def copy_to(self, other):
         other.get_ad_hoc_dict().update(self.get_ad_hoc_dict())
@@ -192,7 +192,7 @@ class AbstractPort(dict, Observed, HasAdHoc):
         else:
             return interf
 
-    def get_tip(self, current_value = None):
+    def get_tip(self, current_value=None):
         """ Return the tool tip """
         name = self['name']
         interface = self.get('interface', None)
@@ -216,7 +216,7 @@ class AbstractPort(dict, Observed, HasAdHoc):
         if current_value is None :
             return '%s(%s): %s [default=%s] ' % (name, iname, desc, comment)
         else :
-            return '%s(%s): %s' % (name,iname,str(current_value) )
+            return '%s(%s): %s' % (name, iname, str(current_value))
 
 
 class InputPort(AbstractPort):
@@ -262,12 +262,12 @@ class Node(AbstractNode):
         retEvent = event
         if evLen == 2:
             if event[0] == "caption_modified":
-                retEvent      = "data_modified", "caption", event[1]
+                retEvent = "data_modified", "caption", event[1]
                 conversionTxt = "('data_modified', 'caption', caption)"
         elif evLen == 3:
             if event[0] == "data_modified":
                 if event[1] == "delay":
-                    retEvent      = "internal_state_changed", "delay", event[2]
+                    retEvent = "internal_state_changed", "delay", event[2]
                     conversionTxt = "('internal_state_changed', 'delay', delay)"
             elif event[0] == "internal_data_changed":
                 retEvent = ('internal_state_changed', event[1], event[2])
@@ -293,7 +293,7 @@ class Node(AbstractNode):
         self.modified = True
 
         # Internal Data
-        self.internal_data["caption"] = '' #str(self.__class__.__name__)
+        self.internal_data["caption"] = '' # str(self.__class__.__name__)
         self.internal_data["lazy"] = True
         self.internal_data["block"] = False # Do not evaluate the node
         self.internal_data["priority"] = 0
@@ -313,7 +313,7 @@ class Node(AbstractNode):
         else:
             Observed.notify_listeners(self, event)
 
-    def __call__(self, inputs = ()):
+    def __call__(self, inputs=()):
         """ Call function. Must be overriden """
         raise NotImplementedError()
 
@@ -323,7 +323,7 @@ class Node(AbstractNode):
     def copy_to(self, other):
         # we copy some attributes.
         self.transfer_listeners(other)
-        #other.internal_data.update(self.internal_data)
+        # other.internal_data.update(self.internal_data)
         other.get_ad_hoc_dict().update(self.get_ad_hoc_dict())
         for portOld, portNew in zip(self.input_desc + self.output_desc,
                                     other.input_desc + other.output_desc):
@@ -380,7 +380,7 @@ class Node(AbstractNode):
         self.internal_data["delay"] = delay
         self.notify_listeners(("internal_data_changed", "delay", delay))
 
-    delay= property(get_delay, set_delay)
+    delay = property(get_delay, set_delay)
 
     def get_block(self):
         """todo"""
@@ -418,7 +418,7 @@ class Node(AbstractNode):
     def is_port_hidden(self, index_key):
         """ Return the hidden state of a port """
         index = self.map_index_in[index_key]
-        s = self.input_desc[index].is_hidden() #get('hide', False)
+        s = self.input_desc[index].is_hidden() # get('hide', False)
         changed = self.internal_data["port_hide_changed"]
 
         c = index in changed
@@ -436,17 +436,17 @@ class Node(AbstractNode):
         :param state: a boolean value.
         """
         index = self.map_index_in[index_key]
-        s = self.input_desc[index].is_hidden() #get('hide', False)
+        s = self.input_desc[index].is_hidden() # get('hide', False)
 
         changed = self.internal_data["port_hide_changed"]
 
         if (s != state):
             changed.add(index)
-            self.input_desc[index].get_ad_hoc_dict().set_metadata("hide",state)
+            self.input_desc[index].get_ad_hoc_dict().set_metadata("hide", state)
             self.notify_listeners(("hiddenPortChange",))
         elif(index in changed):
             changed.remove(index)
-            self.input_desc[index].get_ad_hoc_dict().set_metadata("hide",state)
+            self.input_desc[index].get_ad_hoc_dict().set_metadata("hide", state)
             self.notify_listeners(("hiddenPortChange",))
 
 
@@ -461,7 +461,7 @@ class Node(AbstractNode):
         index = self.map_index_in[index_key]
         if(notify):
             self.notify_listeners(("input_modified", index))
-            self.continuous_eval.notify_listeners(("node_modified", ))
+            self.continuous_eval.notify_listeners(("node_modified",))
 
     # Declarations
     def set_io(self, inputs, outputs):
@@ -473,19 +473,19 @@ class Node(AbstractNode):
         """
 
         # # Values
-        if( inputs is None or len(inputs) != len(self.inputs)):
+        if(inputs is None or len(inputs) != len(self.inputs)):
             self.clear_inputs()
             if inputs:
                 for d in inputs:
                     self.add_input(**d)
 
-        if( outputs is None or len(outputs) != len(self.outputs)):
+        if(outputs is None or len(outputs) != len(self.outputs)):
             self.clear_outputs()
             if outputs:
                 for d in outputs:
                     self.add_output(**d)
 
-        #to_script
+        # to_script
         self._to_script_func = None
 
     def clear_inputs(self):
@@ -493,7 +493,7 @@ class Node(AbstractNode):
         self.inputs = []
         # Description (list of dict (name=, interface=, ...))
         self.input_desc = []
-        #translation of name to id or id to id (identity)...
+        # translation of name to id or id to id (identity)...
         self.map_index_in = {}
         # Input states : "connected", "hidden"
         self.input_states = []
@@ -504,7 +504,7 @@ class Node(AbstractNode):
         self.outputs = []
         # Description (list of dict (name=, interface=, ...))
         self.output_desc = []
-        #translation of name to id or id to id (identity)...
+        # translation of name to id or id to id (identity)...
         self.map_index_out = {}
         self.notify_listeners(("cleared_output_ports",))
 
@@ -518,7 +518,7 @@ class Node(AbstractNode):
 
         # default value
         if(interface and not kargs.has_key('value')):
-            if isinstance(interface,str):
+            if isinstance(interface, str):
                 # Create mapping between interface name and interface class
                 from openalea.core.interface import TypeNameInterfaceMap
                 interface = TypeNameInterfaceMap()[interface]
@@ -530,7 +530,7 @@ class Node(AbstractNode):
 
         value = copy(value)
 
-        name = str(name) #force to have a string
+        name = str(name) # force to have a string
         self.inputs.append(None)
 
         port = InputPort(self)
@@ -545,7 +545,7 @@ class Node(AbstractNode):
 
         self.set_input(name, value, False)
         port.get_ad_hoc_dict().set_metadata("hide",
-                                            kargs.get("hide",False))
+                                            kargs.get("hide", False))
         self.notify_listeners(("input_port_added", port))
         return port
 
@@ -638,10 +638,10 @@ class Node(AbstractNode):
         # lazy evaluation
         if self.block and self.get_nb_output() != 0 and self.output(0) is not None:
             return False
-        if (self.delay==0 and self.lazy) and not self.modified:
+        if (self.delay == 0 and self.lazy) and not self.modified:
             return False
 
-        self.notify_listeners(("start_eval", ))
+        self.notify_listeners(("start_eval",))
 
         # Run the node
         outlist = self.__call__(self.inputs)
@@ -662,7 +662,7 @@ class Node(AbstractNode):
         else: # multi output
             if(not isinstance(outlist, tuple) and
                not isinstance(outlist, list)):
-                outlist = (outlist, )
+                outlist = (outlist,)
 
             for i in range(min(len(outlist), len(self.outputs))):
                 self.output_desc[i].notify_listeners(("tooltip_modified",))
@@ -670,7 +670,7 @@ class Node(AbstractNode):
 
         # Set State
         self.modified = False
-        self.notify_listeners(("stop_eval", ))
+        self.notify_listeners(("stop_eval",))
 
         if self.delay == 0:
             return False
@@ -734,10 +734,10 @@ class Node(AbstractNode):
 
         i = self.get_nb_input()
         for i in xrange(i):
-            #if(not connected or self.input_states[i] is "connected"):
+            # if(not connected or self.input_states[i] is "connected"):
             self.set_input(i, self.input_desc[i].get('value', None))
 
-        if(i>0):
+        if(i > 0):
             self.invalidate()
 
     def reset(self):
@@ -747,7 +747,7 @@ class Node(AbstractNode):
 
         i = self.get_nb_input()
 
-        if(i>0):
+        if(i > 0):
             self.invalidate()
 
     def invalidate(self):
@@ -758,9 +758,9 @@ class Node(AbstractNode):
 
         self.continuous_eval.notify_listeners(("node_modified", self))
 
-#X     @property
-#X     def outputs(self):
-#X         return [self.output(i) for i in range(self.get_nb_output())]
+# X     @property
+# X     def outputs(self):
+# X         return [self.output(i) for i in range(self.get_nb_output())]
 
     def to_script (self):
         """Script translation of this node.
@@ -768,7 +768,7 @@ class Node(AbstractNode):
         if self._to_script_func is None :
             return "#node %s do not define any scripting\n" % self.factory.name
         else :
-            return self._to_script_func(self.inputs,self.outputs)
+            return self._to_script_func(self.inputs, self.outputs)
 
 
 class FuncNode(Node):
@@ -785,7 +785,7 @@ class FuncNode(Node):
         self.func = func
         self.__doc__ = func.__doc__
 
-    def __call__(self, inputs = ()):
+    def __call__(self, inputs=()):
         """ Call function. Must be overriden """
         if(self.func):
             return self.func(*inputs)
@@ -807,12 +807,12 @@ class AbstractFactory(Observed):
 
     def __init__(self,
                  name,
-                 description = '',
-                 category = '',
-                 inputs = (),
-                 outputs = (),
-                 lazy = True,
-                 delay = 0,
+                 description='',
+                 category='',
+                 inputs=(),
+                 outputs=(),
+                 lazy=True,
+                 delay=0,
                  view=None,
                  alias=None,
                  authors=None,
@@ -918,7 +918,7 @@ class AbstractFactory(Observed):
         if no authors is found within the node, then it takes the authors field
         found in its package.
         """
-        if self.authors == None or self.authors=='':
+        if self.authors == None or self.authors == '':
             authors = self.package.metainfo['authors'] + ' (wralea authors)'
         else:
             authors = self.authors
@@ -933,17 +933,17 @@ class AbstractFactory(Observed):
 
 
         if not asRst:
-            return "<b>Name:</b> %s<br/>" % (self.name, ) + \
-                   "<b>Category:</b> %s<br/>" % (self.category, ) + \
-                   "<b>Package:</b> %s<br/>" % (self.package.name, ) + \
-                   "<b>Authors:</b> %s<br/>" % (self.get_authors(), ) + \
-                   "<b>Description:</b> %s<br/>" % (self.description, )
+            return "<b>Name:</b> %s<br/>" % (self.name,) + \
+                   "<b>Category:</b> %s<br/>" % (self.category,) + \
+                   "<b>Package:</b> %s<br/>" % (self.package.name,) + \
+                   "<b>Authors:</b> %s<br/>" % (self.get_authors(),) + \
+                   "<b>Description:</b> %s<br/>" % (self.description,)
         else:
-            return "**Name:** %s\n\n" % (self.name, ) + \
-                   "**Category:** %s\n\n" % (self.category, ) + \
-                   "**Package:** %s\n\n" % (self.package.name, ) + \
-                   "**Authors:** %s\n\n" % (self.get_authors(), ) + \
-                   "**Description:** %s\n\n" % (self.description, )
+            return "**Name:** %s\n\n" % (self.name,) + \
+                   "**Category:** %s\n\n" % (self.category,) + \
+                   "**Package:** %s\n\n" % (self.package.name,) + \
+                   "**Authors:** %s\n\n" % (self.get_authors(),) + \
+                   "**Description:** %s\n\n" % (self.description,)
 
     def instantiate(self, call_stack=[]):
         """ Return a node instance
@@ -1016,16 +1016,16 @@ class NodeFactory(AbstractFactory):
 
     def __init__(self,
                  name,
-                 description = '',
-                 category = '',
-                 inputs = None,
-                 outputs = None,
-                 nodemodule = '',
-                 nodeclass = None,
-                 widgetmodule = None,
-                 widgetclass = None,
-                 search_path = None,
-                 authors = None,
+                 description='',
+                 category='',
+                 inputs=None,
+                 outputs=None,
+                 nodemodule='',
+                 nodeclass=None,
+                 widgetmodule=None,
+                 widgetclass=None,
+                 search_path=None,
+                 authors=None,
                  **kargs):
         """Create a node factory.
 
@@ -1047,7 +1047,7 @@ class NodeFactory(AbstractFactory):
         outputs = (dict(name='y', interface=IInt)
         """
         AbstractFactory.__init__(self, name, description, category,
-                                 inputs, outputs, authors=authors,**kargs)
+                                 inputs, outputs, authors=authors, **kargs)
 
         # Factory info
         self.nodemodule_name = nodemodule
@@ -1055,7 +1055,7 @@ class NodeFactory(AbstractFactory):
         self.widgetmodule_name = widgetmodule
         self.widgetclass_name = widgetclass
 
-        self.toscriptclass_name = kargs.get("toscriptclass_name",None)
+        self.toscriptclass_name = kargs.get("toscriptclass_name", None)
 
         # Cache
         self.nodeclass = None
@@ -1140,7 +1140,7 @@ class NodeFactory(AbstractFactory):
                 sign = sgn.Signature(classobj)
                 self.inputs = sign.get_parameters()
             if(self.outputs is None):
-                self.outputs = (dict(name="out", interface=None), )
+                self.outputs = (dict(name="out", interface=None),)
 
 
             # Check and Instantiate if we have a functor class
@@ -1212,7 +1212,7 @@ class NodeFactory(AbstractFactory):
 
         else:
             # load module
-            (file, pathname, desc) = imp.find_module(modulename, 
+            (file, pathname, desc) = imp.find_module(modulename,
                 self.search_path + sys.path)
 
             sys.path.append(os.path.dirname(pathname))
@@ -1240,18 +1240,18 @@ class NodeFactory(AbstractFactory):
             self.nodemodule_name = '__builtin__'
 
         # Test if the module is already in sys.modules
-        if (self.nodemodule_path and 
+        if (self.nodemodule_path and
             self.module_cache and
             not hasattr(self.module_cache, 'oa_invalidate')):
             return self.module_cache
 
         sav_path = sys.path
         sys.path = self.search_path + sav_path
-        #print 'SEARCH PATH ', self.search_path
+        # print 'SEARCH PATH ', self.search_path
         try:
             # load module
 
-            # Delete the module from the sys.modules if another local exists and 
+            # Delete the module from the sys.modules if another local exists and
             # has the same name
             if self.nodemodule_name in sys.modules:
                 del sys.modules[self.nodemodule_name]
@@ -1350,10 +1350,10 @@ class NodeFactory(AbstractFactory):
 
         self.src_cache = None
         m = self.get_node_module()
-        #reload(m)
+        # reload(m)
         # Recompile
-        #import py_compile
-        #py_compile.compile(self.nodemodule_path)
+        # import py_compile
+        # py_compile.compile(self.nodemodule_path)
 
 # Class Factory:
 Factory = NodeFactory
@@ -1396,7 +1396,7 @@ $NAME = Factory(name=$PNAME,
                                       LISTIN=repr(f.inputs),
                                       LISTOUT=repr(f.outputs),
                                       WIDGETMODULE=repr(f.widgetmodule_name),
-                                      WIDGETCLASS=repr(f.widgetclass_name), )
+                                      WIDGETCLASS=repr(f.widgetclass_name),)
         return result
 
 # Utility functions
@@ -1404,25 +1404,25 @@ def gen_port_list(size):
     """ Generate a list of port description """
     mylist = []
     for i in range(size):
-        mylist.append(dict(name='t'+str(i), interface=None, value=i))
+        mylist.append(dict(name='t' + str(i), interface=None, value=i))
     return mylist
 
 
 def initialise_standard_metadata():
     """Declares the standard keys used by the Node structures. Called at the end of this file"""
-    #we declare what are the node model ad hoc data we require:
-    AbstractNode.extend_ad_hoc_slots("position", list, [0,0], "posx", "posy")
+    # we declare what are the node model ad hoc data we require:
+    AbstractNode.extend_ad_hoc_slots("position", list, [0, 0], "posx", "posy")
     Node.extend_ad_hoc_slots("userColor", list, None, "user_color")
-    Node.extend_ad_hoc_slots("useUserColor", bool, True, "use_user_color", )
+    Node.extend_ad_hoc_slots("useUserColor", bool, True, "use_user_color",)
     Annotation.extend_ad_hoc_slots("text", str, "", "txt")
 #    Annotation.extend_ad_hoc_slots("htmlText", str, None)
     Annotation.extend_ad_hoc_slots("textColor", list, None)
-    Annotation.extend_ad_hoc_slots("rectP2", tuple, (-1,-1))
+    Annotation.extend_ad_hoc_slots("rectP2", tuple, (-1, -1))
     Annotation.extend_ad_hoc_slots("color", list, None)
     Annotation.extend_ad_hoc_slots("visualStyle", int, None)
-    #we declare what are the node model ad hoc data we require:
-    AbstractPort.extend_ad_hoc_slots("hide" ,bool, False)
-    AbstractPort.extend_ad_hoc_slots("connectorPosition",list, [0,0])
+    # we declare what are the node model ad hoc data we require:
+    AbstractPort.extend_ad_hoc_slots("hide" , bool, False)
+    AbstractPort.extend_ad_hoc_slots("connectorPosition", list, [0, 0])
 
 
 initialise_standard_metadata()
