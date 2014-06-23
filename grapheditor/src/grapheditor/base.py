@@ -14,12 +14,10 @@
 #
 ###############################################################################
 
-import types
-from openalea.grapheditor import interfaces
-
 
 class GraphAdapterBase(object):
     """Base class for adapter to graph"""
+
     def __init__(self, graph=None):
         self.set_graph(graph if graph else self)
 
@@ -35,9 +33,9 @@ class GraphAdapterBase(object):
 
         Upon succes it must emit the following event tuple:
         ("vertex_added", ("vertex_type", vertex)).
-        * "vertex-type" is a vertex-type string defined in the strategy
-        used for a particular graph type.
-        * vertex is the observable object representing a vertex.
+          * "vertex-type" is a vertex-type string defined in the strategy 
+            used for a particular graph type.
+          * "vertex" is the **observable** object representing a vertex.
         """
         raise NotImplementedError
 
@@ -50,7 +48,7 @@ class GraphAdapterBase(object):
 
         Upon success it must emit the following event tuple:
         ("vertex_removed", (vertex,)).
-        *vertex if the observable object representing a vertex.
+          * vertex is the **observable** object representing a vertex.
         """
         raise NotImplementedError
 
@@ -65,9 +63,9 @@ class GraphAdapterBase(object):
 
         Upon succes it must emit the following event tuple:
         ("edge_added", ("edge_type", edge, sourceObs, targetObs)).
-        * "edge-type" is a edge-type string defined in the strategy
-        used for a particular graph type.
-        * edge, sourceObs and targetObs are the observable objects
+          * "edge-type" is a edge-type string defined in the strategy
+            used for a particular graph type.
+          * edge, sourceObs and targetObs are the **observable** objects
         representing an egde and its two anchors.
         """
         raise NotImplementedError
@@ -77,7 +75,7 @@ class GraphAdapterBase(object):
 
         Upon success it must emit the following event tuple:
         ("edge_removed", (edge,)).
-        *edge if the observable object representing a edge.
+          * edge is the observable object representing an edge.
         """
         raise NotImplementedError
 

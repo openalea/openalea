@@ -54,7 +54,7 @@ them:
 # if it's just the PyQt Version that is too old we have a hack as
 # the qt flag exists but is simply not exposed.
 # this is not bug free: if the Qt guys change the enum order, we're wrecked.
-if QtCore.PYQT_VERSION < 0x040703 and QtCore.PYQT_VERSION >= 0x040600:
+if hasattr(QtCore, 'PYQT_VERSION') and QtCore.PYQT_VERSION < 0x040703 and QtCore.PYQT_VERSION >= 0x040600:
     # -- flags --
     ItemSendsGeometryChanges = 0x800
     ItemSendsScenePositionChanges = 0xffff
@@ -389,7 +389,7 @@ class AleaQGraphicsEmitingTextItem(QtGui.QGraphicsTextItem):
     ######################
     # The Missing Signal #
     ######################
-    geometryModified = QtCore.pyqtSignal(QtCore.QRectF)
+    geometryModified = QtCore.Signal(QtCore.QRectF)
 
     def __init__(self, *args, **kwargs):
         QtGui.QGraphicsTextItem.__init__(self, *args, **kwargs)

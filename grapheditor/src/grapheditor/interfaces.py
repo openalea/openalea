@@ -20,7 +20,6 @@ will check the interfaces match more or less."""
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-import new
 class IInterfaceMetaClass(type):
     """
     Adds a method to the interface class that checks

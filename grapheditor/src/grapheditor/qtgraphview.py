@@ -93,13 +93,13 @@ class Connector(Element):
         self.setZValue(1.5)
         self.highlighted = False
         self.__makeConnectionMouseButton = QtCore.Qt.LeftButton
-        self.__makeConnectionModifiers   = QtCore.Qt.ControlModifier
+        self.__makeConnectionModifiers = QtCore.Qt.ControlModifier
 
     def set_connection_button(self, button):
         self.__makeConnectionMouseButton = button
 
     def set_connection_modifiers(self, modifiers):
-        self.__makeConnectionModifiers   = modifiers
+        self.__makeConnectionModifiers = modifiers
 
     def set_highlighted(self, val):
         self.highlighted = val
@@ -112,12 +112,12 @@ class Connector(Element):
     def notify_position_change(self, pos=None):
         obs = self.get_observed()
         if pos is None:
-            pos  = self.get_scene_center()
+            pos = self.get_scene_center()
         edges = []
-        #the following line is quirky because it relies on core.observer.Observed.listeners
+        # the following line is quirky because it relies on core.observer.Observed.listeners
         if hasattr(obs, "listeners"):
             edges = [l() for l in obs.listeners if isinstance(l(), Edge)]
-        elif hasattr(self, "fakeParent"): #I am a defaultConnector
+        elif hasattr(self, "fakeParent"): # I am a defaultConnector
             par = self.fakeParent
             scene = par.scene()
             if scene is None:
@@ -132,7 +132,7 @@ class Connector(Element):
     # ----Qt World----  #
     #####################
     def itemChange(self, change, value):
-        if change & (qtutils.ItemScenePositionHasChanged|qtutils.ItemPositionHasChanged):
+        if change & (qtutils.ItemScenePositionHasChanged | qtutils.ItemPositionHasChanged):
             self.notify_position_change()
             return value
 
@@ -166,11 +166,11 @@ class Vertex(Element):
     class InvisibleConnector(QtGui.QGraphicsEllipseItem, Connector):
         size = 10
         def __init__(self, parent, *args, **kwargs):
-            QtGui.QGraphicsEllipseItem.__init__(self, 0, 0 ,self.size, self.size, None)
+            QtGui.QGraphicsEllipseItem.__init__(self, 0, 0 , self.size, self.size, None)
             Connector.__init__(self, *args, **kwargs)
             self.setBrush(QtGui.QBrush(QtCore.Qt.darkGreen))
-            #Needs to be visible or else won't receive events
-            #we override paint in order to hide the item
+            # Needs to be visible or else won't receive events
+            # we override paint in order to hide the item
             self.setVisible(True)
             self.fakeParent = parent
 
@@ -244,7 +244,7 @@ class Vertex(Element):
         self.__connectors.remove(connector)
 
     def notify(self, sender, event):
-        if event=="notify_position_change":
+        if event == "notify_position_change":
             self.notify_position_change()
         else:
             Element.notify(self, sender, event)
@@ -254,8 +254,8 @@ class Vertex(Element):
         of the vertex. """
         if self.__defaultConnector:
             center = self.sceneBoundingRect().center()
-            self.__defaultConnector.setPos( center.x()-Vertex.InvisibleConnector.size/2.0,
-                                            center.y()-Vertex.InvisibleConnector.size/2.0 )
+            self.__defaultConnector.setPos(center.x() - Vertex.InvisibleConnector.size / 2.0,
+                                            center.y() - Vertex.InvisibleConnector.size / 2.0)
             self.__defaultConnector.notify_position_change()
         for c in self.__connectors:
             c.notify_position_change()
@@ -362,13 +362,13 @@ class Edge(Element):
 
     def notify(self, sender, event):
         if(event[0] == "metadata_changed"):
-            if(event[1]=="connectorPosition"):
+            if(event[1] == "connectorPosition"):
                 pos = event[2]
-                if(sender==self.srcBBox()):
+                if(sender == self.srcBBox()):
                     self.update_line_source(*pos)
-                elif(sender==self.dstBBox()):
+                if(sender == self.dstBBox()):
                     self.update_line_destination(*pos)
-            elif(event[1]=="hide" and (sender==self.dstBBox() or sender==self.srcBBox())):
+            elif(event[1] == "hide" and (sender == self.dstBBox() or sender == self.srcBBox())):
                 if event[2]:
                     self.setVisible(False)
                 else:
@@ -389,17 +389,17 @@ class Edge(Element):
 
     def itemChange(self, change, value):
         """ Callback when item has been modified (move...) """
-        #hack to update start and end points:
+        # hack to update start and end points:
         if change == QtGui.QGraphicsItem.ItemVisibleHasChanged:
             try:
-                srgGraphical = filter(lambda x: isinstance(x(), Connector),
+                srcGraphical = filter(lambda x: isinstance(x(), Connector),
                                       self.srcBBox().listeners)[0]()
                 dstGraphical = filter(lambda x: isinstance(x(), Connector),
                                       self.dstBBox().listeners)[0]()
-                srgGraphical.notify_position_change()
+                srcGraphical.notify_position_change()
                 dstGraphical.notify_position_change()
             except:
-                #possible errors :
+                # possible errors :
                 # -filter yielded an empty list: index out of range
                 # -item 0 of list is a weakref whose refered object has died
                 # -other.
@@ -419,7 +419,7 @@ class Edge(Element):
         return QtGui.QGraphicsItem.itemChange(self, change, value)
 
 
-class FloatingEdge( Edge ):
+class FloatingEdge(Edge):
 
     def __init__(self, srcPoint, graph):
         Edge.__init__(self, None, graph, None, None)
@@ -431,7 +431,7 @@ class FloatingEdge( Edge ):
 
     def consolidate(self, graph):
         try:
-            srcVertex, dstVertex ,sItem, dItem= self.get_connections()
+            srcVertex, dstVertex , sItem, dItem = self.get_connections()
             if(srcVertex == None or dstVertex == None):
                 return
             self.scene().add_edge(srcVertex, dstVertex)
@@ -442,20 +442,20 @@ class FloatingEdge( Edge ):
         return
 
     def get_connections(self):
-        #find the vertex items that were activated
+        # find the vertex items that were activated
 
-        srcVertexItem = self.scene().find_closest_connectable(self.srcPoint, boxsize = 2)
-        dstVertexItem = self.scene().find_closest_connectable(self.dstPoint, boxsize = 2)
+        srcVertexItem = self.scene().find_closest_connectable(self.srcPoint, boxsize=2)
+        dstVertexItem = self.scene().find_closest_connectable(self.dstPoint, boxsize=2)
 
         scene = self.scene()
 
-        if( not scene.is_connectable(srcVertexItem) or
-            not scene.is_connectable(dstVertexItem) ):
-            raise Exception( "Non connectable types for : " + str(srcVertexItem) + " : " + \
-                                str(dstVertexItem) )
+        if(not scene.is_connectable(srcVertexItem) or
+            not scene.is_connectable(dstVertexItem)):
+            raise Exception("Non connectable types for : " + str(srcVertexItem) + " : " + \
+                                str(dstVertexItem))
             return None, None, None, None
 
-        #if the input and the output are on the same vertex...
+        # if the input and the output are on the same vertex...
         if(srcVertexItem == dstVertexItem):
             raise Exception("Nonsense connection : plugging self to self.")
 
@@ -468,15 +468,15 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
 
     __instanceMap__ = weakref.WeakKeyDictionary()
 
-    #A few signals that strangely enough don't exist in QWidget
-    focusedItemChanged = QtCore.pyqtSignal(QtGui.QGraphicsScene, Element)
+    # A few signals that strangely enough don't exist in QWidget
+    focusedItemChanged = QtCore.Signal(QtGui.QGraphicsScene, Element)
 
 
     @classmethod
     def make_scene(cls, graph, clone=False, parent=None):
         if graph is not None:
-            #if the graph has already a qtgraphview.Scene GraphListener
-            #reuse it:
+            # if the graph has already a qtgraphview.Scene GraphListener
+            # reuse it:
             existingScene = cls.__instanceMap__.get(graph)
             if existingScene is None or clone is True:
                 existingScene = Scene(parent)
@@ -488,7 +488,7 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
     def __init__(self, parent):
         QtGui.QGraphicsScene.__init__(self, parent)
         baselisteners.GraphListenerBase.__init__(self)
-        self.__selectAdditions  = False #select newly added items
+        self.__selectAdditions = False # select newly added items
         self.__views = set()
 
         # -- used by upper class to operate snapping to connectors. --
@@ -498,10 +498,10 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
     #############################################################################
     # Functions to correctly cooperate with the View class (reference counting) #
     #############################################################################
-    def register_view(self,  view):
+    def register_view(self, view):
         self.__views.add(weakref.ref(view))
 
-    def unregister_view(self,  view, scene):
+    def unregister_view(self, view, scene):
         toDiscard = None
         for v in self.__views:
             if v() == view : toDiscard = v; break
@@ -509,7 +509,7 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
             self.__views.remove(toDiscard)
         try: self.get_graph().unregister_listener(view)
         except : pass
-        if len(self.__views)==0: #cleanup before suicide?
+        if len(self.__views) == 0: # cleanup before suicide?
             self.clear()
 
     #################################
@@ -518,18 +518,18 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
     def get_scene(self):
         return self
 
-    def find_closest_connectable(self, pos, boxsize = 10.0):
-        #creation of a square to find connectables inside.
+    def find_closest_connectable(self, pos, boxsize=10.0):
+        # creation of a square to find connectables inside.
         if isinstance(pos, QtCore.QPointF) : pos = pos.x(), pos.y()
-        rect = QtCore.QRectF((pos[0] - boxsize/2), (pos[1] - boxsize/2), boxsize, boxsize);
+        rect = QtCore.QRectF((pos[0] - boxsize / 2), (pos[1] - boxsize / 2), boxsize, boxsize)
         dstPortItems = self.items(rect)
         dstPortItems = [item for item in dstPortItems if self.is_connectable(item)]
 
         distance = float('inf')
         dstPortItem = None
         for item in dstPortItems:
-            d = sqrt((item.boundingRect().center().x() - pos[0])**2 +
-                        (item.boundingRect().center().y() - pos[1])**2)
+            d = sqrt((item.boundingRect().center().x() - pos[0]) ** 2 +
+                        (item.boundingRect().center().y() - pos[1]) ** 2)
             if d < distance:
                 distance = d
                 dstPortItem = item
@@ -541,7 +541,7 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
 
     def rebuild(self):
         """ Build the scene with graphic vertex and edge"""
-        g  = self.get_graph()
+        g = self.get_graph()
         ga = self.get_adapter()
         go = self.get_observable_graph()
         self.clear()
@@ -550,12 +550,12 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
 
     def clear(self):
         """ Remove all items from the scene """
-        #do not use the following even though it is faster.
-        #qt might just delete stuff that is owned by Python.
-        #QtGui.QGraphicsScene.clear(self)
+        # do not use the following even though it is faster.
+        # qt might just delete stuff that is owned by Python.
+        # QtGui.QGraphicsScene.clear(self)
         items = self.items()
         for i in items:
-            self.removeItem(i) #let gc do the rest.
+            self.removeItem(i) # let gc do the rest.
         baselisteners.GraphListenerBase.clear(self)
         gc.collect()
 
@@ -578,12 +578,12 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
     # Other utility methods #
     #########################
     def select_added_elements(self, val):
-        warnings.warn(DeprecationWarning( "Please use self.%s instead"%("select_added_items",)),
+        warnings.warn(DeprecationWarning("Please use self.%s instead" % ("select_added_items",)),
                       stacklevel=2)
         self.select_added_items(val)
 
     def select_added_items(self, val):
-        self.__selectAdditions=val
+        self.__selectAdditions = val
 
     def get_items(self, filterType=None, subcall=None):
         """ """
@@ -608,11 +608,11 @@ class Scene(QtGui.QGraphicsScene, baselisteners.GraphListenerBase):
         else: items = self.get_selected_items()
 
         l = len(items)
-        if(l == 0) : return QtCore.QPointF(30,30)
+        if(l == 0) : return QtCore.QPointF(30, 30)
 
         sx = sum((i.pos().x() for i in items))
         sy = sum((i.pos().y() for i in items))
-        return QtCore.QPointF( float(sx)/l, float(sy)/l )
+        return QtCore.QPointF(float(sx) / l, float(sy) / l)
 
 
 
@@ -621,7 +621,7 @@ def deprecate(methodName, newName=None):
     """create deprecation wrappers"""
     if newName is None : newName = methodName
     def deprecation_wrapper(self, *args, **kwargs):
-        warnings.warn( DeprecationWarning( "Please use self.scene().%s instead"%(newName,)),
+        warnings.warn(DeprecationWarning("Please use self.scene().%s instead" % (newName,)),
                        stacklevel=2)
         return getattr(self.scene(), newName)(*args, **kwargs)
     return deprecation_wrapper
@@ -634,14 +634,14 @@ class View(QtGui.QGraphicsView, baselisteners.GraphViewBase):
         def __init__(self):
             self.accept = False
 
-    #A few signals that strangely enough don't exist in QWidget
-    closing       = QtCore.pyqtSignal(QtGui.QGraphicsView, QtGui.QGraphicsScene)
+    # A few signals that strangely enough don't exist in QWidget
+    closing = QtCore.Signal(QtGui.QGraphicsView, QtGui.QGraphicsScene)
 
     # Some other signals that can be useful
-    copyRequest   = QtCore.pyqtSignal(QtGui.QGraphicsView, QtGui.QGraphicsScene, AcceptEvent)
-    cutRequest    = QtCore.pyqtSignal(QtGui.QGraphicsView, QtGui.QGraphicsScene, AcceptEvent)
-    pasteRequest  = QtCore.pyqtSignal(QtGui.QGraphicsView, QtGui.QGraphicsScene, AcceptEvent)
-    deleteRequest = QtCore.pyqtSignal(QtGui.QGraphicsView, QtGui.QGraphicsScene, AcceptEvent)
+    copyRequest = QtCore.Signal(QtGui.QGraphicsView, QtGui.QGraphicsScene, AcceptEvent)
+    cutRequest = QtCore.Signal(QtGui.QGraphicsView, QtGui.QGraphicsScene, AcceptEvent)
+    pasteRequest = QtCore.Signal(QtGui.QGraphicsView, QtGui.QGraphicsScene, AcceptEvent)
+    deleteRequest = QtCore.Signal(QtGui.QGraphicsView, QtGui.QGraphicsScene, AcceptEvent)
 
     ####################################
     # ----Instance members follow----  #
@@ -727,7 +727,7 @@ class View(QtGui.QGraphicsView, baselisteners.GraphViewBase):
         # as it does a "move" instead of a "copy"
         # and the item is deleted from where it was
         # dragged from :
-        #QtGui.QGraphicsView.dropEvent(self, event)
+        # QtGui.QGraphicsView.dropEvent(self, event)
 
     # ----hotkeys----
     def keyPressEvent(self, event):
@@ -815,14 +815,14 @@ def QtGraphStrategyMaker(*args, **kwargs):
 ################################
 # SOME DEFAULT IMPLEMENTATIONS #
 ################################
-class DefaultGraphicalEdge( Edge, QtGui.QGraphicsPathItem  ):
+class DefaultGraphicalEdge(Edge, QtGui.QGraphicsPathItem):
     def __init__(self, edge=None, graph=None, src=None, dest=None):
         QtGui.QGraphicsPathItem.__init__(self, None)
         Edge.__init__(self, edge, graph, src, dest)
         self.set_edge_creator(edgefactory.LinearEdgePath())
 
     store_view_data = None
-    get_view_data   = None
+    get_view_data = None
 
 
 class DefaultGraphicalFloatingEdge(QtGui.QGraphicsPathItem, FloatingEdge):
@@ -833,8 +833,8 @@ class DefaultGraphicalFloatingEdge(QtGui.QGraphicsPathItem, FloatingEdge):
         self.set_edge_creator(edgefactory.LinearEdgePath())
 
 
-class DefaultGraphicalVertex( Vertex, QtGui.QGraphicsEllipseItem  ):
-    circleSize = 10.0*2
+class DefaultGraphicalVertex(Vertex, QtGui.QGraphicsEllipseItem):
+    circleSize = 10.0 * 2
     def __init__(self, vertex, graph):
         QtGui.QGraphicsEllipseItem .__init__(self, 0, 0, self.circleSize, self.circleSize, None)
         Vertex.__init__(self, vertex, graph, defaultCenterConnector=True)
