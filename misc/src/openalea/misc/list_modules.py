@@ -17,6 +17,8 @@
 Small functions to access packages files
 """
 
+__all__ = ['is_package', 'list_modules']
+
 from os import listdir
 from os.path import isfile,isdir,join,splitext
 

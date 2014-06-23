@@ -23,7 +23,7 @@ class SharedDataBrowser(NodeWidget, QtGui.QDialog):
         NodeWidget.__init__(self, node)
 
         self.gridlayout = QtGui.QGridLayout(self)
-        self.gridlayout.setMargin(3)
+        self.gridlayout.setContentsMargins(3, 3, 3, 3)
         self.gridlayout.setSpacing(5)
 
         self.package_lineedit_label = QtGui.QLabel('1. Set the package', self)
