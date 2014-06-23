@@ -34,7 +34,7 @@ def qt_editor(control, shape=None, preferred=None):
             widget = widget_class.edit(control, shape)
         if widget is not None:
             widget.set(control)
-            widget.show()
+#             widget.show()
         return widget
 
 def qt_viewer(control, shape=None):

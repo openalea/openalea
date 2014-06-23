@@ -14,28 +14,29 @@ if __name__ == '__main__':
         app = instance
 
     cm = ControlManager()
-    cc1 = ControlContainer()
-    cc2 = ControlContainer()
+#     cc1 = ControlContainer()
+#     cc2 = ControlContainer()
 
     cmw = ControlManagerWidget()
-    cmw.model.set_manager(cc2)
-    cmw.view.new_control()
+#     cmw.model.set_manager(cc2)
     cp = ControlPanel()
 
     # Fill al
     for iname in interface.names():
         for i, editor in enumerate(qt_control.qt_widget_plugins(iname)):
+            if iname == 'IColorList':
+                continue
             name = editor.name.replace('Plugin', 'P.').replace('Widget', 'W.')
             name = '%s_%s' % (iname, name)
             c = control.new(name, iname)
-            cc1.add_control(c)
+#             cc1.add_control(c)
 
     percent = interface.get('IInt', min=0, max=100)
     c = control.new('i', percent)
-    cc2.add_control(c)
+#     cc2.add_control(c)
 
     c = control.new('f', 'IFloat')
-    cc2.add_control(c)
+    cm.add_control(c)
 
 
 #     from openalea.oalab.editor.text_editor import TextEditor
@@ -73,7 +74,7 @@ if __name__ == '__main__':
 
 
     import sys
-    for k, v in cc1.namespace().items():
+    for k, v in cm.namespace().items():
         print >> sys.__stdout__, k, v
 
 """

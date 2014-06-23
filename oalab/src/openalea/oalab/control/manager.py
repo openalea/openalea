@@ -9,13 +9,28 @@ class ControlContainer(Observed, AbstractListener):
     def __init__(self):
         Observed.__init__(self)
         AbstractListener.__init__(self)
-        self._controls = {}
+        self._controls = set()
 
-    def control(self, uid):
-        try:
-            return self.controls()[uid]
-        except KeyError:
-            return None
+    def control(self, name=None, uid=None):
+        if name is None and uid is None:
+            return [control for control in self._controls]
+        elif name is None and uid:
+            for control in self._controls:
+                if id(control) == uid:
+                    return control
+        elif name and uid is None:
+            controls = []
+            for control in self._controls:
+                if control.name == name:
+                    controls.append(control)
+            if len(controls) == 0:
+                return None
+            elif len(controls) == 1:
+                return controls[0]
+            else:
+                return controls
+        else:
+            return self.control(None, uid)
 
     def add_control(self, control):
         """
@@ -23,11 +38,8 @@ class ControlContainer(Observed, AbstractListener):
         :param tag: If tag is specified, link control to this tag, else control is global to all tags in current project.
         """
         assert isinstance(control, Control)
-        if control.name in self._controls:
-            raise NameError, 'Control %s is yet registered' % control.name
-
+        self._controls.add(control)
         control.register_listener(self)
-        self._controls[control.name] = control
         self.notify_listeners(('state_changed', (control)))
 
     def remove_control(self, control):
@@ -36,19 +48,24 @@ class ControlContainer(Observed, AbstractListener):
         :param tag: If tag is specified, link control to this tag, else control is global to all tags in current project.
         """
         assert isinstance(control, Control)
-        if control.name in self._controls:
+        if control in self._controls:
+            self._controls.remove(control)
             control.unregister_listener(self)
-            del self._controls[control.name]
             self.notify_listeners(('state_changed', (control)))
 
-    def namespace(self):
+    def namespace(self, interface=None):
         """
         Returns namespace (dict control name -> value).
         :param tag: returns namespace corresponding to given tag. Default, returns global namespace
         """
         ns = {}
-        for name, control in self.controls().iteritems():
-            ns[name] = copy.deepcopy(control.value)
+        for control in self.controls():
+            if interface is None:
+                ns[control.name] = copy.deepcopy(control.value)
+            else:
+                from openalea.oalab.service.interface import get_name
+                if get_name(control.interface) == interface:
+                    ns[control.name] = copy.deepcopy(control.value)
         return ns
 
     def controls(self):
@@ -59,9 +76,15 @@ class ControlContainer(Observed, AbstractListener):
             signal, data = event
             if signal == 'value_changed':
                 self.notify_listeners(('control_value_changed', (sender, data)))
+            if signal == 'name_changed':
+                self.notify_listeners(('control_name_changed', (sender, data)))
+
 
     def __contains__(self, key):
-        return key in self._controls
+        for control in self.controls():
+            if key == control.name:
+                return True
+        return False
 
 
 class ControlManager(ControlContainer):

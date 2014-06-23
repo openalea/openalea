@@ -16,10 +16,7 @@
 #
 ###############################################################################
 
-import weakref
-
 from openalea.vpltk.qt import QtGui, QtCore
-from openalea.vpltk.qt.compat import to_qvariant
 
 from openalea.core.observer import AbstractListener
 from openalea.oalab.service.qt_control import qt_painter, qt_editor
@@ -34,29 +31,49 @@ class ControlView(QtGui.QTreeView):
     def __init__(self):
         QtGui.QTreeView.__init__(self)
         self.setEditTriggers(self.DoubleClicked)
-        self.setSelectionMode(self.SingleSelection)
+        self.setSelectionMode(self.ExtendedSelection)
         self.setSelectionBehavior(self.SelectRows)
         self.setDragEnabled(True)
         self.setDragDropMode(self.DragOnly)
-        self.setSortingEnabled(True)
-        self.delegate = ControlDelegate()
+        self.setSortingEnabled(False)
+        self.delegate = ValueControlDelegate()
+        self.delegate0 = NameControlDelegate()
+        self.setItemDelegateForColumn(0, self.delegate0)
         self.setItemDelegateForColumn(1, self.delegate)
         self.setHeaderHidden(False)
-        self._i = 1
+        self._selected_indexes = None
 
     def contextMenuEvent(self, event):
         menu = QtGui.QMenu(self)
         action = QtGui.QAction("New control", menu)
         action.triggered.connect(self.new_control)
         menu.addAction(action)
+
+        if self.selectedIndexes():
+            self._selected_indexes = self.selectedIndexes()
+            action = QtGui.QAction("Delete control", menu)
+            action.triggered.connect(self.delete_control)
+            menu.addAction(action)
+
+
         menu.exec_(event.globalPos())
 
     def new_control(self):
-        editor = ControlEditor('control_%d' % self._i)
+        editor = ControlEditor('control')
         dialog = ModalDialog(editor)
         if dialog.exec_():
-            self.model().add_control(editor.control())
-        self._i += 1
+            control = editor.control()
+            if self.model()._manager.control(control.name):
+                QtGui.QMessageBox.information(self, 'Error on adding control',
+                    'A control with name %s already exists' % control.name)
+            else:
+                self.model().add_control(control)
+
+    def delete_control(self):
+        if self._selected_indexes is None:
+            return
+        self.model().remove_controls(self._selected_indexes)
+        self._selected_indexes = None
 
     def selectionChanged(self, selected, deselected):
         rows = set()
@@ -68,15 +85,10 @@ class ControlView(QtGui.QTreeView):
             controls.append(self.model().control(index))
         self.controlsSelected.emit(controls)
 
-    def keyPressEvent(self, event):
-        key = event.key()
-        if key == QtCore.Qt.Key_Delete:
-            print 'rm'
-
     def onRowsInserted(self, *args, **kwargs):
         self.resizeColumnToContents(0)
 
-class ControlDelegate(QtGui.QStyledItemDelegate):
+class ValueControlDelegate(QtGui.QStyledItemDelegate):
 
     external_edit_required = QtCore.Signal(QtCore.QModelIndex)
 
@@ -115,6 +127,19 @@ class ControlDelegate(QtGui.QStyledItemDelegate):
     def external_edition(self, index):
         self.external_edit_required.emit(index)
 
+
+class NameControlDelegate(QtGui.QStyledItemDelegate):
+
+    def setEditorData(self, editor, index):
+        control = index.model().control(index)
+        editor.setText(control.name)
+
+    def setModelData(self, editor, model, index):
+        control = model.control(index)
+        control.name = editor.text()
+        QtGui.QStyledItemDelegate.setModelData(self, editor, model, index)
+
+
 class ControlModel(QtGui.QStandardItemModel, AbstractListener):
 
     def __init__(self, manager=None):
@@ -125,6 +150,7 @@ class ControlModel(QtGui.QStandardItemModel, AbstractListener):
         self.setHorizontalHeaderLabels(self._headers)
 
         self._control_index = {}
+        self._index_control = {}
         self._manager = None
         self.set_manager(manager)
 
@@ -166,7 +192,9 @@ class ControlModel(QtGui.QStandardItemModel, AbstractListener):
         return qmime_data
 
     def data (self, index, role):
-        if role == QtCore.Qt.DisplayRole and index.column() == 1:
+        if role == QtCore.Qt.DisplayRole and index.column() == 0:
+            return unicode(self.control(index).name)
+        elif role == QtCore.Qt.DisplayRole and index.column() == 1:
             return unicode(self.control(index).value)
         else:
             return QtGui.QStandardItemModel.data(self, index, role)
@@ -174,6 +202,7 @@ class ControlModel(QtGui.QStandardItemModel, AbstractListener):
     def _create_control(self, control):
         args = [QtGui.QStandardItem(a) for a in [control.name, str(control.value)]]
         self._control_index[control] = self.rowCount()
+        self._index_control[self.rowCount()] = control
         self.appendRow(args)
 
         # Example of child for a control. Could be used to display a preview
@@ -185,7 +214,8 @@ class ControlModel(QtGui.QStandardItemModel, AbstractListener):
         if isinstance(sender, ControlContainer):
             if signal == 'state_changed':
                 self.refresh()
-            elif signal == 'control_value_changed':
+            # Refresh index corresponding to changed control
+            elif signal in ('control_value_changed', 'control_name_changed'):
                 control, value = data
                 if control in self._control_index:
                     index = self.createIndex(self._control_index[control], 1, object=0)
@@ -194,13 +224,23 @@ class ControlModel(QtGui.QStandardItemModel, AbstractListener):
     def refresh(self):
         self.clear()
         if self._manager:
-            for control in self._manager.controls().values():
+            for control in self._manager.controls():
                 self._create_control(control)
 
+    def clear(self):
+        self._control_index = {}
+        self._index_control = {}
+        QtGui.QStandardItemModel.clear(self)
+
     def control(self, index):
-        cnum = index.row()
-        name = self.item(cnum, 0).text()
-        return self._manager.control(name)
+        return self._index_control[index.row()]
 
     def add_control(self, control):
         self._manager.add_control(control)
+
+    def remove_controls(self, indices):
+        controls = set()
+        for index in indices:
+            controls.add(self.control(index))
+        for control in controls:
+            self._manager.remove_control(control)
