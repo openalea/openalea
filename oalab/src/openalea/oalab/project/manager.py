@@ -21,15 +21,21 @@ from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core.path import path as path_
 from openalea.core import settings
 from openalea.core import logger
+from openalea.core.customexception import UserException
 from openalea.vpltk.project.manager import ProjectManager
 from openalea.vpltk.project.project import remove_extension
 from openalea.oalab.project.creator import CreateProjectWidget
 from openalea.oalab.project.pretty_preview import ProjectSelectorScroll
 from openalea.oalab.gui import resources_rc # do not remove this import else icon are not drawn
 from openalea.oalab.gui.utils import qicon
-from openalea.oalab.service.control import get_control, register, clear_ctrl_manager
-from openalea.oalab.gui.utils import ModalDialog
+from openalea.oalab.service.control import clear_ctrl_manager
+from openalea.oalab.gui.utils import ModalDialog, make_info_dialog
 
+class ErrActionOnTemporaryProject(UserException):
+    title = u'Error: cannot do operations on temporary project'
+    message = u'%(value)s cannot be done on temporary project.'
+    desc = """Temporary project is used only at first launch but working on it has no sense.
+    If you want to perform action on project, you must create a real project before."""
 
 class ProjectManagerWidget(QtGui.QWidget):
     """
@@ -182,12 +188,22 @@ You can rename/move this project thanks to the button "Save As" in menu.
             self.session.project = project
 
 
+    def checkProjectOperation(self, action):
+        if self.session.project is None:
+            error = ErrActionOnTemporaryProject(action)
+            make_info_dialog(error)
+            return False
+        else:
+            return True
+
     def edit_metadata(self):
-        project_creator = CreateProjectWidget()
-        project_creator.setMetaDataMode()
-        dialog = ModalDialog(project_creator)
-        if dialog.exec_():
-            self.metadata_edited(project_creator.metadata())
+        if self.checkProjectOperation('change metadata'):
+            project = self.session.project
+            project_creator = CreateProjectWidget(project)
+            project_creator.setMetaDataMode()
+            dialog = ModalDialog(project_creator)
+            if dialog.exec_():
+                self.metadata_edited(project_creator.metadata())
 
     def metadata_edited(self, metadata):
         self.session.project.metadata = metadata
@@ -199,13 +215,14 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
         :todo: propose to the user where to add it (not only in source)
         """
-        text = self.editor_manager.tabText(self.editor_manager.currentIndex())
-        text = path_(text).splitall()[-1]
-        categories = ["model"]
-        categories.extend(self.session.project.files.keys())
-        self.selector = SelectCategory(filename=text, categories=categories)
-        self.selector.show()
-        self.selector.ok_button.clicked.connect(self._add_file_from_selector)
+        if self.checkProjectOperation('add file'):
+            text = self.editor_manager.tabText(self.editor_manager.currentIndex())
+            text = path_(text).splitall()[-1]
+            categories = ["model"]
+            categories.extend(self.session.project.files.keys())
+            self.selector = SelectCategory(filename=text, categories=categories)
+            self.selector.show()
+            self.selector.ok_button.clicked.connect(self._add_file_from_selector)
 
     def _add_file_from_selector(self):
         category = self.selector.combo.currentText()
@@ -227,7 +244,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         """
         Rename current project.
         """
-        if self.session.project:
+        if self.checkProjectOperation('rename'):
             name = self.session.project.name
             if not new_name:
                 new_name = showNewProjectDialog(default_name=path_(name) / "..",
@@ -254,7 +271,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
         :param startup_name: name of startup file to remane
         """
-        if self.session.project:
+        if self.checkProjectOperation('Rename startup file'):
             startups = self.session.project.startup
             list_startups = startups.keys()
             self.renamer = RenameModel(list_startups, startup_name)
@@ -267,7 +284,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
         :param model_name: name of model to remane
         """
-        if self.session.project:
+        if self.checkProjectOperation('Rename model'):
             models = self.session.project.models()
             if isinstance(models, list):
                 list_models = [mod.name for mod in models]
