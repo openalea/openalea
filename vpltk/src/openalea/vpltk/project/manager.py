@@ -124,6 +124,17 @@ class ProjectManager(Observed, AbstractListener):
         path = path_(settings.get_project_dir())
         proj = Project(name="temp", projectdir=path)
         proj.centralized = False
+
+        if not proj.models():
+            txt = '''"""
+OpenAlea Lab editor
+This temporary script is saved in temporary project in
+%s
+
+You can rename/move this project thanks to the button "Save As" in menu.
+"""''' % str(proj.path)
+            proj.new_model(name="temp.py", code=txt)
+
         return proj
 
     def load_default(self):
