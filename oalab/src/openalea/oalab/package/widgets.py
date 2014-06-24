@@ -61,7 +61,7 @@ class PackageViewWidget(OALabTreeView):
             if factoryDoc is not None:
                 txt += "**Docstring:**\n" + factoryDoc
 
-            applet = get_applet('HelpWidget')
+            applet = get_applet(identifier='HelpWidget')
             if applet:
                 applet.setText(txt)
 
@@ -92,7 +92,7 @@ class PackageCategorieViewWidget(OALabTreeView):
             txt = factory.get_tip(asRst=True) + "\n\n"
             if factoryDoc is not None:
                 txt += "**Docstring:**\n" + factoryDoc
-            applet = get_applet('HelpWidget')
+            applet = get_applet(identifier='HelpWidget')
             if applet:
                 applet.setText(txt)
 

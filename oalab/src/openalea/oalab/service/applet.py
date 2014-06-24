@@ -47,7 +47,8 @@ class Applet(object):
             else:
                 for plugin in iter_plugins('oalab.applet'):
                     if plugin.name == identifier:
-                        applet = plugin()(**class_args)
+                        instance = plugin()
+                        applet = instance(**class_args)
                         cls.register_applet(plugin.name, applet)
                         instance = cls._applets[identifier]
                         return instance
