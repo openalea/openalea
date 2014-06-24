@@ -25,7 +25,7 @@ from openalea.visualea.node_treeview import NodeFactoryView, PkgModel, CategoryM
 from openalea.visualea.node_treeview import SearchModel
 from openalea.oalab.package.treeview import OALabTreeView, OALabSearchView
 from openalea.oalab.package.manager import package_manager
-
+from openalea.oalab.service.applet import get_applet
 
 
 class PackageManagerTreeView(QtGui.QTabWidget):
@@ -44,13 +44,13 @@ class PackageViewWidget(OALabTreeView):
         super(PackageViewWidget, self).__init__(session, controller, parent=parent) 
         self.session = session
         self.controller = controller
-        
+
         # package tree view
         self.pkg_model = PkgModel(package_manager)
         self.setModel(self.pkg_model)
-        
+
         self.clicked.connect(self.on_package_manager_focus_change)
-        
+
     def on_package_manager_focus_change(self, item):
         pkg_id, factory_id, mimetype = NodeFactoryView.get_item_info(item)
         if len(pkg_id) and len(factory_id) and mimetype in [NodeFactory.mimetype,
@@ -61,12 +61,9 @@ class PackageViewWidget(OALabTreeView):
             if factoryDoc is not None:
                 txt += "**Docstring:**\n" + factoryDoc
 
-            if hasattr(self.controller, "_plugins"):
-                if self.controller._plugins.has_key('HelpWidget'):
-                    self.controller._plugins['HelpWidget'].instance().setText(txt)
-            else:
-                if self.controller.applets.has_key('HelpWidget'):
-                    self.controller.applets['HelpWidget'].setText(txt)
+            applet = get_applet('HelpWidget')
+            if applet:
+                applet.setText(txt)
 
     def reinit_treeview(self):
         """ Reinitialise package and category views """
@@ -95,8 +92,10 @@ class PackageCategorieViewWidget(OALabTreeView):
             txt = factory.get_tip(asRst=True) + "\n\n"
             if factoryDoc is not None:
                 txt += "**Docstring:**\n" + factoryDoc
-            self.controller.helper.setText(txt)   
-            
+            applet = get_applet('HelpWidget')
+            if applet:
+                applet.setText(txt)
+
     def reinit_treeview(self):
         """ Reinitialise package and category views """
         self.cat_model.reset()

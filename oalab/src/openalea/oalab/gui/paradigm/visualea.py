@@ -31,7 +31,7 @@ from openalea.visualea import dataflowview
 from openalea.core.compositenode import CompositeNodeFactory
 #from openalea.plantgl.wralea.visualization import viewernode
 from openalea.oalab.service.help import display_help
-
+from openalea.oalab.service.applet import get_applet
 
 def get_code(self):
     """
@@ -94,7 +94,7 @@ class VisualeaModelController(object):
 
         self._widget = adapt_widget(self._widget, methods)
         # todo
-        # viewernode.registerPlotter(self.controller._plugins['Viewer3D'].instance())
+        # viewernode.registerPlotter(get_applet('Viewer3D'))
 
         # todo: use services
         self.widget().scene().focusedItemChanged.connect(self.item_focus_change)
@@ -138,7 +138,7 @@ More informations: http://openalea.gforge.inria.fr/doc/openalea/visualea/doc/_bu
         viewernode = sys.modules['openalea.plantgl.wralea.visualization.viewernode']
         if hasattr(self.controller, "_plugins"):
             if self.controller._plugins.has_key('Viewer3D'):
-                viewernode.registerPlotter(self.controller._plugins['Viewer3D'].instance())
+                viewernode.registerPlotter(get_applet('Viewer3D'))
         else:
             if self.controller.applets.has_key('Viewer3D'):
                 viewernode.registerPlotter(self.controller.applets['Viewer3D'])"""
@@ -150,7 +150,7 @@ More informations: http://openalea.gforge.inria.fr/doc/openalea/visualea/doc/_bu
         viewernode = sys.modules['openalea.plantgl.wralea.visualization.viewernode']
         if hasattr(self.controller, "_plugins"):
             if self.controller._plugins.has_key('Viewer3D'):
-                viewernode.registerPlotter(self.controller._plugins['Viewer3D'].instance())
+                viewernode.registerPlotter(get_applet('Viewer3D'))
         else:
             if self.controller.applets.has_key('Viewer3D'):
                 viewernode.registerPlotter(self.controller.applets['Viewer3D'])"""

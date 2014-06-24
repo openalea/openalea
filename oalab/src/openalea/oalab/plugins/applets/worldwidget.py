@@ -29,6 +29,6 @@ class World(PluginApplet):
         # Load and instantiate graphical component that actually provide feature
         from openalea.oalab.gui.world import WorldBrowser
 
-        self._applet = WorldBrowser(mainwindow.session.world)
+        self._applet = self.new(self.name, WorldBrowser, mainwindow.session.world)
         self._fill_menu(mainwindow, self._applet)
         mainwindow.add_applet(self._applet, self.alias, area='inputs')

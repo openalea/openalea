@@ -28,7 +28,12 @@ from openalea.oalab.project.creator import CreateProjectWidget
 from openalea.oalab.project.pretty_preview import ProjectSelectorScroll
 from openalea.oalab.gui import resources_rc # do not remove this import else icon are not drawn
 from openalea.oalab.gui.utils import qicon
+from openalea.oalab.session.session import Session
+
+from openalea.oalab.service.applet import get_applet
 from openalea.oalab.service.control import clear_ctrl_manager
+
+
 from openalea.oalab.gui.utils import ModalDialog, make_info_dialog
 
 class ErrActionOnTemporaryProject(UserException):
@@ -47,11 +52,14 @@ class ProjectManagerWidget(QtGui.QWidget):
     :TODO: Refactor it
     """
 
-    def __init__(self, session, editor_manager, parent=None):
+    def __init__(self, parent=None):
         super(ProjectManagerWidget, self).__init__(parent)
+
+        # TODO: Check editor_manager is available when used or use signal instead of calling applet explicitly
+        self.editor_manager = None
+
         self._actions = []
-        self.session = session
-        self.editor_manager = editor_manager
+        self.session = Session()
         self.setAccessibleName("Project Manager")
 
         self.projectManager = ProjectManager()
@@ -99,32 +107,14 @@ class ProjectManagerWidget(QtGui.QWidget):
         self.action_available_project = {} # Dict used to know what project corresponds to triggered action
 
     def initialize(self):
+        self.editor_manager = get_applet(identifier='EditorManager')
         self.defaultProj()
         self.saveCurrent()
 
     def defaultProj(self):
         proj = self.projectManager.load_default()
-        self.session.project = proj
-        self.session._is_proj = True
-        if not self.session.project.models():
-            txt = '''"""
-OpenAlea Lab editor
-
-This temporary script is saved in temporary project in
-%s
-
-You can rename/move this project thanks to the button "Save As" in menu.
-"""''' % str(self.session.project.path)
-            self.session.project.new_model(name="temp.py", code=txt)
-        self.session.update_namespace()
-        self.open_all_scripts_from_project()
-        self._scene_change()
-        self.set_controls_in_control_manager(proj)
-
-        ns = self.session.interpreter.locals
-        proj.start(namespace=ns)
-        logger.debug("Project " + str(proj) + " started")
-        # TODO: set world
+        proj.save()
+        self.openProject(proj)
 
     def actions(self):
         return self._actions
@@ -372,8 +362,9 @@ You can rename/move this project thanks to the button "Save As" in menu.
                 logger.debug("Close empty Project")
             self.session.project = None
             self.session._is_proj = False
-            if self.editor_manager:
-                self.editor_manager.closeAll()
+            editor = get_applet(identifier='EditorManager')
+            if editor:
+                editor.closeAll()
             self.clear_ctrl_mngr()
             self.session.update_namespace()
             self._scene_change()
@@ -388,7 +379,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
             if not isinstance(models, list):
                 models = [models]
             for model in models:
-                self.editor_manager.openTab(model=model)
+                self.editor_manager.open_file(model=model)
 
     def _scene_change(self):
         logger.debug("Scene changed")

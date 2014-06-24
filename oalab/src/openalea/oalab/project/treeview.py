@@ -27,7 +27,7 @@ from openalea.core.path import path
 from openalea.oalab.gui import resources_rc
 from openalea.core.observer import AbstractListener
 from openalea.vpltk.project import ProjectManager
-
+from openalea.oalab.service.applet import get_applet
 
 class ProjectLayoutWidget(QtGui.QWidget, AbstractListener):
     """
@@ -41,6 +41,9 @@ class ProjectLayoutWidget(QtGui.QWidget, AbstractListener):
         layout.addWidget(self.treeview)
 
         self.setLayout(layout)
+
+    def initialize(self):
+        self.treeview.initialize()
 
     def clear(self):
         self.treeview.reinit_treeview()
@@ -83,10 +86,17 @@ class ProjectTreeView(QtGui.QTreeView, AbstractListener):
         self.setModel(self.proj_model)
 
         self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-        QtCore.QObject.connect(self, QtCore.SIGNAL('customContextMenuRequested(const QPoint&)'), self.showMenu)
+        self.connect(self, QtCore.SIGNAL('customContextMenuRequested(const QPoint&)'), self.showMenu)
 
         self.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-        QtCore.QObject.connect(self, QtCore.SIGNAL('doubleClicked(const QModelIndex&)'), self.on_opened_file)
+        self.connect(self, QtCore.SIGNAL('doubleClicked(const QModelIndex&)'), self.on_opened_file)
+
+        self.project_manager = None
+        self.paradigm_container = None
+
+    def initialize(self):
+        self.project_manager = get_applet(identifier='ProjectManager')
+        self.paradigm_container = get_applet(identifier='EditorManager')
 
     def notify(self, sender, event=None):
         signal, data = event
@@ -111,10 +121,10 @@ class ProjectTreeView(QtGui.QTreeView, AbstractListener):
     def create_menu(self):
         menu = QtGui.QMenu(self)
 
-        if self.controller.paradigm_container:
-            for applet in self.controller.paradigm_container.paradigms.values():
+        if self.paradigm_container:
+            for applet in self.paradigm_container.paradigms.values():
                 action = QtGui.QAction('New %s' % applet.default_name, self)
-                action.triggered.connect(self.controller.paradigm_container.new_file)
+                action.triggered.connect(self.paradigm_container.new_file)
                 menu.addAction(action)
             menu.addSeparator()
 
@@ -149,21 +159,21 @@ class ProjectTreeView(QtGui.QTreeView, AbstractListener):
                 removeModelAction.triggered.connect(self.remove_model)
                 menu.addAction(removeModelAction)
 
-        if self.controller.project_manager:
+        if self.project_manager:
             if self.is_project_selected():
                 editMetadataAction = QtGui.QAction('Edit/Show Metadata', self)
-                editMetadataAction.triggered.connect(self.controller.project_manager.edit_metadata)
+                editMetadataAction.triggered.connect(self.project_manager.edit_metadata)
                 menu.addAction(editMetadataAction)
 
                 # importAction = QtGui.QAction('Import Model',self)
-                # importAction.triggered.connect(self.controller.paradigm_container.importFile)
+                # importAction.triggered.connect(self.paradigm_container.importFile)
                 # menu.addAction(importAction)
                 # removeAction = QtGui.QAction('Remove Model',self)
-                # removeAction.triggered.connect(self.controller.project_manager.removeModel)
+                # removeAction.triggered.connect(self.project_manager.removeModel)
                 # menu.addAction(removeAction)
                 # menu.addSeparator()
                 renameAction = QtGui.QAction('Rename', self)
-                renameAction.triggered.connect(self.controller.project_manager.renameCurrent)
+                renameAction.triggered.connect(self.project_manager.renameCurrent)
                 menu.addAction(renameAction)
         return menu
 
@@ -171,12 +181,12 @@ class ProjectTreeView(QtGui.QTreeView, AbstractListener):
         """
         Create a startup file and add it to the project.
         """
-        self.controller.project_manager.new_startup()
+        self.project_manager.new_startup()
 
     def rename_startup(self):
         item = self.getItem()
         startup_name = item.text()
-        self.controller.project_manager.on_startup_rename(startup_name=startup_name)
+        self.project_manager.on_startup_rename(startup_name=startup_name)
 
     def on_opened_file(self):
         if self.is_file_selected():
@@ -188,24 +198,24 @@ class ProjectTreeView(QtGui.QTreeView, AbstractListener):
         filename = proj.path / item.parent().text() / item.text()
         if self.is_src_selected():
             model = proj.model(item.text())
-            self.controller.paradigm_container.open_file(model=model)
+            self.paradigm_container.open_file(model=model)
         else:
-            self.controller.paradigm_container.open_file(filename=filename)
+            self.paradigm_container.open_file(filename=filename)
 
     def rename_model(self):
         item = self.getItem()
         model_name = item.text()
-        self.controller.project_manager.on_model_renamed(model_name=model_name)
+        self.project_manager.on_model_renamed(model_name=model_name)
 
     def remove_model(self):
         item = self.getItem()
         model_name = item.text()
-        self.controller.project_manager.del_model(model_name)
+        self.project_manager.del_model(model_name)
 
     def remove_startup(self):
         item = self.getItem()
         startup_name = item.text()
-        self.controller.project_manager.del_startup(startup_name)
+        self.project_manager.del_startup(startup_name)
 
     def is_file_selected(self):
         """
@@ -368,10 +378,15 @@ class PrjctModel(QtGui.QStandardItemModel):
 
         # QtCore.QObject.connect(self,QtCore.SIGNAL('dataChanged( const QModelIndex &, const QModelIndex &)'),self.renamed)
 
+    @property
+    def paradigm_container(self):
+        return get_applet(identifier='EditorManager')
+
     def find_icons(self):
-        if self.controller.paradigm_container:
-            for applet in self.controller.paradigm_container.paradigms.values():
-                self.icons[applet.extension] = applet.icon
+        pass
+#         if self.paradigm_container:
+#             for applet in self.paradigm_container.paradigms.values():
+#                 self.icons[applet.extension] = applet.icon
 
     def renamed(self, x, y):
         if self.proj is not None:
