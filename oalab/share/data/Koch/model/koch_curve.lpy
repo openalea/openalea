@@ -2,7 +2,7 @@
 input = lstring="_(0.001)-(90)F(1)"
 output = lstring
 """
-N = 4
+N = 2
 
 derivation length: N
 

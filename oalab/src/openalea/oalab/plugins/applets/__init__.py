@@ -1,14 +1,17 @@
 
+from openalea.oalab.service.applet import new_applet
+
 class PluginApplet(object):
     """
     Partial implementation of a plugin applet.
     You can use it by derivating your class from PluginApplet.
     """
-    def __init__(self):
-        self._applet = None
 
     def __call__(self, mainwindow):
         pass
+
+    def new(self, name, klass, *args, **kwargs):
+        return new_applet(name, klass, *args, **kwargs)
 
     def _fill_menu(self, mainwindow, widget):
         # add actions to menu
@@ -33,5 +36,3 @@ class PluginApplet(object):
         action = [["View", "Show", btn, "smallwidget"], ]
         mainwindow.menu.addBtnByAction(action)"""
 
-    def instance(self):
-        return self._applet

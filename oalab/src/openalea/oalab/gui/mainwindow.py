@@ -24,6 +24,7 @@ __revision__ = ""
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.oalab.gui.menu import PanedMenu
 from openalea.vpltk.shell.shell import get_shell_class
+from openalea.oalab.service.applet import get_applets, register_applet
 
 class MainWindow(QtGui.QMainWindow):
     """
@@ -139,7 +140,13 @@ class MainWindow(QtGui.QMainWindow):
 
     def add_plugin(self, plugin):
         plugin(self)
-        self._plugins[plugin.name] = plugin
+
+    def initialize(self):
+        for applet in get_applets():
+            if hasattr(applet, 'initialize'):
+                applet.initialize()
+            else:
+                pass
 
     def dockWidget(self, identifier, widget, name=None,
                     allowed_area=None, position=None, alias=None):
@@ -169,14 +176,3 @@ class MainWindow(QtGui.QMainWindow):
 
         return dock_widget
 
-    def get_project_manager(self):
-        if 'ProjectManager' in self._plugins:
-            return self._plugins['ProjectManager'].instance()
-
-    def get_applet_container(self):
-        if 'EditorManager' in self._plugins:
-            return self._plugins['EditorManager'].instance()
-
-    applet_container = property(fget=get_applet_container)
-    paradigm_container = applet_container
-    project_manager = property(fget=get_project_manager)

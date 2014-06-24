@@ -48,15 +48,16 @@ class ControlEditor(QtGui.QWidget, Ui_ControlEditor):
         self._autoname = True
         self.e_name.textEdited.connect(self.on_user_edit)
 
-        self.aliases = {}
         self.tooltips = {}
+
         self.alias_to_iname = {}
-        self.alias_to_widget = {}
+
+        self.alias_to_wname = {}
+        self.widget_to_alias = {}
 
         plugins = qt_widget_plugins()
         for iname in plugins :
             alias = interface_alias(iname)
-            self.aliases[iname] = alias
             self.alias_to_iname[alias] = iname
             self.tooltips[iname] = '<b>%s</b><br />Interface name:%s' % (alias, iname)
 
@@ -136,16 +137,19 @@ class ControlEditor(QtGui.QWidget, Ui_ControlEditor):
         self.cb_widget.clear()
         self.widget_plugins = []
 
+        self.alias_to_wname = {}
+
         editors = qt_widget_plugins(iname)
         for widget in editors:
             self.widget_plugins.append(widget)
             alias = widget_alias(widget)
+            self.alias_to_wname[alias] = widget.name
             self.cb_widget.addItem(alias)
 
     def control(self):
         iname = self._interfaces[self.cb_interface.currentIndex()]
         control = Control(self.e_name.text(), iname,
-                       widget=self.cb_widget.currentText(),
+                       widget=self.alias_to_wname[self.cb_widget.currentText()],
                        constraints=self.constraints())
         self.__class__.counters[iname] = self.__class__.counters.setdefault(iname, 0) + 1
         return control

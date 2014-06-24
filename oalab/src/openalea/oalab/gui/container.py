@@ -30,8 +30,7 @@ from openalea.vpltk.project import ProjectManager
 
 class ParadigmContainer(QtGui.QTabWidget):
     """
-    Contains applets.
-    Each tab is an applet.
+    Contains paradigm applets (oalab.paradigm_applet)
     """
     identifier = "WidgetEditorContainer"
     name = "Editor Container"
@@ -42,9 +41,10 @@ class ParadigmContainer(QtGui.QTabWidget):
         self.controller = controller
         self.setTabsClosable(True)
         self.setMinimumSize(100, 100)
-        self.applets = list()
+        self.applets = []
+        self._open_objects = {}
 
-        self.paradigms = dict()
+        self.paradigms = {}
         self.paradigms_actions = []
         for applet in iter_plugins('oalab.paradigm_applet', debug=self.session.debug_plugins):
             self.paradigms[applet.default_name] = applet
@@ -127,8 +127,9 @@ class ParadigmContainer(QtGui.QTabWidget):
         self.connect(self, QtCore.SIGNAL('tabCloseRequested(int)'), self.autoClose)
 
         self.extensions = ""
-        self.connect_paradigm_container()
 
+    def initialize(self):
+        self.connect_paradigm_container()
         self.reset()
 
     def open_file(self, filename=None, extension=None, model=None):
@@ -146,7 +147,8 @@ class ParadigmContainer(QtGui.QTabWidget):
             if hasattr(model, "default_name"):
                 applet_type = model.default_name
             tab_name = model.name
-            self.newTab(applet_type=applet_type, tab_name=tab_name, model=model)
+            if model not in self._open_objects.values():
+                self.newTab(applet_type=applet_type, tab_name=tab_name, model=model)
             logger.debug("Open model named " + tab_name)
         else:
 
@@ -259,17 +261,17 @@ class ParadigmContainer(QtGui.QTabWidget):
         """
         self.closeAll()
 
-    def openTab(self, applet_type=None, tab_name="", script="", model=None):
-        """
-        Open a tab with the widget 'applet_type'
-        """
-        self.newTab(applet_type=applet_type, tab_name=tab_name, script=script, model=model)
+#     def openTab(self, applet_type=None, tab_name="", script="", model=None):
+#         """
+#         Open a tab with the widget 'applet_type'
+#         """
+#         self.newTab(applet_type=applet_type, tab_name=tab_name, script=script, model=model)
 
     def newTab(self, applet_type="", tab_name="", script="", model=None):
         """
         Open a tab with the widget 'applet_type'
 
-        # TODO : automatize with plugin system
+        # TODO : automate with plugin system
         """
         logger.debug("New tab. Type: " + str(applet_type) + ". Name: " + str(tab_name))
         self.rmTab("Welcome")
@@ -314,20 +316,19 @@ class ParadigmContainer(QtGui.QTabWidget):
             self.applets.append(appl)
             icon = Applet.icon
 
-            try:
-                self.addTab(widget, QtGui.QIcon(icon), tab_name)
-            except IndexError:
-                pass
+            self.addTab(widget, QtGui.QIcon(icon), tab_name)
 
             if hasattr(widget, 'editor'):
-                import warnings
-                warnings.warn('TODO: create a generic signal StateChanged for all Paradigm widgets')
+                # TODO: create a generic signal StateChanged for all Paradigm widgets
                 widget.editor.textChanged.connect(self.setTabRed)
             self.setCurrentWidget(widget)
             widget.name = tab_name
             self.connect_actions()
             self.connect(self, QtCore.SIGNAL('currentChanged(int)'), self.focusChange)
             self.setTabBlack()
+            self._open_objects[widget] = model
+            return widget
+
 
     def connect_actions(self):
         widget = self.applets[-1].widget()
@@ -348,6 +349,10 @@ class ParadigmContainer(QtGui.QTabWidget):
         """
         Close current tab
         """
+        widget = self.currentWidget()
+        if widget in self._open_objects:
+            # TODO: handle sample file and default file as a normal file
+            del self._open_objects[widget]
         self.removeTab(self.currentIndex())
         if self.count() == 0:
             if self.session.current_is_project():
