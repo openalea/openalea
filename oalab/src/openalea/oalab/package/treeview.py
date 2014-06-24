@@ -22,6 +22,7 @@ from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.package import Package
 from openalea.visualea.node_treeview import NodeFactoryTreeView
 from openalea.visualea.node_treeview import SearchListView
+from openalea.oalab.service.applet import get_applet
 
 class OALabTreeView(NodeFactoryTreeView):
     def __init__(self, session, controller, parent=None):
@@ -35,7 +36,9 @@ class OALabTreeView(NodeFactoryTreeView):
         obj =  item.internalPointer()
 
         if(isinstance(obj, CompositeNodeFactory)):
-            self.controller.paradigm_container.newTab('Workflow',obj.name+'.wpy',obj)
+            applet = get_applet(identifier='EditorManager')
+            if applet:
+                applet.newTab('Workflow', obj.name + '.wpy', obj)
 
         elif (not isinstance(obj, Package)):
             self.open_node()
@@ -54,7 +57,9 @@ class OALabSearchView(SearchListView):
         obj =  item.internalPointer()
 
         if(isinstance(obj, CompositeNodeFactory)):
-            self.controller.paradigm_container.newTab('Workflow',obj.name+'.wpy',obj)
+            applet = get_applet(identifier='EditorManager')
+            if applet:
+                applet.newTab('Workflow', obj.name + '.wpy', obj)
 
         elif (not isinstance(obj, Package)):
             self.open_node()
