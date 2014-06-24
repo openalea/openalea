@@ -226,7 +226,7 @@ class DataflowView( qt.View ):
             if node:
                 node.set_input(0, data_key)
                 node.set_caption(data_key)
-            event.setDropAction(qt.QtCore.Qt.MoveAction)
+            event.setDropAction(qt.QtCore.Qt.CopyAction)
             event.accept()
 
     def node_datapool_drop_handler(self, event):
