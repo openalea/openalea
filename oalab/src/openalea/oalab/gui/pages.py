@@ -17,7 +17,7 @@
 ###############################################################################
 __revision__ = ""
 
-__all__ = ['CreateFilePage', 'WelcomePage']
+__all__ = ['CreateFilePage', 'WelcomePage', 'WelcomePage2']
 
 from openalea.core import logger
 from openalea.core.path import path
@@ -101,6 +101,9 @@ class WelcomePage(QtGui.QWidget):
     """
     def __init__(self, session, controller, parent=None):
         super(WelcomePage, self).__init__(parent=parent)
+
+        import warnings
+        warnings.warn('Please use WelcomePage2 class instead', DeprecationWarning)
 
         self.session = session
         self.controller = controller

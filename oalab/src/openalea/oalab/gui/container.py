@@ -20,7 +20,6 @@ __revision__ = ""
 from openalea.vpltk.qt import QtCore, QtGui
 from openalea.vpltk.plugin import iter_plugins
 from openalea.core import logger
-from openalea.oalab.gui.pages import CreateFilePage
 from openalea.oalab.gui.pages import WelcomePage2 as WelcomePage
 from openalea.core import settings
 from openalea.core.path import path
@@ -237,14 +236,13 @@ class ParadigmContainer(QtGui.QTabWidget):
         if pm :
             actions = [pm.actionNewProj, pm.actionOpenProj]
             welcomePage = WelcomePage(actions=actions, parent=self.parent())
-            # welcomePage = WelcomePage(session=self.session, controller=self.controller, parent=self.parent())
             self.addTab(welcomePage, "Welcome")
 
     def addCreateFileTab(self):
         """
         Display a tab to select type of file that you can create
         """
-        page = CreateFilePage(session=self.session, controller=self.controller, parent=self.parent())
+        page = WelcomePage(actions=self.paradigms_actions)
         self.addTab(page, "Create File")
         self.rmTab("Welcome")
 
