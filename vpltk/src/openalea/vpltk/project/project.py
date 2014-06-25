@@ -16,9 +16,9 @@
 #
 ###############################################################################
 """
-The Project is a structure which permit to manage different objects.
+The Project is a structure which permits to manage different objects.
 
-It store **metadata** (name, author, description, version, license, ...) and **data** (src, models, images, ...).
+It stores **metadata** (name, author, description, version, license, ...) and **data** (src, models, images, ...).
 
 You have here the default architecture of the project named "name",
 stored in your computer.
@@ -150,11 +150,16 @@ class Project(Observed):
 
         .. seealso:: :func:`load` :func:`load_manifest`
         """
+        # Algorithm
+            # Change dir and save current dir
+            # Read ressources: introspection
+            # import (startup)
+
+
         # Load in object
         self.load()
         # Load in shell
-        self._startup_import(shell, namespace)
-        self._startup_run(shell, namespace)
+        self._startup(shell, namespace)
         self.notify_listeners(('project_change', self))
 
     def load(self):
@@ -207,6 +212,11 @@ class Project(Observed):
             if name in cat:
                 return cat[name]
         return None
+
+    def _startup(self, shell, namespace):
+        self._startup_import(shell, namespace)
+        self._startup_run(shell, namespace)
+
 
     def add(self, category, name, value):
         """
