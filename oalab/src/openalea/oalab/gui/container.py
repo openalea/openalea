@@ -123,13 +123,12 @@ class ParadigmContainer(QtGui.QTabWidget):
                          ["Edit", "Text Edit", self.actionComment, 1],
                          ["Edit", "Text Edit", self.actionUnComment, 1],
                          ["Edit", "Text Edit", self.actionRunSelection, 0]]
-
+        self.extensions = ""
+        self.connect_paradigm_container()
         self.connect(self, QtCore.SIGNAL('tabCloseRequested(int)'), self.autoClose)
 
-        self.extensions = ""
 
     def initialize(self):
-        self.connect_paradigm_container()
         self.reset()
 
     def open_file(self, filename=None, extension=None, model=None):
