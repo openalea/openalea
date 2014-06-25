@@ -42,6 +42,7 @@ class ErrActionOnTemporaryProject(UserException):
     desc = """Temporary project is used only at first launch but working on it has no sense.
     If you want to perform action on project, you must create a real project before."""
 
+CATEGORIES = ["model", "startup", "data"]
 class ProjectManagerWidget(QtGui.QWidget):
     """
     Object which permit to manage projects.
@@ -208,7 +209,7 @@ class ProjectManagerWidget(QtGui.QWidget):
         if self.checkProjectOperation('add file'):
             text = self.editor_manager.tabText(self.editor_manager.currentIndex())
             text = path_(text).splitall()[-1]
-            categories = ["model"]
+            categories = list(CATEGORIES)
             categories.extend(self.session.project.files.keys())
             self.selector = SelectCategory(filename=text, categories=categories)
             self.selector.show()
@@ -463,7 +464,7 @@ def showOpenProjectDialog(parent=None):
 
 
 class SelectCategory(QtGui.QWidget):
-    def __init__(self, filename="", categories=["model"], parent=None):
+    def __init__(self, filename="", categories=list(CATEGORIES), parent=None):
         super(SelectCategory, self).__init__(parent=parent)
         self.categories = categories
 
@@ -475,7 +476,7 @@ class SelectCategory(QtGui.QWidget):
         # Hack: other categories doens't work for the moment
         # Todo: check that it is working for every categories
         # self.combo.addItems(self.categories)
-        self.combo.addItems(["model"])
+        self.combo.addItems(categories)
         self.combo.setCurrentIndex(0)
         self.line = QtGui.QLineEdit(filename)
 
