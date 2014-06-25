@@ -20,12 +20,14 @@ __revision__ = ""
 from openalea.vpltk.qt import QtCore, QtGui
 from openalea.vpltk.plugin import iter_plugins
 from openalea.core import logger
-from openalea.oalab.gui.pages import WelcomePage, CreateFilePage
+from openalea.oalab.gui.pages import CreateFilePage
+from openalea.oalab.gui.pages import WelcomePage2 as WelcomePage
 from openalea.core import settings
 from openalea.core.path import path
 from openalea.oalab.gui import resources_rc # do not remove this import else icon are not drawn
 from openalea.oalab.gui.utils import qicon
 from openalea.vpltk.project import ProjectManager
+from openalea.oalab.service.applet import get_applet
 
 
 class ParadigmContainer(QtGui.QTabWidget):
@@ -231,10 +233,12 @@ class ParadigmContainer(QtGui.QTabWidget):
         """
         Display a welcome tab if nothing is opened
         """
-
-        # welcomePage = ProjectSelectorScroll(self.session.project_manager.projects, open_project=self.controller.project_manager.openProject)
-        welcomePage = WelcomePage(session=self.session, controller=self.controller, parent=self.parent())
-        self.addTab(welcomePage, "Welcome")
+        pm = get_applet(identifier='ProjectManager')
+        if pm :
+            actions = [pm.actionNewProj, pm.actionOpenProj]
+            welcomePage = WelcomePage(actions=actions, parent=self.parent())
+            # welcomePage = WelcomePage(session=self.session, controller=self.controller, parent=self.parent())
+            self.addTab(welcomePage, "Welcome")
 
     def addCreateFileTab(self):
         """
