@@ -17,7 +17,7 @@
 ###############################################################################
 __revision__ = ""
 
-__all__ = ['CreateFilePage', 'WelcomePage', 'SelectExtensionPage']
+__all__ = ['CreateFilePage', 'WelcomePage']
 
 from openalea.core import logger
 from openalea.core.path import path
@@ -66,6 +66,31 @@ class FakeApplet(object):
         pass
     def reinit(self):
         pass
+
+class WelcomePage2(QtGui.QWidget):
+    """
+    Create a widget page that display a list of actions as buttons
+    """
+    button_size = QtCore.QSize(200, 100)
+    icon_size = QtCore.QSize(80, 80)
+    stylesheet = "font-size: 12pt;"
+
+    def __init__(self, actions, parent=None):
+        QtGui.QWidget.__init__(self)
+        layout = QtGui.QGridLayout(self)
+        layout.setAlignment(QtCore.Qt.AlignCenter)
+
+        for i, action in enumerate(actions):
+            button = QtGui.QToolButton()
+            button.setFixedSize(self.button_size);
+            button.setStyleSheet(self.stylesheet)
+            button.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
+
+            qsize = QtCore.QSize(self.icon_size)
+            button.setDefaultAction(action)
+            button.setIconSize(qsize)
+
+            layout.addWidget(button, i, 0)
 
 class WelcomePage(QtGui.QWidget):
     """
@@ -129,74 +154,6 @@ class WelcomePage(QtGui.QWidget):
             name = proj.path.abspath()
             self.controller.project_manager.open(name)
             logger.debug("Restore previous session. (project)")
-
-class SelectExtensionPage(QtGui.QWidget):
-    """
-    Welcome page in the applet container.
-    Permit to select the extension to work with.
-
-
-    UNUSED today
-    """
-    def __init__(self, session, controller, parent=None):
-        super(SelectExtensionPage, self).__init__(parent=parent)
-
-        self.session = session
-        self.controller = controller
-        layout = QtGui.QGridLayout()
-        layout.setAlignment(QtCore.Qt.AlignCenter)
-
-        text = QtGui.QLabel("Select an extension")
-        minilab = QtGui.QPushButton(QtGui.QIcon(":/images/resources/openalealogo.png"), "MiniLab")
-        messageminilab = QtGui.QLabel("MiniLab is a minimal environnement with only a text editor and a shell.")
-        lab3d = QtGui.QPushButton(QtGui.QIcon(":/images/resources/openalealogo.png"), "3DLab")
-        messagelab3d = QtGui.QLabel("3DLab is an environnement to work on 3D Objects.")
-        plantlab = QtGui.QPushButton(QtGui.QIcon(":/images/resources/openalealogo.png"), "PlantLab")
-        messageplantlab = QtGui.QLabel("PlantLab is an environnement to work on entire plant.")
-        tissuelab = QtGui.QPushButton(QtGui.QIcon(":/images/resources/openalealogo.png"), "TissueLab")
-        messagetissuelab = QtGui.QLabel("TissueLab is an environnement to work on tissue part of plants.")
-
-        QtCore.QObject.connect(minilab, QtCore.SIGNAL("clicked()"), self.mini)
-        QtCore.QObject.connect(lab3d, QtCore.SIGNAL("clicked()"), self.lab3d)
-        QtCore.QObject.connect(plantlab, QtCore.SIGNAL("clicked()"), self.plant)
-        QtCore.QObject.connect(tissuelab, QtCore.SIGNAL("clicked()"), self.tissue)
-
-        layout.addWidget(text, 0, 0, 1, -1)
-        layout.addWidget(minilab, 1, 0)
-        # layout.addWidget(messageminilab,0,1)
-        layout.addWidget(lab3d, 1, 1)
-        # layout.addWidget(messagelab3d,1,1)
-        layout.addWidget(plantlab, 2, 0)
-        # layout.addWidget(messageplantlab,2,1)
-        layout.addWidget(tissuelab, 2, 1)
-        # layout.addWidget(messagetissuelab,3,1)
-        # layout.addWidget(openproject,4,0)
-        # layout.addWidget(messageopenproject,4,1)
-        # layout.addWidget(restoresession,4,1)
-        # layout.addWidget(messagerestoresession,5,1)
-
-        self.setLayout(layout)
-        self.applet = FakeApplet()
-
-        logger.debug("Open Select Extension Page")
-
-    def mini(self):
-        # TODO
-        print "mini"
-        # mainwindow.changeExtension(self, extension="mini")
-
-    def lab3d(self):
-        # TODO
-        print "lab3d"
-
-    def plant(self):
-        # TODO
-        print "plant"
-
-    def tissue(self):
-        # TODO
-        print "tissue"
-
 
 class CreateFilePage(QtGui.QWidget):
     """
