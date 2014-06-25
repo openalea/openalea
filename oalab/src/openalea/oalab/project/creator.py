@@ -41,97 +41,67 @@ class CreateProjectWidget(QtGui.QWidget):
             i += 1
 
         # GBY review: need to refactorize this code, copy/paste code is hard to read, extend or modify
-        if not proj:
-            date = strftime("%Y-%m-%d_%H-%M-%S", gmtime())
+        # CPL: First try. Need to add a classmethod to the project giving metadata defaults.
+        # d = Project.default_metadata()
+        # d.update(proj.metadata())
+        date = strftime("%Y-%m-%d_%H-%M-%S", gmtime())
+        name = 'project_%s' % date if not proj else proj.name
 
-            self.name_lineedit = QtGui.QLineEdit('project_%s' % date)
-            self.name_lineedit.setMinimumWidth(300)
-            layout.addWidget(self.name_lineedit, 1, 1)
+        author = 'OpenAlea Consortium' if not proj else proj.author
+        author_email = '' if not proj else proj.author_email
+        description = '' if not proj else proj.description
+        long_description = '' if not proj else proj.long_description
+        citation = '' if not proj else proj.citation
+        url = '' if not proj else proj.url
+        icon = '' if not proj else proj.icon
+        dependencies = [] if not proj else proj.dependencies
+        license = 'CeCILL-C' if not proj else proj.license
+        version = '0.1.0' if not proj else proj.version
+        directory = path(settings.get_project_dir()) if not proj else str(proj.projectdir)
 
-            self.author_lineedit = QtGui.QLineEdit('OpenAlea Consortium')
-            layout.addWidget(self.author_lineedit, 2, 1)
 
-            self.author_email_lineedit = QtGui.QLineEdit('')
-            layout.addWidget(self.author_email_lineedit, 3, 1)
+        self.name_lineedit = QtGui.QLineEdit(name)
+        self.name_lineedit.setMinimumWidth(300)
+        layout.addWidget(self.name_lineedit, 1, 1)
 
-            self.description_lineedit = QtGui.QLineEdit('')
-            layout.addWidget(self.description_lineedit, 4, 1)
+        self.author_lineedit = QtGui.QLineEdit(author)
+        layout.addWidget(self.author_lineedit, 2, 1)
 
-            self.long_description_lineedit = QtGui.QLineEdit('')
-            layout.addWidget(self.long_description_lineedit, 5, 1)
+        self.author_email_lineedit = QtGui.QLineEdit(author_email)
+        layout.addWidget(self.author_email_lineedit, 3, 1)
 
-            self.citation_lineedit = QtGui.QLineEdit('')
-            layout.addWidget(self.citation_lineedit, 6, 1)
+        self.description_lineedit = QtGui.QLineEdit(description)
+        layout.addWidget(self.description_lineedit, 4, 1)
 
-            self.url_lineedit = QtGui.QLineEdit('')
-            layout.addWidget(self.url_lineedit, 7, 1)
+        self.long_description_lineedit = QtGui.QLineEdit(long_description)
+        layout.addWidget(self.long_description_lineedit, 5, 1)
 
-            self.icon_lineedit = QtGui.QLineEdit('')
-            layout.addWidget(self.icon_lineedit, 8, 1)
+        self.citation_lineedit = QtGui.QLineEdit(citation)
+        layout.addWidget(self.citation_lineedit, 6, 1)
 
-            self.dependencies_lineedit = QtGui.QLineEdit('[]')
-            layout.addWidget(self.dependencies_lineedit, 9, 1)
+        self.url_lineedit = QtGui.QLineEdit(url)
+        layout.addWidget(self.url_lineedit, 7, 1)
 
-            self.license_lineedit = QtGui.QLineEdit('CeCILL-C')
-            layout.addWidget(self.license_lineedit, 10, 1)
+        self.icon_lineedit = QtGui.QLineEdit(icon)
+        layout.addWidget(self.icon_lineedit, 8, 1)
 
-            self.version_lineedit = QtGui.QLineEdit('0.1')
-            layout.addWidget(self.version_lineedit, 11, 1)
+        self.dependencies_lineedit = QtGui.QLineEdit(str(dependencies))
+        layout.addWidget(self.dependencies_lineedit, 9, 1)
 
-            layout.addWidget(QtGui.QLabel("path"), 12, 0)
-            path_ = path(settings.get_project_dir())
-            self.path_lineedit = QtGui.QLineEdit(str(path_))
+        self.license_lineedit = QtGui.QLineEdit(license)
+        layout.addWidget(self.license_lineedit, 10, 1)
 
-            # TODO: remove this line when Project Manager works fine and permit to search outside default directory
-            self.path_lineedit.setReadOnly(True)
-            layout.addWidget(self.path_lineedit, 12, 1)
+        self.version_lineedit = QtGui.QLineEdit(version)
+        layout.addWidget(self.version_lineedit, 11, 1)
 
-            # TODO: uncomment this lines ...
-            # self.btn_path = QtGui.QPushButton("   ...   ")
-            # layout.addWidget(self.btn_path, 12, 2)
-            # self.connect(self.btn_path, QtCore.SIGNAL('clicked()'), self.select_path)
-        else:
-            self.name_lineedit = QtGui.QLineEdit(proj.name)
-            self.name_lineedit.setMinimumWidth(300)
-            layout.addWidget(self.name_lineedit, 1, 1)
+        layout.addWidget(QtGui.QLabel("path"), 12, 0)
+        self.path_lineedit = QtGui.QLineEdit(str(directory))
 
-            self.author_lineedit = QtGui.QLineEdit(proj.author)
-            layout.addWidget(self.author_lineedit, 2, 1)
+        # TODO: remove this line when Project Manager works fine and permit to search outside default directory
+        # CPL: Allow the user to define the path
+        #self.path_lineedit.setReadOnly(True)
 
-            self.author_email_lineedit = QtGui.QLineEdit(proj.author_email)
-            layout.addWidget(self.author_email_lineedit, 3, 1)
-
-            self.description_lineedit = QtGui.QLineEdit(proj.description)
-            layout.addWidget(self.description_lineedit, 4, 1)
-
-            self.long_description_lineedit = QtGui.QLineEdit(proj.long_description)
-            layout.addWidget(self.long_description_lineedit, 5, 1)
-
-            self.citation_lineedit = QtGui.QLineEdit(proj.citation)
-            layout.addWidget(self.citation_lineedit, 6, 1)
-
-            self.url_lineedit = QtGui.QLineEdit(proj.url)
-            layout.addWidget(self.url_lineedit, 7, 1)
-
-            self.icon_lineedit = QtGui.QLineEdit(proj.icon)
-            layout.addWidget(self.icon_lineedit, 8, 1)
-
-            self.dependencies_lineedit = QtGui.QLineEdit(str(proj.dependencies))
-            layout.addWidget(self.dependencies_lineedit, 9, 1)
-
-            self.license_lineedit = QtGui.QLineEdit(proj.license)
-            layout.addWidget(self.license_lineedit, 10, 1)
-
-            self.version_lineedit = QtGui.QLineEdit(proj.version)
-            layout.addWidget(self.version_lineedit, 11, 1)
-
-            layout.addWidget(QtGui.QLabel("path"), 12, 0)
-            self.path_lineedit = QtGui.QLineEdit(str(proj.projectdir))
-
-            # TODO: remove this line when Project Manager works fine and permit to search outside default directory
-            self.path_lineedit.setReadOnly(True)
-
-            layout.addWidget(self.path_lineedit, 12, 1)
+        layout.addWidget(self.path_lineedit, 12, 1)
 
 
     def setMetaDataMode(self, enable=True):
