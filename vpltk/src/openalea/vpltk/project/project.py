@@ -136,6 +136,7 @@ class Project(Observed):
         self._dirty = {'project':False}
         self.notify_listeners(('project_change', self))
         self.state = 'Not loaded' # partially loaded, loaded
+        self.started = False
 
     #----------------------------------------
     # Public API
@@ -161,7 +162,7 @@ class Project(Observed):
         self.load()
         # Load in shell
         self._startup(shell, namespace)
-        self.notify_listeners(('project_change', self))
+        self.started = True
 
     def categories(self):
         return ['model'] + self.files.keys()
@@ -629,6 +630,8 @@ class Project(Observed):
         for s in self.startup:
             if shell:
                 shell.run_cell(self.startup[s], silent=False)
+
+        self.started = True
 
     def __str__(self):
         txt = "Project named " + str(self.name) + " in path " + str(self.projectdir) + """.

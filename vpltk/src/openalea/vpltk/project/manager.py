@@ -42,7 +42,6 @@ class ProjectManager(Observed, AbstractListener):
         self.projects = []
         self._cproject = None
         self._cwd = path_('.').abspath()
-        self.cproject = self.default()
         self.find_links = [path_(settings.get_project_dir())]
 
         # TODO Move it into OALab ?
@@ -56,7 +55,10 @@ class ProjectManager(Observed, AbstractListener):
             except ImportError:
                 pass
 
+        self.shell = None
         # TODO Search in preference file if user has path to append in self.find_links
+        self.cproject = self.default()
+
 
     def discover(self):
         """
@@ -188,15 +190,16 @@ You can rename/move this project thanks to the button "Save As" in menu.
             for project in self.projects:
                 if project.name == name:
                     self.cproject = project
-                    project.load()
+                    project.start(shell=self.shell)
                     return self.get_current()
         else:
             full_path = path_(path) / name
 
             if full_path.exists():
                 self.cproject = Project(name, path)
-                self.cproject.load()
+                self.cproject.start(shell=self.shell)
                 return self.get_current()
+        
         # raise IOError('Project %s in repository %s does not exist' %(name,path))
         # print 'Project %s in repository %s does not exist' %(name,path)
         return None
@@ -234,6 +237,8 @@ You can rename/move this project thanks to the button "Save As" in menu.
     @cproject.setter
     def cproject(self, project):
         if project is self._cproject:
+            if not project.started:
+                project.start(shell=self.shell)
             return
         if project is None:
             os.chdir(self._cwd)
@@ -244,9 +249,17 @@ You can rename/move this project thanks to the button "Save As" in menu.
         else:
             os.chdir(project.path)
             self._cproject = project
+            if not project.started:
+                project.start(shell=self.shell)
             project.register_listener(self)
         self.notify_listeners(('project_changed', self))
         self.notify_listeners(('current_project_change', self))
+
+    def set_shell(self, shell):
+        """ Set the ipython shell to load a project.
+
+        """
+        self.shell = shell
 
 
 def main():
