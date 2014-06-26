@@ -237,3 +237,4 @@ animate()
         model, self.inputs_info, self.outputs_info = parse_docstring(code)
         self._init, self._step, self._animate, self._run = parse_functions(code)
         self._doc = get_docstring(self._code)
+
