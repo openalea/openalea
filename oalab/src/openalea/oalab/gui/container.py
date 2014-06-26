@@ -232,7 +232,7 @@ class ParadigmContainer(QtGui.QTabWidget):
         """
         Display a welcome tab if nothing is opened
         """
-        pm = get_applet(identifier='ProjectManager')
+        pm = get_applet(identifier='ProjectManager2')
         if pm :
             actions = [pm.actionNewProj, pm.actionOpenProj]
             welcomePage = WelcomePage(actions=actions, parent=self.parent())
