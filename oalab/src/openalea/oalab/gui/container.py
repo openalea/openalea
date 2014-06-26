@@ -170,7 +170,7 @@ class ParadigmContainer(QtGui.QTabWidget):
                     filename = showOpenFileDialog()
 
             if filename:
-                filename = path(filename).abspath()
+                filename = path(filename)
 
                 f = open(filename, "r")
                 txt = f.read()
