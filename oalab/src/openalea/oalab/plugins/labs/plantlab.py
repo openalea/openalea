@@ -12,6 +12,7 @@ class PlantLab(object):
         'HelpWidget',
         'Logger',
         'HistoryWidget',
+        'World',
         ]
 
 

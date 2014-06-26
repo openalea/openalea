@@ -57,7 +57,7 @@ class CreateProjectWidget(QtGui.QWidget):
         dependencies = [] if not proj else proj.dependencies
         license = 'CeCILL-C' if not proj else proj.license
         version = '0.1.0' if not proj else proj.version
-        directory = path(settings.get_project_dir()) if not proj else str(proj.projectdir)
+        directory = path(settings.get_project_dir()) if not proj.projectdir else str(proj.projectdir)
 
 
         self.name_lineedit = QtGui.QLineEdit(name)
@@ -105,7 +105,8 @@ class CreateProjectWidget(QtGui.QWidget):
 
 
     def setMetaDataMode(self, enable=True):
-        self.name_lineedit.setEnabled(not enable)
+        pass
+#         self.name_lineedit.setEnabled(not enable)
 
     def project(self):
         proj = Project(name=self.name_lineedit.text(),
