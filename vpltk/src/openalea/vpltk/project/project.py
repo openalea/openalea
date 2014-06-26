@@ -103,7 +103,7 @@ class Project(Observed):
                  version="0.1"):
         Observed.__init__(self)
         # Metadata
-        self.projectdir = path_(projectdir)
+        self._projectdir = path_(projectdir)
         self.metadata = {
             "name": str(name),
             "icon": path_(icon),
@@ -279,6 +279,14 @@ class Project(Observed):
             return True
         return False
 
+    def new(self, category, name, dtype=None, value=""):
+        # TODO: rewrite this hackish method
+        if category == 'model':
+            for model_class in iter_plugins('oalab.model'):
+                if model_class.default_name == dtype:
+                    model = model_class(name=name, code=value)
+                    self.add_model(model)
+
     def remove(self, category, name):
         """
         Remove an object in the project
@@ -325,8 +333,6 @@ class Project(Observed):
 
         # rename project
         if category == "project":
-            new_path, new_name = path_(new_name).abspath().splitpath()
-            self.projectdir = new_path
             self.name = new_name
             self.save()
             safe_remove(self.projectdir / old_name)
@@ -640,7 +646,7 @@ class Project(Observed):
         shell = None
         try:
             # Try to get automatically current IPython shell
-            shell =     ()
+            shell = ()
         except NameError:
             pass
 
@@ -840,6 +846,17 @@ class Project(Observed):
     @property
     def path(self):
         return self.projectdir / self.name
+
+    @property
+    def projectdir(self):
+        return self._projectdir
+
+    @projectdir.setter
+    def projectdir(self, projectdir):
+        if str(projectdir) == '/Users/gbaty/prog/openalea/vplants-trunk/oalab':
+            print
+        self._projectdir = projectdir
+
 
     @property
     def icon_path(self):
