@@ -163,6 +163,9 @@ class Project(Observed):
         self._startup(shell, namespace)
         self.notify_listeners(('project_change', self))
 
+    def categories(self):
+        return ['model'] + self.files.keys()
+
     def load(self):
         """
         Realize a total loading of project (contrary to :func:`load_manifest`).
