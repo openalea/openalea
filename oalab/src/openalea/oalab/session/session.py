@@ -62,25 +62,26 @@ class Session(object):
         """
         :return: current project if one is opened. Else return None.
         """
-        return self._project
+        return self.project_manager.cproject
 
-    @project.setter
-    def project(self, project):
-        """
-        Set the project
-        """
-        self._project = project
-
-    # GBY: it is not the role of session to handle projects
-    def current_is_project(self):
-        """
-        :return: True if current document is a project
-        """
-        return bool(self._is_proj)
-
-    def get_project(self):
-        warnings.warn('Deprecated get_project -> project')
-        return self.project
+#     @project.setter
+#     def project(self, project):
+#         """
+#         Set the project
+#         """
+#         warnings.warn('Deprecated get_project -> project', DeprecationWarning)
+#         self._project = project
+#
+#     # GBY: it is not the role of session to handle projects
+#     def current_is_project(self):
+#         """
+#         :return: True if current document is a project
+#         """
+#         return bool(self._is_proj)
+#
+#     def get_project(self):
+#         warnings.warn('Deprecated get_project -> project', DeprecationWarning)
+#         return self.project
 
     def load_config_file(self, filename, path=None):
         self._config.load_config_file(filename=filename, path=path)

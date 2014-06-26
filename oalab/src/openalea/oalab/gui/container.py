@@ -24,7 +24,7 @@ from openalea.oalab.gui.pages import WelcomePage2 as WelcomePage
 from openalea.core import settings
 from openalea.core.path import path
 from openalea.oalab.gui import resources_rc # do not remove this import else icon are not drawn
-from openalea.oalab.gui.utils import qicon
+from openalea.oalab.gui.utils import qicon, ModalDialog
 from openalea.vpltk.project import ProjectManager
 from openalea.oalab.service.applet import get_applet
 
@@ -44,6 +44,9 @@ class ParadigmContainer(QtGui.QTabWidget):
         self.setMinimumSize(100, 100)
         self.applets = []
         self._open_objects = {}
+        self._new_file_actions = {}
+
+        self.projectManager = ProjectManager()
 
         self.paradigms = {}
         self.paradigms_actions = []
@@ -177,6 +180,16 @@ class ParadigmContainer(QtGui.QTabWidget):
                 # project.add("src", filename, txt)
                 logger.debug("Open file named " + tab_name)
 
+    def new(self, category, dtype=None):
+        if dtype is None:
+            dtype = self._new_file_actions[self.sender()]
+        name = QtGui.QLineEdit('script')
+        dialog = ModalDialog(name)
+        if dialog.exec_():
+            project = self.projectManager.cproject
+            project.new('model', name.text(), dtype=dtype, value="")
+            self.open_file(model=project.get('model', name.text()))
+
     def new_file(self, applet_type=None, tab_name=None, script="", model=None):
         """
         Create a new model of type *applet_type*
@@ -194,21 +207,15 @@ class ParadigmContainer(QtGui.QTabWidget):
         if not tab_name and Applet:
             tab_name = Applet.default_file_name
         self.newTab(applet_type=applet_type, tab_name=tab_name, script=script, model=model)
-
-        # # TODO: how to add a file to a project???
-        """
-        if self.session.project:
-            text = self.applets[-1].widget().get_text()
-            self.session.project.add("src", tab_name, text)
-            self.controller.update_namespace()
-            self._project_changed()"""
+        return tab_name
 
     def connect_paradigm_container(self):
         # Connect actions from self.paradigms to menu (newPython, newLpy,...)
         for applet in self.paradigms.values():
             action = QtGui.QAction(QtGui.QIcon(applet.icon), "New " + applet.default_name, self)
-            action.triggered.connect(self.new_file)
+            action.triggered.connect(self.new)
             self.paradigms_actions.append(action)
+            self._new_file_actions[action] = applet.default_name
             self._actions.append(["File", "Manage", action, 0],)
             self.extensions = self.extensions + applet.pattern + " "
 
@@ -356,7 +363,7 @@ class ParadigmContainer(QtGui.QTabWidget):
             del self._open_objects[widget]
         self.removeTab(self.currentIndex())
         if self.count() == 0:
-            if self.session.current_is_project():
+            if self.session.project:
                 self.addCreateFileTab()
             else:
                 self.addDefaultTab()
@@ -401,7 +408,7 @@ class ParadigmContainer(QtGui.QTabWidget):
         model = self.currentWidget().applet.model
         model.code = code
 
-        proj = ProjectManager().cproject
+        proj = self.projectManager.cproject
         if proj:
             models = proj.models()
             if not isinstance(models, list):

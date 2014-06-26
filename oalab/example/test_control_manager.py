@@ -47,10 +47,10 @@ if __name__ == '__main__':
 #     text.raise_()
 
 
-    from openalea.vpltk.shell.ipythoninterpreter import Interpreter
-    from openalea.vpltk.shell.ipythonshell import ShellWidget
+    from openalea.vpltk.shell.shell import get_shell_class, get_interpreter_class
+
     # Set interpreter
-    interpreter = Interpreter()
+    interpreter = get_interpreter_class()()
     interpreter.locals['interp'] = interpreter
     interpreter.locals.update(locals())
     # Set Shell Widget
@@ -58,7 +58,7 @@ if __name__ == '__main__':
     widget = QtGui.QWidget()
     layout = QtGui.QHBoxLayout(widget)
 
-    shellwdgt = ShellWidget(interpreter)
+    shellwdgt = get_shell_class()(interpreter)
 
     layout.addWidget(cmw)
     layout.addWidget(cp)

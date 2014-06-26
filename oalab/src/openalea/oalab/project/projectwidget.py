@@ -29,6 +29,7 @@ from openalea.oalab.gui.utils import ModalDialog
 from openalea.core.path import path
 from openalea.core import settings
 from openalea.vpltk.project.project import remove_extension
+from openalea.oalab.session.session import Session
 
 from openalea.oalab.project.manager import SelectCategory, RenameModel
 
@@ -65,17 +66,13 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         self.actionSaveProjAs = QtGui.QAction(qicon("save.png"), "Save As", self)
         self.actionSaveProj.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
         self.actionCloseProj = QtGui.QAction(qicon("closeButton.png"), "Close project", self)
-        self.actionEditMeta = QtGui.QAction(qicon("book.png"), "Edit Metadata", self)
         self.actionAddFile = QtGui.QAction(qicon("bool.png"), "Add model to current Project", self)
-        self.actionRenameProject = QtGui.QAction(qicon("editpaste.png"), "Rename Project", self)
-        self.actionRenameModel = QtGui.QAction(qicon("editcopy.png"), "Rename Model", self)
 
         self.actionNewProj.triggered.connect(self.new)
         self.actionOpenProj.triggered.connect(self.open)
         self.actionSaveProjAs.triggered.connect(self.saveAs)
         self.actionSaveProj.triggered.connect(self.save)
         self.actionCloseProj.triggered.connect(self.close)
-        self.actionEditMeta.triggered.connect(self.edit_metadata)
         self.actionAddFile.triggered.connect(self.add_current_file)
 #         self.actionRenameProject.triggered.connect(self.rename)
 
@@ -85,7 +82,7 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
                          [group, "Manage Project", self.actionSaveProj, 0],
                          [group, "Manage Project", self.actionSaveProjAs, 1],
                          [group, "Manage Project", self.actionCloseProj, 0],
-                         [group, "Manage Project", self.actionEditMeta, 1],
+                         [group, "Manage Project", self.view.actionEditMeta, 1],
                          [group, "Manage Project", self.actionAddFile, 0],
 #                          ["Project", "Manage Project", self.actionRenameProject, 1],
         ]
@@ -95,6 +92,8 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         self.menu_available_projects = QtGui.QMenu(u'Available Projects')
         self.menu_available_projects.aboutToShow.connect(self._update_available_project_menu)
         self.action_available_project = {} # Dict used to know what project corresponds to triggered action
+
+        self.session = Session()
 
     def initialize(self):
         self.view.initialize()
@@ -130,29 +129,20 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
             project = self.projectManager.create(_project.name, _project.projectdir)
             project.metadata = _project.metadata
 
-    def edit_metadata(self):
-        project = self.project()
-        if project:
-            project_creator = CreateProjectWidget(project)
-            project_creator.setMetaDataMode()
-            dialog = ModalDialog(project_creator)
-            if dialog.exec_():
-                project.metadata = project_creator.metadata()
-
     def save(self):
-        project = self.projectManager.cproject
+        project = self.project()
         if project:
             project.save()
 
     def saveAs(self):
-        project = self.projectManager.cproject
+        project = self.project()
         if project:
             name = self.showNewProjectDialog(default_name=None, text="Select name to save project")
             if name:
                 project.rename(category="project", old_name=project.name, new_name=name)
 
     def add_current_file(self):
-        project = self.projectManager.cproject
+        project = self.project()
         if self.paradigm_container is None or project is None:
             return
         text = self.paradigm_container.tabText(self.paradigm_container.currentIndex())
@@ -216,7 +206,9 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
     def notify(self, sender, event=None):
         signal, data = event
         project = self.projectManager.cproject
+
         if signal == 'project_changed':
+            self.session.update_namespace()
             self._update()
         elif signal == 'project_updated':
             self.view.refresh()
@@ -253,6 +245,7 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
             return
         self.paradigm_container.closeAll()
 
+
 class ProjectManagerView(QtGui.QTreeView):
     def __init__(self):
         QtGui.QTreeView.__init__(self)
@@ -265,12 +258,19 @@ class ProjectManagerView(QtGui.QTreeView):
         self._model.dataChanged.connect(self._on_model_changed)
 
         self.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-        self.connect(self, QtCore.SIGNAL('doubleClicked(const QModelIndex&)'), self.openIndex)
+        self.connect(self, QtCore.SIGNAL('doubleClicked(const QModelIndex&)'), self.open)
 
         self.setHeaderHidden(True)
         self.setDragEnabled(True)
         self.setDropIndicatorShown(True)
         self.setAcceptDrops(True)
+
+        self.actionEditMeta = QtGui.QAction(qicon("book.png"), "Edit Project Information", self)
+        self.actionEditMeta.triggered.connect(self.edit_metadata)
+
+        self._new_file_actions = {}
+
+    #  API
 
     def initialize(self):
         self.paradigm_container = get_applet(identifier='EditorManager')
@@ -281,15 +281,46 @@ class ProjectManagerView(QtGui.QTreeView):
     def refresh(self):
         self._model.refresh()
 
+    #  Convenience methods
+
+    def getItem(self):
+        index = self.getIndex()
+        if index:
+            return self._model.itemFromIndex(index)
+
+    def getIndex(self):
+        indices = self.selectedIndexes()
+        for index in indices:
+            return index
+
+    def project(self):
+        if self.projectManager:
+            return self.projectManager.cproject
+
+    def selected_data(self):
+        index = self.getIndex()
+        project = self.project()
+        data = self._model.projectdata(index)
+        if index is None or project is None or data is None:
+            return (None, None, None)
+        else:
+            category, name = data
+            return project, category, name
+
+    #  Slots
+
     def _on_model_changed(self):
         self.expandAll()
+
+    #  Contextual menu
 
     def create_menu(self):
         menu = QtGui.QMenu(self)
         if self.paradigm_container:
             for applet in self.paradigm_container.paradigms.values():
                 action = QtGui.QAction('New %s' % applet.default_name, self)
-                action.triggered.connect(self.paradigm_container.new_file)
+                action.triggered.connect(self.new_file)
+                self._new_file_actions[action] = applet.default_name
                 menu.addAction(action)
             menu.addSeparator()
 
@@ -300,12 +331,11 @@ class ProjectManagerView(QtGui.QTreeView):
             return menu
         else:
             category, obj = data
-            if category in ['model', 'src', 'project']:
+            if category in ['model', 'src']:
                 rename = QtGui.QAction('Rename %s' % obj, self)
                 rename.triggered.connect(self.rename)
                 menu.addAction(rename)
 
-            if category in ['model', 'src']:
                 editAction = QtGui.QAction('Open %s' % obj, self)
                 editAction.triggered.connect(self.open)
                 menu.addAction(editAction)
@@ -316,9 +346,7 @@ class ProjectManagerView(QtGui.QTreeView):
                 menu.addAction(remove)
 
             if category in ['project']:
-                editMetadataAction = QtGui.QAction('Edit/Show Metadata', self)
-                editMetadataAction.triggered.connect(self.edit_metadata)
-                menu.addAction(editMetadataAction)
+                menu.addAction(self.actionEditMeta)
 
         return menu
 
@@ -328,51 +356,59 @@ class ProjectManagerView(QtGui.QTreeView):
         menu = self.create_menu()
         menu.exec_(event.globalPos())
 
-    def open(self):
-        indices = self.selectedIndexes()
-        for index in indices:
-            self.openIndex(index)
+    #  Action's slots
 
-    def openIndex(self, index):
-        data = self._model.projectdata(index)
-        if data:
-            category, name = data
-            model = self.projectManager.cproject.get(*data)
-            self.paradigm_container.open_file(model=model)
+    def edit_metadata(self):
+        project = self.project()
+        if project:
+            project_creator = CreateProjectWidget(project)
+            project_creator.setMetaDataMode()
+            dialog = ModalDialog(project_creator)
+            if dialog.exec_():
+                _proj = project_creator.project()
+                project.projectdir = _proj.projectdir
+                if _proj.name != project.name or _proj.projectdir != project.projectdir:
+                    project.rename('project', project.name, _proj.name)
+                project.metadata = project_creator.metadata()
+
+    def new_file(self, dtype=None):
+        dtype = self._new_file_actions[self.sender()]
+        self.paradigm_container.new('model', dtype)
+
+    def open(self, *args):
+        project, category, name = self.selected_data()
+        if project:
+            if category in ('model', 'src'):
+                model = project.get(category, name)
+                self.paradigm_container.open_file(model=model)
+
+    def _rename(self, project, category, name):
+        if category in ('model', 'src'):
+            models = project.models()
+            if isinstance(models, list):
+                list_models = [mod.name for mod in models]
+            else:
+                list_models = [models.name]
+            renamer = RenameModel(list_models, name)
+            dialog = ModalDialog(renamer)
+            if dialog.exec_():
+                old_name = renamer.old_name()
+                new_name = renamer.new_name()
+                project.rename(category, old_name, new_name)
+        elif category == 'project':
+            self.edit_metadata()
 
     def rename(self):
-        indices = self.selectedIndexes()
-        project = self.projectManager.cproject
-        for index in indices:
-            data = self._model.projectdata(index)
-            if data and project:
-                category, old_name = data
-
-                models = project.models()
-                if isinstance(models, list):
-                    list_models = [mod.name for mod in models]
-                else:
-                    list_models = [models.name]
-                renamer = RenameModel(list_models, old_name)
-                dialog = ModalDialog(renamer)
-                if dialog.exec_():
-                    old_name = renamer.old_name()
-                    new_name = renamer.new_name()
-                    project.rename(category, old_name, new_name)
+        project, category, name = self.selected_data()
+        if project:
+            self._rename(project, category, name)
 
     def remove(self):
-        indices = self.selectedIndexes()
-        self._model.remove(indices)
+        project, category, name = self.selected_data()
+        if project:
+            project.remove(category, name)
 
-    def getIndex(self):
-        indices = self.selectedIndexes()
-        for index in indices:
-            return index
-
-    def getItem(self):
-        index = self.getIndex()
-        if index:
-            return self._model.itemFromIndex(index)
+    # Drag and drop
 
     def startDrag(self, supportedActions):
         index = self.getIndex()
