@@ -55,63 +55,6 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         self.paradigm_container = None
         self.menu_available_projects = QtGui.QMenu(u'Available Projects')
 
-#         self.actionRenameProject.triggered.connect(self.rename)
-
-        group = "Project"
-        self._actions = [[group, "Manage Project", self.view.actionNewProj, 0],
-                         [group, "Manage Project", self.view.actionOpenProj, 0],
-                         [group, "Manage Project", self.view.actionSaveProj, 0],
-                         [group, "Manage Project", self.view.actionSaveProjAs, 1],
-                         [group, "Manage Project", self.view.actionCloseProj, 0],
-                         [group, "Manage Project", self.view.actionEditMeta, 1],
-                         [group, "Manage Project", self.view.actionAddFile, 0],
-#                          ["Project", "Manage Project", self.actionRenameProject, 1],
-        ]
-
-        # Menu used to display all available projects.
-        # This menu is filled dynamically each time this menu is opened
-        self.menu_available_projects = QtGui.QMenu(u'Available Projects')
-        self.menu_available_projects.aboutToShow.connect(self.view._update_available_project_menu)
-
-
-    def initialize(self):
-        self.view.initialize()
-        self.view.update()
-
-    def actions(self):
-        return self._actions
-
-    def set_project(self, project):
-        self.projectManager.cproject = project
-        self.view.reset()
-
-    def notify(self, sender, event=None):
-        signal, data = event
-        project = self.projectManager.cproject
-        if signal == 'project_changed':
-            self.set_project(project)
-        elif signal == 'project_updated':
-            self.view.refresh()
-
-class ProjectManagerView(QtGui.QTreeView):
-    def __init__(self):
-        QtGui.QTreeView.__init__(self)
-        self.paradigm_container = None
-
-        self._model = ProjectManagerModel()
-        self.projectManager = ProjectManager()
-        self.setModel(self._model)
-
-        self._model.dataChanged.connect(self._on_model_changed)
-
-        self.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-        self.connect(self, QtCore.SIGNAL('doubleClicked(const QModelIndex&)'), self.openIndex)
-
-        self.setHeaderHidden(True)
-        self.setDragEnabled(True)
-        self.setDropIndicatorShown(True)
-        self.setAcceptDrops(True)
-
         self.actionNewProj = QtGui.QAction(qicon("new.png"), "New Project", self)
         self.actionNewProj.setShortcut(
             QtGui.QApplication.translate("MainWindow", "Ctrl+N", None, QtGui.QApplication.UnicodeUTF8))
@@ -134,35 +77,32 @@ class ProjectManagerView(QtGui.QTreeView):
         self.actionCloseProj.triggered.connect(self.close)
         self.actionEditMeta.triggered.connect(self.edit_metadata)
         self.actionAddFile.triggered.connect(self.add_current_file)
+#         self.actionRenameProject.triggered.connect(self.rename)
 
+        group = "Project"
+        self._actions = [[group, "Manage Project", self.actionNewProj, 0],
+                         [group, "Manage Project", self.actionOpenProj, 0],
+                         [group, "Manage Project", self.actionSaveProj, 0],
+                         [group, "Manage Project", self.actionSaveProjAs, 1],
+                         [group, "Manage Project", self.actionCloseProj, 0],
+                         [group, "Manage Project", self.actionEditMeta, 1],
+                         [group, "Manage Project", self.actionAddFile, 0],
+#                          ["Project", "Manage Project", self.actionRenameProject, 1],
+        ]
+
+        # Menu used to display all available projects.
+        # This menu is filled dynamically each time this menu is opened
+        self.menu_available_projects = QtGui.QMenu(u'Available Projects')
+        self.menu_available_projects.aboutToShow.connect(self._update_available_project_menu)
         self.action_available_project = {} # Dict used to know what project corresponds to triggered action
 
-
     def initialize(self):
+        self.view.initialize()
         self.paradigm_container = get_applet(identifier='EditorManager')
+        self._update()
 
-    def reset(self):
-        project = self.project()
-        if project:
-            self.close_all_scripts()
-            if project.state != 'loaded':
-                project.load()
-            self.open_all_scripts_from_project(project)
-        else:
-            self.close_all_scripts()
-
-        self._model.set_project(project)
-
-        # TODO: Dirty hack to remove asap. Close project selector if widget has been created
-        if hasattr(self, "proj_selector"):
-            self.proj_selector.close()
-            del self.proj_selector
-
-    def refresh(self):
-        self._model.refresh()
-
-    def _on_model_changed(self):
-        self.expandAll()
+    def actions(self):
+        return self._actions
 
     def project(self):
         if self.projectManager:
@@ -200,19 +140,19 @@ class ProjectManagerView(QtGui.QTreeView):
                 project.metadata = project_creator.metadata()
 
     def save(self):
-        project = self.project()
+        project = self.projectManager.cproject
         if project:
             project.save()
 
     def saveAs(self):
-        project = self.project()
+        project = self.projectManager.cproject
         if project:
             name = self.showNewProjectDialog(default_name=None, text="Select name to save project")
             if name:
                 project.rename(category="project", old_name=project.name, new_name=name)
 
     def add_current_file(self):
-        project = self.project()
+        project = self.projectManager.cproject
         if self.paradigm_container is None or project is None:
             return
         text = self.paradigm_container.tabText(self.paradigm_container.currentIndex())
@@ -224,7 +164,7 @@ class ProjectManagerView(QtGui.QTreeView):
         self.selector.ok_button.clicked.connect(self._add_file_from_selector)
 
     def _add_file_from_selector(self):
-        project = self.project()
+        project = self.projectManager.cproject
         category = self.selector.combo.currentText()
         self.selector.hide()
 
@@ -273,6 +213,32 @@ class ProjectManagerView(QtGui.QTreeView):
         project = self.action_available_project[self.sender()]
         self.projectManager.cproject = project
 
+    def notify(self, sender, event=None):
+        signal, data = event
+        project = self.projectManager.cproject
+        if signal == 'project_changed':
+            self._update()
+        elif signal == 'project_updated':
+            self.view.refresh()
+
+    def _update(self):
+        project = self.projectManager.cproject
+        if project:
+            self.close_all_scripts()
+            if project.state != 'loaded':
+                project.load()
+            self.open_all_scripts_from_project(project)
+        else:
+            self.close_all_scripts()
+        self.view.set_project(project=project)
+
+    def set_project(self, project):
+        self.projectManager.cproject = project
+        # TODO: Dirty hack to remove asap. Close project selector if widget has been created
+        if hasattr(self, "proj_selector"):
+            self.proj_selector.close()
+            del self.proj_selector
+
     def open_all_scripts_from_project(self, project):
         if self.paradigm_container is None:
             return
@@ -287,6 +253,36 @@ class ProjectManagerView(QtGui.QTreeView):
             return
         self.paradigm_container.closeAll()
 
+class ProjectManagerView(QtGui.QTreeView):
+    def __init__(self):
+        QtGui.QTreeView.__init__(self)
+        self.paradigm_container = None
+
+        self._model = ProjectManagerModel()
+        self.projectManager = ProjectManager()
+        self.setModel(self._model)
+
+        self._model.dataChanged.connect(self._on_model_changed)
+
+        self.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+        self.connect(self, QtCore.SIGNAL('doubleClicked(const QModelIndex&)'), self.openIndex)
+
+        self.setHeaderHidden(True)
+        self.setDragEnabled(True)
+        self.setDropIndicatorShown(True)
+        self.setAcceptDrops(True)
+
+    def initialize(self):
+        self.paradigm_container = get_applet(identifier='EditorManager')
+
+    def set_project(self, project):
+        self._model.set_project(project)
+
+    def refresh(self):
+        self._model.refresh()
+
+    def _on_model_changed(self):
+        self.expandAll()
 
     def create_menu(self):
         menu = QtGui.QMenu(self)
@@ -498,6 +494,7 @@ class ProjectManagerModel(QtGui.QStandardItemModel):
 
             if not hasattr(project, category):
                 continue
+
 
             if category == 'model':
                 data_dict = project._model
