@@ -41,6 +41,7 @@ class ProjectManager(Observed, AbstractListener):
         AbstractListener.__init__(self)
         self.projects = []
         self._cproject = None
+        self._cwd = path_('.').abspath()
         self.cproject = self.default()
         self.find_links = [path_(settings.get_project_dir())]
 
@@ -235,11 +236,13 @@ You can rename/move this project thanks to the button "Save As" in menu.
         if project is self._cproject:
             return
         if project is None:
+            os.chdir(self._cwd)
             if self._cproject:
                 self._cproject.unregister_listener(self)
                 del self._cproject
             self._cproject = None
         else:
+            os.chdir(project.path)
             self._cproject = project
             project.register_listener(self)
         self.notify_listeners(('project_changed', self))
