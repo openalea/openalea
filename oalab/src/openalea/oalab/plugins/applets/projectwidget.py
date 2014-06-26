@@ -17,7 +17,7 @@ class ProjectWidget(PluginApplet):
 class ProjectManager2(PluginApplet):
 
     name = 'ProjectManager2'
-    alias = 'ProjectManager2'
+    alias = 'Project'
 
     def __call__(self, mainwindow):
         from openalea.oalab.project.projectwidget import ProjectManagerWidget
