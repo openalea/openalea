@@ -382,7 +382,7 @@ class ProjectManagerView(QtGui.QTreeView):
                 model = project.get(category, name)
                 self.paradigm_container.open_file(model=model)
             else:
-                filepath = project.path / category / name
+                filepath = path(category) / path(name)
                 self.paradigm_container.open_file(filename=filepath)
 
     def _rename(self, project, category, name):
