@@ -135,6 +135,7 @@ class Project(Observed):
         self._control_name = ["ctrls"]
         self._dirty = {'project':False}
         self.notify_listeners(('project_change', self))
+        self.state = 'Not loaded' # partially loaded, loaded
 
     #----------------------------------------
     # Public API
@@ -177,6 +178,7 @@ class Project(Observed):
             setattr(self, category, obj)
         for model_name in self._model_names:
             self._load("model", str(model_name))
+        self.state = 'loaded'
         self.notify_listeners(('project_change', self))
 
     def save(self):
@@ -431,6 +433,7 @@ class Project(Observed):
                         for f in config['manifest'][files]:
                             filedict[f] = ""
                         setattr(self, files, filedict)
+        self.state = 'partially loaded'
 
     #----------------------------------------
     # model
