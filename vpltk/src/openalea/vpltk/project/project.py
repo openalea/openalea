@@ -213,10 +213,6 @@ class Project(Observed):
                 return cat[name]
         return None
 
-    def _startup(self, shell, namespace):
-        self._startup_import(shell, namespace)
-        self._startup_run(shell, namespace)
-
 
     def add(self, category, name, value):
         """
@@ -609,7 +605,8 @@ class Project(Observed):
         saver = Saver()
         saver.save(model.repr_code(), filepath)
 
-    def _startup_import(self, shell=None, namespace={}):
+
+    def _startup(self, shell=None, namespace={}):
         """
         :param shell: shell to run startup. Has to have the method "runcode(code)". Default, None.
         :param namespace: dict used to run the sources. Default, empty dict.
@@ -618,24 +615,8 @@ class Project(Observed):
             shell = self.use_ipython()
 
         for s in self.startup:
-            if s.find('import') != -1:
-                exec (self.startup[s], namespace)
-                if shell:
-                    shell.runcode(self.startup[s])
-
-    def _startup_run(self, shell=None, namespace={}):
-        """
-        :param shell: shell to run startup. Has to have the method "runcode(code)". Default, None.
-        :param namespace: dict used to run the sources. Default, empty dict.
-        """
-        if not shell:
-            shell = self.use_ipython()
-
-        for s in self.startup:
-            if s.find('import') == -1:
-                exec (self.startup[s], namespace)
-                if shell:
-                    shell.runcode(self.startup[s])
+            if shell:
+                shell.run_cell(self.startup[s])
 
     def __str__(self):
         txt = "Project named " + str(self.name) + " in path " + str(self.projectdir) + """.
@@ -656,7 +637,7 @@ class Project(Observed):
         shell = None
         try:
             # Try to get automatically current IPython shell
-            shell = get_ipython()
+            shell =     ()
         except NameError:
             pass
 
