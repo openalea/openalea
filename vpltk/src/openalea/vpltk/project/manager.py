@@ -40,6 +40,7 @@ class ProjectManager(Observed, AbstractListener):
         Observed.__init__(self)
         AbstractListener.__init__(self)
         self.projects = []
+        self._cproject = None
         self.cproject = self.default()
         self.find_links = [path_(settings.get_project_dir())]
 
@@ -206,7 +207,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         :TODO: not yet implemented
         """
         # TODO: cleaner!
-        del self._cproject
+        self.cproject = None
 
     def __getitem__(self, name):
         self.cproject = self.search(name)
@@ -222,6 +223,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
     def notify(self, sender, event=None):
         signal, data = event
         if signal == 'project_change':
+            self.notify_listeners(('project_updated', self))
             self.notify_listeners(('current_project_change', self))
 
     @property
@@ -230,8 +232,17 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
     @cproject.setter
     def cproject(self, project):
-        self._cproject = project
-        project.register_listener(self)
+        if project is self._cproject:
+            return
+        if project is None:
+            if self._cproject:
+                self._cproject.unregister_listener(self)
+                del self._cproject
+            self._cproject = None
+        else:
+            self._cproject = project
+            project.register_listener(self)
+        self.notify_listeners(('project_changed', self))
         self.notify_listeners(('current_project_change', self))
 
 
