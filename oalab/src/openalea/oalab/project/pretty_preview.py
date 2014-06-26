@@ -68,7 +68,7 @@ class ProjectSelector(QtGui.QWidget):
             maxcolumn = 5
 
         refresh_widget = QtGui.QPushButton("Refresh")
-        refresh_widget.clicked.connect(self.refersh_project_list)
+        refresh_widget.clicked.connect(self.refresh_project_list)
         add_widget = QtGui.QPushButton("Search Projects")
         add_widget.clicked.connect(self.add_path_to_search_project)
 
@@ -94,7 +94,7 @@ class ProjectSelector(QtGui.QWidget):
         self.current_preview = Preview(project=sender.project, open_project=self.open_project)
         self.current_preview.show()
 
-    def refersh_project_list(self):
+    def refresh_project_list(self):
         project_manager = ProjectManager()
         project_manager.discover()
         self.projects = project_manager.projects
@@ -104,7 +104,7 @@ class ProjectSelector(QtGui.QWidget):
         fname = self.showOpenProjectDialog()
         if fname:
             ProjectManager().find_links.append(fname)
-            self.refersh_project_list()
+            self.refresh_project_list()
 
     def showOpenProjectDialog(self):
         fname = QtGui.QFileDialog.getExistingDirectory(self, 'Select Directory to search Projects', None)

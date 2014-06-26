@@ -509,12 +509,19 @@ class RenameModel(QtGui.QWidget):
             model_name = self.models[0]
         self.line = QtGui.QLineEdit(str(model_name))
 
-        self.ok_button = QtGui.QPushButton("Ok")
+#         self.ok_button = QtGui.QPushButton("Ok")
 
         layout.addWidget(self.label, 0, 0)
         layout.addWidget(self.combo, 0, 1)
         layout.addWidget(self.label2, 1, 0)
         layout.addWidget(self.line, 1, 1)
-        layout.addWidget(self.ok_button, 2, 0, 2, 2)
+#         layout.addWidget(self.ok_button, 2, 0, 2, 2)
 
         self.setLayout(layout)
+
+    def new_name(self):
+        return self.line.text()
+
+    def old_name(self):
+        return self.combo.currentText()
+

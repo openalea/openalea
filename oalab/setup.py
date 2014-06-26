@@ -115,6 +115,7 @@ setup(
             'Logger = openalea.oalab.plugins.applets.logger:Logger',
             'PkgManagerWidget = openalea.oalab.plugins.applets.packagemanager:PkgManagerWidget',
             'ProjectManager = openalea.oalab.plugins.applets.projectmanager:ProjectManager',
+            'ProjectManager2 = openalea.oalab.plugins.applets.projectwidget:ProjectManager2',
             # 'Store = openalea.oalab.plugins.applets.store:Store',
             'Viewer3D = openalea.oalab.plugins.applets.viewer3d:Viewer3D',
             'World = openalea.oalab.plugins.applets.worldwidget:World',
