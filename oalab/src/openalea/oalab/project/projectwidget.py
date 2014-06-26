@@ -381,6 +381,9 @@ class ProjectManagerView(QtGui.QTreeView):
             if category in ('model', 'src'):
                 model = project.get(category, name)
                 self.paradigm_container.open_file(model=model)
+            else:
+                filepath = project.path / category / name
+                self.paradigm_container.open_file(filename=filepath)
 
     def _rename(self, project, category, name):
         if category in ('model', 'src'):
@@ -585,10 +588,11 @@ class ProjectManagerModel(QtGui.QStandardItemModel):
 #                     item2.appendRow(item3)
 
     def projectdata(self, index):
-        # use self.itemData() ?
-        if index.data() in ['model', 'src']:
+        if self._project is None:
+            return
+        if index.data() in self._project.categories():
             return ('category', index.data())
-        elif index.parent().data() in ['model', 'src']:
+        elif index.parent().data() in self._project.categories():
             return (index.parent().data(), index.data())
         elif index.data() == self._root_item:
             return ('project', index.data())
