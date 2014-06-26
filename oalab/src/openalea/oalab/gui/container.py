@@ -150,8 +150,16 @@ class ParadigmContainer(QtGui.QTabWidget):
             if hasattr(model, "default_name"):
                 applet_type = model.default_name
             tab_name = model.name
-            if model not in self._open_objects.values():
+
+            # TODO: rewrite following hack
+            if model in self._open_objects.values():
+                for k, v in self._open_objects.iteritems():
+                    if v == model:
+                        self.setCurrentWidget(k)
+                        break
+            else:
                 self.newTab(applet_type=applet_type, tab_name=tab_name, model=model)
+                
             logger.debug("Open model named " + tab_name)
         else:
 

@@ -30,7 +30,7 @@ from openalea.lpy.gui.scalar import ProduceScalar
 from openalea.oalab.model.lpy import LPyModel
 from openalea.oalab.service.help import display_help
 from openalea.oalab.control.manager import control_dict
-
+from openalea.oalab.session.session import Session
 
 def import_lpy_file(script):
     """
@@ -179,7 +179,7 @@ class LPyModelController(object):
         def select_colormap():
             #@GBY must move to plantgl or lpy
             from openalea.oalab.control.manager import ControlManager
-            from openalea.plantgl.plugins.controls import to_material
+            from openalea.plantgl.oaplugins.controls import to_material
             controls = ControlManager().namespace(interface='IColorList')
             for v in controls.values():
                 return to_material(v)
