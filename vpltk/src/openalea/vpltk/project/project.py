@@ -628,7 +628,7 @@ class Project(Observed):
 
         for s in self.startup:
             if shell:
-                shell.run_cell(self.startup[s])
+                shell.run_cell(self.startup[s], silent=False)
 
     def __str__(self):
         txt = "Project named " + str(self.name) + " in path " + str(self.projectdir) + """.
@@ -649,7 +649,7 @@ class Project(Observed):
         shell = None
         try:
             # Try to get automatically current IPython shell
-            shell = ()
+            shell = get_ipython()
         except NameError:
             pass
 
