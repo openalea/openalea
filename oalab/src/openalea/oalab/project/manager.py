@@ -211,6 +211,8 @@ class ProjectManagerWidget(QtGui.QWidget):
             text = path_(text).splitall()[-1]
             categories = list(CATEGORIES)
             categories.extend(self.session.project.files.keys())
+            categories = list(set(categories))
+            
             self.selector = SelectCategory(filename=text, categories=categories)
             self.selector.show()
             self.selector.ok_button.clicked.connect(self._add_file_from_selector)
