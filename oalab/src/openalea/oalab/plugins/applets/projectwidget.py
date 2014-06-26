@@ -13,3 +13,16 @@ class ProjectWidget(PluginApplet):
         self._fill_menu(mainwindow, self._applet)
 
         mainwindow.add_applet(self._applet, self.alias, area='inputs')
+
+class ProjectManager2(PluginApplet):
+
+    name = 'ProjectManager2'
+    alias = 'ProjectManager2'
+
+    def __call__(self, mainwindow):
+        from openalea.oalab.project.projectwidget import ProjectManagerWidget
+
+        self._applet = self.new(self.name, ProjectManagerWidget)
+        self._fill_menu(mainwindow, self._applet)
+        mainwindow.menu_classic['Project'].addMenu(self._applet.menu_available_projects)
+        mainwindow.add_applet(self._applet, self.alias, area='inputs')
