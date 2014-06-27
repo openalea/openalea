@@ -105,6 +105,7 @@ class Session(object):
             self.interpreter.locals['data'] = self.project.path / 'data'
         self.interpreter.locals['scene'] = self.world
         self.interpreter.locals['world'] = self.world
+        self.world.clear()
 
     def add_to_history(self, *args, **kwargs):
         """

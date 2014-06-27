@@ -191,7 +191,7 @@ class ParadigmContainer(QtGui.QTabWidget):
     def new(self, category, dtype=None):
         if dtype is None:
             dtype = self._new_file_actions[self.sender()]
-        name = QtGui.QLineEdit('script')
+        name = QtGui.QLineEdit(dtype.lower() + '_model')
         dialog = ModalDialog(name)
         if dialog.exec_():
             project = self.projectManager.cproject
