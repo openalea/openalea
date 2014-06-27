@@ -22,6 +22,7 @@ from openalea.core.path import path
 from time import gmtime, strftime
 from openalea.core import settings
 from openalea.vpltk.project import Project
+from openalea.oalab.service.qt_control import widget
 
 class CreateProjectWidget(QtGui.QWidget):
     """
@@ -57,7 +58,7 @@ class CreateProjectWidget(QtGui.QWidget):
         dependencies = [] if not proj else proj.dependencies
         license = 'CeCILL-C' if not proj else proj.license
         version = '0.1.0' if not proj else proj.version
-        directory = path(settings.get_project_dir()) if not proj.projectdir else str(proj.projectdir)
+        directory = path(settings.get_project_dir()) if not proj else str(proj.projectdir)
 
 
         self.name_lineedit = QtGui.QLineEdit(name)
@@ -95,11 +96,11 @@ class CreateProjectWidget(QtGui.QWidget):
         layout.addWidget(self.version_lineedit, 11, 1)
 
         layout.addWidget(QtGui.QLabel("path"), 12, 0)
-        self.path_lineedit = QtGui.QLineEdit(str(directory))
+        self.path_lineedit = widget('IDirStr', directory, shape='hline')
 
         # TODO: remove this line when Project Manager works fine and permit to search outside default directory
         # CPL: Allow the user to define the path
-        #self.path_lineedit.setReadOnly(True)
+        # self.path_lineedit.setReadOnly(True)
 
         layout.addWidget(self.path_lineedit, 12, 1)
 
@@ -110,7 +111,7 @@ class CreateProjectWidget(QtGui.QWidget):
 
     def project(self):
         proj = Project(name=self.name_lineedit.text(),
-                       projectdir=self.path_lineedit.text(),
+                       projectdir=self.path_lineedit.value(),
                        icon=self.icon_lineedit.text(),
                        author=self.author_lineedit.text(),
                        author_email=self.author_email_lineedit.text(),

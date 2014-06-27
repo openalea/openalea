@@ -1,6 +1,7 @@
 from openalea.vpltk.qt import QtGui
 from openalea.oalab.service import interface as s_interface
 from openalea.vpltk.plugin import iter_plugins
+from openalea.oalab.control.control import Control
 
 from openalea.oalab.session.session import Session
 session = Session()
@@ -8,8 +9,8 @@ session = Session()
 def discover_qt_controls():
     return [plugin for plugin in iter_plugins('oalab.qt_control', debug=session.debug_plugins)]
 
-def qt_editor(control, shape=None, preferred=None):
-    iname = s_interface.get_name(control.interface)
+def qt_editor_class(iname, shape=None, preferred=None):
+    iname = s_interface.get_name(iname)
     widget_plugins = qt_widget_plugins(iname)
     widget_class = None
 
@@ -25,7 +26,14 @@ def qt_editor(control, shape=None, preferred=None):
             if 'responsive' in plugin.edit_shape or shape in plugin.edit_shape:
                 widget_class = plugin.load()
                 break
+    return widget_class
 
+def widget(iname, value, shape=None, preferred=None):
+    control = Control(iname, iname, value)
+    return qt_editor(control, shape, preferred)
+
+def qt_editor(control, shape=None, preferred=None):
+    widget_class = qt_editor_class(control.interface, shape, preferred)
     if widget_class:
         widget = None
         if issubclass(widget_class, QtGui.QWidget):

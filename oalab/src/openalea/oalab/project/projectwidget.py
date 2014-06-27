@@ -64,7 +64,6 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
             QtGui.QApplication.translate("MainWindow", "Ctrl+O", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSaveProj = QtGui.QAction(qicon("save.png"), "Save project", self)
         self.actionSaveProjAs = QtGui.QAction(qicon("save.png"), "Save As", self)
-        self.actionSaveProj.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
         self.actionCloseProj = QtGui.QAction(qicon("closeButton.png"), "Close project", self)
         self.actionAddFile = QtGui.QAction(qicon("bool.png"), "Add model to current Project", self)
 
@@ -98,7 +97,13 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
     def initialize(self):
         self.view.initialize()
         self.paradigm_container = get_applet(identifier='EditorManager')
-        self._update()
+
+        # As default project has been defined before having connected this widget
+        # We close it and open it again.
+        pm = self.projectManager
+        default = pm.cproject
+        pm.cproject = None
+        pm.cproject = default
 
     def actions(self):
         return self._actions
