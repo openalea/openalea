@@ -96,7 +96,7 @@ class ProjectManager(Observed, AbstractListener):
     def write_settings(self):
         """ Add a new path to the settings. """
         l = list(set(self.find_links))
-
+        l = map(str, l)
         config = settings.Settings()
         config.set("projectmanager", "path", str(l))
         config.write()
@@ -194,7 +194,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
                 path.makedirs()
         except:
             pass
-            
+
         proj = self.load(name="temp", path=path)
 
         if proj is None: # If can't load default project, create it
