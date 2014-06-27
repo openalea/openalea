@@ -189,6 +189,12 @@ You can rename/move this project thanks to the button "Save As" in menu.
         :return: the default loaded project
         """
         path = path_(settings.get_project_dir())
+        try:
+            if not path.exists():
+                path.makedirs()
+        except:
+            pass
+            
         proj = self.load(name="temp", path=path)
 
         if proj is None: # If can't load default project, create it
@@ -293,7 +299,8 @@ You can rename/move this project thanks to the button "Save As" in menu.
                 del self._cproject
             self._cproject = None
         else:
-            os.chdir(project.path)
+            if (project.path).isdir():
+                os.chdir(project.path)
             self._cproject = project
             if not project.started:
                 project.start(shell=self.shell)
