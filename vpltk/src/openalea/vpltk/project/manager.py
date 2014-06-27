@@ -81,7 +81,7 @@ class ProjectManager(Observed, AbstractListener):
             config.add_option("projectmanager", "path", str(l))
         except NoOptionError, e:
             config.add_option("projectmanager", "path", str(l))
-        
+
         find_links = set()
         l = map(path_, set(l))
         for p in l:
@@ -92,7 +92,7 @@ class ProjectManager(Observed, AbstractListener):
 
         return list(find_links)
 
-    
+
     def write_settings(self):
         """ Add a new path to the settings. """
         l = list(set(self.find_links))
@@ -222,7 +222,8 @@ You can rename/move this project thanks to the button "Save As" in menu.
                 self.find_links.append(projectdir)
                 self.write_settings()
 
-        self.cproject = Project(name, projectdir)
+        project = Project(name, projectdir)
+        self.cproject = project
 
         return self.cproject
 
@@ -251,7 +252,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
                 self.cproject = Project(name, path)
                 self.cproject.start(shell=self.shell)
                 return self.get_current()
-        
+
         # raise IOError('Project %s in repository %s does not exist' %(name,path))
         # print 'Project %s in repository %s does not exist' %(name,path)
         return None
