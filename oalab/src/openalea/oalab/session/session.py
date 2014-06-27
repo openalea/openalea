@@ -20,6 +20,7 @@ __revision__ = ""
 
 __all__ = ['Session']
 
+import os
 import warnings
 from openalea.vpltk.shell.shell import get_interpreter_class
 from openalea.vpltk.project.manager import ProjectManager
@@ -98,8 +99,10 @@ class Session(object):
         Definition: Update namespace
         """
         if self.project:
+            os.chdir(self.project.path)
             self.interpreter.locals['project'] = self.project
             self.interpreter.locals['Model'] = self.project.model
+            self.interpreter.locals['data'] = self.project.path / 'data'
         self.interpreter.locals['scene'] = self.world
         self.interpreter.locals['world'] = self.world
 

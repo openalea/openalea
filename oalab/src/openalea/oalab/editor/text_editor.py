@@ -183,6 +183,8 @@ class TextEditor(QtGui.QTextEdit):
     def canInsertFromMimeData(self, source):
         if source.hasFormat('openalealab/control'):
             return True
+        elif source.hasFormat('openalealab/data'):
+            return True
         else:
             return QtGui.QTextEdit.canInsertFromMimeData(self, source)
 
