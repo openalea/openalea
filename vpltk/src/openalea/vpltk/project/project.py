@@ -375,7 +375,7 @@ class Project(Observed):
         """
         config = ConfigObj()
 
-        proj_path = path_(self.projectdir) / self.name
+        proj_path = self.path
         config.filename = proj_path / self.config_file
 
         if not proj_path.exists():
@@ -386,12 +386,13 @@ class Project(Observed):
 
         config['metadata'] = self.metadata
 
-        for files in self.files.keys():
-            filenames = getattr(self, files)
-            if filenames.keys():
-                config['manifest'][files] = filenames.keys()
+        for category in self.files:
+            filenames_dict = getattr(self, category)
 
-        modelnames = [model.filepath for model in self._model.values()]
+            if filenames_dict:
+                config['manifest'][category] = list(filenames_dict)
+
+        modelnames = [model.name+'.'+model.extension for model in self._model.values()]
         config['manifest']["model"] = modelnames
 
         if self.control:
@@ -516,9 +517,12 @@ class Project(Observed):
             else:
                 filepath = self.path / "model" / object_name
                 new_filepath = (self.path / "model").relpathto(filepath)
-            f = open(filepath, "r")
-            code = f.read()
-            f.close()
+            try:
+                f = open(filepath, "r")
+                code = f.read()
+                f.close()
+            except:
+                pass
             ext = path_(new_filepath).ext[1:]
             filename_without_ext = remove_extension(new_filepath)
 
@@ -611,9 +615,9 @@ class Project(Observed):
             self._dirty[object_type] = False
 
     def save_model(self, model):
-        filepath = path_(model.filepath)
-        if not filepath.isabs():
-            filepath = self.path / "model" / filepath
+
+        filepath = model.abspath(parentdir=self.path / "model")
+
         Saver = get_saver()
         saver = Saver()
         saver.save(model.repr_code(), filepath)

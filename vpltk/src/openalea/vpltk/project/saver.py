@@ -29,10 +29,17 @@ class GenericSaver(object):
         Store str(obj) into filename
         """
         filename = path(filename)
+        if filename.isdir():
+            print 'BUG: filename is a dir'
+            return
+
         try:
             file_ = open(filename, "w")
         except IOError:
-            os.makedirs(filename.splitpath()[0])
+            newdir, fn = filename.splitpath()
+            print 'New dir ', newdir
+            if not path(newdir).isdir():
+                newdir.makedirs()
             file_ = open(filename, "w")
         code = str(obj).encode("utf8", "ignore")
         file_.write(code)
