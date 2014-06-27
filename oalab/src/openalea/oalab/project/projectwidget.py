@@ -205,23 +205,15 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
 
     def notify(self, sender, event=None):
         signal, data = event
-        project = self.projectManager.cproject
-
         if signal == 'project_changed':
             self.session.update_namespace()
             self._update()
         elif signal == 'project_updated':
             self.view.refresh()
 
+
     def _update(self):
         project = self.projectManager.cproject
-        if project:
-            self.close_all_scripts()
-            if project.state != 'loaded':
-                project.load()
-            self.open_all_scripts_from_project(project)
-        else:
-            self.close_all_scripts()
         self.view.set_project(project=project)
 
     def set_project(self, project):
@@ -230,21 +222,6 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         if hasattr(self, "proj_selector"):
             self.proj_selector.close()
             del self.proj_selector
-
-    def open_all_scripts_from_project(self, project):
-        if self.paradigm_container is None:
-            return
-        models = project.models()
-        if not isinstance(models, list):
-            models = [models]
-        for model in models:
-            self.paradigm_container.open_file(model=model)
-
-    def close_all_scripts(self):
-        if self.paradigm_container is None:
-            return
-        self.paradigm_container.closeAll()
-
 
 class ProjectManagerView(QtGui.QTreeView):
     def __init__(self):
@@ -277,6 +254,11 @@ class ProjectManagerView(QtGui.QTreeView):
 
     def set_project(self, project):
         self._model.set_project(project)
+        if project:
+            self.close_all_scripts()
+            self.open_all_scripts_from_project(project)
+        else:
+            self.close_all_scripts()
 
     def refresh(self):
         self._model.refresh()
@@ -378,7 +360,11 @@ class ProjectManagerView(QtGui.QTreeView):
     def open(self, *args):
         project, category, name = self.selected_data()
         if project:
-            if category in ('model', 'src'):
+            if category == 'category':
+                return
+            if category == 'project':
+                self.open_all_scripts_from_project(project)
+            elif category in ('model', 'src'):
                 model = project.get(category, name)
                 self.paradigm_container.open_file(model=model)
             else:
@@ -410,6 +396,20 @@ class ProjectManagerView(QtGui.QTreeView):
         project, category, name = self.selected_data()
         if project:
             project.remove(category, name)
+
+    def open_all_scripts_from_project(self, project):
+        if self.paradigm_container is None:
+            return
+        models = project.models()
+        if not isinstance(models, list):
+            models = [models]
+        for model in models:
+            self.paradigm_container.open_file(model=model)
+
+    def close_all_scripts(self):
+        if self.paradigm_container is None:
+            return
+        self.paradigm_container.closeAll()
 
     # Drag and drop
 

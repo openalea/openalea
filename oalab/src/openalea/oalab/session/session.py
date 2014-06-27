@@ -25,6 +25,7 @@ from openalea.vpltk.shell.shell import get_interpreter_class
 from openalea.vpltk.project.manager import ProjectManager
 from openalea.oalab.config.main import MainConfig
 from openalea.oalab.world.world import World
+from openalea.core.singleton import Singleton
 
 
 class Session(object):
@@ -37,6 +38,9 @@ class Session(object):
       - interpreter (see :mod:`~openalea.vpltk.shell.shell`)
 
     """
+
+    __metaclass__ = Singleton
+
     def __init__(self):
         self._project = None
         self._is_proj = False
