@@ -30,6 +30,8 @@ from openalea.core.path import path
 from openalea.core import settings
 from openalea.vpltk.project.project import remove_extension
 from openalea.oalab.session.session import Session
+from openalea.file.files import start
+from openalea.oalab.service.mimetype import encode
 
 from openalea.oalab.project.manager import SelectCategory, RenameModel
 
@@ -66,7 +68,6 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         self.actionSaveProjAs = QtGui.QAction(qicon("save.png"), "Save As", self)
         self.actionCloseProj = QtGui.QAction(qicon("closeButton.png"), "Close project", self)
         self.actionAddFile = QtGui.QAction(qicon("bool.png"), "Add model to current Project", self)
-        self.actionImportFile = QtGui.QAction(qicon("open.png"), "Import file", self)
 
         self.actionNewProj.triggered.connect(self.new)
         self.actionOpenProj.triggered.connect(self.open)
@@ -74,7 +75,6 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         self.actionSaveProj.triggered.connect(self.save)
         self.actionCloseProj.triggered.connect(self.close)
         self.actionAddFile.triggered.connect(self.add_current_file)
-        self.actionImportFile.triggered.connect(self.import_file)
 #         self.actionRenameProject.triggered.connect(self.rename)
 
         group = "Project"
@@ -147,9 +147,6 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
             name = self.showNewProjectDialog(default_name=None, text="Select name to save project")
             if name:
                 project.rename(category="project", old_name=project.name, new_name=name)
-
-    def import_file(self):
-        print 'import_file'
 
     def add_current_file(self):
         project = self.project()
@@ -255,6 +252,9 @@ class ProjectManagerView(QtGui.QTreeView):
         self.actionEditMeta = QtGui.QAction(qicon("book.png"), "Edit Project Information", self)
         self.actionEditMeta.triggered.connect(self.edit_metadata)
 
+        self.actionImportFile = QtGui.QAction(qicon("open.png"), "Import file", self)
+        self.actionImportFile.triggered.connect(self.import_file)
+
         self._new_file_actions = {}
 
     #  API
@@ -323,7 +323,7 @@ class ProjectManagerView(QtGui.QTreeView):
             return menu
         else:
             category, obj = data
-            if category in ['model', 'src']:
+            if category in ['model', 'src', 'startup']:
                 rename = QtGui.QAction('Rename %s' % obj, self)
                 rename.triggered.connect(self.rename)
                 menu.addAction(rename)
@@ -370,11 +370,17 @@ class ProjectManagerView(QtGui.QTreeView):
     def open(self, *args):
         project, category, name = self.selected_data()
         if project:
-            if category == 'category':
-                return
-            if category == 'project':
+            if category == 'category' and name == 'data':
+                p = QtGui.QFileDialog.getOpenFileName(self, 'Select File to open', project.path, "All (*)")
+                if p:
+                    p = path(p)
+                    project.add(name, p.name, p)
+            elif category == 'project':
                 self.open_all_scripts_from_project(project)
-            elif category in ('model', 'src'):
+            elif category == 'data':
+                p = project.path / category / name
+                start(p)
+            elif category == 'model':
                 model = project.get(category, name)
                 self.paradigm_container.open_file(model=model)
             else:
@@ -421,6 +427,9 @@ class ProjectManagerView(QtGui.QTreeView):
             return
         self.paradigm_container.closeAll()
 
+    def import_file(self):
+        print 'import_file'
+
     # Drag and drop
 
     def startDrag(self, supportedActions):
@@ -461,6 +470,16 @@ class ProjectManagerView(QtGui.QTreeView):
             drag.setPixmap(pixmap)
 
             drag.start(QtCore.Qt.MoveAction)
+
+        elif category == 'data':
+            p = '%s/%r' % (category, str(obj))
+            mimetype, mimedata = encode(p, mimetype='openalealab/data')
+            qmime_data = QtCore.QMimeData()
+            qmime_data.setData(mimetype, mimedata)
+            qmime_data.setText(mimedata)
+            drag = QtGui.QDrag(self)
+            drag.setMimeData(qmime_data)
+            drag.start()
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasFormat("openalealab/model"):
