@@ -103,7 +103,9 @@ class ProjectSelector(QtGui.QWidget):
     def add_path_to_search_project(self):
         fname = self.showOpenProjectDialog()
         if fname:
-            ProjectManager().find_links.append(fname)
+            pm = ProjectManager()
+            pm.find_links.append(fname)
+            pm.write_settings()
             self.refresh_project_list()
 
     def showOpenProjectDialog(self):

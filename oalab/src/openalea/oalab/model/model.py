@@ -20,6 +20,7 @@ import string
 from copy import copy
 from openalea.core.node import Node, AbstractFactory
 from openalea.vpltk.project.project import remove_extension
+from openalea.core.path import path as path_
 
 
 class Model(object):
@@ -163,6 +164,16 @@ class Model(object):
     @code.setter
     def code(self, code=""):
         self._code = code
+
+    def abspath(self, parentdir):
+        """ Returns absolute path of a model.
+
+        parentdir is the path of the parent directory like projectdir/model
+
+        """
+        pd = path_(parentdir)
+        filename = self.name+'.'+self.extension
+        return (pd/filename).abspath()
 
 
 class ModelNode(Node):

@@ -33,16 +33,23 @@ def parse_docstring_r(string):
     """
 
     # TODO
+    print '-> parse_docstring_r', string
     return
 
 
-def get_docstring_r(string):
+def get_docstring_r(code):
     """
-    Get a docstring from a string
+    Get a docstring from a code text
     """
+    comments = []
+    for l in code.splitlines():
+        l = l.strip()
+        if l and l.startswith('#'):
+            comments.append(l)
+        elif l != '':
+            break
 
-    # TODO
-    return
+    return '\n'.join(comments)
 
 
 def parse_functions_r(docstring):
@@ -56,6 +63,7 @@ def parse_functions_r(docstring):
     """
 
     # TODO
+    print '-> parse_functions_r', docstring
     return
 
 #########################################
