@@ -15,6 +15,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+
 import os
 import platform
 from openalea.core.path import path as path_
@@ -22,7 +23,7 @@ from openalea.core import settings
 from openalea.vpltk.project.project import Project
 from openalea.core.singleton import Singleton
 from openalea.core.observer import Observed, AbstractListener
-
+from ConfigParser import NoSectionError, NoOptionError
 
 class ProjectManager(Observed, AbstractListener):
     """
@@ -42,7 +43,20 @@ class ProjectManager(Observed, AbstractListener):
         self.projects = []
         self._cproject = None
         self._cwd = path_('.').abspath()
-        self.find_links = [path_(settings.get_project_dir())]
+        self.find_links = self.search_path()
+
+        self.shell = None
+        # TODO Search in preference file if user has path to append in self.find_links
+        self.cproject = self.default()
+
+
+    @staticmethod
+    def search_path():
+        """
+
+        """
+
+        find_links = [path_(settings.get_project_dir())]
 
         # TODO Move it into OALab ?
         if not "windows" in platform.system().lower():
@@ -51,14 +65,41 @@ class ProjectManager(Observed, AbstractListener):
                 from openalea.deploy.shared_data import shared_data
 
                 oalab_dir = shared_data(oalab)
-                self.find_links.append(path_(oalab_dir))
+                find_links.append(path_(oalab_dir))
             except ImportError:
                 pass
 
-        self.shell = None
-        # TODO Search in preference file if user has path to append in self.find_links
-        self.cproject = self.default()
+        find_links = set(find_links)
+        config = settings.Settings()
+        l = list(find_links)
+        # wralea path
+        try:
+            s = config.get("projectmanager", "path")
+            l = eval(s)
+        except NoSectionError, e:
+            config.add_section("projectmanager")
+            config.add_option("projectmanager", "path", str(l))
+        except NoOptionError, e:
+            config.add_option("projectmanager", "path", str(l))
+        
+        find_links = set()
+        l = map(path_, set(l))
+        for p in l:
+            p = p.abspath()
+            if not p.isdir():
+                continue
+            find_links.add(str(p))
 
+        return list(find_links)
+
+    
+    def write_settings(self):
+        """ Add a new path to the settings. """
+        l = list(set(self.find_links))
+
+        config = settings.Settings()
+        config.set("projectmanager", "path", str(l))
+        config.write()
 
     def discover(self):
         """
@@ -169,10 +210,15 @@ You can rename/move this project thanks to the button "Save As" in menu.
         """
         if projectdir is None:
             projectdir = settings.get_project_dir()
+        else:
+            projectdir = path_(projectdir).abspath()
+            if projectdir not in self.find_links:
+                self.find_links.append(projectdir)
+                self.write_settings()
 
         self.cproject = Project(name, projectdir)
 
-        return self.get_current()
+        return self.cproject
 
     def load(self, name, path=None):
         """
