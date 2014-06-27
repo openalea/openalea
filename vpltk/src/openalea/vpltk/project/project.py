@@ -219,7 +219,6 @@ class Project(Observed):
                 return cat[name]
         return None
 
-
     def add(self, category, name, value):
         """
         Add an object in the project
@@ -392,7 +391,7 @@ class Project(Observed):
             if filenames_dict:
                 config['manifest'][category] = list(filenames_dict)
 
-        modelnames = [model.name+'.'+model.extension for model in self._model.values()]
+        modelnames = [model.name + '.' + model.extension for model in self._model.values()]
         config['manifest']["model"] = modelnames
 
         if self.control:
@@ -510,6 +509,7 @@ class Project(Observed):
         return_object = dict()
 
         if object_type == "model":
+            code = ''
             if path_(object_name).isabs():
                 filepath = path_(object_name)
 
@@ -608,6 +608,8 @@ class Project(Observed):
                     elif object_type == "control":
                         # TODO: to remove:
                         Saver = get_saver("CPickleSaver")
+                    elif object_type == "data":
+                        Saver = get_saver("BinarySaver")
                     saver = Saver()
                     saver.save(object_[sub_object], filename)
 

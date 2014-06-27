@@ -34,6 +34,13 @@ class GenericLoader(object):
             obj = open(filename, 'rU').read()
             return obj
 
+class BinaryLoader(object):
+    default_name = "BinaryLoader"
+    input_format = "*"
+
+    def load(self, filename):
+        return path(filename)
+
 class PythonLoader(object):
     """
     Classical loader that read file and try to eval object
