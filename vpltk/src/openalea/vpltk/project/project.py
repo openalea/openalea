@@ -289,6 +289,8 @@ class Project(Observed):
                 if model_class.default_name == dtype:
                     model = model_class(name=name, code=value)
                     self.add_model(model)
+        else:
+            self.add(category, name, value)
 
     def remove(self, category, name):
         """
@@ -557,8 +559,10 @@ class Project(Observed):
                     if object_type == "control":
                         # TODO: to remove:
                         Loader = get_loader("CPickleLoader")
-                    if object_type == "world":
+                    elif object_type == "world":
                         Loader = get_loader("BGEOMLoader")
+                    elif object_type == "data":
+                        Loader = get_loader("BinaryLoader")
                     loader = Loader()
                     result = loader.load(pathname)
                     return_object[filename] = result
