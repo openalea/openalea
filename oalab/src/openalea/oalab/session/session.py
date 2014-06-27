@@ -52,6 +52,8 @@ class Session(object):
         self.interpreter = interpreter_class()
         self.interpreter.shell.events.register("post_execute", self.add_to_history)
 
+        self.project_manager.set_shell(self.interpreter.shell)
+
         self.interpreter.locals['session'] = self
         self.debug_plugins = ''
 
