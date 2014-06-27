@@ -22,7 +22,7 @@ from openalea.core import logger
 #########################################
 ## Function to define to parse r model
 #########################################
-def parse_docstring_r(string):
+def parse_docstring_r(code):
     """
     parse a string (not a docstring), get the docstring and return information on the model.
 
@@ -32,9 +32,18 @@ def parse_docstring_r(string):
     :return: model, inputs, outputs
     """
 
-    # TODO
-    print '-> parse_docstring_r', string
-    return
+    def parse_cmdline(comment):
+        line =''
+        if 'cmdline' in comment:
+            line = comment.split('cmdline')[1]
+            line = line.split('=')[1]
+            line = line.split('\n')[0].strip()
+        return line
+
+    comment = get_docstring_r(code)
+    inputs, outputs = parse_input_and_output(comment)
+    cmdline = parse_cmdline(comment) 
+    return 'Rfunction', inputs, outputs, cmdline
 
 
 def get_docstring_r(code):
@@ -63,8 +72,8 @@ def parse_functions_r(docstring):
     """
 
     # TODO
-    print '-> parse_functions_r', docstring
-    return
+    #print '-> parse_functions_r', docstring
+    return False, True, True, True
 
 #########################################
 ## Safe ast parsing
@@ -166,27 +175,24 @@ def parse_input_and_output(docstring):
 
     :return: inputs, outputs
     """
-    inputs = None
-    outputs = None
+    inputs = []
+    outputs = []
     if hasattr(docstring, "splitlines"):
         docsplit = docstring.splitlines()
         for line in docsplit:
-            if line[:5]=="input":
-                inputs = True
-            if line[:6]=="output":
-                outputs = True
-        if inputs:
-            docstring_input = [line for line in docsplit if line[:5]=="input"][0]
-            in_code = docstring_input.split('input')[1]
-            in_code = '='.join(in_code.split("=")[1:])
-            line = in_code.split('\n')[0]
-            inputs = line.split(",")
-        if outputs:
-            docstring_output = [line for line in docsplit if line[:6]=="output"][0]
-            out_code = docstring_output.split('output')[1]
-            out_code = '='.join(out_code.split("=")[1:])
-            line = out_code.split('\n')[0]
-            outputs = line.split(",")
+            line = line.strip()
+            if "input" in line:
+                line = line.split('input')[1]
+                line = line.split('=',1)[1].strip()
+                inputs = line.split(',')
+                inputs = [x.strip() for x in inputs]
+            if "output" in line:
+                line = line.split('output')[1]
+                line = line.split('=',1)[1].strip()
+                outputs = line.split(',')
+                outputs = [x.strip() for x in outputs]
+
+
     return inputs, outputs
 
 
