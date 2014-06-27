@@ -237,7 +237,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
     @cproject.setter
     def cproject(self, project):
         if project is self._cproject:
-            if not project.started:
+            if project and not project.started:
                 project.start(shell=self.shell)
             return
         if project is None:
