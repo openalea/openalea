@@ -58,33 +58,20 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         self.paradigm_container = None
         self.menu_available_projects = QtGui.QMenu(u'Available Projects')
 
-        self.actionNewProj = QtGui.QAction(qicon("new.png"), "New Project", self)
-        self.actionNewProj.setShortcut(
-            QtGui.QApplication.translate("MainWindow", "Ctrl+N", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionOpenProj = QtGui.QAction(qicon("open.png"), "Open Project", self)
-        self.actionOpenProj.setShortcut(
-            QtGui.QApplication.translate("MainWindow", "Ctrl+O", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionSaveProj = QtGui.QAction(qicon("save.png"), "Save project", self)
-        self.actionSaveProjAs = QtGui.QAction(qicon("save.png"), "Save As", self)
-        self.actionCloseProj = QtGui.QAction(qicon("closeButton.png"), "Close project", self)
         self.actionAddFile = QtGui.QAction(qicon("bool.png"), "Add model to current Project", self)
-
-        self.actionNewProj.triggered.connect(self.new)
-        self.actionOpenProj.triggered.connect(self.open)
-        self.actionSaveProjAs.triggered.connect(self.saveAs)
-        self.actionSaveProj.triggered.connect(self.save)
-        self.actionCloseProj.triggered.connect(self.close)
         self.actionAddFile.triggered.connect(self.add_current_file)
-#         self.actionRenameProject.triggered.connect(self.rename)
+
+        self.actionNewProj = self.view.actionNewProj
+        self.actionOpenProj = self.view.actionOpenProj
 
         group = "Project"
-        self._actions = [[group, "Manage Project", self.actionNewProj, 0],
-                         [group, "Manage Project", self.actionOpenProj, 0],
-                         [group, "Manage Project", self.actionSaveProj, 0],
-                         [group, "Manage Project", self.actionSaveProjAs, 1],
-                         [group, "Manage Project", self.actionCloseProj, 0],
-                         [group, "Manage Project", self.view.actionEditMeta, 1],
+        self._actions = [[group, "Manage Project", self.view.actionNewProj, 0],
+                         [group, "Manage Project", self.view.actionOpenProj, 0],
                          [group, "Manage Project", self.actionAddFile, 0],
+                         [group, "Manage Project", self.view.actionSaveProj, 0],
+#                          [group, "Manage Project", self.view.actionSaveProjAs, 1],
+                         [group, "Manage Project", self.view.actionCloseProj, 0],
+#                          [group, "Manage Project", self.view.actionEditMeta, 1],
 #                          ["Project", "Manage Project", self.actionRenameProject, 1],
         ]
 
@@ -114,40 +101,6 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         if self.projectManager:
             return self.projectManager.cproject
 
-    def open(self, name=False, path=None):
-        """
-        If name==false, display a widget to choose project to open.
-        Then open project.
-        """
-        self.projectManager.discover()
-        projects = self.projectManager.projects
-        self.proj_selector = ProjectSelectorScroll(projects=projects, open_project=self.set_project)
-        self.proj_selector.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        self.proj_selector.show()
-
-    def close(self):
-        self.projectManager.cproject = None
-
-    def new(self):
-        project_creator = CreateProjectWidget()
-        dialog = ModalDialog(project_creator)
-        if dialog.exec_():
-            _project = project_creator.project()
-            project = self.projectManager.create(_project.name, _project.projectdir)
-            project.metadata = _project.metadata
-
-    def save(self):
-        project = self.project()
-        if project:
-            project.save()
-
-    def saveAs(self):
-        project = self.project()
-        if project:
-            name = self.showNewProjectDialog(default_name=None, text="Select name to save project")
-            if name:
-                project.rename(category="project", old_name=project.name, new_name=name)
-
     def add_current_file(self):
         project = self.project()
         if self.paradigm_container is None or project is None:
@@ -156,42 +109,17 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         text = path(text).splitall()[-1]
         categories = ["model"]
         categories.extend(project.files.keys())
-        self.selector = SelectCategory(filename=text, categories=categories)
-        self.selector.show()
-        self.selector.ok_button.clicked.connect(self._add_file_from_selector)
-        self.selector.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-
-    def _add_file_from_selector(self):
-        project = self.projectManager.cproject
-        category = self.selector.combo.currentText()
-
-        text = self.paradigm_container.currentWidget().get_code()
-        index = self.paradigm_container.currentIndex()
-        filename = self.selector.line.text()
-        filename_without_ext = remove_extension(filename)
-        ret = project.add(category=category, name=filename, value=text)
-        if ret:
-            self.paradigm_container.setTabText(index, filename_without_ext)
-
-        self.selector.close()
-        del self.selector
-
-    def showNewProjectDialog(self, default_name=None, text=None, parent=None):
-        my_path = path(settings.get_project_dir())
-        if default_name:
-            my_path = my_path / default_name
-        if not text:
-            text = 'Select name to create project'
-        fname = QtGui.QFileDialog.getSaveFileName(parent, text,
-                                                  my_path)
-        return fname
-
-
-    def showOpenProjectDialog(self, parent=None):
-        my_path = path(settings.get_project_dir())
-        fname = QtGui.QFileDialog.getExistingDirectory(parent, 'Select Project Directory',
-                                                       my_path)
-        return fname
+        selector = SelectCategory(filename=text, categories=categories)
+        dialog = ModalDialog(selector)
+        if dialog.exec_():
+            category = selector.category()
+            text = self.paradigm_container.currentWidget().get_code()
+            index = self.paradigm_container.currentIndex()
+            filename = selector.name()
+            filename_without_ext = remove_extension(filename)
+            ret = project.add(category=category, name=filename, value=text)
+            if ret:
+                self.paradigm_container.setTabText(index, filename_without_ext)
 
     def _update_available_project_menu(self):
         """
@@ -201,13 +129,24 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         self.projectManager.discover()
         self.menu_available_projects.clear()
         self.action_available_project.clear()
+        all_projects = {}
         for project in self.projectManager.projects:
-            icon_path = project.icon_path
-            icon_name = icon_path if icon_path else ":/images/resources/openalealogo.png"
-            action = QtGui.QAction(QtGui.QIcon(icon_name), project.name, self.menu_available_projects)
-            action.triggered.connect(self._on_open_project_triggered)
-            self.menu_available_projects.addAction(action)
-            self.action_available_project[action] = project
+            all_projects.setdefault(project.projectdir, []).append(project)
+
+        for projectdir, projects in all_projects.iteritems():
+            title = unicode(projectdir.name)
+            if title == 'data':
+                title = 'Examples'
+            menu = QtGui.QMenu(title, self.menu_available_projects)
+            for project in projects:
+                icon_path = project.icon_path
+                icon_name = icon_path if icon_path else ":/images/resources/openalealogo.png"
+                action = QtGui.QAction(QtGui.QIcon(icon_name), project.name, self.menu_available_projects)
+                action.triggered.connect(self._on_open_project_triggered)
+                menu.addAction(action)
+                self.action_available_project[action] = project
+            self.menu_available_projects.addMenu(menu)
+        return self.menu_available_projects
 
     def _on_open_project_triggered(self):
         project = self.action_available_project[self.sender()]
@@ -221,17 +160,12 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         elif signal == 'project_updated':
             self.view.refresh()
 
-
     def _update(self):
         project = self.projectManager.cproject
         self.view.set_project(project=project)
 
     def set_project(self, project):
-        self.projectManager.cproject = project
-        # TODO: Dirty hack to remove asap. Close project selector if widget has been created
-        if hasattr(self, "proj_selector"):
-            self.proj_selector.close()
-            del self.proj_selector
+        self.view.set_project(project)
 
 class ProjectManagerView(QtGui.QTreeView):
     def __init__(self):
@@ -258,6 +192,25 @@ class ProjectManagerView(QtGui.QTreeView):
         self.actionImportFile = QtGui.QAction(qicon("open.png"), "Import file", self)
         self.actionImportFile.triggered.connect(self.import_file)
 
+        self.actionSaveProjAs = QtGui.QAction(qicon("save.png"), "Save As", self)
+        self.actionSaveProjAs.triggered.connect(self.saveAs)
+
+        self.actionSaveProj = QtGui.QAction(qicon("save.png"), "Save project", self)
+        self.actionSaveProj.triggered.connect(self.save)
+
+        self.actionCloseProj = QtGui.QAction(qicon("closeButton.png"), "Close project", self)
+        self.actionCloseProj.triggered.connect(self.close)
+
+        self.actionNewProj = QtGui.QAction(qicon("new.png"), "New Project", self)
+        self.actionNewProj.setShortcut(
+            QtGui.QApplication.translate("MainWindow", "Ctrl+N", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionOpenProj = QtGui.QAction(qicon("open.png"), "Open Project", self)
+        self.actionOpenProj.setShortcut(
+            QtGui.QApplication.translate("MainWindow", "Ctrl+O", None, QtGui.QApplication.UnicodeUTF8))
+
+        self.actionNewProj.triggered.connect(self.new_project)
+        self.actionOpenProj.triggered.connect(self.open_project)
+
         self._new_file_actions = {}
 
     #  API
@@ -266,12 +219,20 @@ class ProjectManagerView(QtGui.QTreeView):
         self.paradigm_container = get_applet(identifier='EditorManager')
 
     def set_project(self, project):
+        self.projectManager.cproject = project
+        # TODO: Dirty hack to remove asap. Close project selector if widget has been created
+        if hasattr(self, "proj_selector"):
+            self.proj_selector.close()
+            del self.proj_selector
+
         self._model.set_project(project)
         if project:
             self.close_all_scripts()
             self.open_all_scripts_from_project(project)
+            self.expandAll()
         else:
             self.close_all_scripts()
+
 
     def refresh(self):
         self._model.refresh()
@@ -309,8 +270,7 @@ class ProjectManagerView(QtGui.QTreeView):
 
     #  Contextual menu
 
-    def create_menu(self):
-        menu = QtGui.QMenu(self)
+    def _add_new_file_actions(self, menu):
         if self.paradigm_container:
             for applet in self.paradigm_container.paradigms.values():
                 action = QtGui.QAction('New %s' % applet.default_name, self)
@@ -319,14 +279,22 @@ class ProjectManagerView(QtGui.QTreeView):
                 menu.addAction(action)
             menu.addSeparator()
 
-        data = None
-        for index in self.selectedIndexes():
-            data = self._model.projectdata(index)
-        if data is None:
+    def create_menu(self):
+        menu = QtGui.QMenu(self)
+        project, category, obj = self.selected_data()
+        if project is None:
             return menu
         else:
-            category, obj = data
+            if category == 'category' and obj == 'model':
+                self._add_new_file_actions(menu)
+#             elif category == 'category' and obj == 'startup':
+#                 new_startup = QtGui.QAction('New file', self)
+#                 new_startup.triggered.connect(self.new_data)
+#                 menu.addAction(new_startup)
+
             if category in ['model', 'src', 'startup']:
+                self._add_new_file_actions(menu)
+
                 rename = QtGui.QAction('Rename %s' % obj, self)
                 rename.triggered.connect(self.rename)
                 menu.addAction(rename)
@@ -342,8 +310,13 @@ class ProjectManagerView(QtGui.QTreeView):
 
             if category in ['project']:
                 menu.addAction(self.actionEditMeta)
+                menu.addAction(self.actionSaveProj)
+                menu.addAction(self.actionSaveProjAs)
+                menu.addAction(self.actionCloseProj)
 
         return menu
+
+
 
     def contextMenuEvent(self, event):
         if self.projectManager.cproject is None:
@@ -357,7 +330,6 @@ class ProjectManagerView(QtGui.QTreeView):
         project = self.project()
         if project:
             project_creator = CreateProjectWidget(project)
-            project_creator.setMetaDataMode()
             dialog = ModalDialog(project_creator)
             if dialog.exec_():
                 _proj = project_creator.project()
@@ -365,6 +337,26 @@ class ProjectManagerView(QtGui.QTreeView):
                 if _proj.name != project.name or _proj.projectdir != project.projectdir:
                     project.rename('project', project.name, _proj.name)
                 project.metadata = project_creator.metadata()
+
+    def open_project(self, name=False, path=None):
+        """
+        If name==false, display a widget to choose project to open.
+        Then open project.
+        """
+        self.projectManager.discover()
+        projects = self.projectManager.projects
+        self.proj_selector = ProjectSelectorScroll(projects=projects, open_project=self.set_project)
+        self.proj_selector.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        self.proj_selector.show()
+
+    def new_project(self):
+        project_creator = CreateProjectWidget()
+        dialog = ModalDialog(project_creator)
+        if dialog.exec_():
+            _project = project_creator.project()
+            project = self.projectManager.create(_project.name, _project.projectdir)
+            project.metadata = _project.metadata
+        self.proj_selector.hide()
 
     def new_file(self, dtype=None):
         dtype = self._new_file_actions[self.sender()]
@@ -381,14 +373,14 @@ class ProjectManagerView(QtGui.QTreeView):
             elif category == 'project':
                 self.open_all_scripts_from_project(project)
             elif category == 'data':
-                p = project.path / category / name
-                start(p)
+                filepath = project.path / category / name
+                start(filepath)
+            elif category == 'startup':
+                filepath = path(category) / name
+                self.paradigm_container.open_file(filename=filepath)
             elif category == 'model':
                 model = project.get(category, name)
                 self.paradigm_container.open_file(model=model)
-            else:
-                filepath = path(category) / path(name)
-                self.paradigm_container.open_file(filename=filepath)
 
     def _rename(self, project, category, name):
         if category in ('model', 'src'):
@@ -416,6 +408,21 @@ class ProjectManagerView(QtGui.QTreeView):
         if project:
             project.remove(category, name)
 
+    def save(self):
+        project = self.project()
+        if project:
+            project.save()
+
+    def saveAs(self):
+        project = self.project()
+        if project:
+            name = self.showNewProjectDialog(default_name=None, text="Select name to save project")
+            if name:
+                project.rename(category="project", old_name=project.name, new_name=name)
+
+    def close(self):
+        self.projectManager.cproject = None
+
     def open_all_scripts_from_project(self, project):
         if self.paradigm_container is None:
             return
@@ -432,6 +439,24 @@ class ProjectManagerView(QtGui.QTreeView):
 
     def import_file(self):
         print 'import_file'
+
+    def showNewProjectDialog(self, default_name=None, text=None, parent=None):
+        my_path = path(settings.get_project_dir())
+        if default_name:
+            my_path = my_path / default_name
+        if not text:
+            text = 'Select name to create project'
+        fname = QtGui.QFileDialog.getSaveFileName(parent, text,
+                                                  my_path)
+        return fname
+
+
+    def showOpenProjectDialog(self, parent=None):
+        my_path = path(settings.get_project_dir())
+        fname = QtGui.QFileDialog.getExistingDirectory(parent, 'Select Project Directory',
+                                                       my_path)
+        return fname
+
 
     # Drag and drop
 
@@ -620,6 +645,8 @@ class ProjectManagerModel(QtGui.QStandardItemModel):
 #                     item2.appendRow(item3)
 
     def projectdata(self, index):
+        if index is None:
+            return None
         if self._project is None:
             return
         if index.data() in self._project.categories():

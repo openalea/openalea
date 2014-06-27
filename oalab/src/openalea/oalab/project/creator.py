@@ -104,11 +104,6 @@ class CreateProjectWidget(QtGui.QWidget):
 
         layout.addWidget(self.path_lineedit, 12, 1)
 
-
-    def setMetaDataMode(self, enable=True):
-        pass
-#         self.name_lineedit.setEnabled(not enable)
-
     def project(self):
         proj = Project(name=self.name_lineedit.text(),
                        projectdir=self.path_lineedit.value(),

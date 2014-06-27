@@ -212,26 +212,23 @@ class ProjectManagerWidget(QtGui.QWidget):
             categories = list(CATEGORIES)
             categories.extend(self.session.project.files.keys())
             categories = list(set(categories))
-            
-            self.selector = SelectCategory(filename=text, categories=categories)
-            self.selector.show()
-            self.selector.ok_button.clicked.connect(self._add_file_from_selector)
 
-    def _add_file_from_selector(self):
-        category = self.selector.combo.currentText()
-        self.selector.hide()
+            selector = SelectCategory(filename=text, categories=categories)
+            dialog = ModalDialog(self.selector)
+            if dialog.exec_():
+                category = selector.category()
 
-        text = self.editor_manager.currentWidget().get_text()
-        index = self.editor_manager.currentIndex()
-        filename = self.selector.line.text()
-        filename_without_ext = remove_extension(filename)
-        ret = self.session.project.add(category=category, name=filename, value=text)
-        if ret:
-            self.editor_manager.setTabText(index, filename_without_ext)
-        else:
-            print(
+                text = self.editor_manager.currentWidget().get_text()
+                index = self.editor_manager.currentIndex()
+                filename = self.selector.line.text()
+                filename_without_ext = remove_extension(filename)
+                ret = self.session.project.add(category=category, name=filename, value=text)
+                if ret:
+                    self.editor_manager.setTabText(index, filename_without_ext)
+            else:
+                print(
             "We can't add model %s to current project. The extension of model seems to be unknown." % str(filename))
-        self.session.update_namespace()
+            self.session.update_namespace()
 
     def renameCurrent(self, new_name=None):
         """
@@ -482,16 +479,18 @@ class SelectCategory(QtGui.QWidget):
         self.combo.setCurrentIndex(0)
         self.line = QtGui.QLineEdit(filename)
 
-        self.ok_button = QtGui.QPushButton("Ok")
-
         layout.addWidget(self.label, 0, 0)
         layout.addWidget(self.combo, 0, 1)
         layout.addWidget(self.label2, 1, 0)
         layout.addWidget(self.line, 1, 1)
-        layout.addWidget(self.ok_button, 2, 0, 2, 2)
 
         self.setLayout(layout)
 
+    def category(self):
+        return str(self.combo.currentText())
+
+    def name(self):
+        return str(self.line.text())
 
 class RenameModel(QtGui.QWidget):
     def __init__(self, models, model_name="", parent=None):

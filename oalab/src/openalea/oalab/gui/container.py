@@ -112,9 +112,9 @@ class ParadigmContainer(QtGui.QTabWidget):
 
         self.actionStop.setEnabled(False)
 
-        self._actions = [["File", "Manage", self.actionOpenFile, 0],
-                         ["File", "Manage", self.actionSave, 0],
-                         ["File", "Manage", self.actionSaveAs, 1],
+        self._actions = [["Project", "Manage", self.actionOpenFile, 0],
+                         ["Project", "Manage", self.actionSave, 0],
+#                          ["Project", "Manage", self.actionSaveAs, 1],
                          ["Simulation", "Play", self.actionRun, 0],
                          ["Simulation", "Play", self.actionAnimate, 0],
                          ["Simulation", "Play", self.actionStep, 0],
@@ -159,7 +159,7 @@ class ParadigmContainer(QtGui.QTabWidget):
                         break
             else:
                 self.newTab(applet_type=applet_type, tab_name=tab_name, model=model)
-                
+
             logger.debug("Open model named " + tab_name)
         else:
 
@@ -191,12 +191,16 @@ class ParadigmContainer(QtGui.QTabWidget):
     def new(self, category, dtype=None):
         if dtype is None:
             dtype = self._new_file_actions[self.sender()]
-        name = QtGui.QLineEdit(dtype.lower() + '_model')
+        name = QtGui.QLineEdit(dtype.lower() + '_' + category)
         dialog = ModalDialog(name)
         if dialog.exec_():
             project = self.projectManager.cproject
-            project.new('model', name.text(), dtype=dtype, value="")
-            self.open_file(model=project.get('model', name.text()))
+            if category == 'model':
+                project.new(category, name.text(), dtype=dtype, value="")
+                self.open_file(model=project.get(category, name.text()))
+            else:
+                project.new(category, name.text(), value='')
+                self.open_file(filename=name.text())
 
     def new_file(self, applet_type=None, tab_name=None, script="", model=None):
         """
@@ -224,7 +228,7 @@ class ParadigmContainer(QtGui.QTabWidget):
             action.triggered.connect(self.new)
             self.paradigms_actions.append(action)
             self._new_file_actions[action] = applet.default_name
-            self._actions.append(["File", "Manage", action, 0],)
+            self._actions.append(["Project", "Manage", action, 0],)
             self.extensions = self.extensions + applet.pattern + " "
 
     def setTabRed(self, index=None):
