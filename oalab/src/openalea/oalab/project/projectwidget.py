@@ -66,6 +66,7 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         self.actionSaveProjAs = QtGui.QAction(qicon("save.png"), "Save As", self)
         self.actionCloseProj = QtGui.QAction(qicon("closeButton.png"), "Close project", self)
         self.actionAddFile = QtGui.QAction(qicon("bool.png"), "Add model to current Project", self)
+        self.actionImportFile = QtGui.QAction(qicon("open.png"), "Import file", self)
 
         self.actionNewProj.triggered.connect(self.new)
         self.actionOpenProj.triggered.connect(self.open)
@@ -73,6 +74,7 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         self.actionSaveProj.triggered.connect(self.save)
         self.actionCloseProj.triggered.connect(self.close)
         self.actionAddFile.triggered.connect(self.add_current_file)
+        self.actionImportFile.triggered.connect(self.import_file)
 #         self.actionRenameProject.triggered.connect(self.rename)
 
         group = "Project"
@@ -145,6 +147,9 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
             name = self.showNewProjectDialog(default_name=None, text="Select name to save project")
             if name:
                 project.rename(category="project", old_name=project.name, new_name=name)
+
+    def import_file(self):
+        print 'import_file'
 
     def add_current_file(self):
         project = self.project()
