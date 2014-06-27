@@ -45,6 +45,13 @@ class GenericSaver(object):
         file_.write(code)
         file_.close()
 
+class BinarySaver(object):
+    default_name = "BinarySaver"
+    output_format = "*"
+
+    def save(self, obj, filename):
+        if isinstance(obj, path):
+            obj.copyfile(filename)
 
 class CPickleSaver(object):
     """
