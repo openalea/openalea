@@ -34,6 +34,7 @@ class RModel(Model):
         self.ns = dict()
         self.code = code  # use it to force to parse doc, functions, inputs and outputs
         self._interpreter = None
+        self.has_run = False
 
     def get_documentation(self):
         """
@@ -58,21 +59,29 @@ more informations: http://www.r-project.org/
         """
         return self.code
 
-    def run_code(self, code, *args, **kwargs):
-        """
-        execute subpart of a model (only code *code*)
-        """
-        interpreter = self._set_interpreter(**kwargs)
+    def r_options(self, namespace):
+        cmd = self.cmdline
+        print self.inputs_info
+        l = self.inputs_info
+        input_names = [input.split(',')[0].split('=')[0] for input in l]
+        input_names= [name for name in input_names if name in namespace]
+        #input_values = [input.split('=')[1] for input in l]
 
-        if interpreter:
-            # run
-            return interpreter.run_cell(code)
+        if input_names:
+            cmd+= ' -i %s'%(','.join(input_names))
 
-    def run(self, *args, **kwargs):
+        l = self.outputs_info
+        output_names = [input.split(',')[0].split('=')[0] for input in l]
+        if output_names:
+            cmd+= ' -o %s'%(','.join(output_names))
+
+        print cmd
+
+        return cmd
+
+    def _universal_run(self,code, *args, **kwargs):
+        """ This method is used by others...
         """
-        execute model thanks to interpreter
-        """
-        # TODO: check if we can do by an other way for inputs, outputs (ex %%R -i inputs, -o outputs)
         if args:
             self.inputs = args
 
@@ -85,76 +94,57 @@ more informations: http://www.r-project.org/
         if self.inputs:
             user_ns.update(self.inputs)
 
-        # run
-        code = """%load_ext rmagic
-%%R
-
-""" + self.code
-        interpreter.run_cell(code)
-
+        cmdline = self.r_options(user_ns)
+        shell = interpreter.shell
+        if not self.has_run:
+            shell.run_line_magic('load_ext','rmagic')
+        shell.run_cell_magic('R', cmdline, code)
+       
         self.set_output_from_ns(user_ns)
 
+
+    def run_code(self, code, *args, **kwargs):
+        """
+        execute subpart of a model (only code *code*)
+        """
+        interpreter = self._set_interpreter(**kwargs)
+        shell = interpreter.shell
+        cmdline = self.r_options()
+        if not self.has_run:
+            shell.run_line_magic('load_ext','rmagic')
+        shell.run_cell_magic('R', cmdline, code)
+
+    def run(self, *args, **kwargs):
+        """
+        execute model thanks to interpreter
+        """
+        # TODO: check if we can do by an other way for inputs, outputs (ex %%R -i inputs, -o outputs)
+
+        self._universal_run(self.code,*args,**kwargs)
+        self.has_run = True        
         return self.outputs
 
     def init(self, *args, **kwargs):
         """
         go back to initial step
         """
+        if not self.has_run:
+            self.run(*args, **kwargs)
         if self._init:
-            self.inputs = args
-
-            interpreter = self._set_interpreter(**kwargs)
-
-            if interpreter:
-                user_ns = interpreter.user_ns
-
-                user_ns.update(self.ns)
-
-                # put inputs inside namespace
-                if self.inputs:
-                    user_ns.update(self.inputs)
-                # TODO: check if *init* function can be call like that *init()*. Else, change it.
-                code = """%load_ext rmagic
-%%R
-
-""" + self.code + """
-
-init()
-"""
-                interpreter.run_cell(code)
-
-                self.set_output_from_ns(user_ns)
-
-                return self.outputs
+            code = '\ninit()\n'
+            self._universal_run(code,*args,**kwargs)
+            return self.outputs
 
     def step(self, *args, **kwargs):
         """
         execute only one step of the model
         """
-        if self._step:
-            self.inputs = args
+        if not self.has_run:
+            self.run(*args, **kwargs)
+        code = '\nstep()\n'
+        self._universal_run(code,*args,**kwargs)
 
-            interpreter = self._set_interpreter(**kwargs)
-            user_ns = interpreter.user_ns
-
-            user_ns.update(self.ns)
-
-            # put inputs inside namespace
-            if self.inputs:
-                user_ns.update(self.inputs)
-            # TODO: check if *step* function can be call like that *step()*. Else, change it.
-            code = """%load_ext rmagic
-%%R
-
-""" + self.code + """
-
-step()
-"""
-            # run
-            interpreter.run_cell(code)
-            self.set_output_from_ns(user_ns)
-
-            return self.outputs
+        return self.outputs
 
     def stop(self, *args, **kwargs):
         """
@@ -167,29 +157,11 @@ step()
         run model step by step
         """
         if self._animate:
-            self.inputs = args
+            if not self.has_run:
+                self.run(*args, **kwargs)
 
-            interpreter = self._set_interpreter(**kwargs)
-
-            user_ns = interpreter.user_ns
-
-            user_ns.update(self.ns)
-
-            # put inputs inside namespace
-            if self.inputs:
-                user_ns.update(self.inputs)
-            # TODO: check if *animate* function can be call like that *animate()*. Else, change it.
-            code = """%load_ext rmagic
-%%R
-
-""" + self.code + """
-
-animate()
-"""
-            # run
-            interpreter.run_cell(code)
-
-            self.set_output_from_ns(user_ns)
+            code = '\nanimate()\n'
+            self._universal_run(code,*args,**kwargs)
 
             return self.outputs
 
@@ -230,6 +202,7 @@ animate()
     def code(self, code=""):
         self._code = code
         # TODO define the 3 functions parse_docstring_r, parse_functions_r, get_docstring_r
-        # model, self.inputs_info, self.outputs_info = parse_docstring_r(code)
-        # self._init, self._step, self._animate, self._run = parse_functions_r(code)
-        # self._doc = get_docstring_r(self._code)
+        model, self.inputs_info, self.outputs_info, self.cmdline = parse_docstring_r(code)
+        self._init, self._step, self._animate, self._run = parse_functions_r(code)
+        self._doc = get_docstring_r(self._code)
+        self.has_run = False
