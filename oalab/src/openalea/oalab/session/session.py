@@ -23,7 +23,9 @@ __all__ = ['Session']
 import os
 import warnings
 from openalea.vpltk.shell.shell import get_interpreter_class
+from openalea.oalab.package.manager import package_manager
 from openalea.vpltk.project.manager import ProjectManager
+from openalea.oalab.control.manager import ControlManager
 from openalea.oalab.config.main import MainConfig
 from openalea.oalab.world.world import World
 from openalea.core.singleton import Singleton
@@ -49,6 +51,8 @@ class Session(object):
         self._config = MainConfig()
         self.extension = None
 
+        self.package_manager = package_manager
+        self.control_manager = ControlManager()
         self.project_manager = ProjectManager()
 
         self.world = World()
@@ -71,25 +75,6 @@ class Session(object):
         """
         return self.project_manager.cproject
 
-#     @project.setter
-#     def project(self, project):
-#         """
-#         Set the project
-#         """
-#         warnings.warn('Deprecated get_project -> project', DeprecationWarning)
-#         self._project = project
-#
-#     # GBY: it is not the role of session to handle projects
-#     def current_is_project(self):
-#         """
-#         :return: True if current document is a project
-#         """
-#         return bool(self._is_proj)
-#
-#     def get_project(self):
-#         warnings.warn('Deprecated get_project -> project', DeprecationWarning)
-#         return self.project
-
     def load_config_file(self, filename, path=None):
         self._config.load_config_file(filename=filename, path=path)
 
@@ -98,14 +83,18 @@ class Session(object):
 
         Definition: Update namespace
         """
+        self.interpreter.locals['project_manager'] = self.project_manager
+        self.interpreter.locals['control_manager'] = self.control_manager
+        self.interpreter.locals['package_manager'] = self.package_manager
+        self.interpreter.locals['scene'] = self.world
+        self.interpreter.locals['world'] = self.world
+        self.world.clear()
+
         if self.project:
             os.chdir(self.project.path)
             self.interpreter.locals['project'] = self.project
             self.interpreter.locals['Model'] = self.project.model
             self.interpreter.locals['data'] = self.project.path / 'data'
-        self.interpreter.locals['scene'] = self.world
-        self.interpreter.locals['world'] = self.world
-        self.world.clear()
 
     def add_to_history(self, *args, **kwargs):
         """

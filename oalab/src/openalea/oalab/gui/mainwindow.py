@@ -67,7 +67,7 @@ class MainWindow(QtGui.QMainWindow):
         self.split = QtGui.QSplitter()
         self.setCentralWidget(self.split)
 
-        menu_names = ('File', 'Edit', 'Project', 'Simulation', 'Viewer', 'Help')
+        menu_names = ('Project', 'Edit', 'Simulation', 'Viewer', 'Help')
 
         # Classic menu
         self.menu_classic = {}

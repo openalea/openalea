@@ -24,5 +24,7 @@ class ProjectManager2(PluginApplet):
 
         self._applet = self.new(self.name, ProjectManagerWidget)
         self._fill_menu(mainwindow, self._applet)
+        mainwindow.menu_classic['Project'].addSeparator()
         mainwindow.menu_classic['Project'].addMenu(self._applet.menu_available_projects)
+        mainwindow.menu_classic['Project'].addSeparator()
         mainwindow.add_applet(self._applet, self.alias, area='inputs')
