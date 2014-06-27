@@ -51,7 +51,8 @@ class BinarySaver(object):
 
     def save(self, obj, filename):
         if isinstance(obj, path):
-            obj.copyfile(filename)
+            if obj.abspath() != path(filename).abspath():
+                obj.copyfile(filename)
 
 class CPickleSaver(object):
     """
