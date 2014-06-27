@@ -29,11 +29,10 @@ class IColorList(IInterface):
     ]
 
     """
+    __alias__ = 'Material List'
+
     def __init__(self):
         self.value = self.sample()
-
-    def __repr__(self):
-        return 'IColorList'
 
     def sample(self):
         """
@@ -59,8 +58,7 @@ class ICurve2D(IInterface):
     def __init__(self):
         self.value = self.sample()
 
-    def __repr__(self):
-        return 'ICurve2D'
+    __alias__ = 'Curve 2D'
 
     def sample(self):
         """
