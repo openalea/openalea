@@ -23,7 +23,7 @@ __revision__ = " $Id$ "
 
 import os
 import sys
-from ConfigParser import SafeConfigParser,NoSectionError,NoOptionError
+from ConfigParser import SafeConfigParser, NoSectionError, NoOptionError
 from openalea.core.singleton import Singleton, ProxySingleton
 from openalea.core import logger
 
@@ -86,7 +86,7 @@ def get_openalea_home_dir(name='.openalea'):
     
 def get_project_dir(name='projects'):
     """
-    Get user package directory (the place where are the
+    Get default directory (the place where are the
     wralea.py files).
     If it doesn't exist, create it
     """
