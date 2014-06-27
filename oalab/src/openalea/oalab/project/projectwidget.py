@@ -159,19 +159,22 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         self.selector = SelectCategory(filename=text, categories=categories)
         self.selector.show()
         self.selector.ok_button.clicked.connect(self._add_file_from_selector)
+        self.selector.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
     def _add_file_from_selector(self):
         project = self.projectManager.cproject
         category = self.selector.combo.currentText()
-        self.selector.hide()
 
-        text = self.paradigm_container.currentWidget().get_text()
+        text = self.paradigm_container.currentWidget().get_code()
         index = self.paradigm_container.currentIndex()
         filename = self.selector.line.text()
         filename_without_ext = remove_extension(filename)
         ret = project.add(category=category, name=filename, value=text)
         if ret:
             self.paradigm_container.setTabText(index, filename_without_ext)
+
+        self.selector.close()
+        del self.selector
 
     def showNewProjectDialog(self, default_name=None, text=None, parent=None):
         my_path = path(settings.get_project_dir())

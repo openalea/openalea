@@ -76,7 +76,7 @@ class ProjectManagerWidget(QtGui.QWidget):
         # self.actionSaveProj.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
         self.actionCloseProj = QtGui.QAction(qicon("closeButton.png"), "Close project", self)
         self.actionEditMeta = QtGui.QAction(qicon("book.png"), "Edit Metadata", self)
-        self.actionAddFile = QtGui.QAction(qicon("bool.png"), "Add model to current Project", self)
+        self.actionAddFile = QtGui.QAction(qicon("bool.png"), "Add", self)
         self.actionRenameProject = QtGui.QAction(qicon("editpaste.png"), "Rename Project", self)
         self.actionRenameModel = QtGui.QAction(qicon("editcopy.png"), "Rename Model", self)
 
