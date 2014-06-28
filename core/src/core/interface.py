@@ -172,7 +172,7 @@ class ITextStr(IStr):
 
 class ICodeStr(IStr):
     """ Source code interface """
-    __alias__ = u'Programming code'
+    __alias__ = u'Code'
     pass
 
 
