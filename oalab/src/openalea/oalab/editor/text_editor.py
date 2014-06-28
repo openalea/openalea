@@ -441,10 +441,7 @@ class TextEditor(QtGui.QTextEdit):
         super(TextEditor, self).scrollContentsBy(dx, dy)
 
     def display_line_number(self):
-        lineno = self.textCursor().blockNumber() + 1
-        columnno = self.textCursor().columnNumber()
-        # todo
-        # statusBar.showMessage("Cursor at line %s, column %s" % (lineno, columnno), 2000)
+        self.sidebar.repaint(self.sidebar.rect())
 
     ####################################################################
     #### Line Number Area
