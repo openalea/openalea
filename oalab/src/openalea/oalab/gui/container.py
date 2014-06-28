@@ -135,6 +135,14 @@ class ParadigmContainer(QtGui.QTabWidget):
     def initialize(self):
         self.reset()
 
+
+
+
+
+
+
+
+
     def open_file(self, filename=None, extension=None, model=None):
         """
         Open a file.
@@ -230,62 +238,11 @@ class ParadigmContainer(QtGui.QTabWidget):
             self._new_file_actions[action] = applet.default_name
             self._actions.append(["Project", "Manage", action, 0],)
             self.extensions = self.extensions + applet.pattern + " "
-
-    def setTabRed(self, index=None):
-        if index is None:
-            index = self.currentIndex()
-        if index != -1:
-            self.tabBar().setTabTextColor(index, QtCore.Qt.red)
-
-    def setTabBlack(self, index=None):
-        if index is None:
-            index = self.currentIndex()
-        if index != -1:
-            self.tabBar().setTabTextColor(index, QtCore.Qt.black)
-
-    def setAllTabBlack(self):
-        for index in range(self.count()):
-            self.setTabBlack(index)
-
-    def addDefaultTab(self):
+    def openTab(self, applet_type=None, tab_name="", script="", model=None):
         """
-        Display a welcome tab if nothing is opened
+        Open a tab with the widget 'applet_type'
         """
-        pm = get_applet(identifier='ProjectManager2')
-        if pm :
-            actions = [pm.actionNewProj, pm.actionOpenProj]
-            welcomePage = WelcomePage(actions=actions, parent=self.parent())
-            self.addTab(welcomePage, "Welcome")
-
-    def addCreateFileTab(self):
-        """
-        Display a tab to select type of file that you can create
-        """
-        page = WelcomePage(actions=self.paradigms_actions)
-        self.addTab(page, "Create File")
-        self.rmTab("Welcome")
-
-    def rmTab(self, tabname="Welcome"):
-        """
-        Remove the tab named "tabname"
-
-        :param tabname: name of the tab to remove. Default: "Welcome"
-        """
-        for i in range(self.count()):
-            if self.tabText(i) == tabname:
-                self.removeTab(i)
-
-    def reset(self):
-        """
-        Delete all tabs
-        """
-        self.closeAll()
-
-#     def openTab(self, applet_type=None, tab_name="", script="", model=None):
-#         """
-#         Open a tab with the widget 'applet_type'
-#         """
-#         self.newTab(applet_type=applet_type, tab_name=tab_name, script=script, model=model)
+        self.newTab(applet_type=applet_type, tab_name=tab_name, script=script, model=model)
 
     def newTab(self, applet_type="", tab_name="", script="", model=None):
         """
@@ -349,22 +306,6 @@ class ParadigmContainer(QtGui.QTabWidget):
             self._open_objects[widget] = model
             return widget
 
-
-    def connect_actions(self):
-        widget = self.applets[-1].widget()
-        menu = self.controller.menu
-        if widget:
-            if widget.actions():
-                for action in widget.actions():
-                    # Add actions in PanedMenu
-                    menu.addBtnByAction(*action)
-
-    def focusChange(self):
-        widget = self.currentWidget()
-        if widget:
-            if hasattr(widget, "applet"):
-                widget.applet.focus_change()
-
     def closeTab(self):
         """
         Close current tab
@@ -381,36 +322,62 @@ class ParadigmContainer(QtGui.QTabWidget):
                 self.addDefaultTab()
         logger.debug("Close tab")
 
-    def autoClose(self, n_tab):
-        self.setCurrentIndex(n_tab)
-        self.closeTab()
 
-    def closeAll(self):
-        n = self.count()
-        for i in range(n):
-            self.closeTab()
 
-    def actions(self):
-        """
-        :return: list of actions to set in the menu.
-        """
-        return self._actions
 
-    def mainMenu(self):
-        """
-        :return: Name of menu tab to automatically set current when current widget
-        begin current.
-        """
-        return "Simulation"
 
-    def save_all(self):
+    def setTabRed(self, index=None):
+        if index is None:
+            index = self.currentIndex()
+        if index != -1:
+            self.tabBar().setTabTextColor(index, QtCore.Qt.red)
+
+    def setTabBlack(self, index=None):
+        if index is None:
+            index = self.currentIndex()
+        if index != -1:
+            self.tabBar().setTabTextColor(index, QtCore.Qt.black)
+
+    def setAllTabBlack(self):
+        for index in range(self.count()):
+            self.setTabBlack(index)
+
+    def addDefaultTab(self):
         """
-        Save all opened files
+        Display a welcome tab if nothing is opened
         """
-        n = self.count()
-        for i in range(n):
-            self.setCurrentIndex(i)
-            self.save()
+        pm = get_applet(identifier='ProjectManager2')
+        if pm :
+            actions = [pm.actionNewProj, pm.actionOpenProj]
+            welcomePage = WelcomePage(actions=actions, parent=self.parent())
+            self.addTab(welcomePage, "Welcome")
+
+    def addCreateFileTab(self):
+        """
+        Display a tab to select type of file that you can create
+        """
+        page = WelcomePage(actions=self.paradigms_actions)
+        self.addTab(page, "Create File")
+        self.rmTab("Welcome")
+
+    def rmTab(self, tabname="Welcome"):
+        """
+        Remove the tab named "tabname"
+
+        :param tabname: name of the tab to remove. Default: "Welcome"
+        """
+        for i in range(self.count()):
+            if self.tabText(i) == tabname:
+                self.removeTab(i)
+
+    def reset(self):
+        """
+        Delete all tabs
+        """
+        self.closeAll()
+
+
+
 
     def save(self):
         """
@@ -470,6 +437,52 @@ class ParadigmContainer(QtGui.QTabWidget):
                 model.name = filename
             self.setTabText(self.currentIndex(), filename)
             # save
+            self.save()
+
+    def connect_actions(self):
+        widget = self.applets[-1].widget()
+        menu = self.controller.menu
+        if widget:
+            if widget.actions():
+                for action in widget.actions():
+                    # Add actions in PanedMenu
+                    menu.addBtnByAction(*action)
+
+    def focusChange(self):
+        widget = self.currentWidget()
+        if widget:
+            if hasattr(widget, "applet"):
+                widget.applet.focus_change()
+
+    def autoClose(self, n_tab):
+        self.setCurrentIndex(n_tab)
+        self.closeTab()
+
+    def closeAll(self):
+        n = self.count()
+        for i in range(n):
+            self.closeTab()
+
+    def actions(self):
+        """
+        :return: list of actions to set in the menu.
+        """
+        return self._actions
+
+    def mainMenu(self):
+        """
+        :return: Name of menu tab to automatically set current when current widget
+        begin current.
+        """
+        return "Simulation"
+
+    def save_all(self):
+        """
+        Save all opened files
+        """
+        n = self.count()
+        for i in range(n):
+            self.setCurrentIndex(i)
             self.save()
 
     def run_selected_part(self):
