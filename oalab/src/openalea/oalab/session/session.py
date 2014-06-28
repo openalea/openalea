@@ -92,9 +92,7 @@ class Session(object):
         self.interpreter.locals['project_manager'] = self.project_manager
         self.interpreter.locals['control_manager'] = self.control_manager
         self.interpreter.locals['package_manager'] = self.package_manager
-        self.interpreter.locals['scene'] = self.world
-        self.interpreter.locals['World'] = self.world
-        self.interpreter.locals['world'] = self.world.add
+        self.interpreter.locals['world'] = self.world
 
         if self.project:
             if self.project.path.exists():
