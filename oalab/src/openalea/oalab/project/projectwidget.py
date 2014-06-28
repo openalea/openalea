@@ -85,8 +85,8 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         self.session = Session()
 
     def initialize(self):
-        self.view.initialize()
         self.paradigm_container = get_applet(identifier='EditorManager')
+        self.view.initialize()
 
         # As default project has been defined before having connected this widget
         # We close it and open it again.
@@ -94,6 +94,11 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         default = pm.cproject
         pm.cproject = None
         pm.cproject = default
+
+    def close(self):
+        config = settings.Settings()
+        if self.project():
+            config
 
     def actions(self):
         return self._actions
@@ -158,14 +163,12 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
     def notify(self, sender, event=None):
         signal, data = event
         if signal == 'project_changed':
-            self.session.update_namespace()
-            self._update()
+            project = self.projectManager.cproject
+            self.view.set_project(project=project)
         elif signal == 'project_updated':
             self.view.refresh()
 
-    def _update(self):
-        project = self.projectManager.cproject
-        self.view.set_project(project=project)
+        self.session.update_namespace()
 
     def set_project(self, project):
         self.view.set_project(project)
@@ -236,10 +239,10 @@ class ProjectManagerView(QtGui.QTreeView):
         self.projectManager.cproject = project
         # TODO: Dirty hack to remove asap. Close project selector if widget has been created
         if hasattr(self, "proj_selector"):
-            self.proj_selector.close()
             del self.proj_selector
 
         self._model.set_project(project)
+
         if project:
             self.close_all_scripts()
             self.open_all_scripts_from_project(project)
@@ -287,7 +290,6 @@ class ProjectManagerView(QtGui.QTreeView):
     def connect_paradigm_container(self):
         # Connect actions from self.paradigms to menu (newPython, newLpy,...)
         for applet in self.paradigms.values():
-            print applet
             action = QtGui.QAction(QtGui.QIcon(applet.icon), "New " + applet.default_name, self)
             action.triggered.connect(self.new_file)
             self.paradigms_actions.append(action)
@@ -305,7 +307,6 @@ class ProjectManagerView(QtGui.QTreeView):
     def create_menu(self):
         menu = QtGui.QMenu(self)
         project, category, obj = self.selected_data()
-        print category, obj
 
         if category == 'category' and obj == 'model':
             self._add_new_file_actions(menu)
@@ -387,11 +388,11 @@ class ProjectManagerView(QtGui.QTreeView):
             _project = project_creator.project()
             project = self.projectManager.create(_project.name, _project.projectdir)
             project.metadata = _project.metadata
-        self.proj_selector.hide()
 
     def open_all_scripts_from_project(self, project):
-        pass
-#         self.paradigm_container.open()
+        if self.paradigm_container:
+            for model in project._model:
+                self.paradigm_container.open_project_data('model', model)
 
     def new_file(self, dtype=None):
         try:
