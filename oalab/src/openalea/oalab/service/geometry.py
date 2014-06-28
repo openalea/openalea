@@ -5,6 +5,8 @@
 Currently, the service convert object to PlantGL shapes.
 """
 
+from openalea.oalab.world.world import WorldObject
+
 __all__ = ['to_shape3d', 'register_shape3d']
 
 def find_plugins(plugin_name='oalab.service.to_shape3d', debug=False):
@@ -41,6 +43,9 @@ def to_shape3d(obj):
     # Case _repr_geom_
     if hasattr(obj, "_repr_geom_"):
         return to_shape3d(obj._repr_geom_())
+
+    if isinstance(obj, WorldObject):
+        return to_shape3d(obj.obj)
 
     for types, function in __registry.iteritems():
         if isinstance(obj, types):

@@ -45,12 +45,25 @@ class World(VPLScene, AbstractListener):
     def __init__(self):
         VPLScene.__init__(self)
         AbstractListener.__init__(self)
+        self.count = 0
 
     def __setitem__(self, key, value):
         if not isinstance(value, WorldObject):
             world_obj = WorldObject(value)
-        self.initialise(world_obj)
+        else:
+            world_obj = value
+        world_obj.register_listener(self)
         VPLScene.__setitem__(self, key, world_obj)
+
+    def add(self, data, transform=None, name=None):
+        if name is None:
+            name = 'data_%03d' % self.count
+            self.count += 1
+        obj = WorldObject(data)
+        def f():
+            return transform(data)
+        obj._repr_geom_ = f
+        self[name] = obj
 
     def notify(self, sender, event=None):
         self._valueChanged()
@@ -68,7 +81,7 @@ class WorldObject(Observed):
         - visibility in scene
         - date when object has been added to scene
     """
-    def __init__(self, obj, model_id=None, output_id=None):
+    def __init__(self, obj, model_id=None, output_id=None, transform=None):
         """
         :param obj: object to store
         :param model_id: identifier of the model used to create this object
