@@ -16,6 +16,7 @@
 #
 ###############################################################################
 import ast
+import re
 from openalea.core import logger
 
 
@@ -181,12 +182,12 @@ def parse_input_and_output(docstring):
         docsplit = docstring.splitlines()
         for line in docsplit:
             line = line.strip()
-            if "input" in line:
+            if re.match('^input\s*=\s', line):
                 line = line.split('input')[1]
                 line = line.split('=',1)[1].strip()
                 inputs = line.split(',')
                 inputs = [x.strip() for x in inputs]
-            if "output" in line:
+            if re.match('^output\s*=\s', line):
                 line = line.split('output')[1]
                 line = line.split('=',1)[1].strip()
                 outputs = line.split(',')

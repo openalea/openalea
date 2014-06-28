@@ -20,4 +20,4 @@ __revision__ = ""
 from openalea.core.pkgmanager import PackageManager
 
 package_manager = PackageManager()
-package_manager.init(verbose=False)
+# package_manager.init(verbose=False)
