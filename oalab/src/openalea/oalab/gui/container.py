@@ -24,10 +24,49 @@ from openalea.oalab.gui.pages import WelcomePage2 as WelcomePage
 from openalea.core import settings
 from openalea.core.path import path
 from openalea.oalab.gui import resources_rc # do not remove this import else icon are not drawn
-from openalea.oalab.gui.utils import qicon, ModalDialog
+from openalea.oalab.gui.utils import qicon
 from openalea.vpltk.project import ProjectManager
 from openalea.oalab.service.applet import get_applet
 
+class TextData(object):
+    default_name = "text"
+    default_file_name = "text"
+    pattern = ""
+    extension = ""
+    icon = ""
+
+    def __init__(self, name="", code="", filepath="", category=None, *args, **kwargs):
+        """
+        :param name: name of the model (name of the file?)
+        :param code: code of the model, can be a string or an other object
+        :param filepath: path to save the model on disk
+        """
+        self.name = name
+        self.filepath = filepath
+        self.code = code
+        self.category = category
+
+    def __eq__(self, other):
+        return self.code == other.code and self.name == other.name and self.category == other.category
+
+class DataContainer(dict):
+    """
+    Temporary waiting for real dataobject implementation in project
+    """
+    def __contains__(self, other):
+        for obj in self:
+            if obj == other:
+                return True
+        return False
+
+    def __getitem__(self, key):
+        try:
+            return dict.__getitem__(self, key)
+        except KeyError, e:
+            for obj in self:
+                if obj == key:
+                    return dict.__getitem__(self, obj)
+            raise e
 
 class ParadigmContainer(QtGui.QTabWidget):
     """
@@ -43,17 +82,21 @@ class ParadigmContainer(QtGui.QTabWidget):
         self.setTabsClosable(True)
         self.setMinimumSize(100, 100)
         self.applets = []
-        self._open_objects = {}
-        self._new_file_actions = {}
+
+        self._open_objects = DataContainer()
+        self._open_tabs = {}
+
 
         self.projectManager = ProjectManager()
 
         self.paradigms = {}
+        self._new_file_actions = {}
         self.paradigms_actions = []
         for applet in iter_plugins('oalab.paradigm_applet', debug=self.session.debug_plugins):
             self.paradigms[applet.default_name] = applet
 
         self.setAccessibleName("Container")
+        self.setElideMode(QtCore.Qt.ElideMiddle)
 
         self.actionOpenFile = QtGui.QAction(qicon("open.png"), "Open file", self)
 
@@ -64,6 +107,7 @@ class ParadigmContainer(QtGui.QTabWidget):
         self.actionStep = QtGui.QAction(qicon("step.png"), "Step", self)
         self.actionStop = QtGui.QAction(qicon("pause.png"), "Stop", self)
         self.actionInit = QtGui.QAction(qicon("rewind.png"), "Init", self)
+        self.actionCloseCurrent = QtGui.QAction(qicon("closeButton.png"), "Close current tab", self)
 
         self.actionRunSelection = QtGui.QAction(qicon("run.png"), "Run subpart", self)
 
@@ -78,11 +122,10 @@ class ParadigmContainer(QtGui.QTabWidget):
         self.actionOpenFile.setShortcut(
             QtGui.QApplication.translate("MainWindow", "Ctrl+O", None, QtGui.QApplication.UnicodeUTF8))
 
-        self.actionComment.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+W", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionUnComment.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+J", None, QtGui.QApplication.UnicodeUTF8))
-
         self.actionRunSelection.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+R", None, QtGui.QApplication.UnicodeUTF8))
 
+
+        self.actionCloseCurrent.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+W", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSearch.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+F", None, QtGui.QApplication.UnicodeUTF8))
         self.actionGoto.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+G", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSave.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
@@ -92,14 +135,15 @@ class ParadigmContainer(QtGui.QTabWidget):
         self.actionStop.setShortcut(QtGui.QApplication.translate("MainWindow", "F4", None, QtGui.QApplication.UnicodeUTF8))
         self.actionInit.setShortcut(QtGui.QApplication.translate("MainWindow", "F5", None, QtGui.QApplication.UnicodeUTF8))
 
-        self.actionOpenFile.triggered.connect(self.open_file)
-        self.actionSave.triggered.connect(self.save)
-        self.actionSaveAs.triggered.connect(self.save_as)
+        self.actionOpenFile.triggered.connect(self.open)
+        self.actionSave.triggered.connect(self.save_current)
+#         self.actionSaveAs.triggered.connect(self.save_as)
         self.actionRun.triggered.connect(self.run)
         self.actionAnimate.triggered.connect(self.animate)
         self.actionStep.triggered.connect(self.step)
         self.actionStop.triggered.connect(self.stop)
         self.actionInit.triggered.connect(self.reinit)
+        self.actionCloseCurrent.triggered.connect(self.close_current)
 
         self.actionRunSelection.triggered.connect(self.run_selected_part)
 
@@ -126,23 +170,139 @@ class ParadigmContainer(QtGui.QTabWidget):
                          ["Edit", "Text Edit", self.actionGoto, 1],
                          ["Edit", "Text Edit", self.actionComment, 1],
                          ["Edit", "Text Edit", self.actionUnComment, 1],
-                         ["Edit", "Text Edit", self.actionRunSelection, 0]]
+                         ["Edit", "Text Edit", self.actionRunSelection, 0],
+                         ["Edit", "Text Edit", self.actionCloseCurrent, 1],
+                         ]
         self.extensions = ""
-        self.connect_paradigm_container()
         self.connect(self, QtCore.SIGNAL('tabCloseRequested(int)'), self.autoClose)
 
 
     def initialize(self):
         self.reset()
 
+    def project(self):
+        return self.projectManager.cproject
+
+    def applet(self, obj, dtype):
+        applet_class = None
+        if dtype in self.paradigms:
+            # Check in paradigm.default_name
+            applet_class = self.paradigms[dtype]
+        else:
+            # Check in paradigm.extension
+            for value in self.paradigms.values():
+                if dtype == value.extension:
+                    applet_class = value
+        if applet_class is None:
+            applet_class = self.paradigms["Python"]
+
+        # TODO: case Python paradigm does not exists
+        return applet_class(name=obj.name, code=obj.code, model=obj,
+                            filepath=obj.filepath, interpreter=self.session.interpreter,
+                            editor_container=None, parent=None).instanciate_widget()
+
+    def data(self, category, name):
+        project = self.project()
+        if category == 'model':
+            obj = project.get(category, name)
+            dtype = obj.default_name
+        else:
+            code = project.get(category, name)
+            dtype = None
+            obj = TextData(name, code, filepath=project.path / category / name)
+        obj.category = category
+        return obj, dtype
+
+    def data_name(self, obj):
+        if obj.category in ('model', 'external'):
+            name = obj.name
+        else:
+            name = '%s/%s' % (obj.category, obj.name)
+        return name
+
+    def current_data(self):
+        tab = self.currentWidget()
+        if tab:
+            return self._open_tabs[tab]
+        else:
+            return None
+
+    def open(self):
+        filepath = showOpenFileDialog()
+        if filepath:
+            filepath = path(filepath)
+            name = '.../%s/%s' % (filepath.parent.name, filepath.name)
+            f = open(filepath, 'r')
+            code = f.read()
+            f.close()
+            obj = TextData(name, code, filepath, category='external')
+            self.open_data(obj, dtype=None)
+
+    def open_project_data(self, category=None, name=None):
+        project = self.project()
+        if project:
+            obj, dtype = self.data(category, name)
+            self.open_data(obj, dtype)
+
+    def open_data(self, obj, dtype=None):
+            # Check if object is yet open else create applet
+            if obj in self._open_objects:
+                tab = self._open_objects[obj]
+                self.setCurrentWidget(tab)
+            else:
+                applet = self.applet(obj, dtype)
+
+                idx = self.addTab(applet, self.data_name(obj))
+                if obj.filepath:
+                    self.setTabToolTip(idx, obj.filepath)
+                self.setCurrentIndex(idx)
+                self._open_objects[obj] = applet
+                self._open_tabs[applet] = obj
+
+    def close_current(self):
+        self.close()
+
+    def close_project_data(self, category=None, name=None):
+        obj, dtype = self.data(category, name)
+        if obj in self._open_objects:
+            tab = self._open_objects[obj]
+            self.closeTab(tab)
+
+    def close(self, tab=None):
+        if tab is None:
+            tab = self.currentWidget()
+        obj = self._open_tabs[tab]
+        idx = self.indexOf(tab)
+        self.removeTab(idx)
+        del self._open_objects[obj]
+        del self._open_tabs[tab]
+
+    def save_current(self):
+        self.save()
+
+    def save(self, tab=None):
+        if tab is None:
+            tab = self.currentWidget()
+
+        project = self.project()
+        obj = self._open_tabs[tab]
+        category = obj.category
+        code = tab.get_code()
+
+        if category == 'external':
+            f = open(obj.filepath, "w")
+            code = str(code).encode("utf8", "ignore")
+            f.write(code)
+            f.close()
+        elif category == 'model':
+            obj.code = code
+            project.save()
+        elif category in ('startup', 'doc'):
+            getattr(project, category)[obj.filepath.name] = code
+            project.save()
 
 
-
-
-
-
-
-
+    '''
     def open_file(self, filename=None, extension=None, model=None):
         """
         Open a file.
@@ -322,63 +482,6 @@ class ParadigmContainer(QtGui.QTabWidget):
                 self.addDefaultTab()
         logger.debug("Close tab")
 
-
-
-
-
-    def setTabRed(self, index=None):
-        if index is None:
-            index = self.currentIndex()
-        if index != -1:
-            self.tabBar().setTabTextColor(index, QtCore.Qt.red)
-
-    def setTabBlack(self, index=None):
-        if index is None:
-            index = self.currentIndex()
-        if index != -1:
-            self.tabBar().setTabTextColor(index, QtCore.Qt.black)
-
-    def setAllTabBlack(self):
-        for index in range(self.count()):
-            self.setTabBlack(index)
-
-    def addDefaultTab(self):
-        """
-        Display a welcome tab if nothing is opened
-        """
-        pm = get_applet(identifier='ProjectManager2')
-        if pm :
-            actions = [pm.actionNewProj, pm.actionOpenProj]
-            welcomePage = WelcomePage(actions=actions, parent=self.parent())
-            self.addTab(welcomePage, "Welcome")
-
-    def addCreateFileTab(self):
-        """
-        Display a tab to select type of file that you can create
-        """
-        page = WelcomePage(actions=self.paradigms_actions)
-        self.addTab(page, "Create File")
-        self.rmTab("Welcome")
-
-    def rmTab(self, tabname="Welcome"):
-        """
-        Remove the tab named "tabname"
-
-        :param tabname: name of the tab to remove. Default: "Welcome"
-        """
-        for i in range(self.count()):
-            if self.tabText(i) == tabname:
-                self.removeTab(i)
-
-    def reset(self):
-        """
-        Delete all tabs
-        """
-        self.closeAll()
-
-
-
-
     def save(self):
         """
         Save current script
@@ -438,6 +541,62 @@ class ParadigmContainer(QtGui.QTabWidget):
             self.setTabText(self.currentIndex(), filename)
             # save
             self.save()
+    '''
+
+
+
+
+
+
+    def setTabRed(self, index=None):
+        if index is None:
+            index = self.currentIndex()
+        if index != -1:
+            self.tabBar().setTabTextColor(index, QtCore.Qt.red)
+
+    def setTabBlack(self, index=None):
+        if index is None:
+            index = self.currentIndex()
+        if index != -1:
+            self.tabBar().setTabTextColor(index, QtCore.Qt.black)
+
+    def setAllTabBlack(self):
+        for index in range(self.count()):
+            self.setTabBlack(index)
+
+    def addDefaultTab(self):
+        """
+        Display a welcome tab if nothing is opened
+        """
+        pm = get_applet(identifier='ProjectManager2')
+        if pm :
+            actions = [pm.actionNewProj, pm.actionOpenProj]
+            welcomePage = WelcomePage(actions=actions, parent=self.parent())
+            self.addTab(welcomePage, "Welcome")
+
+    def addCreateFileTab(self):
+        """
+        Display a tab to select type of file that you can create
+        """
+        page = WelcomePage(actions=self.paradigms_actions)
+        self.addTab(page, "Create File")
+        self.rmTab("Welcome")
+
+    def rmTab(self, tabname="Welcome"):
+        """
+        Remove the tab named "tabname"
+
+        :param tabname: name of the tab to remove. Default: "Welcome"
+        """
+        for i in range(self.count()):
+            if self.tabText(i) == tabname:
+                self.removeTab(i)
+
+    def reset(self):
+        """
+        Delete all tabs
+        """
+        self.closeAll()
 
     def connect_actions(self):
         widget = self.applets[-1].widget()
@@ -455,13 +614,12 @@ class ParadigmContainer(QtGui.QTabWidget):
                 widget.applet.focus_change()
 
     def autoClose(self, n_tab):
-        self.setCurrentIndex(n_tab)
-        self.closeTab()
+        self.close(self.widget(n_tab))
 
     def closeAll(self):
         n = self.count()
         for i in range(n):
-            self.closeTab()
+            self.close_current()
 
     def actions(self):
         """
