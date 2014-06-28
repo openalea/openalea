@@ -120,11 +120,13 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         if obj.category == 'external':
             name = obj.filepath.name
             category = None
+            dtype = None
         else:
             name = obj.name
             category = obj.category
+            dtype = obj.default_name
 
-        category, name = self.view.add(project, name, obj.code, category=category)
+        category, name = self.view.add(project, name, obj.code, dtype=dtype, category=category)
         if name:
             self.paradigm_container.close_current()
             self.paradigm_container.open_project_data(category, name)
@@ -298,7 +300,7 @@ class ProjectManagerView(QtGui.QTreeView):
 
     def _add_new_file_actions(self, menu):
         for applet in self.paradigm_container.paradigms.values():
-            action = QtGui.QAction('New %s' % applet.default_name, self)
+            action = QtGui.QAction(qicon(applet.icon), 'New %s' % applet.default_name, self)
             action.triggered.connect(self.new_file)
             self._new_file_actions[action] = applet.default_name
             menu.addAction(action)
@@ -310,13 +312,14 @@ class ProjectManagerView(QtGui.QTreeView):
 
         if category == 'category' and obj == 'model':
             self._add_new_file_actions(menu)
+
         elif category == 'category' and obj == 'data':
-            import_data = QtGui.QAction('Import data', self)
+            import_data = QtGui.QAction(qicon('import.png'), 'Import data', self)
             import_data.triggered.connect(self.open)
             menu.addAction(import_data)
 
         elif category == 'category' and obj in ('startup', 'doc'):
-            new_startup = QtGui.QAction('New file', self)
+            new_startup = QtGui.QAction(qicon('filenew.png'), 'New file', self)
             new_startup.triggered.connect(self.new_file)
             menu.addAction(new_startup)
 
@@ -324,20 +327,23 @@ class ProjectManagerView(QtGui.QTreeView):
             self._add_new_file_actions(menu)
 
         if category in ['model', 'src', 'startup', 'doc', 'data']:
-
-            rename = QtGui.QAction('Rename %s' % obj, self)
-            rename.triggered.connect(self.rename)
-            menu.addAction(rename)
-
-            remove = QtGui.QAction('Remove %s' % obj, self)
-            remove.triggered.connect(self.remove)
-            menu.addAction(remove)
-
-            editAction = QtGui.QAction('Open %s' % obj, self)
+            editAction = QtGui.QAction(qicon('open.png'), 'Open "%s"' % obj, self)
             menu.addAction(editAction)
             editAction.triggered.connect(self.open)
 
+            rename = QtGui.QAction(qicon('Crystal_Clear_device_floppy_unmount.png'), 'Save as "%s"' % obj, self)
+            rename.triggered.connect(self.rename)
+            menu.addAction(rename)
+
+            remove = QtGui.QAction(qicon('Crystal_Clear_action_edit_remove.png'), 'Remove "%s"' % obj, self)
+            remove.triggered.connect(self.remove)
+            menu.addAction(remove)
+
             menu.addSeparator()
+
+            deleteAction = QtGui.QAction(qicon('Crystal_Clear_action_stop.png'), 'DELETE "%s"' % obj, self)
+            menu.addAction(deleteAction)
+            deleteAction.triggered.connect(self.delete)
 
 
         if category in ['project']:
@@ -390,7 +396,7 @@ class ProjectManagerView(QtGui.QTreeView):
             project.metadata = _project.metadata
 
     def open_all_scripts_from_project(self, project):
-        if self.paradigm_container:
+        if self.paradigm_container is not None:
             for model in project._model:
                 self.paradigm_container.open_project_data('model', model)
 
@@ -412,20 +418,27 @@ class ProjectManagerView(QtGui.QTreeView):
             name = '%s_%s' % (dtype, category)
         else:
             name = category
-        category, name = self.add(project, name, code, dtype, category=category)
+        category, name = self.add(project, name, code, dtype=dtype, category=category)
         if name:
             self.paradigm_container.open_project_data(category, name)
 
     def add(self, project, name, code, dtype=None, category=None):
+        models = {}
         if category is None:
             categories = ['model', 'startup', 'doc']
         else:
             categories = [category]
-        selector = SelectCategory(filename=name, categories=categories)
+
+        if dtype:
+            dtypes = [dtype]
+        else:
+            dtypes = None
+        selector = SelectCategory(filename=name, categories=categories, dtypes=dtypes)
         dialog = ModalDialog(selector)
         if dialog.exec_():
             category = selector.category()
             filename = selector.name()
+            dtype = selector.dtype()
             if category == 'model':
                 filename = remove_extension(filename)
             ret = project.add(category=category, name=filename, value=code, dtype=dtype)
@@ -475,6 +488,23 @@ class ProjectManagerView(QtGui.QTreeView):
         if project:
             project.remove(category, name)
 
+    def delete(self):
+        project, category, name = self.selected_data()
+        if project:
+            if category == 'data':
+                path = project.get(category, name)
+            elif category == 'model':
+                model = project.get(category, name)
+                path = model.abspath(project.path / 'model')
+            else:
+                path = project.path / category / name
+
+            confirm = QtGui.QLabel('Remove %s ?' % path)
+            dialog = ModalDialog(confirm)
+            if dialog.exec_():
+                project.remove(category, name)
+                path.remove()
+
     def save(self):
         project = self.project()
         if project:
@@ -489,17 +519,6 @@ class ProjectManagerView(QtGui.QTreeView):
 
     def close(self):
         self.projectManager.cproject = None
-
-    '''
-    def open_all_scripts_from_project(self, project):
-        if self.paradigm_container is None:
-            return
-        models = project.models()
-        if not isinstance(models, list):
-            models = [models]
-        for model in models:
-            self.paradigm_container.open_file(model=model)
-    '''
 
     def close_all_scripts(self):
         if self.paradigm_container is None:
