@@ -199,7 +199,7 @@ class ParadigmContainer(QtGui.QTabWidget):
         # TODO: case Python paradigm does not exists
         return applet_class(name=obj.name, code=obj.code, model=obj,
                             filepath=obj.filepath, interpreter=self.session.interpreter,
-                            editor_container=None, parent=None).instanciate_widget()
+                            editor_container=self, parent=None).instanciate_widget()
 
     def data(self, category, name):
         project = self.project()
@@ -271,11 +271,12 @@ class ParadigmContainer(QtGui.QTabWidget):
     def close(self, tab=None):
         if tab is None:
             tab = self.currentWidget()
-        obj = self._open_tabs[tab]
         idx = self.indexOf(tab)
         self.removeTab(idx)
-        del self._open_objects[obj]
-        del self._open_tabs[tab]
+        if tab in self._open_tabs:
+            obj = self._open_tabs[tab]
+            del self._open_objects[obj]
+            del self._open_tabs[tab]
 
     def save_current(self):
         self.save()

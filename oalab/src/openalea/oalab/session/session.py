@@ -26,10 +26,11 @@ from openalea.vpltk.shell.shell import get_interpreter_class
 from openalea.oalab.package.manager import package_manager
 from openalea.vpltk.project.manager import ProjectManager
 from openalea.oalab.control.manager import ControlManager
+from openalea.core.settings import get_openalea_tmp_dir
 from openalea.oalab.config.main import MainConfig
 from openalea.oalab.world.world import World
 from openalea.core.singleton import Singleton
-from openalea.core.path import tempdir
+
 
 
 class Session(object):
@@ -49,7 +50,7 @@ class Session(object):
         self._project = None
         self._is_proj = False
 
-        self.tmpdir = tempdir()
+        self.tmpdir = get_openalea_tmp_dir()
 
         self._config = MainConfig()
         self.extension = None
@@ -117,9 +118,6 @@ class Session(object):
         for session, line, input_ in records:
             pass
         display_history(input_)
-
-    def __del__(self):
-        self.tmpdir.rmtree()
 
     config = property(fget=lambda self:self._config.config)
 

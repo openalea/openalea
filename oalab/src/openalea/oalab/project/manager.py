@@ -29,7 +29,7 @@ from openalea.oalab.project.pretty_preview import ProjectSelectorScroll
 from openalea.oalab.gui import resources_rc # do not remove this import else icon are not drawn
 from openalea.oalab.gui.utils import qicon
 from openalea.oalab.session.session import Session
-
+from openalea.vpltk.plugin import iter_plugins
 from openalea.oalab.service.applet import get_applet
 from openalea.oalab.service.control import clear_ctrl_manager
 
@@ -463,26 +463,35 @@ def showOpenProjectDialog(parent=None):
 
 
 class SelectCategory(QtGui.QWidget):
-    def __init__(self, filename="", categories=list(CATEGORIES), parent=None):
+    def __init__(self, filename="", categories=None, dtypes=None, parent=None):
         super(SelectCategory, self).__init__(parent=parent)
+
+        if categories is None:
+            categories = CATEGORIES
+        if dtypes is None:
+            dtypes = [plugin.default_name for plugin in iter_plugins('oalab.paradigm_applet')]
+            dtypes.append('Other')
         self.categories = categories
 
-        layout = QtGui.QGridLayout(self)
+        layout = QtGui.QFormLayout(self)
 
         self.label = QtGui.QLabel("Select in which category you want to add this file: ")
+        self.l_dtypes = QtGui.QLabel("Data type")
         self.label2 = QtGui.QLabel("New filename: ")
+
         self.combo = QtGui.QComboBox(self)
-        # Hack: other categories doens't work for the moment
-        # Todo: check that it is working for every categories
-        # self.combo.addItems(self.categories)
         self.combo.addItems(categories)
         self.combo.setCurrentIndex(0)
+
+        self.combo_dtypes = QtGui.QComboBox(self)
+        self.combo_dtypes.addItems(dtypes)
+        self.combo_dtypes.setCurrentIndex(0)
+
         self.line = QtGui.QLineEdit(filename)
 
-        layout.addWidget(self.label, 0, 0)
-        layout.addWidget(self.combo, 0, 1)
-        layout.addWidget(self.label2, 1, 0)
-        layout.addWidget(self.line, 1, 1)
+        layout.addRow(self.label, self.combo)
+        layout.addRow(self.l_dtypes, self.combo_dtypes)
+        layout.addRow(self.label2, self.line)
 
         self.setLayout(layout)
 
@@ -491,6 +500,9 @@ class SelectCategory(QtGui.QWidget):
 
     def name(self):
         return str(self.line.text())
+
+    def dtype(self):
+        return str(self.combo_dtypes.currentText())
 
 class RenameModel(QtGui.QWidget):
     def __init__(self, models, model_name="", parent=None):

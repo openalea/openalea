@@ -78,7 +78,6 @@ def get(interface, *args, **kwargs):
         return iclass(*args, **kwargs)
 
 def check(value, interface):
-    print 'check %s match %s' % (value, interface)
     pass
 
 def new(interface=None, value=None, *args, **kwargs):

@@ -19,11 +19,22 @@
 
 __all__ = ['qicon']
 
+import openalea.oalab
 from openalea.vpltk.qt import QtGui
 from openalea.core.customexception import CustomException, cast_error
+from openalea.deploy.shared_data import shared_data
+
+def get_shared_data(filename):
+    return shared_data(openalea.oalab, filename)
 
 def qicon(filename):
-    return QtGui.QIcon(":/images/resources/%s" % filename)
+    path = get_shared_data('icons/%s' % filename)
+    if filename.startswith(':/'):
+        return QtGui.QIcon(filename)
+    elif path:
+        return QtGui.QIcon(path)
+    else:
+        return QtGui.QIcon(":/images/resources/%s" % filename)
 
 
 class ModalDialog(QtGui.QDialog):
