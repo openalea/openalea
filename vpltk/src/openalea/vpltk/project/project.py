@@ -59,6 +59,7 @@ def _model_factories():
     models = {}
     for model in iter_plugins('oalab.model'):
         models[model.extension] = model
+        models[model.default_name] = model
     return models
 
 
@@ -219,7 +220,7 @@ class Project(Observed):
                 return cat[name]
         return None
 
-    def add(self, category, name, value):
+    def add(self, category, name, value, dtype=None):
         """
         Add an object in the project
 
@@ -231,7 +232,7 @@ class Project(Observed):
         """
         self._dirty[category] = True
         if category == "model":
-            success = self.new_model(name=name, code=value)
+            success = self.new_model(name=name, code=value, dtype=dtype)
         else:
             if not hasattr(self, category):
                 setattr(self, category, dict())
@@ -256,7 +257,7 @@ class Project(Observed):
         self._model[model.name] = model
         self.notify_listeners(('project_change', self))
 
-    def new_model(self, name, code="", filepath="", inputs=[], outputs=[]):
+    def new_model(self, name, code="", filepath="", inputs=[], outputs=[], dtype=None):
         """
         Create a model and add it to the project.
 
@@ -272,12 +273,13 @@ class Project(Observed):
         """
         self._dirty['model'] = True
         filename = path_(name)
-        ext = filename.ext[1:]
+        if dtype is None:
+            dtype = filename.ext[1:]
         if not filepath:
             filepath = filename
-        if ext in self.model_klasses:
+        if dtype in self.model_klasses:
             # add model to existing models
-            model = self.model_klasses[ext](name=name, code=code, filepath=filepath, inputs=inputs, outputs=outputs)
+            model = self.model_klasses[dtype](name=name, code=code, filepath=filepath, inputs=inputs, outputs=outputs)
             self.add_model(model)
             return True
         return False
