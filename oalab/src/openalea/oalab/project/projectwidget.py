@@ -32,6 +32,7 @@ from openalea.vpltk.project.project import remove_extension
 from openalea.oalab.session.session import Session
 from openalea.file.files import start
 from openalea.oalab.service.mimetype import encode
+from openalea.vpltk.plugin import iter_plugins
 
 from openalea.oalab.project.manager import SelectCategory, RenameModel
 
@@ -74,13 +75,13 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
 #                          [group, "Manage Project", self.view.actionEditMeta, 1],
 #                          ["Project", "Manage Project", self.actionRenameProject, 1],
         ]
+        self._actions += self.view._actions
 
         # Menu used to display all available projects.
         # This menu is filled dynamically each time this menu is opened
         self.menu_available_projects = QtGui.QMenu(u'Available Projects')
         self.menu_available_projects.aboutToShow.connect(self._update_available_project_menu)
         self.action_available_project = {} # Dict used to know what project corresponds to triggered action
-
         self.session = Session()
 
     def initialize(self):
@@ -103,23 +104,25 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
 
     def add_current_file(self):
         project = self.project()
+        if project is None:
+            return
         if self.paradigm_container is None or project is None:
             return
-        text = self.paradigm_container.tabText(self.paradigm_container.currentIndex())
-        text = path(text).splitall()[-1]
-        categories = ["model"]
-        categories.extend(project.files.keys())
-        selector = SelectCategory(filename=text, categories=categories)
-        dialog = ModalDialog(selector)
-        if dialog.exec_():
-            category = selector.category()
-            text = self.paradigm_container.currentWidget().get_code()
-            index = self.paradigm_container.currentIndex()
-            filename = selector.name()
-            filename_without_ext = remove_extension(filename)
-            ret = project.add(category=category, name=filename, value=text)
-            if ret:
-                self.paradigm_container.setTabText(index, filename_without_ext)
+        obj = self.paradigm_container.current_data()
+        if obj is None:
+            return
+
+        if obj.category == 'external':
+            name = obj.filepath.name
+            category = None
+        else:
+            name = obj.name
+            category = obj.category
+
+        category, name = self.view.add(project, name, obj.code, category=category)
+        if name:
+            self.paradigm_container.close_current()
+            self.paradigm_container.open_project_data(category, name)
 
     def _update_available_project_menu(self):
         """
@@ -186,6 +189,16 @@ class ProjectManagerView(QtGui.QTreeView):
         self.setDropIndicatorShown(True)
         self.setAcceptDrops(True)
 
+        self._actions = []
+        self._new_file_actions = {}
+        self.paradigms_actions = []
+        self.paradigms = {}
+
+        session = Session()
+        for applet in iter_plugins('oalab.paradigm_applet', debug=session.debug_plugins):
+            self.paradigms[applet.default_name] = applet
+        self.connect_paradigm_container()
+
         self.actionEditMeta = QtGui.QAction(qicon("book.png"), "Edit Project Information", self)
         self.actionEditMeta.triggered.connect(self.edit_metadata)
 
@@ -211,7 +224,8 @@ class ProjectManagerView(QtGui.QTreeView):
         self.actionNewProj.triggered.connect(self.new_project)
         self.actionOpenProj.triggered.connect(self.open_project)
 
-        self._new_file_actions = {}
+
+
 
     #  API
 
@@ -270,49 +284,66 @@ class ProjectManagerView(QtGui.QTreeView):
 
     #  Contextual menu
 
+    def connect_paradigm_container(self):
+        # Connect actions from self.paradigms to menu (newPython, newLpy,...)
+        for applet in self.paradigms.values():
+            print applet
+            action = QtGui.QAction(QtGui.QIcon(applet.icon), "New " + applet.default_name, self)
+            action.triggered.connect(self.new_file)
+            self.paradigms_actions.append(action)
+            self._new_file_actions[action] = applet.default_name
+            self._actions.append(["Project", "Manage", action, 0],)
+
     def _add_new_file_actions(self, menu):
-        if self.paradigm_container:
-            for applet in self.paradigm_container.paradigms.values():
-                action = QtGui.QAction('New %s' % applet.default_name, self)
-                action.triggered.connect(self.new_file)
-                self._new_file_actions[action] = applet.default_name
-                menu.addAction(action)
-            menu.addSeparator()
+        for applet in self.paradigm_container.paradigms.values():
+            action = QtGui.QAction('New %s' % applet.default_name, self)
+            action.triggered.connect(self.new_file)
+            self._new_file_actions[action] = applet.default_name
+            menu.addAction(action)
+        menu.addSeparator()
 
     def create_menu(self):
         menu = QtGui.QMenu(self)
         project, category, obj = self.selected_data()
-        if project is None:
-            return menu
-        else:
-            if category == 'category' and obj == 'model':
-                self._add_new_file_actions(menu)
-#             elif category == 'category' and obj == 'startup':
-#                 new_startup = QtGui.QAction('New file', self)
-#                 new_startup.triggered.connect(self.new_data)
-#                 menu.addAction(new_startup)
+        print category, obj
 
-            if category in ['model', 'src', 'startup']:
-                self._add_new_file_actions(menu)
+        if category == 'category' and obj == 'model':
+            self._add_new_file_actions(menu)
+        elif category == 'category' and obj == 'data':
+            import_data = QtGui.QAction('Import data', self)
+            import_data.triggered.connect(self.open)
+            menu.addAction(import_data)
 
-                rename = QtGui.QAction('Rename %s' % obj, self)
-                rename.triggered.connect(self.rename)
-                menu.addAction(rename)
+        elif category == 'category' and obj in ('startup', 'doc'):
+            new_startup = QtGui.QAction('New file', self)
+            new_startup.triggered.connect(self.new_file)
+            menu.addAction(new_startup)
 
-                editAction = QtGui.QAction('Open %s' % obj, self)
-                editAction.triggered.connect(self.open)
-                menu.addAction(editAction)
-                menu.addSeparator()
+        if category == 'model':
+            self._add_new_file_actions(menu)
 
-                remove = QtGui.QAction('Remove %s' % obj, self)
-                remove.triggered.connect(self.remove)
-                menu.addAction(remove)
+        if category in ['model', 'src', 'startup', 'doc', 'data']:
 
-            if category in ['project']:
-                menu.addAction(self.actionEditMeta)
-                menu.addAction(self.actionSaveProj)
-                menu.addAction(self.actionSaveProjAs)
-                menu.addAction(self.actionCloseProj)
+            rename = QtGui.QAction('Rename %s' % obj, self)
+            rename.triggered.connect(self.rename)
+            menu.addAction(rename)
+
+            remove = QtGui.QAction('Remove %s' % obj, self)
+            remove.triggered.connect(self.remove)
+            menu.addAction(remove)
+
+            editAction = QtGui.QAction('Open %s' % obj, self)
+            menu.addAction(editAction)
+            editAction.triggered.connect(self.open)
+
+            menu.addSeparator()
+
+
+        if category in ['project']:
+            menu.addAction(self.actionEditMeta)
+            menu.addAction(self.actionSaveProj)
+            menu.addAction(self.actionSaveProjAs)
+            menu.addAction(self.actionCloseProj)
 
         return menu
 
@@ -358,11 +389,50 @@ class ProjectManagerView(QtGui.QTreeView):
             project.metadata = _project.metadata
         self.proj_selector.hide()
 
-    def new_file(self, dtype=None):
-        dtype = self._new_file_actions[self.sender()]
-        self.paradigm_container.new('model', dtype)
+    def open_all_scripts_from_project(self, project):
+        pass
+#         self.paradigm_container.open()
 
-    def open(self, *args):
+    def new_file(self, dtype=None):
+        try:
+            dtype = self._new_file_actions[self.sender()]
+        except KeyError:
+            dtype = None
+        project, category, data = self.selected_data()
+        code = ''
+
+        if category == 'category':
+            category = data
+        if category is None:
+            category = 'model'
+            project = self.project()
+
+        if dtype:
+            name = '%s_%s' % (dtype, category)
+        else:
+            name = category
+        category, name = self.add(project, name, code, dtype, category=category)
+        if name:
+            self.paradigm_container.open_project_data(category, name)
+
+    def add(self, project, name, code, dtype=None, category=None):
+        if category is None:
+            categories = ['model', 'startup', 'doc']
+        else:
+            categories = [category]
+        selector = SelectCategory(filename=name, categories=categories)
+        dialog = ModalDialog(selector)
+        if dialog.exec_():
+            category = selector.category()
+            filename = selector.name()
+            if category == 'model':
+                filename = remove_extension(filename)
+            ret = project.add(category=category, name=filename, value=code, dtype=dtype)
+            if ret:
+                return category, filename
+        return None, None
+
+    def open(self):
         project, category, name = self.selected_data()
         if project:
             if category == 'category' and name == 'data':
@@ -375,12 +445,8 @@ class ProjectManagerView(QtGui.QTreeView):
             elif category == 'data':
                 filepath = project.path / category / name
                 start(filepath)
-            elif category == 'startup':
-                filepath = path(category) / name
-                self.paradigm_container.open_file(filename=filepath)
-            elif category == 'model':
-                model = project.get(category, name)
-                self.paradigm_container.open_file(model=model)
+            elif category in ('startup', 'model', 'doc'):
+                self.paradigm_container.open_project_data(category, name)
 
     def _rename(self, project, category, name):
         if category in ('model', 'src'):
@@ -423,6 +489,7 @@ class ProjectManagerView(QtGui.QTreeView):
     def close(self):
         self.projectManager.cproject = None
 
+    '''
     def open_all_scripts_from_project(self, project):
         if self.paradigm_container is None:
             return
@@ -431,6 +498,7 @@ class ProjectManagerView(QtGui.QTreeView):
             models = [models]
         for model in models:
             self.paradigm_container.open_file(model=model)
+    '''
 
     def close_all_scripts(self):
         if self.paradigm_container is None:
@@ -580,7 +648,7 @@ class ProjectManagerModel(QtGui.QStandardItemModel):
         parentItem.appendRow(item)
 
 
-        categories = sorted(['model'] + files.keys())
+        categories = sorted(['model', 'startup', 'doc', 'data'])
         for category in categories:
             item2 = QtGui.QStandardItem(category)
             item.appendRow(item2)
@@ -649,10 +717,11 @@ class ProjectManagerModel(QtGui.QStandardItemModel):
             return None
         if self._project is None:
             return
-        if index.data() in self._project.categories():
-            return ('category', index.data())
-        elif index.parent().data() in self._project.categories():
+
+        if index.parent().data() in self._project.categories():
             return (index.parent().data(), index.data())
+        elif index.data() in self._project.categories():
+            return ('category', index.data())
         elif index.data() == self._root_item:
             return ('project', index.data())
         else:

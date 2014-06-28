@@ -29,6 +29,7 @@ from openalea.oalab.control.manager import ControlManager
 from openalea.oalab.config.main import MainConfig
 from openalea.oalab.world.world import World
 from openalea.core.singleton import Singleton
+from openalea.core.path import tempdir
 
 
 class Session(object):
@@ -47,6 +48,8 @@ class Session(object):
     def __init__(self):
         self._project = None
         self._is_proj = False
+
+        self.tmpdir = tempdir()
 
         self._config = MainConfig()
         self.extension = None
@@ -67,6 +70,8 @@ class Session(object):
         self.debug_plugins = ''
 
         self.gui = True
+
+
 
     @property
     def project(self):
@@ -91,7 +96,10 @@ class Session(object):
         self.world.clear()
 
         if self.project:
-            os.chdir(self.project.path)
+            if self.project.path.exists():
+                os.chdir(self.project.path)
+            else:
+                os.chdir(self.tmpdir)
             self.interpreter.locals['project'] = self.project
             self.interpreter.locals['Model'] = self.project.model
             self.interpreter.locals['data'] = self.project.path / 'data'
@@ -109,6 +117,9 @@ class Session(object):
         for session, line, input_ in records:
             pass
         display_history(input_)
+
+    def __del__(self):
+        self.tmpdir.rmtree()
 
     config = property(fget=lambda self:self._config.config)
 
