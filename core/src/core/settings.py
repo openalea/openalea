@@ -83,7 +83,20 @@ def get_openalea_home_dir(name='.openalea'):
 
     return aleahome
 
-    
+def get_openalea_tmp_dir(name='.openalea'):
+    """
+    Return the openalea home dirextory
+    If it doesn't exist, create it
+    """
+
+    home = get_default_home_dir()
+
+    aleatmp = os.path.join(home, name, 'temp')
+    if(not os.path.exists(aleatmp)):
+        os.makedirs(aleatmp)
+
+    return aleatmp
+
 def get_project_dir(name='projects'):
     """
     Get default directory (the place where are the
