@@ -91,7 +91,7 @@ class view3D(QGLViewer):
             world_obj = scenes[s]
             if isinstance(world_obj, WorldObject):
                 if world_obj.in_scene:
-                    obj = to_shape3d(world_obj.obj)
+                    obj = to_shape3d(world_obj)
                 else:
                     obj = None
             else:

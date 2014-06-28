@@ -59,7 +59,7 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         self.paradigm_container = None
         self.menu_available_projects = QtGui.QMenu(u'Available Projects')
 
-        self.actionAddFile = QtGui.QAction(qicon("bool.png"), "Add model to current Project", self)
+        self.actionAddFile = QtGui.QAction(qicon("bool.png"), "Add to Project", self)
         self.actionAddFile.triggered.connect(self.add_current_file)
 
         self.actionNewProj = self.view.actionNewProj
@@ -167,6 +167,7 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         if signal == 'project_changed':
             project = self.projectManager.cproject
             self.view.set_project(project=project)
+            self.session.world.clear()
         elif signal == 'project_updated':
             self.view.refresh()
 
