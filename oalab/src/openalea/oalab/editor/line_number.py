@@ -27,6 +27,7 @@ class Margin(QtGui.QWidget):
         QtGui.QWidget.__init__(self,parent)
         self.editor = editor
         self.showLines = True
+
     def paintEvent( self, paintEvent ):
         if self.showLines:
             maxheight = self.editor.viewport().height()
@@ -44,6 +45,7 @@ class Margin(QtGui.QWidget):
                     painter.drawText(0,rect.top()+2,40,rect.height()+2, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignTop,str(line))
                 h = rect.top()+rect.height()+1
             painter.end()
+
     def mousePressEvent( self, event ):
         line = self.editor.cursorForPosition(event.pos()).blockNumber() 
         self.emit(QtCore.SIGNAL("lineClicked(int)"),line+1)
