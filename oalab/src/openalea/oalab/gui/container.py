@@ -27,6 +27,9 @@ from openalea.oalab.gui import resources_rc # do not remove this import else ico
 from openalea.oalab.gui.utils import qicon
 from openalea.vpltk.project import ProjectManager
 from openalea.oalab.service.applet import get_applet
+from openalea.oalab.project.manager import SelectCategory
+from openalea.oalab.gui.utils import ModalDialog
+from openalea.vpltk.project.project import remove_extension
 
 class TextData(object):
     default_name = "text"
@@ -79,21 +82,21 @@ class ParadigmContainer(QtGui.QTabWidget):
         super(ParadigmContainer, self).__init__(parent=parent)
         self.session = session
         self.controller = controller
+
         self.setTabsClosable(True)
         self.setMinimumSize(100, 100)
+
         self.applets = []
-
-        self._open_objects = DataContainer()
         self._open_tabs = {}
-
-
-        self.projectManager = ProjectManager()
-
         self.paradigms = {}
         self._new_file_actions = {}
         self.paradigms_actions = []
         for applet in iter_plugins('oalab.paradigm_applet', debug=self.session.debug_plugins):
             self.paradigms[applet.default_name] = applet
+
+        self._open_objects = DataContainer()
+
+        self.projectManager = ProjectManager()
 
         self.setAccessibleName("Container")
         self.setElideMode(QtCore.Qt.ElideMiddle)
@@ -154,10 +157,14 @@ class ParadigmContainer(QtGui.QTabWidget):
         self.actionComment.triggered.connect(self.comment)
         self.actionUnComment.triggered.connect(self.uncomment)
 
+        self.actionAddFile = QtGui.QAction(qicon("bool.png"), "Add to Project", self)
+        self.actionAddFile.triggered.connect(self.add_current_file)
+
         self.actionStop.setEnabled(False)
 
         self._actions = [["Project", "Manage", self.actionOpenFile, 0],
                          ["Project", "Manage", self.actionSave, 0],
+                         ["Project", "Manage Project", self.actionAddFile, 0],
 #                          ["Project", "Manage", self.actionSaveAs, 1],
                          ["Simulation", "Play", self.actionRun, 0],
                          ["Simulation", "Play", self.actionAnimate, 0],
@@ -173,9 +180,18 @@ class ParadigmContainer(QtGui.QTabWidget):
                          ["Edit", "Text Edit", self.actionRunSelection, 0],
                          ["Edit", "Text Edit", self.actionCloseCurrent, 1],
                          ]
+        self.connect_paradigm_container()
         self.extensions = ""
         self.connect(self, QtCore.SIGNAL('tabCloseRequested(int)'), self.autoClose)
 
+    def connect_paradigm_container(self):
+        # Connect actions from self.paradigms to menu (newPython, newLpy,...)
+        for applet in self.paradigms.values():
+            action = QtGui.QAction(QtGui.QIcon(applet.icon), "New " + applet.default_name, self)
+            action.triggered.connect(self.new_file)
+            self.paradigms_actions.append(action)
+            self._new_file_actions[action] = applet.default_name
+            self._actions.append(["Project", "Manage", action, 0],)
 
     def initialize(self):
         self.reset()
@@ -205,6 +221,9 @@ class ParadigmContainer(QtGui.QTabWidget):
         project = self.project()
         if category == 'model':
             obj = project.get(category, name)
+            # GBY: dont understand why get can return list
+            if isinstance(obj, list):
+                obj = obj[0]
             dtype = obj.default_name
         else:
             code = project.get(category, name)
@@ -266,7 +285,7 @@ class ParadigmContainer(QtGui.QTabWidget):
         obj, dtype = self.data(category, name)
         if obj in self._open_objects:
             tab = self._open_objects[obj]
-            self.closeTab(tab)
+            self.close(tab)
 
     def close(self, tab=None):
         if tab is None:
@@ -277,6 +296,12 @@ class ParadigmContainer(QtGui.QTabWidget):
             obj = self._open_tabs[tab]
             del self._open_objects[obj]
             del self._open_tabs[tab]
+
+        if self.count() == 0:
+            if self.project():
+                self.addCreateFileTab()
+            else:
+                self.addDefaultTab()
 
     def save_current(self):
         self.save()
@@ -301,6 +326,63 @@ class ParadigmContainer(QtGui.QTabWidget):
         elif category in ('startup', 'doc'):
             getattr(project, category)[obj.filepath.name] = code
             project.save()
+
+    def new_file(self):
+        try:
+            dtype = self._new_file_actions[self.sender()]
+        except KeyError:
+            return
+        category = 'model'
+        name = '%s_%s' % (dtype, category)
+        category, name = self.add(self.project(), name, code='', dtype=dtype, category=category)
+        if name:
+            self.open_project_data(category, name)
+
+    def add(self, project, name, code, dtype=None, category=None):
+        models = {}
+        if category is None:
+            categories = ['model', 'startup', 'doc']
+        else:
+            categories = [category]
+
+        if dtype:
+            dtypes = [dtype]
+        else:
+            dtypes = None
+        selector = SelectCategory(filename=name, categories=categories, dtypes=dtypes)
+        dialog = ModalDialog(selector)
+        if dialog.exec_():
+            category = selector.category()
+            filename = selector.name()
+            dtype = selector.dtype()
+            if category == 'model':
+                filename = remove_extension(filename)
+            ret = project.add(category=category, name=filename, value=code, dtype=dtype)
+            if ret:
+                return category, filename
+        return None, None
+
+    def add_current_file(self):
+        project = self.project()
+        if project is None:
+            return
+        obj = self.current_data()
+        if obj is None:
+            return
+
+        if obj.category == 'external':
+            name = obj.filepath.name
+            category = None
+            dtype = None
+        else:
+            name = obj.name
+            category = obj.category
+            dtype = obj.default_name
+
+        category, name = self.add(project, name, obj.code, dtype=dtype, category=category)
+        if name:
+            self.close_current()
+            self.open_project_data(category, name)
 
 
     '''
@@ -579,8 +661,11 @@ class ParadigmContainer(QtGui.QTabWidget):
         """
         Display a tab to select type of file that you can create
         """
-        page = WelcomePage(actions=self.paradigms_actions)
-        self.addTab(page, "Create File")
+        if self.paradigms_actions:
+            page = WelcomePage(actions=self.paradigms_actions)
+            self.addTab(page, "Create File")
+        else:
+            self.addDefaultTab()
         self.rmTab("Welcome")
 
     def rmTab(self, tabname="Welcome"):
