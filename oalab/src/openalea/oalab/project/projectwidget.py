@@ -28,7 +28,6 @@ from openalea.oalab.project.creator import CreateProjectWidget
 from openalea.oalab.gui.utils import ModalDialog
 from openalea.core.path import path
 from openalea.core import settings
-from openalea.vpltk.project.project import remove_extension
 from openalea.oalab.session.session import Session
 from openalea.file.files import start
 from openalea.oalab.service.mimetype import encode
@@ -59,8 +58,7 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         self.paradigm_container = None
         self.menu_available_projects = QtGui.QMenu(u'Available Projects')
 
-        self.actionAddFile = QtGui.QAction(qicon("bool.png"), "Add to Project", self)
-        self.actionAddFile.triggered.connect(self.add_current_file)
+
 
         self.actionNewProj = self.view.actionNewProj
         self.actionOpenProj = self.view.actionOpenProj
@@ -68,7 +66,6 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         group = "Project"
         self._actions = [[group, "Manage Project", self.view.actionNewProj, 0],
                          [group, "Manage Project", self.view.actionOpenProj, 0],
-                         [group, "Manage Project", self.actionAddFile, 0],
                          [group, "Manage Project", self.view.actionSaveProj, 0],
 #                          [group, "Manage Project", self.view.actionSaveProjAs, 1],
                          [group, "Manage Project", self.view.actionCloseProj, 0],
@@ -106,30 +103,6 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
     def project(self):
         if self.projectManager:
             return self.projectManager.cproject
-
-    def add_current_file(self):
-        project = self.project()
-        if project is None:
-            return
-        if self.paradigm_container is None or project is None:
-            return
-        obj = self.paradigm_container.current_data()
-        if obj is None:
-            return
-
-        if obj.category == 'external':
-            name = obj.filepath.name
-            category = None
-            dtype = None
-        else:
-            name = obj.name
-            category = obj.category
-            dtype = obj.default_name
-
-        category, name = self.view.add(project, name, obj.code, dtype=dtype, category=category)
-        if name:
-            self.paradigm_container.close_current()
-            self.paradigm_container.open_project_data(category, name)
 
     def _update_available_project_menu(self):
         """
@@ -199,11 +172,6 @@ class ProjectManagerView(QtGui.QTreeView):
         self._new_file_actions = {}
         self.paradigms_actions = []
         self.paradigms = {}
-
-        session = Session()
-        for applet in iter_plugins('oalab.paradigm_applet', debug=session.debug_plugins):
-            self.paradigms[applet.default_name] = applet
-        self.connect_paradigm_container()
 
         self.actionEditMeta = QtGui.QAction(qicon("book.png"), "Edit Project Information", self)
         self.actionEditMeta.triggered.connect(self.edit_metadata)
@@ -290,16 +258,7 @@ class ProjectManagerView(QtGui.QTreeView):
 
     #  Contextual menu
 
-    def connect_paradigm_container(self):
-        # Connect actions from self.paradigms to menu (newPython, newLpy,...)
-        for applet in self.paradigms.values():
-            action = QtGui.QAction(QtGui.QIcon(applet.icon), "New " + applet.default_name, self)
-            action.triggered.connect(self.new_file)
-            self.paradigms_actions.append(action)
-            self._new_file_actions[action] = applet.default_name
-            self._actions.append(["Project", "Manage", action, 0],)
-
-    def _add_new_file_actions(self, menu):
+    def add_new_file_actions(self, menu):
         for applet in self.paradigm_container.paradigms.values():
             action = QtGui.QAction(qicon(applet.icon), 'New %s' % applet.default_name, self)
             action.triggered.connect(self.new_file)
@@ -312,7 +271,7 @@ class ProjectManagerView(QtGui.QTreeView):
         project, category, obj = self.selected_data()
 
         if category == 'category' and obj == 'model':
-            self._add_new_file_actions(menu)
+            self.add_new_file_actions(menu)
 
         elif category == 'category' and obj == 'data':
             import_data = QtGui.QAction(qicon('import.png'), 'Import data', self)
@@ -325,7 +284,7 @@ class ProjectManagerView(QtGui.QTreeView):
             menu.addAction(new_startup)
 
         if category == 'model':
-            self._add_new_file_actions(menu)
+            self.add_new_file_actions(menu)
 
         if category in ['model', 'src', 'startup', 'doc', 'data']:
             editAction = QtGui.QAction(qicon('open.png'), 'Open "%s"' % obj, self)
@@ -419,33 +378,9 @@ class ProjectManagerView(QtGui.QTreeView):
             name = '%s_%s' % (dtype, category)
         else:
             name = category
-        category, name = self.add(project, name, code, dtype=dtype, category=category)
+        category, name = self.paradigm_container.add(project, name, code, dtype=dtype, category=category)
         if name:
             self.paradigm_container.open_project_data(category, name)
-
-    def add(self, project, name, code, dtype=None, category=None):
-        models = {}
-        if category is None:
-            categories = ['model', 'startup', 'doc']
-        else:
-            categories = [category]
-
-        if dtype:
-            dtypes = [dtype]
-        else:
-            dtypes = None
-        selector = SelectCategory(filename=name, categories=categories, dtypes=dtypes)
-        dialog = ModalDialog(selector)
-        if dialog.exec_():
-            category = selector.category()
-            filename = selector.name()
-            dtype = selector.dtype()
-            if category == 'model':
-                filename = remove_extension(filename)
-            ret = project.add(category=category, name=filename, value=code, dtype=dtype)
-            if ret:
-                return category, filename
-        return None, None
 
     def open(self):
         project, category, name = self.selected_data()
@@ -505,6 +440,8 @@ class ProjectManagerView(QtGui.QTreeView):
             if dialog.exec_():
                 project.remove(category, name)
                 path.remove()
+                if self.paradigm_container:
+                    self.paradigm_container.close_project_data(category, name)
 
     def save(self):
         project = self.project()
