@@ -63,7 +63,10 @@ class Session(object):
 
         interpreter_class = get_interpreter_class()
         self.interpreter = interpreter_class()
-        self.interpreter.shell.events.register("post_execute", self.add_to_history)
+        if hasattr(self.interpreter.shell, "events"):
+            self.interpreter.shell.events.register("post_execute", self.add_to_history)
+        else:
+            print("You use a version of ipython < 2. So, history can't work.")
 
         self.project_manager.set_shell(self.interpreter.shell)
 
