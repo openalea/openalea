@@ -39,8 +39,6 @@ def discover_notebook_controls():
     plugins = []
     return plugins
 
-
-
 def create(name, iname=None, value=None, constraints=None):
     """
     Create a new Control object.

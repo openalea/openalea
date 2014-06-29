@@ -1,6 +1,6 @@
 import copy
 
-from openalea.core.observer import Observed, AbstractListener
+from openalea.core.observer import Observed, AbstractListener, lock_notify
 from openalea.core.singleton import Singleton
 from openalea.oalab.control.control import Control
 
@@ -87,8 +87,43 @@ class ControlContainer(Observed, AbstractListener):
         return False
 
 
+class Follower(AbstractListener):
+    def __init__(self, name, func):
+        AbstractListener.__init__(self)
+        self._old_value = None
+        self.name = name
+        self.callback = func
+
+    @lock_notify
+    def notify(self, sender, event):
+        if event:
+            signal, data = event
+            if signal == 'control_value_changed':
+                control, value = data
+                if control.name == self.name and value != self._old_value:
+                    old_value = self._old_value
+                    self._old_value = value
+                    self.callback(old_value, value)
+
+
 class ControlManager(ControlContainer):
     __metaclass__ = Singleton
+
+    follower = {}
+
+    def register_follower(self, name, func):
+        if name in self.follower:
+            self.unregister_follower(name)
+        follower = Follower(name, func)
+        self.register_listener(follower)
+        self.follower[name] = follower
+
+    @classmethod
+    def unregister_follower(self, name):
+        if name in self.follower:
+            self.unregister_listener(self.follower[name])
+            del self.follower[name]
+
 
 def control_dict():
     """
