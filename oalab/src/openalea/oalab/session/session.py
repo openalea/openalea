@@ -93,6 +93,8 @@ class Session(object):
         self.interpreter.locals['control_manager'] = self.control_manager
         self.interpreter.locals['package_manager'] = self.package_manager
         self.interpreter.locals['world'] = self.world
+        self.interpreter.locals['follow'] = self.control_manager.register_follower
+        self.interpreter.locals['unfollow'] = self.control_manager.unregister_follower
 
         if self.project:
             if self.project.path.exists():

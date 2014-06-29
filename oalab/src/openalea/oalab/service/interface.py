@@ -30,8 +30,25 @@ def guess(obj):
     >>> guess(1)
     ['IInt']
     """
+    interfaces = []
     type_to_iname = {typ: [interface.__name__] for (typ, interface) in TypeInterfaceMap().items()}
-    return type_to_iname.get(type(obj), [])
+    classname_to_iname = {
+        'NurbsCurve2D':['ICurve2D'],
+        'Material':['IColor'],
+        'NurbsPatch':['IPatch'],
+    }
+    if obj and isinstance(obj, list):
+        if obj[0].__class__.__name__ == 'Material':
+            interfaces.append('IColorList')
+
+    cname = obj.__class__.__name__
+    if cname in classname_to_iname:
+        interfaces += classname_to_iname[cname]
+
+    if type(obj) in type_to_iname:
+        interfaces += type_to_iname[type(obj)]
+
+    return interfaces
 
 def get_class(interface=None):
     """
@@ -97,14 +114,13 @@ def new(interface=None, value=None, *args, **kwargs):
         raise ValueError, 'you must define at least one of interface or value'
 
 def interfaces(debug=False):
-    for interface in IInterface.all:
+    for interface in set(IInterface.all):
         yield interface
 
 
 def names(debug=False):
-    for plugin in iter_plugins('oalab.interface', debug=debug):
-        for interface in interfaces():
-            yield interface.__name__
+    names = [interface.__name__ for interface in interfaces()]
+    return sorted(list(set(names)))
 
 def default_value(interface):
     if hasattr(interface, 'sample'):

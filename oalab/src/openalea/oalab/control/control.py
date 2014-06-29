@@ -97,8 +97,9 @@ class Control(Observed):
         Deepcopy or not ?
         Currently, standard python behaviour : copy for non mutable else reference
         """
-        self._value = value
-        self.notify_change()
+        if value != self._value:
+            self._value = value
+            self.notify_change()
 
     @property
     def interface(self):

@@ -55,6 +55,9 @@ class ControlView(QtGui.QTreeView):
             action.triggered.connect(self.delete_control)
             menu.addAction(action)
 
+        action = QtGui.QAction("Import L-Py controls", menu)
+        action.triggered.connect(self.import_lpy)
+        menu.addAction(action)
 
         menu.exec_(event.globalPos())
 
@@ -74,6 +77,12 @@ class ControlView(QtGui.QTreeView):
             return
         self.model().remove_controls(self._selected_indexes)
         self._selected_indexes = None
+
+    def import_lpy(self):
+        from openalea.oalab.gui.control.lpycontrol import import_lpy_controls
+        filename = QtGui.QFileDialog.getOpenFileName(self, 'Select L-Py file')
+        if filename:
+            import_lpy_controls(filename)
 
     def selectionChanged(self, selected, deselected):
         rows = set()

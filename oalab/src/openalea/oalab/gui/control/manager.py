@@ -80,7 +80,6 @@ class ControlManagerWidget(QtGui.QWidget, AbstractListener):
         self._l_no_edit.hide()
 
         layout = QtGui.QVBoxLayout(widget)
-        print [c.name for c in controls]
         for control in controls:
             subwidget = qt_editor(control, shape='large', preferred=control.widget)
             layout.addWidget(subwidget)
