@@ -11,8 +11,13 @@ from openalea.core.path import path
 
 from openalea.oalab.service.control import register as register_control
 
-def import_lpy_controls(filepath):
+def export_lpy_controls(controls, filename):
+    """
+    :param controls: [('name', interface, value)] ex: [('i', IInt(min=0, max=100), 1)]
+    """
+    pass
 
+def import_lpy_controls(filepath):
     if not path(filepath).isfile():
         return
 
