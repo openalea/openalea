@@ -237,8 +237,8 @@ animate()
                 ns = {}
             exec code in ns, ns
         else:
-            interpreter = kwargs["interpreter"]
-            interpreter.run_cell(code)
+            self._set_interpreter(**kwargs)
+            self._interpreter.run_cell(code)
 
     @property
     def code(self):
