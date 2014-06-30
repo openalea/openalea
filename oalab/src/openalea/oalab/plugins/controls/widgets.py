@@ -123,6 +123,7 @@ class IntSlider(QtGui.QWidget, AbstractIntWidget):
 class IntDial(QtGui.QDial, AbstractIntWidget):
     def __init__(self):
         QtGui.QDial.__init__(self)
+        self.setNotchesVisible(True)
         AbstractIntWidget.__init__(self)
         self.value_changed_signal = self.valueChanged
 

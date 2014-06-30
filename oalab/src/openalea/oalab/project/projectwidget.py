@@ -291,7 +291,7 @@ class ProjectManagerView(QtGui.QTreeView):
             menu.addAction(editAction)
             editAction.triggered.connect(self.open)
 
-            rename = QtGui.QAction(qicon('Crystal_Clear_device_floppy_unmount.png'), 'Save as "%s"' % obj, self)
+            rename = QtGui.QAction(qicon('Crystal_Clear_device_floppy_unmount.png'), 'Save as', self)
             rename.triggered.connect(self.rename)
             menu.addAction(rename)
 
@@ -301,7 +301,7 @@ class ProjectManagerView(QtGui.QTreeView):
 
             menu.addSeparator()
 
-            deleteAction = QtGui.QAction(qicon('Crystal_Clear_action_stop.png'), 'DELETE "%s"' % obj, self)
+            deleteAction = QtGui.QAction(qicon('Crystal_Clear_action_stop.png'), 'Delete "%s"' % obj, self)
             menu.addAction(deleteAction)
             deleteAction.triggered.connect(self.delete)
 
@@ -373,8 +373,13 @@ class ProjectManagerView(QtGui.QTreeView):
         if category is None:
             category = 'model'
             project = self.project()
+        if dtype is None and category in ['startup', 'lib']:
+            dtype = 'Python'
 
-        if dtype:
+        if category in ['startup', 'lib']:
+            d = {'startup': 'start.py', 'lib': 'algo.py'}
+            name = d[category]
+        elif dtype:
             name = '%s_%s' % (dtype, category)
         else:
             name = category

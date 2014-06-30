@@ -83,7 +83,7 @@ class WelcomePage2(QtGui.QWidget):
         for i, action in enumerate(actions):
             button = QtGui.QToolButton()
             button.setFixedSize(self.button_size);
-            button.setStyleSheet(self.stylesheet)
+            # button.setStyleSheet(self.stylesheet)
             button.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
 
             qsize = QtCore.QSize(self.icon_size)

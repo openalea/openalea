@@ -7,7 +7,10 @@ def decode(mimetype, mimedata):
     """
     if mimetype == 'openalealab/control':
         from openalea.oalab.control.manager import ControlManager
-        return ControlManager().control(mimedata)
+        identifier, name = mimedata.split(';')
+        control = ControlManager().control(name)
+        if isinstance(control, list):
+            return ControlManager().control(uid=identifier)
     elif mimetype == 'openalealab/data':
         return mimedata
 
@@ -19,6 +22,6 @@ def encode(data, mimetype=None):
     from openalea.oalab.control.control import Control
     from openalea.core.path import path
     if isinstance(data, Control) or mimetype == 'openalealab/control':
-        return ('openalealab/control', data.name)
+        return ('openalealab/control', '%s;%s' % (data.identifier, data.name))
     elif mimetype == 'openalealab/data':
         return ('openalealab/data', data)

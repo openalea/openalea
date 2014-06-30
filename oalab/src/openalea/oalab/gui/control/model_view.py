@@ -31,7 +31,7 @@ class ControlView(QtGui.QTreeView):
     def __init__(self):
         QtGui.QTreeView.__init__(self)
         self.setEditTriggers(self.DoubleClicked)
-        self.setSelectionMode(self.ExtendedSelection)
+        self.setSelectionMode(self.SingleSelection)
         self.setSelectionBehavior(self.SelectRows)
         self.setDragEnabled(True)
         self.setDragDropMode(self.DragOnly)

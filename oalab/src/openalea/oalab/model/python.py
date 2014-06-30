@@ -32,7 +32,7 @@ class PythonModel(Model):
         self._init = False
         self._run = False
         super(PythonModel, self).__init__(name=name, code=code, filepath=filepath, inputs=inputs, outputs=outputs)
-        self.code = code  # use it to force to parse doc, functions, inputs and outputs
+        self.code = code # use it to force to parse doc, functions, inputs and outputs
         self.ns = dict()
         self._interpreter = None
 
@@ -51,7 +51,7 @@ class PythonModel(Model):
  TITLE="Python logo">Python</H1>
 
 more informations: http://www.python.org/
-"""%str(self.icon)
+""" % str(self.icon)
 
     def repr_code(self):
         """
@@ -67,7 +67,8 @@ more informations: http://www.python.org/
 
         if interpreter:
             # run
-            return interpreter.run_cell(code)
+            self.execute(code, *args, **kwargs)
+#             return interpreter.run_cell(code)
 
         # else:
         #     # TODO do better
@@ -95,7 +96,8 @@ more informations: http://www.python.org/
             user_ns.update(self.inputs)
 
         # run
-        interpreter.run_cell(self.code)
+#         interpreter.shell.run_cell(self.code)
+        self.execute(self.code, user_ns, *args, **kwargs)
 
         self.set_output_from_ns(user_ns)
 
@@ -131,7 +133,7 @@ more informations: http://www.python.org/
 
 init()
 """
-                interpreter.run_cell(code)
+                self.execute(code, user_ns, *args, **kwargs)
 
                 self.set_output_from_ns(user_ns)
 
@@ -158,7 +160,7 @@ init()
 step()
 """
             # run
-            interpreter.run_cell(code)
+            self.execute(code, user_ns, *args, **kwargs)
             self.set_output_from_ns(user_ns)
 
             return self.outputs
@@ -192,7 +194,7 @@ step()
 animate()
 """
             # run
-            interpreter.run_cell(code)
+            self.execute(code, user_ns, *args, **kwargs)
 
             self.set_output_from_ns(user_ns)
 
@@ -226,6 +228,17 @@ animate()
                 for outp in self.outputs_info:
                     if outp.name in namespace:
                         self.outputs.append(namespace[outp.name])
+
+    def execute(self, code, ns=None, *args, **kwargs):
+        from openalea.oalab.session.session import Session
+        session = Session()
+        if session.debug:
+            if ns is None:
+                ns = {}
+            exec code in ns, ns
+        else:
+            interpreter = kwargs["interpreter"]
+            interpreter.run_cell(code)
 
     @property
     def code(self):
