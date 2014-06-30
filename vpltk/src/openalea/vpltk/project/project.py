@@ -31,6 +31,7 @@ stored in your computer.
         /world          (scene, scene 3D)
         /cache          (Intermediary saved objects)
         /data           (Data files like images, .dat, ...)
+        /lib            (Contains python modules and packages)
         /startup          (Preprocessing scripts)
             *.py            (Preprocessing scripts)
             *import*.py     (Libs and packages to import in preprocessing)
@@ -127,7 +128,8 @@ class Project(Observed):
             "data": dict(),
             "world": dict(),
             "startup": dict(),
-            "doc": dict()
+            "doc": dict(),
+            "lib": dict()
         }
 
         self._model = dict()
@@ -859,6 +861,15 @@ class Project(Observed):
     @doc.setter
     def doc(self, value):
         self.files["doc"] = value
+        self.notify_listeners(('project_change', self))
+
+    @property
+    def lib(self):
+        return self.files["lib"]
+
+    @data.setter
+    def lib(self, value):
+        self.files["lib"] = value
         self.notify_listeners(('project_change', self))
 
     @property
