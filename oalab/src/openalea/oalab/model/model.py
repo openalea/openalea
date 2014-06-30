@@ -124,7 +124,7 @@ class Model(object):
                     inputs = [inputs]
             inputs.reverse()
 
-            if inputs == []:
+            if inputs == [] and old_inputs != []:
                 self._inputs = old_inputs
             elif self.inputs_info:
                 for input_info in self.inputs_info:
