@@ -441,6 +441,7 @@ class PrjctModel(QtGui.QStandardItemModel):
         icon_doc = QtGui.QIcon(":/images/resources/book.png")
         icon_cache = QtGui.QIcon(":/images/resources/editcopy.png")
         icon_model = QtGui.QIcon(":/images/resources/new.png")
+        icon_lib = QtGui.QIcon(":/images/resources/codefile-red.png")
 
         project = self.proj
         name = project.name
@@ -554,6 +555,7 @@ class PrjctManagerModel(QtGui.QStandardItemModel):
         icon_data = QtGui.QIcon(":/images/resources/fileopen.png")
         icon_doc = QtGui.QIcon(":/images/resources/book.png")
         icon_cache = QtGui.QIcon(":/images/resources/editcopy.png")
+        icon_lib = QtGui.QIcon(":/images/resources/codefile-red.png")
 
         for project in self.projects:
             name = project.name

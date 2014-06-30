@@ -42,7 +42,7 @@ class ErrActionOnTemporaryProject(UserException):
     desc = """Temporary project is used only at first launch but working on it has no sense.
     If you want to perform action on project, you must create a real project before."""
 
-CATEGORIES = ["model", "startup", "data"]
+CATEGORIES = ["model", "startup", "data", "lib"]
 class ProjectManagerWidget(QtGui.QWidget):
     """
     Object which permit to manage projects.
