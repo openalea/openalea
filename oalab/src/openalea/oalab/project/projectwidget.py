@@ -278,7 +278,7 @@ class ProjectManagerView(QtGui.QTreeView):
             import_data.triggered.connect(self.open)
             menu.addAction(import_data)
 
-        elif category == 'category' and obj in ('startup', 'doc'):
+        elif category == 'category' and obj in ('startup', 'doc', 'lib'):
             new_startup = QtGui.QAction(qicon('filenew.png'), 'New file', self)
             new_startup.triggered.connect(self.new_file)
             menu.addAction(new_startup)
@@ -286,7 +286,7 @@ class ProjectManagerView(QtGui.QTreeView):
         if category == 'model':
             self.add_new_file_actions(menu)
 
-        if category in ['model', 'src', 'startup', 'doc', 'data']:
+        if category in ['model', 'src', 'startup', 'doc', 'data', 'lib']:
             editAction = QtGui.QAction(qicon('open.png'), 'Open "%s"' % obj, self)
             menu.addAction(editAction)
             editAction.triggered.connect(self.open)
@@ -395,7 +395,7 @@ class ProjectManagerView(QtGui.QTreeView):
             elif category == 'data':
                 filepath = project.path / category / name
                 start(filepath)
-            elif category in ('startup', 'model', 'doc'):
+            elif category in ('startup', 'model', 'doc', 'lib'):
                 self.paradigm_container.open_project_data(category, name)
 
     def _rename(self, project, category, name):
@@ -593,6 +593,7 @@ class ProjectManagerModel(QtGui.QStandardItemModel):
             doc=QtGui.QIcon(":/images/resources/book.png"),
             cache=QtGui.QIcon(":/images/resources/editcopy.png"),
             model=QtGui.QIcon(":/images/resources/new.png"),
+            lib=QtGui.QIcon(":/images/resources/codefile-red.png"),
         )
 
         name = project.name
@@ -606,7 +607,7 @@ class ProjectManagerModel(QtGui.QStandardItemModel):
         parentItem.appendRow(item)
 
 
-        categories = sorted(['model', 'startup', 'doc', 'data'])
+        categories = sorted(['model', 'startup', 'doc', 'data', 'lib'])
         for category in categories:
             item2 = QtGui.QStandardItem(category)
             item.appendRow(item2)
