@@ -43,6 +43,11 @@ def parse_docstring_r(code):
 
     comment = get_docstring_r(code)
     inputs, outputs = parse_input_and_output(comment)
+    if inputs:
+        inputs = map(InputObj, inputs)
+    if outputs:
+        outputs = map(OutputObj, ouputs)
+
     cmdline = parse_cmdline(comment) 
     return 'Rfunction', inputs, outputs, cmdline
 
@@ -182,12 +187,12 @@ def parse_input_and_output(docstring):
         docsplit = docstring.splitlines()
         for line in docsplit:
             line = line.strip()
-            if re.match('^input\s*=\s', line):
+            if re.search('input\s*=', line):
                 line = line.split('input')[1]
                 line = line.split('=',1)[1].strip()
                 inputs = line.split(',')
                 inputs = [x.strip() for x in inputs]
-            if re.match('^output\s*=\s', line):
+            if re.search('output\s*=', line):
                 line = line.split('output')[1]
                 line = line.split('=',1)[1].strip()
                 outputs = line.split(',')
