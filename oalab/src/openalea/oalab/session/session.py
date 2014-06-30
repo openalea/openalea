@@ -30,6 +30,7 @@ from openalea.core.settings import get_openalea_tmp_dir
 from openalea.oalab.config.main import MainConfig
 from openalea.oalab.world.world import World
 from openalea.core.singleton import Singleton
+from openalea.core.path import path
 
 
 
@@ -50,7 +51,7 @@ class Session(object):
         self._project = None
         self._is_proj = False
 
-        self.tmpdir = get_openalea_tmp_dir()
+        self.tmpdir = path(get_openalea_tmp_dir())
 
         self._config = MainConfig()
         self.extension = None
