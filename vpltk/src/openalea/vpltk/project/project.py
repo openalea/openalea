@@ -462,6 +462,7 @@ class Project(Observed):
 
         .. seealso:: :func:`models`
         """
+        # GBY: what happens if model name contain spaces ?!?
         if hasattr(name, "split"):
             names = name.split()
         else:
@@ -867,7 +868,7 @@ class Project(Observed):
     def lib(self):
         return self.files["lib"]
 
-    @data.setter
+    @lib.setter
     def lib(self, value):
         self.files["lib"] = value
         self.notify_listeners(('project_change', self))
