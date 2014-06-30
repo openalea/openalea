@@ -63,7 +63,7 @@ more informations: http://www.r-project.org/
         cmd = self.cmdline
         print self.inputs_info
         l = self.inputs_info
-        input_names = [input.split(',')[0].split('=')[0] for input in l]
+        input_names = [input.name for input in l]
         input_names= [name for name in input_names if name in namespace]
         #input_values = [input.split('=')[1] for input in l]
 
@@ -71,7 +71,7 @@ more informations: http://www.r-project.org/
             cmd+= ' -i %s'%(','.join(input_names))
 
         l = self.outputs_info
-        output_names = [input.split(',')[0].split('=')[0] for input in l]
+        output_names = [input.name for input in l]
         if output_names:
             cmd+= ' -o %s'%(','.join(output_names))
 
@@ -95,7 +95,11 @@ more informations: http://www.r-project.org/
             user_ns.update(self.inputs)
 
         cmdline = self.r_options(user_ns)
-        shell = interpreter.shell
+        try:
+            shell = interpreter.shell
+        except:
+            shell = interpreter
+
         if not self.has_run:
             shell.run_line_magic('load_ext','rmagic')
         shell.run_cell_magic('R', cmdline, code)
@@ -108,7 +112,11 @@ more informations: http://www.r-project.org/
         execute subpart of a model (only code *code*)
         """
         interpreter = self._set_interpreter(**kwargs)
-        shell = interpreter.shell
+        try:
+            shell = interpreter.shell
+        except:
+            shell = interpreter
+
         cmdline = self.r_options()
         if not self.has_run:
             shell.run_line_magic('load_ext','rmagic')
