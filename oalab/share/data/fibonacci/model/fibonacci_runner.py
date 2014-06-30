@@ -3,8 +3,8 @@ This model compute the Fibonacci sequence in calling *fibo* model.
 
 *fibo(xi,xj)* (with j=i+1) compute the Fibonacci number i+2.
 
-inputs = nb_step=20
-outputs = xj
+input = nb_step=20
+output = xj
 """
 
 fibo = Model("fibo")
