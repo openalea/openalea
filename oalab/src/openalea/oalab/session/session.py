@@ -20,7 +20,7 @@ __revision__ = ""
 
 __all__ = ['Session']
 
-import os
+import os, sys
 import warnings
 from openalea.vpltk.shell.shell import get_interpreter_class
 from openalea.oalab.package.manager import package_manager
@@ -66,16 +66,17 @@ class Session(object):
         if hasattr(self.interpreter.shell, "events"):
             self.interpreter.shell.events.register("post_execute", self.add_to_history)
         else:
-            print("You use a version of ipython < 2. So, history can't work.")
+            print("You are using a version of ipython < 2. History is not implemented for this version.")
 
         self.project_manager.set_shell(self.interpreter.shell)
 
         self.interpreter.locals['session'] = self
         self.debug_plugins = ''
+        self.debug = False
 
         self.gui = True
 
-
+        self.old_syspath = sys.path
 
     @property
     def project(self):
@@ -102,11 +103,16 @@ class Session(object):
         if self.project:
             if self.project.path.exists():
                 os.chdir(self.project.path)
+                sys.path.insert(0, str(self.project.path / 'lib'))
             else:
                 os.chdir(self.tmpdir)
+                sys.path.insert(0, str(self.tmpdir / 'lib'))
             self.interpreter.locals['project'] = self.project
             self.interpreter.locals['Model'] = self.project.model
             self.interpreter.locals['data'] = self.project.path / 'data'
+        else:
+            # close
+            sys.path = self.old_syspath
 
     def add_to_history(self, *args, **kwargs):
         """

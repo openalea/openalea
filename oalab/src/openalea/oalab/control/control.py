@@ -87,6 +87,10 @@ class Control(Observed):
     def value(self):
         return self._value
 
+    @property
+    def identifier(self):
+        return str(id(self))
+
     @value.setter
     def value(self, value):
         self.set_value(value)

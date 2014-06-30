@@ -48,9 +48,20 @@ class TextData(object):
         self.filepath = filepath
         self.code = code
         self.category = category
+        self.run_selected_part = self.run_code = self.step = self.animate = self.reinit = self.init = self.run
+        self.ns = {}
+
+    def __call__(self, *args, **kwargs):
+        self.run(*args, **kwargs)
 
     def __eq__(self, other):
         return self.code == other.code and self.name == other.name and self.category == other.category
+
+    def run(self, *args, **kargs):
+        from openalea.oalab.session.session import Session
+        session = Session()
+        session.interpreter.shell.run_cell(self.code)
+
 
 class DataContainer(dict):
     """
@@ -323,7 +334,7 @@ class ParadigmContainer(QtGui.QTabWidget):
         elif category == 'model':
             obj.code = code
             project.save()
-        elif category in ('startup', 'doc'):
+        elif category in ('startup', 'doc', 'lib'):
             getattr(project, category)[obj.filepath.name] = code
             project.save()
 
@@ -341,7 +352,7 @@ class ParadigmContainer(QtGui.QTabWidget):
     def add(self, project, name, code, dtype=None, category=None):
         models = {}
         if category is None:
-            categories = ['model', 'startup', 'doc']
+            categories = ['model', 'startup', 'doc', 'lib']
         else:
             categories = [category]
 

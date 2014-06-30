@@ -16,7 +16,7 @@ class ControlContainer(Observed, AbstractListener):
             return [control for control in self._controls]
         elif name is None and uid:
             for control in self._controls:
-                if id(control) == uid:
+                if str(id(control)) == str(uid):
                     return control
         elif name and uid is None:
             controls = []

@@ -1,7 +1,7 @@
 # -*- python -*-
 #
 #       Python Manager applet
-# 
+#
 #       OpenAlea.OALab: Multi-Paradigm GUI
 #
 #       Copyright 2013 INRIA - CIRAD - INRA
