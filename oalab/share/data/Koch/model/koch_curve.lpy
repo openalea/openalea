@@ -1,5 +1,5 @@
 """
-input = lstring="_(0.001)-(90)F(1)"
+input = lstring="_(0.01)-(90)F(1)"
 output = lstring
 """
 N = 2
