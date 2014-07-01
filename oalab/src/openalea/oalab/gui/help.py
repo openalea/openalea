@@ -61,12 +61,12 @@ class HelpWidget(QtGui.QTextBrowser):
         super(HelpWidget, self).__init__(parent=parent) 
         self.setAccessibleName("HelpWidget")
 
-        actionHelpOpenAlea = QtGui.QAction(QtGui.QIcon(":/images/resources/openalealogo.png"),"OpenAlea", self)
-        actionHelpGForge = QtGui.QAction(QtGui.QIcon(":/images/resources/gforge.png"),"Submit Bug", self)
+        actionHelpOpenAlea = QtGui.QAction(QtGui.QIcon(":/images/resources/openalealogo.png"),"OpenAlea WebSite", self)
+        actionHelpGForge = QtGui.QAction(QtGui.QIcon(":/images/resources/git.png"),"Submit Issues", self)
         actionHelpTasks = QtGui.QAction(QtGui.QIcon(":/images/resources/gforge.png"),"See Tasks", self)
 
         self.connect(actionHelpOpenAlea, QtCore.SIGNAL('triggered(bool)'), self.openWebsiteOpenalea)
-        self.connect(actionHelpGForge, QtCore.SIGNAL('triggered(bool)'), self.openOALabBugs)
+        self.connect(actionHelpGForge, QtCore.SIGNAL('triggered(bool)'), self.openOALabIssues)
         self.connect(actionHelpTasks, QtCore.SIGNAL('triggered(bool)'), self.openOALabTasks)
 
         self._actions = [["Help", "Website", actionHelpOpenAlea, 0],
@@ -77,10 +77,10 @@ class HelpWidget(QtGui.QTextBrowser):
         return self._actions
 
     def openWebsiteOpenalea(self):
-        self.openWeb('http://openalea.gforge.inria.fr/dokuwiki/doku.php')
+        self.openWeb('http://openalea.github.io')
 
-    def openOALabBugs(self):
-        self.openWeb('https://gforge.inria.fr/tracker/?func=add&group_id=79&atid=13823')    
+    def openOALabIssues(self):
+        self.openWeb('https://github.com/openalea/openalea/issues/new')    
 
     def openOALabTasks(self):
         self.openWeb('https://gforge.inria.fr/pm/task.php?group_project_id=6971&group_id=79&func=browse')

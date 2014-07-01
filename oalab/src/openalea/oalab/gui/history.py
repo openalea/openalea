@@ -32,9 +32,9 @@ class HistoryWidget(QtGui.QTextBrowser):
         self.setText("")
         self.setLineWrapMode(QtGui.QTextEdit.NoWrap)
 
-        clear_action = QtGui.QAction(QtGui.QIcon(":/images/resources/editraise.png"), "Clear", self)
+        clear_action = QtGui.QAction(QtGui.QIcon(":/images/resources/editraise.png"), "Clear History", self)
         QtCore.QObject.connect(clear_action, QtCore.SIGNAL('triggered(bool)'), self.clear)
-        self._actions = [["Help", "History", clear_action, 0]]
+        self._actions = [["Edit", "History", clear_action, 0]]
 
     def clear(self):
         """
