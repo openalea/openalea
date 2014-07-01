@@ -213,7 +213,7 @@ class DataflowView( qt.View ):
             # -- retreive the data from the event mimeData --
             pieceData = event.mimeData().data("openalealab/control")
             dataStream = qt.QtCore.QDataStream(pieceData, qt.QtCore.QIODevice.ReadOnly)
-            data_key = str(pieceData)
+            identifier, data_key = str(pieceData).split(';')
 
             # -- find node factory --
             pkgmanager = PackageManager()
