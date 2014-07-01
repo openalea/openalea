@@ -59,7 +59,6 @@ misc
 pkg_builder
 image
 numpy
-pandas
 pylab
 pkgit
 """.split()
