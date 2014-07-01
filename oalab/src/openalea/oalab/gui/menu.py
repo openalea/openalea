@@ -223,6 +223,8 @@ class Group(QtGui.QWidget):
         self.setToolTip(name)
         self.setObjectName('Group')
         self.name = name
+        
+        self.row_number = 2
 
         self.layout = QtGui.QHBoxLayout()
         self.layout.setContentsMargins(0, 0, 0, 0)
@@ -260,7 +262,7 @@ class Group(QtGui.QWidget):
             row = layout.rowCount()
             nb = layout.count()
 
-            new_row = nb - nb / 3 * 3
+            new_row = nb - nb / self.row_number * self.row_number
 
             # If not a new column
             if new_row > 0:
@@ -290,7 +292,7 @@ class Group(QtGui.QWidget):
         row = layout.rowCount()
         nb = layout.count()
 
-        new_row = nb - nb / 3 * 3
+        new_row = nb - nb / self.row_number * self.row_number
 
         # If not a new column
         if new_row > 0:
@@ -315,7 +317,7 @@ class Group(QtGui.QWidget):
         row = layout.rowCount()
         nb = layout.count()
 
-        new_row = nb - nb / 3 * 3
+        new_row = nb - nb / self.row_number * self.row_number
 
         # If not a new column
         if new_row > 0:

@@ -52,7 +52,7 @@ def mainMenu(self):
     :return: Name of menu tab to automatically set current when current widget
     begin current.
     """
-    return "Simulation"
+    return "Project"
 
 VIEWER3D_SET = False
 def _set_viewer3d():

@@ -173,23 +173,23 @@ class ParadigmContainer(QtGui.QTabWidget):
 
         self.actionStop.setEnabled(False)
 
-        self._actions = [["Project", "Manage", self.actionOpenFile, 0],
-                         ["Project", "Manage", self.actionSave, 0],
-                         ["Project", "Manage Project", self.actionAddFile, 0],
+        self._actions = [["Project", "Manage", self.actionOpenFile, 1],
+                         ["Project", "Manage", self.actionSave, 1],
+                         ["Project", "Manage", self.actionAddFile, 1],
 #                          ["Project", "Manage", self.actionSaveAs, 1],
-                         ["Simulation", "Play", self.actionRun, 0],
-                         ["Simulation", "Play", self.actionAnimate, 0],
-                         ["Simulation", "Play", self.actionStep, 0],
-                         ["Simulation", "Play", self.actionStop, 0],
-                         ["Simulation", "Play", self.actionInit, 0],
-                         ["Edit", "Text Edit", self.actionUndo, 1],
-                         ["Edit", "Text Edit", self.actionRedo, 1],
-                         ["Edit", "Text Edit", self.actionSearch, 1],
-                         ["Edit", "Text Edit", self.actionGoto, 1],
-                         ["Edit", "Text Edit", self.actionComment, 1],
-                         ["Edit", "Text Edit", self.actionUnComment, 1],
+                         ["Project", "Play", self.actionRun, 0],
+                         ["Project", "Play", self.actionAnimate, 0],
+                         ["Project", "Play", self.actionStep, 0],
+                         ["Project", "Play", self.actionStop, 0],
+                         ["Project", "Play", self.actionInit, 0],
+                         ["Edit", "Text Edit", self.actionUndo, 0],
+                         ["Edit", "Text Edit", self.actionRedo, 0],
+                         ["Edit", "Text Edit", self.actionSearch, 0],
+                         ["Edit", "Text Edit", self.actionGoto, 0],
+                         ["Edit", "Text Edit", self.actionComment, 0],
+                         ["Edit", "Text Edit", self.actionUnComment, 0],
                          ["Edit", "Text Edit", self.actionRunSelection, 0],
-                         ["Edit", "Text Edit", self.actionCloseCurrent, 1],
+                         ["Project", "Manage", self.actionCloseCurrent, 1],
                          ]
         self.connect_paradigm_container()
         self.extensions = ""
@@ -202,7 +202,7 @@ class ParadigmContainer(QtGui.QTabWidget):
             action.triggered.connect(self.new_file)
             self.paradigms_actions.append(action)
             self._new_file_actions[action] = applet.default_name
-            self._actions.append(["Project", "Manage", action, 0],)
+            self._actions.append(["Project", "Manage", action, 1],)
 
     def initialize(self):
         self.reset()
@@ -729,7 +729,7 @@ class ParadigmContainer(QtGui.QTabWidget):
         :return: Name of menu tab to automatically set current when current widget
         begin current.
         """
-        return "Simulation"
+        return "Project"
 
     def save_all(self):
         """
