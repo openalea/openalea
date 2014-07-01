@@ -1,0 +1,12 @@
+"""
+input = lstring="_(0.01)-(90)F(1)"
+output = lstring
+"""
+
+derivation length: 3
+
+production: 
+F(x) :
+  produce  F(x/3.0)+F(x/3.0)--F(x/3.0)+F(x/3.0)
+
+endlsystem
