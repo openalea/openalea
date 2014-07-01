@@ -122,6 +122,9 @@ class IInterface(object):
         # # default visualisation in widget is done with label
         # self.label = kargs.get('label', None)
 
+    def __repr__(self):
+        return self.__class__.__name__+'()'
+
 
 class IStr(IInterface):
     """ String interface """
