@@ -86,10 +86,17 @@ class WorldDefault(AbstractWorld):
         return (obj, )
 
 
-class Control(Node):
+class Control(Node, AbstractListener):
     def __init__(self, inputs, outputs):
         Node.__init__(self, inputs, outputs)
+        AbstractListener.__init__(self)
         self.cm = ControlManager()
+        self.cm.register_listener(self)
+
+    def notify(self, sender, event):
+        signal, data = event
+        if signal == 'control_value_changed':
+            self.invalidate()
 
     def __call__(self, inputs):
         """ inputs is the list of input values """
