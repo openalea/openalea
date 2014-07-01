@@ -49,6 +49,7 @@ class Model(object):
         self.code = code
         self._doc = ""
 
+
     def get_documentation(self):
         """
         :return: a string with the documentation of the model
