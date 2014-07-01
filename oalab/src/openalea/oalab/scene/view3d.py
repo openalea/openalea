@@ -24,7 +24,7 @@ from openalea.plantgl.all import Scene, Sphere, Discretizer, GLRenderer, Boundin
 from openalea.core.observer import AbstractListener
 from openalea.oalab.gui import resources_rc
 from openalea.oalab.world.world import WorldObject
-from PyQGLViewer import QGLViewer, Vec
+from PyQGLViewer import QGLViewer, Vec, Quaternion
 import sys
 
 from openalea.oalab.service.geometry import to_shape3d
@@ -46,11 +46,13 @@ class view3D(QGLViewer):
         # set some parameters
         self.setAxisIsDrawn(False) # show axis
         self.setGridIsDrawn(True) # show grid
-        position = Vec(0.0, -1.0, 0.1)
-        self.camera().setPosition(position) # set camera
-        self.camera().lookAt(self.sceneCenter())
+        
+        orientation = Quaternion(0.475117,0.472505,0.524479,0.525286)
+        position = Vec(2.91287,-0.0109797,0.659613)
+        self.camera().setPosition(position)
+        self.camera().setOrientation(orientation)
+
         self.camera().setSceneRadius(1) # Size of vectors x,y,z
-        self.camera().showEntireScene()
         # connection
         self.connect(self, QtCore.SIGNAL("drawNeeded()"), self.draw)
         self.orientation_initiale = self.camera().orientation()
