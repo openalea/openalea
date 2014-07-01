@@ -62,9 +62,13 @@ class ControlView(QtGui.QTreeView):
         action.triggered.connect(self.export_lpy)
         menu.addAction(action)
 
-        #action = QtGui.QAction("Save controls", menu)
-        #action.triggered.connect(self.save_controls)
-        #menu.addAction(action)
+        action = QtGui.QAction("Save controls", menu)
+        action.triggered.connect(self.save_controls)
+        menu.addAction(action)
+
+        action = QtGui.QAction("Load controls", menu)
+        action.triggered.connect(self.load_controls)
+        menu.addAction(action)
 
         menu.exec_(event.globalPos())
 
@@ -85,13 +89,19 @@ class ControlView(QtGui.QTreeView):
         self.model().remove_controls(self._selected_indexes)
         self._selected_indexes = None
 
-    # def save_control(self):
-    #     filename = QtGui.QFileDialog.getSaveFileName(self, 'Select python file')
-    #     if filename:
-    #         for control in 
-
-    #         mcontrols = [(c.name, c.interface, c.value) for c in  self.model()._manager.controls()]
-    #         export_lpy_controls(mcontrols, filename)
+    def save_controls(self):
+         filename = QtGui.QFileDialog.getSaveFileName(self, 'Select python file')
+         if filename:
+            from pyserial import save_controls
+            save_controls(self.model()._manager.controls(), filename)
+ 
+    def load_controls(self):
+         filename = QtGui.QFileDialog.getOpenFileName(self, 'Select python file')
+         if filename:
+            self.model()._manager.controls().clear()
+            code = file(filename,'r').read()
+            exec(code)
+ 
 
     def import_lpy(self):
         from openalea.oalab.gui.control.lpycontrol import import_lpy_controls
