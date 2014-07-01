@@ -36,6 +36,12 @@ from openalea.oalab.service.control import clear_ctrl_manager
 
 from openalea.oalab.gui.utils import ModalDialog, make_info_dialog
 
+class ErrActionOnNoneProject(UserException):
+    title = u'Error: cannot do operations outside project'
+    message = u'%(value)s cannot be done outside project.'
+    desc = """All projects are closed.
+    If you really want to do this action, please open an existing project or create a new one."""
+
 class ErrActionOnTemporaryProject(UserException):
     title = u'Error: cannot do operations on temporary project'
     message = u'%(value)s cannot be done on temporary project.'
