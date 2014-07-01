@@ -96,7 +96,13 @@ class Control(Node, AbstractListener):
     def notify(self, sender, event):
         signal, data = event
         if signal == 'control_value_changed':
-            self.invalidate()
+            self.notify_listeners(("input_modified", 0))
+        elif signal == 'control_name_changed':
+            ctrl, name = data
+            self.set_input(0,name)
+            self.set_caption(name)
+            self.notify_listeners(("input_modified", 0))
+
 
     def __call__(self, inputs):
         """ inputs is the list of input values """
