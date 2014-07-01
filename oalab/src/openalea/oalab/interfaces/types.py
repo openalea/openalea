@@ -18,62 +18,7 @@
 
 from openalea.core.interface import IInterface
 
-class IColorList(IInterface):
-    """
-    List of tuple name, rgb(a) color.
-    Example:
 
-    [
-        ('C1', (255,0,0,255)),
-        ('C2', (0,255,0,255))
-    ]
-
-    """
-    __alias__ = 'Material List'
-
-    def __init__(self):
-        self.value = self.sample()
-
-    def sample(self):
-        """
-        Reinitialize control to default value
-        """
-        from openalea.plantgl.all import Material, Color3
-        value = [
-            ("Color_0", (80, 80, 80, 255), 2.), # Grey
-            ("Color_1", (65, 45, 15), 2.), # Brown
-            ("Color_2", (30, 60, 10), 2.), # Green
-            ("Color_3", (60, 0, 0), 2.), # Red
-            ("Color_4", (60, 60, 15), 2.), # Yellow
-            ("Color_5", (0, 0, 60), 2.), # Blue
-            ("Color_6", (60, 0, 60), 2.), # Purple
-            ]
-        return value
-
-
-class ICurve2D(IInterface):
-    """
-    NurbsCurve2D(Point3Array([Vector3(-0.5,0,1),Vector3(-0.166667,0,1),Vector3(0.166667,0,1),Vector3(0.5,0,1)]), width = 2)
-    """
-    def __init__(self):
-        self.value = self.sample()
-
-    __alias__ = 'Curve 2D'
-
-    def sample(self):
-        """
-        Reinitialize control to default value
-        """
-        from openalea.plantgl.all import NurbsCurve2D, Point3Array, Vector3
-        curve = NurbsCurve2D(
-            Point3Array([
-                Vector3(-0.5, 0, 1),
-                Vector3(-0.166667, 0, 1),
-                Vector3(0.166667, 0, 1),
-                Vector3(0.5, 0, 1)
-            ]),
-            width=2)
-        return curve
 
 
 
