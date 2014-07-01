@@ -48,7 +48,8 @@ class WorldBrowser(GenericWorldBrowser, AbstractListener):
 
         actionClearWorld = QtGui.QAction(QtGui.QIcon(":/images/resources/plant.png"), "Clear World", self)
         actionClearWorld.triggered.connect(self.world.clear)
-        self._actions = [["Viewer", "World", actionClearWorld, 0]]
+        self._actions = [["Viewer", "World", actionClearWorld, 0],
+                         ["Project", "World", actionClearWorld, 0]]
 
     def actions(self):
         return self._actions
