@@ -38,8 +38,10 @@ class OALabTreeView(NodeFactoryTreeView):
         if(isinstance(obj, CompositeNodeFactory)):
             applet = get_applet(identifier='EditorManager')
             if applet:
-                applet.newTab('Workflow', obj.name + '.wpy', obj)
-
+                #applet.newTab('Workflow', obj.name + '.wpy', obj)
+                cat, fn = applet.add(applet.project(), obj.name + '.wpy', obj, category='model', dtype='Workflow')
+                applet.open_project_data(cat, fn)
+                #applet.open_data(obj, dtype='Workflow')
         elif (not isinstance(obj, Package)):
             self.open_node()
 
@@ -59,7 +61,10 @@ class OALabSearchView(SearchListView):
         if(isinstance(obj, CompositeNodeFactory)):
             applet = get_applet(identifier='EditorManager')
             if applet:
-                applet.newTab('Workflow', obj.name + '.wpy', obj)
+                #applet.newTab('Workflow', obj.name + '.wpy', obj)
+                cat, fn = applet.add(applet.project(), obj.name + '.wpy', obj, category='model', dtype='Workflow')
+                applet.open_project_data(cat, fn)
+
 
         elif (not isinstance(obj, Package)):
             self.open_node()
