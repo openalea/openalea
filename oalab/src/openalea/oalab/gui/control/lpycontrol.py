@@ -15,7 +15,31 @@ def export_lpy_controls(controls, filename):
     """
     :param controls: [('name', interface, value)] ex: [('i', IInt(min=0, max=100), 1)]
     """
-    pass
+
+    from openalea.lpy.gui.objectmanagers import get_managers
+    #from openalea.plantgl.oaplugins.interfaces import IMaterialList, IPatch, IQuantisedFunction, ICurve2D
+    managers = get_managers()
+    interface2manager = { 'IPatch' : managers['NurbsPatch'], 'IQuantisedFunction' : managers['Function'], 'ICurve2D' : managers['Curve2D']}
+
+    visuobjects = []
+    for name, interface, value in controls:
+            manager = interface2manager.get(interface.__class__.__name__, None)
+            if manager:
+                print 'Export '+name+' ...'
+                value.name = str(name)
+                visuobjects.append((manager,value))
+
+    visualparameters = ({},visuobjects)
+
+
+    from openalea.lpy.simu_environ import getInitialisationCode
+
+    
+    code = getInitialisationCode(visualparameters=[visualparameters])
+
+    f = open(filename, 'w')
+    f.write(code)
+    f.close()
 
 def import_lpy_controls(filepath):
     if not path(filepath).isfile():

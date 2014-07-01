@@ -58,6 +58,13 @@ class ControlView(QtGui.QTreeView):
         action = QtGui.QAction("Import L-Py controls", menu)
         action.triggered.connect(self.import_lpy)
         menu.addAction(action)
+        action = QtGui.QAction("Export L-Py controls", menu)
+        action.triggered.connect(self.export_lpy)
+        menu.addAction(action)
+
+        #action = QtGui.QAction("Save controls", menu)
+        #action.triggered.connect(self.save_controls)
+        #menu.addAction(action)
 
         menu.exec_(event.globalPos())
 
@@ -78,11 +85,26 @@ class ControlView(QtGui.QTreeView):
         self.model().remove_controls(self._selected_indexes)
         self._selected_indexes = None
 
+    # def save_control(self):
+    #     filename = QtGui.QFileDialog.getSaveFileName(self, 'Select python file')
+    #     if filename:
+    #         for control in 
+
+    #         mcontrols = [(c.name, c.interface, c.value) for c in  self.model()._manager.controls()]
+    #         export_lpy_controls(mcontrols, filename)
+
     def import_lpy(self):
         from openalea.oalab.gui.control.lpycontrol import import_lpy_controls
         filename = QtGui.QFileDialog.getOpenFileName(self, 'Select L-Py file')
         if filename:
             import_lpy_controls(filename)
+
+    def export_lpy(self):
+        from openalea.oalab.gui.control.lpycontrol import export_lpy_controls
+        filename = QtGui.QFileDialog.getSaveFileName(self, 'Select L-Py file')
+        if filename:
+            mcontrols = [(c.name, c.interface, c.value) for c in  self.model()._manager.controls()]
+            export_lpy_controls(mcontrols, filename)
 
     def selectionChanged(self, selected, deselected):
         rows = set()
