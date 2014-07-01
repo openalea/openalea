@@ -8,6 +8,9 @@ def get_saver(name="GenericSaver"):
     for saver in iter_plugins('vpltk.saver'):
         if saver.default_name == name:
             return saver
+            
+    # if required plugin has not been found
+    raise TypeError('saver plugin not found: '+str(name))
 
 
 class ISaver(object):
