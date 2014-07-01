@@ -148,7 +148,7 @@ class WelcomePage(QtGui.QWidget):
         logger.debug("Open Project from welcome page")
 
     def restoreSession(self):
-        settings = QtCore.QSettings("OpenAlea", "OpenAleaLaboratory")
+        settings = QtCore.QSettings("OpenAlea", "OpenAleaLab")
         proj = from_qvariant(settings.value("session"))
         if proj is None:
             logger.debug("Can't restore previous session. May be it is empty")

@@ -2,7 +2,7 @@
 # -*- python -*-
 #
 #       Main Window class
-#       VPlantsLab GUI is created here
+#       OALab GUI is created here
 #
 #       OpenAlea.OALab: Multi-Paradigm GUI
 #
@@ -97,7 +97,7 @@ class MainWindow(QtGui.QMainWindow):
         Register current settings (geometry and window state)
         in a setting file
         """
-        settings = QtCore.QSettings("OpenAlea", "OpenAleaLaboratory")
+        settings = QtCore.QSettings("OpenAlea", "OpenAleaLab")
         settings.setValue("geometry", self.saveGeometry())
         settings.setValue("windowState", self.saveState())
         settings.setValue("session", self.session.project)
@@ -107,7 +107,7 @@ class MainWindow(QtGui.QMainWindow):
         Read a setting file and restore
         registered settings (geometry and window state)
         """
-        settings = QtCore.QSettings("OpenAlea", "OpenAleaLaboratory")
+        settings = QtCore.QSettings("OpenAlea", "OpenAleaLab")
 
         try:
             self.restoreGeometry(settings.value("geometry"))
@@ -202,7 +202,7 @@ class MainWindow(QtGui.QMainWindow):
         """
         Restore default settings (geometry and window state)
         """
-        settings = QtCore.QSettings("OpenAlea", "OpenAleaLaboratory")
+        settings = QtCore.QSettings("OpenAlea", "OpenAleaLab")
         self.restoreGeometry(settings.value("defaultGeometry"))
         self.restoreState(settings.value("defaultWindowState"))
 
@@ -211,7 +211,7 @@ class MainWindow(QtGui.QMainWindow):
         Get prefered settings and restore them
         """
         try:
-            settings = QtCore.QSettings("OpenAlea", "OpenAleaLaboratory")
+            settings = QtCore.QSettings("OpenAlea", "OpenAleaLab")
             self.restoreGeometry(settings.value("preferedGeometry"))
             self.restoreState(settings.value("preferedWindowState"))
         except:
@@ -221,7 +221,7 @@ class MainWindow(QtGui.QMainWindow):
         """
         Register current settings as preferd settings
         """
-        settings = QtCore.QSettings("OpenAlea", "OpenAleaLaboratory")
+        settings = QtCore.QSettings("OpenAlea", "OpenAleaLab")
         settings.setValue("preferedGeometry", self.saveGeometry())
         settings.setValue("preferedWindowState", self.saveState())
 
@@ -285,7 +285,7 @@ class MainWindow(QtGui.QMainWindow):
         status = self.statusBar()
         status.setSizeGripEnabled(False)
         controller.statusBar = status
-        self.statusBar().showMessage("OALab is ready!", 10000)
+        self.statusBar().showMessage("OpenAleaLab is ready!", 10000)
 
         # Tabify docks
         self.tabifyDockWidget(self._dockwidgets['Logger'], self._dockwidgets['Shell'])

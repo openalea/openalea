@@ -27,7 +27,7 @@ def install():
                         arguments='"' + pj(sys.prefix, 'Scripts', 'oalab-script.pyw') + '"',
                         startin="",
                         icon=pj(share_dir, 'openalea_icon.ico'),
-                        description="OpenAlea Laboratory",
+                        description="OpenAleaLab",
                         menugroup="OpenAlea")
 
 

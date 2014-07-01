@@ -22,7 +22,7 @@ import resources_rc # do not remove this import else icon are not drawn
 import webbrowser
 
 default_text2 = """
-<H1>Welcome in OpenAlea Laboratory.</H1>
+<H1>Welcome in OpenAleaLab.</H1>
 
 To begin, <b>choose your lab</b> or open an existing file or project:
 <ul>
@@ -36,7 +36,7 @@ To begin, <b>choose your lab</b> or open an existing file or project:
 """
 
 default_text = """
-<H1>Welcome in OpenAlea Laboratory.</H1>
+<H1>Welcome in OpenAleaLab.</H1>
 
 <p>
 This lab permit to create and execute virtual experiments that use different modelling paradigms.
