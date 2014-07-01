@@ -22,7 +22,7 @@ __revision__ = "$Id : "
 DEBUG = False
 
 import types
-#import sys
+import sys
 
 from openalea.oalab.model.visualea import VisualeaModel
 from openalea.vpltk.qt import QtCore, QtGui
@@ -31,7 +31,7 @@ from openalea.visualea import dataflowview
 from openalea.core.compositenode import CompositeNodeFactory
 #from openalea.plantgl.wralea.visualization import viewernode
 from openalea.oalab.service.help import display_help
-from openalea.oalab.service.applet import get_applet
+from openalea.oalab.service.plot import get_plotters
 
 def get_code(self):
     """
@@ -54,6 +54,15 @@ def mainMenu(self):
     """
     return "Simulation"
 
+VIEWER3D_SET = False
+def _set_viewer3d():
+    global VIEWER3D_SET
+    viewernode = sys.modules.get('openalea.plantgl.wralea.visualization.viewernode')
+    plotters = get_plotters()
+    if plotters and viewernode:
+        VIEWER3D_SET = True
+        viewer = plotters[0]
+        viewernode.registerPlotter(viewer)
 
 class VisualeaModelController(object):
     default_name = VisualeaModel.default_name
@@ -93,8 +102,9 @@ class VisualeaModelController(object):
         methods['mainMenu'] = mainMenu
 
         self._widget = adapt_widget(self._widget, methods)
-        # todo
-        # viewernode.registerPlotter(get_applet('Viewer3D'))
+        
+        if not VIEWER3D_SET:
+            _set_viewer3d()
 
         # todo: use services
         self.widget().scene().focusedItemChanged.connect(self.item_focus_change)
@@ -134,26 +144,16 @@ More informations: http://openalea.gforge.inria.fr/doc/openalea/visualea/doc/_bu
         
     def run(self, *args, **kwargs):
         # todo : register plotter
-        """
-        viewernode = sys.modules['openalea.plantgl.wralea.visualization.viewernode']
-        if hasattr(self.controller, "_plugins"):
-            if self.controller._plugins.has_key('Viewer3D'):
-                viewernode.registerPlotter(get_applet('Viewer3D'))
-        else:
-            if self.controller.applets.has_key('Viewer3D'):
-                viewernode.registerPlotter(self.controller.applets['Viewer3D'])"""
+        if not VIEWER3D_SET:
+            _set_viewer3d()
+
         return self.model(*args, **kwargs)
 
     def animate(self, *args, **kwargs):
         # todo : register plotter
-        """
-        viewernode = sys.modules['openalea.plantgl.wralea.visualization.viewernode']
-        if hasattr(self.controller, "_plugins"):
-            if self.controller._plugins.has_key('Viewer3D'):
-                viewernode.registerPlotter(get_applet('Viewer3D'))
-        else:
-            if self.controller.applets.has_key('Viewer3D'):
-                viewernode.registerPlotter(self.controller.applets['Viewer3D'])"""
+        if not VIEWER3D_SET:
+            _set_viewer3d()
+
         return self.model.animate(*args, **kwargs)
         
     def step(self, *args, **kwargs):
