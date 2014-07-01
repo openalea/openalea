@@ -60,9 +60,10 @@ class World(VPLScene, AbstractListener):
             name = 'data_%03d' % self.count
             self.count += 1
         obj = WorldObject(data)
-        def f():
-            return transform(data)
-        obj._repr_geom_ = f
+        if transform:
+            def f():
+                return transform(data)
+            obj._repr_geom_ = f
         self[name] = obj
 
     def notify(self, sender, event=None):
