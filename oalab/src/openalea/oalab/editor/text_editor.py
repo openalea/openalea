@@ -53,7 +53,7 @@ class RichTextEditor(QtGui.QWidget):
         return None
 
     def mainMenu(self):
-        return "Simulation"
+        return "Project"
 
     def set_text(self, txt):
         """
@@ -144,7 +144,7 @@ class TextEditor(QtGui.QTextEdit):
         return None
 
     def mainMenu(self):
-        return "Simulation"
+        return "Project"
 
     def setText(self, txt):
         self.setPlainText(txt)

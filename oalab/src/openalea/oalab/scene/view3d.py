@@ -181,7 +181,7 @@ class Viewer(AbstractListener, view3D):
         self.axis = False
         self.grid = True
 
-        actionResetZoom = QtGui.QAction(QtGui.QIcon(":/images/resources/resetzoom.png"), "Reset Zoom", self)
+        actionResetZoom = QtGui.QAction(QtGui.QIcon(":/images/resources/resetzoom.png"), "Home", self)
         actionZoomOut = QtGui.QAction(QtGui.QIcon(":/images/resources/zoomout.png"), "Zoom Out", self)
         actionZoomIn = QtGui.QAction(QtGui.QIcon(":/images/resources/zoomin.png"), "Zoom In", self)
         actionShowAxis = QtGui.QAction(QtGui.QIcon(":/images/resources/axis.png"), "Show Axis", self)
@@ -217,10 +217,11 @@ class Viewer(AbstractListener, view3D):
         self._actions = [["Viewer", "Zoom", actionResetZoom, 0],
                          ["Viewer", "Zoom", actionZoomOut, 0],
                          ["Viewer", "Zoom", actionZoomIn, 0],
-                         ["Viewer", "Camera", actionShowAxis, 1],
-                         ["Viewer", "Camera", actionShowGrid, 1],
-                         ["Viewer", "Camera", actionRadius, 1],
-                         ["Viewer", "Informations", actionShowFps, 1]]
+                         ["Viewer", "Camera", actionShowAxis, 0],
+                         ["Viewer", "Camera", actionShowGrid, 0],
+                         ["Viewer", "Camera", actionRadius, 0],
+                         #["Viewer", "Informations", actionShowFps, 1]
+                         ]
 
     def notify(self, sender, event=None):
         signal, data = event
