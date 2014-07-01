@@ -97,6 +97,8 @@ class Model(object):
         """
         raise NotImplementedError
 
+    def input_defaults(self):
+        return dict((x.name, eval(x.default)) for x in self.inputs_info if x.default)
     @property
     def inputs(self):
         """
@@ -129,14 +131,14 @@ class Model(object):
             elif self.inputs_info:
                 for input_info in self.inputs_info:
                     if len(inputs):
-                        inp = inputs.pop()
+                        default_value = inputs.pop()
                     elif input_info.default:
-                        inp = eval(input_info.default)
+                        default_value = eval(input_info.default)
                     else:
                         raise Exception("Model %s have inputs not setted. Please set %s ." %(self.name,input_info.name))
 
                     if input_info.name:
-                        self._inputs[input_info.name] = inp
+                        self._inputs[input_info.name] = default_value
 
     @property
     def outputs(self):

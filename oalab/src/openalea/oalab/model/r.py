@@ -82,8 +82,7 @@ more informations: http://www.r-project.org/
     def _universal_run(self,code, *args, **kwargs):
         """ This method is used by others...
         """
-        if args:
-            self.inputs = args
+        self.inputs = args
 
         interpreter = self._set_interpreter(**kwargs)
 
@@ -91,6 +90,7 @@ more informations: http://www.r-project.org/
         user_ns.update(self.ns)
 
         # put inputs inside namespace
+        
         if self.inputs:
             user_ns.update(self.inputs)
 
@@ -112,12 +112,14 @@ more informations: http://www.r-project.org/
         execute subpart of a model (only code *code*)
         """
         interpreter = self._set_interpreter(**kwargs)
+        user_ns = interpreter.user_ns
+        user_ns.update(self.ns)
         try:
             shell = interpreter.shell
         except:
             shell = interpreter
 
-        cmdline = self.r_options()
+        cmdline = self.r_options(user_ns)
         if not self.has_run:
             shell.run_line_magic('load_ext','rmagic')
         shell.run_cell_magic('R', cmdline, code)
