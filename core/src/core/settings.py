@@ -104,7 +104,7 @@ def get_project_dir(name='projects'):
     If it doesn't exist, create it
     """
 
-    aleahome = get_openalea_home_dir()
+    aleahome = get_openalea_home_dir(name='_openalea')
     projecthome = os.path.join(aleahome, name)
     if(not os.path.exists(projecthome)):
         os.mkdir(projecthome)
