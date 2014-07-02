@@ -50,7 +50,6 @@ class ControlManagerWidget(QtGui.QWidget, AbstractListener):
 
         self._l_edit = QtGui.QLabel("Control editor")
         self._l_no_edit = QtGui.QWidget()
-        self._l_no_edit.setMinimumSize(300, 300)
 
         self._layout.addWidget(self._l_edit)
         self._layout.addWidget(self._l_no_edit)
