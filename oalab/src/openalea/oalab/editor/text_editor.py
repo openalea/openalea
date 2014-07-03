@@ -109,7 +109,10 @@ class RichTextEditor(QtGui.QWidget):
             self.search_widget.hide()
             self.search_widget.hiden = True
 
-
+def fix_indentation(text, n=4):
+    """Replace tabs by n spaces"""
+    return text.replace('\t', ' '*n)
+            
 class TextEditor(QtGui.QTextEdit):
     def __init__(self, parent=None):
         super(TextEditor, self).__init__(parent)
@@ -129,13 +132,10 @@ class TextEditor(QtGui.QTextEdit):
 
     def set_tab_size(self):
         # Set tab size : to fix
+        tabStop = len(self.indentation)
         font = self.currentFont()
         metrics = QtGui.QFontMetrics(font)
-        length = metrics.width(self.indentation)
-        if length > 0:
-            self.setTabStopWidth(length)
-        else:
-            self.setTabStopWidth(14)
+        self.setTabStopWidth(tabStop * metrics.width(' '))
 
     def actions(self):
         """
@@ -202,7 +202,13 @@ class TextEditor(QtGui.QTextEdit):
 
     def keyPressEvent(self, event):
         # Auto-indent
-        if event.key() == QtCore.Qt.Key_Return or event.key() == QtCore.Qt.Key_Enter:
+        if event.key() == QtCore.Qt.Key_Tab:
+            cursor = self.textCursor()
+            n = len(self.indentation)
+            cursor.insertText(self.indentation[:-1])
+            event.ignore()
+
+        elif event.key() == QtCore.Qt.Key_Return or event.key() == QtCore.Qt.Key_Enter:
             super(TextEditor, self).keyPressEvent(event)
             self.returnEvent()
             return
