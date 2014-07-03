@@ -96,7 +96,8 @@ class Control(Node, AbstractListener):
     def notify(self, sender, event):
         signal, data = event
         if signal == 'control_value_changed':
-            self.notify_listeners(("input_modified", 0))
+            self.invalidate()
+            print 'control changed'
         elif signal == 'control_name_changed':
             ctrl, name = data
             self.set_input(0,name)
