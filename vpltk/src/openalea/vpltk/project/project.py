@@ -535,9 +535,12 @@ class Project(Observed):
 
             if ext in self.model_klasses:
                 # add model to existing models
-                mod = self.model_klasses[ext](name=filename_without_ext, code=code, filepath=new_filepath)
-                self._model[filename_without_ext] = mod
-                return self._model[filename_without_ext]
+                try:
+                    mod = self.model_klasses[ext](name=filename_without_ext, code=code, filepath=new_filepath)
+                    self._model[filename_without_ext] = mod
+                    return self._model[filename_without_ext]
+                except:
+                    print "Unable to load : ", new_filepath
 
         elif object_type == "control":
             # @GBY: 3 following lines
