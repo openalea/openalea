@@ -56,11 +56,9 @@ def mainMenu(self):
 
 VIEWER3D_SET = False
 def _set_viewer3d():
-    global VIEWER3D_SET
     viewernode = sys.modules.get('openalea.plantgl.wralea.visualization.viewernode')
     plotters = get_plotters()
     if plotters and viewernode:
-        VIEWER3D_SET = True
         viewer = plotters[0]
         viewernode.registerPlotter(viewer)
 
