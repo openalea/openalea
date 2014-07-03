@@ -1083,6 +1083,8 @@ class NodeFactory(AbstractFactory):
     def get_python_name(self):
         """ Return a python valid name """
 
+        module_name = self.nodemodule_name
+        module_name = module_name.replace('.','_')
         return "%s_%s" % (self.nodemodule_name, self.nodeclass_name)
 
     def __getstate__(self):
@@ -1261,6 +1263,7 @@ class NodeFactory(AbstractFactory):
                 self.nodemodule_path = inspect.getsourcefile(nodemodule)
             except TypeError, type_error:
                 self.nodemodule_path = None
+                print type_error
 
             self.module_cache = nodemodule
             sys.path = sav_path
@@ -1268,6 +1271,7 @@ class NodeFactory(AbstractFactory):
 
         except ImportError, import_error:
             sys.path = sav_path
+            print self.nodemodule_name
             raise import_error
         else:
             sys.path = sav_path
