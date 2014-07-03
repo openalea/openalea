@@ -101,7 +101,11 @@ more informations: http://www.r-project.org/
             shell = interpreter
 
         if not self.has_run:
-            shell.run_line_magic('load_ext','rmagic')
+            try:
+                shell.run_line_magic('load_ext','rpy2.ipython') #better as it solves display error but neeeds rpy2 > 2.4.2
+            except ImportError:
+                shell.run_line_magic('load_ext','rmagic')
+            
         shell.run_cell_magic('R', cmdline, code)
        
         self.set_output_from_ns(user_ns)
@@ -121,7 +125,11 @@ more informations: http://www.r-project.org/
 
         cmdline = self.r_options(user_ns)
         if not self.has_run:
-            shell.run_line_magic('load_ext','rmagic')
+            try:
+                shell.run_line_magic('load_ext','rpy2.ipython') #better as it solves display error but neeeds rpy2 > 2.4.2
+            except ImportError:
+                shell.run_line_magic('load_ext','rmagic')
+
         shell.run_cell_magic('R', cmdline, code)
 
     def run(self, *args, **kwargs):
