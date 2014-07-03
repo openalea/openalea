@@ -120,6 +120,12 @@ class TextEditor(QtGui.QTextEdit):
         self.indentation = "    "
         self.completer = None
         self.name = None
+        
+        font = QtGui.QFont("Courier")
+        font.setStyleHint(QtGui.QFont.Monospace)  
+        font.setPointSize(8)
+        font.setFixedPitch(True)
+        self.setFont(font)
         self.set_tab_size()
 
         # Line Number Area from LPy
