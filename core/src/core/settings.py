@@ -23,6 +23,7 @@ __revision__ = " $Id$ "
 
 import os
 import sys
+import platform
 from ConfigParser import SafeConfigParser, NoSectionError, NoOptionError
 from openalea.core.singleton import Singleton, ProxySingleton
 from openalea.core import logger
@@ -104,7 +105,11 @@ def get_project_dir(name='projects'):
     If it doesn't exist, create it
     """
 
-    aleahome = get_openalea_home_dir(name='_openalea')
+    if platform.system() == 'Linux':
+        name = '.openalea'
+    else:
+        name = '_openalea'
+    aleahome = get_openalea_home_dir(name=name)
     projecthome = os.path.join(aleahome, name)
     if(not os.path.exists(projecthome)):
         os.mkdir(projecthome)
