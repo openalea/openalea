@@ -1237,6 +1237,7 @@ class NodeFactory(AbstractFactory):
         Return the python module object (if available)
         Raise an Import Error if no module is associated
         """
+        LOCAL_IMPORT = False
 
         if not self.nodemodule_name:
             self.nodemodule_name = '__builtin__'
@@ -1255,8 +1256,9 @@ class NodeFactory(AbstractFactory):
 
             # Delete the module from the sys.modules if another local exists and
             # has the same name
-            if self.nodemodule_name in sys.modules:
-                del sys.modules[self.nodemodule_name]
+            if LOCAL_IMPORT:
+                if self.nodemodule_name in sys.modules:
+                    del sys.modules[self.nodemodule_name]
             __import__(self.nodemodule_name)
             nodemodule = sys.modules[self.nodemodule_name]
             try:
