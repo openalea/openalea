@@ -46,7 +46,7 @@ def parse_docstring_r(code):
     if inputs:
         inputs = map(InputObj, inputs)
     if outputs:
-        outputs = map(OutputObj, ouputs)
+        outputs = map(OutputObj, outputs)
 
     cmdline = parse_cmdline(comment) 
     return 'Rfunction', inputs, outputs, cmdline
