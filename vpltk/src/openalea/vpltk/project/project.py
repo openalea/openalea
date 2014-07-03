@@ -180,11 +180,12 @@ class Project(Observed):
         .. seealso:: :func:`start` :func:`load_manifest`
         """
         self.load_manifest()
-        for category in self.files.keys():
+        for category in self.files:
             obj = self._load(str(category))
             setattr(self, category, obj)
         for model_name in self._model_names:
             self._load("model", str(model_name))
+
         self.state = 'loaded'
         self.notify_listeners(('project_change', self))
 
@@ -535,12 +536,9 @@ class Project(Observed):
 
             if ext in self.model_klasses:
                 # add model to existing models
-                try:
-                    mod = self.model_klasses[ext](name=filename_without_ext, code=code, filepath=new_filepath)
-                    self._model[filename_without_ext] = mod
-                    return self._model[filename_without_ext]
-                except:
-                    print "Unable to load : ", new_filepath
+                mod = self.model_klasses[ext](name=filename_without_ext, code=code, filepath=new_filepath)
+                self._model[filename_without_ext] = mod
+                return self._model[filename_without_ext]
 
         elif object_type == "control":
             # @GBY: 3 following lines

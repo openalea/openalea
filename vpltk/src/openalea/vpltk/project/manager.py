@@ -47,7 +47,7 @@ class ProjectManager(Observed, AbstractListener):
 
         self.shell = None
         # TODO Search in preference file if user has path to append in self.find_links
-        self.cproject = self.default()
+        self._cproject = self.default()
 
     @staticmethod
     def search_path():
