@@ -189,6 +189,7 @@ class Project(Observed):
             # if a visualea model use an other model that is not loaded, the project crash.
             # To fix it, we load visualea models at the end.
             # To really fix it: fix inside ModelNode (Visualea)
+            # TODO: Fix this hack
             if str(model_name).split(".")[-1] == "wpy":
                 visualea_models.append(model_name)            
             # Load all scripts models
