@@ -89,15 +89,17 @@ class ControlView(QtGui.QTreeView):
         self.model().remove_controls(self._selected_indexes)
         self._selected_indexes = None
 
-    def save_controls(self):
-         filename = QtGui.QFileDialog.getSaveFileName(self, 'Select python file')
-         if filename:
+    def save_controls(self, filename=None):
+        if not filename:
+            filename = QtGui.QFileDialog.getSaveFileName(self, 'Select python file')
+        if filename:
             from pyserial import save_controls
             save_controls(self.model()._manager.controls(), filename)
  
-    def load_controls(self):
-         filename = QtGui.QFileDialog.getOpenFileName(self, 'Select python file')
-         if filename:
+    def load_controls(self, filename=None):
+        if not filename:
+            filename = QtGui.QFileDialog.getOpenFileName(self, 'Select python file')
+        if filename:
             self.model()._manager.controls().clear()
             code = file(filename,'r').read()
             exec(code)
