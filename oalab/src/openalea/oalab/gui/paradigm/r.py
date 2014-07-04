@@ -50,6 +50,7 @@ class RModelController(object):
         self.widget().applet = self
 
         self.widget().set_text(self.model.code)
+        self.widget().replace_tab()
         return self.widget()
 
     def focus_change(self):
