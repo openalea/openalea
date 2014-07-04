@@ -183,7 +183,19 @@ class Project(Observed):
         for category in self.files:
             obj = self._load(str(category))
             setattr(self, category, obj)
+        visualea_models = []
         for model_name in self._model_names:
+            # Hack to fix a bug:
+            # if a visualea model use an other model that is not loaded, the project crash.
+            # To fix it, we load visualea models at the end.
+            # To really fix it: fix inside ModelNode (Visualea)
+            if str(model_name).split(".")[-1] == "wpy":
+                visualea_models.append(model_name)            
+            # Load all scripts models
+            else:
+                self._load("model", str(model_name))
+        # Load visualea models       
+        for model_name in visualea_models:
             self._load("model", str(model_name))
 
         self.state = 'loaded'
