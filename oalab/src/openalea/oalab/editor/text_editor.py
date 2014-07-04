@@ -121,12 +121,9 @@ class TextEditor(QtGui.QTextEdit):
         self.completer = None
         self.name = None
         
-        font = QtGui.QFont("Courier")
-        font.setStyleHint(QtGui.QFont.Monospace)  
-        #font.setPointSize(8)
-        font.setFixedPitch(True)
-        self.setFont(font)
+        self.set_font("Courier")
         self.set_tab_size()
+        #self.set_font_size(12)
 
         # Line Number Area from LPy
         self.setViewportMargins(50, 0, 0, 0)
@@ -136,15 +133,24 @@ class TextEditor(QtGui.QTextEdit):
         self.cursorPositionChanged.connect(self.display_line_number)
         # QtCore.QObject.connect(self, QtCore.SIGNAL("cursorPositionChanged()"),self.highlightCurrentLine)
 
-    def change_font(self, font):
+    def set_font_size(self, size):
         """
-        Change the current font.
+        Change the current font size.
         
         Not used for the moment!
-        
-        :TODO: test it
         """
-        size = self.font.size()
+        font = self.font()
+        font.setPointSize(size)
+        self.setFont(font)
+        
+    def set_font(self, font_name):
+        """
+        Change the current font by name.
+        
+        :use: self.set_font("Courier")
+        """
+        size = self.font().pointSize()
+        font = QtGui.QFont(font_name)
         font.setStyleHint(QtGui.QFont.Monospace)  
         font.setPointSize(size)
         font.setFixedPitch(True)
