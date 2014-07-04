@@ -18,7 +18,7 @@
 
 import os
 import platform
-from openalea.core.path import path as path_
+from openalea.core.path import path
 from openalea.core import settings
 from openalea.vpltk.project.project import Project
 from openalea.core.singleton import Singleton
@@ -42,7 +42,7 @@ class ProjectManager(Observed, AbstractListener):
         AbstractListener.__init__(self)
         self.projects = []
         self._cproject = None
-        self._cwd = path_('.').abspath()
+        self._cwd = path('.').abspath()
         self.find_links = self.search_path()
 
         self.shell = None
@@ -55,7 +55,7 @@ class ProjectManager(Observed, AbstractListener):
 
         """
 
-        find_links = [path_(settings.get_project_dir())]
+        find_links = [path(settings.get_project_dir())]
 
         # TODO Move it into OALab ?
         if not "windows" in platform.system().lower():
@@ -64,7 +64,7 @@ class ProjectManager(Observed, AbstractListener):
                 from openalea.deploy.shared_data import shared_data
 
                 oalab_dir = shared_data(oalab)
-                find_links.append(path_(oalab_dir))
+                find_links.append(path(oalab_dir))
             except ImportError:
                 pass
 
@@ -82,7 +82,7 @@ class ProjectManager(Observed, AbstractListener):
             config.add_option("projectmanager", "path", str(l))
 
         find_links = set()
-        l = map(path_, set(l))
+        l = map(path, set(l))
         for p in l:
             p = p.abspath()
             if not p.isdir():
@@ -118,13 +118,13 @@ class ProjectManager(Observed, AbstractListener):
             project_manager.discover()
         """
         self.projects = []
-        for path in self.find_links:
-            for root, dirs, files in os.walk(path):
+        for _path in self.find_links:
+            for root, dirs, files in os.walk(_path):
                 if "oaproject.cfg" in files:
-                    path, name = path_(root).abspath().splitpath()
-                    if not ((path in [proj.projectdir for proj in self.projects]) and (
+                    _path, name = path(root).abspath().splitpath()
+                    if not ((_path in [proj.projectdir for proj in self.projects]) and (
                         name in [proj.name for proj in self.projects])):
-                        project = Project(name, path)
+                        project = Project(name, _path)
                         project.load_manifest()
                         self.projects.append(project)
 
@@ -165,8 +165,8 @@ class ProjectManager(Observed, AbstractListener):
         """
         :return: a default empty project
         """
-        path = path_(settings.get_project_dir())
-        proj = Project(name="temp", projectdir=path)
+        _path = path(settings.get_project_dir())
+        proj = Project(name="temp", projectdir=_path)
         proj.centralized = False
 
         if not proj.models():
@@ -187,14 +187,14 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
         :return: the default loaded project
         """
-        path = path_(settings.get_project_dir())
+        _path = path(settings.get_project_dir())
         try:
-            if not path.exists():
-                path.makedirs()
+            if not _path.exists():
+                _path.makedirs()
         except:
             pass
 
-        proj = self.load(name="temp", path=path)
+        proj = self.load(name="temp", path=_path)
 
         if proj is None: # If can't load default project, create it
             proj = self.default()
@@ -216,7 +216,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         if projectdir is None:
             projectdir = settings.get_project_dir()
         else:
-            projectdir = path_(projectdir).abspath()
+            projectdir = path(projectdir).abspath()
             if projectdir not in self.find_links:
                 self.find_links.append(projectdir)
                 self.write_settings()
@@ -226,7 +226,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
         return self.cproject
 
-    def load(self, name, path=None):
+    def load(self, name, proj_path=None):
         """
         Load existing project
 
@@ -235,28 +235,28 @@ You can rename/move this project thanks to the button "Save As" in menu.
             >>> project2 = project_manager.load('project2', '/path/to/project')
 
         :param name: name of project to load. Must be a string.
-        :param path: path of project to load. Must be a path (see module path.py). By default, try to guess with name only. If there are various projects with the same name, return the first.
+        :param proj_path: path of project to load. Must be a path (see module path.py). By default, try to guess with name only. If there are various projects with the same name, return the first.
         :return: Project
         """
-        if not path:
+        if not proj_path:
             for project in self.projects:
                 if project.name == name:
                     self.cproject = project
                     project.start(shell=self.shell)
                     return self.get_current()
         else:
-            full_path = path_(path) / name
+            full_path = path(proj_path) / name
 
             if full_path.exists():
-                self.cproject = Project(name, path)
+                self.cproject = Project(name, proj_path)
                 self.cproject.start(shell=self.shell)
                 return self.get_current()
 
-        # raise IOError('Project %s in repository %s does not exist' %(name,path))
-        # print 'Project %s in repository %s does not exist' %(name,path)
+        # raise IOError('Project %s in repository %s does not exist' %(name,proj_path))
+        # print 'Project %s in repository %s does not exist' %(name,proj_path)
         return None
 
-    def close(self, name=None, path=None):
+    def close(self, name=None, proj_path=None):
         """
         Close current project.
 
