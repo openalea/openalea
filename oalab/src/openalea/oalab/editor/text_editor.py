@@ -81,6 +81,9 @@ class RichTextEditor(QtGui.QWidget):
 
     def get_code(self, start='sof', end='eof'):
         return self.get_text(start=start, end=end)
+        
+    def replace_tab(self):
+        return self.editor.replace_tab()
 
     def goto(self):
         self.goto_widget.show()
@@ -185,7 +188,6 @@ class TextEditor(QtGui.QTextEdit):
         """
         self.setText(txt)
 
-
     set_script = set_text
 
     def get_selected_text(self):
@@ -205,6 +207,16 @@ class TextEditor(QtGui.QTextEdit):
         if txt is None:
             txt = ""
         return txt
+        
+    def replace_tab(self):
+        """
+        replace tab by spaces
+        
+        TODO: test it
+        """
+        txt = self.get_text(start='sof', end='eof')
+        txt = fix_indentation(txt, len(self.indentation))
+        self.set_text(txt)
 
     def canInsertFromMimeData(self, source):
         if source.hasFormat('openalealab/control'):
