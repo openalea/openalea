@@ -19,6 +19,7 @@
 from openalea.vpltk.qt import QtGui, QtCore
 
 from openalea.core.observer import AbstractListener
+from openalea.core.path import path
 from openalea.oalab.service.qt_control import qt_painter, qt_editor
 from openalea.oalab.service.mimetype import encode
 from openalea.oalab.control.manager import ControlContainer
@@ -100,9 +101,10 @@ class ControlView(QtGui.QTreeView):
         if not filename:
             filename = QtGui.QFileDialog.getOpenFileName(self, 'Select python file')
         if filename:
-            self.model()._manager.controls().clear()
-            code = file(filename,'r').read()
-            exec(code)
+            if path(filename).exists():
+                self.model()._manager.controls().clear()
+                code = file(filename,'r').read()
+                exec(code)
  
 
     def import_lpy(self):
