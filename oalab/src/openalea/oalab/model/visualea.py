@@ -72,7 +72,7 @@ class VisualeaModel(Model):
         """
         return self._workflow.eval()
 
-    def reset(self, *args, **kwargs):
+    def init(self, *args, **kwargs):
         """
         go back to initial step
         """
