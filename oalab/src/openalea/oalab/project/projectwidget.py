@@ -346,6 +346,7 @@ class ProjectManagerView(QtGui.QTreeView):
         self.proj_selector = ProjectSelectorScroll(projects=projects, open_project=self.set_project)
         self.proj_selector.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.proj_selector.show()
+        self.load_controls()
 
     def new_project(self):
         project_creator = CreateProjectWidget()
@@ -452,6 +453,29 @@ class ProjectManagerView(QtGui.QTreeView):
         project = self.project()
         if project:
             project.save()
+            self.save_controls()
+
+    def save_controls(self):    
+        # Hack to save controls!!!
+        # TODO: save controls inside project
+        project = self.project()
+        filename = project.path/"control.py"
+        from openalea.oalab.service.applet import get_applet
+        ctrl_manager_wid = get_applet(identifier="ControlManager")
+        if ctrl_manager_wid:
+            ctrl_view = ctrl_manager_wid.view
+            ctrl_view.save_controls(filename)
+            
+    def load_controls(self):
+        # Hack to load controls!!!
+        # TODO: load controls inside project
+        project = self.project()
+        filename = project.path/"control.py"
+        from openalea.oalab.service.applet import get_applet
+        ctrl_manager_wid = get_applet(identifier="ControlManager")
+        if ctrl_manager_wid:
+            ctrl_view = ctrl_manager_wid.view
+            ctrl_view.load_controls(filename)
 
     def saveAs(self):
         project = self.project()
