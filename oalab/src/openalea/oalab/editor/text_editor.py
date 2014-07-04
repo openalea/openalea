@@ -123,7 +123,7 @@ class TextEditor(QtGui.QTextEdit):
         
         font = QtGui.QFont("Courier")
         font.setStyleHint(QtGui.QFont.Monospace)  
-        font.setPointSize(8)
+        #font.setPointSize(8)
         font.setFixedPitch(True)
         self.setFont(font)
         self.set_tab_size()
@@ -136,6 +136,20 @@ class TextEditor(QtGui.QTextEdit):
         self.cursorPositionChanged.connect(self.display_line_number)
         # QtCore.QObject.connect(self, QtCore.SIGNAL("cursorPositionChanged()"),self.highlightCurrentLine)
 
+    def change_font(self, font):
+        """
+        Change the current font.
+        
+        Not used for the moment!
+        
+        :TODO: test it
+        """
+        size = self.font.size()
+        font.setStyleHint(QtGui.QFont.Monospace)  
+        font.setPointSize(size)
+        font.setFixedPitch(True)
+        self.setFont(font)
+        
     def set_tab_size(self):
         # Set tab size : to fix
         tabStop = len(self.indentation)
