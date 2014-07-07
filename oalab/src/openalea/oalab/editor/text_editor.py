@@ -124,10 +124,6 @@ class TextEditor(QtGui.QTextEdit):
         self.completer = None
         self.name = None
         
-        self.set_font("Courier")
-        self.set_tab_size()
-        #self.set_font_size(12)
-
         # Line Number Area from LPy
         self.setViewportMargins(50, 0, 0, 0)
         self.sidebar = Margin(self, self)
@@ -135,7 +131,44 @@ class TextEditor(QtGui.QTextEdit):
         self.sidebar.show()
         self.cursorPositionChanged.connect(self.display_line_number)
         # QtCore.QObject.connect(self, QtCore.SIGNAL("cursorPositionChanged()"),self.highlightCurrentLine)
+        
+        self.read_settings()
 
+    def read_settings(self):
+        config = settings.Settings()
+        
+        font = "Courier"
+        try:
+            font = config.get("editor", "font")
+        except settings.NoSectionError, e:
+            config.add_section("editor")
+            config.add_option("editor", "font", str(font))
+        except settings.NoOptionError, e:
+            config.add_option("editor", "font", str(font))
+        self.set_font(font)
+        
+        font_size = 12
+        try:
+            font_size = config.get("editor", "font_size")
+            font_size = int(font_size)
+        except settings.NoSectionError, e:
+            config.add_section("editor")
+            config.add_option("editor", "font_size", str(font_size))
+        except settings.NoOptionError, e:
+            config.add_option("editor", "font_size", str(font_size))
+        self.set_font_size(font_size)
+        
+    def write_settings(self):
+        config = settings.Settings()
+        
+        font = self.font()
+        config.set("editor", "font", font)
+        
+        font_size = font.pointSize()
+        config.get("editor", "font_size", font_size)
+        
+        config.write()
+        
     def set_font_size(self, size):
         """
         Change the current font size.
@@ -145,6 +178,7 @@ class TextEditor(QtGui.QTextEdit):
         font = self.font()
         font.setPointSize(size)
         self.setFont(font)
+        self.set_tab_size()
         
     def set_font(self, font_name):
         """
