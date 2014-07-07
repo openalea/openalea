@@ -21,6 +21,7 @@
 ###############################################################################
 __revision__ = ""
 
+from openalea.core.settings import Settings
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.oalab.gui.menu import PanedMenu
 from openalea.vpltk.shell.shell import get_shell_class
@@ -100,6 +101,7 @@ class MainWindow(QtGui.QMainWindow):
         self.add_applet(self.shell, 'Shell', area='shell')
 
         self.applets = self._plugins = {}
+        #self.resize(QtGui.qApp.desktop().size())
 
     def add_action_to_existing_menu(self, action, menu_name, sub_menu_name):
         """
@@ -176,3 +178,37 @@ class MainWindow(QtGui.QMainWindow):
 
         return dock_widget
 
+
+    def closeEvent(self, event):
+        self.writeSettings()
+        super(QtGui.QMainWindow, self).closeEvent(event)
+
+    ####################################################################
+    # ## Settings
+    ####################################################################
+    def writeSettings(self):
+        """
+        Register current settings (geometry and window state)
+        in a setting file
+        """
+        last_proj = self.session.project.name
+        config = Settings()
+        
+        config.set("project", "last", last_proj)
+        config.write()
+        """
+        last_proj = "temp"
+        try:
+            s = config.get("project", "last")
+            last_proj = eval(s)
+        except NoSectionError, e:
+            config.add_section("project")
+            config.add_option("project", "last", str(last_proj))
+        except NoOptionError, e:
+            config.add_option("project", "last", str(last_proj))
+        
+        
+        settings = QtCore.QSettings("OpenAlea", "OpenAleaLab")
+        settings.setValue("geometry", self.saveGeometry())
+        settings.setValue("windowState", self.saveState())
+        settings.setValue("session", self.session.project)"""
