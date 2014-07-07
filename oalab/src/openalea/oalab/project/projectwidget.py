@@ -207,13 +207,12 @@ class ProjectManagerView(QtGui.QTreeView):
         last_proj = "temp"
         try:
             last_proj = config.get("project", "last")
-        except NoSectionError, e:
+        except settings.NoSectionError, e:
             config.add_section("project")
             config.add_option("project", "last", str(last_proj))
-        except NoOptionError, e:
+        except settings.NoOptionError, e:
             config.add_option("project", "last", str(last_proj))
         
-        print last_proj
         self.projectManager.discover()
         projects = [proj for proj in self.projectManager.projects if proj.name == last_proj]
         if len(projects):
