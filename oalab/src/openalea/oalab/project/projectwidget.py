@@ -197,14 +197,30 @@ class ProjectManagerView(QtGui.QTreeView):
 
         self.actionNewProj.triggered.connect(self.new_project)
         self.actionOpenProj.triggered.connect(self.open_project)
-
-
-
-
+        
     #  API
 
     def initialize(self):
         self.paradigm_container = get_applet(identifier='EditorManager')
+        
+        config = settings.Settings()
+        last_proj = "temp"
+        try:
+            last_proj = config.get("project", "last")
+        except NoSectionError, e:
+            config.add_section("project")
+            config.add_option("project", "last", str(last_proj))
+        except NoOptionError, e:
+            config.add_option("project", "last", str(last_proj))
+        
+        print last_proj
+        self.projectManager.discover()
+        projects = [proj for proj in self.projectManager.projects if proj.name == last_proj]
+        if len(projects):
+            project = projects[0]
+        else:
+            project = self.projectManager.default()
+        self.set_project(project)
 
     def set_project(self, project):
         self.projectManager.cproject = project
