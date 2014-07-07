@@ -196,19 +196,3 @@ class MainWindow(QtGui.QMainWindow):
         
         config.set("project", "last", last_proj)
         config.write()
-        """
-        last_proj = "temp"
-        try:
-            s = config.get("project", "last")
-            last_proj = eval(s)
-        except NoSectionError, e:
-            config.add_section("project")
-            config.add_option("project", "last", str(last_proj))
-        except NoOptionError, e:
-            config.add_option("project", "last", str(last_proj))
-        
-        
-        settings = QtCore.QSettings("OpenAlea", "OpenAleaLab")
-        settings.setValue("geometry", self.saveGeometry())
-        settings.setValue("windowState", self.saveState())
-        settings.setValue("session", self.session.project)"""
