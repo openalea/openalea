@@ -158,6 +158,17 @@ class TextEditor(QtGui.QTextEdit):
             config.add_option("editor", "font_size", str(font_size))
         self.set_font_size(font_size)
         
+        display_tab = True
+        try:
+            display_tab = config.get("editor", "display_tab")
+            display_tab = bool(display_tab)
+        except settings.NoSectionError, e:
+            config.add_section("editor")
+            config.add_option("editor", "display_tab", str(display_tab))
+        except settings.NoOptionError, e:
+            config.add_option("editor", "display_tab", str(display_tab))
+        self.show_tab_and_spaces(display_tab)
+        
     def write_settings(self):
         config = settings.Settings()
         
@@ -168,6 +179,20 @@ class TextEditor(QtGui.QTextEdit):
         config.get("editor", "font_size", font_size)
         
         config.write()
+        
+    def show_tab_and_spaces(self, show=True):
+        """
+        Display spaces and tabs.
+        
+        :param show: if true display tabs and spaces, else hide them
+        """
+        doc = self.document()
+        option = doc.defaultTextOption()
+        if show:
+            option.setFlags(option.flags() | QtGui.QTextOption.ShowTabsAndSpaces)
+        else:
+            option.setFlags(QtGui.QTextOption.Flags())
+        doc.setDefaultTextOption(option)
         
     def set_font_size(self, size):
         """
