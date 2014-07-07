@@ -530,3 +530,30 @@ class TextEditor(QtGui.QTextEdit):
         cursor.movePosition(QtGui.QTextCursor.NextBlock, QtGui.QTextCursor.MoveAnchor, lineno - 1)
         self.setTextCursor(cursor)
         self.ensureCursorVisible()
+
+        
+def main():
+    import sys
+    from openalea.vpltk.shell.shell import get_shell_class, get_interpreter_class
+    app = QtGui.QApplication(sys.argv)
+    
+    edit = TextEditor()
+    interp = get_interpreter_class()()
+    shell = get_shell_class()(interp)
+    
+    win = QtGui.QMainWindow()
+    win.setCentralWidget(edit)
+    
+    dock_widget = QtGui.QDockWidget("IPython", win)
+    interp.locals['mainwindow'] = win
+    interp.locals['editor'] = edit
+    
+    dock_widget.setWidget(shell)
+    win.addDockWidget(QtCore.Qt.BottomDockWidgetArea, dock_widget)
+    
+    win.show()
+    win.raise_()
+    app.exec_()
+    
+if(__name__ == "__main__"):
+    main()
