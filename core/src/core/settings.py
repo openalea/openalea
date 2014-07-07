@@ -100,22 +100,20 @@ def get_openalea_tmp_dir(name='.openalea'):
 
 def get_project_dir(name='projects'):
     """
-    Get default directory (the place where are the
-    wralea.py files).
+    Get default directory (the place where the projects will be created).
     If it doesn't exist, create it
     """
 
     if platform.system() == 'Linux':
-        name = '.openalea'
+        name2 = '.openalea'
     else:
-        name = '_openalea'
-    aleahome = get_openalea_home_dir(name=name)
+        name2 = '_openalea'
+    aleahome = get_openalea_home_dir(name=name2)
     projecthome = os.path.join(aleahome, name)
     if(not os.path.exists(projecthome)):
         os.mkdir(projecthome)
 
     return projecthome
-    
 
 def get_userpkg_dir(name='user_pkg'):
     """
