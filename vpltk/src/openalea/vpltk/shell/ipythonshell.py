@@ -68,6 +68,9 @@ class ShellWidget(RichIPythonWidget, GraphicalStreamRedirection):
         # # For Debug Only
         # self.interpreter.locals['shell'] = self
         
+    def read(self, *args, **kwargs):
+        self.kernel_client.stdin_channel.input(*args, **kwargs)
+        
     def get_interpreter(self):
         """ 
         :return: the interpreter object 
