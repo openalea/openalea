@@ -103,7 +103,7 @@ class ParadigmContainer(QtGui.QTabWidget):
         self._new_file_actions = {}
         self.paradigms_actions = []
         for applet in iter_plugins('oalab.paradigm_applet', debug=self.session.debug_plugins):
-            self.paradigms[applet.default_name] = applet
+            self.paradigms[applet.name] = applet()()
 
         self._open_objects = DataContainer()
 

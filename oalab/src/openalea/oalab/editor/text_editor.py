@@ -26,6 +26,12 @@ from openalea.oalab.editor.goto import GoToWidget
 from openalea.core import logger
 from openalea.core import settings
 
+has_flake8 = False
+try:
+    from flake8 import run
+    has_flake8 = True
+except ImportError:
+    logger.warning("You should install **flake8** (using: pip install flake8)")
 
 class RichTextEditor(QtGui.QWidget):
     def __init__(self, parent=None):
@@ -112,6 +118,10 @@ class RichTextEditor(QtGui.QWidget):
             self.search_widget.hide()
             self.search_widget.hiden = True
 
+    def undo(self):
+        # Unused
+        return self.editor.check_code()
+            
 def fix_indentation(text, n=4):
     """Replace tabs by n spaces"""
     return text.replace('\t', ' '*n)
@@ -134,6 +144,17 @@ class TextEditor(QtGui.QTextEdit):
         
         self.read_settings()
 
+    def check_code(self):
+        """
+        Check if code follow PEP-8 guide-lines thanks to module flake8.
+        """
+        if has_flake8:
+            txt = self.get_text()
+            r = run.check_code(txt)
+            return r
+        else:
+            return
+        
     def read_settings(self):
         config = settings.Settings()
         
@@ -560,9 +581,11 @@ class TextEditor(QtGui.QTextEdit):
 def main():
     import sys
     from openalea.vpltk.shell.shell import get_shell_class, get_interpreter_class
+    from openalea.oalab.editor.highlight import Highlighter
     app = QtGui.QApplication(sys.argv)
     
     edit = TextEditor()
+    Highlighter(edit)
     interp = get_interpreter_class()()
     shell = get_shell_class()(interp)
     
@@ -572,6 +595,8 @@ def main():
     dock_widget = QtGui.QDockWidget("IPython", win)
     interp.locals['mainwindow'] = win
     interp.locals['editor'] = edit
+    interp.locals['shell'] = shell
+    interp.locals['interpreter'] = interp
     
     dock_widget.setWidget(shell)
     win.addDockWidget(QtCore.Qt.BottomDockWidgetArea, dock_widget)
