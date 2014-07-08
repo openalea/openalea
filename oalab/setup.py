@@ -91,10 +91,10 @@ setup(
             ],
 
         'oalab.paradigm_applet': [
-            'LPyApplet = openalea.oalab.gui.paradigm.lpy:LPyModelController',
-            'PythonApplet = openalea.oalab.gui.paradigm.python:PythonModelController',
-            'RApplet = openalea.oalab.gui.paradigm.r:RModelController',
-            'VisualeaApplet = openalea.oalab.gui.paradigm.visualea:VisualeaModelController',
+            'LPyApplet = openalea.oalab.plugins.models.lpygui:LPyModelGUI',
+            'PythonApplet = openalea.oalab.plugins.models.pythongui:PythonModelGUI',
+            'RApplet = openalea.oalab.plugins.models.rgui:RModelGUI',
+            'VisualeaApplet = openalea.oalab.plugins.models.visualeagui:VisualeaModelGUI',
             ],
 
         'oalab.model': [
