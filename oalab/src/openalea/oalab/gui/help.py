@@ -20,6 +20,8 @@ __revision__ = ""
 from openalea.vpltk.qt import QtGui, QtCore
 import resources_rc # do not remove this import else icon are not drawn
 import webbrowser
+from openalea.oalab.gui.preferences import PreferenceWidget
+from openalea.oalab.gui.utils import ModalDialog
 
 default_text2 = """
 <H1>Welcome in OpenAleaLab.</H1>
@@ -64,13 +66,17 @@ class HelpWidget(QtGui.QTextBrowser):
         actionHelpOpenAlea = QtGui.QAction(QtGui.QIcon(":/images/resources/openalealogo.png"),"OpenAlea WebSite", self)
         actionHelpGForge = QtGui.QAction(QtGui.QIcon(":/images/resources/git.png"),"Submit Issues", self)
         actionHelpTasks = QtGui.QAction(QtGui.QIcon(":/images/resources/gforge.png"),"See Tasks", self)
+        actionEditPref = QtGui.QAction(QtGui.QIcon(":/images/resources/node.png"),"Preferences", self)
 
         self.connect(actionHelpOpenAlea, QtCore.SIGNAL('triggered(bool)'), self.openWebsiteOpenalea)
         self.connect(actionHelpGForge, QtCore.SIGNAL('triggered(bool)'), self.openOALabIssues)
         self.connect(actionHelpTasks, QtCore.SIGNAL('triggered(bool)'), self.openOALabTasks)
+        actionEditPref.triggered.connect(self.open_preferences)
 
         self._actions = [["Help", "Website", actionHelpOpenAlea, 0],
-                         ["Help", "Website", actionHelpGForge, 0]]
+                         ["Help", "Website", actionHelpGForge, 0],
+                         ["Help", "Settings", actionEditPref, 0],
+                         ]
         self.setText(default_text)                
 
     def actions(self):
@@ -88,6 +94,12 @@ class HelpWidget(QtGui.QTextBrowser):
     def openWeb(self, url):
         webbrowser.open(url)
 
+    def open_preferences(self):
+        preferences = PreferenceWidget()
+        dialog = ModalDialog(preferences)
+        if dialog.exec_():
+            preferences.write_settings()
+        
     def mainMenu(self):
         """
         :return: Name of menu tab to automatically set current when current widget

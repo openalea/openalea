@@ -182,7 +182,7 @@ class TextEditor(QtGui.QTextEdit):
         display_tab = True
         try:
             display_tab = config.get("editor", "display_tab")
-            display_tab = bool(display_tab)
+            display_tab = bool(eval(display_tab))
         except settings.NoSectionError, e:
             config.add_section("editor")
             config.add_option("editor", "display_tab", str(display_tab))
