@@ -3,6 +3,7 @@ __all__ = ["PreferenceWidget"]
 
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core import settings
+from openalea.oalab.service.qt_control import qt_widget_plugins
 
 def Widget(label, value):
     """
@@ -12,46 +13,48 @@ def Widget(label, value):
         eval_value = eval(value)
     except NameError:
         eval_value = value
+    is_str = False
     
-    # Check Box if bool
+    wid = QtGui.QWidget()
+    layout = QtGui.QHBoxLayout(wid)
+    layout.addWidget(QtGui.QLabel(label))
+
     if value == "False" or value == "True":
-        wid = QtGui.QCheckBox(label)
-        wid.setChecked(eval(value))
-        return wid
-        
-    # Spin Box if int
+        editorclass = qt_widget_plugins("IBool")[0]
+        editor = editorclass.load()()
     elif isinstance(eval_value, int):
-        wid = QtGui.QWidget()
-        layout = QtGui.QHBoxLayout(wid)
-        layout.addWidget(QtGui.QLabel(label))
-        sp = QtGui.QSpinBox()
-        sp.setValue(eval_value)
-        layout.addWidget(sp)
-        return wid
-
-        
-    # else Line Edit
+        editorclass = qt_widget_plugins("IInt")[0]
+        editor = editorclass.load()
+        editor = editor.edit(eval_value)
+    elif isinstance(eval_value, list):
+        editorclass = qt_widget_plugins("ISequence")[0]
+        editor = editorclass.load()()
+        # API is not good. (value != get_value)
+        # TODO: fix it inside core.interface.py or inside controls
+        editor.get_value = editor.value 
     else:
-        wid = QtGui.QWidget()
-        layout = QtGui.QHBoxLayout(wid)
-        layout.addWidget(QtGui.QLabel(label))
-        layout.addWidget(QtGui.QLineEdit(value))
-        return wid
+        editorclass = qt_widget_plugins("IStr")[0]
+        is_str = True
+        editor = editorclass.load()()
 
+    if is_str:
+        editor.setValue(value)
+    else:
+        editor.setValue(eval_value)
+        
+    layout.addWidget(editor)
+    return wid
+
+       
 def get_label_and_value(widget):
     """
     :return: the current label and value from a widget constructed by "Widget" function
     """
-    if hasattr(widget, "isChecked"):
-        return widget.text(), widget.isChecked()
-    else:
-        labelwidget = widget.layout().itemAt(0).widget()
-        valuewidget = widget.layout().itemAt(1).widget()
-        if hasattr(valuewidget,"value"):
-            return labelwidget.text(), valuewidget.value()
-        elif hasattr(valuewidget, "text"):
-            return labelwidget.text(), valuewidget.text()
-    
+    labelwidget = widget.layout().itemAt(0).widget()
+    valuewidget = widget.layout().itemAt(1).widget()
+
+    return labelwidget.text(), valuewidget.value()
+
         
 class PreferenceWidget(QtGui.QWidget):
     def __init__(self, parent=None):
