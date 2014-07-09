@@ -58,8 +58,6 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         self.paradigm_container = None
         self.menu_available_projects = QtGui.QMenu(u'Available Projects')
 
-
-
         self.actionNewProj = self.view.actionNewProj
         self.actionOpenProj = self.view.actionOpenProj
 
@@ -184,6 +182,7 @@ class ProjectManagerView(QtGui.QTreeView):
 
         self.actionSaveProj = QtGui.QAction(qicon("save.png"), "Save project", self)
         self.actionSaveProj.triggered.connect(self.save)
+        self.actionSaveProj.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
 
         self.actionCloseProj = QtGui.QAction(qicon("closeButton.png"), "Close project", self)
         self.actionCloseProj.triggered.connect(self.close)
@@ -206,12 +205,12 @@ class ProjectManagerView(QtGui.QTreeView):
         config = settings.Settings()
         last_proj = "temp"
         try:
-            last_proj = config.get("project", "last")
+            last_proj = config.get("ProjectManager", "Last Project")
         except settings.NoSectionError, e:
-            config.add_section("project")
-            config.add_option("project", "last", str(last_proj))
+            config.add_section("ProjectManager")
+            config.add_option("ProjectManager", "Last Project", str(last_proj))
         except settings.NoOptionError, e:
-            config.add_option("project", "last", str(last_proj))
+            config.add_option("ProjectManager", "Last Project", str(last_proj))
         
         self.projectManager.discover()
         projects = [proj for proj in self.projectManager.projects if proj.name == last_proj]
