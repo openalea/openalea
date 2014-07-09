@@ -28,6 +28,7 @@ def Widget(label, value):
         sp.setValue(eval_value)
         layout.addWidget(sp)
         return wid
+
         
     # else Line Edit
     else:
@@ -71,7 +72,7 @@ class PreferenceWidget(QtGui.QWidget):
         self.sections = config.sections()
         
         for section in self.sections:
-            if section != "AutoAddedConfItems":
+            if section != "AutoAddedConfItems" and section != "MainWindow" and section != "TreeView":
                 tab = QtGui.QWidget(self.tabwidget)
                 self.tabwidget.addTab(tab, section)
                 layout = QtGui.QVBoxLayout(tab)
