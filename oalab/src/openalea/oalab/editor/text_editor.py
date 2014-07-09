@@ -160,44 +160,44 @@ class TextEditor(QtGui.QTextEdit):
         
         font = "Courier"
         try:
-            font = config.get("editor", "font")
+            font = config.get("Text Editor", "Font")
         except settings.NoSectionError, e:
-            config.add_section("editor")
-            config.add_option("editor", "font", str(font))
+            config.add_section("Text Editor")
+            config.add_option("Text Editor", "Font", str(font))
         except settings.NoOptionError, e:
-            config.add_option("editor", "font", str(font))
+            config.add_option("Text Editor", "Font", str(font))
         self.set_font(font)
         
         font_size = 12
         try:
-            font_size = config.get("editor", "font_size")
+            font_size = config.get("Text Editor", "Font Size")
             font_size = int(font_size)
         except settings.NoSectionError, e:
-            config.add_section("editor")
-            config.add_option("editor", "font_size", str(font_size))
+            config.add_section("Text Editor")
+            config.add_option("Text Editor", "Font Size", str(font_size))
         except settings.NoOptionError, e:
-            config.add_option("editor", "font_size", str(font_size))
+            config.add_option("Text Editor", "Font Size", str(font_size))
         self.set_font_size(font_size)
         
         display_tab = True
         try:
-            display_tab = config.get("editor", "display_tab")
+            display_tab = config.get("Text Editor", "Display Tab and Spaces")
             display_tab = bool(eval(display_tab))
         except settings.NoSectionError, e:
-            config.add_section("editor")
-            config.add_option("editor", "display_tab", str(display_tab))
+            config.add_section("Text Editor")
+            config.add_option("Text Editor", "Display Tab and Spaces", str(display_tab))
         except settings.NoOptionError, e:
-            config.add_option("editor", "display_tab", str(display_tab))
+            config.add_option("Text Editor", "Display Tab and Spaces", str(display_tab))
         self.show_tab_and_spaces(display_tab)
         
     def write_settings(self):
         config = settings.Settings()
         
         font = self.font()
-        config.set("editor", "font", font)
+        config.set("Text Editor", "Font", font)
         
         font_size = font.pointSize()
-        config.get("editor", "font_size", font_size)
+        config.get("Text Editor", "Font Size", font_size)
         
         config.write()
         
