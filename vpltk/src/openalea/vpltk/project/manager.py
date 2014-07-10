@@ -73,13 +73,13 @@ class ProjectManager(Observed, AbstractListener):
         l = list(find_links)
         # wralea path
         try:
-            s = config.get("projectmanager", "path")
+            s = config.get("ProjectManager", "Path")
             l = eval(s)
         except NoSectionError, e:
-            config.add_section("projectmanager")
-            config.add_option("projectmanager", "path", str(l))
+            config.add_section("ProjectManager")
+            config.add_option("ProjectManager", "Path", str(l))
         except NoOptionError, e:
-            config.add_option("projectmanager", "path", str(l))
+            config.add_option("ProjectManager", "Path", str(l))
 
         find_links = set()
         l = map(path, set(l))
@@ -97,7 +97,7 @@ class ProjectManager(Observed, AbstractListener):
         l = list(set(self.find_links))
         l = map(str, l)
         config = settings.Settings()
-        config.set("projectmanager", "path", str(l))
+        config.set("ProjectManager", "Path", str(l))
         config.write()
 
     def discover(self):
