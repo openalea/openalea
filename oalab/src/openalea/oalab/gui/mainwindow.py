@@ -194,5 +194,5 @@ class MainWindow(QtGui.QMainWindow):
         last_proj = self.session.project.name
         config = Settings()
         
-        config.set("project", "last", last_proj)
+        config.set("ProjectManager", "Last Project", last_proj)
         config.write()
