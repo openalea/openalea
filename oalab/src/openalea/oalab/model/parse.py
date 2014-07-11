@@ -86,9 +86,11 @@ def parse_functions_r(docstring):
 #########################################
 
 def ast_parse(string):
+    logger.debug("Parse code: " + string[:10] + "...")
     try:
         M = ast.parse(string)
     except SyntaxError, e:
+        #raise e
         logger.warning(str(e))
         logger.warning("Syntax error when parsing: " + string[:30] + "...")
         M = ast.parse("")
