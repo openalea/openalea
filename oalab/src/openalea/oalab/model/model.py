@@ -100,6 +100,7 @@ class Model(object):
 
     def input_defaults(self):
         return dict((x.name, eval(x.default)) for x in self.inputs_info if x.default)
+        
     @property
     def inputs(self):
         """
@@ -141,6 +142,19 @@ class Model(object):
                     if input_info.name:
                         self._inputs[input_info.name] = default_value
 
+    def _set_output_from_ns(self, namespace):
+        """
+        Get outputs from namespace and set them inside self.outputs
+        
+        :param namespace: dict where the model will search the outputs
+        """
+        if self.outputs_info:
+            self.outputs = []
+            if len(self.outputs_info) > 0:
+                for outp in self.outputs_info:
+                    if outp.name in namespace:
+                        self.outputs.append(namespace[outp.name])                    
+                        
     @property
     def outputs(self):
         """
@@ -178,6 +192,21 @@ class Model(object):
         filename = self.name+'.'+self.extension
         return (pd/filename).abspath()
 
+    def _prepare_namespace(self):
+        """
+        :return: the current namespace updated with self.ns and inputs
+        """
+        from openalea.oalab.service.ipython import get_interpreter
+        interpreter = get_interpreter()
+
+        if interpreter:
+            user_ns = copy(interpreter.user_ns) # Get a copy of current namespace
+        else:
+            user_ns = dict()
+        user_ns.update(self.ns) # Add self namespace inside
+        if self.inputs:
+            user_ns.update(self.inputs) # Add inputs inside namespace
+        return copy(user_ns)
 
 class ModelNode(Node):
     def __init__(self, model, inputs=(), outputs=()):
