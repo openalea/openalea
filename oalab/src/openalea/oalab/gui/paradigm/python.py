@@ -62,8 +62,6 @@ class PythonModelController(object):
 
     def run_selected_part(self, *args, **kwargs):
         code = self.widget().get_selected_text()
-        if len(code) == 0:
-            code = self.widget().get_text()
         return self.model.run_code(code, *args, **kwargs)
 
     def run(self, *args, **kwargs):
