@@ -29,6 +29,7 @@ class ShellWidget(RichIPythonWidget, GraphicalStreamRedirection):
         """
         # Set interpreter
         self.interpreter = interpreter
+        self.interpreter.widget = self
 
         # Multiple Stream Redirection
         GraphicalStreamRedirection.__init__(self)
