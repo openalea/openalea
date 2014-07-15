@@ -1,19 +1,26 @@
 """
-Package that provides a unique qt widget for matplotlib figure
+Package that provides a single qt widget for matplotlib figure
+Author: Julien Diener
 
-To get pyplot actions redirected to this widget, use::
+To get pyplot actions redirected to the plot2d widget, use::
 
-    from openalea.oalab import matplotlib as oampl
-    oampl.activate_in_pyplot()
+    from openalea.oalab import plot2d
+    plot2d.activate_in_pyplot()
     
-To disable it, do::
+Then you can use pyplot as usual::
 
-    from openalea.oalab import matplotlib as oampl
-    oampl.desactivate_in_pyplot()
+    from matplotlib import pyplot as plt
+    plt.ion()               # interactive plot
+    plt.plot(range(3)*4)
 
+To disable pyplot redirection, do::
 
+    from openalea.oalab import plot2d
+    plot2d.desactivate_in_pyplot()
+    
+"""
 #########################################################
-#   OpenAlea.OALab.matplotlib: matplotlib in OpenAleaLab
+#   OpenAlea.OALab.plot2d: matplotlib widget for OpenAleaLab
 #   
 #   Copyright 2013 INRIA - CIRAD - INRA
 #   
@@ -27,7 +34,6 @@ To disable it, do::
 #   
 #   OpenAlea WebSite : http://openalea.gforge.inria.fr
 #########################################################
-"""
 from __future__ import absolute_import
 
 __revision__ = "0.1"
