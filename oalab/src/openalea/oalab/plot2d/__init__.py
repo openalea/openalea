@@ -17,7 +17,10 @@ To disable pyplot redirection, do::
 
     from openalea.oalab import plot2d
     plot2d.desactivate_in_pyplot()
-    
+
+Notes:
+ - OpenAlea with the whole qt set should be installed
+ - For pyplot integration, matplotlib should have 'qt4agg' backend
 """
 #########################################################
 #   OpenAlea.OALab.plot2d: matplotlib widget for OpenAleaLab
