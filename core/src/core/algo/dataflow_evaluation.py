@@ -28,6 +28,24 @@ from openalea.core.dataflow import SubDataflow
 from openalea.core.interface import IFunction
 
 
+PROVENANCE = False
+# Iplement provenance in OpenAlea
+
+def provenance(vid, node, start_time, end_time):
+    #from service import db
+    #conn = db.connect()
+
+
+    if PROVENANCE:
+        pname = node.factory.package.name
+        name = node.factory.name
+
+        print "Provenance Process:"
+        print "instance ID ", vid, "Package Name: ",pname, "Name: ", name
+        print "start time :", start_time, "end_time: ", end_time, "duration : ", end_time-start_time 
+        print 'Inputs : ', node.inputs
+        print 'outputs : ', node.outputs
+
 # print the evaluation time
 # This variable has to be retrieve by the settings
 quantify = False
@@ -108,7 +126,11 @@ class AbstractEvaluation(object):
         node = self._dataflow.actor(vid)
 
         try:
+            t0 = clock()
             ret = node.eval()
+            t1 = clock()
+
+            provenance(vid, node, t0,t1)
             # When an exception is raised, a flag is set.
             # So we remove it when evaluation is ok.
             node.raise_exception = False
@@ -131,6 +153,7 @@ class AbstractEvaluation(object):
             node.notify_listeners(('data_modified', None, None))
             raise EvaluationException(vid, node, e, \
                 tb.format_tb(sys.exc_info()[2]))
+
 
     def get_parent_nodes(self, pid):
         """
