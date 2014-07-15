@@ -102,16 +102,16 @@ class Provenance(object):
         pass
     def workflow_exec(self, *args):
         pass
-    def node_exec(self, *args):
+    def node_exec(self, vid, node, start_time, end_time, *args):
         pass
     def write(self):
         """ Write the provenance in db """
 
 class PrintProvenance(Provenance):
     def workflow_exec(self, *args):
-        print 'Workflow execution'
-    def node_exec(self, *args):
-        print 'Node execution'
+        print 'Workflow execution ', self.workflow.factory.name
+    def node_exec(self, vid, node, start_time, end_time, *args):
+        provenance(vid, node, start_time, end_time)
 
 
 def provenance(vid, node, start_time, end_time):
@@ -218,7 +218,8 @@ class AbstractEvaluation(object):
             t1 = clock()
 
             if PROVENANCE:
-                provenance(vid, node, t0,t1)
+                self.provenance.node_exec(vid, node, t0,t1)
+                #provenance(vid, node, t0,t1)
             
             # When an exception is raised, a flag is set.
             # So we remove it when evaluation is ok.
@@ -586,6 +587,9 @@ class LambdaEvaluation(PriorityEvaluation):
         :param context: list a value to assign to lambda variables
         """
         t0 = clock()
+        if PROVENANCE and (not is_subdataflow):
+            self.provenance.workflow_exec()
+            self.provenance.start_time()
 
         self.lambda_value.clear()
 
@@ -597,6 +601,9 @@ class LambdaEvaluation(PriorityEvaluation):
         PriorityEvaluation.eval(self, vtx_id, context, self.lambda_value, is_subdataflow=is_subdataflow)
         self.lambda_value.clear() # do not keep context in memory
         
+        if PROVENANCE:
+            self.provenance.end_time()
+
         t1 = clock()
         if quantify:
             print "Evaluation time: %s"%(t1-t0)
