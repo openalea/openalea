@@ -29,7 +29,90 @@ from openalea.core.interface import IFunction
 
 
 PROVENANCE = False
-# Iplement provenance in OpenAlea
+
+# Implement provenance in OpenAlea
+db_conn = None
+
+import sqlite3
+from openalea.core.path import path
+from openalea.core import settings
+
+def db_create(cursor):
+    cur = cursor
+    #-prospective provenance-#
+    #User table creation
+    cur.execute("CREATE TABLE IF NOT EXISTS User (userid INTEGER,createtime DATETIME,name varchar (25), firstname varchar (25), email varchar (25), password varchar (25),PRIMARY KEY(userid))")
+
+    # CompositeNode table creation
+    cur.execute("CREATE TABLE IF NOT EXISTS CompositeNode (CompositeNodeid INTEGER, creatime DATETIME, name varchar (25), description varchar (25),userid INTEGER,PRIMARY KEY(CompositeNodeid),FOREIGN KEY(userid) references User)")
+    #Cr?ation de la table Node
+    cur.execute("CREATE TABLE IF NOT EXISTS Node (Nodeid INTEGER, createtime DATETIME, name varchar (25), NodeFactory varchar (25),CompositeNodeid INTEGER,PRIMARY KEY(Nodeid),FOREIGN KEY(CompositeNodeid) references CompsiteNode)")
+    #Cr?ation de la table Input
+    cur.execute("CREATE TABLE IF NOT EXISTS Input (Inputid INTEGER, createtime DATETIME, name varchar (25), typedata varchar (25), InputPort INTEGER,PRIMARY KEY (Inputid))")
+    #Cr?ation de la table Output
+    cur.execute("CREATE TABLE IF NOT EXISTS Output (Outputid INTEGER, createtime DATETIME, name varchar (25), typedata varchar (25), OutputPort INTEGER,PRIMARY KEY (Outputid))")
+    #Cr?ation de la table elt_connection
+    cur.execute("CREATE TABLE IF NOT EXISTS elt_connection (elt_connectionid INTEGER, createtime DATETIME,srcNodeid INTEGER, srcNodeOutputPortid INTEGER, targetNodeid INTEGER, targetNodeInputPortid INTEGER ,PRIMARY KEY (elt_connectionid))")
+
+    #- retrospective provenance -#
+    #- CompositeNodeExec table creation
+    cur.execute("CREATE TABLE IF NOT EXISTS CompositeNodeExec (CompositeNodeExecid INTEGER, createtime DATETIME, endtime DATETIME,userid INTEGER,CompositeNodeid INTEGER,PRIMARY KEY(CompositeNodeExecid),FOREIGN KEY(CompositeNodeid) references CompositeNode,FOREIGN KEY(userid) references User)")
+    #- NodeExec 
+    cur.execute("CREATE TABLE IF NOT EXISTS NodeExec (NodeExecid INTEGER, createtime DATETIME, endtime DATETIME,Nodeid INTEGER,CompositeNodeExecid INTEGER,dataid INTEGER,PRIMARY KEY(NodeExecid),FOREIGN KEY(Nodeid) references Node, FOREIGN KEY (CompositeNodeExecid) references CompositeNodeExec, FOREIGN KEY (dataid) references Data)")
+    #- History
+    cur.execute("CREATE TABLE IF NOT EXISTS Histoire (Histoireid INTEGER, createtime DATETIME, name varchar (25), description varchar (25),userid INTEGER,CompositeNodeExecid INTEGER,PRIMARY KEY (Histoireid), FOREIGN KEY(Userid) references User, FOREIGN KEY(CompositeNodeExecid) references CompositeNodeExec)")
+    #- Data
+    cur.execute("CREATE TABLE IF NOT EXISTS Data (dataid INTEGER, createtime DATETIME,NodeExecid INTEGER, PRIMARY KEY(dataid),FOREIGN KEY(NodeExecid) references NodeExec)")
+    #- Tag
+    cur.execute("CREATE TABLE IF NOT EXISTS Tag (CompositeNodeExecid INTEGER, createtime DATETIME, name varchar(25),userid INTEGER,PRIMARY KEY(CompositeNodeExecid),FOREIGN KEY(userid) references User)")
+    return cur
+
+def get_database_name():
+    db_fn = path(settings.get_openalea_home_dir())/'provenance.sq3'
+    return db_fn
+
+def db_connexion():
+    """ Return a curso on the database.
+
+    If the database does not exists, create it.
+    """
+    global db_conn
+    if db_conn is None:
+        db_fn = get_database_name()
+        if not db_fn.exists():
+            db_conn=sqlite3.connect(db_fn)
+            cur = db_conn.cursor()
+            cur = db_create(cur)
+            return cur
+    else:
+        cur = db_conn.cursor()
+        return cur
+
+class Provenance(object):
+    def __init__(self, workflow):
+        self.clear()
+        self.workflow = workflow
+
+    def clear(self):
+        self.nodes = []
+
+    def start_time(self):
+        pass
+    def end_time(self):
+        pass
+    def workflow_exec(self, *args):
+        pass
+    def node_exec(self, *args):
+        pass
+    def write(self):
+        """ Write the provenance in db """
+
+class PrintProvenance(Provenance):
+    def workflow_exec(self, *args):
+        print 'Workflow execution'
+    def node_exec(self, *args):
+        print 'Node execution'
+
 
 def provenance(vid, node, start_time, end_time):
     #from service import db
@@ -37,6 +120,8 @@ def provenance(vid, node, start_time, end_time):
 
 
     if PROVENANCE:
+        cur = db_connexion()
+
         pname = node.factory.package.name
         name = node.factory.name
 
@@ -108,6 +193,8 @@ class AbstractEvaluation(object):
         :param dataflow: to be done
         """
         self._dataflow = dataflow
+        if PROVENANCE:
+            self.provenance = PrintProvenance(dataflow)
 
     def eval(self, *args):
         """todo"""
@@ -130,7 +217,9 @@ class AbstractEvaluation(object):
             ret = node.eval()
             t1 = clock()
 
-            provenance(vid, node, t0,t1)
+            if PROVENANCE:
+                provenance(vid, node, t0,t1)
+            
             # When an exception is raised, a flag is set.
             # So we remove it when evaluation is ok.
             node.raise_exception = False
@@ -171,6 +260,8 @@ class AbstractEvaluation(object):
 
         return npids
 
+    def set_provenance(self, provenance):
+        self.provenance = provenance
 
 class BrutEvaluation(AbstractEvaluation):
     """ Basic evaluation algorithm """
