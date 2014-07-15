@@ -13,7 +13,7 @@ class PlantLab(object):
         'Logger',
         'HistoryWidget',
         'World',
-        'MatplotlibWidget',
+        'Plot2dWidget',
         ]
 
 
