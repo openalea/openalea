@@ -98,7 +98,7 @@ setup(
             ],
 
         'oalab.model': [
-            'LPyModel = openalea.oalab.model.lpy:LPyModel',
+            #'LPyModel = openalea.oalab.model.lpy:LPyModel',
             'PythonModel = openalea.oalab.model.python:PythonModel',
             'RModel = openalea.oalab.model.r:RModel',
             'VisualeaModel = openalea.oalab.model.visualea:VisualeaModel',
@@ -119,8 +119,8 @@ setup(
             # 'Store = openalea.oalab.plugins.applets.store:Store',
             'Viewer3D = openalea.oalab.plugins.applets.viewer3d:Viewer3D',
             'World = openalea.oalab.plugins.applets.worldwidget:World',
+            'Matplotlib = openalea.oalab.plugins.applets.matplotlibwidget:MatplotlibWidget',
             ],
-
 
         'oalab.qt_control':[
             'PluginOpenAleaLabWidgetSelectors = openalea.oalab.plugins.controls:PluginOpenAleaLabWidgetSelectors',
