@@ -28,6 +28,8 @@ To disable it, do::
 #   OpenAlea WebSite : http://openalea.gforge.inria.fr
 #########################################################
 """
+from __future__ import absolute_import
+
 __revision__ = "0.1"
 
 # to save mpl function to replace
