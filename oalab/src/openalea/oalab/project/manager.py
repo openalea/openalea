@@ -281,11 +281,7 @@ class ProjectManagerWidget(QtGui.QWidget):
         :param model_name: name of model to remane
         """
         if self.checkProjectOperation('Rename model'):
-            models = self.session.project.models()
-            if isinstance(models, list):
-                list_models = [mod.name for mod in models]
-            else:
-                list_models = [models.name]
+            models = self.session.project.list_models()
             self.renamer = RenameModel(list_models, model_name)
             self.renamer.show()
             self.renamer.ok_button.clicked.connect(self._rename_model_from_renamer)
@@ -381,7 +377,7 @@ class ProjectManagerWidget(QtGui.QWidget):
         logger.debug("Open All models")
         if self.session.project:
             project = self.session.project
-            models = project.models()
+            models = project.get_models()
             if not isinstance(models, list):
                 models = [models]
             for model in models:

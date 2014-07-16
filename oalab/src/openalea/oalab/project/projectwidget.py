@@ -230,7 +230,7 @@ class ProjectManagerView(QtGui.QTreeView):
 
         if project:
             self.close_all_scripts()
-            self.open_all_scripts_from_project(project)
+            #self.open_all_scripts_from_project(project)
             self.expandAll()
         else:
             self.close_all_scripts()
@@ -372,7 +372,7 @@ class ProjectManagerView(QtGui.QTreeView):
 
     def open_all_scripts_from_project(self, project):
         if self.paradigm_container is not None:
-            for model in project._model:
+            for model in project.list_models():
                 self.paradigm_container.open_project_data('model', model)
 
     def new_file(self, dtype=None):
@@ -411,7 +411,8 @@ class ProjectManagerView(QtGui.QTreeView):
                     p = path(p)
                     project.add(name, p.name, p)
             elif category == 'project':
-                self.open_all_scripts_from_project(project)
+                pass
+                #self.open_all_scripts_from_project(project)
             elif category == 'data':
                 filepath = project.path / category / name
                 start(filepath)
@@ -420,11 +421,7 @@ class ProjectManagerView(QtGui.QTreeView):
 
     def _rename(self, project, category, name):
         if category in ('model', 'src'):
-            models = project.models()
-            if isinstance(models, list):
-                list_models = [mod.name for mod in models]
-            else:
-                list_models = [models.name]
+            list_models = project.list_models()
             renamer = RenameModel(list_models, name)
             dialog = ModalDialog(renamer)
             if dialog.exec_():
@@ -484,12 +481,13 @@ class ProjectManagerView(QtGui.QTreeView):
         # Hack to load controls!!!
         # TODO: load controls inside project
         project = self.project()
-        filename = project.path/"control.py"
-        from openalea.oalab.service.applet import get_applet
-        ctrl_manager_wid = get_applet(identifier="ControlManager")
-        if ctrl_manager_wid:
-            ctrl_view = ctrl_manager_wid.view
-            ctrl_view.load_controls(filename)
+        if project:
+            filename = project.path/"control.py"
+            from openalea.oalab.service.applet import get_applet
+            ctrl_manager_wid = get_applet(identifier="ControlManager")
+            if ctrl_manager_wid:
+                ctrl_view = ctrl_manager_wid.view
+                ctrl_view.load_controls(filename)
 
     def saveAs(self):
         project = self.project()
