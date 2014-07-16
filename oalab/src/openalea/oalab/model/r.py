@@ -18,6 +18,7 @@
 from openalea.oalab.model.model import Model
 from openalea.oalab.model.parse import parse_docstring_r, get_docstring_r, parse_functions_r
 
+# TODO : refactor (like class PythonModel in python.py)
 
 class RModel(Model):
     default_name = "R"
