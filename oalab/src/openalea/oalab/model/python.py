@@ -184,8 +184,8 @@ animate()
         """
         from openalea.oalab.service.ipython import get_interpreter
         interpreter = get_interpreter()
-        #return interpreter.runcode(code)
-        return interpreter.run_cell(code)
+        return interpreter.runcode(code)
+        # return interpreter.run_cell(code)
 
     @property
     def code(self):
