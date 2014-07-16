@@ -93,6 +93,16 @@ class Provenance(object):
         self.clear()
         self.workflow = workflow
 
+    def edges(self):
+        cn = self.workflow
+        edges= list(cn.edges())
+        sources=map(cn.source,edges)
+        targets = map(cn.target,edges)
+        source_ports=[cn.local_id(cn.source_port(eid)) for eid in edges]
+        target_ports=[cn.local_id(cn.target_port(eid)) for eid in edges]
+        _edges = dict(zip(edges,zip(sources,source_ports,targets, target_ports)))
+        return _edges
+
     def clear(self):
         self.nodes = []
 
