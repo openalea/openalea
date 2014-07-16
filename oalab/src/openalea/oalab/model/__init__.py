@@ -17,7 +17,7 @@ Here we suppose that we have a model named *sum_int* that do the sum between two
       >>> oalab_dir = shared_data(oalab)
       >>> proj = pm.load("sum", oalab_dir)
   - First, get the model **(the first line is not necessary if you are working inside OpenAleaLab)**:
-      >>> Model = proj.model
+      >>> Model = proj.get_model
       >>> sum_int = Model("sum_int")
   - Set inputs:
       >>> sum_int.inputs = 1, 2
