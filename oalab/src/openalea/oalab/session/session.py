@@ -109,7 +109,7 @@ class Session(object):
                 os.chdir(self.tmpdir)
                 sys.path.insert(0, str(self.tmpdir / 'lib'))
             self.interpreter.locals['project'] = self.project
-            self.interpreter.locals['Model'] = self.project.model
+            self.interpreter.locals['Model'] = self.project.get_model
             self.interpreter.locals['data'] = self.project.path / 'data'
         else:
             # close
