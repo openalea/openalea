@@ -169,7 +169,7 @@ class ProjectManager(Observed, AbstractListener):
         proj = Project(name="temp", projectdir=_path)
         proj.centralized = False
 
-        if not proj.models():
+        if not proj.list_models():
             txt = '''"""
 OpenAlea Lab editor
 This temporary script is saved in temporary project in

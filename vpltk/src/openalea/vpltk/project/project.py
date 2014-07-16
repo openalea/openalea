@@ -133,7 +133,6 @@ class Project(Observed):
         }
 
         self._model = dict()
-        self._model_names = []
         self._control = None
         self._control_name = ["ctrls"]
         self._dirty = {'project':False}
@@ -162,6 +161,8 @@ class Project(Observed):
 
 
         # Load in object
+        # Lazy Load
+        self.load_manifest()
         self.load()
         # Load in shell
         self._startup(shell, namespace)
@@ -183,6 +184,9 @@ class Project(Observed):
         for category in self.files:
             obj = self._load(str(category))
             setattr(self, category, obj)
+            
+        # Lazy load
+        """
         visualea_models = []
         for model_name in self._model_names:
             # Hack to fix a bug:
@@ -197,7 +201,7 @@ class Project(Observed):
                 self._load("model", str(model_name))
         # Load visualea models       
         for model_name in visualea_models:
-            self._load("model", str(model_name))
+            self._load("model", str(model_name))"""
 
         self.state = 'loaded'
         self.notify_listeners(('project_change', self))
@@ -228,8 +232,7 @@ class Project(Observed):
         .. seealso:: :func:`add`
         """
         if category == "model":
-            if name in self._model:
-                return self.model(name)
+            return self.get_model(name)
         elif hasattr(self, category):
             cat = getattr(self, category)
             if name in cat:
@@ -411,7 +414,13 @@ class Project(Observed):
             if filenames_dict:
                 config['manifest'][category] = list(filenames_dict)
 
-        modelnames = [model.name + '.' + model.extension for model in self._model.values()]
+        modelnames = []
+        for model in self._model:
+            if self._model[model] is None:
+                modelnames.append(model)
+            else:
+                modelnames.append(self._model[model].name + '.' + self._model[model].extension)
+
         config['manifest']["model"] = modelnames
 
         if self.control:
@@ -445,7 +454,9 @@ class Project(Observed):
             # ie. load keys but not values
             for files in config["manifest"].keys():
                 if files == "model":
-                    self._model_names = config["manifest"]["model"]
+                    model_names = config["manifest"]["model"]
+                    for model_name in model_names:
+                        self._model[model_name] = None
                 elif files == "control":
                     # @GBY
                     # Only used for introspection
@@ -455,9 +466,10 @@ class Project(Observed):
                     if files == "src":
                         for mod_name in config["manifest"]["src"]:
                             if path_(mod_name).isabs():
-                                self._model_names.append(mod_name)
+                                self._model[mod_name] = None
                             else:
-                                self._model_names.append(self.path / "src" / mod_name)
+                                mod_name2 = (self.path / "src" / mod_name)
+                                self._model[mod_name2] = None
                     else:
                         filedict = dict()
                         for f in config['manifest'][files]:
@@ -468,13 +480,36 @@ class Project(Observed):
     #----------------------------------------
     # model
     #----------------------------------------
-    def model(self, name):
+    def _solve_model_name(self, name):
+        """
+        Search to solve the name (conflict with or without extension...)
+        
+        :param name: name of the model to solve
+        :return: the name of the model corresponding to the name in self._model.keys(). If nothing is found, return None.
+        """
+        if name in self.list_models():
+            return name
+        else:
+            name_without_ext = remove_extension(name)
+            if name_without_ext in self.list_models():
+                return name_without_ext
+            elif name in self.list_models_without_extension():
+                for n in self.list_models():
+                    if remove_extension(n) == name:
+                        return n
+            elif name_without_ext in self.list_models_without_extension():
+                for n in self.list_models():
+                    if remove_extension(n) == name_without_ext:
+                        return n    
+        return None
+    
+    def get_model(self, name):
         """
         Get one or various instances of models from this project.
         :param name: name of the file in self.src to convert into model. Can pass various names split by spaces. Can pass "*".
         :return: model object corresponding to the source named *name* in self.src. If various values, return a list of models. If failed, return None.
 
-        .. seealso:: :func:`models`
+        .. seealso:: :func:`get_models`
         """
         # GBY: what happens if model name contain spaces ?!?
         if hasattr(name, "split"):
@@ -484,37 +519,54 @@ class Project(Observed):
         return_models = []
 
         if "*" in names and len(names) == 1:
-            names = self._model.keys()
+            names = self.list_models()
 
         if not isinstance(names, list):
             names = [names]
 
         for name in names:
-            name2 = remove_extension(name)
-            if name in self._model:
-                return_models.append(self._model[name])
-            elif name2 in self._model:
-                return_models.append(self._model[name2])
-            elif name in self._model_names:
-                # if manifest is loaded but not models: load model
-                self._load("model", object_name=name)
-                return_models.append(self._model[name])
-            elif name2 in self._model_names:
-                # if manifest is loaded but not models: load model
-                self._load("model", object_name=name2)
-                return_models.append(self._model[name2])
+            name_without_ext = remove_extension(name)
+            list_models = self.list_models() + self.list_models_without_extension()
+            if name in list_models or name_without_ext in list_models:
+                new_name = self._solve_model_name(name) # change get_model
+                if new_name is None:
+                    raise Exception("Model with name " + name + " doesn't exist in project " + self.name)
+                model = self._model[new_name]
+                if model is None:
+                    # if manifest is loaded but not models: load model
+                    model = self._load("model", new_name)
+                name = model.name
+                return_models.append(model)               
+            else:
+                print "Model ", name, " doesn't exist in project ", self.name
+                return
         # If only one model, don't return a list
         if len(return_models) == 1:
             return return_models[0]
         return return_models
-
-    def models(self):
+        
+    def list_models(self):
+        return self._model.keys()
+        
+    def list_models_without_extension(self):
+        return [remove_extension(modelname) for modelname in self.list_models()]
+        
+    def get_models(self):
         """
         :return: all models
 
-        .. seealso:: :func:`model`
+        .. seealso:: :func:`get_model`
         """
-        return self.model("*")
+        return self.get_model("*")
+        
+    # TODO : remove models and model
+    def models(self):
+        print "method project.models() is deprecated. Please use project.get_models()"
+        return self.get_models()
+        
+    def model(self, name):
+        print "method project.model(name) is deprecated. Please use project.get_model(name)"
+        return self.get_model(name)
 
     #----------------------------------------
     # Protected
@@ -542,17 +594,21 @@ class Project(Observed):
                 f = open(filepath, "r")
                 code = f.read()
                 f.close()
-            except:
-                pass
+            except Exception, e:
+                raise e
             ext = path_(new_filepath).ext[1:]
             filename_without_ext = remove_extension(new_filepath)
-
             if ext in self.model_klasses:
                 # add model to existing models
                 mod = self.model_klasses[ext](name=filename_without_ext, code=code, filepath=new_filepath)
+                if object_name in self._model:
+                    # remove old model name
+                    del self._model[object_name]
                 self._model[filename_without_ext] = mod
                 return self._model[filename_without_ext]
-
+            else:
+                raise Exception("Extension " + ext + " not found! Can't open model " + object_name)
+                
         elif object_type == "control":
             # @GBY: 3 following lines
             from openalea.oalab.service.control import load_controls
@@ -640,12 +696,12 @@ class Project(Observed):
             self._dirty[object_type] = False
 
     def save_model(self, model):
+        if model is not None:
+            filepath = model.abspath(parentdir=self.path / "model")
 
-        filepath = model.abspath(parentdir=self.path / "model")
-
-        Saver = get_saver()
-        saver = Saver()
-        saver.save(model.repr_code(), filepath)
+            Saver = get_saver()
+            saver = Saver()
+            saver.save(model.repr_code(), filepath)
 
 
     def _startup(self, shell=None, namespace={}):
@@ -712,7 +768,6 @@ class Project(Observed):
         return False
 
     # Metadata
-
     @property
     def name(self):
         return self.metadata["name"]
