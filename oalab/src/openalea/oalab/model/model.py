@@ -261,7 +261,10 @@ class ModelFactory(AbstractFactory):
         from openalea.vpltk.project.manager import ProjectManager
 
         pm = ProjectManager()
-        model = pm.cproject.model(self.name)
+        model = pm.cproject.get_model(self.name)
+        if model is None:
+            print "error loading model ", self.name
+            print "Available models are ", pm.cproject.list_models()
 
         # TODO
         def signature(args_info, out=False):
@@ -304,7 +307,7 @@ class ModelFactory(AbstractFactory):
         else:
             print "We can't instanciate node from project %s because we don't have model %s" %(pm.cproject.name,self.name)
             print "We only have models : "
-            print [model.name for model in pm.cproject.models()]
+            print pm.cproject.list_models()
 
     def instantiate_widget(self, node=None, parent=None, edit=False,
         autonomous=False):
