@@ -197,7 +197,7 @@ class ProjectTreeView(QtGui.QTreeView, AbstractListener):
         proj = ProjectManager().cproject
         filename = proj.path / item.parent().text() / item.text()
         if self.is_src_selected():
-            model = proj.model(item.text())
+            model = proj.get_model(item.text())
             self.paradigm_container.open_file(model=model)
         else:
             self.paradigm_container.open_file(filename=filename)
