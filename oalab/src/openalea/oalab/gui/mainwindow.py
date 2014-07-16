@@ -191,8 +191,9 @@ class MainWindow(QtGui.QMainWindow):
         Register current settings (geometry and window state)
         in a setting file
         """
-        last_proj = self.session.project.name
-        config = Settings()
-        
-        config.set("ProjectManager", "Last Project", last_proj)
-        config.write()
+        if self.session.project:
+            last_proj = self.session.project.name
+            config = Settings()
+            
+            config.set("ProjectManager", "Last Project", last_proj)
+            config.write()
