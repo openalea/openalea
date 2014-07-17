@@ -97,6 +97,41 @@ class Model(object):
         run model step by step
         """
         raise NotImplementedError
+    
+    def execute(self, code):
+        """
+        Execute code (str) in current interpreter
+        """
+        from openalea.oalab.service.ipython import get_interpreter
+        interpreter = get_interpreter()
+        return interpreter.runcode(code)
+        # return interpreter.run_cell(code)
+        
+    def execute_in_namespace(self, code, namespace={}):
+        """
+        Execute code in an isolate namespace
+        
+        :param code: text code to execute
+        :param namespace: dict namespace where code will be executed
+        
+        :return: namespace in which execution was done
+        """
+        from openalea.oalab.service.ipython import get_interpreter
+        interpreter = get_interpreter()     
+        # Save current namespace
+        old_namespace = copy(interpreter.shell.user_ns)
+        # Clear current namespace
+        interpreter.shell.user_ns.clear()
+        # Set namespace with new one
+        interpreter.shell.user_ns.update(namespace)
+        # Execute code in new namespace
+        self.execute(code)
+        # Get just modified namespace
+        namespace = copy(interpreter.shell.user_ns)
+        # Restore previous namespace
+        interpreter.shell.user_ns.clear()
+        interpreter.shell.user_ns.update(old_namespace)
+        return namespace
 
     def input_defaults(self):
         return dict((x.name, eval(x.default)) for x in self.inputs_info if x.default)
