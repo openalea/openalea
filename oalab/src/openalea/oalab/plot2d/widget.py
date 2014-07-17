@@ -20,77 +20,46 @@ def new_figure_manager_given_figure(num, figure):
     """
     return FigureManagerQTwithTab( num )
 
-
-class MplTabWidget(QtGui.QTabWidget):
-    """ Singleton class that implement mpl figure in a tab widget """
+class AbstractMplWidget(QtGui.QWidget):
+    """
+    Abstract class for widget using matplotlib
+    
+    It implement the `get_singleton` method that return the class `_singleton`
+    attribute (instanciating it if necessary). Such a subclass can:
+     - Have its own `_singleton` attribute, set to None by default
+     - Override the class method `create_singleton` that takes no argument which
+       return the singleton instance. 
+       Otherwise the default method calls the class constructor with no argument
+    
+    It also duck type the QMainWindow interface used by matplotlib
+    """
     _singleton = None
-    def __init__(self, parent=None):
-        QtGui.QTabWidget.__init__(self, parent=parent)
+    
+    @classmethod
+    def get_singleton(cls):
+        if cls._singleton is None:
+            cls._singleton = cls.create_singleton()
+        return cls._singleton
         
-        self.setTabsClosable(True)
-        self.tabCloseRequested.connect(self.tabCloseEvent)
-        
-        self.canvas = []
-        self.figure = []
-        self.close_fct = []
-        
-    @staticmethod
-    def get_singleton():
-        if MplTabWidget._singleton is None:
-            MplTabWidget._singleton = MplTabWidget()
-        return MplTabWidget._singleton
-
-    # manage canvas tabs
-    # ------------------
-    def add_tab_canvas(self, fig_num=None, close_function=None):
-        """ add a tab canvas with mpl figure in it """
-        figure  = Figure()
-        if fig_num is None:
-            fig_num = max(self.figure)+1
-        
-        # create canvas
-        canvas = FigureCanvas(figure)
-        widget = CanvasWidget(canvas, parent=self)
-        
-        # add canvas in a new tab
-        canvas_num = self.addTab(widget, str(fig_num))
-        self.setCurrentIndex(canvas_num)
-        self.canvas.append(canvas)
-        self.figure.append(fig_num)
-        self.close_fct.append(close_function)
-        
-        return canvas, widget
-        
-    def tabCloseEvent(self, tab_index):
-        close_fct = self.close_fct[tab_index]
-        if close_fct:
-            close_fct()
-        else:
-            self.remove_canvas_tab(tab_index)
-
-    def remove_canvas_tab(self, tab_index):
-        self.removeTab(tab_index)
-        del self.canvas[tab_index]
-        del self.figure[tab_index]
-
-    def remove_canvas_widget(self, widget):
-        """ remove the tab containing given `widget` """
-        index = self.indexOf(widget)
-        if index>=0:
-            self.remove_canvas_tab(index)
-        else:
-            print 'MplTabWidget does not contain widget:', widget
+    @classmethod
+    def create_singleton(cls):
+        return cls()
 
     # duck type required QMainWidow interface
     # ---------------------------------------
     def get_window(self):
-        """ return parent window, creating it if necessary """
-        if self.parent() is None:
-            self._window = QtGui.QMainWindow()
-            self._window.setCentralWidget(self)
-        p = self.parent()
-        while not isinstance(p,QtGui.QMainWindow):
-            p = p.parent()
+        """ return (grand)parent window, creating it if necessary """
+        w = self        # top widget which is not a main window
+        p = w.parent()  # its parent, which should be a main window
+        while p is not None and not isinstance(p,QtGui.QMainWindow):
+            w = p
+            p = w.parent()
+            
+        if p is None:
+            p = QtGui.QMainWindow()
+            p.setCentralWidget(w)
+            self._window = p ## needs to keep a ref or else it'll be deleted
+            
         return p
 
     def show(self):
@@ -101,23 +70,79 @@ class MplTabWidget(QtGui.QTabWidget):
         """ duck typing of QMainWindow.statusBar """
         return self.get_window().statusBar()
         
-    ##def __del__(self):
-    ##    print 'MplTabWidget __del__'
-    ##    if self is self._singleton:
-    ##        MplTabWidget._singleton = None
+        
+
+class MplTabWidget(QtGui.QTabWidget, AbstractMplWidget):
+    """ Singleton class that implement mpl figure in a tab widget """
+    _singleton = None                           # has its own singleton
+    
+    def __init__(self, parent=None):
+        QtGui.QTabWidget.__init__(self, parent=parent)
+        
+        self.setTabsClosable(True)
+        self.tabCloseRequested.connect(self.tabCloseEvent)
+        
+        self.widget = []
+        self.close_fct = []
+        
+        
+    # manage canvas tabs
+    # ------------------
+    def add_tab_canvas(self, fig_num=None, close_function=None):
+        """ add a tab canvas with mpl figure in it """
+        if fig_num is None:
+            fig_num = max(self.figure)+1
+        
+        # create canvas
+        widget = CanvasWidget(parent=self)
+        
+        # add canvas in a new tab
+        canvas_num = self.addTab(widget, str(fig_num))
+        self.setCurrentIndex(canvas_num)
+        self.widget.append(widget)
+        self.close_fct.append(close_function)
+        
+        return widget.canvas, widget
+        
+    def tabCloseEvent(self, tab_index):
+        close_fct = self.close_fct[tab_index]
+        if close_fct:
+            close_fct()
+        else:
+            self.remove_canvas_tab(tab_index)
+
+    def remove_canvas_tab(self, tab_index):
+        self.removeTab(tab_index)
+        del self.widget[tab_index]
+
+    def remove_canvas_widget(self, widget):
+        """ remove the tab containing given `widget` """
+        index = self.indexOf(widget)
+        if index>=0:
+            self.remove_canvas_tab(index)
+        else:
+            print 'MplTabWidget does not contain widget: '+ repr(widget)
+
 
 class CanvasWidget(QtGui.QWidget):
     """ Widget that contains a mpl canvas """
-    def __init__(self, canvas, parent=None):
+    def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent=parent)
+        
+        self.figure = Figure()
+        self.canvas = FigureCanvas(self.figure)
+        
         self.setLayout(QtGui.QVBoxLayout())
         layout = self.layout()
         layout.setSpacing(0)
         layout.setMargin(0)
-        layout.addWidget(canvas)
+        layout.addWidget(self.canvas)
+        
+        self.setFocusPolicy(QtCore.Qt.StrongFocus) # strong = keyboard & mouse focus
         
     def addToolBar(self, toolbar):
         self.layout().insertWidget(0,toolbar)
+    
 
 class FigureManagerQTwithTab(mpl_FigureManagerQT):
     """ qt4agg.FigureManageQT subclass that put mpl figures in a MplTabWidget """

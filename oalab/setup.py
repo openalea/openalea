@@ -119,7 +119,7 @@ setup(
             # 'Store = openalea.oalab.plugins.applets.store:Store',
             'Viewer3D = openalea.oalab.plugins.applets.viewer3d:Viewer3D',
             'World = openalea.oalab.plugins.applets.worldwidget:World',
-            'Plot2D = openalea.oalab.plugins.applets.plot2d:Plot2dWidget',
+            'Plot2d = openalea.oalab.plugins.applets.plot2d:Plot2dWidget',
             ],
 
         'oalab.qt_control':[
