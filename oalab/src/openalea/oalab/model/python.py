@@ -152,6 +152,10 @@ animate()
 
             return self.outputs
 
+    @property
+    def code(self):
+        return self._code
+
     @code.setter
     def code(self, code=""):
         """
