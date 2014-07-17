@@ -34,7 +34,6 @@ class RModel(Model):
         self._init = None
         self.ns = dict()
         self.code = code  # use it to force to parse doc, functions, inputs and outputs
-        self._interpreter = None
         self.has_run = False
 
     def get_documentation(self):
@@ -80,43 +79,35 @@ more informations: http://www.r-project.org/
 
         return cmd
 
-    def _universal_run(self,code, *args, **kwargs):
+    def _universal_run(self,  code, *args, **kwargs):
         """ This method is used by others...
         """
         self.inputs = args
-
-        interpreter = self._set_interpreter(**kwargs)
-
-        user_ns = interpreter.user_ns
-        user_ns.update(self.ns)
-
-        # put inputs inside namespace
-        
-        if self.inputs:
-            user_ns.update(self.inputs)
+        user_ns = self._prepare_namespace()
 
         cmdline = self.r_options(user_ns)
-        try:
-            shell = interpreter.shell
-        except:
-            shell = interpreter
-
+        
+        from openalea.oalab.service.ipython import get_interpreter
+        interpreter = get_interpreter()
         if not self.has_run:
             try:
-                shell.run_line_magic('load_ext','rpy2.ipython') #better as it solves display error but neeeds rpy2 > 2.4.2
+                interpreter.run_line_magic('load_ext','rpy2.ipython') #better as it solves display error but neeeds rpy2 > 2.4.2
             except ImportError:
-                shell.run_line_magic('load_ext','rmagic')
+                interpreter.run_line_magic('load_ext','rmagic')
             
-        shell.run_cell_magic('R', cmdline, code)
-       
-        self.set_output_from_ns(user_ns)
+        interpreter.run_cell_magic('R', cmdline, code)
+        
+        # Set outputs after execution
+        self._set_output_from_ns(user_ns)
 
 
     def run_code(self, code, *args, **kwargs):
         """
         execute subpart of a model (only code *code*)
         """
-        interpreter = self._set_interpreter(**kwargs)
+        from openalea.oalab.service.ipython import get_interpreter
+        interpreter = get_interpreter()
+
         user_ns = interpreter.user_ns
         user_ns.update(self.ns)
         try:
@@ -127,7 +118,7 @@ more informations: http://www.r-project.org/
         cmdline = self.r_options(user_ns)
         if not self.has_run:
             try:
-                shell.run_line_magic('load_ext','rpy2.ipython') #better as it solves display error but neeeds rpy2 > 2.4.2
+                shell.run_line_magic('load_ext','rpy2.ipython') #better as it solves display error but needs rpy2 > 2.4.2
             except ImportError:
                 shell.run_line_magic('load_ext','rmagic')
 
@@ -183,39 +174,6 @@ more informations: http://www.r-project.org/
             self._universal_run(code,*args,**kwargs)
 
             return self.outputs
-
-    def _set_interpreter(self, **kwargs):
-        if not "interpreter" in kwargs:
-            if not hasattr(self, "_interpreter"):
-                try:
-                    from IPython.core.getipython import get_ipython
-                    self._interpreter = get_ipython()
-                except NameError:
-                    self._interpreter = None
-                    raise("No interpreter is available to run model %s" % str(self))
-            elif self._interpreter is None:
-                try:
-                    from IPython.core.getipython import get_ipython
-                    self._interpreter = get_ipython()
-                except NameError:
-                    self._interpreter = None
-                    raise("No interpreter is available to run model %s" % str(self))
-        else:
-            self._interpreter = kwargs["interpreter"]
-        return self._interpreter
-
-    def set_output_from_ns(self, namespace):
-        # get outputs from namespace
-        if self.outputs_info:
-            self.outputs = []
-            if len(self.outputs_info) > 0:
-                for outp in self.outputs_info:
-                    if outp.name in namespace:
-                        self.outputs.append(namespace[outp.name])
-
-    @property
-    def code(self):
-        return self._code
 
     @code.setter
     def code(self, code=""):

@@ -152,47 +152,11 @@ animate()
 
             return self.outputs
 
-    def execute_in_namespace(self, code, namespace={}):
-        """
-        Execute code in an isolate namespace
-        
-        :param code: text code to execute
-        :param namespace: dict namespace where code will be executed
-        
-        :return: namespace in which execution was done
-        """
-        from openalea.oalab.service.ipython import get_interpreter
-        interpreter = get_interpreter()     
-        # Save current namespace
-        old_namespace = copy(interpreter.shell.user_ns)
-        # Clear current namespace
-        interpreter.shell.user_ns.clear()
-        # Set namespace with new one
-        interpreter.shell.user_ns.update(namespace)
-        # Execute code in new namespace
-        self.execute(code)
-        # Get just modified namespace
-        namespace = copy(interpreter.shell.user_ns)
-        # Restore previous namespace
-        interpreter.shell.user_ns.clear()
-        interpreter.shell.user_ns.update(old_namespace)
-        return namespace
-                        
-    def execute(self, code):
-        """
-        Execute code (str) in current interpreter
-        """
-        from openalea.oalab.service.ipython import get_interpreter
-        interpreter = get_interpreter()
-        return interpreter.runcode(code)
-        # return interpreter.run_cell(code)
-
-    @property
-    def code(self):
-        return self._code
-
     @code.setter
     def code(self, code=""):
+        """
+        Set the code and parse it to get docstring, inputs and outputs info, some methods
+        """
         self._code = code
         model, self.inputs_info, self.outputs_info = parse_docstring(code)
         self._init, self._step, self._animate, self._run = parse_functions(code)
