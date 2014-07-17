@@ -175,6 +175,10 @@ more informations: http://www.r-project.org/
 
             return self.outputs
 
+    @property
+    def code(self):
+        return self._code
+
     @code.setter
     def code(self, code=""):
         self._code = code
