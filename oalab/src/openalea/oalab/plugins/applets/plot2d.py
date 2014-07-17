@@ -3,7 +3,7 @@ from openalea.oalab.plugins.applets import PluginApplet
 
 class Plot2dWidget(PluginApplet):                     
 
-    name = 'Plot2dWidget'
+    name = 'Plot2d'
     alias = 'Plot2d'
 
     def __call__(self, mainwindow):

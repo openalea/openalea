@@ -13,7 +13,7 @@ class PlantLab(object):
         'Logger',
         'HistoryWidget',
         'World',
-        'Plot2dWidget',
+        'Plot2d',
         ]
 
 
