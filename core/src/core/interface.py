@@ -213,7 +213,7 @@ class IInt(IInterface):
     """ Int interface """
     __pytype__ = types.IntType
     __color__ = color_palette.blue
-    __alias__ = u'ℤ Integer'
+    __alias__ = u'Integer ℤ'
 
     def __init__(self, min= -2 ** 24, max=2 ** 24, step=1, **kargs):
         IInterface.__init__(self, **kargs)
