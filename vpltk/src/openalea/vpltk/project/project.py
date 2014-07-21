@@ -226,7 +226,6 @@ class Project(Observed):
         projectdir = path_(projectdir)
         
         # copy project folder content
-        print projectdir/name
         self.path.copytree(projectdir/name, symlinks=True)
         
         # save project
