@@ -221,6 +221,19 @@ class Project(Observed):
         self.save_manifest()
         self.notify_listeners(('project_change', self))
 
+    def save_as(self, projectdir, name):
+        """ save project in a new folder """
+        projectdir = path_(projectdir)
+        
+        # copy project folder content
+        print projectdir/name
+        self.path.copytree(projectdir/name, symlinks=True)
+        
+        # save project
+        self.projectdir = projectdir
+        self.name = name
+        self.save()
+            
     def get(self, category, name):
         """
         Search an object inside project and return it.
