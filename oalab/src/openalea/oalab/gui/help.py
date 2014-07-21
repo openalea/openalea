@@ -98,7 +98,8 @@ class HelpWidget(QtGui.QTextBrowser):
         preferences = PreferenceWidget()
         dialog = ModalDialog(preferences)
         if dialog.exec_():
-            preferences.write_settings()
+            preferences.update_config(save=True)
+            # preferences.close()
         
     def mainMenu(self):
         """

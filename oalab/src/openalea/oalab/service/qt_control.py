@@ -6,27 +6,52 @@ from openalea.oalab.control.control import Control
 from openalea.oalab.session.session import Session
 session = Session()
 
+"""
+**preferred**: specify explicitly the name of the Qt control widget you want to use
+
+**shape**: if None, tries to return a widget. 
+If shape is a string, returns widget corresponding to this shape. 
+If it's a list, search widget for first shape. If no widgets found, search for second shape and so on.
+"""
+
 def discover_qt_controls():
     return [plugin for plugin in iter_plugins('oalab.qt_control', debug=session.debug_plugins)]
 
 def qt_editor_class(iname, shape=None, preferred=None):
     iname = s_interface.get_name(iname)
+    # Get all widget plugin for "iname" interface
     widget_plugins = qt_widget_plugins(iname)
-    widget_class = None
 
-    if preferred:
-        # Load widget specified with control
-        for plugin in widget_plugins:
-            if preferred == plugin.name:
-                widget_class = plugin.load()
-                break
+    # If preferred widget(s) is/are specified, try to find it 
+    if isinstance(preferred, str):
+        preferred_widgets = [preferred]
     else:
-        # Load first editor
+        preferred_widgets = preferred
+        
+    if preferred_widgets:
+        for preferred in preferred_widgets:
+            # Load widget specified with control
+            for plugin in widget_plugins:
+                if preferred == plugin.name:
+                    widget_class = plugin.load()
+                    return widget_class
+
+    # No preferred widget specified or preferred widget not found.
+    # We try to find a widget corresponding to shapes                    
+    if shape is None:
+        shapes = ['hline', 'large', 'small']
+    elif isinstance(shape, str):
+        shapes = [shape]
+    else:
+        shapes = list(shape)
+
+    for shape in shapes :
         for plugin in widget_plugins:
-            if 'responsive' in plugin.edit_shape or shape in plugin.edit_shape:
+            if shape in plugin.edit_shape or 'responsive' in plugin.edit_shape:
                 widget_class = plugin.load()
-                break
-    return widget_class
+                widget_class.shape = shape
+                return widget_class
+    return None
 
 def widget(iname, value, shape=None, preferred=None):
     control = Control(iname, iname, value)
@@ -34,6 +59,10 @@ def widget(iname, value, shape=None, preferred=None):
 
 def qt_editor(control, shape=None, preferred=None):
     widget_class = qt_editor_class(control.interface, shape, preferred)
+    # TODO: FIX THIS HACK
+    if hasattr(widget_class, 'shape'):
+        shape = widget_class.shape
+
     if widget_class:
         widget = None
         if issubclass(widget_class, QtGui.QWidget):

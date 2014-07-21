@@ -1,67 +1,48 @@
 # -*- coding: utf-8 -*-
 __all__ = ["PreferenceWidget"]
 
+import ast
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core import settings
-from openalea.oalab.service.qt_control import qt_widget_plugins
+from openalea.oalab.service.qt_control import qt_editor
+from openalea.oalab.service import interface
+from openalea.oalab.control.control import Control
 
-def Widget(label, value):
+def Widget(option_name, value):
     """
     :return: create a widget which permit to edit the value with a label
     """
+    # TODO: Currently an evaluation is used to guess value type.
+    # This approach may fails for complex data
+    # We need to improve option type management, for example by providing an associated map "option_name -> type".
+    # We should also add constraints on values
     try:
-        eval_value = eval(value)
-    except NameError:
+        eval_value = ast.literal_eval(value)
+    except ValueError:
         eval_value = value
-    is_str = False
     
-    wid = QtGui.QWidget()
-    layout = QtGui.QHBoxLayout(wid)
-    layout.addWidget(QtGui.QLabel(label))
-
-    if value == "False" or value == "True":
-        editorclass = qt_widget_plugins("IBool")[0]
-        editor = editorclass.load()()
-    elif isinstance(eval_value, int):
-        editorclass = qt_widget_plugins("IInt")[0]
-        editor = editorclass.load()
-        editor = editor.edit(eval_value)
-    elif isinstance(eval_value, list):
-        editorclass = qt_widget_plugins("ISequence")[0]
-        editor = editorclass.load()()
-        # API is not good. (value != get_value)
-        # TODO: fix it inside core.interface.py or inside controls
-        editor.get_value = editor.value 
+    inames = interface.guess(eval_value)
+    if len(inames):
+        iname = inames[0]
     else:
-        editorclass = qt_widget_plugins("IStr")[0]
-        is_str = True
-        editor = editorclass.load()()
-
-    if is_str:
-        editor.setValue(value)
-    else:
-        editor.setValue(eval_value)
+        iname = 'IStr'
         
-    layout.addWidget(editor)
-    return wid
+    # Dirty hack to handle int constraints on font size.
+    if 'font' in option_name and iname == 'IInt':
+        iname = interface.new(iname, min=5, max=200)
 
-       
-def get_label_and_value(widget):
-    """
-    :return: the current label and value from a widget constructed by "Widget" function
-    """
-    labelwidget = widget.layout().itemAt(0).widget()
-    valuewidget = widget.layout().itemAt(1).widget()
-
-    return labelwidget.text(), valuewidget.value()
+    control = Control(option_name, iname, eval_value)
+    editor = qt_editor(control)
+    return control, editor
 
         
 class PreferenceWidget(QtGui.QWidget):
+    hidden_sections = ["AutoAddedConfItems", "MainWindow", "TreeView"]
+
     def __init__(self, parent=None):
         """
         Widget to change settings.
-        
-        TODO!
+
         """
         super(PreferenceWidget, self).__init__(parent)
         self.setWindowTitle("OpenAleaLab Preferences")
@@ -72,38 +53,44 @@ class PreferenceWidget(QtGui.QWidget):
         self.tabwidget = QtGui.QTabWidget(self)
         mainlayout.addWidget(self.tabwidget)
         config = settings.Settings()
-        self.sections = config.sections()
         
-        for section in self.sections:
-            if section != "AutoAddedConfItems" and section != "MainWindow" and section != "TreeView":
+        self._config = None
+        self._option_values = {}
+        self._set_config(config)
+
+    def _set_config(self, config):
+        #TODO
+        # Manage memory (are children widgets destroyed when tabwidget.clear ?)
+        # Once it is sure all widget are totally cleaned and destroyed, 
+        # we can move it to public method to allow to change config dynamically
+        self._config = config
+        sections = config.sections()    
+
+        self.tabwidget.clear()
+        
+        for section in sections:
+            if section not in self.hidden_sections:
+                self._option_values[section] = []
                 tab = QtGui.QWidget(self.tabwidget)
                 self.tabwidget.addTab(tab, section)
-                layout = QtGui.QVBoxLayout(tab)
+                layout = QtGui.QFormLayout(tab)
                 options = config.options(section)
+                for option_name in options:
+                    value = config.get(section, option_name)
+                    control, widget = Widget(option_name, value)
+                    self._option_values[section].append(control)
+                    layout.addRow(option_name, widget)
+                # layout.addStretch()
+               
+    def update_config(self, config=None, save=False):
+        if not config:
+            config = self._config
+        if config:
+            for section, options in self._option_values.items():
                 for option in options:
-                    value = config.get(section, option)
-                    wid = Widget(option, value)
-                  
-                    layout.addWidget(wid)
-                layout.addStretch()
-
-    def write_settings(self):
-        config = settings.Settings()
-        tabwidget = self.tabwidget
-        
-        n1 = tabwidget.count()
-        for i1 in range(n1):
-            widget = tabwidget.widget(i1)
-            section = tabwidget.tabText(i1)
-            layout = widget.layout()
-            n2 = layout.count()
-            for i2 in range(n2):
-                wi = layout.itemAt(i2).widget()
-                if wi:
-                    option, value = get_label_and_value(wi)                                      
-                    config.set(str(section), str(option), str(value))
-        config.write()
-        self.close()
+                    config.set(section, option.name, str(option.value))
+            if save:
+                config.write()
         
         
 def main():
@@ -111,6 +98,11 @@ def main():
     app = QtGui.QApplication(sys.argv)
     win = PreferenceWidget()
     win.show()
+
+    # PreferenceWidget.hidden_sections = []
+    # win2 = PreferenceWidget()
+    # win2.show()
+
     win.raise_()
     app.exec_()
     
