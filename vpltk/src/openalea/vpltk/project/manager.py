@@ -245,8 +245,8 @@ You can rename/move this project thanks to the button "Save As" in menu.
                     project.start(shell=self.shell)
                     return self.get_current()
         else:
-            full_path = path(proj_path).abspath() / name / ".." / ".." # TODO : why ?
-            # full_path = path(proj_path) / name
+            # full_path = path(proj_path).abspath() / name / ".." / ".." # TODO : why ?
+            full_path = path(proj_path) / name
             # print full_path
             if full_path.exists():
                 self.cproject = Project(name, proj_path)
