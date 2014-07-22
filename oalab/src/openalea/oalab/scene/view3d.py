@@ -39,6 +39,7 @@ class view3D(QGLViewer):
 
     def __init__(self, parent=None, scene=None, statefilename='.temp_scene.xml', shareWidget=None):
         QGLViewer.__init__(self, parent, shareWidget)
+        self.set_bg_white()
         # set the scene
         if scene == None:
             scene = self.defaultScene()
@@ -63,6 +64,14 @@ class view3D(QGLViewer):
         # Set "show_axis" instead of "kill_application"
         self.setShortcut(0, QtCore.Qt.Key_Escape)
 
+    def set_bg_white(self):
+        color_white = QtGui.QColor(255,255,255)
+        self.setBackgroundColor(color_white)
+        
+    def set_bg_black(self):
+        color_black = QtGui.QColor(0,0,0)
+        self.setBackgroundColor(color_black)
+        
     # Method for lpy.registerPlotter to "animate"
     def plot(self, scene):
         scenedict = {"new": scene}
@@ -191,6 +200,9 @@ class Viewer(AbstractListener, view3D):
         actionRadius = QtGui.QAction(QtGui.QIcon(":/images/resources/growth2.png"), "Focus", self)
         actionShowFps = QtGui.QAction(QtGui.QIcon(":/images/resources/fps.png"), "Show FPS", self)
 
+        actionBlack = QtGui.QAction(QtGui.QIcon(""), "Bg Black", self)
+        actionWhite = QtGui.QAction(QtGui.QIcon(""), "Bg White", self)
+        
         actionShowAxis.setShortcut(
             QtGui.QApplication.translate("MainWindow", "Ctrl+A", None, QtGui.QApplication.UnicodeUTF8))
         actionShowGrid.setShortcut(
@@ -213,6 +225,9 @@ class Viewer(AbstractListener, view3D):
         QtCore.QObject.connect(actionRadius, QtCore.SIGNAL('triggered(bool)'), self.update_radius)
 
         QtCore.QObject.connect(actionShowFps, QtCore.SIGNAL('triggered(bool)'), self.show_fps)
+        
+        QtCore.QObject.connect(actionBlack, QtCore.SIGNAL('triggered(bool)'), self.set_bg_black)
+        QtCore.QObject.connect(actionWhite, QtCore.SIGNAL('triggered(bool)'), self.set_bg_white)
 
         session.world.register_listener(self)
 
@@ -222,6 +237,8 @@ class Viewer(AbstractListener, view3D):
                          ["Viewer", "Camera", actionShowAxis, 0],
                          ["Viewer", "Camera", actionShowGrid, 0],
                          ["Viewer", "Camera", actionRadius, 0],
+                         ["Viewer", "Camera", actionBlack, 0],
+                         ["Viewer", "Camera", actionWhite, 0],
                          #["Viewer", "Informations", actionShowFps, 1]
                          ]
 
