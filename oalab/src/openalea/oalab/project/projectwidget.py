@@ -492,9 +492,10 @@ class ProjectManagerView(QtGui.QTreeView):
     def saveAs(self):
         project = self.project()
         if project:
-            name = self.showNewProjectDialog(default_name=None, text="Select name to save project")
+            p = path(self.showNewProjectDialog(default_name=None, text="Select name to save project")).abspath()
+            projectdir, name = p.splitpath()
             if name:
-                project.rename(category="project", old_name=project.name, new_name=name)
+                project.save_as(projectdir, name)
 
     def close(self):
         self.projectManager.cproject = None
