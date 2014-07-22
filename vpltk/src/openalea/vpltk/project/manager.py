@@ -194,7 +194,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         except:
             pass
 
-        proj = self.load(name="temp", path=_path)
+        proj = self.load("temp", _path)
 
         if proj is None: # If can't load default project, create it
             proj = self.default()
@@ -245,15 +245,16 @@ You can rename/move this project thanks to the button "Save As" in menu.
                     project.start(shell=self.shell)
                     return self.get_current()
         else:
-            full_path = path(proj_path) / name
-
+            full_path = path(proj_path).abspath() / name / ".." / ".." # TODO : why ?
+            # full_path = path(proj_path) / name
+            # print full_path
             if full_path.exists():
                 self.cproject = Project(name, proj_path)
                 self.cproject.start(shell=self.shell)
                 return self.get_current()
 
         # raise IOError('Project %s in repository %s does not exist' %(name,proj_path))
-        # print 'Project %s in repository %s does not exist' %(name,proj_path)
+        print 'Project %s in repository %s does not exist' %(name,full_path)
         return None
 
     def close(self, name=None, proj_path=None):
