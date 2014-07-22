@@ -467,6 +467,8 @@ class Project(Observed):
             for files in config["manifest"].keys():
                 if files == "model":
                     model_names = config["manifest"]["model"]
+                    if not isinstance(model_names, list):
+                        model_names = [model_names]
                     for model_name in model_names:
                         self._model[model_name] = None
                 elif files == "control":
