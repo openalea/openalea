@@ -4,7 +4,6 @@ from openalea.vpltk.plugin import iter_plugins
 from openalea.oalab.control.control import Control
 
 from openalea.oalab.session.session import Session
-session = Session()
 
 """
 **preferred**: specify explicitly the name of the Qt control widget you want to use
@@ -15,6 +14,7 @@ If it's a list, search widget for first shape. If no widgets found, search for s
 """
 
 def discover_qt_controls():
+    session = Session()
     return [plugin for plugin in iter_plugins('oalab.qt_control', debug=session.debug_plugins)]
 
 def qt_editor_class(iname, shape=None, preferred=None):

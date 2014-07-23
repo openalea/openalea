@@ -178,7 +178,7 @@ class ProjectManagerView(QtGui.QTreeView):
         self.actionImportFile.triggered.connect(self.import_file)
 
         self.actionSaveProjAs = QtGui.QAction(qicon("save.png"), "Save As", self)
-        self.actionSaveProjAs.triggered.connect(self.saveAs)
+        self.actionSaveProjAs.triggered.connect(self.save_as)
 
         self.actionSaveProj = QtGui.QAction(qicon("save.png"), "Save project", self)
         self.actionSaveProj.triggered.connect(self.save)
@@ -489,7 +489,7 @@ class ProjectManagerView(QtGui.QTreeView):
                 ctrl_view = ctrl_manager_wid.view
                 ctrl_view.load_controls(filename)
 
-    def saveAs(self):
+    def save_as(self):
         project = self.project()
         if project:
             p = path(self.showNewProjectDialog(default_name=None, text="Select name to save project")).abspath()
