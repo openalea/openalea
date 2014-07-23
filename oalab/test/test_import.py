@@ -1,7 +1,7 @@
 def test_import():
     from openalea.core.pkgmanager import PackageManager
     from openalea.oalab.control.controlpanel import ControlPanel, ControlPanelManager
-    from openalea.oalab.control.observerpanel import ObserverPanel
+    ##from openalea.oalab.control.observerpanel import ObserverPanel
     from openalea.oalab.gui.logger import Logger
     from openalea.oalab.gui.help import HelpWidget
     from openalea.oalab.scene.view3d import Viewer
