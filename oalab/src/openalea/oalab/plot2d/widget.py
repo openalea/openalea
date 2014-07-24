@@ -84,7 +84,11 @@ class MplTabWidget(QtGui.QTabWidget, AbstractMplWidget):
         
         self.widget = []
         self.close_fct = []
-        
+
+        # events & actions
+        self.setFocusPolicy(QtCore.Qt.StrongFocus) # keyboard & mouse focus
+        self.setAcceptDrops(True)                  # accept drop event
+
         
     # manage canvas tabs
     # ------------------
@@ -124,6 +128,73 @@ class MplTabWidget(QtGui.QTabWidget, AbstractMplWidget):
             print 'MplTabWidget does not contain widget: '+ repr(widget)
 
 
+    # drop event for OpenAleaLab
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasFormat("text/plain"):
+            event.accept()
+        else:
+            event.ignore()
+
+    def dropEvent(self, event):
+        mimeData = event.mimeData()
+        if not mimeData.hasFormat("text/plain"):
+            event.ignore()
+            
+        import os
+        from scipy import ndimage as nd
+        from matplotlib import pyplot as plt
+        
+        filename = str(mimeData.text())
+        if filename.startswith("data/'"):
+            # mimeData come from OpenAleaLab
+            from openalea.oalab.session.session import Session
+            path = Session().project.path
+            filename = filename[6:].split("'")[0]
+            filename = str(path / 'data' / filename)
+            
+        # load image and imshow it
+        print filename
+        img = nd.imread(filename)
+        plt.clf()
+        plt.imshow(img);
+        ax = plt.gca()
+        ax.set_position([0,0,1,1])
+       
+    # OALab actions
+    def get_plugin_actions(self):
+        """ return actions list for OAlab """
+        def add_some_action(name, fct, key):
+            action = QtGui.QAction(name, self)
+            action.triggered.connect(fct)
+            self.addAction(action)
+            
+            action.setShortcuts([QtGui.QKeySequence(key).toString()])
+            action.setShortcutContext(QtCore.Qt.WidgetWithChildrenShortcut)
+            
+            return action
+
+        actions = []
+        action = add_some_action('clear',self.clf, 'Ctrl+C')
+        actions.append(['pyplot', action,1])
+        action = add_some_action('new',  self.new_figure,  'Ctrl+N')
+        actions.append(['pyplot', action,1])
+        action = add_some_action('close',self.close_figure,'Ctrl+W')
+        actions.append(['pyplot', action,1])
+        
+        return actions
+        
+    def clf(self):
+        from matplotlib import pyplot as plt
+        plt.clf()
+        
+    def new_figure(self):
+        from matplotlib import pyplot as plt
+        plt.figure()
+        
+    def close_figure(self):
+        from matplotlib import pyplot as plt
+        plt.close()
+        
 class CanvasWidget(QtGui.QWidget):
     """ Widget that contains a mpl canvas """
     def __init__(self, parent=None):
