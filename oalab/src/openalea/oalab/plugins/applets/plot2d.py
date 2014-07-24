@@ -19,3 +19,14 @@ class Plot2dWidget(PluginApplet):
         activate_in_pyplot()
         plt.ion()
         mainwindow.add_applet(self._applet, self.alias, area='outputs')
+        
+        actions = self._applet.get_plugin_actions()
+        if actions:
+            for action in actions:
+                # Add actions in PanedMenu
+                mainwindow.menu.addBtnByAction('Plot2d', *action)
+
+                # add action in classical menu
+                group_name, act, btn_type = action
+                mainwindow.add_action_to_existing_menu(action=act, menu_name='Plot2d', sub_menu_name=group_name)
+
