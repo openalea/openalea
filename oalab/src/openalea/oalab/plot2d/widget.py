@@ -168,17 +168,17 @@ class MplTabWidget(QtGui.QTabWidget, AbstractMplWidget):
             action.triggered.connect(fct)
             self.addAction(action)
             
-            action.setShortcuts([QtGui.QKeySequence(key).toString()])
+            action.setShortcuts([QtGui.QKeySequence(k).toString() for k in key])
             action.setShortcutContext(QtCore.Qt.WidgetWithChildrenShortcut)
             
             return action
 
         actions = []
-        action = add_some_action('clear',self.clf, 'Ctrl+C')
+        action = add_some_action('clear',self.clf, ['Ctrl+delete','Ctrl+backspace'])
         actions.append(['pyplot', action,1])
-        action = add_some_action('new',  self.new_figure,  'Ctrl+N')
+        action = add_some_action('new',  self.new_figure,  ['Ctrl+N'])
         actions.append(['pyplot', action,1])
-        action = add_some_action('close',self.close_figure,'Ctrl+W')
+        action = add_some_action('close',self.close_figure,['Ctrl+W'])
         actions.append(['pyplot', action,1])
         
         return actions
