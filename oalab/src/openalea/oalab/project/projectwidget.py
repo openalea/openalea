@@ -65,10 +65,10 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         self._actions = [[group, "Manage Project", self.view.actionNewProj, 0],
                          [group, "Manage Project", self.view.actionOpenProj, 0],
                          [group, "Manage Project", self.view.actionSaveProj, 0],
-#                          [group, "Manage Project", self.view.actionSaveProjAs, 1],
+        #                  [group, "Manage Project", self.view.actionSaveProjAs, 1],
                          [group, "Manage Project", self.view.actionCloseProj, 0],
-#                          [group, "Manage Project", self.view.actionEditMeta, 1],
-#                          ["Project", "Manage Project", self.actionRenameProject, 1],
+        #                  [group, "Manage Project", self.view.actionEditMeta, 1],
+        #                  ["Project", "Manage Project", self.actionRenameProject, 1],
         ]
         self._actions += self.view._actions
 
@@ -234,6 +234,8 @@ class ProjectManagerView(QtGui.QTreeView):
             self.expandAll()
         else:
             self.close_all_scripts()
+            
+        self.load_controls()
 
 
     def refresh(self):
@@ -360,7 +362,6 @@ class ProjectManagerView(QtGui.QTreeView):
         self.proj_selector = ProjectSelectorScroll(projects=projects, open_project=self.set_project)
         self.proj_selector.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.proj_selector.show()
-        self.load_controls()
 
     def new_project(self):
         project_creator = CreateProjectWidget()
@@ -679,39 +680,39 @@ class ProjectManagerModel(QtGui.QStandardItemModel):
                 item2.appendRow(item3)
 
 
-#         categories = files.keys()
-#         for category in categories:
-#             if hasattr(project, category):
-#                 cat = getattr(project, category)
-#                 if cat is not None:
-#                     if len(cat) > 0:
-#                         item2 = QtGui.QStandardItem(category)
-#                         item.appendRow(item2)
-#                         try:
-#                             icon = eval(str("icon_" + category))
-#                         except NameError:
-#                             icon = QtGui.QIcon()
-#                         item2.setIcon(icon)
-#                 else:
-#                     # hide name of category if we don't have object of this category
-#                     pass
-#
-#                 if isinstance(cat, dict):
-#                     for obj in cat.keys():
-#                         l = obj.split(".")
-#                         name = ".".join(l[:-1])
-#                         ext = l[-1]
-#                         item3 = QtGui.QStandardItem(obj)
-#                         if category == "src":
-#                             item3 = QtGui.QStandardItem(name)
-#                             item3.setData((category, name))
-#                             if ext in self.icons.keys():
-#                                 item3.setIcon(QtGui.QIcon(self.icons[ext]))
-#                         item2.appendRow(item3)
-#                 else:
-#                     # Useful for category "localized" which store a bool and not a list
-#                     item3 = QtGui.QStandardItem(cat)
-#                     item2.appendRow(item3)
+         #categories = files.keys()
+         #for category in categories:
+         #    if hasattr(project, category):
+         #        cat = getattr(project, category)
+         #        if cat is not None:
+         #            if len(cat) > 0:
+         #                item2 = QtGui.QStandardItem(category)
+         #                item.appendRow(item2)
+         #                try:
+         #                    icon = eval(str("icon_" + category))
+         #                except NameError:
+         #                    icon = QtGui.QIcon()
+         #                item2.setIcon(icon)
+         #        else:
+         #            # hide name of category if we don't have object of this category
+         #            pass
+         #
+         #        if isinstance(cat, dict):
+         #            for obj in cat.keys():
+         #                l = obj.split(".")
+         #                name = ".".join(l[:-1])
+         #                ext = l[-1]
+         #                item3 = QtGui.QStandardItem(obj)
+         #                if category == "src":
+         #                    item3 = QtGui.QStandardItem(name)
+         #                    item3.setData((category, name))
+         #                    if ext in self.icons.keys():
+         #                        item3.setIcon(QtGui.QIcon(self.icons[ext]))
+         #                item2.appendRow(item3)
+         #        else:
+         #            # Useful for category "localized" which store a bool and not a list
+         #            item3 = QtGui.QStandardItem(cat)
+         #            item2.appendRow(item3)
 
     def projectdata(self, index):
         if index is None:
