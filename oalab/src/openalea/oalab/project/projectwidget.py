@@ -668,7 +668,7 @@ class ProjectManagerModel(QtGui.QStandardItemModel):
                 data_dict = getattr(project, category)
 
             names = data_dict.keys()
-            for name in names:
+            for name in sorted(names):
                 data = data_dict[name]
                 item3 = QtGui.QStandardItem(name)
                 if hasattr(data, 'icon'):
