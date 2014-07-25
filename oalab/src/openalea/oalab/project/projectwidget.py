@@ -650,7 +650,7 @@ class ProjectManagerModel(QtGui.QStandardItemModel):
         parentItem.appendRow(item)
 
 
-        categories = sorted(['model', 'startup', 'doc', 'data', 'lib'])
+        categories = ['startup', 'doc', 'lib', 'model', 'data']
         for category in categories:
             item2 = QtGui.QStandardItem(category)
             item.appendRow(item2)
