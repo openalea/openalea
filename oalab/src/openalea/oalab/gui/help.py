@@ -22,6 +22,7 @@ import resources_rc # do not remove this import else icon are not drawn
 import webbrowser
 from openalea.oalab.gui.preferences import PreferenceWidget
 from openalea.oalab.gui.utils import ModalDialog
+from openalea.oalab.service.help import register_helper
 
 default_text2 = """
 <H1>Welcome in OpenAleaLab.</H1>
@@ -77,7 +78,8 @@ class HelpWidget(QtGui.QTextBrowser):
                          ["Help", "Website", actionHelpGForge, 0],
                          ["Help", "Settings", actionEditPref, 0],
                          ]
-        self.setText(default_text)                
+        self.setText(default_text)
+        register_helper(self)
 
     def actions(self):
         return self._actions
