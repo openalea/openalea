@@ -172,7 +172,7 @@ class Model(object):
                     elif input_info.default:
                         default_value = eval(input_info.default)
                     else:
-                        raise Exception("Model %s have inputs not setted. Please set %s ." %(self.name,input_info.name))
+                        raise Exception("Model %s have inputs not setted. Please set %s ." % (self.name, input_info.name))
 
                     if input_info.name:
                         self._inputs[input_info.name] = default_value
@@ -242,6 +242,7 @@ class Model(object):
         if self.inputs:
             user_ns.update(self.inputs) # Add inputs inside namespace
         return copy(user_ns)
+
 
 class ModelNode(Node):
     def __init__(self, model, inputs=(), outputs=()):
