@@ -194,6 +194,7 @@ class ParadigmContainer(QtGui.QTabWidget):
         self.connect_paradigm_container()
         self.extensions = ""
         self.connect(self, QtCore.SIGNAL('tabCloseRequested(int)'), self.autoClose)
+        self.connect(self, QtCore.SIGNAL('currentChanged(int)'), self.safe_display_help)
 
     def connect_paradigm_container(self):
         # Connect actions from self.paradigms to menu (newPython, newLpy,...)
@@ -275,19 +276,19 @@ class ParadigmContainer(QtGui.QTabWidget):
             self.open_data(obj, dtype)
 
     def open_data(self, obj, dtype=None):
-            # Check if object is yet open else create applet
-            if obj in self._open_objects:
-                tab = self._open_objects[obj]
-                self.setCurrentWidget(tab)
-            else:
-                applet = self.applet(obj, dtype)
+        # Check if object is yet open else create applet
+        if obj in self._open_objects:
+            tab = self._open_objects[obj]
+            self.setCurrentWidget(tab)
+        else:
+            applet = self.applet(obj, dtype)
 
-                idx = self.addTab(applet, self.data_name(obj))
-                if obj.filepath:
-                    self.setTabToolTip(idx, obj.filepath)
-                self.setCurrentIndex(idx)
-                self._open_objects[obj] = applet
-                self._open_tabs[applet] = obj
+            idx = self.addTab(applet, self.data_name(obj))
+            if obj.filepath:
+                self.setTabToolTip(idx, obj.filepath)
+            self.setCurrentIndex(idx)
+            self._open_objects[obj] = applet
+            self._open_tabs[applet] = obj
 
     def close_current(self):
         self.close()
@@ -395,253 +396,6 @@ class ParadigmContainer(QtGui.QTabWidget):
             self.close_current()
             self.open_project_data(category, name)
 
-
-    '''
-    def open_file(self, filename=None, extension=None, model=None):
-        """
-        Open a file.
-
-        If not filename, open a widget to select it.
-
-        If not extension, extension is the list of all available (*.py, *.r, *.lpy, *.wpy)
-        """
-        if extension is None:
-            extension = self.extensions
-
-        if model is not None:
-            if hasattr(model, "default_name"):
-                applet_type = model.default_name
-            tab_name = model.name
-
-            # TODO: rewrite following hack
-            if model in self._open_objects.values():
-                for k, v in self._open_objects.iteritems():
-                    if v == model:
-                        self.setCurrentWidget(k)
-                        break
-            else:
-                self.newTab(applet_type=applet_type, tab_name=tab_name, model=model)
-
-            logger.debug("Open model named " + tab_name)
-        else:
-
-            if not filename:
-                if extension:
-                    filename = showOpenFileDialog(extension)
-                else:
-                    filename = showOpenFileDialog()
-
-            if filename:
-                filename = path(filename)
-
-                f = open(filename, "r")
-                txt = f.read()
-                f.close()
-
-                # # here we use tabname to know where to save the file...
-                # # TODO use a more complete "file" object which store the code and the filename and use a short tabname
-                # tab_name = str(path(filename).splitpath()[-1])
-                tab_name = str(path(filename))
-                ext = str(path(filename).splitext()[-1])
-                ext = ext.split(".")[-1]
-                logger.debug("Try to open file named " + tab_name + " . With applet_type " + ext)
-
-                self.newTab(applet_type=ext, tab_name=tab_name, script=txt, model=model)
-                # project.add("src", filename, txt)
-                logger.debug("Open file named " + tab_name)
-
-    def new(self, category, dtype=None):
-        if dtype is None:
-            dtype = self._new_file_actions[self.sender()]
-        name = QtGui.QLineEdit(dtype.lower() + '_' + category)
-        dialog = ModalDialog(name)
-        if dialog.exec_():
-            project = self.projectManager.cproject
-            if category == 'model':
-                project.new(category, name.text(), dtype=dtype, value="")
-                self.open_file(model=project.get(category, name.text()))
-            else:
-                project.new(category, name.text(), value='')
-                self.open_file(filename=name.text())
-
-    def new_file(self, applet_type=None, tab_name=None, script="", model=None):
-        """
-        Create a new model of type *applet_type*
-
-        :param applet_type: type of applet to add. Can be Workflow, LSystem, Python, R
-        """
-        if not applet_type:
-            button = self.sender()
-            applet_type = button.text() # can be Workflow, LSystem, Python, R
-            applet_type = applet_type[4:]
-            # TODO: this approach is not reliable. If a developer change action name, it breaks the system
-            # a better approach should be to define a "newModel" method in IApplet and call it directly
-            # for instance in __init__ : action.triggered.connect(applet.newModel)
-        Applet = self.paradigms.get(applet_type)
-        if not tab_name and Applet:
-            tab_name = Applet.default_file_name
-        self.newTab(applet_type=applet_type, tab_name=tab_name, script=script, model=model)
-        return tab_name
-
-    def connect_paradigm_container(self):
-        # Connect actions from self.paradigms to menu (newPython, newLpy,...)
-        for applet in self.paradigms.values():
-            action = QtGui.QAction(QtGui.QIcon(applet.icon), "New " + applet.default_name, self)
-            action.triggered.connect(self.new)
-            self.paradigms_actions.append(action)
-            self._new_file_actions[action] = applet.default_name
-            self._actions.append(["Project", "Manage", action, 0],)
-            self.extensions = self.extensions + applet.pattern + " "
-    def openTab(self, applet_type=None, tab_name="", script="", model=None):
-        """
-        Open a tab with the widget 'applet_type'
-        """
-        self.newTab(applet_type=applet_type, tab_name=tab_name, script=script, model=model)
-
-    def newTab(self, applet_type="", tab_name="", script="", model=None):
-        """
-        Open a tab with the widget 'applet_type'
-
-        # TODO : automate with plugin system
-        """
-        logger.debug("New tab. Type: " + str(applet_type) + ". Name: " + str(tab_name))
-        self.rmTab("Welcome")
-        self.rmTab("Create File")
-
-        # TODO : permit to add more than one script...
-        # existing_tabs = list()
-        # for name in self.session.project.src:
-        #    existing_tabs.append(name)
-        # tab_name = check_if_name_is_unique(tab_name, existing_tabs)
-
-        if model is not None:
-            if hasattr(model, "default_name"):
-                applet_type = model.default_name
-
-        Applet = None
-
-        if applet_type in self.paradigms:
-            # Check in paradigm.default_name
-            Applet = self.paradigms[applet_type]
-        else:
-            # Check in paradigm.extension
-            for value in self.paradigms.values():
-                if value.extension == applet_type:
-                    Applet = value
-
-        if Applet is None:
-            if "Python" in self.paradigms.keys():
-                Applet = self.paradigms["Python"]
-
-        filepath = tab_name
-        if self.session.project:
-            filepath = self.session.project.path / "src" / tab_name
-
-        if Applet is not None:
-            if model is not None:
-                tab_name = model.name
-                appl = Applet(model=model, interpreter=self.session.interpreter, editor_container=self, parent=self.parent())
-            else:
-                appl = Applet(name=tab_name, code=script, filepath=filepath, interpreter=self.session.interpreter, editor_container=self, parent=self.parent())
-            widget = appl.instanciate_widget()
-            self.applets.append(appl)
-            icon = Applet.icon
-
-            self.addTab(widget, QtGui.QIcon(icon), tab_name)
-
-            if hasattr(widget, 'editor'):
-                # TODO: create a generic signal StateChanged for all Paradigm widgets
-                widget.editor.textChanged.connect(self.setTabRed)
-            self.setCurrentWidget(widget)
-            widget.name = tab_name
-            self.connect_actions()
-            self.connect(self, QtCore.SIGNAL('currentChanged(int)'), self.focusChange)
-            self.setTabBlack()
-            self._open_objects[widget] = model
-            return widget
-
-    def closeTab(self):
-        """
-        Close current tab
-        """
-        widget = self.currentWidget()
-        if widget in self._open_objects:
-            # TODO: handle sample file and default file as a normal file
-            del self._open_objects[widget]
-        self.removeTab(self.currentIndex())
-        if self.count() == 0:
-            if self.session.project:
-                self.addCreateFileTab()
-            else:
-                self.addDefaultTab()
-        logger.debug("Close tab")
-
-    def save(self):
-        """
-        Save current script
-        """
-        code = self.currentWidget().get_code()
-        model = self.currentWidget().applet.model
-        model.code = code
-
-        proj = self.projectManager.cproject
-        if proj:
-            models = proj.models()
-            if not isinstance(models, list):
-                models = [models]
-            if model.name in [mod.name for mod in models]:
-                logger.debug("1 Save model inside project.")
-                proj.save_model(model)
-                proj.save_manifest()
-            else:
-                logger.debug("2 Save model outside project but work inside project.")
-                f = open(model.filepath, "w")
-                code = str(code).encode("utf8", "ignore")
-                f.write(code)
-                f.close()
-        else:
-            logger.debug("3 Save model outside project.")
-            f = open(model.filepath, "w")
-            code = str(code).encode("utf8", "ignore")
-            f.write(code)
-            f.close()
-
-        self.setTabBlack()
-
-        # TODO: save as
-        logger.debug("Model named " + str(model.name) + " saved.")
-
-    def save_as(self):
-        """
-        Save current script as
-        """
-        logger.debug("Save model As")
-        filename = QtGui.QFileDialog.getSaveFileName(parent=self, caption="Save file as")
-        model = self.currentWidget().applet.model
-        if filename:
-            # rename
-            proj = ProjectManager().cproject
-            if proj:
-                models = proj.models()
-                if not isinstance(models, list):
-                    models = [models]
-                if model.name in [mod.name for mod in models]:
-                    old_name = self.tabText(self.currentIndex())
-                    proj.rename("model", old_name, filename)
-                else:
-                    model.name = filename
-            else:
-                model.name = filename
-            self.setTabText(self.currentIndex(), filename)
-            # save
-            self.save()
-    '''
-
-
-
-
-
-
     def setTabRed(self, index=None):
         if index is None:
             index = self.currentIndex()
@@ -704,11 +458,14 @@ class ParadigmContainer(QtGui.QTabWidget):
                     # Add actions in PanedMenu
                     menu.addBtnByAction(*action)
 
-    def focusChange(self):
+    def safe_display_help(self):
+        """
+        Call focus_change method on widget.applet safely (if it exists well).
+        """
         widget = self.currentWidget()
-        if widget:
-            if hasattr(widget, "applet"):
-                widget.applet.focus_change()
+        if widget is not None:
+            if hasattr(widget, "display_help"):
+                widget.display_help()
 
     def autoClose(self, n_tab):
         self.close(self.widget(n_tab))
