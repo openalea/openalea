@@ -54,13 +54,31 @@ def mainMenu(self):
     """
     return "Project"
 
+
+def _display_help(self):
+    """
+    Method to display help
+    """
+    doc = self.applet.model.get_documentation()
+    if not doc:
+        doc = """
+<H1>Visualea</H1>
+
+More informations: http://openalea.gforge.inria.fr/doc/openalea/visualea/doc/_build/html/contents.html
+"""
+    display_help(doc)
+
+
 VIEWER3D_SET = False
+
+
 def _set_viewer3d():
     viewernode = sys.modules.get('openalea.plantgl.wralea.visualization.viewernode')
     plotters = get_plotters()
     if plotters and viewernode:
         viewer = plotters[0]
         viewernode.registerPlotter(viewer)
+
 
 class VisualeaModelController(object):
     default_name = VisualeaModel.default_name
@@ -98,6 +116,7 @@ class VisualeaModelController(object):
         methods['actions'] = actions
         methods['get_code'] = get_code
         methods['mainMenu'] = mainMenu
+        methods['display_help'] = _display_help
 
         self._widget = adapt_widget(self._widget, methods)
         
@@ -115,22 +134,6 @@ class VisualeaModelController(object):
         """
         assert isinstance(item, dataflowview.vertex.GraphicalVertex)
         txt = item.vertex().get_tip()
-        # todo: use services
-        display_help(txt)
-    
-    def focus_change(self):
-        """
-        Set doc string in Help widget when focus changed
-        """
-        txt = """
-<H1><IMG SRC=%s
- ALT="icon"
- HEIGHT=25
- WIDTH=25
- TITLE="Visualea logo">Visualea</H1>
-
-More informations: http://openalea.gforge.inria.fr/doc/openalea/visualea/doc/_build/html/contents.html        
-"""%str(self.icon)
         # todo: use services
         display_help(txt)
 
@@ -160,7 +163,7 @@ More informations: http://openalea.gforge.inria.fr/doc/openalea/visualea/doc/_bu
     def stop(self, *args, **kwargs):
         return self.stop(*args, **kwargs)
 
-    def reinit(self, *args, **kwargs):
+    def init(self, *args, **kwargs):
         return self.model.init(*args, **kwargs)
 
 
