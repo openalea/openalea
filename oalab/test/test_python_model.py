@@ -132,3 +132,24 @@ print "ok"
     assert model.get_documentation() is not None
     assert len(model.inputs_info) == 4
     assert len(model.outputs_info) == 1
+
+
+def test_magic_not_first_line():
+    model_src = '''
+%pylab inline
+
+print "ok"
+
+"""
+
+input = x:int=4, y:float=3.14, z, debug:bool
+output = success
+
+beautifull doc
+"""
+'''
+    model = PythonModel(code=model_src)
+    assert model.repr_code() == model_src
+    assert model.get_documentation() is not None
+    assert len(model.inputs_info) == 4
+    assert len(model.outputs_info) == 1
