@@ -4,10 +4,6 @@ Quick Start
 
 Here we suppose that we have a model named *sum_int* that do the sum between two integers. The classical use of this model is:
 
-  - Get an interpreter **(not necessary if you are working inside OpenAleaLab)**:
-      >>> from openalea.vpltk.shell.shell import get_interpreter_class
-      >>> Interpeter = get_interpreter_class()
-      >>> interpreter = Interpeter()
   - Get the project **(not necessary if you are working inside OpenAleaLab)**:
       >>> from openalea.vpltk.project import ProjectManager
       >>> from openalea.deploy.shared_data import shared_data
@@ -21,8 +17,8 @@ Here we suppose that we have a model named *sum_int* that do the sum between two
       >>> sum_int = Model("sum_int")
   - Set inputs:
       >>> sum_int.inputs = 1, 2
-  - Run model (and set interpreter the first time, it is not necessary if you work inside OpenAleaLab):
-      >>> sum_int.run(interpreter=interpreter)
+  - Run model:
+      >>> sum_int.run()
       3
       >>> # Or simply:
       >>> sum_int(4, 38)

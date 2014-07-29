@@ -59,15 +59,9 @@ more informations: http://www.python.org/
         """
         return self.code
 
-    def run_code(self, code, *args, **kwargs):
-        """
-        execute subpart of a model (only code *code*)
-        """
-        return self.execute(code)
-
     def run(self, *args, **kwargs):
         """
-        execute model thanks to interpreter
+        execute entire model
         
         :return: outputs of the model
         """

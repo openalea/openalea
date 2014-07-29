@@ -107,7 +107,7 @@ class LPyModelController(object):
     extension = LPyModel.extension
     icon = LPyModel.icon
 
-    def __init__(self, name="", code="", model=None, filepath=None, interpreter=None, editor_container=None, parent=None):
+    def __init__(self, name="", code="", model=None, filepath=None, editor_container=None, parent=None):
         self.filepath = filepath
         if model:
             self.model = model
@@ -135,9 +135,10 @@ class LPyModelController(object):
                     self.model.lsystem.context().turtle.setMaterial(i, color)
                     i += 1"""
 
+        from openalea.oalab.service.ipython import get_interpreter
+        interpreter = get_interpreter()
         if interpreter:
-            self.interpreter = interpreter
-            self.interpreter.locals['lsystem'] = self.model.lsystem
+            interpreter.locals['lsystem'] = self.model.lsystem
 
     def instanciate_widget(self):
         # todo register viewer
@@ -163,24 +164,17 @@ class LPyModelController(object):
         doc = self.model.get_documentation()
         display_help(doc)
 
-    def run_selected_part(self, *args, **kwargs):
+    def execute(self):
         """
         Run selected code like a PYTHON code (not LPy code).
         If nothing selected, run like LPy (not Python).
         """
-        if "interpreter" in kwargs:
-            self.interpreter = kwargs.pop("interpreter")
-
         code = self.widget().get_selected_text()
-        if len(code) == 0:
-            return self.model()
-        else:
-            return self.interpreter.runcode(code, *args, **kwargs)
+        from openalea.oalab.service.ipython import get_interpreter
+        interpreter = get_interpreter()
+        return self.model.execute(code)
 
     def run(self, *args, **kwargs):
-        if "interpreter" in kwargs:
-            self.interpreter = kwargs.pop("interpreter")
-
         controls = control_dict()
         # Extract one colorlist to set as THE colormap.
         # In case of ambiguity, select the one whose the name contains lpy.
@@ -220,9 +214,6 @@ class LPyModelController(object):
         return ret
 
     def step(self, i=None, *args, **kwargs):
-        if "interpreter" in kwargs:
-            self.interpreter = kwargs.pop("interpreter")
-
         self.model.context.update(control_dict())
 
         code = self.widget().get_text()
@@ -247,9 +238,6 @@ class LPyModelController(object):
         return ret
 
     def stop(self, *args, **kwargs):
-        if "interpreter" in kwargs:
-            self.interpreter = kwargs.pop("interpreter")
-
         self.model.context.update(control_dict())
 
         # todo: put result in the world ?
@@ -261,9 +249,6 @@ class LPyModelController(object):
         return ret
 
     def animate(self, *args, **kwargs):
-        if "interpreter" in kwargs:
-            self.interpreter = kwargs.pop("interpreter")
-
         self.model.context.update(control_dict())
 
         code = self.widget().get_text()
@@ -286,9 +271,6 @@ class LPyModelController(object):
         return ret
 
     def init(self, *args, **kwargs):
-        if "interpreter" in kwargs:
-            self.interpreter = kwargs.pop("interpreter")
-
         self.model.context.update(control_dict())
 
         code = self.widget().get_text()

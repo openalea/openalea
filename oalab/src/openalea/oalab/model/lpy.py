@@ -132,7 +132,7 @@ class LPyModel(Model):
 
     def run(self, *args, **kwargs):
         """
-        execute model thanks to interpreter
+        execute entire model
         """
         # TODO: get control from application and set them into self.context
         self.inputs = args
