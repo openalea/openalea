@@ -328,50 +328,40 @@ class ProjectManagerWidget(QtGui.QWidget):
         """
         Save current project but permit to rename and move it..
         """
-        if self.session.current_is_project():
-            name = showNewProjectDialog(default_name=None, text="Select name to save project")
-            if name:
-                self.session.project.rename(category="project", old_name=self.session.project.name, new_name=name)
-                self.saveCurrent()
-        else:
-            logger.debug(
-                "You are not working inside project. Please create or load one first, before *saving as* project.")
+        name = showNewProjectDialog(default_name=None, text="Select name to save project")
+        if name:
+            self.session.project.rename(category="project", old_name=self.session.project.name, new_name=name)
+            self.saveCurrent()
 
     def saveCurrent(self):
         """
         Save current project.
         """
-        if self.session.current_is_project():
-            container = self.editor_manager
-            if container is None: # CPL
-                return
-            container.save_all()
-            proj = self.session.project
-            proj.control = self.get_controls_from_control_manager(proj)
-            self.session.project.save()
-        else:
-            logger.debug("You are not working inside project. Please create or load one first, before saving project.")
+        container = self.editor_manager
+        if container is None: # CPL
+            return
+        container.save_all()
+        proj = self.session.project
+        proj.control = self.get_controls_from_control_manager(proj)
+        self.session.project.save()
 
     def closeCurrent(self):
         """
         Close current project.
         """
-        if self.session.current_is_project():
-            if hasattr(self.session, "name"):
-                logger.debug("Close Project named %s" % self.session.project.name)
-                self.projectManager.close(self.session.project.name)
-            else:
-                logger.debug("Close empty Project")
-            self.session.project = None
-            self.session._is_proj = False
-            editor = get_applet(identifier='EditorManager')
-            if editor:
-                editor.closeAll()
-            self.clear_ctrl_mngr()
-            self.session.update_namespace()
-            self._scene_change()
+        if hasattr(self.session, "name"):
+            logger.debug("Close Project named %s" % self.session.project.name)
+            self.projectManager.close(self.session.project.name)
         else:
-            logger.debug("You are not working inside project. Please create or load one first before closing one...")
+            logger.debug("Close empty Project")
+        self.session.project_manager.close()
+        self.session._is_proj = False
+        editor = get_applet(identifier='EditorManager')
+        if editor:
+            editor.closeAll()
+        self.clear_ctrl_mngr()
+        self.session.update_namespace()
+        self._scene_change()
 
     def open_all_scripts_from_project(self):
         logger.debug("Open All models")
@@ -385,11 +375,10 @@ class ProjectManagerWidget(QtGui.QWidget):
 
     def _scene_change(self):
         logger.debug("Scene changed")
-        if self.session.current_is_project():
-            self.session.world.reset()
-            project = self.session.project
-            for w in project.world:
-                self.session.world.add(name=w, obj=project.world[w])
+        self.session.world.reset()
+        project = self.session.project
+        for w in project.world:
+            self.session.world.add(name=w, obj=project.world[w])
 
     def _update_available_project_menu(self):
         """
