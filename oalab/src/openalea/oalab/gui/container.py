@@ -48,7 +48,7 @@ class TextData(object):
         self.filepath = filepath
         self.code = code
         self.category = category
-        self.run_selected_part = self.run_code = self.step = self.animate = self.reinit = self.init = self.run
+        self.run_selected_part = self.run_code = self.step = self.animate = self.init = self.run
         self.ns = {}
 
     def __call__(self, *args, **kwargs):
@@ -156,7 +156,7 @@ class ParadigmContainer(QtGui.QTabWidget):
         self.actionAnimate.triggered.connect(self.animate)
         self.actionStep.triggered.connect(self.step)
         self.actionStop.triggered.connect(self.stop)
-        self.actionInit.triggered.connect(self.reinit)
+        self.actionInit.triggered.connect(self.init)
         self.actionCloseCurrent.triggered.connect(self.close_current)
 
         self.actionRunSelection.triggered.connect(self.run_selected_part)
@@ -517,9 +517,9 @@ class ParadigmContainer(QtGui.QTabWidget):
         self.currentWidget().applet.stop(interpreter=self.session.interpreter)
         logger.debug("Stop " + self.currentWidget().applet.name)
 
-    def reinit(self):
-        self.currentWidget().applet.reinit(interpreter=self.session.interpreter)
-        logger.debug("Reinit " + self.currentWidget().applet.name)
+    def init(self):
+        self.currentWidget().applet.init(interpreter=self.session.interpreter)
+        logger.debug("Init " + self.currentWidget().applet.name)
 
     def undo(self):
         if hasattr(self.currentWidget(), "undo"):
