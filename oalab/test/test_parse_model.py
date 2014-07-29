@@ -15,7 +15,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-from openalea.oalab.model.parse import get_docstring, parse_function, parse_input_and_output, parse_docstring
+from openalea.oalab.model.parse import get_docstring, parse_function, parse_input_and_output, parse_docstring, parse_doc
 
 
 def test_ast_getdoc():
@@ -68,6 +68,121 @@ print "ok"
     inputs, outputs = parse_input_and_output(d)
     assert inputs
     assert outputs
+
+
+def test_docstring_input():
+    doc0 = "input = x, y, z"
+    model, inputs, outputs = parse_doc(doc0)
+    assert inputs[0].name == "x"
+    assert inputs[1].name == "y"
+    assert inputs[2].name == "z"
+
+    doc1 = '''
+input = x:int=4, y:float=3.14, z, debug:bool
+output = success
+
+beautifull doc
+'''
+    model, inputs, outputs = parse_doc(doc1)
+    assert inputs[0].name == "x"
+    assert inputs[0].default == "4"
+    assert inputs[0].interface == "int"
+    assert inputs[1].name == "y"
+    assert inputs[1].default == "3.14"
+    assert inputs[1].interface == "float"
+    assert inputs[2].name == "z"
+    assert inputs[3].name == "debug"
+    assert inputs[3].interface == "bool"
+
+    doc2 = '''
+input = x=4, y:int, z, debug:bool
+output = success
+
+beautifull doc
+'''
+    model, inputs, outputs = parse_doc(doc2)
+    assert inputs[0].name == "x"
+    assert inputs[0].default == "4"
+    assert inputs[1].name == "y"
+    assert inputs[1].interface == "int"
+    assert inputs[2].name == "z"
+    assert inputs[3].name == "debug"
+    assert inputs[3].interface == "bool"
+
+    doc3 = "input = x=[1,2,3], y=(1,2), z=(1,), a=4, b"
+    model, inputs, outputs = parse_doc(doc3)
+    assert inputs[0].name == "x"
+    assert inputs[0].default == "[1,2,3]"
+    assert inputs[1].name == "y"
+    assert inputs[1].default == "(1,2)"
+    assert inputs[2].name == "z"
+    assert inputs[2].default == "(1,)"
+    assert inputs[3].name == "a"
+    assert inputs[3].default == "4"
+    assert inputs[4].name == "b"
+
+    doc4 = "input = x=[[1,2,3],[1,2,3],[1,2,3]], y=((1,2,3),(1,2,3),(1,2,3))"
+    model, inputs, outputs = parse_doc(doc4)
+    assert inputs[0].name == "x"
+    assert inputs[0].default == "[[1,2,3],[1,2,3],[1,2,3]]"
+    assert inputs[1].name == "y"
+    assert inputs[1].default == "((1,2,3),(1,2,3),(1,2,3))"
+
+    doc5 = "input = x=[(1,2,3),[1,2,3],[(1,2),(3)]]"
+    model, inputs, outputs = parse_doc(doc5)
+    assert inputs[0].name == "x"
+    assert inputs[0].default == "[(1,2,3),[1,2,3],[(1,2),(3)]]"
+
+
+def test_docstring_output():
+    doc0 = "output = x, y, z"
+    model, inputs, outputs = parse_doc(doc0)
+    assert outputs[0].name == "x"
+    assert outputs[1].name == "y"
+    assert outputs[2].name == "z"
+
+    doc1 = '''
+input = x:int=4, y:float=3.14, z, debug:bool
+output = success
+
+beautifull doc
+'''
+    model, inputs, outputs = parse_doc(doc1)
+    assert outputs[0].name == "success"
+
+    doc2 = '''
+input = x=4, y:int, z, debug:bool
+output = success:bool
+
+beautifull doc
+'''
+    model, inputs, outputs = parse_doc(doc2)
+    assert outputs[0].name == "success"
+    assert outputs[0].interface == "bool"
+
+    doc3 = "output = x=[1,2,3], y=(1,2), z=(1,), a=4, b"
+    model, inputs, outputs = parse_doc(doc3)
+    assert outputs[0].name == "x"
+    assert outputs[0].default == "[1,2,3]"
+    assert outputs[1].name == "y"
+    assert outputs[1].default == "(1,2)"
+    assert outputs[2].name == "z"
+    assert outputs[2].default == "(1,)"
+    assert outputs[3].name == "a"
+    assert outputs[3].default == "4"
+    assert outputs[4].name == "b"
+
+    doc4 = "output = x=[[1,2,3],[1,2,3],[1,2,3]], y=((1,2,3),(1,2,3),(1,2,3))"
+    model, inputs, outputs = parse_doc(doc4)
+    assert outputs[0].name == "x"
+    assert outputs[0].default == "[[1,2,3],[1,2,3],[1,2,3]]"
+    assert outputs[1].name == "y"
+    assert outputs[1].default == "((1,2,3),(1,2,3),(1,2,3))"
+
+    doc5 = "output = x=[(1,2,3),[1,2,3],[(1,2),(3)]]"
+    model, inputs, outputs = parse_doc(doc5)
+    assert outputs[0].name == "x"
+    assert outputs[0].default == "[(1,2,3),[1,2,3],[(1,2),(3)]]"
 
 
 def test_docstring_unknow():
