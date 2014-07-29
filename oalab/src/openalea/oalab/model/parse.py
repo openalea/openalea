@@ -169,6 +169,75 @@ def parse_function(docstring):
     return model, inputs, outputs
 
 
+def _fix_bracket_split(line):
+    """
+    Split a text by ",",
+    Manage case where you have a list or a tuple.
+
+    :param line: text line to split (str)
+    :return: splitted line (list)
+
+    :use:
+    >>> line = "a=(1,2,3), b=[1,2], c=4, d=([1,2,3],4)"
+    >>> _fix_bracket_split(line)
+    >>> ["a=(1,2,3)", "b=[1,2]", "c=4", "d=([1,2,3],4)"]
+    """
+
+    # bracket
+    line2 = line
+    # Search something with
+    #   - one opening bracket (
+    #   - what you want
+    #   - one closing bracket )
+    search = re.search("\([A-Za-z0-9_,()]*\)", line2)
+    while search is not None:
+        start = search.start()
+        end = search.end()
+        n = end-start
+        # Replace found part by n*"_"
+        line2 = line2[:start] + (n*"_") + line2[end:]
+        # Search again
+        search = re.search("\([A-Za-z0-9_,()]*\)", line2)
+
+    # square brackets
+    line3 = line2
+    # Search something with
+    #   - one opening square bracket [
+    #   - what you want
+    #   - one closing square bracket ]
+    search = re.search("\[[A-Za-z0-9_,()]*\]", line3)
+    while search is not None:
+        start = search.start()
+        end = search.end()
+        n = end-start
+        # Replace found part by n*"_"
+        line3 = line3[:start] + (n*"_") + line3[end:]
+        # Search again
+        search = re.search("\[[A-Za-z0-9_,()]*\]", line3)
+
+    # Resulting object is something without (square) bracket
+    # "a=[1,2,3], b=(1,2), c=1" become "a=_______, b=_____, c=1"
+    # Split object that have no special character (no bracket, no square bracket)
+    line_without_specials_splitted = line3.split(',')
+
+    # Stock places where split occurred
+    i = 0
+    virgule_places = []
+    for part in line_without_specials_splitted:
+        i = i + len(part) + 1
+        virgule_places.append(i)
+
+    # Come back to **first object** and split it at the places **virgule_places**
+    final_lines = []
+    old = 0
+    for virgule_place in virgule_places:
+        final_lines.append(line[old:virgule_place-1])
+        old = virgule_place
+
+    # Simple strip
+    return [x.strip() for x in final_lines]
+
+
 def parse_input_and_output(docstring):
     """
     Parse a docstring with format:
@@ -191,16 +260,24 @@ def parse_input_and_output(docstring):
             line = line.strip()
             if re.search('input\s*=', line):
                 line = line.split('input')[1]
-                line = line.split('=',1)[1].strip()
-                inputs = line.split(',')
-                inputs = [x.strip() for x in inputs]
+                line = line.split('=', 1)[1].strip()
+                # here we have the line after "input ="
+                if not "[" in line and not "(" in line:
+                    # If we don't have list or tuples
+                    inputs = line.split(',')
+                    inputs = [x.strip() for x in inputs]
+                else:
+                    inputs = _fix_bracket_split(line)
             if re.search('output\s*=', line):
                 line = line.split('output')[1]
                 line = line.split('=',1)[1].strip()
-                outputs = line.split(',')
-                outputs = [x.strip() for x in outputs]
-
-
+                # here we have the line after "input ="
+                if not "[" in line and not "(" in line:
+                    # If we don't have list or tuples
+                    outputs = line.split(',')
+                    outputs = [x.strip() for x in outputs]
+                else:
+                    outputs = _fix_bracket_split(line)
     return inputs, outputs
 
 
