@@ -34,7 +34,21 @@ ok
     d = get_docstring(model_src)
 
     real_d = "This is the doc of my model"
-    assert len(real_d), len(d)
+    assert len(real_d) == len(d)
+
+
+def test_magic_getdoc():
+    model_src = '''"""
+This is the doc of my model
+"""
+%pylab inline
+print "ok"
+'''
+    d = get_docstring(model_src)
+    assert d is not None
+
+    real_d = "This is the doc of my model"
+    assert len(real_d) == len(d)
 
 
 def test_docstring_oneline():
