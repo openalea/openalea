@@ -24,7 +24,7 @@ from openalea.oalab.editor.highlight import Highlighter
 from openalea.oalab.model.r import RModel
 from openalea.oalab.service.help import display_help
 from openalea.oalab.control.manager import control_dict
-
+import types
 
 class RModelController(object):
     default_name = RModel.default_name
@@ -46,19 +46,19 @@ class RModelController(object):
 
     def instanciate_widget(self):
         self._widget = Editor(parent=self.parent)
-        Highlighter(self._widget.editor)
-        self.widget().applet = self
+        wid = self._widget
+        Highlighter(wid.editor)
+        wid.applet = self
 
-        self.widget().set_text(self.model.code)
-        self.widget().replace_tab()
-        return self.widget()
+        # Add method to widget to display help
+        def _diplay_help(widget):
+            doc = widget.applet.model.get_documentation()
+            display_help(doc)
+        wid.display_help = types.MethodType(_diplay_help, wid)
 
-    def focus_change(self):
-        """
-        Set doc string in Help widget when focus changed
-        """
-        doc = self.model.get_documentation()
-        display_help(doc)
+        wid.set_text(self.model.code)
+        wid.replace_tab()
+        return wid
 
     def run_selected_part(self, *args, **kwargs):
         code = self.widget().get_selected_text()
@@ -91,7 +91,7 @@ class RModelController(object):
         self.model.code = code
         return self.model.animate(*args, **kwargs)
 
-    def reinit(self, *args, **kwargs):
+    def init(self, *args, **kwargs):
         controls = control_dict()
         self.model.ns.update(controls)
         code = self.widget().get_text()

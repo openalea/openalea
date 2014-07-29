@@ -31,6 +31,7 @@ from openalea.oalab.model.lpy import LPyModel
 from openalea.oalab.service.help import display_help
 from openalea.oalab.control.manager import control_dict
 from openalea.oalab.session.session import Session
+import types
 
 def import_lpy_file(script):
     """
@@ -141,12 +142,19 @@ class LPyModelController(object):
     def instanciate_widget(self):
         # todo register viewer
         self._widget = Editor(parent=self.parent)
-        Highlighter(self._widget.editor, lexer=LPyLexer())
-        self.widget().applet = self
+        wid = self._widget
+        Highlighter(wid.editor, lexer=LPyLexer())
+        wid.applet = self
 
-        self.widget().set_text(self.model.code)
-        self.widget().replace_tab()
-        return self.widget()
+        # Add method to widget to display help
+        def _diplay_help(widget):
+            doc = widget.applet.model.get_documentation()
+            display_help(doc)
+        wid.display_help = types.MethodType(_diplay_help, wid)
+
+        wid.set_text(self.model.code)
+        wid.replace_tab()
+        return wid
 
     def focus_change(self):
         """
@@ -222,7 +230,7 @@ class LPyModelController(object):
             # todo set controls
             """
             # /!\ setCode method set the getLastIterationNb to zero
-            # So, if you change code, next step will do a 'reinit()'
+            # So, if you change code, next step will do a 'init()'
             self.model.parameters.update(self.session.project.control)
             for parameter in self.model.parameters:
                 if hasattr(self.model.parameters[parameter], "value"):
@@ -262,7 +270,7 @@ class LPyModelController(object):
         # todo set controls
         """
         # /!\ setCode method set the getLastIterationNb to zero
-        # So, if you change code, next step will do a 'reinit()'
+        # So, if you change code, next step will do a 'init()'
         self.model.parameters.update(self.session.project.control)
         for parameter in self.model.parameters:
             if hasattr(self.model.parameters[parameter], "value"):
@@ -277,7 +285,7 @@ class LPyModelController(object):
 
         return ret
 
-    def reinit(self, *args, **kwargs):
+    def init(self, *args, **kwargs):
         if "interpreter" in kwargs:
             self.interpreter = kwargs.pop("interpreter")
 
