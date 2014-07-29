@@ -44,7 +44,7 @@ class IApplet(object):
     def stop(self):
         raise NotImplementedError
 
-    def reinit(self):
+    def init(self):
         raise NotImplementedError
 
 # fake methods, like if we have a real applet
@@ -64,7 +64,7 @@ class FakeApplet(object):
         pass
     def stop(self):
         pass
-    def reinit(self):
+    def init(self):
         pass
 
 class WelcomePage2(QtGui.QWidget):
@@ -218,7 +218,7 @@ class CreateFilePage(QtGui.QWidget):
                 pass
             def stop(self):
                 pass
-            def reinit(self):
+            def init(self):
                 pass
         self.applet = FakeApplet()
 
