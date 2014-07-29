@@ -97,3 +97,38 @@ print "ok"
 output = c, d, e:bool
 
 beautifull doc"""
+
+
+def test_repr_code():
+    model_src = '''"""
+
+input = x:int=4, y:float=3.14, z, debug:bool
+output = success
+
+beautifull doc
+"""
+
+print "ok"
+'''
+    model = PythonModel(code=model_src)
+    assert model.repr_code() == model_src
+
+
+def test_magic():
+    model_src = '''"""
+
+input = x:int=4, y:float=3.14, z, debug:bool
+output = success
+
+beautifull doc
+"""
+
+%pylab inline
+
+print "ok"
+'''
+    model = PythonModel(code=model_src)
+    assert model.repr_code() == model_src
+    assert model.get_documentation() is not None
+    assert len(model.inputs_info) == 4
+    assert len(model.outputs_info) == 1
