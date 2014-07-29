@@ -119,7 +119,11 @@ def get_docstring(string):
     Get a docstring from a string
     """
     M = ast_parse(string)
-    return ast.get_docstring(M)
+    docstring = ast.get_docstring(M)
+    if docstring is not None:
+        return docstring
+
+    return parse_lpy(string)
 
 
 def parse_doc(docstring):
