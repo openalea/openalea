@@ -152,7 +152,12 @@ class ProjectManagerWidget(QtGui.QWidget):
 
         logger.debug("Project " + str(project) + " opened")
 
-        ns = self.session.interpreter.locals
+        from openalea.oalab.service.ipython import get_interpreter
+        interpreter = get_interpreter()
+        if interpreter:
+            ns = interpreter.locals
+        else:
+            ns = dict()
         project.start(namespace=ns)
         logger.debug("Project " + str(project) + " started")
 

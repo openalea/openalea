@@ -48,7 +48,7 @@ class TextData(object):
         self.filepath = filepath
         self.code = code
         self.category = category
-        self.run_selected_part = self.run_code = self.step = self.animate = self.init = self.run
+        self.execute = self.step = self.animate = self.init = self.run
         self.ns = {}
 
     def __call__(self, *args, **kwargs):
@@ -58,9 +58,9 @@ class TextData(object):
         return self.code == other.code and self.name == other.name and self.category == other.category
 
     def run(self, *args, **kargs):
-        from openalea.oalab.session.session import Session
-        session = Session()
-        session.interpreter.shell.run_cell(self.code)
+        from openalea.oalab.service.ipython import get_interpreter
+        interpreter = get_interpreter()
+        return interpreter.runcode(self.code)
 
 
 class DataContainer(dict):
@@ -159,7 +159,7 @@ class ParadigmContainer(QtGui.QTabWidget):
         self.actionInit.triggered.connect(self.init)
         self.actionCloseCurrent.triggered.connect(self.close_current)
 
-        self.actionRunSelection.triggered.connect(self.run_selected_part)
+        self.actionRunSelection.triggered.connect(self.execute)
 
         self.actionUndo.triggered.connect(self.undo)
         self.actionRedo.triggered.connect(self.redo)
@@ -226,8 +226,7 @@ class ParadigmContainer(QtGui.QTabWidget):
 
         # TODO: case Python paradigm does not exists
         return applet_class(name=obj.name, code=obj.code, model=obj,
-                            filepath=obj.filepath, interpreter=self.session.interpreter,
-                            editor_container=self, parent=None).instanciate_widget()
+                            filepath=obj.filepath, editor_container=self, parent=None).instanciate_widget()
 
     def data(self, category, name):
         project = self.project()
@@ -497,28 +496,28 @@ class ParadigmContainer(QtGui.QTabWidget):
             self.setCurrentIndex(i)
             self.save()
 
-    def run_selected_part(self):
-        self.currentWidget().applet.run_selected_part(interpreter=self.session.interpreter)
-        logger.debug("Run selected part " + self.currentWidget().applet.name)
+    def execute(self):
+        self.currentWidget().applet.execute()
+        logger.debug("Execute selected part " + self.currentWidget().applet.name)
 
     def run(self):
-        self.currentWidget().applet.run(interpreter=self.session.interpreter)
+        self.currentWidget().applet.run()
         logger.debug("Run " + self.currentWidget().applet.name)
 
     def animate(self):
-        self.currentWidget().applet.animate(interpreter=self.session.interpreter)
+        self.currentWidget().applet.animate()
         logger.debug("Animate " + self.currentWidget().applet.name)
 
     def step(self):
-        self.currentWidget().applet.step(interpreter=self.session.interpreter)
+        self.currentWidget().applet.step()
         logger.debug("Step " + self.currentWidget().applet.name)
 
     def stop(self):
-        self.currentWidget().applet.stop(interpreter=self.session.interpreter)
+        self.currentWidget().applet.stop()
         logger.debug("Stop " + self.currentWidget().applet.name)
 
     def init(self):
-        self.currentWidget().applet.init(interpreter=self.session.interpreter)
+        self.currentWidget().applet.init()
         logger.debug("Init " + self.currentWidget().applet.name)
 
     def undo(self):

@@ -34,7 +34,7 @@ class PythonModelController(object):
     extension = PythonModel.extension
     icon = PythonModel.icon
 
-    def __init__(self, name="", code="", model=None, filepath=None, interpreter=None, editor_container=None, parent=None):
+    def __init__(self, name="", code="", model=None, filepath=None, editor_container=None, parent=None):
         self.filepath = filepath
         if model is not None:
             self.model = model
@@ -66,9 +66,12 @@ class PythonModelController(object):
         wid.replace_tab()
         return self.widget()
 
-    def run_selected_part(self, *args, **kwargs):
+    def execute(self):
+        """
+        Execute only selected text.
+        """
         code = self.widget().get_selected_text()
-        return self.model.run_code(code, *args, **kwargs)
+        return self.model.execute(code)
 
     def run(self, *args, **kwargs):
         controls = control_dict()

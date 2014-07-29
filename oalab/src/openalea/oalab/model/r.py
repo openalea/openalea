@@ -101,7 +101,7 @@ more informations: http://www.r-project.org/
         self._set_output_from_ns(user_ns)
 
 
-    def run_code(self, code, *args, **kwargs):
+    def execute(self, code):
         """
         execute subpart of a model (only code *code*)
         """
@@ -126,7 +126,7 @@ more informations: http://www.r-project.org/
 
     def run(self, *args, **kwargs):
         """
-        execute model thanks to interpreter
+        execute entire model
         """
         # TODO: check if we can do by an other way for inputs, outputs (ex %%R -i inputs, -o outputs)
 

@@ -87,7 +87,7 @@ class VisualeaModelController(object):
     extension = VisualeaModel.extension
     icon = VisualeaModel.icon
 
-    def __init__(self, name="workflow.wpy", code="", model=None, filepath=None, interpreter=None, editor_container=None, parent=None):
+    def __init__(self, name="workflow.wpy", code="", model=None, filepath=None, editor_container=None, parent=None):
         self.name = name
         self.filepath = filepath
         if model:
@@ -97,13 +97,15 @@ class VisualeaModelController(object):
         self.parent = parent
         self.editor_container = editor_container
         self._widget = None
-        self.interpreter = interpreter
 
     def instanciate_widget(self):
         self._widget = dataflowview.GraphicalGraph.create_view(self.model._workflow, clone=True)
         self._clipboard = CompositeNodeFactory("Clipboard")
 
-        GraphOperator.globalInterpreter = self.interpreter
+        from openalea.oalab.service.ipython import get_interpreter
+        interpreter = get_interpreter()
+
+        GraphOperator.globalInterpreter = interpreter
         self._operator = GraphOperator(graph = self.model._workflow,
                                  graphScene = self._widget.scene(),
                                  clipboard  = self._clipboard,
@@ -141,8 +143,11 @@ class VisualeaModelController(object):
         """
         :return: the edition widget
         """
-        return self._widget     
-        
+        return self._widget
+
+    def execute(self):
+        return self.model.execute()
+
     def run(self, *args, **kwargs):
         # todo : register plotter
         if not VIEWER3D_SET:

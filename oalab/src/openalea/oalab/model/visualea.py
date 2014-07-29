@@ -77,7 +77,7 @@ class VisualeaModel(Model):
 
     def run(self, *args, **kwargs):
         """
-        execute model thanks to interpreter
+        execute entire model
         """
         return self._workflow.eval()
 
@@ -105,6 +105,13 @@ class VisualeaModel(Model):
         run model step by step
         """
         return self._workflow.eval()
+
+    def execute(self, code=None):
+        """
+        In other paradigms: Execute code (str).
+        Here this method does not have signification (only for "script-like" paradigm), so, it make a **run**.
+        """
+        return self.run()
 
 
 def monkey_patch_instantiate_node(self, vid, call_stack=None):
