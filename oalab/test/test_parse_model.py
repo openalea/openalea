@@ -37,6 +37,32 @@ ok
     assert len(real_d) == len(d)
 
 
+# def test_ast_getdoc_uniline():
+#     model_src = '''#This is the doc of my model
+#
+# print "ok"
+# result = 42
+# '''
+#     d = get_docstring(model_src)
+#     real_d = "This is the doc of my model"
+#     assert len(real_d) == len(d)
+
+
+def test_ast_getdoc_not_first_line():
+    model_src = '''
+print "ok"
+result = 42
+
+
+"""
+ok
+"""
+'''
+    d = get_docstring(model_src)
+    real_d = "ok"
+    assert len(real_d) == len(d)
+
+
 def test_magic_getdoc():
     model_src = '''"""
 This is the doc of my model
