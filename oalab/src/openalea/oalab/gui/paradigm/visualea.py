@@ -168,7 +168,7 @@ class VisualeaModelController(object):
 
 
 def adapt_widget(widget, methods):
-    method_list = ['actions', 'get_code', 'mainMenu']
+    method_list = ['actions', 'get_code', 'mainMenu', 'display_help']
     def check():
         for m in method_list:
             if m not in methods:

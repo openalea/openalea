@@ -45,6 +45,15 @@ class VisualeaModel(Model):
             #CompositeNodeFactory.instantiate_node = monkey_patch_instantiate_node
             self._workflow = cnf.instantiate()
 
+    def get_documentation(self):
+        """
+
+        :return: docstring of current workflow
+        """
+        if hasattr(self._workflow, "get_tip"):
+            self._doc = self._workflow.get_tip()
+        return self._doc
+
     def repr_code(self):
         """
         :return: a string representation of model to save it on disk
@@ -96,6 +105,7 @@ class VisualeaModel(Model):
         run model step by step
         """
         return self._workflow.eval()
+
 
 def monkey_patch_instantiate_node(self, vid, call_stack=None):
     (package_id, factory_id) = self.elt_factory[vid]
