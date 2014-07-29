@@ -16,7 +16,7 @@
 #
 ###############################################################################
 from openalea.oalab.model.model import Model
-from openalea.oalab.model.parse import parse_doc, parse_lpy, OutputObj
+from openalea.oalab.model.parse import parse_doc, parse_lpy, OutputObj, get_docstring
 from openalea.oalab.control.picklable_curves import geometry_2_piklable_geometry
 from openalea.lpy import Lsystem, AxialTree
 from openalea.lpy.__lpy_kernel__ import LpyParsing
@@ -182,7 +182,7 @@ class LPyModel(Model):
             # Hack
             self.axialtree = self.lsystem.iterate(self.lsystem.getLastIterationNb() + 2)
         # if you set i to a number, directly go to this step.
-        # it is used with i=0 to reinit
+        # it is used with i=0 to init
         else:
             self.axialtree = self.lsystem.iterate(i)
 
@@ -296,6 +296,7 @@ class LPyModel(Model):
     @code.setter
     def code(self, code=""):
         self._code = code
+        self._doc = get_docstring(code)
         docstring = parse_lpy(code)
         if docstring is not None:
             model, self.inputs_info, self.outputs_info = parse_doc(docstring)
