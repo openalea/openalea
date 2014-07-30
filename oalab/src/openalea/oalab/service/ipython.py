@@ -1,22 +1,30 @@
 __all__ = ["get_interpreter",]
            
 from openalea.oalab.session.session import Session
+from openalea.vpltk.shell.shell import get_interpreter_class
+
+__interpreter = []
 
 
 def get_interpreter():
-    session = Session()
-    if hasattr(session,"interpreter"):
-        return session.interpreter
+    if len(__interpreter):
+        return __interpreter[0]
+
     else:
-        print "Can't find ipython interpreter from OpenAleaLab (Session not loaded)."
-        print "Searching ipython..."
-        try:
-            from IPython.core.getipython import get_ipython
-            print "Ipython found!"
-            return get_ipython()
-        except ImportError:
-            print "IPython not installed..."
-            return None
-        except NameError:
-            print "Can't find ipython..."
-            return None
+        if Session.instanciated:
+            __interpreter.append(Session().interpreter)
+        else:
+            try:
+                from IPython.core.getipython import get_ipython
+                interpreter = get_ipython()
+                if interpreter:
+                    __interpreter.append(get_ipython())
+            except:
+                pass
+            if not len(__interpreter):
+                interpreter = get_interpreter_class()()
+                if interpreter:
+                    __interpreter.append(interpreter)
+
+    if len(__interpreter):
+        return get_interpreter()
