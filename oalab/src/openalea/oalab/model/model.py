@@ -49,7 +49,6 @@ class Model(object):
         self.code = code
         self._doc = ""
 
-
     def get_documentation(self):
         """
         :return: a string with the documentation of the model
@@ -105,7 +104,6 @@ class Model(object):
         from openalea.oalab.service.ipython import get_interpreter
         interpreter = get_interpreter()
         return interpreter.runcode(code)
-        # return interpreter.run_cell(code)
         
     def execute_in_namespace(self, code, namespace={}):
         """
