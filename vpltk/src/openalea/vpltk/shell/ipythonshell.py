@@ -35,9 +35,9 @@ class ShellWidget(RichIPythonWidget, GraphicalStreamRedirection):
         GraphicalStreamRedirection.__init__(self)
 
         # Compatibility with visualea
-        self.interpreter.runsource = self.runsource
-        self.interpreter.runcode = self.runcode
-        self.interpreter.loadcode = self.loadcode
+        self.runsource = self.interpreter.runsource
+        self.runcode = self.interpreter.runcode
+        self.loadcode = self.interpreter.loadcode
         
         # Write welcome message
         self.write(message)   
@@ -77,46 +77,6 @@ class ShellWidget(RichIPythonWidget, GraphicalStreamRedirection):
         :return: the interpreter object 
         """
         return self
-        
-    def runsource(self, source=None, filename="<input>", symbol="single", hidden=False, interactive=False):
-        """
-        TODO
-        """
-        try:
-            self.runcode(source=source, hidden=hidden, interactive=interactive)  
-        except:
-            code = compile(source, filename, symbol)
-            if code is not None:
-                self.runcode(source=code, hidden=hidden, interactive=interactive)
-
-    def runcode(self, source=None, hidden=False, interactive=False):
-        """
-        TODO
-        """
-        executed = False
-        try:
-            executed = self.execute(source=source, hidden=hidden, interactive=interactive)
-        except RuntimeError as e:
-            self.write(e)
-            exec(source)
-        except:
-            raise    
-        finally:
-            return executed
-    
-    def loadcode(self, source=None, namespace=None):
-        """
-        Load 'source' and use 'namespace' if it is in parameter.
-        Else use locals.
-        
-        :param source: text (string) to load
-        :param namespace: dict to use to execute the source
-        """
-        # Not multiligne
-        if namespace is None:
-            exec(source, namespace)
-        else:    
-            exec(source, self.interpreter.locals, self.interpreter.locals)
     
     def write(self, txt):    
         """
