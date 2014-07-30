@@ -46,6 +46,7 @@ class Session(object):
     """
 
     __metaclass__ = Singleton
+    instanciated = False
 
     def __init__(self):
         self._project = None
@@ -78,6 +79,7 @@ class Session(object):
         self.gui = True
 
         self.old_syspath = sys.path
+        self.instanciated = True
 
     @property
     def project(self):
