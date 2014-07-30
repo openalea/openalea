@@ -16,11 +16,43 @@ class Interpreter(InProcessKernel):
 
         if locals is not None:
             for l in locals:
-                self.locals += l  
+                self.locals += l
+        self.shell.locals = self.locals
         self.user_ns = self.shell.user_ns
 
     def run_cell(self, *args, **kwargs):
         return self.shell.run_cell(*args, **kwargs)
+
+    def runcode(self, source=None):
+        """
+        TODO
+        """
+        return self.shell.runcode(source)
+
+    def runsource(self, source=None, filename="<input>", symbol="single"):
+        """
+        TODO
+        """
+        try:
+            return self.runcode(source)
+        except:
+            code = compile(source, filename, symbol)
+            if code is not None:
+                return self.runcode(code)
+
+    def loadcode(self, source=None, namespace=None):
+        """
+        Load 'source' and use 'namespace' if it is in parameter.
+        Else use locals.
+
+        :param source: text (string) to load
+        :param namespace: dict to use to execute the source
+        """
+        # Not multiligne
+        if namespace is not None:
+            exec(source, namespace)
+        else:
+            exec(source, self.locals, self.locals)
 
                 
 def main():
