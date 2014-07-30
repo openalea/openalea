@@ -116,3 +116,26 @@ result = x + 1
     model = PythonModel(code=model_src)
     result = model(model(model(model(model(1)))))
     assert result == 6
+
+
+def test_fibonacci():
+    model_fibo_src = '''"""
+Compute one step of Fibonacci sequence.
+
+Take in inputs x(i) and x(i+1) and return x(i+1) and x(i+2).
+
+input = a, b
+output = b, r
+"""
+
+r = a + b
+'''
+    fibo = PythonModel(code=model_fibo_src)
+    xi, xj = 0, 1
+    nb_step = 20
+    for i in range(int(nb_step)-1):
+        xi, xj = fibo(xi, xj)
+
+    assert xi == 4181
+    assert xj == 6765
+
