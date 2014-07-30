@@ -119,18 +119,18 @@ class Model(object):
         from openalea.oalab.service.ipython import get_interpreter
         interpreter = get_interpreter()     
         # Save current namespace
-        old_namespace = copy(interpreter.shell.user_ns)
+        old_namespace = copy(interpreter.user_ns)
         # Clear current namespace
-        interpreter.shell.user_ns.clear()
+        interpreter.user_ns.clear()
         # Set namespace with new one
-        interpreter.shell.user_ns.update(namespace)
+        interpreter.user_ns.update(namespace)
         # Execute code in new namespace
         self.execute(code)
         # Get just modified namespace
-        namespace = copy(interpreter.shell.user_ns)
+        namespace = copy(interpreter.user_ns)
         # Restore previous namespace
-        interpreter.shell.user_ns.clear()
-        interpreter.shell.user_ns.update(old_namespace)
+        interpreter.user_ns.clear()
+        interpreter.user_ns.update(old_namespace)
         return namespace
 
     def input_defaults(self):
