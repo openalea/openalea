@@ -42,9 +42,9 @@ result = x + y
     result = model(3, 5)
     assert result == 8
 
-    model.inputs = 5, 6
-    result = model()
-    assert result == 11
+    # model.inputs = 5, 6
+    # result = model()
+    # assert result == 11
 
 
 def test_run_list():
@@ -139,3 +139,18 @@ r = a + b
     assert xi == 4181
     assert xj == 6765
 
+
+def test_kwargs():
+    model_src = '''"""input = x=1, y=2
+output = result"""
+result = x + y
+'''
+    model = PythonModel(code=model_src)
+    result = model(0, 1)
+    assert result == 1
+    result = model(x=2, y=2)
+    assert result == 4
+    result = model(x=3)
+    assert result == 5
+    result = model(y=3)
+    assert result == 4
