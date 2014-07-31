@@ -147,33 +147,56 @@ class Model(object):
 
     @inputs.setter
     def inputs(self, *args):
-        if args:
-            old_inputs = copy(self._inputs)
-            self._inputs = dict()
-            # inputs = args
-            inputs = list(args)
-            if len(inputs) == 1:
-                if isinstance(inputs, collections.Iterable):
-                    inputs = inputs[0]
-                if isinstance(inputs, collections.Iterable):
-                    inputs = list(inputs)
-                else:
+        self._inputs = dict()
+        if self.inputs_info:
+            args, kwargs = args[0]
+            not_set_inputs_info = copy(self.inputs_info) # Use it to know what we have to set and what is yet set
+
+            # Set positional arguments
+            if args:
+                inputs = list(args)
+                if len(inputs) == 1:
+                    if isinstance(inputs, collections.Iterable):
+                        inputs = inputs[0]
+                    elif isinstance(inputs, collections.Iterable):
+                        inputs = list(inputs)
                     inputs = [inputs]
-            inputs.reverse()
+                inputs.reverse()
 
-            if inputs == [] and old_inputs != []:
-                self._inputs = old_inputs
-            elif self.inputs_info:
-                for input_info in self.inputs_info:
-                    if len(inputs):
-                        default_value = inputs.pop()
-                    elif input_info.default:
+                if self.inputs_info:
+                    for input_info in self.inputs_info:
+                        if len(inputs):
+                            default_value = inputs.pop()
+                            if input_info.name:
+                                self._inputs[input_info.name] = default_value
+                            not_set_inputs_info.remove(input_info)
+                        else:
+                            break
+
+            # Set non-positional arguments
+            if kwargs:
+                if len(not_set_inputs_info):
+                    not_set_inputs_info_dict = dict((inp.name, inp) for inp in not_set_inputs_info)
+                    for name in kwargs:
+                        value = kwargs[name]
+                        if name in not_set_inputs_info_dict.keys():
+                            self._inputs[name] = value
+                            not_set_inputs_info.remove(not_set_inputs_info_dict[name])
+                            del not_set_inputs_info_dict[name]
+                        else:
+                            print "We can not put ", name, "inside inputs of model", self.name, "because such an input is not declared in the model."
+
+            # Fill others with defaults
+            if len(not_set_inputs_info):
+                for input_info in copy(not_set_inputs_info):
+                    if input_info.default:
                         default_value = eval(input_info.default)
-                    else:
-                        raise Exception("Model %s have inputs not setted. Please set %s ." % (self.name, input_info.name))
-
-                    if input_info.name:
                         self._inputs[input_info.name] = default_value
+                        not_set_inputs_info.remove(input_info)
+
+            # If one argument is missing, raise
+            if len(not_set_inputs_info):
+                raise Exception("Model %s have inputs not setted. Please set %s ." % (self.name, [inp.name for inp in not_set_inputs_info]))
 
     def _set_output_from_ns(self, namespace):
         """

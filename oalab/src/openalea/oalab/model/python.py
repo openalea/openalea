@@ -66,7 +66,7 @@ more informations: http://www.python.org/
         :return: outputs of the model
         """
         # Set inputs
-        self.inputs = args
+        self.inputs = args, kwargs
         # Prepare namespace
         user_ns = self._prepare_namespace()
         # Run inside namespace
@@ -82,7 +82,7 @@ more informations: http://www.python.org/
         """
         if self._init:
             # Set inputs
-            self.inputs = args
+            self.inputs = args, kwargs
             # Prepare namespace
             user_ns = self._prepare_namespace()
             # Update code
@@ -103,7 +103,7 @@ init()
         """
         if self._step:
             # Set inputs
-            self.inputs = args
+            self.inputs = args, kwargs
             # Prepare namespace
             user_ns = self._prepare_namespace()
             # Update code
@@ -131,7 +131,7 @@ step()
         """
         if self._animate:
             # Set inputs
-            self.inputs = args
+            self.inputs = args, kwargs
             # Prepare namespace
             user_ns = self._prepare_namespace()
             # Update code

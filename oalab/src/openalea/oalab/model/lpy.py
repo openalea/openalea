@@ -135,9 +135,9 @@ class LPyModel(Model):
         execute entire model
         """
         # TODO: get control from application and set them into self.context
-        self.inputs = args
-        self.context.update(self.inputs)
+        self._set_inputs(args, kwargs)
 
+        self.context.update(self.inputs)
         self.lsystem.setCode(str(self.code), self.context)
         if self.temp_axiom is not None:
             self.lsystem.axiom = self.temp_axiom
@@ -168,7 +168,7 @@ class LPyModel(Model):
         """
         execute only one step of the model
         """
-        self.inputs = args
+        self._set_inputs(args, kwargs)
         self.context.update(self.inputs)
 
         # if you are at derivation length, re-init
@@ -211,7 +211,7 @@ class LPyModel(Model):
         """
         run model step by step
         """
-        self.inputs = args
+        self._set_inputs(args, kwargs)
         self.context.update(self.inputs)
         self.step(*args, **kwargs)
         self.axialtree = self.lsystem.animate()
@@ -233,61 +233,14 @@ class LPyModel(Model):
             self.outputs = []
             if len(self.outputs_info) > 0:
                 for outp in self.outputs_info:
-                    if outp.name in namespace:
-                        self._outputs.append(namespace[outp.name])
-                    elif outp.name.lower() in ["axialtree", "lstring"]:
+                    if outp.name.lower() in ["axialtree", "lstring"]:
                         self._outputs.append(self.axialtree)
                     elif outp.name.lower() == "lsystem":
                         self._outputs.append(self.lsystem)
                     elif outp.name.lower() == "scene":
                         self._outputs.append(self.lsystem.sceneInterpretation(self.axialtree))
-
-    @property
-    def inputs(self):
-        """
-        List of inputs of the model.
-
-        :use:
-            >>> model.inputs = 4, 3
-            >>> rvalue = model.run()
-        """
-        return self._inputs
-
-    @inputs.setter
-    def inputs(self, *args):
-        self._inputs = dict()
-        if args:
-            # inputs = args
-            inputs = list(args)
-            if len(inputs) == 1:
-                if isinstance(inputs, collections.Iterable):
-                    inputs = inputs[0]
-                if isinstance(inputs, collections.Iterable):
-                    inputs = list(inputs)
-                else:
-                    inputs = [inputs]
-            inputs.reverse()
-
-            if not self.inputs_info:
-                if len(inputs) == 1:
-                    # If we have no input declared but we give one, it must be the axiom!
-                    axiom = inputs[0]
-                    self.temp_axiom = axiom
-            else:
-                for input_info in self.inputs_info:
-                    if len(inputs):
-                        inp = inputs.pop()
-                    elif input_info.default:
-                        inp = eval(input_info.default)
-                    else:
-                        raise Exception("Model %s have inputs not setted. Please set %s ." % (self.name, input_info.name))
-
-                    if input_info.name:
-                        if input_info.name.lower() in ["axiom", "lstring"]:
-                            # If one of the declared input is "axiom" or "lstring" set the lsystem axiom
-                            self.temp_axiom = inp
-                        else:
-                            self._inputs[input_info.name] = inp
+                    elif outp.name in namespace:
+                        self._outputs.append(namespace[outp.name])
 
     @property
     def code(self):
@@ -305,6 +258,15 @@ class LPyModel(Model):
             if not self.outputs_info:
                 self.outputs_info = [OutputObj("lstring:IStr")]
 
+
+    def _set_inputs(self, *args):
+        self.inputs = args
+        if "axiom" in self.inputs.keys():
+            self.temp_axiom = self.inputs["axiom"]
+            del self.inputs["axiom"]
+        if "lstring" in self.inputs.keys():
+            self.temp_axiom = self.inputs["lstring"]
+            del self.inputs["lstring"]
 
 def get_default_text():
     return """Axiom:
