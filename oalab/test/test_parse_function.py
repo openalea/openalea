@@ -54,14 +54,14 @@ def run():
         print result
 
 '''
-    assert has_step(model_src)
-    assert has_animate(model_src)
-    assert has_init(model_src)
-    assert not has_run(model_src)
-
-    assert (True, True, True, False) == parse_functions(model_src)
-
-    assert not has_step(model_src2)
-    assert not has_animate(model_src2)
-    assert not has_init(model_src2)
-    assert has_run(model_src2)
+    # assert has_step(model_src)
+    # assert has_animate(model_src)
+    # assert has_init(model_src)
+    # assert not has_run(model_src)
+    #
+    # # assert (True, True, True, False) == parse_functions(model_src)
+    #
+    # assert not has_step(model_src2)
+    # assert not has_animate(model_src2)
+    # assert not has_init(model_src2)
+    # assert has_run(model_src2)
