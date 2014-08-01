@@ -281,6 +281,6 @@ print "ok"
     assert len(inputs) == 2
     assert outputs is None
     assert inputs[0].name == "x"
-    assert eval(inputs[0].default) == "input=True"
+    assert eval(inputs[0].default) == "input=True,False"
     assert inputs[1].name == "y"
     assert eval(inputs[1].default) == "input = output = [1,2]"
