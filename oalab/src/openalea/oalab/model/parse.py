@@ -398,11 +398,15 @@ def has_step(codestring):
     :return: True if *docstring* define a function *"step"*
     """
     r = ast_parse(codestring)
-    functions_list = [x.name for x in ast.walk(r) if isinstance(x, ast.FunctionDef)]
-    if "step" in functions_list:
-        return True
-    else:
-        return False
+    functions_list = [x for x in ast.walk(r) if isinstance(x, ast.FunctionDef)]
+    for x in functions_list:
+        if x.name == "step":
+            if (len(x.body) == 2):
+                wrapped = ast.Interactive(body=[x.body[1]])
+                code = compile(wrapped, 'tmp', 'single')
+                return code
+
+    return False
 
 
 def has_animate(codestring):
@@ -410,11 +414,15 @@ def has_animate(codestring):
     :return: True if *docstring* define a function *"animate"*
     """
     r = ast_parse(codestring)
-    functions_list = [x.name for x in ast.walk(r) if isinstance(x, ast.FunctionDef)]
-    if "animate" in functions_list:
-        return True
-    else:
-        return False
+    functions_list = [x for x in ast.walk(r) if isinstance(x, ast.FunctionDef)]
+    for x in functions_list:
+        if x.name == "animate":
+            if (len(x.body) == 2):
+                wrapped = ast.Interactive(body=[x.body[1]])
+                code = compile(wrapped, 'tmp', 'single')
+                return code
+
+    return False
 
 
 def has_init(codestring):
@@ -422,11 +430,15 @@ def has_init(codestring):
     :return: True if *docstring* define a function *"init"*
     """
     r = ast_parse(codestring)
-    functions_list = [x.name for x in ast.walk(r) if isinstance(x, ast.FunctionDef)]
-    if "init" in functions_list:
-        return True
-    else:
-        return False
+    functions_list = [x for x in ast.walk(r) if isinstance(x, ast.FunctionDef)]
+    for x in functions_list:
+        if x.name == "init":
+            if (len(x.body) == 2):
+                wrapped = ast.Interactive(body=[x.body[1]])
+                code = compile(wrapped, 'tmp', 'single')
+                return code
+
+    return False
 
 
 def has_run(codestring):
@@ -434,8 +446,12 @@ def has_run(codestring):
     :return: True if *docstring* define a function *"run"*
     """
     r = ast_parse(codestring)
-    functions_list = [x.name for x in ast.walk(r) if isinstance(x, ast.FunctionDef)]
-    if "run" in functions_list:
-        return True
-    else:
-        return False
+    functions_list = [x for x in ast.walk(r) if isinstance(x, ast.FunctionDef)]
+    for x in functions_list:
+        if x.name == "run":
+            if (len(x.body) == 2):
+                wrapped = ast.Interactive(body=[x.body[1]])
+                code = compile(wrapped, 'tmp', 'single')
+                return code
+
+    return False

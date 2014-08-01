@@ -115,7 +115,7 @@ class Model(object):
         :return: namespace in which execution was done
         """
         from openalea.oalab.service.ipython import get_interpreter
-        interpreter = get_interpreter()     
+        interpreter = get_interpreter()
         # Save current namespace
         old_namespace = copy(interpreter.user_ns)
         # Clear current namespace
@@ -250,19 +250,17 @@ class Model(object):
 
     def _prepare_namespace(self):
         """
-        :return: the current namespace updated with self.ns and inputs
+        :return: the current namespace updated with interpreter namespace and inputs
         """
         from openalea.oalab.service.ipython import get_interpreter
         interpreter = get_interpreter()
 
         if interpreter:
-            user_ns = copy(interpreter.user_ns) # Get a copy of current namespace
-        else:
-            user_ns = dict()
-        user_ns.update(self.ns) # Add self namespace inside
+            self.ns.update(interpreter.user_ns)
+
         if self.inputs:
-            user_ns.update(self.inputs) # Add inputs inside namespace
-        return copy(user_ns)
+            self.ns.update(self.inputs) # Add inputs inside namespace
+        return self.ns
 
 
 class ModelNode(Node):

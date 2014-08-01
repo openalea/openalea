@@ -68,11 +68,12 @@ more informations: http://www.python.org/
         # Set inputs
         self.inputs = args, kwargs
         # Prepare namespace
-        user_ns = self._prepare_namespace()
+        self._prepare_namespace()
         # Run inside namespace
-        user_ns = self.execute_in_namespace(self.code, namespace=user_ns)
+        user_ns = self.execute_in_namespace(self.code, namespace=self.ns)
+        self.ns.update(user_ns)
         # Set outputs after execution
-        self._set_output_from_ns(user_ns)
+        self._set_output_from_ns(self.ns)
         # return outputs
         return self.outputs
 
@@ -84,16 +85,12 @@ more informations: http://www.python.org/
             # Set inputs
             self.inputs = args, kwargs
             # Prepare namespace
-            user_ns = self._prepare_namespace()
-            # Update code
-            code = self.code + """
-
-init()
-"""
+            self._prepare_namespace()
             # Run inside namespace
-            user_ns = self.execute_in_namespace(code, namespace=user_ns)
+            user_ns = self.execute_in_namespace(self._init, namespace=self.ns)
+            self.ns.update(user_ns)
             # Set outputs after execution
-            self._set_output_from_ns(user_ns)
+            self._set_output_from_ns(self.ns)
 
             return self.outputs
 
@@ -105,16 +102,12 @@ init()
             # Set inputs
             self.inputs = args, kwargs
             # Prepare namespace
-            user_ns = self._prepare_namespace()
-            # Update code
-            code = self.code + """
-
-step()
-"""
+            self._prepare_namespace()
             # Run inside namespace
-            user_ns = self.execute_in_namespace(code, namespace=user_ns)
+            user_ns = self.execute_in_namespace(self._step, namespace=self.ns)
+            self.ns.update(user_ns)
             # Set outputs after execution
-            self._set_output_from_ns(user_ns)
+            self._set_output_from_ns(self.ns)
 
             return self.outputs
 
@@ -133,16 +126,12 @@ step()
             # Set inputs
             self.inputs = args, kwargs
             # Prepare namespace
-            user_ns = self._prepare_namespace()
-            # Update code
-            code = self.code + """
-
-animate()
-"""
+            self._prepare_namespace()
             # Run inside namespace
-            user_ns = self.execute_in_namespace(code, namespace=user_ns)
+            user_ns = self.execute_in_namespace(self._animate, namespace=self.ns)
+            self.ns.update(user_ns)
             # Set outputs after execution
-            self._set_output_from_ns(user_ns)
+            self._set_output_from_ns(self.ns)
 
             return self.outputs
 
