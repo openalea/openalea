@@ -173,56 +173,84 @@ def parse_function(docstring):
     return model, inputs, outputs
 
 
-def _fix_bracket_split(line):
+def _replace_regex(line, regex, replaced="_"):
+    """
+    Search *regex* inside *line* and replace it by *replaced*
+
+    :return: line replaced
+    :use:
+    >>> line = "a=(1,2,3), b=[1,2], c=4, d=([1,2,3],4)"
+    >>> _replace_regex(line, "\([A-Za-z0-9_,()]*\)", "_")
+    >>> "a=_______, b=[1,2], c=4, d=___________"
+    """
+    line2 = line
+    search = re.search(regex, line2)
+    while search is not None:
+        start = search.start()
+        end = search.end()
+        n = end-start
+        # Replace found part by n*"_"
+        line2 = line2[:start] + (n*replaced) + line2[end:]
+        # Search again
+        search = re.search(regex, line2)
+    return line2
+
+
+def _replace_bracket(line):
+    # Search something with
+    #   - one opening bracket (
+    #   - what you want
+    #   - one closing bracket )
+    return _replace_regex(line, "\([A-Za-z0-9_,()]*\)")
+
+
+def _replace_square_bracket(line):
+    # Search something with
+    #   - one opening square bracket [
+    #   - what you want
+    #   - one closing square bracket ]
+    return _replace_regex(line, "\[[A-Za-z0-9_,()]*\]")
+
+
+def _replace_quoted(line):
+    # Search something with
+    #   - one opening quote '
+    #   - what you want
+    #   - one closing quote '
+    return _replace_regex(line, "\'\s*([^\"]*?)\s*\'")
+
+
+def _replace_double_quoted(line):
+    # Search something with
+    #   - one opening quote "
+    #   - what you want
+    #   - one closing quote "
+    return _replace_regex(line, "\"\s*([^\"]*?)\s*\"")
+
+
+def _safe_split(line):
     """
     Split a text by ",",
-    Manage case where you have a list or a tuple.
+    Manage case where you have a list, a tuple, a string, ...
 
     :param line: text line to split (str)
     :return: splitted line (list)
 
     :use:
     >>> line = "a=(1,2,3), b=[1,2], c=4, d=([1,2,3],4)"
-    >>> _fix_bracket_split(line)
+    >>> _safe_split(line)
     >>> ["a=(1,2,3)", "b=[1,2]", "c=4", "d=([1,2,3],4)"]
     """
-
-    # bracket
     line2 = line
-    # Search something with
-    #   - one opening bracket (
-    #   - what you want
-    #   - one closing bracket )
-    search = re.search("\([A-Za-z0-9_,()]*\)", line2)
-    while search is not None:
-        start = search.start()
-        end = search.end()
-        n = end-start
-        # Replace found part by n*"_"
-        line2 = line2[:start] + (n*"_") + line2[end:]
-        # Search again
-        search = re.search("\([A-Za-z0-9_,()]*\)", line2)
-
-    # square brackets
-    line3 = line2
-    # Search something with
-    #   - one opening square bracket [
-    #   - what you want
-    #   - one closing square bracket ]
-    search = re.search("\[[A-Za-z0-9_,()]*\]", line3)
-    while search is not None:
-        start = search.start()
-        end = search.end()
-        n = end-start
-        # Replace found part by n*"_"
-        line3 = line3[:start] + (n*"_") + line3[end:]
-        # Search again
-        search = re.search("\[[A-Za-z0-9_,()]*\]", line3)
+    line2 = _replace_bracket(line2)
+    line2 = _replace_square_bracket(line2)
+    line2 = _replace_quoted(line2)
+    line2 = _replace_double_quoted(line2)
 
     # Resulting object is something without (square) bracket
     # "a=[1,2,3], b=(1,2), c=1" become "a=_______, b=_____, c=1"
     # Split object that have no special character (no bracket, no square bracket)
-    line_without_specials_splitted = line3.split(',')
+    line_without_specials_splitted = line2.split(',')
 
     # Stock places where split occurred
     i = 0
@@ -262,26 +290,14 @@ def parse_input_and_output(docstring):
         docsplit = docstring.splitlines()
         for line in docsplit:
             line = line.strip()
-            if re.search('input\s*=', line):
-                line = line.split('input')[1]
-                line = line.split('=', 1)[1].strip()
-                # here we have the line after "input ="
-                if not "[" in line and not "(" in line:
-                    # If we don't have list or tuples
-                    inputs = line.split(',')
-                    inputs = [x.strip() for x in inputs]
-                else:
-                    inputs = _fix_bracket_split(line)
-            if re.search('output\s*=', line):
-                line = line.split('output')[1]
+            if re.search('^input\s*=', line):
+                line = "input".join(line.split('input')[1:])
+                line = "=".join(line.split('=', 1)[1:]).strip()
+                inputs = _safe_split(line)
+            if re.search('^output\s*=', line):
+                line = "output".join(line.split('output')[1:])
                 line = line.split('=',1)[1].strip()
-                # here we have the line after "input ="
-                if not "[" in line and not "(" in line:
-                    # If we don't have list or tuples
-                    outputs = line.split(',')
-                    outputs = [x.strip() for x in outputs]
-                else:
-                    outputs = _fix_bracket_split(line)
+                outputs = _safe_split(line)
     return inputs, outputs
 
 
@@ -359,14 +375,15 @@ class InputObj(object):
         if "=" in string:
             if ":" in string:
                 self.name = string.split(":")[0].strip()
-                self.interface = string.split(":")[1].split("=")[0].strip()
-                self.default = string.split("=")[-1].strip()
+                interf = ":".join(string.split(":")[1:])
+                self.interface = interf.split("=")[0].strip()
+                self.default = "=".join(string.split("=")[1:]).strip()
             else:
                 self.name = string.split("=")[0].strip()
-                self.default = string.split("=")[1].strip()
+                self.default = "=".join(string.split("=")[1:]).strip()
         elif ":" in string:
             self.name = string.split(":")[0].strip()
-            self.interface = string.split(":")[1].strip()
+            self.interface = ":".join(string.split(":")[1:]).strip()
         else:
             self.name = string.strip()
 
