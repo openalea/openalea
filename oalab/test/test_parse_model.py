@@ -250,7 +250,7 @@ print "ok"
 
 def test_docstring_char():
     model_src = '''"""
-input = x="blablabla([1,2,3,4,5,6],['somtehing'])", y="Here is a string, with brackects ( just here ) and square brackets [here]..."
+input = x="blablabla([1,2,3,4,5,6],['something'])", y="Here is a string, with brackects ( just here ) and square brackets [here]..."
 
 beautifull doc
 """
@@ -259,12 +259,28 @@ print "ok"
 '''
     model, inputs, outputs = parse_docstring(model_src)
 
-    print inputs
-    # assert len(inputs) == 2
-    # assert len(outputs) == 1
-    # assert inputs[0].name == "x"
-    # assert inputs[0].default == "blablabla(input=[1,2,3,4,5,6],['somtehing'])"
-    # assert inputs[1].name == "y"
-    # assert inputs[1].default == "Here is a string, with brackects ( just here ) and square brackets [here]..."
+    assert len(inputs) == 2
+    assert outputs is None
+    assert inputs[0].name == "x"
+    assert eval(inputs[0].default) == "blablabla([1,2,3,4,5,6],['something'])"
+    assert inputs[1].name == "y"
+    assert eval(inputs[1].default) == "Here is a string, with brackects ( just here ) and square brackets [here]..."
 
-    # Doesn't work !!!
+
+def test_docstring_char2():
+    model_src = '''"""
+input = x="input=True,False", y="input = output = [1,2]"
+
+beautifull doc
+"""
+
+print "ok"
+'''
+    model, inputs, outputs = parse_docstring(model_src)
+
+    assert len(inputs) == 2
+    assert outputs is None
+    assert inputs[0].name == "x"
+    assert eval(inputs[0].default) == "input=True"
+    assert inputs[1].name == "y"
+    assert eval(inputs[1].default) == "input = output = [1,2]"
