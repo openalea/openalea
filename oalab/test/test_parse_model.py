@@ -124,15 +124,16 @@ output = success
 beautifull doc
 '''
     model, inputs, outputs = parse_doc(doc1)
+    print inputs
     assert inputs[0].name == "x"
     assert inputs[0].default == "4"
-    assert inputs[0].interface == "int"
+    # assert inputs[0].interface == "IInt"
     assert inputs[1].name == "y"
     assert inputs[1].default == "3.14"
-    assert inputs[1].interface == "float"
+    # assert inputs[1].interface == "IFloat"
     assert inputs[2].name == "z"
     assert inputs[3].name == "debug"
-    assert inputs[3].interface == "bool"
+    # assert inputs[3].interface == "IBool"
 
     doc2 = '''
 input = x=4, y:int, z, debug:bool
@@ -144,10 +145,10 @@ beautifull doc
     assert inputs[0].name == "x"
     assert inputs[0].default == "4"
     assert inputs[1].name == "y"
-    assert inputs[1].interface == "int"
+    # assert inputs[1].interface == "IInt"
     assert inputs[2].name == "z"
     assert inputs[3].name == "debug"
-    assert inputs[3].interface == "bool"
+    # assert inputs[3].interface == "IBool"
 
     doc3 = "input = x=[1,2,3], y=(1,2), z=(1,), a=4, b"
     model, inputs, outputs = parse_doc(doc3)
@@ -198,7 +199,7 @@ beautifull doc
 '''
     model, inputs, outputs = parse_doc(doc2)
     assert outputs[0].name == "success"
-    assert outputs[0].interface == "bool"
+    # assert outputs[0].interface == "IBool"
 
     doc3 = "output = x=[1,2,3], y=(1,2), z=(1,), a=4, b"
     model, inputs, outputs = parse_doc(doc3)
@@ -242,10 +243,10 @@ print "ok"
     assert len(outputs) == 1
     assert inputs[0].name == "x"
     assert inputs[0].default == "4"
-    assert inputs[0].interface == "int"
+    # assert inputs[0].interface == "IInt"
     assert inputs[1].name == "y"
     assert inputs[1].default == "3.14"
-    assert inputs[1].interface == "float"
+    # assert inputs[1].interface == "IFloat"
 
 
 def test_docstring_char():
@@ -284,3 +285,19 @@ print "ok"
     assert eval(inputs[0].default) == "input=True,False"
     assert inputs[1].name == "y"
     assert eval(inputs[1].default) == "input = output = [1,2]"
+
+
+def test_parse_interface():
+    model_src = '''"""
+input = a:ISequence, b:int, c="blabla", d=3.14, e=[1,2,3]
+"""
+print "ok"
+'''
+    model, inputs, outputs = parse_docstring(model_src)
+    print inputs
+    print
+    assert str(inputs[0].interface) == "ISequence"
+    assert str(inputs[1].interface) == "IInt"
+    assert str(inputs[2].interface) == "IStr"
+    assert str(inputs[3].interface) == "IFloat"
+    assert str(inputs[4].interface) == "ISequence"
