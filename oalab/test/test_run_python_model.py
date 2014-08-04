@@ -163,17 +163,53 @@ a = 0
 N = 10
 
 def init():
-    # global a
     a = 0
 
 def step():
-    # global a
     a = a + 1
 
 def animate():
     for i in range(N):
-        # global a
         a = a + 1
+
+'''
+    model = PythonModel(code=model_src)
+
+    result = model()
+    assert result == 0
+
+    result = model.step()
+    assert result == 1
+    result = model.step()
+    assert result == 2
+    result = model.step()
+    assert result == 3
+
+    result = model.init()
+    assert result == 0
+
+    result = model.animate()
+    assert result == 10
+
+
+def test_step_animate():
+    model_src = '''"""
+output = a"""
+a = 0
+N = 10
+
+def init():
+    global a
+    a = 0
+
+def step():
+    global a
+    a = a + 1
+
+def animate():
+    for i in range(N):
+        # Call function define before
+        step()
 
 '''
     model = PythonModel(code=model_src)

@@ -59,4 +59,46 @@ endlsystem
     assert result == "F(5)"
 
 
+def test_step():
+    model_src = '''"""
+input = lstring="F(1)", N=3
+output = lstring
+"""
+
+derivation length: N
+
+production:
+
+F(x) :
+  produce  F(x)+F(x)
+
+endlsystem
+'''
+    model = LPyModel(code=model_src)
+    # model()
+    result = model.init()
+    assert str(result) == "F(1)"
+
+    result = model.step()
+    assert str(result) == "F(1)+F(1)"
+    result = model.step()
+    assert str(result) == "F(1)+F(1)+F(1)+F(1)"
+    result = model.step()
+    assert str(result) == "F(1)+F(1)+F(1)+F(1)+F(1)+F(1)+F(1)+F(1)"
+    result = model.step()
+    assert str(result) == "F(1)"
+    result = model.step()
+    assert str(result) == "F(1)+F(1)"
+
+    result = model.init()
+    assert str(result) == "F(1)"
+
+    # result = model.animate() # Will display QGLViewer !!!
+    # assert str(result) == "F(1)+F(1)+F(1)+F(1)+F(1)+F(1)+F(1)+F(1)"
+
+    result = model.init()
+    assert str(result) == "F(1)"
+
+    result = model.run()
+    assert str(result) == "F(1)+F(1)+F(1)+F(1)+F(1)+F(1)+F(1)+F(1)"
 
