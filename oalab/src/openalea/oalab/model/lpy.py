@@ -86,7 +86,7 @@ class LPyModel(Model):
         self.temp_axiom = None
         if code == "":
             code = get_default_text()
-
+        self.second_step = False # Hack, see self.step
         # dict is mutable... It is useful if you want change scene_name inside application
         self.context = dict()
         self.scene_name = self.name + "_scene"
@@ -171,16 +171,36 @@ class LPyModel(Model):
         self._set_inputs(args, kwargs)
         self.context.update(self.inputs)
 
+        default_text = """Lsystem:
+Axiom:
+derivation length: 1
+production:
+endlsystem"""
+        current_text = str(self.lsystem.code())
+
+        # If never initialized
+        # if self.code.replace(' ','') != self.lsystem.code().replace(' ',''):
+        if current_text.replace(' ','') == default_text.replace(' ',''):
+            self.lsystem.setCode(str(self.code), self.context)
+            if self.temp_axiom is not None:
+                self.lsystem.axiom = self.temp_axiom
+                self.temp_axiom = None
+
         # if you are at derivation length, re-init
         if self.lsystem.getLastIterationNb() >= self.lsystem.derivationLength - 1:
             i = 0
+            self.second_step = False
         # clasical case: evolve one step
         if i is None:
             # Warning: getLastIterationNb return 0,0,1,2,3,4,...
-            # Hack: here step 0 -> step 2, 3, 4
-            # Warning: TODO: step 1 !
+            # Hack: after the first "0" we put second_step to True
+            # So iterations are 0, 1, 2, 3, 4, ...
             # Hack
-            self.axialtree = self.lsystem.iterate(self.lsystem.getLastIterationNb() + 2)
+            if self.second_step:
+                self.axialtree = self.lsystem.iterate(self.lsystem.getLastIterationNb() + 2)
+            else:
+                self.axialtree = self.lsystem.iterate(self.lsystem.getLastIterationNb() + 1)
+                self.second_step = True
         # if you set i to a number, directly go to this step.
         # it is used with i=0 to init
         else:
