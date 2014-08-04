@@ -156,18 +156,24 @@ result = x + y
     assert result == 4
 
 
-def test_step_init():
+def test_step():
     model_src = '''"""
 output = a"""
 a = 0
+N = 10
 
 def init():
-    global a
+    # global a
     a = 0
 
 def step():
-    global a
+    # global a
     a = a + 1
+
+def animate():
+    for i in range(N):
+        # global a
+        a = a + 1
 
 '''
     model = PythonModel(code=model_src)
@@ -184,3 +190,6 @@ def step():
 
     result = model.init()
     assert result == 0
+
+    result = model.animate()
+    assert result == 10
