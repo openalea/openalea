@@ -51,13 +51,13 @@ print "ok"
     assert len(model.outputs_info) == 1
     assert model.inputs_info[0].name == "x"
     assert model.inputs_info[0].default == "4"
-    assert model.inputs_info[0].interface == "int"
+    # assert model.inputs_info[0].interface == "int"
     assert model.inputs_info[1].name == "y"
     assert model.inputs_info[1].default == "3.14"
-    assert model.inputs_info[1].interface == "float"
+    # assert model.inputs_info[1].interface == "float"
     assert model.inputs_info[2].name == "z"
     assert model.inputs_info[3].name == "debug"
-    assert model.inputs_info[3].interface == "bool"
+    # assert model.inputs_info[3].interface == "bool"
     assert model.outputs_info[0].name == "success"
 
     print model.get_documentation()
@@ -91,7 +91,7 @@ print "ok"
     assert model2.outputs_info[0].name == "c"
     assert model2.outputs_info[1].name == "d"
     assert model2.outputs_info[2].name == "e"
-    assert model2.outputs_info[2].interface == "bool"
+    # assert model2.outputs_info[2].interface == "bool"
 
     assert model2.get_documentation() == """input = x=[1,2,3], y=(1,2), z=(1,), a=4, b
 output = c, d, e:bool
