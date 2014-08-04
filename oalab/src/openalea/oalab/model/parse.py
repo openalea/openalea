@@ -418,10 +418,9 @@ def has_step(codestring):
     functions_list = [x for x in ast.walk(r) if isinstance(x, ast.FunctionDef)]
     for x in functions_list:
         if x.name == "step":
-            if (len(x.body) == 2):
-                wrapped = ast.Interactive(body=[x.body[1]])
-                code = compile(wrapped, 'tmp', 'single')
-                return code
+            wrapped = ast.Interactive(body=[x.body[-1]])
+            code = compile(wrapped, 'tmp', 'single')
+            return code
 
     return False
 
@@ -434,10 +433,9 @@ def has_animate(codestring):
     functions_list = [x for x in ast.walk(r) if isinstance(x, ast.FunctionDef)]
     for x in functions_list:
         if x.name == "animate":
-            if (len(x.body) == 2):
-                wrapped = ast.Interactive(body=[x.body[1]])
-                code = compile(wrapped, 'tmp', 'single')
-                return code
+            wrapped = ast.Interactive(body=[x.body[-1]])
+            code = compile(wrapped, 'tmp', 'single')
+            return code
 
     return False
 
@@ -450,10 +448,9 @@ def has_init(codestring):
     functions_list = [x for x in ast.walk(r) if isinstance(x, ast.FunctionDef)]
     for x in functions_list:
         if x.name == "init":
-            if (len(x.body) == 2):
-                wrapped = ast.Interactive(body=[x.body[1]])
-                code = compile(wrapped, 'tmp', 'single')
-                return code
+            wrapped = ast.Interactive(body=[x.body[-1]])
+            code = compile(wrapped, 'tmp', 'single')
+            return code
 
     return False
 
@@ -466,9 +463,8 @@ def has_run(codestring):
     functions_list = [x for x in ast.walk(r) if isinstance(x, ast.FunctionDef)]
     for x in functions_list:
         if x.name == "run":
-            if (len(x.body) == 2):
-                wrapped = ast.Interactive(body=[x.body[1]])
-                code = compile(wrapped, 'tmp', 'single')
-                return code
+            wrapped = ast.Interactive(body=[x.body[-1]])
+            code = compile(wrapped, 'tmp', 'single')
+            return code
 
     return False
