@@ -294,8 +294,6 @@ input = a:ISequence, b:int, c="blabla", d=3.14, e=[1,2,3]
 print "ok"
 '''
     model, inputs, outputs = parse_docstring(model_src)
-    print inputs
-    print
     assert str(inputs[0].interface) == "ISequence"
     assert str(inputs[1].interface) == "IInt"
     assert str(inputs[2].interface) == "IStr"
