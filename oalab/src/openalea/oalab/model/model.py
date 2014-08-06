@@ -266,12 +266,29 @@ class Model(object):
 class ModelNode(Node):
     def __init__(self, model, inputs=(), outputs=()):
         super(ModelNode, self).__init__(inputs=inputs, outputs=outputs)
+        self.set_model(model)
+
+    def set_model(self, model):
         self.model = model
         self.__doc__ = self.model.get_documentation()
 
     def __call__(self, inputs=()):
         """ Call function. Must be overriden """
         return self.model(*inputs)
+
+    # def reload(self):
+    #     node = self.factory.instanciate()
+
+
+        # # set model
+        # from openalea.vpltk.project.manager import ProjectManager
+        # pm = ProjectManager()
+        # model = pm.cproject.get_model(self.model.name)
+        # if model:
+        #     self.set_model(model)
+
+        # reset inputs and outputs
+        # super(ModelNode, self).reload()
 
 
 class ModelFactory(AbstractFactory):
@@ -294,6 +311,9 @@ class ModelFactory(AbstractFactory):
         class fake_package(object):
             def get_id(self):
                 return ":projectmanager.current"
+            def reload(self):
+                pass
+                # print 2, "package reload"
         return fake_package()
 
     def get_classobj(self):
