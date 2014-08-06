@@ -51,6 +51,8 @@ from graph_operator.vertex import VertexOperators
 
 import traceback
 
+PROVENANCE = False
+
 class MainWindow(qt.QtGui.QMainWindow,
                  ui_mainwindow.Ui_MainWindow,
                  SignalSlotListener) :
@@ -199,7 +201,59 @@ class MainWindow(qt.QtGui.QMainWindow,
 
         #load personnal GUI settings
         self.read_settings()
+        
+        #############
+        # Provenance
+        #############
+        if PROVENANCE:
+            self.menu_provenance = qt.QtGui.QMenu(self.menubar)
+            self.menu_provenance.setObjectName("menu_provenance")
+            self.menu_provenance.setTitle(qt.QtGui.QApplication.translate("MainWindow", "&Provenance", None, qt.QtGui.QApplication.UnicodeUTF8))
 
+            self.action_activ_prov = qt.QtGui.QAction(self)
+            self.action_activ_prov.setCheckable(True)
+            self.action_activ_prov.setChecked(True)
+            self.action_activ_prov.setObjectName("action_activ_prov")
+            self.action_activ_prov.setText(qt.QtGui.QApplication.translate("MainWindow", "Connect/Disconnect Provenance", None, qt.QtGui.QApplication.UnicodeUTF8))
+     
+            self.action_show_prov = qt.QtGui.QAction(self)
+            self.action_show_prov.setCheckable(False)
+            self.action_show_prov.setObjectName("action_show_prov")
+            self.action_show_prov.setText(qt.QtGui.QApplication.translate("MainWindow", "Show Provenance", None, qt.QtGui.QApplication.UnicodeUTF8))
+     
+            self.menu_provenance.addAction(self.action_activ_prov)
+            self.menu_provenance.addAction(self.action_show_prov)
+            
+            self.menubar.addAction(self.menu_provenance.menuAction())
+
+            self.action_activ_prov.toggled.connect(self.activ_prov)
+            self.action_show_prov.triggered.connect(self.show_prov)
+
+    def activ_prov(self, activ):
+        """
+        Set/Unset the registry of provenance
+        
+        :param activ: boolean which is set to True if we want to register provenance. Else, False.
+        """
+        print activ
+        
+    def show_prov(self):
+        """
+        Display the provenance
+        """
+        print "Show prov"
+        
+        from openalea.visualea.provenance import ModalDialog, ProvenanceSelectorWidget
+        prov_widget = ProvenanceSelectorWidget(self)
+        dialog = ModalDialog(prov_widget)
+        dialog.show()
+        dialog.raise_()
+
+        if dialog.exec_():
+            print "Composite node", prov_widget.c_n.currentText()
+            print "Package", prov_widget.pkg.currentText()
+            print "Workspace", prov_widget.workspace.currentText()
+            
     def on_session_started(self, session):
         self.initialise(session)
         self.session = session
