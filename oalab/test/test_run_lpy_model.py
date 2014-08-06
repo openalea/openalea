@@ -104,6 +104,7 @@ endlsystem
 
 
 def test_default_in_out_lstring():
+    # Issue 5, part 4
     model_src = '''
 derivation length: 2
 
