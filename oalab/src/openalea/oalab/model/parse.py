@@ -18,7 +18,7 @@
 import ast
 import re
 from openalea.core import logger
-
+import textwrap
 
 #########################################
 ## Function to define to parse r model
@@ -92,7 +92,10 @@ def ast_parse(string):
     except SyntaxError, e:
         #raise e
         logger.warning(str(e))
-        logger.warning("Syntax error when parsing: " + string[:30] + "...")
+        wraper = textwrap.TextWrapper(width=30)
+        txt = wraper.wrap(string)[0] # Python 2
+        # txt = textwrap.shorten(string, width=30, placeholder="...") # Python 3
+        logger.warning("Syntax error when parsing: " + txt + "...")
         M = ast.parse("")
     return M
 
