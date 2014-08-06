@@ -102,3 +102,19 @@ endlsystem
     result = model.run()
     assert str(result) == "F(1)+F(1)+F(1)+F(1)+F(1)+F(1)+F(1)+F(1)"
 
+
+def test_default_in_out_lstring():
+    model_src = '''
+derivation length: 2
+
+production:
+
+F(x) :
+  produce  F(x)+F(x)
+
+endlsystem
+
+'''
+    model = LPyModel(code=model_src)
+    result = model("F(1)")
+    assert str(result) == "F(1)+F(1)+F(1)+F(1)"
