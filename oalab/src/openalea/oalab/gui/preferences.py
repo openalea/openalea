@@ -18,7 +18,7 @@ def Widget(option_name, value):
     # We should also add constraints on values
     try:
         eval_value = ast.literal_eval(value)
-    except ValueError:
+    except (ValueError, SyntaxError):
         eval_value = value
     
     inames = interface.guess(eval_value)
