@@ -18,6 +18,7 @@
 import ast
 import re
 from openalea.core import logger
+from openalea.oalab.service.interface import get_class, guess
 import textwrap
 
 #########################################
@@ -390,8 +391,33 @@ class InputObj(object):
         else:
             self.name = string.strip()
 
+        set_interface(self)
+
     def __repr__(self):
         return "InputObject. Name: " + str(self.name) + ". Interface: " + str(self.interface) + ". Default Value: " + str(self.default) + "."
+
+
+def set_interface(input_obj):
+    # TODO: review @GBY
+    if input_obj.interface is None:
+
+        if isinstance(input_obj.default,str):
+            try:
+                default_eval = eval(input_obj.default)
+                input_obj.interface = guess(default_eval)
+            except SyntaxError:
+                input_obj.interface = guess(input_obj.default)
+        else:
+            input_obj.interface = guess(input_obj.default)
+    else:
+        try:
+            input_obj.interface = get_class(input_obj.interface)
+        except ValueError:
+            input_obj.interface = guess(input_obj.default)
+    if input_obj.interface == []:
+        input_obj.interface = None
+    elif isinstance(input_obj.interface, list):
+        input_obj.interface = input_obj.interface[0]
 
 
 class OutputObj(InputObj):

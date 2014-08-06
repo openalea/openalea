@@ -56,8 +56,8 @@ def get_class(interface=None):
     """
     if interface is None:
         return interfaces()
-
     interface_class = None
+
     if isinstance(interface, basestring):
         for _interface in interfaces():
             if _interface.__name__ == interface:
@@ -68,8 +68,18 @@ def get_class(interface=None):
     elif issubclass(interface, IInterface):
         interface_class = interface
 
+    # TODO: review @GBY
     if interface_class is None:
-        raise ValueError, 'Interface %s not found' % repr(interface)
+        type_to_iname = {typ: [interface_.__name__] for (typ, interface_) in TypeInterfaceMap().items()}
+        try:
+            interface_eval = eval(interface)
+            if interface_eval in type_to_iname:
+                interface_class = type_to_iname[interface_eval]
+        except NameError:
+            pass
+
+    if interface_class is None:
+        raise ValueError, 'Interface %s not found ' % repr(interface)
     else:
         return interface_class
 
