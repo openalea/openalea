@@ -16,7 +16,7 @@
 #
 ###############################################################################
 from openalea.oalab.model.model import Model
-from openalea.oalab.model.parse import parse_doc, parse_lpy, OutputObj, get_docstring
+from openalea.oalab.model.parse import parse_doc, parse_lpy, OutputObj, InputObj, get_docstring
 from openalea.oalab.control.picklable_curves import geometry_2_piklable_geometry
 from openalea.lpy import Lsystem, AxialTree
 from openalea.lpy.__lpy_kernel__ import LpyParsing
@@ -274,9 +274,12 @@ endlsystem"""
         if docstring is not None:
             model, self.inputs_info, self.outputs_info = parse_doc(docstring)
 
-            # Dafault output
-            if not self.outputs_info:
-                self.outputs_info = [OutputObj("lstring:IStr")]
+        # Default input
+        if self.inputs_info == []:
+            self.inputs_info = [InputObj("lstring:IStr")]
+        # Default output
+        if self.outputs_info == []:
+            self.outputs_info = [OutputObj("lstring:IStr")]
 
 
     def _set_inputs(self, *args):
