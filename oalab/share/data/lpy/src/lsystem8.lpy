@@ -1,0 +1,13 @@
+from math import degrees, atan2
+from openalea.plantgl.all import cross, dot
+
+dl = 0.5 
+Axiom : FFF [ \(90) &(90) SetGuide(curve,length) M(0)] FF 
+production: 
+derivation length: length/dl
+
+M(l): 
+   if l < length:
+     produce f(0.02) F(dl) M(l+dl) 
+
+endlsystem
