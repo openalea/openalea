@@ -46,21 +46,9 @@ except ImportError:
 
 
 dirs = """
-deploy
-deploygui
 vpltk
 core
-scheduler
-grapheditor
-visualea
-stdlib
-sconsx
-misc
-pkg_builder
-image
-numpy
-pylab
-pkgit
+oalab
 """.split()
 #openalea_meta
 
