@@ -24,6 +24,7 @@ from openalea.vpltk.qt import qt
 import ui_mainwindow
 from openalea.vpltk.shell.shell import get_shell_class, get_interpreter_class
 
+from openalea.core.algo.dataflow_evaluation import AbstractEvaluation
 from openalea.core import cli, logger
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.settings import Settings,NoSectionError,NoOptionError
@@ -76,7 +77,7 @@ class MainWindow(qt.QtGui.QMainWindow,
         self.tabWorkspace.setTabsClosable(True)
         self.ws_cpt = 0
         
-        self._prov = False
+        self._prov = AbstractEvaluation.__provenance__
 
         #last opened nodes
         self._last_opened = []
@@ -117,7 +118,6 @@ class MainWindow(qt.QtGui.QMainWindow,
                  "share", "_static", "openalea.css")
         self.helpWidget.set_stylesheet_file(css)
         self.poolTabWidget.addTab(self.helpWidget, "Help")
-
 
         # Widgets
         self.connect(self.tabWorkspace, qt.QtCore.SIGNAL("contextMenuEvent(QContextMenuEvent)"),
@@ -242,6 +242,7 @@ class MainWindow(qt.QtGui.QMainWindow,
         :param provenance: boolean which is set to True if we want to register provenance. Else, False.
         """
         self._prov = provenance
+        AbstractEvaluation.__provenance__ = self._prov
         
     def get_provenance(self):
         """
