@@ -1,0 +1,3 @@
+Open Alea Laboratory (OpenAlea.OALab) provides a graphical user interface wich combine LPy, Visualea, Python edition and others...
+
+It permits to work with different simulation and modelling paradigms inside a single application.
