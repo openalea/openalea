@@ -49,9 +49,12 @@ from openalea.visualea.logger import LoggerView
 from graph_operator import GraphOperator
 from graph_operator.vertex import VertexOperators
 
+from openalea.visualea.provenance import ModalDialog, ProvenanceSelectorWidget, search_trace
+
 import traceback
 
 PROVENANCE = False
+
 
 class MainWindow(qt.QtGui.QMainWindow,
                  ui_mainwindow.Ui_MainWindow,
@@ -72,6 +75,8 @@ class MainWindow(qt.QtGui.QMainWindow,
         self.tabWorkspace.removeTab(0)
         self.tabWorkspace.setTabsClosable(True)
         self.ws_cpt = 0
+        
+        self._prov = False
 
         #last opened nodes
         self._last_opened = []
@@ -212,7 +217,8 @@ class MainWindow(qt.QtGui.QMainWindow,
 
             self.action_activ_prov = qt.QtGui.QAction(self)
             self.action_activ_prov.setCheckable(True)
-            self.action_activ_prov.setChecked(True)
+            prov = self.get_provenance()
+            self.action_activ_prov.setChecked(prov)
             self.action_activ_prov.setObjectName("action_activ_prov")
             self.action_activ_prov.setText(qt.QtGui.QApplication.translate("MainWindow", "Connect/Disconnect Provenance", None, qt.QtGui.QApplication.UnicodeUTF8))
      
@@ -226,34 +232,39 @@ class MainWindow(qt.QtGui.QMainWindow,
             
             self.menubar.addAction(self.menu_provenance.menuAction())
 
-            self.action_activ_prov.toggled.connect(self.activ_prov)
-            self.action_show_prov.triggered.connect(self.show_prov)
+            self.action_activ_prov.toggled.connect(self.set_provenance)
+            self.action_show_prov.triggered.connect(self.show_provenance)
 
-    def activ_prov(self, activ):
+    def set_provenance(self, provenance):
         """
         Set/Unset the registry of provenance
         
-        :param activ: boolean which is set to True if we want to register provenance. Else, False.
+        :param provenance: boolean which is set to True if we want to register provenance. Else, False.
         """
-        print activ
+        self._prov = provenance
         
-    def show_prov(self):
+    def get_provenance(self):
+        """
+        :return: boolean which is set to True if we want to register provenance. Else, False.
+        """
+        return self._prov
+        
+    def show_provenance(self):
         """
         Display the provenance
-        """
-        print "Show prov"
-        
-        from openalea.visualea.provenance import ModalDialog, ProvenanceSelectorWidget
+        """       
         prov_widget = ProvenanceSelectorWidget(self)
         dialog = ModalDialog(prov_widget)
         dialog.show()
         dialog.raise_()
 
         if dialog.exec_():
-            print "Composite node", prov_widget.c_n.currentText()
-            print "Package", prov_widget.pkg.currentText()
-            print "Workspace", prov_widget.workspace.currentText()
+            cn = prov_widget.c_n.text()
+            pkg = prov_widget.pkg.text()
+            wk = prov_widget.workspace.text()
             
+            search_trace(cn, pkg, wk, parent=self)
+ 
     def on_session_started(self, session):
         self.initialise(session)
         self.session = session
@@ -320,6 +331,10 @@ class MainWindow(qt.QtGui.QMainWindow,
         #workspace
         last_open = "[%s]" % ",".join("'%s'" % item for item in self._last_opened)
         settings.set("WorkSpace","last",last_open)
+        
+        #provenance
+        prov = self.get_provenance()
+        settings.set("Provenance","enable",str(prov))
 
         settings.write()
 
@@ -366,6 +381,14 @@ class MainWindow(qt.QtGui.QMainWindow,
                 pkgid = ".".join(gr[:-1])
                 name = gr[-1]
                 self.add_last_open(pkgid,name)
+        except NoSectionError :
+            pass
+        except NoOptionError :
+            pass
+        
+        try :
+            prov = eval(settings.get("Provenance","enable") )
+            self.set_provenance(bool(prov))
         except NoSectionError :
             pass
         except NoOptionError :
