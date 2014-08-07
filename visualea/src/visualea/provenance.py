@@ -6,29 +6,26 @@ class ProvenanceSelectorWidget(QtGui.QWidget):
         super(ProvenanceSelectorWidget, self).__init__(parent)
         layout = QtGui.QGridLayout(self)
         
-        c_n_list = ["A","B","C"]
-        pkgs_list = ["a","b","c"]
-        workspace_list = ["1","2","3"]
+        # c_n_list = ["A","B","C"]
+        # pkgs_list = ["a","b","c"]
+        # workspace_list = ["1","2","3"]
         
         layout.addWidget(QtGui.QLabel("Select Composite Node"), 0, 0)
-        # self.c_n = QtGui.QLineEdit("")
-        # layout.addWidget(self.c_n, 0, 1)
-        self.c_n = QtGui.QComboBox()
-        self.c_n.addItems(c_n_list)
+        self.c_n = QtGui.QLineEdit("")
+        # self.c_n = QtGui.QComboBox()
+        # self.c_n.addItems(c_n_list)
         layout.addWidget(self.c_n, 0, 1)
 
         layout.addWidget(QtGui.QLabel("Select Package"), 1, 0)
-        # self.pkg = QtGui.QLineEdit("")
-        # layout.addWidget(self.pkg, 1, 1)
-        self.pkg = QtGui.QComboBox()
-        self.pkg.addItems(pkgs_list)
+        self.pkg = QtGui.QLineEdit("")
+        # self.pkg = QtGui.QComboBox()
+        # self.pkg.addItems(pkgs_list)
         layout.addWidget(self.pkg, 1, 1)
         
         layout.addWidget(QtGui.QLabel("Select Workspace"), 2, 0)
-        # self.workspace = QtGui.QLineEdit("")
-        # layout.addWidget(self.workspace, 2, 1)
-        self.workspace = QtGui.QComboBox()
-        self.workspace.addItems(workspace_list)
+        self.workspace = QtGui.QLineEdit("")
+        # self.workspace = QtGui.QComboBox()
+        # self.workspace.addItems(workspace_list)
         layout.addWidget(self.workspace, 2, 1)
 
         
@@ -64,12 +61,12 @@ def main():
     app.exec_()
     
     if dialog.exec_():
-        # print prov_widget.c_n.text()
-        # print prov_widget.pkg.text()
-        # print prov_widget.workspace.text()
-        print prov_widget.c_n.currentText()
-        print prov_widget.pkg.currentText()
-        print prov_widget.workspace.currentText()
+        print prov_widget.c_n.text()
+        print prov_widget.pkg.text()
+        print prov_widget.workspace.text()
+        # print prov_widget.c_n.currentText()
+        # print prov_widget.pkg.currentText()
+        # print prov_widget.workspace.currentText()
 
 if( __name__ == "__main__"):
     main()
