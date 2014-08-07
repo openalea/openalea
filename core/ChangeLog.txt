@@ -1,0 +1,125 @@
+OpenAlea.Core 0.7.0
+-------------------
+
+- Fix the creation of a node factory without inputs and outputs (bug #8369)
+- Add Sphinx documentation in ./doc and update the setup.cfg accordingly
+- fix task 3607
+- Fix bug #8356. If the user package creation abort, Visualea do not crash.
+- Fix bug #5974: When you create a new node, you can now edit it even if the code is not valid
+- Improve the startup time for visualea
+- Enhance the Package Manager to not traverse again the list of packages several times.
+- Upload sphinx documentation on the web
+
+22/01/09 release 0.6.2
+----------------------
+
+- Revision 1575
+- Fix the API documentation (remove errors/warnings in epydoc):
+		http://openalea.gforge.inria.fr/doc/core-0.6.2
+- Fix the tests
+- Fix minor bugs
+- Add module categories.py to manage the category labels
+- Fix pkgmanager: it was unable to load some nodes due to 
+	conflict between protected nodes and packages
+- Add Delay Node
+- Moved system nodes into stdlib.flow control
+- Moved RGB node to openalea.color
+
+09/04/08 release 0.4.0
+----------------------
+
+Package management
+^^^^^^^^^^^^^^^^^^
+
+- New Package directory layout (__wralea__) 
+- Better package management (copy, move, delete, add file etc...)
+- Improved reload
+- Support for Data file in packages with DataFactory and DataNode
+- Add a package icon
+- Add PseudoPackages for hierarchical package organization
+- Better search function
+- Improve loading performance of package manager (use of cache)
+- Add alias capability
+- Support for deprecated in wralea entry point
+
+Composite node
+^^^^^^^^^^^^^^
+
+- Add a description for ports
+- Group nodes feature improved
+- Better reload functions (package and package manager)
+	   
+Evaluation
+^^^^^^^^^^
+
+- Continuous evaluation for selected nodes
+- Function abstraction (with X node and map)
+- Add File monitoring
+- Evaluation can be blocked on a node
+
+Others
+^^^^^^
+
+- Add the "alea" command to access to OpenAlea function from the shell
+- Bug fixes
+
+
+
+19/10/07 release 0.3.0
+----------------------
+
+- Multiple categories
+- Reload module capabilities
+- Bug fix
+
+
+24/09/07 alpha release 0.3.0a
+-----------------------------
+
+- "Save as CompositeNode" save values
+- Add copy/Paste support
+- Save Session command improved         
+- Export Application	
+- New evaluation algorithms with priority, and loop capabilities
+- Add  system nodes like iter, dataflow access..
+- A lot of bug fix
+
+
+
+06/07/07 alpha release 0.2.1a
+-----------------------------
+
+- Dataflow evaluation algorithm is set in user preference	   
+- Add a selective algorithm
+- Add priority node property
+- Add multiple input entry (for list creation)
+- Add an Abstract base class AbstractNode to define special node like annotations
+- Improve dynamic IO configuration
+- Improve composite-node -> factory function
+- Create a system package for particular node (annotations)
+- Bug fixes
+
+
+13/06/07 Alpha release 0.2.0a.(Main refactoring)
+------------------------------------------------
+
+- A lot of bug fixes.
+- New node declaration (without inheritance)
+- New graph data structure
+- New modular dataflow evaluation (lazy evaluation)
+- XML export has been replaced by Python code export for composite nodes
+- Dynamic reloading and code edition for node
+- Search function
+- Datapool class
+- New session class with persistence based on Pickle (experimental)
+
+09/02/06 release 0.1.0
+----------------------
+
+(First release for development purpose.)
+
+- Node / Factory / Package / Interface definitions
+- Package manager (Discovering wralea.py)
+- Graph construction and evaluation
+- Session management and persistence in XML
+

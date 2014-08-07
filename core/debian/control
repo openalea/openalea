@@ -1,0 +1,12 @@
+Source: openalea-core
+Maintainer: OpenAlea consortium <christophe.pradal@cirad.fr>
+Section: python
+Priority: optional
+Build-Depends: python-all (>= 2.6.6-3~), python-setuptools, debhelper (>= 7), python-openalea.deploy
+
+Package: python-openalea.core
+Architecture: all
+Depends: ${misc:Depends}, ${python:Depends}, python-openalea.deploy
+Provides: ${python:Provides}
+Description: OpenAlea Component platform core.
+ OpenAlea.Core is able to discover and manage packages and logical components, build and evaluate dataflows and Generate final applications
