@@ -1,0 +1,171 @@
+
+
+{% set shift = '../../../' %}
+
+
+{% block body %}
+<h2>OpenAlea released packages</h2>
+
+
+<table cellpadding="0" cellspacing="0" border="0" vertical-align="top" class="mycontentstable">
+<tr>
+    <td>
+    <p style="text-align:center">
+        <a href="{{shift}}{{pathto("core/doc/_build/html/contents")}}">CORE</a>
+      </p>
+      <hr/>
+      <p>
+        Core of openalea (e.g., package management).
+         <br/>
+         <b>target</b>: developers
+      </p>
+    </td>
+   <td>
+      <p style="text-align:center">
+            <a href="{{shift}}{{pathto("deploy/doc/_build/html/contents")}}">DEPLOY</a>
+      </p>
+      <hr/>
+      <p>Installation, package deployment, ...
+      <br/>
+      <b>target</b>: developers
+      </p>
+   </td>
+   <td>
+      <p style="text-align:center">
+            <a href="{{shift}}{{pathto("deploygui/doc/_build/html/contents")}}">DEPLOYGUI</a>
+      </p>
+      <hr/>
+      <p>
+            GUI to install/uninstall packages
+        <br/>
+        <b>target:</b> users, developers
+      </p>
+    </td>
+</tr>
+
+ <tr>
+    <td>
+        <p style="text-align:center">
+                <a href="{{shift}}{{pathto("misc/doc/_build/html/contents")}}">MISC</a>
+            </p>
+            <hr/>
+        <p>
+                Miscellaneous tools (e.g, sphinx, developers tools)
+                <br/>
+                <b>target:</b> developers, administrators
+        </p>
+    </td>
+
+    <td>
+        <p style="text-align:center">
+          <a href="{{shift}}{{pathto("stdlib/doc/_build/html/contents")}}">STDLIB</a>
+            </p>
+            <hr/>
+        <p>
+        Standard tools (stats, image, data, files
+        <br/>
+        <b>target:</b> users, developers
+        </p>
+    </td>
+
+    <td>
+        <p style="text-align:center">
+            <a href="{{shift}}{{pathto("sconsx/doc/_build/html/contents")}}">SCONSX</a>
+            </p>
+            <hr/>
+        <p>
+        Scons extension
+        <br/>
+        <b>target:</b> developers, administrators
+        </p>
+    </td>
+</tr>
+
+<tr>
+    <td>
+        <p style="text-align:center">
+        <a href="{{shift}}{{pathto("visualea/doc/_build/html/contents")}}">VISUALEA</a>
+        </p>
+        <hr/>
+        <p>
+        Graphical application (visual programming)
+        <br/>
+        <b>target:</b> users, developers
+        </p>
+   </td>
+    <td>
+        <p style="text-align:center">
+        <a href="{{shift}}{{pathto("scheduler/doc/_build/html/contents")}}">SCHEDULER</a>
+        </p>
+        <hr/>
+        <b>target:</b> users, developers</span></p>
+    </td>
+    <td>
+        <p style="text-align:center">
+        <a  href="{{shift}}{{pathto("grapheditor/doc/_build/html/contents")}}">GRAPH EDITOR</a>
+        </p>
+        <hr/>
+        <b>target:</b> users, developers</span></p>
+    </td>
+
+ </tr>
+ <tr>
+    <td>
+        <p style="text-align:center" >
+        <a href="{{shift}}{{pathto("svgdraw/doc/_build/html/contents")}}">SVGDRAW</a>
+        </p>
+        <hr/>
+        <p><b>target:</b> users, developers</p>
+    </td>
+    <td>
+        <p style="text-align:center">
+        <a href="{{shift}}{{pathto("pglviewer/doc/_build/html/contents")}}">PGLVIEWER</a>
+        </p>
+        <hr/>
+        <p><b>target:</b> users, developers</p>
+    </td>
+    <td>
+        <p style="text-align:center">
+        <a href="{{shift}}{{pathto("pylab/doc/_build/html/contents")}}">Pylab</a>
+        </p>
+        <hr/>
+        <p><b>target:</b> users, developers</p>
+    </td>
+</tr>
+<tr>
+    <td>
+        <p style="text-align:center" >
+        <a href="{{shift}}{{pathto("pkg_builder/doc/_build/html/contents")}}">Package Builder</a>
+        </p>
+        <hr/>
+        <p>Create a package layout automatically<br/><b>target:</b> developers only</p>
+    </td>
+    <td>
+        <p style="text-align:center" >
+        <a href="{{shift}}{{pathto("numpy/doc/_build/html/contents")}}">Numpy</a>
+        </p>
+        <hr/>
+        <p>Numpy nodes<br/><b>target:</b> users/developers only</p>
+    </td>
+    <td>
+        <p style="text-align:center" >
+        <a href="{{shift}}{{pathto("image/doc/_build/html/contents")}}">Image</a>
+        </p>
+        <hr/>
+        <p>Image nodes<br/><b>target:</b> users</p>    
+    </td>
+</tr>
+<tr>   
+    <td>
+        <p style="text-align:center" >
+        <a href="{{shift}}{{pathto("secondnature/doc/_build/html/contents")}}">SecondNature</a>
+        </p>
+        <hr/>
+        <p>SecondNature experiment<br/><b>target:</b> developers only</p>      
+    </td>
+</tr>
+
+ </table>
+
+{% endblock %}
+
