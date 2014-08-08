@@ -16,7 +16,7 @@
 
 
 __license__ = "CeCILL v2"
-__revision__ = " $Id$ "
+__revision__ = " $Id: temp.py 3279 2011-05-24 15:49:21Z dbarbeau $ "
 
 
 import tempfile

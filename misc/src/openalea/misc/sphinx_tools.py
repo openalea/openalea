@@ -1,6 +1,6 @@
 """Tools related to sphinx"""
-__author__ = "$Author$"
-__revision__ = "$Id$"
+__author__ = "$Author: cokelaer $"
+__revision__ = "$Id: sphinx_tools.py 3002 2010-10-26 15:57:11Z cokelaer $"
 __license__ = "Cecill-C"
 
 import os

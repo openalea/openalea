@@ -1,7 +1,7 @@
 """ todo """
 
 __license__ = "Cecill-C"
-__revision__ =" $Id$"
+__revision__ =" $Id: openalea_distrib.py 2252 2010-02-08 17:43:10Z cokelaer $"
 
 import pkg_resources
 

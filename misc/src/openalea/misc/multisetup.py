@@ -12,7 +12,7 @@ there are a few commands dedicated to multisetup (see --help).
 """
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$"
+__revision__ = " $Id: multisetup.py 3618 2012-06-18 15:58:17Z pradal $"
 
 import sys, os, re
 from optparse import OptionParser

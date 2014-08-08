@@ -5,7 +5,7 @@ Authors: Thomas Cokelaer, Thomas.Cokelaer@sophia.inria.fr
 """
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$"
+__revision__ = " $Id: upload_dist.py 2252 2010-02-08 17:43:10Z cokelaer $"
 
 import os
 from optparse import OptionParser
@@ -327,7 +327,7 @@ def ParseParameters():
 
     """
     parser = OptionParser(usage=usage, \
-        version = "%prog CVS $Id$ \n" \
+        version = "%prog CVS $Id: upload_dist.py 2252 2010-02-08 17:43:10Z cokelaer $ \n" \
       + "$Name:  $\n")
 
     parser.add_option("-l", "--login", metavar='LOGIN',

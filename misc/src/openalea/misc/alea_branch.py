@@ -12,8 +12,8 @@
 #
 ###############################################################################
 
-__revision__ = "$Id$"
-url = " $URL$ "
+__revision__ = "$Id: alea_branch.py 3618 2012-06-18 15:58:17Z pradal $"
+url = " $URL: svn://scm.gforge.inria.fr/svnroot/openalea/trunk/misc/src/openalea/misc/alea_branch.py $ "
 
 import os
 import argparse
