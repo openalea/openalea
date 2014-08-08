@@ -48,6 +48,7 @@ except ImportError:
 dirs = """
 vpltk
 core
+misc
 oalab
 """.split()
 #openalea_meta
