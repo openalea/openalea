@@ -21,7 +21,7 @@ class TestProject(unittest.TestCase):
         filepath = self.tmpdir / 'new_image.tiff'
         content = b'blob'
 
-        d1 = data('data', path=filepath, content=content)
+        d1 = data(path=filepath, content=content)
         assert d1.path.name == 'new_image.tiff'
         assert d1.name == 'new_image'
         assert filepath.isfile()
@@ -32,9 +32,14 @@ class TestProject(unittest.TestCase):
         assert content == content2
 
         # Embed existing data  (image.tiff exists)
-        d2 = data('data', path=get_data('image.tiff'))
+        d2 = data(path=get_data('image.tiff'))
         assert d2.path.name == 'image.tiff'
         assert d2.name == 'image'
 
         # Cannot set content because data yet exists
-        d3 = data('data', path='image.tiff', content=b'')
+        # Case datatype is not defined
+        with self.assertRaises(ValueError) as cm:
+            d3 = data(path=get_data('image.tiff'), content=b'')
+        msg = "got multiple values for content (parameter and 'image.tiff')"
+        self.assertEqual(cm.exception.message, msg)
+
