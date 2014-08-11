@@ -73,7 +73,7 @@ class TestProject(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             self.project.add('data', name='image_1')
 
-        msg = "ValueError: datatype is not defined"
+        msg = "datatype is not defined"
         self.assertEqual(cm.exception.message, msg)
         assert(len(self.project.data) == 0)
 
@@ -81,7 +81,7 @@ class TestProject(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             self.project.add('data', path=get_data('image.jpg'), content=b'')
 
-        msg = "ValueError: 'content' and 'path' are mutually exclusive"
+        msg = "'content' and 'path' are mutually exclusive"
         self.assertEqual(cm.exception.message, msg)
         assert(len(self.project.data) == 0)
 
@@ -90,7 +90,7 @@ class TestProject(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             self.project.add('data', filename='image.png')
 
-        msg = "ValueError: data 'image.png' already exists in project 'test'"
+        msg = "data 'image.png' already exists in project 'test'"
         self.assertEqual(cm.exception.message, msg)
 
 
