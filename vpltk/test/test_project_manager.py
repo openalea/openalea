@@ -36,7 +36,7 @@ def test_discover_not_add_twice_by_discover_twice():
     assert len(pm.projects) == projects_nb
 
 
-def test_discover_not_add_twice():
+def test_discover_not_added_twice():
     pm = ProjectManager()
     pm.discover()
 
