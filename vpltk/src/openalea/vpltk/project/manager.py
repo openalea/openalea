@@ -226,7 +226,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
         return self.cproject
 
-    def load(self, name, proj_path=None):
+    def load(self, name, projectdir=None, **kwargs):
         """
         Load existing project
 
@@ -235,25 +235,30 @@ You can rename/move this project thanks to the button "Save As" in menu.
             >>> project2 = project_manager.load('project2', '/path/to/project')
 
         :param name: name of project to load. Must be a string.
-        :param proj_path: path of project to load. Must be a path (see module path.py). By default, try to guess with name only. If there are various projects with the same name, return the first.
+        :param projectdir: path of project to load. Must be a path (see module path.py). By default, try to guess with name only. If there are various projects with the same name, return the first.
         :return: Project
         """
-        if not proj_path:
+        if 'proj_path' in kwargs:
+            projectdir = kwargs['proj_path']
+        elif 'path' in kwargs:
+            projectdir = kwargs['path']
+
+        if not projectdir:
             for project in self.projects:
                 if project.name == name:
                     self.cproject = project
                     project.start(shell=self.shell)
                     return self.get_current()
         else:
-            # full_path = path(proj_path).abspath() / name / ".." / ".." # TODO : why ?
-            full_path = path(proj_path) / name
+            # full_path = path(projectdir).abspath() / name / ".." / ".." # TODO : why ?
+            full_path = path(projectdir) / name
             # print full_path
             if full_path.exists():
-                self.cproject = Project(name, proj_path)
+                self.cproject = Project(name, projectdir)
                 self.cproject.start(shell=self.shell)
                 return self.get_current()
 
-        # raise IOError('Project %s in repository %s does not exist' %(name,proj_path))
+        # raise IOError('Project %s in repository %s does not exist' %(name,projectdir))
         print 'Project %s in repository %s does not exist' %(name,full_path)
         return None
 
