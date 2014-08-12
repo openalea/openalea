@@ -33,19 +33,23 @@ class Data(object):
         self.name = name
         self.path = Path(path)
         self.dtype = dtype
-        self.content = kwargs['content'] if 'content' in kwargs else None
+        self._content = kwargs['content'] if 'content' in kwargs else None
 
-    def write(self, content):
-        raise NotImplementedError
-        # if write is a success:
-        # self.content = None
+    # def write(self, content):
+    #     raise NotImplementedError
+
+    def save(self):
+        if self._content is not None:
+            with open(self.path, 'wb') as f:
+                f.write(self._content)
+            self._content = None
 
     def read(self):
         if self.exists():
             with open(self.path, 'rb') as f:
                 return f.read()
         else:
-            return self.content
+            return self._content
 
     def exists(self):
         return self.path.exists()

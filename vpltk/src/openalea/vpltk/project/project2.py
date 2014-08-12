@@ -97,7 +97,6 @@ class Project(Observed):
         path, filename, content, dtype
         """
         mode = kwargs['mode'] if 'mode' in kwargs else self.MODE_COPY
-
         if obj:
             # TODO: Check obj follow Data or Model interface ??
             new_path = self.path / category / obj.path.name
@@ -152,7 +151,7 @@ class Project(Observed):
                 # Nothing to do, data is yet in the right place
 
             data_obj = data(new_path, name, dtype, default_content=content)
-            return self.add(category, data_obj)
+            return self.add(category, data_obj, **kwargs)
 
     def _load(self):
         """
@@ -174,8 +173,51 @@ class Project(Observed):
             # ie. load keys but not values
             for category in config["manifest"].keys():
                 if category in self.category_keys:
-                    file_names = config["manifest"][category]
-                    if not isinstance(file_names, list):
-                        file_names = [file_names]
-                    for file_name in file_names:
-                        self.add(category, filename=file_name)
+                    filenames = config["manifest"][category]
+                    if not isinstance(filenames, list):
+                        filenames = [filenames]
+                    for filename in filenames:
+                        section = '%s.path' % category
+                        if section in config:
+                            if filename in config[section]:
+                                self.add(category, path=config[section][filename], mode=self.MODE_LINK)
+                            else:
+                                self.add(category, filename=filename, mode=self.MODE_COPY)
+                        else:
+                            self.add(category, filename=filename, mode=self.MODE_COPY)
+
+    def save(self):
+        """
+        Save a manifest file on disk. It name is defined by config_filename.
+
+        It contains **list of files** that are inside project (*manifest*) and **metadata** (author, version, ...).
+        """
+        config = ConfigObj()
+
+        config.filename = self.path / self.config_filename
+
+        if not self.path.exists():
+            self.path.makedirs()
+
+        config['manifest'] = dict()
+        config['metadata'] = self.metadata
+
+        for category in self.category_keys:
+            filenames_dict = getattr(self, category)
+            if filenames_dict:
+                category_path = self.path / category
+                if not category_path.exists():
+                    category_path.makedirs()
+                config['manifest'][category] = []
+                for data in filenames_dict.values():
+                    data.save()
+                    config['manifest'][category].append(data.filename)
+
+                    # If data is stored outside project, register data.path in section category.path
+                    if data.path.parent != category_path:
+                        section = category + ".path"
+                        config.setdefault(section, {})[data.filename] = data.path
+
+        config.write()
+        self.notify_listeners(('project_saved', self))
+
