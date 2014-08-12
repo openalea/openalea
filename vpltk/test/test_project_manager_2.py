@@ -1,7 +1,8 @@
 import unittest
 
-from openalea.vpltk.project import Project, ProjectManager
+from openalea.vpltk.project import ProjectManager
 pm = ProjectManager()
+
 
 class TestSequenceFunctions(unittest.TestCase):
 

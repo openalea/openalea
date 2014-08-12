@@ -20,10 +20,53 @@ import string
 from copy import copy
 from openalea.core.node import Node, AbstractFactory
 from openalea.vpltk.project.project import remove_extension
-from openalea.core.path import path as path_
+from openalea.core.path import path as Path
 
 
-class Model(object):
+class Data(object):
+    def __init__(self, name, path, dtype, **kwargs):
+        """
+        Classical use : *path* exists. Nothing is loaded in memory.
+        Use :meth:`~Data.read` to get content
+        """
+        # TODO: document args
+        self.name = name
+        self.path = Path(path)
+        self.dtype = dtype
+        self.content = kwargs['content'] if 'content' in kwargs else None
+
+    def write(self, content):
+        raise NotImplementedError
+        # if write is a success:
+        # self.content = None
+
+    def read(self):
+        if self.exists():
+            with open(self.path, 'rb') as f:
+                return f.read()
+        else:
+            return self.content
+
+    def exists(self):
+        return self.path.exists()
+
+    @property
+    def filename(self):
+        return self.path.name
+
+    @property
+    def doc(self):
+        pass
+
+# class Model(Data):
+#
+#     @property
+#     def code(self):
+#         return self.read()
+
+
+class Model(Data):
+    default_dtype = "model"
     default_name = ""
     default_file_name = ""
     pattern = ""
@@ -64,7 +107,7 @@ class Model(object):
     def __call__(self, *args, **kwargs):
         return self.run(*args, **kwargs)
 
-    def __repr__(self):
+    def __str__(self):
         return "Instance of model " + str(type(self)) + " named " + str(self.name)
 
     def run(self, *args, **kwargs):
@@ -147,6 +190,7 @@ class Model(object):
 
     @inputs.setter
     def inputs(self, *args):
+        # TODO: refactor with types.FunctionType
         self._inputs = dict()
         if self.inputs_info:
             args, kwargs = args[0]
@@ -196,7 +240,7 @@ class Model(object):
 
             # If one argument is missing, raise
             if len(not_set_inputs_info):
-                raise Exception("Model %s have inputs not setted. Please set %s ." % (self.name, [inp.name for inp in not_set_inputs_info]))
+                raise Exception("Model %s have inputs not set. Please set %s." % (self.name, [inp.name for inp in not_set_inputs_info]))
 
     def _set_output_from_ns(self, namespace):
         """
@@ -244,7 +288,7 @@ class Model(object):
         parentdir is the path of the parent directory like projectdir/model
 
         """
-        pd = path_(parentdir)
+        pd = Path(parentdir)
         filename = self.name+'.'+self.extension
         return (pd/filename).abspath()
 
