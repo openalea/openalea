@@ -1,17 +1,21 @@
 
 from openalea.core.path import path as Path
+from openalea.vpltk.plugin import iter_plugins
 
-class Data(object):
-    def __init__(self, name, path, datatype):
-        self.name = name
-        self.path = Path(path)
-        self.datatype = datatype
+
+__all__ = ["data", "dataclass"]
+
 
 def datatype(path):
-    return path.ext
+    if path.ext:
+        return path.ext[1:]
+    else:
+        return None
+
 
 def dataname(path):
     return path.namebase
+
 
 def dataclass(dtype):
     """
@@ -20,7 +24,9 @@ def dataclass(dtype):
 
     Matching can be extended with plugins.
     """
+    from openalea.oalab.model.model import Data
     return Data
+
 
 def arrange_data_args(name, path, dtype):
     if name is None:
@@ -29,25 +35,32 @@ def arrange_data_args(name, path, dtype):
         dtype = datatype(path)
     return name, path, dtype
 
+
 def data(path, name=None, dtype=None, **kwargs):
-    content = kwargs['content'] if 'content' in kwargs else None
+    default_content = kwargs['default_content'] if 'default_content' in kwargs else None
 
     path = Path(path)
     if path.isfile():
-        if content is not None:
-            raise ValueError, "got multiple values for content (parameter and '%s')" % path.name
+        if default_content is not None:
+            raise ValueError("got multiple values for content (parameter and '%s')" % path.name)
         else:
             name, path, dtype = arrange_data_args(name, path, dtype)
             DataClass = dataclass(dtype)
             return DataClass(name, path, dtype)
-    elif path.exists() :
-        raise ValueError, '%s exists but is not a file'
+    elif path.exists():
+        raise ValueError("'%s' exists but is not a file" % path)
     elif not path.exists():
-        if content is None:
-            content = b''
-        f = path.open('wb')
-        f.write(content)
-        f.close()
+        if default_content is None:
+            default_content = b''
+        try:
+            f = path.open('wb')
+        except IOError:
+            content = default_content
+        else:
+            f.write(default_content)
+            f.close()
+            content = None
+
         name, path, dtype = arrange_data_args(name, path, dtype)
         DataClass = dataclass(dtype)
-        return DataClass(name, path, dtype)
+        return DataClass(name, path, dtype, content=content)

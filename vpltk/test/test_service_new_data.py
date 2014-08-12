@@ -19,17 +19,20 @@ class TestProject(unittest.TestCase):
 
         # Create new data from scratch (image_1.tiff doesn't exist)
         filepath = self.tmpdir / 'new_image.tiff'
-        content = b'blob'
+        default_content = b'blob'
 
-        d1 = data(path=filepath, content=content)
+        d1 = data(path=filepath, default_content=default_content)
         assert d1.path.name == 'new_image.tiff'
         assert d1.name == 'new_image'
         assert filepath.isfile()
+        assert d1.exists() is True
+        # To check if memory has been freed
+        assert d1.content is None
 
         f = filepath.open('rb')
         content2 = f.read()
         f.close()
-        assert content == content2
+        assert default_content == content2
 
         # Embed existing data  (image.tiff exists)
         d2 = data(path=get_data('image.tiff'))
@@ -39,7 +42,19 @@ class TestProject(unittest.TestCase):
         # Cannot set content because data yet exists
         # Case datatype is not defined
         with self.assertRaises(ValueError) as cm:
-            d3 = data(path=get_data('image.tiff'), content=b'')
+            d3 = data(path=get_data('image.tiff'), default_content=b'')
         msg = "got multiple values for content (parameter and 'image.tiff')"
         self.assertEqual(cm.exception.message, msg)
 
+        # Path is a directory and not a file
+        empty_dir = self.tmpdir/"empty"
+        empty_dir.mkdir()  # No need to remove it after test. Parent dir will be removed in tearDown
+
+        with self.assertRaises(ValueError) as cm:
+            d4 = data(path=empty_dir, default_content=b'')
+        msg = "'%s' exists but is not a file" % empty_dir
+        self.assertEqual(cm.exception.message, msg)
+
+        d5 = data(path=self.tmpdir/"doesnotexist"/"image.tiff", default_content=default_content)
+        assert d5.exists() == False
+        assert d5.content == default_content
