@@ -393,14 +393,12 @@ class InputObj(object):
 
         set_interface(self)
 
-    def __repr__(self):
-        return "InputObject. Name: " + str(self.name) + ". Interface: " + str(self.interface) + ". Default Value: " + str(self.default) + "."
+    def __str__(self):
+        return self.__class__.__name__+". Name: " + str(self.name) + ". Interface: " + str(self.interface) + ". Default Value: " + str(self.default) + "."
 
 
 def set_interface(input_obj):
-    # TODO: review @GBY
     if input_obj.interface is None:
-
         if isinstance(input_obj.default,str):
             try:
                 default_eval = eval(input_obj.default)
@@ -421,11 +419,7 @@ def set_interface(input_obj):
 
 
 class OutputObj(InputObj):
-    """
-    Outputs object is the same as InputObj with a custom __repr__
-    """
-    def __repr__(self):
-        return "OutputObject. Name: " + str(self.name) + ". Interface: " + str(self.interface) + ". Default Value: " + str(self.default) + "."
+    pass
 
 
 ################################
@@ -434,66 +428,20 @@ class OutputObj(InputObj):
 def parse_functions(codestring):
     """
     parse the code *codestring* and detect what are the functions defined inside (search *init*, *step*, *animate* and *run*)
-    :return: has_init(), has_step(), has_animate(), has_run() (list of bool)
+    :return: init, step, animate, run  functions (code or False)
     """
-    return has_init(codestring), has_step(codestring), has_animate(codestring), has_run(codestring)
+    exec_funcs = {}
+    exec_funcs_names = ['init', 'step', 'animate', 'run']
+    for func_name in exec_funcs_names:
+        exec_funcs[func_name] = False
 
-
-def has_step(codestring):
-    """
-    :return: True if *docstring* define a function *"step"*
-    """
     r = ast_parse(codestring)
     functions_list = [x for x in ast.walk(r) if isinstance(x, ast.FunctionDef)]
     for x in functions_list:
-        if x.name == "step":
+        if x.name in exec_funcs_names:
             wrapped = ast.Interactive(body=[x.body[-1]])
             code = compile(wrapped, 'tmp', 'single')
-            return code
+            exec_funcs[x.name] = code
 
-    return False
-
-
-def has_animate(codestring):
-    """
-    :return: True if *docstring* define a function *"animate"*
-    """
-    r = ast_parse(codestring)
-    functions_list = [x for x in ast.walk(r) if isinstance(x, ast.FunctionDef)]
-    for x in functions_list:
-        if x.name == "animate":
-            wrapped = ast.Interactive(body=[x.body[-1]])
-            code = compile(wrapped, 'tmp', 'single')
-            return code
-
-    return False
-
-
-def has_init(codestring):
-    """
-    :return: True if *docstring* define a function *"init"*
-    """
-    r = ast_parse(codestring)
-    functions_list = [x for x in ast.walk(r) if isinstance(x, ast.FunctionDef)]
-    for x in functions_list:
-        if x.name == "init":
-            wrapped = ast.Interactive(body=[x.body[-1]])
-            code = compile(wrapped, 'tmp', 'single')
-            return code
-
-    return False
-
-
-def has_run(codestring):
-    """
-    :return: True if *docstring* define a function *"run"*
-    """
-    r = ast_parse(codestring)
-    functions_list = [x for x in ast.walk(r) if isinstance(x, ast.FunctionDef)]
-    for x in functions_list:
-        if x.name == "run":
-            wrapped = ast.Interactive(body=[x.body[-1]])
-            code = compile(wrapped, 'tmp', 'single')
-            return code
-
-    return False
+    exec_funcs_list = [exec_funcs[func_name] for func_name in exec_funcs_names]
+    return exec_funcs_list
