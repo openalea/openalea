@@ -126,24 +126,20 @@ class TestProject(unittest.TestCase):
         assert 'noise_branch-2d.lpy' in project.model
 
 
-#     def test_save(self):
-#
-#         proj = self.project
-#         proj.add("model", filename="plop.py", content="print 'hello world'")
-#         proj.save()
-#
-#         assert len(proj.model) == 1
-#
-#         proj2 = Project('test', self.tmpdir)
-#
-#         assert len(proj2.model) == 1
-#         # assert len(proj2.control) == 2
-#         # assert proj2.control["my_integer"] == 42
-#         # assert proj2.control["my_float"] == 3.14
-#         assert proj2.model["plop"].read() == "print 'hello world'"
-#
-#         pm.close('test')
+    def test_save(self):
+        proj = self.project
+        model1 = proj.add("model", filename="plop.py", content="print 'plop world'")
+        model2 = proj.add("model", path=get_data('model.py'), mode=proj.MODE_LINK)
+        proj.save()
+        assert len(proj.model) == 2
 
+        proj2 = Project('test', self.tmpdir)
+        assert len(proj2.model) == 2
+        # assert len(proj2.control) == 2
+        # assert proj2.control["my_integer"] == 42
+        # assert proj2.control["my_float"] == 3.14
+        self.assertEqual(proj2.model["plop.py"].read(), "print 'plop world'")
+        self.assertEqual(proj2.model["model.py"].read(), "print 'hello world'\n")
 
     def test_add_script(self):
         self.project.add("model", filename="1.py", content="blablabla")
