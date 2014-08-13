@@ -137,6 +137,10 @@ setup(
             'OpenAleaLabInterfacePlugin = openalea.oalab.plugins.interfaces:OpenAleaLabInterfacePlugin',
             ],
 
+        'oalab.project_repository': [
+            'ProjectRepositoryTutorials = openalea.oalab.plugins.project_repository:tutorials',
+            ],
+
         # 'console_scripts': [
         #       'fake_script = openalea.fakepackage.amodule:console_script', ],
         # 'gui_scripts': [
