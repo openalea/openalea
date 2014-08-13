@@ -27,7 +27,7 @@ class TestProject(unittest.TestCase):
         assert filepath.isfile()
         assert d1.exists() is True
         # To check if memory has been freed
-        assert d1.content is None
+        assert d1._content is None
 
         f = filepath.open('rb')
         content2 = f.read()
@@ -57,4 +57,4 @@ class TestProject(unittest.TestCase):
 
         d5 = data(path=self.tmpdir/"doesnotexist"/"image.tiff", default_content=default_content)
         assert d5.exists() == False
-        assert d5.content == default_content
+        assert d5._content == default_content
