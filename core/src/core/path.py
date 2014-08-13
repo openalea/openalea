@@ -1078,6 +1078,18 @@ class path(unicode):
             else:
                 return (self.parent / p).abspath()
 
+    def normlink(self):
+        if hasattr(os, 'readlink'):
+            parts = self.splitall()
+            path = self.__class__('')
+            for i, p in enumerate(parts):
+                path = path / p
+                if path.islink():
+                    path = path.readlink()
+            return self.__class__(path)
+        else:
+            return self
+
     #
     # --- High-level functions from shutil
 
