@@ -98,7 +98,7 @@ class Project(Observed):
 
 
         self.started = False
-        self._path = Path(path).abspath()
+        self._path = Path(path).normlink().abspath()
 
         # Fill metadata
         for k in self.metadata_keys:
