@@ -1,3 +1,49 @@
+# -*- python -*-
+#
+#       OpenAlea.OALab: Multi-Paradigm GUI
+#
+#       Copyright 2014 INRIA - CIRAD - INRA
+#
+#       File author(s): Julien Coste <julien.coste@inria.fr>, Guillaume Baty <guillaume.baty@inria.fr>
+#
+#       File contributor(s):
+#
+#       Distributed under the Cecill-C License.
+#       See accompanying file LICENSE.txt or copy at
+#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
+#
+#       OpenAlea WebSite : http://openalea.gforge.inria.fr
+#
+###############################################################################
+"""
+The Project is a structure which permits to manage different objects.
+
+It stores **metadata** (alias, author, description, version, license, ...) and **data** (src, models, images, ...).
+
+You have here the default architecture of the project saved in directory "project".
+
+
+    /project
+        oaproject.cfg        (Configuration file)
+        /model          (Files sources, Script Python, LPy...)
+        /control       (Control, like color map or curve)
+        /world          (scene, scene 3D)
+        /cache          (Intermediary saved objects)
+        /data           (Data files like images, .dat, ...)
+        /lib            (Contains python modules and packages)
+        /startup          (Preprocessing scripts)
+            *.py            (Preprocessing scripts)
+            *import*.py     (Libs and packages to import in preprocessing)
+
+:use:
+    .. code-block:: python
+
+        project = Project(path="/path/to/proj/project")
+        project.add(category="model", filename="hello.py", content="print 'Hello World'")
+        project.author = "John Doe"
+        project.description = "This project is used to said hello to everyone"
+        project.save()
+"""
 
 import os
 from openalea.core.observer import Observed
@@ -50,7 +96,9 @@ class Project(Observed):
         self.metadata = {}
         self.categories = {}
 
-        self._path = Path(path)
+
+        self.started = False
+        self._path = Path(path).abspath()
 
         # Fill metadata
         for k in self.metadata_keys:
@@ -85,25 +133,33 @@ class Project(Observed):
             return object.__getattribute__(self, key)
 
     def __repr__(self):
-        return "%s(%r, %r)" % (self.__class__.__name__, self.path)
+        return "%s(%r)" % (self.__class__.__name__, self.path)
 
     @property
     def path(self):
         return self._path
 
-    def add(self, *args, **kwargs):
-        return self.add_data(*args, **kwargs)
+    @property
+    def projectdir(self):
+        return self._path.parent
 
-    def get(self, *args, **kwargs):
-        return self.get_data(*args, **kwargs)
+    @property
+    def name(self):
+        return self._path.name
 
-    def remove(self, *args, **kwargs):
-        return self.remove_data(*args, **kwargs)
+    def start(self,*args,**kwargs):
+        self.started = True
+
+    def add(self, category, obj=None, **kwargs):
+        return self.add_data(category, obj, **kwargs)
+
+    def get(self, category, name, **kwargs):
+        return self.get_data(category, name)
+
+    def remove(self, category, name, **kwargs):
+        return self.remove_data(category, name, **kwargs)
 
     def _add_data(self, category, obj=None, **kwargs):
-        """
-        path, filename, content, dtype
-        """
         mode = kwargs['mode'] if 'mode' in kwargs else self.MODE_COPY
         if obj:
             # TODO: Check obj follow Data or Model interface ??
@@ -223,7 +279,12 @@ class Project(Observed):
         config = ConfigObj(self.path / self.config_filename)
         if 'metadata' in config:
             for info in config["metadata"].keys():
-                setattr(self, info, config['metadata'][info])
+                if info == 'name':
+                    info = 'alias'
+                    value = config['metadata']['name']
+                else:
+                    value = config['metadata'][info]
+                setattr(self, info, value)
 
         if 'manifest' in config:
             # Load file names in right place (dict.keys()) but don't load entire object:
