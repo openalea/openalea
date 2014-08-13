@@ -92,7 +92,7 @@ class Project(Observed):
     def path(self):
         return self.projectdir / self.name
 
-    def add(self, category, obj=None, **kwargs):
+    def _add(self, category, obj=None, **kwargs):
         """
         path, filename, content, dtype
         """
@@ -149,7 +149,44 @@ class Project(Observed):
                 # Nothing to do, data is yet in the right place
 
             data_obj = data(new_path, dtype, default_content=content)
-            return self.add(category, data_obj, **kwargs)
+            return self._add(category, data_obj, **kwargs)
+
+    def _remove(self, category, filename):
+        if self.get(category, filename):
+            files = getattr(self, category)
+            del files[filename]
+
+    def _rename(self, category, old, new):
+        data = self.get(category, old)
+        data.rename(new)
+        self._remove(category, old)
+        self._add(category, data)
+
+    def add(self, category, obj=None, **kwargs):
+        data = self._add(category, obj, **kwargs)
+        self.notify_listeners(('project_changed', self))
+        self.notify_listeners(('data_added', (self, category, data)))
+        return data
+
+    def remove(self, category, filename):
+        self._remove(category, filename)
+        self.notify_listeners(('project_changed', self))
+        self.notify_listeners(('data_removed', (self, category, filename)))
+
+    def rename(self, category, old, new):
+        self._rename(category, old, new)
+        self.notify_listeners(('project_changed', self))
+        self.notify_listeners(('data_renamed', (self, category, old, new)))
+
+    def delete(self, category, filename):
+        pass
+
+    def get(self, category, filename):
+        files = getattr(self, category)
+        return files.get(filename)
+
+        self.notify_listeners(('project_changed', self))
+        self.notify_listeners(('data_renamed', (self, category, filename)))
 
     def _load(self):
         """
@@ -218,4 +255,6 @@ class Project(Observed):
 
         config.write()
         self.notify_listeners(('project_saved', self))
+
+
 

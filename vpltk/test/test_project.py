@@ -141,23 +141,21 @@ class TestProject(unittest.TestCase):
     def test_rename(self):
         self.project.add("model", filename="1.py", content="blablabla")
 
-        # model1_path = self.project.path / 'model' / '1.py'
-        #
-        # assert model1_path.isfile()
+        model1_path = self.project.path / 'model' / '1.py'
+        self.assertEqual(self.project.get('model', '1.py').path, model1_path)
 
         self.project.rename("model", "1.py", "2.py")
         assert len(self.project.model) == 1
         assert "2.py" in self.project.model
         assert self.project.model["2.py"].read() == "blablabla"
 
-        # # Old bug, path lost extension at rename
-        # model2_badpath = self.project.path / 'model' / '2'
-        # assert model2_badpath.exists() is False
-        # assert model2_path.isfile()
+        # Old bug, path lost extension at rename
+        model2_badpath = self.project.path / 'model' / '2'
+        assert model2_badpath.exists() is False
 
 
-    # def test_rename_project(self):
-    #     self.project.add("model", filename="1.py", content="blablabla")
-    #     self.project.rename("project", "test", "test2")
-    #     assert self.project.name == "test2"
+#     def test_rename_project(self):
+#         self.project.add("model", filename="1.py", content="blablabla")
+#         self.project.rename("project", "test", "test2")
+#         assert self.project.name == "test2"
 
