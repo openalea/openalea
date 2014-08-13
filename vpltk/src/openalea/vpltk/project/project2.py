@@ -118,12 +118,10 @@ class Project(Observed):
 
             if filename:
                 new_path = self.path / category / filename.name
-                name = filename.namebase
             elif path:
                 if not path.exists():
                     raise ValueError("path '%s' doesn't exists" % path)
                 filename = path.name
-                name = filename.namebase
                 new_path = self.path / category / filename
             else:
                 raise ValueError("path or filename required")
@@ -140,7 +138,7 @@ class Project(Observed):
                 try:
                     path.copyfile(new_path)
                 except IOError:
-                    data_obj = data(path, name, dtype, default_content=content)
+                    data_obj = data(path, dtype, default_content=content)
                     content = data_obj.read()
                 else:
                     content = None
@@ -150,7 +148,7 @@ class Project(Observed):
                 pass
                 # Nothing to do, data is yet in the right place
 
-            data_obj = data(new_path, name, dtype, default_content=content)
+            data_obj = data(new_path, dtype, default_content=content)
             return self.add(category, data_obj, **kwargs)
 
     def _load(self):
