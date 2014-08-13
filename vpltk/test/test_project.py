@@ -4,6 +4,7 @@ from openalea.core.path import tempdir
 from openalea.core.path import path as Path
 from openalea.vpltk.project.project2 import Project
 from openalea.oalab.service.data import data
+import re
 
 
 def get_data(filename):
@@ -139,7 +140,7 @@ class TestProject(unittest.TestCase):
 #         self.project.add("model", filename="2.py", content="blablabla2")
         assert len(self.project.model) == 2
 
-    def test_rename(self):
+    def test_rename_data(self):
         self.project.add("model", filename="1.py", content="blablabla")
 
         model1_path = self.project.path / 'model' / '1.py'
@@ -154,10 +155,44 @@ class TestProject(unittest.TestCase):
         model2_badpath = self.project.path / 'model' / '2'
         assert model2_badpath.exists() is False
 
-
-    def test_rename_project(self):
+    def test_move_project(self):
         self.project.add("model", filename="1.py", content="blablabla")
         old_path = self.project.path
-        self.project.move("test2")
+        tmpdir2 = tempdir()
+        self.project.move(tmpdir2/"test2")
         assert old_path.exists() is False
+        assert self.project.path != old_path
+        assert self.project.name == "test2"
+        assert self.project.name == "test2"
+
+        old_dir = self.project.projectdir
+        self.project.rename("test3")
+        assert self.project.name == "test3"
+        assert self.project.projectdir == old_dir
+
+    def test_set_attr_err(self):
+        with self.assertRaises(NameError) as cm:
+            self.project.model = dict()
+
+        msg = "cannot change 'model' attribute"
+        self.assertEqual(cm.exception.message, msg)
+
+    def test_get_attr(self):
+        model1 = self.project.add("model", filename="1.py", content="blablabla")
+        model2 = self.project.model
+        model2 = model2.values()[0]
+        assert model1.read() == model2.read()
+
+    def test_repr(self):
+        msg = "Project(%r)" % str(self.project.path)
+        self.assertEqual(repr(self.project), msg)
+
+    def test_remove_data(self):
+        self.project.add("model", filename="1.py", content="blablabla")
+        self.project.save()
+        assert len(self.project.model) == 1
+        assert (self.project.path / "model" / "1.py").exists()
+        self.project.remove_data("model", "1.py")
+        assert len(self.project.model) == 0
+        assert (self.project.path / "model" / "1.py").exists()
 
