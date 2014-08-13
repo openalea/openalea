@@ -54,7 +54,7 @@ from openalea.vpltk.project.saver import get_saver
 
 from openalea.oalab.service.data import data
 from openalea.oalab.control.control import Control
-
+#125, 133, 136, 144, 148, 151, 160, 208, 225, 238-240, 244, 250, 253-254, 259, 261, 283-284, 296, 311, 337
 
 class MetaData(Control):
     pass
@@ -122,7 +122,7 @@ class Project(Observed):
                 self.notify_listeners(('project_changed', self))
                 self.notify_listeners(('metadata_changed', (self, key, old_value, value)))
         elif key in self.category_keys:
-            raise NameError, 'cannot change %s attribute' % key
+            raise NameError, "cannot change '%s' attribute" % key
         else:
             return object.__setattr__(self, key, value)
 
@@ -133,7 +133,7 @@ class Project(Observed):
             return object.__getattribute__(self, key)
 
     def __repr__(self):
-        return "%s(%r)" % (self.__class__.__name__, self.path)
+        return "%s(%r)" % (self.__class__.__name__, str(self.path))
 
     @property
     def path(self):
@@ -259,6 +259,7 @@ class Project(Observed):
             return
         if src.exists():
             src.move(dest)
+        self._path = dest
         self.notify_listeners(('project_changed', self))
         self.notify_listeners(('project_moved', (self, src, dest)))
 
