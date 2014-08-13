@@ -51,6 +51,13 @@ class Data(object):
         else:
             return self._content
 
+    def rename(self, new):
+        new_path = self.path.parent / new
+        if self.path.isfile():
+            self.path.rename(new)
+        else:
+            self.path = new_path
+
     def exists(self):
         return self.path.exists()
 
