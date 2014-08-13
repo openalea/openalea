@@ -25,9 +25,7 @@ class TestProject(unittest.TestCase):
         assert model is not model2
         assert model2.path == self.project.path / 'model' / 'model.py'
 
-
     def test_add_data(self):
-
         # Create new data from scratch
         d1 = self.project.add('data', filename='image_1.tiff', content=b'')
         assert d1.path.name == 'image_1.tiff'
@@ -56,7 +54,6 @@ class TestProject(unittest.TestCase):
         self.assertEqual(cm.exception.message, msg)
         assert(len(self.project.data) == 0)
 
-
         # Case datatype is not defined
         with self.assertRaises(ValueError) as cm:
             self.project.add('data')
@@ -81,8 +78,6 @@ class TestProject(unittest.TestCase):
         msg = "data 'image.png' already exists in project 'test'"
         self.assertEqual(cm.exception.message, msg)
 
-
-
     def test_add_model(self):
 
         m1 = self.project.add('model', filename='model_1.py', datatype='python', content='print 1')
@@ -94,7 +89,6 @@ class TestProject(unittest.TestCase):
         assert m2.read() == 'print 2'
         assert str(m2.filename) == 'model_2.py'
         assert m2.path == self.project.path / 'model' / 'model_2.py'
-
 
         sample = get_data('model.py')
         f = open(sample)
@@ -111,12 +105,10 @@ class TestProject(unittest.TestCase):
         assert str(m4.filename) == 'model_4.py'
         assert m4.path == self.project.path / 'model' / 'model_4.py'
 
-
         # Check object is a valid model
         # for model in [m1, m2, m3, m4]:
         #     assert hasattr(model, 'run')
         #     assert model.dtype == 'python'
-
 
     def test_load(self):
         project = Project('test_project_lpy', projectdir='data')
@@ -124,7 +116,6 @@ class TestProject(unittest.TestCase):
         assert len(project.cache) == 4
         assert len(project.startup) == 1
         assert 'noise_branch-2d.lpy' in project.model
-
 
     def test_save(self):
         proj = self.project
@@ -147,23 +138,22 @@ class TestProject(unittest.TestCase):
 #         self.project.add("model", filename="2.py", content="blablabla2")
         assert len(self.project.model) == 2
 
+    def test_rename(self):
+        self.project.add("model", filename="1.py", content="blablabla")
 
-    # def test_rename(self):
-    #     self.project.add("model", filename="1.py", content="blablabla")
-    #
-    #     model1_path = self.project.path / 'model' / '1.py'
-    #     model2_path = self.project.path / 'model' / '2.py'
-    #
-    #     assert model1_path.isfile()
-    #
-    #     self.project.rename("model", "1", "2")
-    #     assert len(self.project.src) == 1
-    #     assert self.project.model["2"].read() == "blablabla"
-    #
-    #     # Old bug, path lost extension at rename
-    #     model2_badpath = self.project.path / 'model' / '2'
-    #     assert model2_badpath.exists() is False
-    #     assert model2_path.isfile()
+        # model1_path = self.project.path / 'model' / '1.py'
+        #
+        # assert model1_path.isfile()
+
+        self.project.rename("model", "1.py", "2.py")
+        assert len(self.project.model) == 1
+        assert "2.py" in self.project.model
+        assert self.project.model["2.py"].read() == "blablabla"
+
+        # # Old bug, path lost extension at rename
+        # model2_badpath = self.project.path / 'model' / '2'
+        # assert model2_badpath.exists() is False
+        # assert model2_path.isfile()
 
 
     # def test_rename_project(self):
