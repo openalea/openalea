@@ -13,10 +13,6 @@ def datatype(path):
         return None
 
 
-def dataname(path):
-    return path.namebase
-
-
 def dataclass(dtype):
     """
     Return class wich match dtype.
@@ -28,25 +24,23 @@ def dataclass(dtype):
     return Data
 
 
-def arrange_data_args(name, path, dtype):
-    if name is None:
-        name = dataname(path)
+def arrange_data_args(path, dtype):
     if dtype is None:
         dtype = datatype(path)
-    return name, path, dtype
+    return path, dtype
 
 
-def data(path, name=None, dtype=None, **kwargs):
+def data(path, dtype=None, **kwargs):
+    path = Path(path)
     default_content = kwargs['default_content'] if 'default_content' in kwargs else None
 
-    path = Path(path)
     if path.isfile():
         if default_content is not None:
             raise ValueError("got multiple values for content (parameter and '%s')" % path.name)
         else:
-            name, path, dtype = arrange_data_args(name, path, dtype)
+            path, dtype = arrange_data_args(path, dtype)
             DataClass = dataclass(dtype)
-            return DataClass(name, path, dtype)
+            return DataClass(path, dtype)
     elif path.exists():
         raise ValueError("'%s' exists but is not a file" % path)
     elif not path.exists():
@@ -61,6 +55,6 @@ def data(path, name=None, dtype=None, **kwargs):
             f.close()
             content = None
 
-        name, path, dtype = arrange_data_args(name, path, dtype)
+        path, dtype = arrange_data_args(path, dtype)
         DataClass = dataclass(dtype)
-        return DataClass(name, path, dtype, content=content)
+        return DataClass(path, dtype, content=content)

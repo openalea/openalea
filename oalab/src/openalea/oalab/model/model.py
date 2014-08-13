@@ -24,15 +24,15 @@ from openalea.core.path import path as Path
 
 
 class Data(object):
-    def __init__(self, name, path, dtype, **kwargs):
+    def __init__(self, path, dtype, **kwargs):
         """
         Classical use : *path* exists. Nothing is loaded in memory.
         Use :meth:`~Data.read` to get content
         """
         # TODO: document args
-        self.name = name
         self.path = Path(path)
         self.dtype = dtype
+        self.name = kwargs['name'] if 'name' in kwargs else self.path.namebase
         self._content = kwargs['content'] if 'content' in kwargs else None
 
     # def write(self, content):
