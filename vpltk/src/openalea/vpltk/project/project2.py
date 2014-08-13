@@ -331,7 +331,6 @@ class Project(Observed):
                         section = category + ".path"
                         config.setdefault(section, {})[data.filename] = data.path
 
-
         config.write()
 
     def save_metadata(self):
