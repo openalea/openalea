@@ -1,19 +1,20 @@
 
 import unittest
-from openalea.core.path import tempdir, path
+from openalea.core.path import tempdir
+from openalea.core.path import path as Path
 from openalea.vpltk.project.project2 import Project
 from openalea.oalab.service.data import data
 
 
 def get_data(filename):
-    return path(__file__).parent.abspath() / 'data' / filename
+    return Path(__file__).parent.abspath() / 'data' / filename
 
 
 class TestProject(unittest.TestCase):
 
     def setUp(self):
         self.tmpdir = tempdir()
-        self.project = Project('test', projectdir=self.tmpdir)
+        self.project = Project(self.tmpdir / 'test', alias='test')
 
     def tearDown(self):
         self.project = None
@@ -111,7 +112,7 @@ class TestProject(unittest.TestCase):
         #     assert model.dtype == 'python'
 
     def test_load(self):
-        project = Project('test_project_lpy', projectdir='data')
+        project = Project(Path('data') / 'test_project_lpy')
         assert len(project.model) == 1
         assert len(project.cache) == 4
         assert len(project.startup) == 1
@@ -124,7 +125,7 @@ class TestProject(unittest.TestCase):
         proj.save()
         assert len(proj.model) == 2
 
-        proj2 = Project('test', self.tmpdir)
+        proj2 = Project(self.tmpdir / 'test')
         assert len(proj2.model) == 2
         # assert len(proj2.control) == 2
         # assert proj2.control["my_integer"] == 42
@@ -144,7 +145,7 @@ class TestProject(unittest.TestCase):
         model1_path = self.project.path / 'model' / '1.py'
         self.assertEqual(self.project.get('model', '1.py').path, model1_path)
 
-        self.project.rename("model", "1.py", "2.py")
+        self.project.rename_data("model", "1.py", "2.py")
         assert len(self.project.model) == 1
         assert "2.py" in self.project.model
         assert self.project.model["2.py"].read() == "blablabla"
@@ -154,8 +155,9 @@ class TestProject(unittest.TestCase):
         assert model2_badpath.exists() is False
 
 
-#     def test_rename_project(self):
-#         self.project.add("model", filename="1.py", content="blablabla")
-#         self.project.rename("project", "test", "test2")
-#         assert self.project.name == "test2"
+    def test_rename_project(self):
+        self.project.add("model", filename="1.py", content="blablabla")
+        old_path = self.project.path
+        self.project.move("test2")
+        assert old_path.exists() is False
 

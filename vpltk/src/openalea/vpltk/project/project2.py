@@ -16,7 +16,7 @@ class MetaData(Control):
 class Project(Observed):
 
     metadata_keys = {
-#         "name":MetaData('name', 'IStr', 'MyProject'),
+        "alias":MetaData('alias', 'IStr', 'MyProject'),
         "icon":MetaData('icon', 'IFileStr', 'icon.png'),
         "author":MetaData('author', 'ISequence', []),
         "author_email":MetaData('author_email', 'IStr'),
@@ -44,14 +44,13 @@ class Project(Observed):
     MODE_COPY = 'copy'
     MODE_LINK = 'link'
 
-    def __init__(self, name, projectdir, **kwargs):
+    def __init__(self, path, **kwargs):
         Observed.__init__(self)
 
         self.metadata = {}
         self.categories = {}
 
-        self.name = name
-        self.projectdir = Path(projectdir)
+        self._path = Path(path)
 
         # Fill metadata
         for k in self.metadata_keys:
@@ -86,13 +85,22 @@ class Project(Observed):
             return object.__getattribute__(self, key)
 
     def __repr__(self):
-        return "%s(%r, %r)" % (self.__class__.__name__, self.name, self.projectdir)
+        return "%s(%r, %r)" % (self.__class__.__name__, self.path)
 
     @property
     def path(self):
-        return self.projectdir / self.name
+        return self._path
 
-    def _add(self, category, obj=None, **kwargs):
+    def add(self, *args, **kwargs):
+        return self.add_data(*args, **kwargs)
+
+    def get(self, *args, **kwargs):
+        return self.get_data(*args, **kwargs)
+
+    def remove(self, *args, **kwargs):
+        return self.remove_data(*args, **kwargs)
+
+    def _add_data(self, category, obj=None, **kwargs):
         """
         path, filename, content, dtype
         """
@@ -102,13 +110,13 @@ class Project(Observed):
             new_path = self.path / category / obj.path.name
             if obj.path != new_path and mode == self.MODE_COPY:
                 # TODO: use Data.copy instead
-                return self.add(category, path=obj.path, **kwargs)
+                return self._add_data(category, path=obj.path, **kwargs)
 
             category_dict = getattr(self, category)
             if obj.filename not in category_dict:
                 category_dict[obj.filename] = obj
             else:
-                raise ValueError("data '%s' already exists in project '%s'" % (obj.filename, self.name))
+                raise ValueError("data '%s' already exists in project '%s'" % (obj.filename, self.alias))
             return obj
         else:
             filename = Path(kwargs['filename']) if 'filename' in kwargs else None
@@ -149,44 +157,58 @@ class Project(Observed):
                 # Nothing to do, data is yet in the right place
 
             data_obj = data(new_path, dtype, default_content=content)
-            return self._add(category, data_obj, **kwargs)
+            return self._add_data(category, data_obj, **kwargs)
 
-    def _remove(self, category, filename):
+    def _remove_data(self, category, filename):
         if self.get(category, filename):
             files = getattr(self, category)
             del files[filename]
 
-    def _rename(self, category, old, new):
-        data = self.get(category, old)
+    def _rename_data(self, category, old, new):
+        if old == new:
+            return
+        data = self.get_data(category, old)
         data.rename(new)
-        self._remove(category, old)
-        self._add(category, data)
+        self._remove_data(category, old)
+        self._add_data(category, data)
 
-    def add(self, category, obj=None, **kwargs):
-        data = self._add(category, obj, **kwargs)
+    def add_data(self, category, obj=None, **kwargs):
+        data = self._add_data(category, obj, **kwargs)
         self.notify_listeners(('project_changed', self))
         self.notify_listeners(('data_added', (self, category, data)))
         return data
 
-    def remove(self, category, filename):
-        self._remove(category, filename)
+    def remove_data(self, category, filename):
+        self._remove_data(category, filename)
         self.notify_listeners(('project_changed', self))
         self.notify_listeners(('data_removed', (self, category, filename)))
 
-    def rename(self, category, old, new):
-        self._rename(category, old, new)
+    def rename_data(self, category, old, new):
+        if old == new:
+            return
+        self._rename_data(category, old, new)
         self.notify_listeners(('project_changed', self))
         self.notify_listeners(('data_renamed', (self, category, old, new)))
 
-    def delete(self, category, filename):
-        pass
+    def delete(self):
+        raise NotImplementedError
 
-    def get(self, category, filename):
+    def rename(self, new):
+        dest = self.path.parent / new
+        self.move(dest)
+
+    def move(self, dest):
+        src = self.path
+        if src == dest:
+            return
+        if src.exists():
+            src.move(dest)
+        self.notify_listeners(('project_changed', self))
+        self.notify_listeners(('project_moved', (self, src, dest)))
+
+    def get_data(self, category, filename):
         files = getattr(self, category)
         return files.get(filename)
-
-        self.notify_listeners(('project_changed', self))
-        self.notify_listeners(('data_renamed', (self, category, filename)))
 
     def _load(self):
         """
@@ -221,19 +243,13 @@ class Project(Observed):
                         else:
                             self.add(category, filename=filename, mode=self.MODE_COPY)
 
-    def save(self):
-        """
-        Save a manifest file on disk. It name is defined by config_filename.
-
-        It contains **list of files** that are inside project (*manifest*) and **metadata** (author, version, ...).
-        """
+    def _save_manifest(self):
         config = ConfigObj()
+        config_path = self.path / self.config_filename
+        if not config_path.isfile():
+            return
 
-        config.filename = self.path / self.config_filename
-
-        if not self.path.exists():
-            self.path.makedirs()
-
+        config.filename = config_path
         config['manifest'] = dict()
         config['metadata'] = self.metadata
 
@@ -253,7 +269,23 @@ class Project(Observed):
                         section = category + ".path"
                         config.setdefault(section, {})[data.filename] = data.path
 
+
         config.write()
+
+    def save_metadata(self):
+        self._save_manifest()
+
+    def save(self):
+        """
+        Save a manifest file on disk. It name is defined by config_filename.
+
+        It contains **list of files** that are inside project (*manifest*) and **metadata** (author, version, ...).
+        """
+        if not self.path.exists():
+            self.path.makedirs()
+        config_path = self.path / self.config_filename
+        config_path.touch()
+        self._save_manifest()
         self.notify_listeners(('project_saved', self))
 
 
