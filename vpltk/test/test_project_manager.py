@@ -1,84 +1,123 @@
-from openalea.vpltk.project.manager import ProjectManager
-from openalea.core.path import path, tempdir
 
-def test_create_project_from_manager():
-    pm = ProjectManager()
-    proj = pm.create('my_new_temp_project', path("data"))
+import unittest
+from openalea.core.path import tempdir
+from openalea.core.path import path as Path
+from openalea.vpltk.project.project2 import Project
+from openalea.oalab.service.data import data
+from openalea.vpltk.project.manager2 import ProjectManager
 
-    for category in ["name", "icon", "author", "description", "version", "license", "dependencies"]:
-        assert proj.metadata.has_key(category)
+pm = ProjectManager()
 
-    proj = pm.create('my_new_temp_project', path("data"))
-    print proj
+def get_data(filename):
+    return Path(__file__).parent.abspath() / 'data' / filename
 
-def test_create_project_from_manager2():
-    pm = ProjectManager()
-    proj = pm.create('my_new_temp_project')
+class TestProjectManager(unittest.TestCase):
 
-    for category in ["name", "icon", "author", "description", "version", "license", "dependencies"]:
-        assert proj.metadata.has_key(category)
+    def setUp(self):
+        self.tmpdir = tempdir()
+        self.tmpdir2 = tempdir()
+        pm.clear()
+        # Force to ignore default repositories
+        pm.repositories = [self.tmpdir]
 
+    def tearDown(self):
+        self.tmpdir.rmtree()
+        self.tmpdir2.rmtree()
 
-def test_discover():
-    pm = ProjectManager()
-    pm.discover()
+    def create_projects(self):
+        """
+        tmp1
+          - p1
+          - p2
+          - link -> p2
+        tmp2
+          - p1
+          - p3
+          - link -> p4
+        """
+        project = Project(self.tmpdir / 'p1', alias="p1")
+        project.save()
 
-    assert len(pm.projects) > 0
+        project = Project(self.tmpdir / 'p2')
+        project.save()
 
+        project.path.symlink(self.tmpdir / 'link')
 
-def test_discover_not_add_twice_by_discover_twice():
-    pm = ProjectManager()
-    pm.discover()
+        project = Project(self.tmpdir2 / 'p1', alias="Project 1")
+        project.save()
 
-    projects_nb = len(pm.projects)
-    pm.discover()
+        project = Project(self.tmpdir2 / 'p3')
+        project.save()
 
-    assert len(pm.projects) == projects_nb
+        project.path.symlink(self.tmpdir2 / 'link')
 
+    def test_create_project_from_manager(self):
+        proj = pm.create('new_temp_project', projectdir=self.tmpdir)
+        assert proj.projectdir == self.tmpdir
+        assert proj.path.name == 'new_temp_project'
 
-def test_discover_not_added_twice():
-    pm = ProjectManager()
-    pm.discover()
+    def test_discover(self):
+        pm.discover()
+        self.assertEqual(pm.projects, [])
 
-    nb = len(pm.projects)
-    nb2 = int(nb / 2)
-    assert nb > 1
-    assert nb2 > 0
-    assert str(pm.projects[nb - 1].name) != str(pm.projects[nb2 - 1].name)
+        self.create_projects()
+        pm.discover()
 
+        directories = sorted([str(path.name) for path in self.tmpdir.listdir()])
+        project_dirs = sorted([str(project.path.name) for project in pm.projects])
 
-def test_add_path():
-    pm = ProjectManager()
-    pm.discover()
+        # Check that we discover projects in the right repository (tmpdir)
+        for project in pm.projects:
+            self.assertEqual(project.projectdir, self.tmpdir)
 
-    nb = len(pm.projects)
-    pm.find_links.append(pm.find_links[0])
-    pm.discover()
+        # Check all directory have been created
+        self.assertListEqual(directories, ['link', 'p1', 'p2'])
 
-    nb2 = len(pm.projects)
-    assert nb == nb2
+        # Check symlink has been replaced by right path
+        # And check projects are not appended twice
+        self.assertListEqual(project_dirs, ['p1', 'p2'])
 
+    def test_repository_added_twice(self):
+        # Check if a repository is added twice, projects are discovered only one time
+        self.create_projects()
+        assert len(pm.repositories) == 1
+        pm.repositories.append(self.tmpdir)
+        pm.discover()
 
-def test_search():
-    pm = ProjectManager()
-    pm.discover()
-    proj = pm.search()
+        assert len(pm.projects) == 2
 
-    if proj:
-        if not isinstance(pm.projects, list):
-            pm.projects = [pm.projects]
-        names = [pro.name for pro in pm.projects]
-        assert proj.name in names
-    else:
-        assert proj is None
-        assert pm.projects == []
+    def test_search(self):
+        self.create_projects()
+        pm.repositories.append(self.tmpdir2)
+        pm.discover()
 
+        p1a = self.tmpdir / 'p1'
+        p2a = self.tmpdir / 'p2'
+        p1b = self.tmpdir2 / 'p1'
+        p3b = self.tmpdir2 / 'p3'
 
+        assert len(pm.search()) == 4
+        proj_p1 = pm.search(name='p1')
+        name_p1 = sorted([str(project.path) for project in proj_p1])
 
-def test_load_default():
-    pm = ProjectManager()
-    pm.discover()
-    proj = pm.load_default()
-    proj2 = pm.default()
-    assert type(proj) is type(proj2)
-    assert str(proj.name) == "temp"
+        assert len(proj_p1) == 2
+        assert len(pm.search(name='p2')) == 1
+        self.assertListEqual(name_p1, sorted([str(p1a), str(p1b)]))
+
+        alias_p1 = pm.search(alias='p1')
+        self.assertEqual(len(alias_p1), 1)
+        self.assertEqual(alias_p1[0].path, self.tmpdir / 'p1')
+
+    def test_load(self):
+        self.create_projects()
+        pm.repositories.append(self.tmpdir2)
+        pm.discover()
+        project = pm.load('p2')
+        assert project.path == self.tmpdir / 'p2'
+        project = pm.load('p1')
+        assert project.name == 'p1'
+        assert isinstance(project, Project)
+
+    def test_default(self):
+        project = pm.default()
+        assert str(project.name) == "temp"
