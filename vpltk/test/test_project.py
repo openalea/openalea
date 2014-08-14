@@ -134,7 +134,7 @@ class TestProject(TestCase):
         #     assert model.dtype == 'python'
 
     def test_load(self):
-        project = Project(Path('data') / 'test_project_lpy')
+        project = Project(get_data('test_project_lpy'))
         project.register_listener(self.ev)
         assert len(project.model) == 1
         assert len(project.cache) == 4

@@ -15,8 +15,21 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-from openalea.oalab.model.python import PythonModel
+from openalea.vpltk.datamodel.python import PythonModel
+from openalea.oalab.model.parse import parse_functions, parse_docstring, get_docstring
 
+code = '''
+"""
+input = x=1, y=2
+output = result
+"""
+result = x + y
+'''
+
+
+model, inputs_info, outputs_info = parse_docstring(code)
+_init, _step, _animate, _run = parse_functions(code)
+doc = get_docstring(code)
 
 def test_run():
     model_src = '''"""input = x=1, y=2
@@ -45,6 +58,7 @@ result = x + y
     # model.inputs = 5, 6
     # result = model()
     # assert result == 11
+
 
 
 def test_run_list():
@@ -133,7 +147,7 @@ r = a + b
     fibo = PythonModel(code=model_fibo_src)
     xi, xj = 0, 1
     nb_step = 20
-    for i in range(int(nb_step)-1):
+    for i in range(int(nb_step) - 1):
         xi, xj = fibo(xi, xj)
 
     assert xi == 4181
