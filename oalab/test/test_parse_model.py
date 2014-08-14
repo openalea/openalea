@@ -106,8 +106,8 @@ print "ok"
 '''
     d = get_docstring(model_src)
     inputs, outputs = parse_input_and_output(d)
-    assert inputs
-    assert outputs
+    assert inputs == ['x:int=4', 'y:float=3.14', 'z', 'debug:bool']
+    assert outputs == ['success']
 
 
 def test_docstring_input():
