@@ -20,7 +20,7 @@ def dataclass(dtype):
 
     Matching can be extended with plugins.
     """
-    from openalea.oalab.model.model import Data
+    from openalea.vpltk.datamodel.data import Data
     return Data
 
 
@@ -40,7 +40,7 @@ def data(path, dtype=None, **kwargs):
         else:
             path, dtype = arrange_data_args(path, dtype)
             DataClass = dataclass(dtype)
-            return DataClass(path, dtype)
+            return DataClass(path=path, dtype=dtype)
     elif path.exists():
         raise ValueError("'%s' exists but is not a file" % path)
     elif not path.exists():
@@ -57,4 +57,4 @@ def data(path, dtype=None, **kwargs):
 
         path, dtype = arrange_data_args(path, dtype)
         DataClass = dataclass(dtype)
-        return DataClass(path, dtype, content=content)
+        return DataClass(path=path, dtype=dtype, content=content)

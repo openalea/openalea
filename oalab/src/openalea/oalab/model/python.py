@@ -17,8 +17,17 @@
 ###############################################################################
 from openalea.oalab.model.model import Model
 from openalea.oalab.model.parse import parse_docstring, get_docstring, parse_functions
-from copy import copy
 
+
+DEFAULT_DOC = """
+<H1><IMG SRC=%s
+ ALT="icon"
+ HEIGHT=25
+ WIDTH=25
+ TITLE="Python logo">Python</H1>
+
+more informations: http://www.python.org/
+"""
 
 class PythonModel(Model):
     default_name = "Python"
@@ -43,15 +52,7 @@ class PythonModel(Model):
         if self._doc:
             return self._doc
         else:
-            return """
-<H1><IMG SRC=%s
- ALT="icon"
- HEIGHT=25
- WIDTH=25
- TITLE="Python logo">Python</H1>
-
-more informations: http://www.python.org/
-""" % str(self.icon)
+            return DEFAULT_DOC % str(self.icon)
 
     def repr_code(self):
         """
@@ -59,57 +60,44 @@ more informations: http://www.python.org/
         """
         return self.code
 
+    def _run_code(self, code, *args, **kwargs):
+        if code:
+            # Set inputs
+            self.inputs = args, kwargs
+            # Prepare namespace
+            self._prepare_namespace()
+            # Run inside namespace
+            user_ns = self.execute_in_namespace(code, namespace=self.ns)
+            self.ns.update(user_ns)
+            # Set outputs after execution
+            self._set_output_from_ns(self.ns)
+            return self.outputs
+
     def run(self, *args, **kwargs):
         """
         execute entire model
-        
+
         :return: outputs of the model
         """
-        # Set inputs
-        self.inputs = args, kwargs
-        # Prepare namespace
-        self._prepare_namespace()
-        # Run inside namespace
-        user_ns = self.execute_in_namespace(self.code, namespace=self.ns)
-        self.ns.update(user_ns)
-        # Set outputs after execution
-        self._set_output_from_ns(self.ns)
-        # return outputs
-        return self.outputs
+        return self._run_code(self.code, *args, **kwargs)
 
     def init(self, *args, **kwargs):
         """
         go back to initial step
         """
-        if self._init:
-            # Set inputs
-            self.inputs = args, kwargs
-            # Prepare namespace
-            self._prepare_namespace()
-            # Run inside namespace
-            user_ns = self.execute_in_namespace(self._init, namespace=self.ns)
-            self.ns.update(user_ns)
-            # Set outputs after execution
-            self._set_output_from_ns(self.ns)
-
-            return self.outputs
+        return self._run_code(self._init, *args, **kwargs)
 
     def step(self, *args, **kwargs):
         """
         execute only one step of the model
         """
-        if self._step:
-            # Set inputs
-            self.inputs = args, kwargs
-            # Prepare namespace
-            self._prepare_namespace()
-            # Run inside namespace
-            user_ns = self.execute_in_namespace(self._step, namespace=self.ns)
-            self.ns.update(user_ns)
-            # Set outputs after execution
-            self._set_output_from_ns(self.ns)
+        return self._run_code(self._step, *args, **kwargs)
 
-            return self.outputs
+    def animate(self, *args, **kwargs):
+        """
+        run model step by step
+        """
+        return self._run_code(self._animate, *args, **kwargs)
 
     def stop(self, *args, **kwargs):
         """
@@ -118,34 +106,18 @@ more informations: http://www.python.org/
         # TODO : to implement
         pass
 
-    def animate(self, *args, **kwargs):
-        """
-        run model step by step
-        """
-        if self._animate:
-            # Set inputs
-            self.inputs = args, kwargs
-            # Prepare namespace
-            self._prepare_namespace()
-            # Run inside namespace
-            user_ns = self.execute_in_namespace(self._animate, namespace=self.ns)
-            self.ns.update(user_ns)
-            # Set outputs after execution
-            self._set_output_from_ns(self.ns)
+    def _get_content(self):
+        return self._content
 
-            return self.outputs
-
-    @property
-    def code(self):
-        return self._code
-
-    @code.setter
-    def code(self, code=""):
+    def _set_content(self, content=""):
         """
-        Set the code and parse it to get docstring, inputs and outputs info, some methods
+        Set the content and parse it to get docstring, inputs and outputs info, some methods
         """
-        self._code = code
-        model, self.inputs_info, self.outputs_info = parse_docstring(code)
-        self._init, self._step, self._animate, self._run = parse_functions(code)
-        self._doc = get_docstring(code)
+        self._content = content
+        model, self.inputs_info, self.outputs_info = parse_docstring(content)
+        self._init, self._step, self._animate, self._run = parse_functions(content)
+        self._doc = get_docstring(content)
+
+    content = property(fget=_get_content, fset=_set_content)
+    code = property(fget=_get_content, fset=_set_content)
 

@@ -20,6 +20,8 @@ import re
 from openalea.core import logger
 from openalea.oalab.service.interface import get_class, guess
 import textwrap
+import collections
+from copy import copy
 
 #########################################
 ## Function to define to parse r model
@@ -281,10 +283,15 @@ def parse_input_and_output(docstring):
         outputs = output_name:output_type, ...
 
     :use:
-        >>> '''
+        >>> comment = '''
         >>> inputs = a:int=4, b
         >>> outputs = r:float
         >>> '''
+        >>> inputs, outputs = parse_input_and_output(comment)
+        >>> inputs
+        ['a:int=4', 'b']
+        >>> outputs
+        ['r:float']
 
     :return: inputs, outputs
     """
@@ -370,6 +377,14 @@ class InputObj(object):
         - an attribute *interface*: interface/type of the input obj (str) (optional)
         - an attribute *default*: default value of the input obj (str) (optional)
 
+    >>> obj = InputObj('a:float=1')
+    >>> obj.name
+    'a'
+    >>> obj.default
+    1
+    >>> obj.interface
+    'IFloat'
+
     :param string: string object with format "input_name:input_type=input_default_value" or "input_name=input_default_value" or "input_name:input_type" or "input_name"
     """
     def __init__(self, string=''):
@@ -421,6 +436,70 @@ def set_interface(input_obj):
 class OutputObj(InputObj):
     pass
 
+
+def prepare_inputs(inputs_info, *args, **kwargs):
+    """
+    >>> inputs_info = [InputObj('a:int=1'), InputObj('b:int=2')]
+    >>> prepare_inputs(inputs_info) #DOCTEST: +IGNORE
+    {'a':1, 'b':2}
+    >>> prepare_inputs(inputs_info, 10) #DOCTEST: +IGNORE
+    {'a':10, 'b':2}
+    >>> prepare_inputs(inputs_info, 10, 20) #DOCTEST: +IGNORE
+    {'a':10, 'b':20}
+    """
+    name = "NONAME"
+    # TODO: refactor with types.FunctionType
+    _inputs = dict()
+    if inputs_info:
+        not_set_inputs_info = copy(inputs_info) # Use it to know what we have to set and what is yet set
+
+        # Set positional arguments
+        if args:
+            inputs = list(args)
+            if len(inputs) == 1:
+                if isinstance(inputs, collections.Iterable):
+                    inputs = inputs[0]
+                elif isinstance(inputs, collections.Iterable):
+                    inputs = list(inputs)
+                inputs = [inputs]
+            inputs.reverse()
+
+            if inputs_info:
+                for input_info in inputs_info:
+                    if len(inputs):
+                        default_value = inputs.pop()
+                        if input_info.name:
+                            _inputs[input_info.name] = default_value
+                        not_set_inputs_info.remove(input_info)
+                    else:
+                        break
+
+        # Set non-positional arguments
+        if kwargs:
+            if len(not_set_inputs_info):
+                not_set_inputs_info_dict = dict((inp.name, inp) for inp in not_set_inputs_info)
+                for name in kwargs:
+                    value = kwargs[name]
+                    if name in not_set_inputs_info_dict.keys():
+                        _inputs[name] = value
+                        not_set_inputs_info.remove(not_set_inputs_info_dict[name])
+                        del not_set_inputs_info_dict[name]
+                    else:
+                        print "We can not put ", name, "inside inputs of model", name, "because such an input is not declared in the model."
+
+        # Fill others with defaults
+        if len(not_set_inputs_info):
+            for input_info in copy(not_set_inputs_info):
+                if input_info.default:
+                    default_value = eval(input_info.default)
+                    _inputs[input_info.name] = default_value
+                    not_set_inputs_info.remove(input_info)
+
+        # If one argument is missing, raise
+        if len(not_set_inputs_info):
+            raise Exception("Model %s have inputs not set. Please set %s." % (name, [inp.name for inp in not_set_inputs_info]))
+
+        return _inputs
 
 ################################
 ## Detect functions in docstring

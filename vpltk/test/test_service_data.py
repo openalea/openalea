@@ -23,7 +23,6 @@ class TestProject(unittest.TestCase):
 
         d1 = data(path=filepath, default_content=default_content)
         assert d1.path.name == 'new_image.tiff'
-        assert d1.name == 'new_image'
         assert filepath.isfile()
         assert d1.exists() is True
         # To check if memory has been freed
@@ -37,7 +36,6 @@ class TestProject(unittest.TestCase):
         # Embed existing data  (image.tiff exists)
         d2 = data(path=get_data('image.tiff'))
         assert d2.path.name == 'image.tiff'
-        assert d2.name == 'image'
 
         # Cannot set content because data yet exists
         # Case datatype is not defined
