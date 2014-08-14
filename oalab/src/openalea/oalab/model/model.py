@@ -21,62 +21,10 @@ from copy import copy
 from openalea.core.node import Node, AbstractFactory
 from openalea.vpltk.project.project import remove_extension
 from openalea.core.path import path as Path
+from openalea.oalab.model.parse import prepare_inputs
 
 
-class Data(object):
-    def __init__(self, path, dtype, **kwargs):
-        """
-        Classical use : *path* exists. Nothing is loaded in memory.
-        Use :meth:`~Data.read` to get content
-        """
-        # TODO: document args
-        self.path = Path(path)
-        self.dtype = dtype
-        self.name = kwargs['name'] if 'name' in kwargs else self.path.namebase
-        self._content = kwargs['content'] if 'content' in kwargs else None
-
-    # def write(self, content):
-    #     raise NotImplementedError
-
-    def save(self):
-        if self._content is not None:
-            with open(self.path, 'wb') as f:
-                f.write(self._content)
-            self._content = None
-
-    def read(self):
-        if self.exists():
-            with open(self.path, 'rb') as f:
-                return f.read()
-        else:
-            return self._content
-
-    def rename(self, new):
-        new_path = self.path.parent / new
-        if self.path.isfile():
-            self.path.rename(new)
-        else:
-            self.path = new_path
-
-    def exists(self):
-        return self.path.exists()
-
-    @property
-    def filename(self):
-        return self.path.name
-
-    @property
-    def doc(self):
-        pass
-
-# class Model(Data):
-#
-#     @property
-#     def code(self):
-#         return self.read()
-
-
-class Model(Data):
+class Model(object):
     default_dtype = "model"
     default_name = ""
     default_file_name = ""
@@ -158,7 +106,7 @@ class Model(Data):
         from openalea.oalab.service.ipython import get_interpreter
         interpreter = get_interpreter()
         return interpreter.runcode(code)
-        
+
     def execute_in_namespace(self, code, namespace={}):
         """
         Execute code in an isolate namespace
@@ -201,62 +149,13 @@ class Model(Data):
 
     @inputs.setter
     def inputs(self, *args):
-        # TODO: refactor with types.FunctionType
-        self._inputs = dict()
-        if self.inputs_info:
-            args, kwargs = args[0]
-            not_set_inputs_info = copy(self.inputs_info) # Use it to know what we have to set and what is yet set
-
-            # Set positional arguments
-            if args:
-                inputs = list(args)
-                if len(inputs) == 1:
-                    if isinstance(inputs, collections.Iterable):
-                        inputs = inputs[0]
-                    elif isinstance(inputs, collections.Iterable):
-                        inputs = list(inputs)
-                    inputs = [inputs]
-                inputs.reverse()
-
-                if self.inputs_info:
-                    for input_info in self.inputs_info:
-                        if len(inputs):
-                            default_value = inputs.pop()
-                            if input_info.name:
-                                self._inputs[input_info.name] = default_value
-                            not_set_inputs_info.remove(input_info)
-                        else:
-                            break
-
-            # Set non-positional arguments
-            if kwargs:
-                if len(not_set_inputs_info):
-                    not_set_inputs_info_dict = dict((inp.name, inp) for inp in not_set_inputs_info)
-                    for name in kwargs:
-                        value = kwargs[name]
-                        if name in not_set_inputs_info_dict.keys():
-                            self._inputs[name] = value
-                            not_set_inputs_info.remove(not_set_inputs_info_dict[name])
-                            del not_set_inputs_info_dict[name]
-                        else:
-                            print "We can not put ", name, "inside inputs of model", self.name, "because such an input is not declared in the model."
-
-            # Fill others with defaults
-            if len(not_set_inputs_info):
-                for input_info in copy(not_set_inputs_info):
-                    if input_info.default:
-                        default_value = eval(input_info.default)
-                        self._inputs[input_info.name] = default_value
-                        not_set_inputs_info.remove(input_info)
-
-            # If one argument is missing, raise
-            if len(not_set_inputs_info):
-                raise Exception("Model %s have inputs not set. Please set %s." % (self.name, [inp.name for inp in not_set_inputs_info]))
+        args, kwargs = args[0]
+        self._inputs = prepare_inputs(self.inputs_info, *args, **kwargs)
 
     def _set_output_from_ns(self, namespace):
         """
         Get outputs from namespace and set them inside self.outputs
-        
+
         :param namespace: dict where the model will search the outputs
         """
         if self.outputs_info:
@@ -264,8 +163,8 @@ class Model(Data):
             if len(self.outputs_info) > 0:
                 for outp in self.outputs_info:
                     if outp.name in namespace:
-                        self.outputs.append(namespace[outp.name])                    
-                        
+                        self.outputs.append(namespace[outp.name])
+
     @property
     def outputs(self):
         """
