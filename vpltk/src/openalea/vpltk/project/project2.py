@@ -96,6 +96,9 @@ class Project(Observed):
         self.metadata = {}
         self.categories = {}
 
+        # listeners = kwargs['listeners'] if 'listeners' in kwargs else []
+        # for listener in listeners:
+        #    self.register_listener(listener)
 
         self.started = False
         self._path = Path(path).normlink().abspath()
@@ -113,14 +116,18 @@ class Project(Observed):
 
         if self.path.exists():
             self._load()
+        #    self.notify_listeners(('project_loaded', (self, self.path)))
+        # else:
+        #    self.notify_listeners(('project_created', (self, self.path)))
+        # self.notify_listeners(('project_changed', self))
 
     def __setattr__(self, key, value):
         if key in self.metadata_keys:
             old_value = self.metadata[key]
             if old_value != value:
                 self.metadata[key] = value
-                self.notify_listeners(('project_changed', self))
                 self.notify_listeners(('metadata_changed', (self, key, old_value, value)))
+                self.notify_listeners(('project_changed', self))
         elif key in self.category_keys:
             raise NameError, "cannot change '%s' attribute" % key
         else:
@@ -230,21 +237,21 @@ class Project(Observed):
 
     def add_data(self, category, obj=None, **kwargs):
         data = self._add_data(category, obj, **kwargs)
-        self.notify_listeners(('project_changed', self))
         self.notify_listeners(('data_added', (self, category, data)))
+        self.notify_listeners(('project_changed', self))
         return data
 
     def remove_data(self, category, filename):
         self._remove_data(category, filename)
-        self.notify_listeners(('project_changed', self))
         self.notify_listeners(('data_removed', (self, category, filename)))
+        self.notify_listeners(('project_changed', self))
 
     def rename_data(self, category, old, new):
         if old == new:
             return
         self._rename_data(category, old, new)
-        self.notify_listeners(('project_changed', self))
         self.notify_listeners(('data_renamed', (self, category, old, new)))
+        self.notify_listeners(('project_changed', self))
 
     def delete(self):
         raise NotImplementedError
@@ -260,8 +267,8 @@ class Project(Observed):
         if src.exists():
             src.move(dest)
         self._path = dest
-        self.notify_listeners(('project_changed', self))
         self.notify_listeners(('project_moved', (self, src, dest)))
+        self.notify_listeners(('project_changed', self))
 
     def get_data(self, category, filename):
         files = getattr(self, category)
