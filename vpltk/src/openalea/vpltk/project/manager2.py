@@ -266,9 +266,8 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
     def notify(self, sender, event=None):
         signal, data = event
-        if signal == 'project_change':
+        if signal == 'project_changed':
             self.notify_listeners(('project_updated', self))
-            self.notify_listeners(('current_project_change', self))
 
     @property
     def cproject(self):
@@ -287,14 +286,13 @@ You can rename/move this project thanks to the button "Save As" in menu.
                 del self._cproject
             self._cproject = None
         else:
-            if (project.path).isdir():
+            if project.path.isdir():
                 os.chdir(project.path)
             self._cproject = project
             if not project.started:
                 project.start(shell=self.shell)
             project.register_listener(self)
         self.notify_listeners(('project_changed', self))
-        self.notify_listeners(('current_project_change', self))
 
 def main():
     from openalea.vpltk.qt import QtGui

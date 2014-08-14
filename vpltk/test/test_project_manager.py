@@ -1,5 +1,6 @@
 
 import unittest
+from openalea.core.unittest_tools import TestCase, EventTracker
 from openalea.core.path import tempdir
 from openalea.core.path import path as Path
 from openalea.vpltk.project.project2 import Project
@@ -7,18 +8,24 @@ from openalea.oalab.service.data import data
 from openalea.vpltk.project.manager2 import ProjectManager
 
 pm = ProjectManager()
+ev = EventTracker()
+# ev.debug = True
+pm.register_listener(ev)
 
 def get_data(filename):
     return Path(__file__).parent.abspath() / 'data' / filename
 
-class TestProjectManager(unittest.TestCase):
+
+class TestProjectManager(TestCase):
 
     def setUp(self):
         self.tmpdir = tempdir()
         self.tmpdir2 = tempdir()
+
         pm.clear()
         # Force to ignore default repositories
         pm.repositories = [self.tmpdir]
+        ev.events # clear events
 
     def tearDown(self):
         self.tmpdir.rmtree()
@@ -121,3 +128,8 @@ class TestProjectManager(unittest.TestCase):
     def test_default(self):
         project = pm.default()
         assert str(project.name) == "temp"
+
+    def test_project_updated_event(self):
+        project = pm.cproject
+        project.add('model', filename='test.py')
+        self.check_events(ev.events, ['project_updated'])

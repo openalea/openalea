@@ -58,3 +58,8 @@ class TestProject(unittest.TestCase):
         d5 = data(path=self.tmpdir/"doesnotexist"/"image.tiff", default_content=default_content)
         assert d5.exists() == False
         assert d5._content == default_content
+
+#     def test_dataclass(self):
+#         filepath = 'test.dat'
+#         d1 = data(path=filepath, default_content=b'data test.dat')
+
