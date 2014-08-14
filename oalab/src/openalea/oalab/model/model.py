@@ -19,7 +19,7 @@ import collections
 import string
 from copy import copy
 from openalea.core.node import Node, AbstractFactory
-from openalea.vpltk.project.project import remove_extension
+# from openalea.vpltk.project.project import remove_extension
 from openalea.core.path import path as Path
 from openalea.oalab.model.parse import prepare_inputs
 

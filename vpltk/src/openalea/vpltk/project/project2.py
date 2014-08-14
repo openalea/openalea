@@ -158,22 +158,22 @@ class Project(Observed):
         self.started = True
 
     def add(self, category, obj=None, **kwargs):
-        return self.add_data(category, obj, **kwargs)
+        return self.add_item(category, obj, **kwargs)
 
     def get(self, category, name, **kwargs):
-        return self.get_data(category, name)
+        return self.get_item(category, name)
 
     def remove(self, category, name, **kwargs):
-        return self.remove_data(category, name, **kwargs)
+        return self.remove_item(category, name, **kwargs)
 
-    def _add_data(self, category, obj=None, **kwargs):
+    def _add_item(self, category, obj=None, **kwargs):
         mode = kwargs['mode'] if 'mode' in kwargs else self.MODE_COPY
         if obj:
             # TODO: Check obj follow Data or Model interface ??
             new_path = self.path / category / obj.path.name
             if obj.path != new_path and mode == self.MODE_COPY:
                 # TODO: use Data.copy instead
-                return self._add_data(category, path=obj.path, **kwargs)
+                return self._add_item(category, path=obj.path, **kwargs)
 
             category_dict = getattr(self, category)
             if obj.filename not in category_dict:
@@ -220,36 +220,36 @@ class Project(Observed):
                 # Nothing to do, data is yet in the right place
 
             data_obj = data(new_path, dtype, default_content=content)
-            return self._add_data(category, data_obj, **kwargs)
+            return self._add_item(category, data_obj, **kwargs)
 
-    def _remove_data(self, category, filename):
+    def _remove_item(self, category, filename):
         if self.get(category, filename):
             files = getattr(self, category)
             del files[filename]
 
-    def _rename_data(self, category, old, new):
+    def _rename_item(self, category, old, new):
         if old == new:
             return
-        data = self.get_data(category, old)
+        data = self.get_item(category, old)
         data.rename(new)
-        self._remove_data(category, old)
-        self._add_data(category, data)
+        self._remove_item(category, old)
+        self._add_item(category, data)
 
-    def add_data(self, category, obj=None, **kwargs):
-        data = self._add_data(category, obj, **kwargs)
+    def add_item(self, category, obj=None, **kwargs):
+        data = self._add_item(category, obj, **kwargs)
         self.notify_listeners(('data_added', (self, category, data)))
         self.notify_listeners(('project_changed', self))
         return data
 
-    def remove_data(self, category, filename):
-        self._remove_data(category, filename)
+    def remove_item(self, category, filename):
+        self._remove_item(category, filename)
         self.notify_listeners(('data_removed', (self, category, filename)))
         self.notify_listeners(('project_changed', self))
 
-    def rename_data(self, category, old, new):
+    def rename_item(self, category, old, new):
         if old == new:
             return
-        self._rename_data(category, old, new)
+        self._rename_item(category, old, new)
         self.notify_listeners(('data_renamed', (self, category, old, new)))
         self.notify_listeners(('project_changed', self))
 
@@ -270,9 +270,12 @@ class Project(Observed):
         self.notify_listeners(('project_moved', (self, src, dest)))
         self.notify_listeners(('project_changed', self))
 
-    def get_data(self, category, filename):
+    def get_item(self, category, filename):
         files = getattr(self, category)
         return files.get(filename)
+
+    def get_model(self, filename):
+        return self.get('model', filename)
 
     def _load(self):
         """
