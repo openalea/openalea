@@ -34,7 +34,7 @@ class TestProject(TestCase):
         assert model is not model2
         assert model2.path == self.project.path / 'model' / 'model.py'
 
-    def test_add_data(self):
+    def test_add_item(self):
         # Create new data from scratch
         d1 = self.project.add('data', filename='image_1.tiff', content=b'')
         assert d1.path.name == 'image_1.tiff'
@@ -169,14 +169,14 @@ class TestProject(TestCase):
 #         self.project.add("model", filename="2.py", content="blablabla2")
         assert len(self.project.model) == 2
 
-    def test_rename_data(self):
+    def test_rename_item(self):
         self.project.add("model", filename="1.py", content="blablabla")
 
         model1_path = self.project.path / 'model' / '1.py'
         self.assertEqual(self.project.get('model', '1.py').path, model1_path)
 
         events = self.ev.events # clear events
-        self.project.rename_data("model", "1.py", "2.py")
+        self.project.rename_item("model", "1.py", "2.py")
         assert len(self.project.model) == 1
         assert "2.py" in self.project.model
         assert self.project.model["2.py"].read() == "blablabla"
@@ -226,14 +226,14 @@ class TestProject(TestCase):
         msg = "Project(%r)" % str(self.project.path)
         self.assertEqual(repr(self.project), msg)
 
-    def test_remove_data(self):
+    def test_remove_item(self):
         self.project.add("model", filename="1.py", content="blablabla")
         self.project.save()
         assert len(self.project.model) == 1
         assert (self.project.path / "model" / "1.py").exists()
 
         events = self.ev.events # clear events
-        self.project.remove_data("model", "1.py")
+        self.project.remove_item("model", "1.py")
         events = self.ev.events
         self.check_events(events, ['data_removed', 'project_changed'])
 

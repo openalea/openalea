@@ -24,7 +24,7 @@ import os, sys
 import warnings
 from openalea.vpltk.shell.shell import get_interpreter_class
 from openalea.oalab.package.manager import package_manager
-from openalea.vpltk.project.manager import ProjectManager
+from openalea.vpltk.project.manager2 import ProjectManager
 from openalea.oalab.control.manager import ControlManager
 from openalea.core.settings import get_openalea_tmp_dir
 from openalea.oalab.config.main import MainConfig
@@ -70,7 +70,7 @@ class Session(object):
         else:
             print("You are using a version of ipython < 2. History is not implemented for this version.")
 
-        self.project_manager.set_shell(self.interpreter.shell)
+#         self.project_manager.set_shell(self.interpreter.shell)
 
         self.interpreter.locals['session'] = self
         self.debug_plugins = ''

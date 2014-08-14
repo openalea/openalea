@@ -85,5 +85,5 @@ To search projects that are not located inside default directories:
     >>> list_of_projects = project_manager.projects
 
 """
-from openalea.vpltk.project.project import Project
-from openalea.vpltk.project.manager import ProjectManager
+# from openalea.vpltk.project.project import Project
+# from openalea.vpltk.project.manager import ProjectManager
