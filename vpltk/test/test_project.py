@@ -4,7 +4,7 @@ from openalea.core.unittest_tools import TestCase, EventTracker
 
 from openalea.core.path import tempdir
 from openalea.core.path import path as Path
-from openalea.vpltk.project.project2 import Project
+from openalea.vpltk.project.project import Project
 from openalea.oalab.service.data import data
 from openalea.core.observer import AbstractListener
 import re

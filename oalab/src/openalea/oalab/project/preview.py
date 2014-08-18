@@ -79,7 +79,7 @@ class Preview(QtGui.QWidget):
 
 
 def main():
-    from openalea.vpltk.project.manager2 import ProjectManager
+    from openalea.vpltk.project.manager import ProjectManager
     import sys
 
     app = QtGui.QApplication(sys.argv)
