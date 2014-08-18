@@ -15,7 +15,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-from openalea.oalab.model.model import Model
+from openalea.vpltk.datamodel.model import Model
 from openalea.oalab.model.parse import parse_docstring_r, get_docstring_r, parse_functions_r
 
 # TODO : refactor (like class PythonModel in python.py)
@@ -175,15 +175,21 @@ more informations: http://www.r-project.org/
 
             return self.outputs
 
-    @property
-    def code(self):
-        return self._code
+    def _get_content(self):
+        return self._content
 
-    @code.setter
-    def code(self, code=""):
-        self._code = code
+    def _set_content(self, content=""):
+        """
+        Set the content and parse it to get docstring, inputs and outputs info, some methods
+        """
+        self._content = content
         # TODO define the 3 functions parse_docstring_r, parse_functions_r, get_docstring_r
-        model, self.inputs_info, self.outputs_info, self.cmdline = parse_docstring_r(code)
-        self._init, self._step, self._animate, self._run = parse_functions_r(code)
-        self._doc = get_docstring_r(self._code)
+        model, self.inputs_info, self.outputs_info, self.cmdline = parse_docstring_r(content)
+        self._init, self._step, self._animate, self._run = parse_functions_r(content)
+        self._doc = get_docstring_r(self._content)
         self.has_run = False
+
+
+    content = property(fget=_get_content, fset=_set_content)
+    code = property(fget=_get_content, fset=_set_content)
+

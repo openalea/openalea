@@ -15,7 +15,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-from openalea.oalab.model.model import Model, ModelFactory
+from openalea.vpltk.datamodel.model import Model, ModelFactory
 from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.pkgmanager import PackageManager
 import copy
@@ -30,7 +30,7 @@ class VisualeaModel(Model):
 
     def __init__(self, name="workflow.wpy", code="", filepath="", inputs=[], outputs=[]):
         super(VisualeaModel, self).__init__(name=name, code=code, filepath=filepath, inputs=inputs, outputs=outputs)
-        _name = self.name.split('.wpy')[0]
+        _name = self.filename.split('.wpy')[0]
         if (code is None) or (code is ""):
             self._workflow = CompositeNodeFactory(_name).instantiate()
         elif isinstance(code, CompositeNodeFactory):
