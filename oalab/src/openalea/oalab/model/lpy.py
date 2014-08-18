@@ -15,8 +15,9 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-from openalea.oalab.model.model import Model
-from openalea.oalab.model.parse import parse_doc, parse_lpy, OutputObj, InputObj, get_docstring
+# from openalea.oalab.model.model import Model
+from openalea.vpltk.datamodel.model import Model
+from openalea.oalab.model.parse import parse_doc, parse_lpy, OutputObj, InputObj, get_docstring, prepare_inputs
 from openalea.oalab.control.picklable_curves import geometry_2_piklable_geometry
 from openalea.lpy import Lsystem, AxialTree
 from openalea.lpy.__lpy_kernel__ import LpyParsing
@@ -84,12 +85,11 @@ class LPyModel(Model):
     def __init__(self, name="script.lpy", code=None, filepath="", inputs=[], outputs=[]):
         super(LPyModel, self).__init__(name=name, code=code, filepath=filepath, inputs=inputs, outputs=outputs)
         self.temp_axiom = None
-        if code == "":
-            code = get_default_text()
+        self.content = self.read() # use it to force to parse doc, functions, inputs and outputs
         self.second_step = False # Hack, see self.step
         # dict is mutable... It is useful if you want change scene_name inside application
         self.context = dict()
-        self.scene_name = self.name + "_scene"
+        self.scene_name = self.filename + "_scene"
         self.context["scene_name"] = self.scene_name
         self.lsystem = Lsystem()
         self.axialtree = AxialTree()
@@ -135,7 +135,7 @@ class LPyModel(Model):
         execute entire model
         """
         # TODO: get control from application and set them into self.context
-        self._set_inputs(args, kwargs)
+        self._set_inputs(*args, **kwargs)
 
         self.context.update(self.inputs)
         self.lsystem.setCode(str(self.code), self.context)
@@ -168,7 +168,7 @@ class LPyModel(Model):
         """
         execute only one step of the model
         """
-        self._set_inputs(args, kwargs)
+        self._set_inputs(*args, **kwargs)
         self.context.update(self.inputs)
 
         default_text = """Lsystem:
@@ -231,7 +231,7 @@ endlsystem"""
         """
         run model step by step
         """
-        self._set_inputs(args, kwargs)
+        self._set_inputs(*args, **kwargs)
         self.context.update(self.inputs)
         self.step(*args, **kwargs)
         self.axialtree = self.lsystem.animate()
@@ -262,15 +262,16 @@ endlsystem"""
                     elif outp.name in namespace:
                         self._outputs.append(namespace[outp.name])
 
-    @property
-    def code(self):
-        return self._code
+    def _get_content(self):
+        return self._content
 
-    @code.setter
-    def code(self, code=""):
-        self._code = code
-        self._doc = get_docstring(code)
-        docstring = parse_lpy(code)
+    def _set_content(self, content=""):
+        """
+        Set the content and parse it to get docstring, inputs and outputs info, some methods
+        """
+        self._content = content
+        self._doc = get_docstring(content)
+        docstring = parse_lpy(content)
         if docstring is not None:
             model, self.inputs_info, self.outputs_info = parse_doc(docstring)
 
@@ -282,8 +283,12 @@ endlsystem"""
             self.outputs_info = [OutputObj("lstring:IStr")]
 
 
-    def _set_inputs(self, *args):
-        self.inputs = args
+    content = property(fget=_get_content, fset=_set_content)
+    code = property(fget=_get_content, fset=_set_content)
+
+
+    def _set_inputs(self, *args, **kwargs):
+        self.inputs = prepare_inputs(self.inputs_info, *args, **kwargs)
         if "axiom" in self.inputs.keys():
             self.temp_axiom = self.inputs["axiom"]
             del self.inputs["axiom"]

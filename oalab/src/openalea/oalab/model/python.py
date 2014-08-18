@@ -43,7 +43,6 @@ class PythonModel(Model):
         self._run = False
         super(PythonModel, self).__init__(name=name, code=code, filepath=filepath, inputs=inputs, outputs=outputs)
         self.code = code # use it to force to parse doc, functions, inputs and outputs
-        self.ns = dict()
 
     def get_documentation(self):
         """
