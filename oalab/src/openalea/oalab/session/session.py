@@ -24,7 +24,7 @@ import os, sys
 import warnings
 from openalea.vpltk.shell.shell import get_interpreter_class
 from openalea.oalab.package.manager import package_manager
-from openalea.vpltk.project.manager2 import ProjectManager
+from openalea.vpltk.project.manager import ProjectManager
 from openalea.oalab.control.manager import ControlManager
 from openalea.core.settings import get_openalea_tmp_dir
 from openalea.oalab.config.main import MainConfig

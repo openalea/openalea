@@ -2,7 +2,7 @@ from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core.path import path
 from openalea.oalab.gui import resources_rc
 from openalea.oalab.project.preview import Preview, pretty_print
-from openalea.vpltk.project.manager2 import ProjectManager
+from openalea.vpltk.project.manager import ProjectManager
 import sys
 
 

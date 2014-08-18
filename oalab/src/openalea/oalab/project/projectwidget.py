@@ -19,9 +19,8 @@
 
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core.observer import AbstractListener
-from openalea.vpltk.project.manager2 import ProjectManager
+from openalea.vpltk.project.manager import ProjectManager
 from openalea.oalab.gui import resources_rc
-from openalea.oalab.service.applet import get_applet
 from openalea.oalab.gui.utils import qicon
 from openalea.oalab.project.pretty_preview import ProjectSelectorScroll
 from openalea.oalab.project.creator import CreateProjectWidget
@@ -29,17 +28,88 @@ from openalea.oalab.gui.utils import ModalDialog
 from openalea.core.path import path
 from openalea.core import settings
 from openalea.oalab.session.session import Session
-from openalea.file.files import start
 from openalea.oalab.service.mimetype import encode
 from openalea.vpltk.plugin import iter_plugins
-
-from openalea.oalab.project.manager import SelectCategory, RenameModel
 
 """
 TODO:
     - use project known categories instead of hard coded 'model', 'src', ...
 
 """
+
+class SelectCategory(QtGui.QWidget):
+    def __init__(self, filename="", categories=None, dtypes=None, parent=None):
+        super(SelectCategory, self).__init__(parent=parent)
+
+        if categories is None:
+            categories = CATEGORIES
+        if dtypes is None:
+            dtypes = [plugin.default_name for plugin in iter_plugins('oalab.paradigm_applet')]
+            dtypes.append('Other')
+        self.categories = categories
+
+        layout = QtGui.QFormLayout(self)
+
+        self.label = QtGui.QLabel("Select in which category you want to add this file: ")
+        self.l_dtypes = QtGui.QLabel("Data type")
+        self.label2 = QtGui.QLabel("New filename: ")
+
+        self.combo = QtGui.QComboBox(self)
+        self.combo.addItems(categories)
+        self.combo.setCurrentIndex(0)
+
+        self.combo_dtypes = QtGui.QComboBox(self)
+        self.combo_dtypes.addItems(dtypes)
+        self.combo_dtypes.setCurrentIndex(0)
+
+        self.line = QtGui.QLineEdit(filename)
+
+        layout.addRow(self.label, self.combo)
+        layout.addRow(self.l_dtypes, self.combo_dtypes)
+        layout.addRow(self.label2, self.line)
+
+        self.setLayout(layout)
+
+    def category(self):
+        return str(self.combo.currentText())
+
+    def name(self):
+        return str(self.line.text())
+
+    def dtype(self):
+        return str(self.combo_dtypes.currentText())
+
+class RenameModel(QtGui.QWidget):
+    def __init__(self, models, model_name="", parent=None):
+        super(RenameModel, self).__init__(parent=parent)
+        self.models = models
+
+        layout = QtGui.QGridLayout(self)
+
+        self.label = QtGui.QLabel("Select model you want to rename: ")
+        self.label2 = QtGui.QLabel("Write new name: ")
+        self.combo = QtGui.QComboBox(self)
+        self.combo.addItems(self.models)
+        self.combo.setCurrentIndex(0)
+        if not model_name:
+            model_name = self.models[0]
+        self.line = QtGui.QLineEdit(str(model_name))
+
+#         self.ok_button = QtGui.QPushButton("Ok")
+
+        layout.addWidget(self.label, 0, 0)
+        layout.addWidget(self.combo, 0, 1)
+        layout.addWidget(self.label2, 1, 0)
+        layout.addWidget(self.line, 1, 1)
+#         layout.addWidget(self.ok_button, 2, 0, 2, 2)
+
+        self.setLayout(layout)
+
+    def new_name(self):
+        return self.line.text()
+
+    def old_name(self):
+        return self.combo.currentText()
 
 class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
     def __init__(self):
@@ -52,8 +122,8 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         layout.addWidget(self.view)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        self.projectManager = ProjectManager()
-        self.projectManager.register_listener(self)
+        self.pm = ProjectManager()
+        self.pm.register_listener(self)
 
         self.paradigm_container = None
         self.menu_available_projects = QtGui.QMenu(u'Available Projects')
@@ -80,38 +150,35 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         self.session = Session()
 
     def initialize(self):
-        self.paradigm_container = get_applet(identifier='EditorManager')
+#         self.paradigm_container = get_applet(identifier='EditorManager')
         self.view.initialize()
 
         # As default project has been defined before having connected this widget
         # We close it and open it again.
-        pm = self.projectManager
-        default = pm.cproject
-        pm.cproject = None
-        pm.cproject = default
+        default = self.pm.cproject
+        self.pm.cproject = None
+        self.pm.cproject = default
 
     def close(self):
-        config = settings.Settings()
-        if self.project():
-            config
+        pass
 
     def actions(self):
         return self._actions
 
     def project(self):
-        if self.projectManager:
-            return self.projectManager.cproject
+        if self.pm:
+            return self.pm.cproject
 
     def _update_available_project_menu(self):
         """
         Discover all projects and generate an action for each one.
         Then connect this action to _on_open_project_triggered
         """
-        self.projectManager.discover()
+        self.pm.discover()
         self.menu_available_projects.clear()
         self.action_available_project.clear()
         all_projects = {}
-        for project in self.projectManager.projects:
+        for project in self.pm.projects:
             all_projects.setdefault(project.projectdir, []).append(project)
 
         for projectdir, projects in all_projects.iteritems():
@@ -131,12 +198,12 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
 
     def _on_open_project_triggered(self):
         project = self.action_available_project[self.sender()]
-        self.projectManager.cproject = project
+        self.pm.cproject = project
 
     def notify(self, sender, event=None):
         signal, data = event
         if signal == 'project_changed':
-            project = self.projectManager.cproject
+            project = self.pm.cproject
             self.view.set_project(project=project)
             self.session.world.clear()
         elif signal == 'project_updated':
@@ -153,7 +220,7 @@ class ProjectManagerView(QtGui.QTreeView):
         self.paradigm_container = None
 
         self._model = ProjectManagerModel()
-        self.projectManager = ProjectManager()
+        self.pm = ProjectManager()
         self.setModel(self._model)
 
         self._model.dataChanged.connect(self._on_model_changed)
@@ -200,8 +267,6 @@ class ProjectManagerView(QtGui.QTreeView):
     #  API
 
     def initialize(self):
-        self.paradigm_container = get_applet(identifier='EditorManager')
-        
         config = settings.Settings()
         last_proj = "temp"
         try:
@@ -211,17 +276,17 @@ class ProjectManagerView(QtGui.QTreeView):
             config.add_option("ProjectManager", "Last Project", str(last_proj))
         except settings.NoOptionError, e:
             config.add_option("ProjectManager", "Last Project", str(last_proj))
-        
-        self.projectManager.discover()
-        projects = [proj for proj in self.projectManager.projects if proj.name == last_proj]
+
+        self.pm.discover()
+        projects = [proj for proj in self.pm.projects if proj.name == last_proj]
         if len(projects):
             project = projects[0]
         else:
-            project = self.projectManager.default()
+            project = self.pm.default()
         self.set_project(project)
 
     def set_project(self, project):
-        self.projectManager.cproject = project
+        self.pm.cproject = project
         # TODO: Dirty hack to remove asap. Close project selector if widget has been created
         if hasattr(self, "proj_selector"):
             del self.proj_selector
@@ -234,7 +299,7 @@ class ProjectManagerView(QtGui.QTreeView):
             self.expandAll()
         else:
             self.close_all_scripts()
-            
+
         self.load_controls()
 
 
@@ -254,8 +319,8 @@ class ProjectManagerView(QtGui.QTreeView):
             return index
 
     def project(self):
-        if self.projectManager:
-            return self.projectManager.cproject
+        if self.pm:
+            return self.pm.cproject
 
     def selected_data(self):
         index = self.getIndex()
@@ -333,7 +398,7 @@ class ProjectManagerView(QtGui.QTreeView):
 
 
     def contextMenuEvent(self, event):
-        if self.projectManager.cproject is None:
+        if self.pm.cproject is None:
             return
         menu = self.create_menu()
         menu.exec_(event.globalPos())
@@ -357,8 +422,8 @@ class ProjectManagerView(QtGui.QTreeView):
         If name==false, display a widget to choose project to open.
         Then open project.
         """
-        self.projectManager.discover()
-        projects = self.projectManager.projects
+        self.pm.discover()
+        projects = self.pm.projects
         self.proj_selector = ProjectSelectorScroll(projects=projects, open_project=self.set_project)
         self.proj_selector.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.proj_selector.show()
@@ -368,7 +433,7 @@ class ProjectManagerView(QtGui.QTreeView):
         dialog = ModalDialog(project_creator)
         if dialog.exec_():
             _project = project_creator.project()
-            project = self.projectManager.create(_project.name, _project.projectdir)
+            project = self.pm.create(_project.name, _project.projectdir)
             project.metadata = _project.metadata
 
     def open_all_scripts_from_project(self, project):
@@ -399,9 +464,9 @@ class ProjectManagerView(QtGui.QTreeView):
             name = '%s_%s' % (dtype, category)
         else:
             name = category
-        category, name = self.paradigm_container.add(project, name, code, dtype=dtype, category=category)
-        if name:
-            self.paradigm_container.open_project_data(category, name)
+#         category, name = self.paradigm_container.add(project, name, code, dtype=dtype, category=category)
+#         if name:
+#             self.paradigm_container.open_project_data(category, name)
 
     def open(self):
         project, category, name = self.selected_data()
@@ -417,8 +482,8 @@ class ProjectManagerView(QtGui.QTreeView):
             elif category == 'data':
                 filepath = project.path / category / name
                 start(filepath)
-            elif category in ('startup', 'model', 'doc', 'lib'):
-                self.paradigm_container.open_project_data(category, name)
+#             elif category in ('startup', 'model', 'doc', 'lib'):
+#                 self.paradigm_container.open_project_data(category, name)
 
     def _rename(self, project, category, name):
         if category in ('model', 'src'):
@@ -458,8 +523,8 @@ class ProjectManagerView(QtGui.QTreeView):
             if dialog.exec_():
                 project.remove(category, name)
                 path.remove()
-                if self.paradigm_container:
-                    self.paradigm_container.close_project_data(category, name)
+#                 if self.paradigm_container:
+#                     self.paradigm_container.close_project_data(category, name)
 
     def save(self):
         project = self.project()
@@ -477,7 +542,7 @@ class ProjectManagerView(QtGui.QTreeView):
         if ctrl_manager_wid:
             ctrl_view = ctrl_manager_wid.view
             ctrl_view.save_controls(filename)
-            
+
     def load_controls(self):
         # Hack to load controls!!!
         # TODO: load controls inside project
@@ -485,10 +550,10 @@ class ProjectManagerView(QtGui.QTreeView):
         if project:
             filename = project.path/"control.py"
             from openalea.oalab.service.applet import get_applet
-            ctrl_manager_wid = get_applet(identifier="ControlManager")
-            if ctrl_manager_wid:
-                ctrl_view = ctrl_manager_wid.view
-                ctrl_view.load_controls(filename)
+#             ctrl_manager_wid = get_applet(identifier="ControlManager")
+#             if ctrl_manager_wid:
+#                 ctrl_view = ctrl_manager_wid.view
+#                 ctrl_view.load_controls(filename)
 
     def save_as(self):
         project = self.project()
@@ -499,12 +564,13 @@ class ProjectManagerView(QtGui.QTreeView):
                 project.save_as(projectdir, name)
 
     def close(self):
-        self.projectManager.cproject = None
+        self.pm.cproject = None
 
     def close_all_scripts(self):
-        if self.paradigm_container is None:
-            return
-        self.paradigm_container.closeAll()
+        pass
+#         if self.paradigm_container is None:
+#             return
+#         self.paradigm_container.closeAll()
 
     def import_file(self):
         print 'import_file'
@@ -644,14 +710,10 @@ class ProjectManagerModel(QtGui.QStandardItemModel):
         item = QtGui.QStandardItem(name)
         self._root_item = name
 
-        files = project.files
-
         item.setIcon(self.project_icon(project))
         parentItem.appendRow(item)
 
-
-        categories = ['startup', 'doc', 'lib', 'model', 'data']
-        for category in categories:
+        for category in project.category_keys:
             item2 = QtGui.QStandardItem(category)
             item.appendRow(item2)
 
@@ -662,10 +724,7 @@ class ProjectManagerModel(QtGui.QStandardItemModel):
                 continue
 
 
-            if category == 'model':
-                data_dict = project._model
-            else:
-                data_dict = getattr(project, category)
+            data_dict = getattr(project, category)
 
             names = data_dict.keys()
             for name in sorted(names):
@@ -680,39 +739,39 @@ class ProjectManagerModel(QtGui.QStandardItemModel):
                 item2.appendRow(item3)
 
 
-         #categories = files.keys()
-         #for category in categories:
-         #    if hasattr(project, category):
-         #        cat = getattr(project, category)
-         #        if cat is not None:
-         #            if len(cat) > 0:
-         #                item2 = QtGui.QStandardItem(category)
-         #                item.appendRow(item2)
-         #                try:
-         #                    icon = eval(str("icon_" + category))
-         #                except NameError:
-         #                    icon = QtGui.QIcon()
-         #                item2.setIcon(icon)
-         #        else:
-         #            # hide name of category if we don't have object of this category
-         #            pass
-         #
-         #        if isinstance(cat, dict):
-         #            for obj in cat.keys():
-         #                l = obj.split(".")
-         #                name = ".".join(l[:-1])
-         #                ext = l[-1]
-         #                item3 = QtGui.QStandardItem(obj)
-         #                if category == "src":
-         #                    item3 = QtGui.QStandardItem(name)
-         #                    item3.setData((category, name))
-         #                    if ext in self.icons.keys():
-         #                        item3.setIcon(QtGui.QIcon(self.icons[ext]))
-         #                item2.appendRow(item3)
-         #        else:
-         #            # Useful for category "localized" which store a bool and not a list
-         #            item3 = QtGui.QStandardItem(cat)
-         #            item2.appendRow(item3)
+#         categories = project.category_keys
+#         for category in categories:
+#             if hasattr(project, category):
+#                 cat = getattr(project, category)
+#                 if cat is not None:
+#                     if len(cat) > 0:
+#                         item2 = QtGui.QStandardItem(category)
+#                         item.appendRow(item2)
+#                         try:
+#                             icon = eval(str("icon_" + category))
+#                         except NameError:
+#                             icon = QtGui.QIcon()
+#                         item2.setIcon(icon)
+#                 else:
+#                     # hide name of category if we don't have object of this category
+#                     pass
+#
+#                 if isinstance(cat, dict):
+#                     for obj in cat.keys():
+#                         l = obj.split(".")
+#                         name = ".".join(l[:-1])
+#                         ext = l[-1]
+#                         item3 = QtGui.QStandardItem(obj)
+#                         if category == "src":
+#                             item3 = QtGui.QStandardItem(name)
+#                             item3.setData((category, name))
+#                             if ext in self.icons.keys():
+#                                 item3.setIcon(QtGui.QIcon(self.icons[ext]))
+#                         item2.appendRow(item3)
+#                 else:
+#                     # Useful for category "localized" which store a bool and not a list
+#                     item3 = QtGui.QStandardItem(cat)
+#                     item2.appendRow(item3)
 
     def projectdata(self, index):
         if index is None:

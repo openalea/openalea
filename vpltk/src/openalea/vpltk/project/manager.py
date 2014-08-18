@@ -18,12 +18,13 @@
 
 import os
 import platform
-from openalea.core.path import path
+from openalea.core.path import path as Path
 from openalea.core import settings
 from openalea.vpltk.project.project import Project
 from openalea.core.singleton import Singleton
 from openalea.core.observer import Observed, AbstractListener
 from ConfigParser import NoSectionError, NoOptionError
+from openalea.vpltk.plugin import iter_plugins
 
 class ProjectManager(Observed, AbstractListener):
     """
@@ -40,67 +41,68 @@ class ProjectManager(Observed, AbstractListener):
     def __init__(self):
         Observed.__init__(self)
         AbstractListener.__init__(self)
-        self.projects = []
+
         self._cproject = None
-        self._cwd = path('.').abspath()
-        self.find_links = self.search_path()
+        self._cwd = Path('.').abspath()
+
+        self.projects = []
+        self.repositories = self.search_path()
 
         self.shell = None
-        # TODO Search in preference file if user has path to append in self.find_links
+        # TODO Search in preference file if user has path to append in self.repositories
         self._cproject = self.default()
 
     @staticmethod
     def search_path():
         """
-
+        Return a list of all path containing projects
         """
+        repositories = set()
 
-        find_links = [path(settings.get_project_dir())]
+        # 1. Add default user project dir
+        repositories.add(Path(settings.get_project_dir()))
 
-        # TODO Move it into OALab ?
-        if not "windows" in platform.system().lower():
-            try:
-                from openalea import oalab
-                from openalea.deploy.shared_data import shared_data
+        # 2. Add project repositories defined by packages
+        for plugin in iter_plugins('oalab.project_repository'):
+            for repository in plugin():
+                repositories.add(repository)
 
-                oalab_dir = shared_data(oalab)
-                find_links.append(path(oalab_dir))
-            except ImportError:
-                pass
-
-        find_links = set(find_links)
+        # 3. Read repositories defined by users and saved in config
         config = settings.Settings()
-        l = list(find_links)
-        # wralea path
+        lst = list(repositories)
         try:
             s = config.get("ProjectManager", "Path")
-            l = eval(s)
+            lst = eval(s)
         except NoSectionError, e:
             config.add_section("ProjectManager")
-            config.add_option("ProjectManager", "Path", str(l))
+            config.add_option("ProjectManager", "Path", str(lst))
         except NoOptionError, e:
-            config.add_option("ProjectManager", "Path", str(l))
+            config.add_option("ProjectManager", "Path", str(lst))
 
-        find_links = set()
-        l = map(path, set(l))
-        for p in l:
-            p = p.abspath()
+        for repo in lst:
+            repositories.add(repo)
+
+        # Remove all paths to directories that don't exist
+        final_list = set()
+        for p in repositories:
+            p = Path(p).abspath()
             if not p.isdir():
                 continue
-            find_links.add(str(p))
+            final_list.add(p)
 
-        return list(find_links)
+
+        return list(final_list)
 
 
     def write_settings(self):
         """ Add a new path to the settings. """
-        l = list(set(self.find_links))
-        l = map(str, l)
+        lst = list(set(self.repositories))
+        lst = map(str, lst)
         config = settings.Settings()
-        config.set("ProjectManager", "Path", str(l))
+        config.set("ProjectManager", "Path", str(lst))
         config.write()
 
-    def discover(self):
+    def discover(self, config_name='oaproject.cfg'):
         """
         Discover projects from your disk and put them in self.projects.
 
@@ -110,25 +112,25 @@ class ProjectManager(Observed, AbstractListener):
             >>> project_manager.discover()
             >>> list_of_projects = project_manager.projects
 
-        To discover new projects, you can add path into *self.find_links*
+        To discover new projects, you can add path into *self.repositories*
 
         .. code-block:: python
 
-            project_manager.find_links.append('path/to/search/projects')
+            project_manager.repositories.append('path/to/search/projects')
             project_manager.discover()
         """
-        self.projects = []
-        for _path in self.find_links:
-            for root, dirs, files in os.walk(_path):
-                if "oaproject.cfg" in files:
-                    _path, name = path(root).abspath().splitpath()
-                    if not ((_path in [proj.projectdir for proj in self.projects]) and (
-                        name in [proj.name for proj in self.projects])):
-                        project = Project(name, _path)
-                        project.load_manifest()
-                        self.projects.append(project)
+        projects = {}
+        for _path in self.repositories:
+            _path = Path(_path)
+            if not _path.exists():
+                continue
+            for p in _path.walkfiles(config_name):
+                project = Project(p.parent)
+                projects[project.path] = project
+        self.projects = projects.values()
 
-    def search(self, name=None):
+
+    def search(self, **kwargs):
         """
         Search a specific project that match filters.
 
@@ -142,34 +144,32 @@ class ProjectManager(Observed, AbstractListener):
 
         :TODO: implement with real filter (ex: name = "*mtg*", authors = "*OpenAlea*", ...)
         """
-        if name:
-            proj = [proj for proj in self.projects if proj.name == name]
-        else:
-            proj = self.projects
-            if not isinstance(proj, list):
-                proj = [proj]
-        if len(proj):
-            return proj[0]
-        return None
+        regexpr = kwargs['regexpr'] if 'regexpr' in kwargs else False
+        name = kwargs['name'] if 'name' in kwargs else None
+        alias = kwargs['alias'] if 'alias' in kwargs else None
+        if regexpr:
+            raise NotImplementedError
 
-    def get_current(self):
-        """
-        :return: current active project
-
-        :use:
-            >>> project = project_manager.get_current()
-        """
-        return self.cproject
+        projects = []
+        for proj in self.projects:
+            if name:
+                if proj.path.name != name:
+                    continue
+            if alias:
+                if proj.alias != alias:
+                    continue
+            projects.append(proj)
+        return projects
 
     def default(self):
         """
         :return: a default empty project
         """
-        _path = path(settings.get_project_dir())
-        proj = Project(name="temp", projectdir=_path)
+        _path = Path(settings.get_project_dir())
+        proj = Project(_path / "temp")
         proj.centralized = False
 
-        if not proj.list_models():
+        if not proj.model:
             txt = '''"""
 OpenAlea Lab editor
 This temporary script is saved in temporary project in
@@ -177,27 +177,10 @@ This temporary script is saved in temporary project in
 
 You can rename/move this project thanks to the button "Save As" in menu.
 """''' % str(proj.path)
-            proj.new_model(name="temp.py", code=txt)
+            proj.add("model", filename="model.py", content=txt)
 
-        return proj
-
-    def load_default(self):
-        """
-        Load default project if it exists, else create it.
-
-        :return: the default loaded project
-        """
-        _path = path(settings.get_project_dir())
-        try:
-            if not _path.exists():
-                _path.makedirs()
-        except:
-            pass
-
-        proj = self.load("temp", _path)
-
-        if proj is None: # If can't load default project, create it
-            proj = self.default()
+        if not proj.path.exists():
+            proj.save()
 
         return proj
 
@@ -214,14 +197,14 @@ You can rename/move this project thanks to the button "Save As" in menu.
         :return: Project
         """
         if projectdir is None:
-            projectdir = settings.get_project_dir()
+            projectdir = Path(settings.get_project_dir())
         else:
-            projectdir = path(projectdir).abspath()
-            if projectdir not in self.find_links:
-                self.find_links.append(projectdir)
+            projectdir = Path(projectdir).abspath()
+            if projectdir not in self.repositories:
+                self.repositories.append(projectdir)
                 self.write_settings()
 
-        project = Project(name, projectdir)
+        project = Project(projectdir / name)
         self.cproject = project
 
         return self.cproject
@@ -244,23 +227,19 @@ You can rename/move this project thanks to the button "Save As" in menu.
             projectdir = kwargs['path']
 
         if not projectdir:
-            for project in self.projects:
-                if project.name == name:
-                    self.cproject = project
-                    project.start(shell=self.shell)
-                    return self.get_current()
+            projects = self.search(name=name)
+            if projects:
+                project = projects[0]
         else:
-            # full_path = path(projectdir).abspath() / name / ".." / ".." # TODO : why ?
-            full_path = path(projectdir) / name
-            # print full_path
+            full_path = Path(projectdir) / name
             if full_path.exists():
-                self.cproject = Project(name, projectdir)
-                self.cproject.start(shell=self.shell)
-                return self.get_current()
+                project = Project(full_path)
+            else:
+                print 'Project %s in repository %s does not exist' % (name, projectdir)
 
-        # raise IOError('Project %s in repository %s does not exist' %(name,projectdir))
-        print 'Project %s in repository %s does not exist' %(name,full_path)
-        return None
+        if project:
+            self.cproject = project
+            return self.cproject
 
     def close(self, name=None, proj_path=None):
         """
@@ -272,8 +251,11 @@ You can rename/move this project thanks to the button "Save As" in menu.
         self.cproject = None
 
     def __getitem__(self, name):
-        self.cproject = self.search(name)
-        return self.get_current()
+        projects = self.search(name)
+        if projects:
+            return projects[0]
+        else:
+            return None
 
     def clear(self):
         """
@@ -284,9 +266,8 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
     def notify(self, sender, event=None):
         signal, data = event
-        if signal == 'project_change':
+        if signal == 'project_changed':
             self.notify_listeners(('project_updated', self))
-            self.notify_listeners(('current_project_change', self))
 
     @property
     def cproject(self):
@@ -305,21 +286,13 @@ You can rename/move this project thanks to the button "Save As" in menu.
                 del self._cproject
             self._cproject = None
         else:
-            if (project.path).isdir():
+            if project.path.isdir():
                 os.chdir(project.path)
             self._cproject = project
             if not project.started:
                 project.start(shell=self.shell)
             project.register_listener(self)
         self.notify_listeners(('project_changed', self))
-        self.notify_listeners(('current_project_change', self))
-
-    def set_shell(self, shell):
-        """ Set the ipython shell to load a project.
-
-        """
-        self.shell = shell
-
 
 def main():
     from openalea.vpltk.qt import QtGui
@@ -336,11 +309,11 @@ def main():
     mainWindow.show()
 
     # Create Project Manager
-    PM = ProjectManager()
+    pm = ProjectManager()
 
     # Create or load project
     name = "project_test"
-    proj = PM.load(name)
+    proj = pm.load(name)
 
     app.exec_()
 

@@ -29,7 +29,6 @@ from openalea.vpltk.project import ProjectManager
 from openalea.oalab.service.applet import get_applet
 from openalea.oalab.project.manager import SelectCategory
 from openalea.oalab.gui.utils import ModalDialog
-from openalea.vpltk.project.project import remove_extension
 
 class TextData(object):
     default_name = "text"
@@ -366,8 +365,6 @@ class ParadigmContainer(QtGui.QTabWidget):
             category = selector.category()
             filename = selector.name()
             dtype = selector.dtype()
-            if category == 'model':
-                filename = remove_extension(filename)
             ret = project.add(category=category, name=filename, value=code, dtype=dtype)
             if ret:
                 return category, filename
