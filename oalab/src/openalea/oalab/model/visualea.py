@@ -27,9 +27,10 @@ class VisualeaModel(Model):
     pattern = "*.wpy"
     extension = "wpy"
     icon = ":/images/resources/openalealogo.png"
+    mimetype = "text/x-visualea"
 
-    def __init__(self, name="workflow.wpy", code="", filepath="", inputs=[], outputs=[]):
-        super(VisualeaModel, self).__init__(name=name, code=code, filepath=filepath, inputs=inputs, outputs=outputs)
+    def __init__(self, name="workflow.wpy", code="", filepath="", inputs=[], outputs=[], **kwargs):
+        super(VisualeaModel, self).__init__(name=name, code=code, filepath=filepath, inputs=inputs, outputs=outputs, **kwargs)
         _name = self.filename.split('.wpy')[0]
         if (code is None) or (code is ""):
             self._workflow = CompositeNodeFactory(_name).instantiate()

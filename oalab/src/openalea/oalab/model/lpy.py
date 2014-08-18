@@ -81,9 +81,10 @@ class LPyModel(Model):
     pattern = "*.lpy"
     extension = "lpy"
     icon = ":/images/resources/logo.png"
+    mimetype = "text/vnd-lpy"
 
-    def __init__(self, name="script.lpy", code=None, filepath="", inputs=[], outputs=[]):
-        super(LPyModel, self).__init__(name=name, code=code, filepath=filepath, inputs=inputs, outputs=outputs)
+    def __init__(self, name="script.lpy", code=None, filepath="", inputs=[], outputs=[], **kwargs):
+        super(LPyModel, self).__init__(name=name, code=code, filepath=filepath, inputs=inputs, outputs=outputs, **kwargs)
         self.temp_axiom = None
         self.content = self.read() # use it to force to parse doc, functions, inputs and outputs
         self.second_step = False # Hack, see self.step

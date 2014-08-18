@@ -18,6 +18,7 @@ class PythonModel(Model):
     pattern = "*.py"
     extension = "py"
     icon = ":/images/resources/Python-logo.png"
+    mimetype = "text/x-python"
 
     def __init__(self, **kwargs):
         Model.__init__(self, **kwargs)
