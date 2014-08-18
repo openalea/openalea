@@ -1,6 +1,11 @@
 
 from copy import copy
 from openalea.vpltk.datamodel.data import Data
+import string
+from openalea.core.node import Node, AbstractFactory
+from openalea.vpltk.project.project import remove_extension
+from openalea.core.path import path as Path
+from openalea.oalab.model.parse import prepare_inputs
 
 class Model(Data):
     def __init__(self, **kwargs):
@@ -157,3 +162,162 @@ class Model(Data):
         interpreter.user_ns.clear()
         interpreter.user_ns.update(old_namespace)
         return namespace
+
+
+
+class ModelNode(Node):
+    def __init__(self, model, inputs=(), outputs=()):
+        super(ModelNode, self).__init__(inputs=inputs, outputs=outputs)
+        self.set_model(model)
+
+    def set_model(self, model):
+        self.model = model
+        self.__doc__ = self.model.get_documentation()
+
+    def __call__(self, inputs=()):
+        """ Call function. Must be overriden """
+        return self.model(*inputs)
+
+    # def reload(self):
+    #     node = self.factory.instanciate()
+
+
+        # # set model
+        # from openalea.vpltk.project.manager import ProjectManager
+        # pm = ProjectManager()
+        # model = pm.cproject.get_model(self.model.name)
+        # if model:
+        #     self.set_model(model)
+
+        # reset inputs and outputs
+        # super(ModelNode, self).reload()
+
+
+class ModelFactory(AbstractFactory):
+    def __init__(self,
+                 name,
+                 lazy=True,
+                 delay=0,
+                 alias=None,
+                 **kargs):
+        super(ModelFactory, self).__init__(name, **kargs)
+        self.delay = delay
+        self.alias = alias
+        self._model = None
+
+    def get_id(self):
+        return str(self.name)
+
+    @property
+    def package(self):
+        class fake_package(object):
+            def get_id(self):
+                return ":projectmanager.current"
+            def reload(self):
+                pass
+                # print 2, "package reload"
+        return fake_package()
+
+    def get_classobj(self):
+        module = self.get_node_module()
+        classobj = module.__dict__.get(self.nodeclass_name, None)
+        return classobj
+
+    def get_documentation(self):
+        if self._model is None:
+            self.instantiate()
+
+        return self._model.get_documentation()
+
+    def instantiate(self, call_stack=[]):
+        """
+        Returns a node instance.
+        :param call_stack: the list of NodeFactory id already in call stack
+        (in order to avoir infinite recursion)
+        """
+        from openalea.vpltk.project.manager import ProjectManager
+
+        pm = ProjectManager()
+        model = pm.cproject.get_model(self.name)
+        if model is None:
+            print "error loading model ", self.name
+            print "Available models are ", pm.cproject.list_models()
+
+        # TODO
+        def signature(args_info, out=False):
+            args = []
+            if args_info:
+                for arg in args_info:
+                    d = {}
+                    d['name'] = arg.name
+                    if arg.interface:
+                        d['interface'] = arg.interface
+                    if not out and arg.default is not None:
+                        d['value'] = arg.default
+                    if d:
+                        args.append(d)
+            return args
+
+        # If class is not a Node, embed object in a Node class
+        if model:
+
+            self.inputs = signature(model.inputs_info)
+            self.outputs = signature(model.outputs_info, out=True)
+            if not self.outputs:
+                self.outputs = (dict(name="out", interface=None),)
+
+            node = ModelNode(model, self.inputs, self.outputs)
+
+            # Properties
+            try:
+                node.factory = self
+                node.lazy = self.lazy
+                if(not node.caption):
+                    node.set_caption(self.name)
+
+                node.delay = self.delay
+            except:
+                pass
+
+            return node
+
+        else:
+            print "We can't instanciate node from project %s because we don't have model %s" % (pm.cproject.name, self.name)
+            print "We only have models : "
+            print pm.cproject.list_models()
+
+    def instantiate_widget(self, node=None, parent=None, edit=False,
+        autonomous=False):
+        """ Return the corresponding widget initialised with node"""
+        pass
+        # TODO: open corresponding model
+
+    def get_writer(self):
+        """ Return the writer class """
+        return PyModelNodeFactoryWriter(self)
+
+
+class PyModelNodeFactoryWriter(object):
+    """ NodeFactory python Writer """
+
+    nodefactory_template = """
+
+$NAME = ModelFactory(name=$PNAME,
+                inputs=$LISTIN,
+                outputs=$LISTOUT,
+               )
+
+"""
+
+    def __init__(self, factory):
+        self.factory = factory
+
+    def __repr__(self):
+        """ Return the python string representation """
+        f = self.factory
+        fstr = string.Template(self.nodefactory_template)
+
+        result = fstr.safe_substitute(NAME=repr(f.name),
+                                      LISTIN=repr(f.inputs),
+                                      LISTOUT=repr(f.outputs),)
+        return result
