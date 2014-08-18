@@ -26,9 +26,10 @@ class RModel(Model):
     pattern = "*.r"
     extension = "r"
     icon = ":/images/resources/RLogo.png"
+    mimetype = "text/x-r"
 
-    def __init__(self, name="script.r", code="", filepath="", inputs=[], outputs=[]):
-        super(RModel, self).__init__(name=name, code=code, filepath=filepath, inputs=inputs, outputs=outputs)
+    def __init__(self, name="script.r", code="", filepath="", inputs=[], outputs=[], **kwargs):
+        super(RModel, self).__init__(name=name, code=code, filepath=filepath, inputs=inputs, outputs=outputs, **kwargs)
         self._step = None
         self._animate = None
         self._init = None

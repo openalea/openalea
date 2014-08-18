@@ -2,6 +2,10 @@
 from openalea.core.path import path as Path
 
 class Data(object):
+    mimetype = None
+    default_name = 'Data'
+    extension = None
+
     def __init__(self, **kwargs):
         """
         Classical use : *path* exists. Nothing is loaded in memory.

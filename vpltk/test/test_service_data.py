@@ -1,7 +1,7 @@
 
 import unittest
 from openalea.core.path import tempdir, path
-from openalea.oalab.service.data import data
+from openalea.oalab.service.data import data, datatype
 
 
 def get_data(filename):
@@ -57,7 +57,21 @@ class TestProject(unittest.TestCase):
         assert d5.exists() == False
         assert d5._content == default_content
 
-#     def test_dataclass(self):
-#         filepath = 'test.dat'
-#         d1 = data(path=filepath, default_content=b'data test.dat')
+    def test_datatype(self):
+        self.assertEqual(datatype('test.py'), 'text/x-python')
+        self.assertEqual(datatype('image.tiff'), 'image/tiff')
+
+
+    def test_dataclass(self):
+        from openalea.vpltk.datamodel.data import Data
+        from openalea.vpltk.datamodel.python import PythonModel
+
+        d = data(path='test.dat')
+        self.assertIsInstance(d, Data)
+
+        d = data(path='test.py')
+        self.assertIsInstance(d, PythonModel)
+
+        d = data(path='test.py', dtype='data')
+        self.assertIsInstance(d, Data)
 

@@ -99,7 +99,6 @@ setup(
 
         'oalab.model': [
             'LPyModel = openalea.oalab.model.lpy:LPyModel',
-            'PythonModel = openalea.oalab.model.python:PythonModel',
             'RModel = openalea.oalab.model.r:RModel',
             'VisualeaModel = openalea.oalab.model.visualea:VisualeaModel',
             ],

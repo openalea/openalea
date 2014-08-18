@@ -8,6 +8,13 @@ from openalea.core.path import path as Path
 from openalea.oalab.model.parse import prepare_inputs
 
 class Model(Data):
+    default_name = ""
+    default_file_name = "filename.ext"
+    pattern = "*.ext"
+    extension = "ext"
+    icon = ":/images/resources/logo.png"
+    mimetype = "text/"
+
     def __init__(self, **kwargs):
         if 'name' not in kwargs:
             kwargs['name'] = 'model'
