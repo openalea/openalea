@@ -170,6 +170,8 @@ class Model(Data):
         interpreter.user_ns.update(old_namespace)
         return namespace
 
+    def load(self):
+        self._content = self.read()
 
 
 class ModelNode(Node):

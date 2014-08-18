@@ -31,25 +31,30 @@ class VisualeaModel(Model):
 
     def __init__(self, **kwargs):
         super(VisualeaModel, self).__init__(**kwargs)
+
+    def load(self):
         self.content = self.read()
-        _name = self.filename.split('.wpy')[0]
         code = self.content
         if (code is None) or (code is ""):
-            self._workflow = CompositeNodeFactory(_name).instantiate()
+            self._workflow = CompositeNodeFactory(self.filename).instantiate()
         elif isinstance(code, CompositeNodeFactory):
             # hakishhh
             #CompositeNodeFactory.instantiate_node = monkey_patch_instantiate_node
             self._workflow = code.instantiate()
         else:
             # Access to the current project
-            # 
-            import sys
-            print >> sys.__stderr__, code
             cnf = eval(code, globals(), locals())
             # hakishhh
             # CompositeNodeFactory.instantiate_node = monkey_patch_instantiate_node
 #             raise IOError(cnf)
             self._workflow = cnf.instantiate()
+
+    def read(self):
+        if self.exists():
+            with open(self.path, 'r') as f:
+                return f.read()
+        else:
+            return self._content
 
     def get_documentation(self):
         """
@@ -133,6 +138,7 @@ class VisualeaModel(Model):
 
 def monkey_patch_instantiate_node(self, vid, call_stack=None):
     (package_id, factory_id) = self.elt_factory[vid]
+    print package_id, factory_id
     
     # my temporary patch
     if package_id in (None, ":projectmanager.current"):
@@ -142,6 +148,7 @@ def monkey_patch_instantiate_node(self, vid, call_stack=None):
         pkg = pkgmanager[package_id]
         factory = pkg.get_factory(factory_id)
     
+    print factory
     node = factory.instantiate(call_stack)
 
     attributes = copy.deepcopy(self.elt_data[vid])

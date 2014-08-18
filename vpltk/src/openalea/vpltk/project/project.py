@@ -189,7 +189,7 @@ class Project(Observed):
 
             category_dict = getattr(self, category)
             if obj.filename not in category_dict:
-                category_dict[obj.filename] = obj
+                category_dict[str(obj.filename)] = obj
             else:
                 raise ValueError("data '%s' already exists in project '%s'" % (obj.filename, self.alias))
             return obj
@@ -287,7 +287,27 @@ class Project(Observed):
         return files.get(filename)
 
     def get_model(self, filename):
-        return self.get('model', filename)
+        model = self.get_item('model', filename)
+        if model is not None:
+            return model
+        else:
+            found_models = []
+            for modelname in self.model:
+                if filename == Path(modelname).namebase:
+                    found_models.append(self.get_item('model', modelname))
+
+            nmodels = len(found_models)
+            if nmodels == 0:
+                return None
+            elif nmodels == 1:
+                return found_models[0]
+            else:
+                dic = dict(
+                    NUM=nmodels,
+                    BASENAME=str(Path(modelname).namebase),
+                    LST=', '.join([repr(str(model.filename)) for model in found_models])
+                    )
+                raise ValueError('%(NUM)d model have basename %(BASENAME)r: %(LST)s' % dic)
 
     def _load(self):
         """

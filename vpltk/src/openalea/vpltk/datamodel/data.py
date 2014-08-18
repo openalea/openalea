@@ -13,7 +13,7 @@ class Data(object):
         """
         # TODO: document args
         self.path = Path(kwargs['path']) if 'path' in kwargs else None
-        self._filename = kwargs['filename'] if 'filename' in kwargs else None
+        self._filename = Path(kwargs['filename']).name if 'filename' in kwargs else None
 
         if self._filename is None and self.path is None:
             raise ValueError('path or filename required')
