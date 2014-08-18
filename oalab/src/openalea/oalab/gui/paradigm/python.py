@@ -40,7 +40,7 @@ class PythonModelController(object):
             self.model = model
         else:
             self.model = PythonModel(name=name, code=code, filepath=filepath)
-        self.name = self.model.name
+        self.name = self.model.filename
         self.parent = parent
         self.editor_container = editor_container
         self._widget = None

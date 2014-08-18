@@ -74,7 +74,6 @@ class ProjectSelector(QtGui.QWidget):
 
         i, j = 1, -1
         for project in self.projects:
-            project.load_manifest()
             # Create widget
             preview_widget = PrettyPreview(project, size=button_size)
             preview_widget.clicked.connect(self.showDetails)

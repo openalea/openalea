@@ -154,6 +154,18 @@ class Project(Observed):
     def name(self):
         return self._path.name
 
+    @property
+    def icon_path(self):
+        """
+        :return: the complete path of the icon. To modify it, you have to modify the path of project, the name of project and/or the self.icon.
+        """
+        icon_name = None
+        if self.icon:
+            if not self.icon.startswith(':'):
+                # local icon
+                icon_name = self.path / self.icon
+        return icon_name
+
     def start(self,*args,**kwargs):
         self.started = True
 

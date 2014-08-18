@@ -224,30 +224,15 @@ class ParadigmContainer(QtGui.QTabWidget):
             applet_class = self.paradigms["Python"]
 
         # TODO: case Python paradigm does not exists
-        return applet_class(name=obj.name, code=obj.code, model=obj,
-                            filepath=obj.filepath, editor_container=self, parent=None).instanciate_widget()
-
-    def data(self, category, name):
-        project = self.project()
-        if category == 'model':
-            obj = project.get(category, name)
-            # GBY: dont understand why get can return list
-            if isinstance(obj, list):
-                obj = obj[0]
-            dtype = obj.default_name
-        else:
-            code = project.get(category, name)
-            dtype = None
-            obj = TextData(name, code, filepath=project.path / category / name)
-        obj.category = category
-        return obj, dtype
+        return applet_class(name=obj.filename, code=obj.content, model=obj,
+                            filepath=obj.path, editor_container=self, parent=None).instanciate_widget()
 
     def data_name(self, obj):
-        if obj.category in ('model', 'external'):
-            name = obj.name
-        else:
-            name = '%s/%s' % (obj.category, obj.name)
-        return name
+#         if obj.category in ('model', 'external'):
+#             name = obj.name
+#         else:
+#             name = '%s/%s' % (obj.category, obj.name)
+        return obj.filename
 
     def current_data(self):
         tab = self.currentWidget()
@@ -267,23 +252,17 @@ class ParadigmContainer(QtGui.QTabWidget):
             obj = TextData(name, code, filepath, category='external')
             self.open_data(obj, dtype=None)
 
-    def open_project_data(self, category=None, name=None):
-        project = self.project()
-        if project:
-            obj, dtype = self.data(category, name)
-            self.open_data(obj, dtype)
-
-    def open_data(self, obj, dtype=None):
+    def open_data(self, obj):
         # Check if object is yet open else create applet
         if obj in self._open_objects:
             tab = self._open_objects[obj]
             self.setCurrentWidget(tab)
         else:
-            applet = self.applet(obj, dtype)
+            applet = self.applet(obj, obj.default_name)
 
             idx = self.addTab(applet, self.data_name(obj))
-            if obj.filepath:
-                self.setTabToolTip(idx, obj.filepath)
+            if obj.path:
+                self.setTabToolTip(idx, obj.path)
             self.setCurrentIndex(idx)
             self._open_objects[obj] = applet
             self._open_tabs[applet] = obj
