@@ -14,9 +14,9 @@ class ProjectWidget(PluginApplet):
 
         mainwindow.add_applet(self._applet, self.alias, area='inputs')
 
-class ProjectManager2(PluginApplet):
+class ProjectManager(PluginApplet):
 
-    name = 'ProjectManager2'
+    name = 'ProjectManager'
     alias = 'Project'
 
     def __call__(self, mainwindow):

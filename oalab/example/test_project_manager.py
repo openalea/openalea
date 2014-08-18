@@ -16,11 +16,12 @@ if __name__ == '__main__':
     session = Session()
     mainwin = MainWindow(session)
     for plugin in iter_plugins('oalab.applet'):
-        if plugin.name in ('ProjectManager2', 'EditorManager'):
+        if plugin.name in ('ProjectManager', 'EditorManager'):
             mainwin.add_plugin(plugin())
 
     pm = session.project_manager
-    pmw = get_applet(identifier='ProjectManager2', class_args=dict(mainwindow=mainwin))
+    pm.cproject = pm.default()
+    pmw = get_applet(identifier='ProjectManager', class_args=dict(mainwindow=mainwin))
     pcw = get_applet(identifier='EditorManager', class_args=dict(mainwindow=mainwin))
 
     session.interpreter.locals['pmw'] = pmw
