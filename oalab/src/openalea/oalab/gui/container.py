@@ -27,7 +27,7 @@ from openalea.oalab.gui import resources_rc # do not remove this import else ico
 from openalea.oalab.gui.utils import qicon
 from openalea.vpltk.project import ProjectManager
 from openalea.oalab.service.applet import get_applet
-from openalea.oalab.project.manager import SelectCategory
+from openalea.oalab.project.projectwidget import SelectCategory
 from openalea.oalab.gui.utils import ModalDialog
 
 class TextData(object):
@@ -412,7 +412,7 @@ class ParadigmContainer(QtGui.QTabWidget):
         """
         Display a welcome tab if nothing is opened
         """
-        pm = get_applet(identifier='ProjectManager2')
+        pm = get_applet(identifier='ProjectManager')
         if pm :
             actions = [pm.actionNewProj, pm.actionOpenProj]
             welcomePage = WelcomePage(actions=actions, parent=self.parent())
