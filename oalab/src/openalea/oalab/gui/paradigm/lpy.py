@@ -113,7 +113,7 @@ class LPyModelController(object):
             self.model = model
         else:
             self.model = LPyModel(name=name, code=code)
-        self.name = self.model.name
+        self.name = self.model.filename
         self.parent = parent
         self.editor_container = editor_container
         self._widget = None

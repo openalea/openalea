@@ -29,9 +29,11 @@ class VisualeaModel(Model):
     icon = ":/images/resources/openalealogo.png"
     mimetype = "text/x-visualea"
 
-    def __init__(self, name="workflow.wpy", code="", filepath="", inputs=[], outputs=[], **kwargs):
-        super(VisualeaModel, self).__init__(name=name, code=code, filepath=filepath, inputs=inputs, outputs=outputs, **kwargs)
+    def __init__(self, **kwargs):
+        super(VisualeaModel, self).__init__(**kwargs)
+        self.content = self.read()
         _name = self.filename.split('.wpy')[0]
+        code = self.content
         if (code is None) or (code is ""):
             self._workflow = CompositeNodeFactory(_name).instantiate()
         elif isinstance(code, CompositeNodeFactory):
@@ -41,9 +43,12 @@ class VisualeaModel(Model):
         else:
             # Access to the current project
             # 
+            import sys
+            print >> sys.__stderr__, code
             cnf = eval(code, globals(), locals())
             # hakishhh
-            #CompositeNodeFactory.instantiate_node = monkey_patch_instantiate_node
+            # CompositeNodeFactory.instantiate_node = monkey_patch_instantiate_node
+#             raise IOError(cnf)
             self._workflow = cnf.instantiate()
 
     def get_documentation(self):
@@ -114,6 +119,17 @@ class VisualeaModel(Model):
         """
         return self.run()
 
+    def _get_content(self):
+        return self._content
+
+    def _set_content(self, content=""):
+        """
+        Set the content and parse it to get docstring, inputs and outputs info, some methods
+        """
+        self._content = content
+
+    content = property(fget=_get_content, fset=_set_content)
+    code = property(fget=_get_content, fset=_set_content)
 
 def monkey_patch_instantiate_node(self, vid, call_stack=None):
     (package_id, factory_id) = self.elt_factory[vid]

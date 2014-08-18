@@ -28,13 +28,13 @@ class RModel(Model):
     icon = ":/images/resources/RLogo.png"
     mimetype = "text/x-r"
 
-    def __init__(self, name="script.r", code="", filepath="", inputs=[], outputs=[], **kwargs):
-        super(RModel, self).__init__(name=name, code=code, filepath=filepath, inputs=inputs, outputs=outputs, **kwargs)
+    def __init__(self, **kwargs):
+        super(RModel, self).__init__(**kwargs)
         self._step = None
         self._animate = None
         self._init = None
         self.ns = dict()
-        self.code = code  # use it to force to parse doc, functions, inputs and outputs
+        self.content = self.read() # use it to force to parse doc, functions, inputs and outputs
         self.has_run = False
 
     def get_documentation(self):

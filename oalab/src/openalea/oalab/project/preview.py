@@ -59,7 +59,7 @@ class Preview(QtGui.QWidget):
             i += 1
 
         layout.addWidget(QtGui.QLabel("model:"), 12, 0)
-        layout.addWidget(QtGui.QLabel(pretty_print(project.src.keys())), 12, 1)
+        layout.addWidget(QtGui.QLabel(pretty_print(project.model.keys())), 12, 1)
 
         open_button = QtGui.QPushButton("Open this project")
         open_button.clicked.connect(self.on_project_opened)
@@ -91,7 +91,6 @@ def main():
 
     projects = project_manager.projects
     for project in projects:
-        project.load_manifest()
         # Create widget
         preview_widget = Preview(project)
         tabwidget.addTab(preview_widget, project.name)

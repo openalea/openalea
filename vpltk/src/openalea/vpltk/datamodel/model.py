@@ -14,6 +14,8 @@ class Model(Data):
     mimetype = "text/"
 
     def __init__(self, **kwargs):
+        if 'code' in kwargs and 'content' in kwargs:
+            raise ValueError('Use content keyword only')
         if 'name' not in kwargs:
             kwargs['name'] = 'model'
         # Backward compatibility with model
@@ -246,7 +248,7 @@ class ModelFactory(AbstractFactory):
         model = pm.cproject.get_model(self.name)
         if model is None:
             print "error loading model ", self.name
-            print "Available models are ", pm.cproject.list_models()
+            print "Available models are ", pm.cproject.model.keys()
 
         # TODO
         def signature(args_info, out=False):
@@ -289,7 +291,7 @@ class ModelFactory(AbstractFactory):
         else:
             print "We can't instanciate node from project %s because we don't have model %s" % (pm.cproject.name, self.name)
             print "We only have models : "
-            print pm.cproject.list_models()
+            print pm.cproject.model.keys()
 
     def instantiate_widget(self, node=None, parent=None, edit=False,
         autonomous=False):

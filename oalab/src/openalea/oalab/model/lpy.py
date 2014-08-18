@@ -83,10 +83,9 @@ class LPyModel(Model):
     icon = ":/images/resources/logo.png"
     mimetype = "text/vnd-lpy"
 
-    def __init__(self, name="script.lpy", code=None, filepath="", inputs=[], outputs=[], **kwargs):
-        super(LPyModel, self).__init__(name=name, code=code, filepath=filepath, inputs=inputs, outputs=outputs, **kwargs)
+    def __init__(self, **kwargs):
+        super(LPyModel, self).__init__(**kwargs)
         self.temp_axiom = None
-        self.content = self.read() # use it to force to parse doc, functions, inputs and outputs
         self.second_step = False # Hack, see self.step
         # dict is mutable... It is useful if you want change scene_name inside application
         self.context = dict()
@@ -94,7 +93,8 @@ class LPyModel(Model):
         self.context["scene_name"] = self.scene_name
         self.lsystem = Lsystem()
         self.axialtree = AxialTree()
-        self.code, control = import_lpy_file(code)
+        code = self.read() # use it to force to parse doc, functions, inputs and outputs
+        self.content, control = import_lpy_file(code)
 
         self.axialtree = adapt_axialtree(self.axialtree, self.lsystem)
         # TODO: update control of the project with new ones

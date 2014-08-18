@@ -30,6 +30,7 @@ from openalea.core import settings
 from openalea.oalab.session.session import Session
 from openalea.oalab.service.mimetype import encode
 from openalea.vpltk.plugin import iter_plugins
+from openalea.oalab.service.applet import get_applet
 
 """
 TODO:
@@ -150,7 +151,7 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         self.session = Session()
 
     def initialize(self):
-#         self.paradigm_container = get_applet(identifier='EditorManager')
+        self.paradigm_container = get_applet(identifier='EditorManager')
         self.view.initialize()
 
         # As default project has been defined before having connected this widget
@@ -177,7 +178,8 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         self.pm.discover()
         self.menu_available_projects.clear()
         self.action_available_project.clear()
-        all_projects = {}
+
+        all_projects = {} # dict parent dir -> list of Project objects
         for project in self.pm.projects:
             all_projects.setdefault(project.projectdir, []).append(project)
 
@@ -263,10 +265,11 @@ class ProjectManagerView(QtGui.QTreeView):
 
         self.actionNewProj.triggered.connect(self.new_project)
         self.actionOpenProj.triggered.connect(self.open_project)
-        
+
     #  API
 
     def initialize(self):
+        self.paradigm_container = get_applet(identifier='EditorManager')
         config = settings.Settings()
         last_proj = "temp"
         try:
@@ -438,8 +441,8 @@ class ProjectManagerView(QtGui.QTreeView):
 
     def open_all_scripts_from_project(self, project):
         if self.paradigm_container is not None:
-            for model in project.list_models():
-                self.paradigm_container.open_project_data('model', model)
+            for model in project.model.values():
+                self.paradigm_container.open_data(model)
 
     def new_file(self, dtype=None):
         try:
@@ -464,9 +467,9 @@ class ProjectManagerView(QtGui.QTreeView):
             name = '%s_%s' % (dtype, category)
         else:
             name = category
-#         category, name = self.paradigm_container.add(project, name, code, dtype=dtype, category=category)
-#         if name:
-#             self.paradigm_container.open_project_data(category, name)
+        category, name = self.paradigm_container.add(project, name, code, dtype=dtype, category=category)
+        if name:
+            self.paradigm_container.open_project_data(category, name)
 
     def open(self):
         project, category, name = self.selected_data()
@@ -480,10 +483,9 @@ class ProjectManagerView(QtGui.QTreeView):
                 pass
                 #self.open_all_scripts_from_project(project)
             elif category == 'data':
-                filepath = project.path / category / name
-                start(filepath)
-#             elif category in ('startup', 'model', 'doc', 'lib'):
-#                 self.paradigm_container.open_project_data(category, name)
+                start(project.get(category, name).path)
+            else:
+                self.paradigm_container.open_data(project.get(category, name))
 
     def _rename(self, project, category, name):
         if category in ('model', 'src'):
@@ -523,8 +525,8 @@ class ProjectManagerView(QtGui.QTreeView):
             if dialog.exec_():
                 project.remove(category, name)
                 path.remove()
-#                 if self.paradigm_container:
-#                     self.paradigm_container.close_project_data(category, name)
+                if self.paradigm_container:
+                    self.paradigm_container.close_project_data(category, name)
 
     def save(self):
         project = self.project()
@@ -567,10 +569,9 @@ class ProjectManagerView(QtGui.QTreeView):
         self.pm.cproject = None
 
     def close_all_scripts(self):
-        pass
-#         if self.paradigm_container is None:
-#             return
-#         self.paradigm_container.closeAll()
+        if self.paradigm_container is None:
+            return
+        self.paradigm_container.closeAll()
 
     def import_file(self):
         print 'import_file'
@@ -738,50 +739,15 @@ class ProjectManagerModel(QtGui.QStandardItemModel):
                 item3.setData((category, data))
                 item2.appendRow(item3)
 
-
-#         categories = project.category_keys
-#         for category in categories:
-#             if hasattr(project, category):
-#                 cat = getattr(project, category)
-#                 if cat is not None:
-#                     if len(cat) > 0:
-#                         item2 = QtGui.QStandardItem(category)
-#                         item.appendRow(item2)
-#                         try:
-#                             icon = eval(str("icon_" + category))
-#                         except NameError:
-#                             icon = QtGui.QIcon()
-#                         item2.setIcon(icon)
-#                 else:
-#                     # hide name of category if we don't have object of this category
-#                     pass
-#
-#                 if isinstance(cat, dict):
-#                     for obj in cat.keys():
-#                         l = obj.split(".")
-#                         name = ".".join(l[:-1])
-#                         ext = l[-1]
-#                         item3 = QtGui.QStandardItem(obj)
-#                         if category == "src":
-#                             item3 = QtGui.QStandardItem(name)
-#                             item3.setData((category, name))
-#                             if ext in self.icons.keys():
-#                                 item3.setIcon(QtGui.QIcon(self.icons[ext]))
-#                         item2.appendRow(item3)
-#                 else:
-#                     # Useful for category "localized" which store a bool and not a list
-#                     item3 = QtGui.QStandardItem(cat)
-#                     item2.appendRow(item3)
-
     def projectdata(self, index):
         if index is None:
             return None
         if self._project is None:
             return
 
-        if index.parent().data() in self._project.categories():
+        if index.parent().data() in self._project.category_keys:
             return (index.parent().data(), index.data())
-        elif index.data() in self._project.categories():
+        elif index.data() in self._project.category_keys:
             return ('category', index.data())
         elif index.data() == self._root_item:
             return ('project', index.data())
