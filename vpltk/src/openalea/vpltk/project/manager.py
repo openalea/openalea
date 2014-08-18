@@ -75,9 +75,9 @@ class ProjectManager(Observed, AbstractListener):
             lst = eval(s)
         except NoSectionError, e:
             config.add_section("ProjectManager")
-            config.add_option("ProjectManager", "Path", str(lst))
+            config.add_option("ProjectManager", "Path", str([str(path) for path in lst]))
         except NoOptionError, e:
-            config.add_option("ProjectManager", "Path", str(lst))
+            config.add_option("ProjectManager", "Path", str([str(path) for path in lst]))
 
         for repo in lst:
             repositories.add(repo)
