@@ -163,6 +163,30 @@ class TestProject(TestCase):
         self.assertEqual(proj2.model["plop.py"].read(), "print 'plop world'")
         self.assertEqual(proj2.model["model.py"].read(), "print 'hello world'\n")
 
+    def test_get_model(self):
+        self.project.add("model", filename="1.py",)
+        model = self.project.get_model('1')
+        assert model.filename == '1.py'
+
+        model = self.project.get_model('1.py')
+        assert model.filename == '1.py'
+
+        self.project.add("model", filename="1.lpy")
+
+
+        # Case datatype is not defined
+        with self.assertRaises(ValueError) as cm:
+            model = self.project.get_model('1')
+
+        msg = "2 model have basename '1': '1.py', '1.lpy'"
+        self.assertEqual(cm.exception.message, msg)
+
+        model = self.project.get_model('1.py')
+        assert model.filename == '1.py'
+
+
+
+
     def test_add_script(self):
         self.project.add("model", filename="1.py", content="blablabla")
         self.project.add("model", filename="2.py", content="blablabla2")
