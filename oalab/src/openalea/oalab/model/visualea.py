@@ -119,8 +119,6 @@ class VisualeaModel(Model):
 
 def monkey_patch_instantiate_node(self, vid, call_stack=None):
     (package_id, factory_id) = self.elt_factory[vid]
-    print package_id, factory_id
-    
     # my temporary patch
     if package_id in (None, ":projectmanager.current"):
         factory = ModelFactory(factory_id)
@@ -128,8 +126,7 @@ def monkey_patch_instantiate_node(self, vid, call_stack=None):
         pkgmanager = PackageManager()
         pkg = pkgmanager[package_id]
         factory = pkg.get_factory(factory_id)
-    
-    print factory
+
     node = factory.instantiate(call_stack)
 
     attributes = copy.deepcopy(self.elt_data[vid])

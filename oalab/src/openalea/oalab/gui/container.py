@@ -25,61 +25,15 @@ from openalea.core import settings
 from openalea.core.path import path
 from openalea.oalab.gui import resources_rc # do not remove this import else icon are not drawn
 from openalea.oalab.gui.utils import qicon
-from openalea.vpltk.project import ProjectManager
-from openalea.oalab.service.applet import get_applet
+from openalea.vpltk.project import ProjectManager, Project
 from openalea.oalab.project.projectwidget import SelectCategory
 from openalea.oalab.gui.utils import ModalDialog
+from openalea.vpltk.datamodel.model import Model
 
-class TextData(object):
-    default_name = "text"
-    default_file_name = "text"
-    pattern = ""
-    extension = ""
-    icon = ""
+from openalea.oalab.service.applet import get_applet
+from openalea.oalab.service.data import data, dataclass, datatype
 
-    def __init__(self, name="", code="", filepath="", category=None, *args, **kwargs):
-        """
-        :param name: name of the model (name of the file?)
-        :param code: code of the model, can be a string or an other object
-        :param filepath: path to save the model on disk
-        """
-        self.name = name
-        self.filepath = filepath
-        self.code = code
-        self.category = category
-        self.execute = self.step = self.animate = self.init = self.run
-        self.ns = {}
-
-    def __call__(self, *args, **kwargs):
-        self.run(*args, **kwargs)
-
-    def __eq__(self, other):
-        return self.code == other.code and self.name == other.name and self.category == other.category
-
-    def run(self, *args, **kargs):
-        from openalea.oalab.service.ipython import get_interpreter
-        interpreter = get_interpreter()
-        return interpreter.runcode(self.code)
-
-
-class DataContainer(dict):
-    """
-    Temporary waiting for real dataobject implementation in project
-    """
-    def __contains__(self, other):
-        for obj in self:
-            if obj == other:
-                return True
-        return False
-
-    def __getitem__(self, key):
-        try:
-            return dict.__getitem__(self, key)
-        except KeyError, e:
-            for obj in self:
-                if obj == key:
-                    return dict.__getitem__(self, obj)
-            raise e
+from openalea.oalab.session.session import Session
 
 class ParadigmContainer(QtGui.QTabWidget):
     """
@@ -88,10 +42,10 @@ class ParadigmContainer(QtGui.QTabWidget):
     identifier = "WidgetEditorContainer"
     name = "Editor Container"
 
-    def __init__(self, session, controller, parent=None):
+    def __init__(self, controller, session, parent=None):
         super(ParadigmContainer, self).__init__(parent=parent)
-        self.session = session
-        self.controller = controller
+        self.session = Session()
+#         self.controller = controller
 
         self.setTabsClosable(True)
         self.setMinimumSize(100, 100)
@@ -104,7 +58,7 @@ class ParadigmContainer(QtGui.QTabWidget):
         for applet in iter_plugins('oalab.paradigm_applet', debug=self.session.debug_plugins):
             self.paradigms[applet.name] = applet()()
 
-        self._open_objects = DataContainer()
+        self._open_objects = {}
 
         self.projectManager = ProjectManager()
 
@@ -224,14 +178,10 @@ class ParadigmContainer(QtGui.QTabWidget):
             applet_class = self.paradigms["Python"]
 
         # TODO: case Python paradigm does not exists
-        return applet_class(name=obj.filename, code=obj.content, model=obj,
+        return applet_class(name=obj.filename, code=obj.read(), model=obj,
                             filepath=obj.path, editor_container=self, parent=None).instanciate_widget()
 
     def data_name(self, obj):
-#         if obj.category in ('model', 'external'):
-#             name = obj.name
-#         else:
-#             name = '%s/%s' % (obj.category, obj.name)
         return obj.filename
 
     def current_data(self):
@@ -245,12 +195,8 @@ class ParadigmContainer(QtGui.QTabWidget):
         filepath = showOpenFileDialog()
         if filepath:
             filepath = path(filepath)
-            name = '.../%s/%s' % (filepath.parent.name, filepath.name)
-            f = open(filepath, 'r')
-            code = f.read()
-            f.close()
-            obj = TextData(name, code, filepath, category='external')
-            self.open_data(obj, dtype=None)
+            obj = data(path=filepath)
+            self.open_data(obj)
 
     def open_data(self, obj):
         # Check if object is yet open else create applet
@@ -299,54 +245,50 @@ class ParadigmContainer(QtGui.QTabWidget):
         if tab is None:
             tab = self.currentWidget()
 
-        project = self.project()
         obj = self._open_tabs[tab]
-        category = obj.category
         code = tab.get_code()
-
-        if category == 'external':
-            f = open(obj.filepath, "w")
+        if isinstance(obj, Model):
+            obj.content = code
+            obj.save()
+        else:
+            f = open(obj.path, "w")
             code = str(code).encode("utf8", "ignore")
             f.write(code)
             f.close()
-        elif category == 'model':
-            obj.code = code
-            project.save()
-        elif category in ('startup', 'doc', 'lib'):
-            getattr(project, category)[obj.filepath.name] = code
-            project.save()
 
     def new_file(self):
+        category = 'model'
         try:
             dtype = self._new_file_actions[self.sender()]
+            name = '%s_%s.%s' % (dtype, category, dataclass(datatype(name=dtype)).extension)
         except KeyError:
-            return
-        category = 'model'
-        name = '%s_%s' % (dtype, category)
-        category, name = self.add(self.project(), name, code='', dtype=dtype, category=category)
+            dtype = None
+            name = 'new_file.ext'
+
+        category, data = self.add(self.project(), name, code='', dtype=dtype, category=category)
         if name:
-            self.open_project_data(category, name)
+            self.open_data(data)
 
     def add(self, project, name, code, dtype=None, category=None):
-        models = {}
-        if category is None:
-            categories = ['model', 'startup', 'doc', 'lib']
+        if dtype is None:
+            dtypes = [ModelClass.default_name for ModelClass in iter_plugins('oalab.model')]
         else:
-            categories = [category]
-
-        if dtype:
             dtypes = [dtype]
+
+        if category:
+            categories=[category]
         else:
-            dtypes = None
+            categories=Project.category_keys
+        
         selector = SelectCategory(filename=name, categories=categories, dtypes=dtypes)
         dialog = ModalDialog(selector)
         if dialog.exec_():
             category = selector.category()
             filename = selector.name()
             dtype = selector.dtype()
-            ret = project.add(category=category, name=filename, value=code, dtype=dtype)
-            if ret:
-                return category, filename
+            data = project.add(category=category, filename=filename, content=code, dtype=dtype)
+            if data:
+                return category, data
         return None, None
 
     def add_current_file(self):
@@ -357,19 +299,7 @@ class ParadigmContainer(QtGui.QTabWidget):
         if obj is None:
             return
 
-        if obj.category == 'external':
-            name = obj.filepath.name
-            category = None
-            dtype = None
-        else:
-            name = obj.name
-            category = obj.category
-            dtype = obj.default_name
-
-        category, name = self.add(project, name, obj.code, dtype=dtype, category=category)
-        if name:
-            self.close_current()
-            self.open_project_data(category, name)
+        project.add(category, obj)
 
     def setTabRed(self, index=None):
         if index is None:

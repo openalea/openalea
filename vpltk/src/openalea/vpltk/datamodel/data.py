@@ -24,8 +24,13 @@ class Data(object):
         self._content = kwargs['content'] if 'content' in kwargs else None
 
 
-    # def write(self, content):
-    #     raise NotImplementedError
+    def is_same_data(self, other):
+        if self.exists() and other.exists():
+            return self.path == other.path
+        elif not self.exists() and not other.exists():
+            return self._content == other._content
+        else:
+            return False
 
     def save(self):
         if self.path is None:

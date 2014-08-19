@@ -263,14 +263,12 @@ endlsystem"""
                     elif outp.name in namespace:
                         self._outputs.append(namespace[outp.name])
 
-    def _get_content(self):
-        return self._content
 
-    def _set_content(self, content=""):
+    def parse(self):
         """
         Set the content and parse it to get docstring, inputs and outputs info, some methods
         """
-        self._content = content
+        content = self._content
         self._doc = get_docstring(content)
         docstring = parse_lpy(content)
         if docstring is not None:
@@ -282,10 +280,6 @@ endlsystem"""
         # Default output
         if self.outputs_info == []:
             self.outputs_info = [OutputObj("lstring:IStr")]
-
-
-    content = property(fget=_get_content, fset=_set_content)
-    code = property(fget=_get_content, fset=_set_content)
 
 
     def _set_inputs(self, *args, **kwargs):

@@ -14,15 +14,15 @@ for DataClass in iter_plugins('oalab.dataclass'):
 
 REGISTERY_NAME_MIME = {}
 for ModelClass in iter_plugins('oalab.model'):
-    REGISTERY_NAME_MIME[ModelClass.default_name] = ModelClass.mimetype
-    REGISTERY_NAME_MIME[ModelClass.extension] = ModelClass.mimetype
+    REGISTERY_NAME_MIME[ModelClass.default_name.lower()] = ModelClass.mimetype
+    REGISTERY_NAME_MIME[ModelClass.extension.lower()] = ModelClass.mimetype
 
 
 for DataClass in iter_plugins('oalab.dataclass'):
-    REGISTERY_NAME_MIME[ModelClass.default_name] = DataClass.mimetype
-    REGISTERY_NAME_MIME[ModelClass.extension] = DataClass.mimetype
+    REGISTERY_NAME_MIME[ModelClass.default_name.lower()] = DataClass.mimetype
+    REGISTERY_NAME_MIME[ModelClass.extension.lower()] = DataClass.mimetype
 
-def datatype(path):
+def datatype(path=None, name=None):
     """
     Return mimetype for path.
     First, try to find extension in registery filled by models.
@@ -32,14 +32,19 @@ def datatype(path):
     Search in module allows to specify
     """
     if path:
-        ext = Path(path).ext[1:]
-        if ext in REGISTERY_NAME_MIME:
-            return REGISTERY_NAME_MIME[ext]
+        name = Path(path).ext[1:].lower()
+        if name in REGISTERY_NAME_MIME:
+            return REGISTERY_NAME_MIME[name]
         else:
             mtype, encoding = mimetypes.guess_type(path)
             return mtype
     else:
-        return False
+        name = name.lower()
+        if name in REGISTERY_NAME_MIME:
+            return REGISTERY_NAME_MIME[name]
+        else:
+            return False
+
 
 
 def dataclass(dtype):

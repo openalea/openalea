@@ -153,7 +153,7 @@ class LPyModelController(object):
             display_help(doc)
         wid.display_help = types.MethodType(_diplay_help, wid)
 
-        wid.set_text(self.model.code)
+        wid.set_text(self.model.read())
         wid.replace_tab()
         return wid
 
@@ -194,7 +194,7 @@ class LPyModelController(object):
         self.model.context.update(control_dict())
 
         code = self.widget().get_text()
-        self.model.code = code
+        self.model.content = code
 
         # todo get control
         """ # Get control
@@ -217,7 +217,7 @@ class LPyModelController(object):
         self.model.context.update(control_dict())
 
         code = self.widget().get_text()
-        if code != self.model.code:
+        if code != self.model.read():
             # todo set controls
             """
             # /!\ setCode method set the getLastIterationNb to zero
@@ -227,7 +227,7 @@ class LPyModelController(object):
                 if hasattr(self.model.parameters[parameter], "value"):
                     self.model.parameters[parameter] = self.model.parameters[parameter].value
             """
-            self.model.code = code
+            self.model.content = code
 
         # todo: put result in the world ?
         ret = self.model.step(i=i, *args, **kwargs)
@@ -260,7 +260,7 @@ class LPyModelController(object):
         for parameter in self.model.parameters:
             if hasattr(self.model.parameters[parameter], "value"):
                 self.model.parameters[parameter] = self.model.parameters[parameter].value"""
-        self.model.code = code
+        self.model.content = code
 
         # todo: put result in the world ?
         ret = self.model.animate(*args, **kwargs)
@@ -274,7 +274,7 @@ class LPyModelController(object):
         self.model.context.update(control_dict())
 
         code = self.widget().get_text()
-        self.model.code = code
+        self.model.content = code
 
         # todo: put result in the world ?
         ret = self.model.init(*args, **kwargs)

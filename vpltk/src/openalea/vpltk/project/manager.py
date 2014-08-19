@@ -167,9 +167,7 @@ class ProjectManager(Observed, AbstractListener):
         """
         _path = Path(settings.get_project_dir())
         proj = Project(_path / "temp")
-        proj.centralized = False
-
-        if not proj.model:
+        if not proj.path.exists():
             txt = '''"""
 OpenAlea Lab editor
 This temporary script is saved in temporary project in
@@ -178,8 +176,6 @@ This temporary script is saved in temporary project in
 You can rename/move this project thanks to the button "Save As" in menu.
 """''' % str(proj.path)
             proj.add("model", filename="model.py", content=txt)
-
-        if not proj.path.exists():
             proj.save()
 
         return proj

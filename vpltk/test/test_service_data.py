@@ -59,6 +59,9 @@ class TestProject(unittest.TestCase):
 
     def test_datatype(self):
         self.assertEqual(datatype('test.py'), 'text/x-python')
+        self.assertEqual(datatype(name='py'), 'text/x-python')
+        self.assertEqual(datatype(name='python'), 'text/x-python')
+        self.assertEqual(datatype(name='Python'), 'text/x-python')
         self.assertEqual(datatype('image.tiff'), 'image/tiff')
 
 

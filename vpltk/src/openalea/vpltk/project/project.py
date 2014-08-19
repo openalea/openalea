@@ -175,8 +175,8 @@ class Project(Observed):
     def get(self, category, name, **kwargs):
         return self.get_item(category, name)
 
-    def remove(self, category, name, **kwargs):
-        return self.remove_item(category, name, **kwargs)
+    def remove(self, category, obj=None, **kwargs):
+        return self.remove_item(category, obj=obj, **kwargs)
 
     def _add_item(self, category, obj=None, **kwargs):
         mode = kwargs['mode'] if 'mode' in kwargs else self.MODE_COPY
@@ -198,6 +198,12 @@ class Project(Observed):
             content = kwargs['content'] if 'content' in kwargs else None
             dtype = kwargs['dtype'] if 'dtype' in kwargs else None
             path = Path(kwargs['path']) if 'path' in kwargs else None
+
+            # If project path exists, ie project exists on disk,
+            # Create category dir if necessary
+            category_path = self.path / category
+            if self.path.exists() and not category_path.exists():
+                category_path.makedirs()
 
             if filename:
                 new_path = self.path / category / filename.name
@@ -234,17 +240,23 @@ class Project(Observed):
             data_obj = data(new_path, dtype, default_content=content)
             return self._add_item(category, data_obj, **kwargs)
 
-    def _remove_item(self, category, filename):
+    def _remove_item(self, category, obj=None, **kwargs):
+        category_dict = getattr(self, category)
+        filename = kwargs['filename'] if 'filename' in kwargs else None
+        if obj is None and filename is None:
+            raise ValueError('You must specify a data object or a filename')
+        if obj is not None:
+            filename = obj.filename
+
         if self.get(category, filename):
-            files = getattr(self, category)
-            del files[filename]
+            del category_dict[filename]
 
     def _rename_item(self, category, old, new):
         if old == new:
             return
         data = self.get_item(category, old)
         data.rename(new)
-        self._remove_item(category, old)
+        self._remove_item(category, filename=old)
         self._add_item(category, data)
 
     def add_item(self, category, obj=None, **kwargs):
@@ -253,8 +265,12 @@ class Project(Observed):
         self.notify_listeners(('project_changed', self))
         return data
 
-    def remove_item(self, category, filename):
-        self._remove_item(category, filename)
+    def remove_item(self, category, obj=None, **kwargs):
+        if obj:
+            filename = obj.filename
+        elif 'filename' in kwargs:
+            filename = kwargs['filename']
+        self._remove_item(category, obj=obj, **kwargs)
         self.notify_listeners(('data_removed', (self, category, filename)))
         self.notify_listeners(('project_changed', self))
 

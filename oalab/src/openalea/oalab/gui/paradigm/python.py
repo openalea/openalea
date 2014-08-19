@@ -62,7 +62,7 @@ class PythonModelController(object):
             display_help(doc)
         wid.display_help = types.MethodType(_diplay_help, wid)
 
-        wid.set_text(self.model.code)
+        wid.set_text(self.model.read())
         wid.replace_tab()
         return self.widget()
 
@@ -77,14 +77,14 @@ class PythonModelController(object):
         controls = control_dict()
         self.model.ns.update(controls)
         code = self.widget().get_text()
-        self.model.code = code
+        self.model.content = code
         return self.model(*args, **kwargs)
 
     def step(self, *args, **kwargs):
         controls = control_dict()
         self.model.ns.update(controls)
         code = self.widget().get_text()
-        self.model.code = code
+        self.model.content = code
         return self.model.step(*args, **kwargs)
 
     def stop(self, *args, **kwargs):
@@ -94,14 +94,14 @@ class PythonModelController(object):
         controls = control_dict()
         self.model.ns.update(controls)
         code = self.widget().get_text()
-        self.model.code = code
+        self.model.content = code
         return self.model.animate(*args, **kwargs)
 
     def init(self, *args, **kwargs):
         controls = control_dict()
         self.model.ns.update(controls)
         code = self.widget().get_text()
-        self.model.code = code
+        self.model.content = code
         return self.model.init(*args, **kwargs)
 
     def widget(self):
