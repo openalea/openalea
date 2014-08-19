@@ -70,7 +70,7 @@ class Model(Data):
         return self.run(*args, **kwargs)
 
     def __str__(self):
-        return "Instance of model " + str(type(self)) + " named " + str(self.name)
+        return str(self.filename)
 
     def run(self, *args, **kwargs):
         """
@@ -219,7 +219,7 @@ class Model(Data):
     def parse(self):
         pass
 
-    content = property(fget=read, fset=_set_content)
+    content = property(fset=_set_content)
     code = property(fget=read)
 
 

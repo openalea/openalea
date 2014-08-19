@@ -34,6 +34,37 @@ class TestProject(TestCase):
         assert model is not model2
         assert model2.path == self.project.path / 'model' / 'model.py'
 
+    def test_autocreate_category_dir(self):
+        # Project exists on disk
+        #########################
+
+        # Add data object created from scratch in a project existing on disk
+        project = Project(self.tmpdir / 'test1', alias='test')
+        project.save()
+        d1 = project.add('data', filename='image_1.tiff', content=b'')
+        assert d1.path.exists()
+
+        # Add an existing data in a project existing on disk
+        project = Project(self.tmpdir / 'test2', alias='test')
+        project.save()
+        d1 = project.add('data', path=get_data('image_2.tiff'))
+        assert d1.path.exists()
+        assert d1.path.parent == project.path / 'data'
+
+        # Project don't exists on disk
+        ##############################
+
+        # Add data object created from scratch in a project NOT existing on disk
+        project = Project(self.tmpdir / 'test3', alias='test')
+        d1 = project.add('data', filename='image_1.tiff', content=b'')
+        assert d1.path.exists() is False
+
+        # Add an existing data in a project NOT existing on disk
+        project = Project(self.tmpdir / 'test4', alias='test')
+        d1 = project.add('data', path=get_data('image_2.tiff'))
+        assert d1.path.exists() is False
+        assert d1.path.parent == project.path / 'data'
+
     def test_add_item(self):
         # Create new data from scratch
         d1 = self.project.add('data', filename='image_1.tiff', content=b'')
@@ -257,7 +288,7 @@ class TestProject(TestCase):
         assert (self.project.path / "model" / "1.py").exists()
 
         events = self.ev.events # clear events
-        self.project.remove_item("model", "1.py")
+        self.project.remove_item("model", filename="1.py")
         events = self.ev.events
         self.check_events(events, ['data_removed', 'project_changed'])
 

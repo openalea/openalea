@@ -29,8 +29,10 @@ from openalea.core.path import path
 from openalea.core import settings
 from openalea.oalab.session.session import Session
 from openalea.oalab.service.mimetype import encode
+from openalea.oalab.service.data import dataclass, datatype
 from openalea.vpltk.plugin import iter_plugins
 from openalea.oalab.service.applet import get_applet
+from openalea.file.files import start
 
 """
 TODO:
@@ -464,7 +466,7 @@ class ProjectManagerView(QtGui.QTreeView):
             d = {'startup': 'start.py', 'lib': 'algo.py'}
             name = d[category]
         elif dtype:
-            name = '%s_%s' % (dtype, category)
+            name = '%s_%s.%s' % (dtype, category, dataclass(datatype(name=dtype)).extension)
         else:
             name = category
         category, name = self.paradigm_container.add(project, name, code, dtype=dtype, category=category)
@@ -478,7 +480,9 @@ class ProjectManagerView(QtGui.QTreeView):
                 p = QtGui.QFileDialog.getOpenFileName(self, 'Select File to open', project.path, "All (*)")
                 if p:
                     p = path(p)
-                    project.add(name, p.name, p)
+                    project.add(name, path=p)
+            elif category == 'category':
+                pass
             elif category == 'project':
                 pass
                 #self.open_all_scripts_from_project(project)
@@ -507,26 +511,21 @@ class ProjectManagerView(QtGui.QTreeView):
     def remove(self):
         project, category, name = self.selected_data()
         if project:
-            project.remove(category, name)
+            project.remove(category, filename=name)
 
     def delete(self):
         project, category, name = self.selected_data()
         if project:
-            if category == 'data':
-                path = project.get(category, name)
-            elif category == 'model':
-                model = project.get(category, name)
-                path = model.abspath(project.path / 'model')
-            else:
-                path = project.path / category / name
+            if category in project.category_keys:
+                data = project.get(category, name)
 
-            confirm = QtGui.QLabel('Remove %s ?' % path)
-            dialog = ModalDialog(confirm)
-            if dialog.exec_():
-                project.remove(category, name)
-                path.remove()
-                if self.paradigm_container:
-                    self.paradigm_container.close_project_data(category, name)
+                confirm = QtGui.QLabel('Remove %s ?' % data.path)
+                dialog = ModalDialog(confirm)
+                if dialog.exec_():
+                    project.remove(category, data)
+                    data.path.remove()
+                    if self.paradigm_container:
+                        self.paradigm_container.close_project_data(category, name)
 
     def save(self):
         project = self.project()

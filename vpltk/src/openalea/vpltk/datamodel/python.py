@@ -86,7 +86,7 @@ class PythonModel(Model):
         pass
 
     def parse(self):
-        content = self.content
+        content = self._content
         model, self.inputs_info, self.outputs_info = parse_docstring(content)
         self._init, self._step, self._animate, self._run = parse_functions(content)
         self._doc = get_docstring(content)
