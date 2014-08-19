@@ -13,6 +13,9 @@ class Model(Data):
     icon = ":/images/resources/logo.png"
     mimetype = "text/"
 
+    CACHE = 0
+    NO_CACHE = 1
+
     def __init__(self, **kwargs):
         if 'code' in kwargs and 'content' in kwargs:
             raise ValueError('Use content keyword only')
@@ -41,6 +44,14 @@ class Model(Data):
         self.doc = ''
         self.ns = dict()
 
+        self._cache_mode = self.CACHE
+        self._metadata = {'mtime':0, 'size':0}
+
+        # If path doesn't exists, that means all content is in memory (passed in constructor for example)
+        # So we need to parse it
+        if not self.exists():
+            self.parse()
+
 
     #################
     # REVIEW REQUIRED
@@ -48,6 +59,7 @@ class Model(Data):
 
 
     def get_documentation(self):
+        self.read()
         return self.doc
 
     def repr_code(self):
@@ -170,8 +182,45 @@ class Model(Data):
         interpreter.user_ns.update(old_namespace)
         return namespace
 
-    def load(self):
-        self._content = self.read()
+    def clear_cache(self):
+        self._mtime = 0
+
+    def set_cache_mode(self, cache_mode=None):
+        if cache_mode is None:
+            self._cache_mode = self.CACHE
+        else:
+            self._cache_mode = cache_mode
+
+    def _has_changed(self):
+        if self._cache_mode == self.NO_CACHE:
+            return True
+        if self.path.getmtime() > self._metadata['mtime']:
+            return True
+        if self._metadata['size'] != self.path.size:
+            return True
+        return False
+
+    def read(self):
+        # If path exists and content has changed since last read,
+        # update Model.content and parse it
+        if self.exists():
+            if self._has_changed():
+                with open(self.path, 'rb') as f:
+                    self._content = f.read()
+                    self._metadata['mtime'] = self.path.getmtime()
+                    self._metadata['size'] = self.path.size
+                    self.parse()
+        return self._content
+
+    def _set_content(self, content):
+        self._content = content
+        self.parse()
+
+    def parse(self):
+        pass
+
+    content = property(fget=read, fset=_set_content)
+    code = property(fget=read)
 
 
 class ModelNode(Node):

@@ -258,7 +258,6 @@ class ParadigmContainer(QtGui.QTabWidget):
             tab = self._open_objects[obj]
             self.setCurrentWidget(tab)
         else:
-            obj.load()
             applet = self.applet(obj, obj.default_name)
 
             idx = self.addTab(applet, self.data_name(obj))

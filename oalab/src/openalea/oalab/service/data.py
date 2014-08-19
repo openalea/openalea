@@ -27,7 +27,7 @@ def datatype(path):
     Return mimetype for path.
     First, try to find extension in registery filled by models.
     If datatype is not found, use builtin module "mimetypes".
-    If it cannot guess, returns None.
+    If it cannot guess, returns False.
 
     Search in module allows to specify
     """
@@ -39,7 +39,7 @@ def datatype(path):
             mtype, encoding = mimetypes.guess_type(path)
             return mtype
     else:
-        return None
+        return False
 
 
 def dataclass(dtype):

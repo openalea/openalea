@@ -153,3 +153,4 @@ beautifull doc
     assert model.get_documentation() is not None
     assert len(model.inputs_info) == 4
     assert len(model.outputs_info) == 1
+
