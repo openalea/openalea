@@ -33,8 +33,6 @@ class RModel(Model):
         self._step = None
         self._animate = None
         self._init = None
-        self.ns = dict()
-        self.content = self.read() # use it to force to parse doc, functions, inputs and outputs
         self.has_run = False
 
     def get_documentation(self):
@@ -176,21 +174,14 @@ more informations: http://www.r-project.org/
 
             return self.outputs
 
-    def _get_content(self):
-        return self._content
-
-    def _set_content(self, content=""):
+    def parse(self):
         """
         Set the content and parse it to get docstring, inputs and outputs info, some methods
         """
-        self._content = content
+        content = self._content
         # TODO define the 3 functions parse_docstring_r, parse_functions_r, get_docstring_r
         model, self.inputs_info, self.outputs_info, self.cmdline = parse_docstring_r(content)
         self._init, self._step, self._animate, self._run = parse_functions_r(content)
-        self._doc = get_docstring_r(self._content)
+        self._doc = get_docstring_r(content)
         self.has_run = False
-
-
-    content = property(fget=_get_content, fset=_set_content)
-    code = property(fget=_get_content, fset=_set_content)
 

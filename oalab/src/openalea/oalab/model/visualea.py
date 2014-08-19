@@ -32,35 +32,12 @@ class VisualeaModel(Model):
     def __init__(self, **kwargs):
         super(VisualeaModel, self).__init__(**kwargs)
 
-    def load(self):
-        self.content = self.read()
-        code = self.content
-        if (code is None) or (code is ""):
-            self._workflow = CompositeNodeFactory(self.filename).instantiate()
-        elif isinstance(code, CompositeNodeFactory):
-            # hakishhh
-            #CompositeNodeFactory.instantiate_node = monkey_patch_instantiate_node
-            self._workflow = code.instantiate()
-        else:
-            # Access to the current project
-            cnf = eval(code, globals(), locals())
-            # hakishhh
-            # CompositeNodeFactory.instantiate_node = monkey_patch_instantiate_node
-#             raise IOError(cnf)
-            self._workflow = cnf.instantiate()
-
-    def read(self):
-        if self.exists():
-            with open(self.path, 'r') as f:
-                return f.read()
-        else:
-            return self._content
-
     def get_documentation(self):
         """
 
         :return: docstring of current workflow
         """
+        self.read()
         if hasattr(self._workflow, "get_tip"):
             self._doc = self._workflow.get_tip()
         return self._doc
@@ -124,17 +101,21 @@ class VisualeaModel(Model):
         """
         return self.run()
 
-    def _get_content(self):
-        return self._content
-
-    def _set_content(self, content=""):
-        """
-        Set the content and parse it to get docstring, inputs and outputs info, some methods
-        """
-        self._content = content
-
-    content = property(fget=_get_content, fset=_set_content)
-    code = property(fget=_get_content, fset=_set_content)
+    def parse(self):
+        code = self._content
+        if (code is None) or (code is ""):
+            self._workflow = CompositeNodeFactory(self.filename).instantiate()
+        elif isinstance(code, CompositeNodeFactory):
+            # hakishhh
+            # CompositeNodeFactory.instantiate_node = monkey_patch_instantiate_node
+            self._workflow = code.instantiate()
+        else:
+            # Access to the current project
+            cnf = eval(code, globals(), locals())
+            # hakishhh
+            # CompositeNodeFactory.instantiate_node = monkey_patch_instantiate_node
+#             raise IOError(cnf)
+            self._workflow = cnf.instantiate()
 
 def monkey_patch_instantiate_node(self, vid, call_stack=None):
     (package_id, factory_id) = self.elt_factory[vid]

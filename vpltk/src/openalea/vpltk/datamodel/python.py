@@ -22,12 +22,12 @@ class PythonModel(Model):
 
     def __init__(self, **kwargs):
         Model.__init__(self, **kwargs)
-        self.content = self.read() # use it to force to parse doc, functions, inputs and outputs
 
     def get_documentation(self):
         """
         :return: a string with the documentation of the model
         """
+        self.read()
         if self._doc:
             return self._doc
         else:
@@ -85,17 +85,9 @@ class PythonModel(Model):
         # TODO : to implement
         pass
 
-    def _get_content(self):
-        return self._content
-
-    def _set_content(self, content=""):
-        """
-        Set the content and parse it to get docstring, inputs and outputs info, some methods
-        """
-        self._content = content
+    def parse(self):
+        content = self.content
         model, self.inputs_info, self.outputs_info = parse_docstring(content)
         self._init, self._step, self._animate, self._run = parse_functions(content)
         self._doc = get_docstring(content)
 
-    content = property(fget=_get_content, fset=_set_content)
-    code = property(fget=_get_content, fset=_set_content)
