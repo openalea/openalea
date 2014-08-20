@@ -1,6 +1,6 @@
 from openalea.vpltk.qt import QtGui
 from openalea.core.path import path
-
+from openalea.vpltk.project import Project
 
 def pretty_print(obj):
     """
@@ -46,7 +46,7 @@ class Preview(QtGui.QWidget):
         layout.addWidget(QtGui.QLabel("<b><FONT SIZE = 40>" + pretty_print(project.name) + "<\b>"), 0, 1)
 
         i = 1
-        for label in ["author", "author_email", "description", "long_description", "version", "url", "citation", "license", "dependencies", "path"]:
+        for label in Project.metadata_keys:
             layout.addWidget(QtGui.QLabel(label), i, 0)
             # GBY Review:
             # QLabel expects a QString and QString is equivalent to unicode
