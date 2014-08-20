@@ -93,6 +93,9 @@ class ProjectManager(Observed, AbstractListener):
 
         return list(final_list)
 
+    @property
+    def defaultdir(self):
+        return Path(settings.get_project_dir())
 
     def write_settings(self):
         """ Add a new path to the settings. """
@@ -165,7 +168,7 @@ class ProjectManager(Observed, AbstractListener):
         """
         :return: a default empty project
         """
-        _path = Path(settings.get_project_dir())
+        _path = self.defaultdir
         proj = Project(_path / "temp")
         if not proj.path.exists():
             txt = '''"""
@@ -180,7 +183,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
         return proj
 
-    def create(self, name, projectdir=None):
+    def create(self, name, projectdir=None, **kwargs):
         """
         Create new project and return it.
 
@@ -193,14 +196,14 @@ You can rename/move this project thanks to the button "Save As" in menu.
         :return: Project
         """
         if projectdir is None:
-            projectdir = Path(settings.get_project_dir())
+            projectdir = self.defaultdir
         else:
             projectdir = Path(projectdir).abspath()
             if projectdir not in self.repositories:
                 self.repositories.append(projectdir)
                 self.write_settings()
 
-        project = Project(projectdir / name)
+        project = Project(projectdir / name, **kwargs)
         self.cproject = project
 
         return self.cproject

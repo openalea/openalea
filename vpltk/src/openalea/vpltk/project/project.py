@@ -52,6 +52,7 @@ from openalea.vpltk.project.configobj import ConfigObj
 from openalea.vpltk.project.loader import get_loader
 from openalea.vpltk.project.saver import get_saver
 
+from openalea.oalab.service.interface import get_name
 from openalea.oalab.service.data import DataFactory, MimeType
 from openalea.oalab.control.control import Control
 #125, 133, 136, 144, 148, 151, 160, 208, 225, 238-240, 244, 250, 253-254, 259, 261, 283-284, 296, 311, 337
@@ -64,8 +65,7 @@ class Project(Observed):
     metadata_keys = {
         "alias":MetaData('alias', 'IStr', 'MyProject'),
         "icon":MetaData('icon', 'IFileStr', 'icon.png'),
-        "author":MetaData('author', 'ISequence', []),
-        "author_email":MetaData('author_email', 'IStr'),
+        "authors":MetaData('author', 'ISequence', []),
         "description":MetaData('description', 'IStr'),
         "long_description":MetaData('long_description', 'IStr'),
         "citation":MetaData('citation', 'IStr'),
@@ -341,8 +341,16 @@ class Project(Observed):
                 if info == 'name':
                     info = 'alias'
                     value = config['metadata']['name']
+                elif info == 'author':
+                    info = 'authors'
+                    value = config['metadata']['author']
+                elif info == 'author_email':
+                    continue
                 else:
                     value = config['metadata'][info]
+                if get_name(self.metadata_keys[info].interface) == 'ISequence':
+                    if isinstance(value, basestring):
+                        value = value.split(',')
                 setattr(self, info, value)
 
         if 'manifest' in config:
