@@ -77,8 +77,8 @@ class TestProject(unittest.TestCase):
 
     def test_edit_same_data(self):
         # True: In memory data with same path and content
-        d1 = Data(path='test.dat')
-        d2 = Data(path='test.dat')
+        d1 = Data(path=self.tmpdir / 'test.dat')
+        d2 = Data(path=self.tmpdir / 'test.dat')
         assert(d1.is_same_data(d2))
         assert(d2.is_same_data(d1))
 
@@ -95,8 +95,8 @@ class TestProject(unittest.TestCase):
         assert(d2.is_same_data(d1) is False)
 
         # False: In memory Data with same path and different content
-        d1 = Data(path='test.dat', content='a')
-        d2 = Data(path='test.dat', content='b')
+        d1 = Data(path=self.tmpdir / 'test.dat', content='a')
+        d2 = Data(path=self.tmpdir / 'test.dat', content='b')
         assert(d1.is_same_data(d2) is False)
         assert(d2.is_same_data(d1) is False)
 
@@ -120,9 +120,10 @@ class TestProject(unittest.TestCase):
 
         # False: One on disk other in memory, same filename, same content different path
         # MUST RETURN FALSE
-        d1 = Data(path='model.py', content="print 'hello world'\n")
+        d1 = Data(path=self.tmpdir / 'model.py', content="print 'hello world'\n")
         d2 = Data(path=get_data('model.py'))
         assert(d1.is_same_data(d2) is False)
         assert(d2.is_same_data(d1) is False)
-        self.assertEqual(d1.read(), d2.read())
+        self.assertEqual(d1.read(), "print 'hello world'\n")
+        self.assertEqual(d2.read(), "print 'hello world'\n")
         self.assertEqual(d1.filename, d2.filename)

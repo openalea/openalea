@@ -1,15 +1,17 @@
 
 from openalea.core.path import path as Path
 from openalea.vpltk.plugin import iter_plugins
+from openalea.vpltk.datamodel.data import Data
+
 import mimetypes
 
-__all__ = ["data", "dataclass"]
+__all__ = ["DataFactory", "DataClass", "MimeType"]
 
 REGISTERY_MIME_CLASS = {}
 for ModelClass in iter_plugins('oalab.model'):
     REGISTERY_MIME_CLASS[ModelClass.mimetype] = ModelClass
 
-for DataClass in iter_plugins('oalab.dataclass'):
+for DataClass in iter_plugins('oalab.DataClass'):
     REGISTERY_MIME_CLASS[DataClass.mimetype] = DataClass
 
 REGISTERY_NAME_MIME = {}
@@ -18,11 +20,11 @@ for ModelClass in iter_plugins('oalab.model'):
     REGISTERY_NAME_MIME[ModelClass.extension.lower()] = ModelClass.mimetype
 
 
-for DataClass in iter_plugins('oalab.dataclass'):
+for DataClass in iter_plugins('oalab.DataClass'):
     REGISTERY_NAME_MIME[ModelClass.default_name.lower()] = DataClass.mimetype
     REGISTERY_NAME_MIME[ModelClass.extension.lower()] = DataClass.mimetype
 
-def datatype(path=None, name=None):
+def MimeType(path=None, name=None):
     """
     Return mimetype for path.
     First, try to find extension in registery filled by models.
@@ -47,37 +49,49 @@ def datatype(path=None, name=None):
 
 
 
-def dataclass(dtype):
+def DataClass(dtype=None):
     """
     Return class wich match dtype.
     For example, for 'python' dtype it return PythonModel class.
 
     Matching can be extended with plugins.
+    if dtype is None, returns all available DataClasses
     """
-    from openalea.vpltk.datamodel.data import Data
     if dtype in REGISTERY_MIME_CLASS:
         return REGISTERY_MIME_CLASS[dtype]
     else:
         return Data
 
+DataClass.all = set(REGISTERY_MIME_CLASS.values() + [Data])
 
-def arrange_data_args(path, dtype):
-    if dtype is None:
-        dtype = datatype(path)
-    return path, dtype
+def arrange_data_args(path, mimetype, dtype):
+    if mimetype is None:
+        if dtype:
+            return path, MimeType(name=dtype)
+        elif path:
+            return path, MimeType(path=path)
+        else:
+            return path, None
+    else:
+        if dtype:
+            new_mimetype = MimeType(name=dtype)
+            if mimetype != new_mimetype:
+                raise ValueError('dtype %r (%s) and mimetype %r are not compatible' % (dtype, new_mimetype, mimetype))
+        return path, mimetype
 
 
-def data(path, dtype=None, **kwargs):
+def DataFactory(path, mimetype=None, **kwargs):
     path = Path(path)
     default_content = kwargs['default_content'] if 'default_content' in kwargs else None
+    dtype = kwargs['dtype'] if 'dtype' in kwargs else None
 
     if path.isfile():
         if default_content is not None:
             raise ValueError("got multiple values for content (parameter and '%s')" % path.name)
         else:
-            path, dtype = arrange_data_args(path, dtype)
-            DataClass = dataclass(dtype)
-            return DataClass(path=path, dtype=dtype)
+            path, mimetype = arrange_data_args(path, mimetype, dtype)
+            klass = DataClass(mimetype)
+            return klass(path=path, mimetype=mimetype)
     elif path.exists():
         raise ValueError("'%s' exists but is not a file" % path)
     elif not path.exists():
@@ -92,6 +106,6 @@ def data(path, dtype=None, **kwargs):
             f.close()
             content = None
 
-        path, dtype = arrange_data_args(path, dtype)
-        DataClass = dataclass(dtype)
-        return DataClass(path=path, dtype=dtype, content=content)
+        path, mimetype = arrange_data_args(path, mimetype, dtype)
+        klass = DataClass(mimetype)
+        return klass(path=path, mimetype=mimetype, content=content)

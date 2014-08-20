@@ -31,7 +31,7 @@ from openalea.oalab.gui.utils import ModalDialog
 from openalea.vpltk.datamodel.model import Model
 
 from openalea.oalab.service.applet import get_applet
-from openalea.oalab.service.data import data, dataclass, datatype
+from openalea.oalab.service.data import DataFactory, DataClass, MimeType
 
 from openalea.oalab.session.session import Session
 
@@ -195,7 +195,7 @@ class ParadigmContainer(QtGui.QTabWidget):
         filepath = showOpenFileDialog()
         if filepath:
             filepath = path(filepath)
-            obj = data(path=filepath)
+            obj = DataFactory(path=filepath)
             self.open_data(obj)
 
     def open_data(self, obj):
@@ -216,8 +216,7 @@ class ParadigmContainer(QtGui.QTabWidget):
     def close_current(self):
         self.close()
 
-    def close_project_data(self, category=None, name=None):
-        obj, dtype = self.data(category, name)
+    def close_data(self, obj):
         if obj in self._open_objects:
             tab = self._open_objects[obj]
             self.close(tab)
@@ -260,13 +259,13 @@ class ParadigmContainer(QtGui.QTabWidget):
         category = 'model'
         try:
             dtype = self._new_file_actions[self.sender()]
-            name = '%s_%s.%s' % (dtype, category, dataclass(datatype(name=dtype)).extension)
+            name = '%s_%s.%s' % (dtype, category, DataClass(MimeType(name=dtype)).extension)
         except KeyError:
             dtype = None
             name = 'new_file.ext'
 
         category, data = self.add(self.project(), name, code='', dtype=dtype, category=category)
-        if name:
+        if data:
             self.open_data(data)
 
     def add(self, project, name, code, dtype=None, category=None):
@@ -286,6 +285,11 @@ class ParadigmContainer(QtGui.QTabWidget):
             category = selector.category()
             filename = selector.name()
             dtype = selector.dtype()
+            path = project.path / category / filename
+            if path.exists():
+                box = QtGui.QMessageBox.information(self, 'Data yet exists',
+                    'Data with name %s already exists in this project, just add it' % filename)
+                code = None
             data = project.add(category=category, filename=filename, content=code, dtype=dtype)
             if data:
                 return category, data

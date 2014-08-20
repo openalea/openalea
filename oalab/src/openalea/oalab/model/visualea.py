@@ -46,7 +46,7 @@ class VisualeaModel(Model):
         """
         :return: a string representation of model to save it on disk
         """
-        name = self.name
+        name = self.filename
 
         if name[-3:] in '.py':
             name = name[-3:]

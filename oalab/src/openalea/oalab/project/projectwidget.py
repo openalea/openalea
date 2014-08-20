@@ -29,9 +29,10 @@ from openalea.core.path import path
 from openalea.core import settings
 from openalea.oalab.session.session import Session
 from openalea.oalab.service.mimetype import encode
-from openalea.oalab.service.data import dataclass, datatype
+from openalea.oalab.service.data import DataClass, MimeType
 from openalea.vpltk.plugin import iter_plugins
 from openalea.oalab.service.applet import get_applet
+from openalea.oalab.service.data import DataClass
 from openalea.file.files import start
 
 """
@@ -348,7 +349,7 @@ class ProjectManagerView(QtGui.QTreeView):
         for applet in self.paradigm_container.paradigms.values():
             action = QtGui.QAction(qicon(applet.icon), 'New %s' % applet.default_name, self)
             action.triggered.connect(self.new_file)
-            self._new_file_actions[action] = applet.default_name
+            self._new_file_actions[action] = applet
             menu.addAction(action)
         menu.addSeparator()
 
@@ -448,9 +449,11 @@ class ProjectManagerView(QtGui.QTreeView):
 
     def new_file(self, dtype=None):
         try:
-            dtype = self._new_file_actions[self.sender()]
+            applet = self._new_file_actions[self.sender()]
         except KeyError:
             dtype = None
+        else:
+            dtype = applet.default_name
         project, category, data = self.selected_data()
         code = ''
 
@@ -466,12 +469,13 @@ class ProjectManagerView(QtGui.QTreeView):
             d = {'startup': 'start.py', 'lib': 'algo.py'}
             name = d[category]
         elif dtype:
-            name = '%s_%s.%s' % (dtype, category, dataclass(datatype(name=dtype)).extension)
+            klass = DataClass(MimeType(name=dtype))
+            name = '%s_%s.%s' % (klass.default_name, category, klass.extension)
         else:
             name = category
-        category, name = self.paradigm_container.add(project, name, code, dtype=dtype, category=category)
-        if name:
-            self.paradigm_container.open_project_data(category, name)
+        category, data = self.paradigm_container.add(project, name, code, dtype=dtype, category=category)
+        if data:
+            self.paradigm_container.open_data(data)
 
     def open(self):
         project, category, name = self.selected_data()
@@ -525,7 +529,7 @@ class ProjectManagerView(QtGui.QTreeView):
                     project.remove(category, data)
                     data.path.remove()
                     if self.paradigm_container:
-                        self.paradigm_container.close_project_data(category, name)
+                        self.paradigm_container.close_data(data)
 
     def save(self):
         project = self.project()

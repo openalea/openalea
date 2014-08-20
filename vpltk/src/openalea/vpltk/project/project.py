@@ -52,7 +52,7 @@ from openalea.vpltk.project.configobj import ConfigObj
 from openalea.vpltk.project.loader import get_loader
 from openalea.vpltk.project.saver import get_saver
 
-from openalea.oalab.service.data import data
+from openalea.oalab.service.data import DataFactory, MimeType
 from openalea.oalab.control.control import Control
 #125, 133, 136, 144, 148, 151, 160, 208, 225, 238-240, 244, 250, 253-254, 259, 261, 283-284, 296, 311, 337
 
@@ -197,8 +197,8 @@ class Project(Observed):
             filename = Path(kwargs['filename']) if 'filename' in kwargs else None
             content = kwargs['content'] if 'content' in kwargs else None
             dtype = kwargs['dtype'] if 'dtype' in kwargs else None
+            mimetype = kwargs['mimetype'] if 'mimetype' in kwargs else None
             path = Path(kwargs['path']) if 'path' in kwargs else None
-
             # If project path exists, ie project exists on disk,
             # Create category dir if necessary
             category_path = self.path / category
@@ -227,7 +227,7 @@ class Project(Observed):
                 try:
                     path.copyfile(new_path)
                 except IOError:
-                    data_obj = data(path, dtype, default_content=content)
+                    data_obj = DataFactory(path, mimetype, dtype=dtype, default_content=content)
                     content = data_obj.read()
                 else:
                     content = None
@@ -237,7 +237,7 @@ class Project(Observed):
                 pass
                 # Nothing to do, data is yet in the right place
 
-            data_obj = data(new_path, dtype, default_content=content)
+            data_obj = DataFactory(new_path, mimetype, dtype=dtype, default_content=content)
             return self._add_item(category, data_obj, **kwargs)
 
     def _remove_item(self, category, obj=None, **kwargs):
