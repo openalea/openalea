@@ -418,9 +418,8 @@ class ProjectManagerView(QtGui.QTreeView):
             dialog = ModalDialog(project_creator)
             if dialog.exec_():
                 _proj = project_creator.project()
-                project.projectdir = _proj.projectdir
                 if _proj.name != project.name or _proj.projectdir != project.projectdir:
-                    project.rename('project', project.name, _proj.name)
+                    project.move(_proj.path)
                 project.metadata = project_creator.metadata()
 
     def open_project(self, name=False, path=None):
@@ -438,9 +437,8 @@ class ProjectManagerView(QtGui.QTreeView):
         project_creator = CreateProjectWidget()
         dialog = ModalDialog(project_creator)
         if dialog.exec_():
-            _project = project_creator.project()
-            project = self.pm.create(_project.name, _project.projectdir)
-            project.metadata = _project.metadata
+            project = project_creator.project()
+            self.pm.cproject = project
 
     def open_all_scripts_from_project(self, project):
         if self.paradigm_container is not None:
