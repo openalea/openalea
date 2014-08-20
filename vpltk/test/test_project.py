@@ -5,7 +5,7 @@ from openalea.core.unittest_tools import TestCase, EventTracker
 from openalea.core.path import tempdir
 from openalea.core.path import path as Path
 from openalea.vpltk.project.project import Project
-from openalea.oalab.service.data import data
+from openalea.oalab.service.data import DataFactory
 from openalea.core.observer import AbstractListener
 import re
 
@@ -26,7 +26,7 @@ class TestProject(TestCase):
         self.tmpdir.rmtree()
 
     def test_path_incompatibility(self):
-        model = data(path=get_data('model.py'))
+        model = DataFactory(path=get_data('model.py'))
         model2 = self.project.add('model', model)
         events = self.ev.events
         self.check_events(events, ['data_added', 'project_changed'])
@@ -100,7 +100,7 @@ class TestProject(TestCase):
         self.assertEqual(cm.exception.message, msg)
         assert(len(self.project.data) == 0)
 
-        # Case datatype is not defined
+        # Case nothing is defined
         with self.assertRaises(ValueError) as cm:
             self.project.add('data')
 
@@ -162,7 +162,7 @@ class TestProject(TestCase):
         # Check object is a valid model
         # for model in [m1, m2, m3, m4]:
         #     assert hasattr(model, 'run')
-        #     assert model.dtype == 'python'
+        #     assert model.mimetype == 'text/x-python'
 
     def test_load(self):
         project = Project(get_data('test_project_lpy'))
