@@ -204,9 +204,8 @@ You can rename/move this project thanks to the button "Save As" in menu.
                 self.write_settings()
 
         project = Project(projectdir / name, **kwargs)
-        self.cproject = project
 
-        return self.cproject
+        return project
 
     def load(self, name, projectdir=None, **kwargs):
         """

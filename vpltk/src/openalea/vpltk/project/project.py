@@ -290,6 +290,7 @@ class Project(Observed):
 
     def move(self, dest):
         src = self.path
+        dest = Path(dest).abspath()
         if src == dest:
             return
         if src.exists():

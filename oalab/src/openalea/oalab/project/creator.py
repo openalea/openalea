@@ -41,11 +41,13 @@ class CreateProjectWidget(QtGui.QWidget):
         if proj is None:
             date = strftime("%Y-%m-%d_%H-%M-%S", gmtime())
             name = 'project_%s' % date if not proj else proj.name
+            projectdir = self.pm.defaultdir
         else:
             name = proj.name
+            projectdir = proj.path.parent
 
         self.editor_name = widget('IStr', name)
-        self.editor_projectdir = widget('IFileStr', self.pm.defaultdir)
+        self.editor_projectdir = widget('IDirStr', projectdir)
 
         layout_path.addRow(QtGui.QLabel('Name'), self.editor_name)
         layout_path.addRow(QtGui.QLabel('Project Directory'), self.editor_projectdir)
@@ -79,21 +81,14 @@ class CreateProjectWidget(QtGui.QWidget):
         projectdir = self.editor_projectdir.value()
         name = self.editor_name.value()
         metadata = self.metadata()
-        return self.pm.create(name, projectdir, **metadata)
+        project = self.pm.create(name, projectdir, **metadata)
+        return project
 
     def metadata(self):
         metadata = {}
         for key, editor in self._metadata.iteritems():
             metadata[key] = editor.value()
         return metadata
-
-#     def select_path(self):
-#         text = "Select path where to save your project"
-#         my_path = self.path_lineedit.text()
-#         fpath = QtGui.QFileDialog.getExistingDirectory(self.parent(), text, my_path)
-#         if fpath:
-#             self.path_lineedit.setText(fpath)
-
 
 def main():
     import sys
