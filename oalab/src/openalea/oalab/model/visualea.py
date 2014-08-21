@@ -103,7 +103,7 @@ class VisualeaModel(Model):
 
     def parse(self):
         code = self._content
-        if (code is None) or (code is ""):
+        if not code:
             self._workflow = CompositeNodeFactory(self.filename).instantiate()
         elif isinstance(code, CompositeNodeFactory):
             # hakishhh
