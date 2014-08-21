@@ -191,7 +191,7 @@ class DataflowView( qt.View ):
             model_id = str(dataStream.readString())
 
             try:
-                from openalea.oalab.model.model import ModelFactory
+                from openalea.vpltk.datamodel.model import ModelFactory
             except ImportError:
                 event.ignore()
                 return
