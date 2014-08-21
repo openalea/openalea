@@ -612,7 +612,7 @@ class ProjectManagerView(QtGui.QTreeView):
             # name_without_ext = ".".join(text.split(".")[:-1])
             name_without_ext = text
             name_without_space = "_".join(name_without_ext.split())
-            for sym in ["-", "+", "*", "/", "\""]:
+            for sym in ["-", "+", "*", "/", "\"", "."]:
                 name_without_space = "_".join(name_without_space.split(sym))
 
             python_call_string = '%s = Model("%s")' % (name_without_space, name_without_ext)
@@ -634,10 +634,10 @@ class ProjectManagerView(QtGui.QTreeView):
             drag.setHotSpot(QtCore.QPoint(pixmap.width() / 2, pixmap.height() / 2))
             drag.setPixmap(pixmap)
 
-            drag.start(QtCore.Qt.MoveAction)
+            drag.start(QtCore.Qt.CopyAction)
 
         elif category == 'data':
-            p = '%s/%r' % (category, str(obj))
+            p = '%s/%r' % (category, obj)
             mimetype, mimedata = encode(p, mimetype='openalealab/data')
             qmime_data = QtCore.QMimeData()
             qmime_data.setData(mimetype, mimedata)
