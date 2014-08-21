@@ -29,8 +29,6 @@ from openalea.lpy.gui.objectmanagers import get_managers
 from openalea.lpy.gui.scalar import ProduceScalar
 from openalea.oalab.model.lpy import LPyModel
 from openalea.oalab.service.help import display_help
-from openalea.oalab.control.manager import control_dict
-from openalea.oalab.session.session import Session
 import types
 
 def import_lpy_file(script):
@@ -118,23 +116,6 @@ class LPyModelController(object):
         self.editor_container = editor_container
         self._widget = None
 
-        # todo get controls
-        """
-        if self.session.project is not None:
-            self.session.project.control.update(control)
-            # for parameter in self.model.parameters:
-                # if hasattr(self.model.parameters[parameter], "value"):
-                    # self.model.parameters[parameter] = self.model.parameters[parameter].value
-            controller.project_manager._load_control()
-
-        # Link with color map from application
-        if hasattr(self.session.project, "control"):
-            if self.session.project.control.has_key("color map"):
-                i = 0
-                for color in self.session.project.control["color map"] :
-                    self.model.lsystem.context().turtle.setMaterial(i, color)
-                    i += 1"""
-
         from openalea.oalab.service.ipython import get_interpreter
         interpreter = get_interpreter()
         if interpreter:
@@ -170,12 +151,9 @@ class LPyModelController(object):
         If nothing selected, run like LPy (not Python).
         """
         code = self.widget().get_selected_text()
-        from openalea.oalab.service.ipython import get_interpreter
-        interpreter = get_interpreter()
         return self.model.execute(code)
 
     def run(self, *args, **kwargs):
-        controls = control_dict()
         # Extract one colorlist to set as THE colormap.
         # In case of ambiguity, select the one whose the name contains lpy.
         # Else select a random one.
@@ -191,19 +169,9 @@ class LPyModelController(object):
         if materials:
             for i, mat in enumerate(materials):
                 self.model.lsystem.context().turtle.setMaterial(i, mat)
-        self.model.context.update(control_dict())
 
         code = self.widget().get_text()
         self.model.content = code
-
-        # todo get control
-        """ # Get control
-        if hasattr(self.session.project, "control"):
-            self.model.parameters.update(self.session.project.control)
-        for parameter in self.model.parameters:
-            if hasattr(self.model.parameters[parameter], "value"):
-                self.model.parameters[parameter] = self.model.parameters[parameter].value
-        self.model.lsystem.setCode(code, self.model.parameters)"""
 
         # todo: put result in the world ?
         ret = self.model(*args, **kwargs)
@@ -214,19 +182,8 @@ class LPyModelController(object):
         return ret
 
     def step(self, i=None, *args, **kwargs):
-        self.model.context.update(control_dict())
-
         code = self.widget().get_text()
         if code != self.model.read():
-            # todo set controls
-            """
-            # /!\ setCode method set the getLastIterationNb to zero
-            # So, if you change code, next step will do a 'init()'
-            self.model.parameters.update(self.session.project.control)
-            for parameter in self.model.parameters:
-                if hasattr(self.model.parameters[parameter], "value"):
-                    self.model.parameters[parameter] = self.model.parameters[parameter].value
-            """
             self.model.content = code
 
         # todo: put result in the world ?
@@ -238,8 +195,6 @@ class LPyModelController(object):
         return ret
 
     def stop(self, *args, **kwargs):
-        self.model.context.update(control_dict())
-
         # todo: put result in the world ?
         ret = self.model.stop(*args, **kwargs)
         # TODO: remove this hard link!
@@ -249,17 +204,7 @@ class LPyModelController(object):
         return ret
 
     def animate(self, *args, **kwargs):
-        self.model.context.update(control_dict())
-
         code = self.widget().get_text()
-        # todo set controls
-        """
-        # /!\ setCode method set the getLastIterationNb to zero
-        # So, if you change code, next step will do a 'init()'
-        self.model.parameters.update(self.session.project.control)
-        for parameter in self.model.parameters:
-            if hasattr(self.model.parameters[parameter], "value"):
-                self.model.parameters[parameter] = self.model.parameters[parameter].value"""
         self.model.content = code
 
         # todo: put result in the world ?
@@ -271,8 +216,6 @@ class LPyModelController(object):
         return ret
 
     def init(self, *args, **kwargs):
-        self.model.context.update(control_dict())
-
         code = self.widget().get_text()
         self.model.content = code
 

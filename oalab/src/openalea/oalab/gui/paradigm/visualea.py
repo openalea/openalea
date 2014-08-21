@@ -25,13 +25,12 @@ import types
 import sys
 
 from openalea.oalab.model.visualea import VisualeaModel
-from openalea.vpltk.qt import QtCore, QtGui
 from openalea.visualea.graph_operator import GraphOperator
 from openalea.visualea import dataflowview
 from openalea.core.compositenode import CompositeNodeFactory
-#from openalea.plantgl.wralea.visualization import viewernode
 from openalea.oalab.service.help import display_help
 from openalea.oalab.service.plot import get_plotters
+
 
 def get_code(self):
     """

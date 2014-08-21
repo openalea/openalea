@@ -147,13 +147,26 @@ class Model(Data):
         :return: the current namespace updated with interpreter namespace and inputs
         """
         from openalea.oalab.service.ipython import get_interpreter
+        from openalea.oalab.control.manager import control_dict
+        from openalea.vpltk.project import ProjectManager
         interpreter = get_interpreter()
+
+        # Add project namespace inside namespace
+        pm = ProjectManager()
+        if pm.cproject:
+            self.ns.update(pm.cproject.ns)
+
+        # Add controls inside namespace
+        controls = control_dict()
+        if controls:
+            self.ns.update(controls)
 
         if interpreter:
             self.ns.update(interpreter.user_ns)
 
+        # Add inputs inside namespace
         if self.inputs:
-            self.ns.update(self.inputs) # Add inputs inside namespace
+            self.ns.update(self.inputs)
         return self.ns
 
     def execute_in_namespace(self, code, namespace={}):
