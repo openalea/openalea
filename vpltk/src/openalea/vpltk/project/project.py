@@ -46,6 +46,8 @@ You have here the default architecture of the project saved in directory "projec
 """
 
 import os
+import sys
+
 from openalea.core.observer import Observed
 from openalea.core.path import path as Path
 from openalea.vpltk.project.configobj import ConfigObj
@@ -121,6 +123,8 @@ class Project(Observed):
         #    self.notify_listeners(('project_created', (self, self.path)))
         # self.notify_listeners(('project_changed', self))
 
+        self.ns = {}
+
     def __setattr__(self, key, value):
         if key in self.metadata_keys:
             old_value = self.metadata[key]
@@ -168,6 +172,26 @@ class Project(Observed):
 
     def start(self,*args,**kwargs):
         self.started = True
+        self.ns.clear()
+        loading = [
+          'import sys',
+          'sys.path.insert(0, %r)' % str(self.path / 'lib')
+          ]
+        loading = '\n'.join(loading)
+        for startup in self.startup.values():
+            ns = startup.execute_in_namespace(loading, self.ns)
+            self.ns.update(ns)
+            ns = startup.execute_in_namespace(startup.read(), self.ns)
+            self.ns.update(ns)
+
+    def stop(self, *args, **kwargs):
+        self.started = False
+        self.ns.clear()
+
+    def run(self, filename, *args, **kwargs):
+        model = self.get_model(filename)
+        model.ns.update(self.ns)
+        model.run(*args, **kwargs)
 
     def add(self, category, obj=None, **kwargs):
         return self.add_item(category, obj, **kwargs)
