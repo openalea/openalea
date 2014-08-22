@@ -103,7 +103,7 @@ class ProjectSelector(QtGui.QWidget):
         fname = self.showOpenProjectDialog()
         if fname:
             pm = ProjectManager()
-            pm.find_links.append(fname)
+            pm.repositories.append(fname)
             pm.write_settings()
             self.refresh_project_list()
 
