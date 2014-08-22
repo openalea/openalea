@@ -54,6 +54,9 @@ class ControlManagerWidget(QtGui.QWidget, AbstractListener):
         self._layout.addWidget(self._l_edit)
         self._layout.addWidget(self._l_no_edit)
 
+        me = QtGui.QSizePolicy.MinimumExpanding
+        self._l_no_edit.setSizePolicy(QtGui.QSizePolicy(me, me))
+
         self._i = 1
 
         self._index = None
