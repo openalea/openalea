@@ -2,60 +2,8 @@ from openalea.vpltk.qt import QtGui, QtCore
 import sqlite3
 from openalea.core.path import path
 from openalea.core import settings
-from openalea.core.provenance import get_database_name, db_connexion
 import subprocess
 
-#db_conn2 = None
-# def get_database_name():
-    # db_fn = path(settings.get_openalea_home_dir())/'provenance.sq3'
-    # return db_fn
-
-# def db_connexion():
-    # print 'Dans db connexion 1'
-    # db_fn = ""+get_database_name()+""
-    # db_fn ="C:/Users/Yattara/.openalea/provenance.sq3"
-    # print db_fn
-    # conn=sqlite3.connect(fichierDonnees)
-    # dbconn=sqlite3.connect(db_fn)
-    # cu = dbconn.cursor()
-    # print 'ok1'
-    # cu.execute("SELECT * FROM Node")
-    # print 'ok2'
-    # for l in cu:
-      # print 'value'
-      # print(l)
-    # cu.execute("SELECT COUNT(*) from Node")
-    # print "le nombre de ligne est",cu.fetchone()
-    # return cur
-    # """ Return a curso on the database.
-    # If the database does not exists, create it.
-    # """
-    #global db_conn2
-    #if db_conn2 is None:
-    #    db_fn = get_database_name()
-    #    if not db_fn.exists():
-    #        db_conn=sqlite3.connect(db_fn)
-    #        cur = db_conn.cursor()
-    #        cur = db_create(cur)
-    #        print 'hhhhhhhhohhoo'
-    #        return cur
-        #   print 'coucou'
-        #   cur.execute("INSERT INTO CompositeNode(CompositeNodeid,creatime,name,description,userid) VALUES(NULL,start_time,pname,pname,1)")
-            #Affichage a partir de la bd
-        #   cur.execute("SELECT * FROM CompositeNode")
-        #   for l in cur:
-        #       print(l)
-        #   print 'kaka'
-    #else:
-    #    cur = db_conn2.cursor()
-    #    return cur
-    #    print 'Dans la bd'
-        #Insertion dans la bd
-        #cur.execute("INSERT INTO CompositeNode(CompositeNodeid,creatime,name,description,userid) VALUES(NULL,start_time,pname,pname,1)")
-        #Affichage a partir de la bd
-        #cur.execute("SELECT * FROM CompositeNode")
-    #    for l in cur:
-    #        print(l)
 
 def search_trace(composite_node, package, workspace, parent=None):
     """
