@@ -191,10 +191,15 @@ class DataflowView( qt.View ):
             model_id = str(dataStream.readString())
 
             try:
+                # version > August 2014 (Git)
                 from openalea.vpltk.datamodel.model import ModelFactory
             except ImportError:
-                event.ignore()
-                return
+                try:
+                    # Backward compatibility with oalab from svn June 2014
+                    from openalea.oalab.model.model import ModelFactory
+                except ImportError:
+                    event.ignore()
+                    return
             factory = ModelFactory(model_id)
             """
             # -- see if we can safely open this factory (with user input) --
