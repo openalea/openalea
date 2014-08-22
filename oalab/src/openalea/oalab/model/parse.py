@@ -499,7 +499,7 @@ def prepare_inputs(inputs_info, *args, **kwargs):
         if len(not_set_inputs_info):
             raise Exception("Model %s have inputs not set. Please set %s." % (name, [inp.name for inp in not_set_inputs_info]))
 
-        return _inputs
+    return _inputs
 
 ################################
 ## Detect functions in docstring
