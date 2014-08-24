@@ -3,6 +3,7 @@ import sqlite3
 from openalea.core.path import path
 from openalea.core import settings
 import subprocess
+import time
 
 
 def search_trace(composite_node, package, workspace, parent=None):
@@ -13,26 +14,85 @@ def search_trace(composite_node, package, workspace, parent=None):
     :param package:
     :param workspace:
     """
+    from openalea.core.provenance import db_connexion
     # @Moussa : This is here that you interrogate the database
     # print composite_node, package, workspace
     #cur = db_connexion()
     # Fake results:
-	#seach in database specification and all trace for this Composite_node, package and workspace.
+    #seach in database specification and all trace for this Composite_node, package and workspace.
+    nameval=workspace+"."+package+"."+composite_node
+    cur=db_connexion()
+    #cur.close()
+    #cur=db_connexion()
+    #createtimeval=time.strftime("%a, %d-%m-%Y %H:%M:%S", time.localtime())
+    creatimeval="02-05-1988"
+    descriptionval='sdfsqsd'
+    useridval=1
+    print nameval
+    #data=[(creatimeval,nameval,descriptionval,useridval)]
+    #for tu in data:
+    #      cur.execute("INSERT INTO CompositeNode(CompositeNodeid,creatime,name,description,userid) VALUES(NULL,?,?,?,?)",tu)
+    cur.execute("SELECT * FROM CompositeNode where name=? ",(nameval,))
+    #cur.execute("SELECT * FROM CompositeNode")
+    print 'Affichage de tous les compositeNode'
+    for row in cur:
+        #CompositeNodeidval=cur.fetchone()[0]
+        CompositeNodeidval=row[0]
+        date=row[1]
+    cur.execute("SELECT * FROM CompositeNode where name=? ",(nameval,))
+    for l in cur:
+        print(l)
+    #CompositeNodeidVal=res.fetchone()
+    #print 'la valeur de CompositeNodeidVal est :',CompositeNodeidVal[0]
+    print 'Affichages de toutes les traces de CompositeNode'
+    #print cur.fetchone()[0]
+    #CompositeNodeidval=1
+    print CompositeNodeidval
+    #CompositeNodeidVal=1
+    cur.execute("SELECT * FROM CompositeNodeExec where CompositeNodeid=? ",(CompositeNodeidval,))
+    i=0
+    #myid=[]
+    for rows in cur:
+        print(l)
+    #    myid[i]=rows[0]
+        date2=rows[1]
+        i=i+1
+    #    print myid[i] 
+    print 'Affichage de toutes les executions de noeud associees a cette trace'
+    CompositeNodeExecidval=1
+    cur.execute("SELECT * FROM NodeExec where CompositeNodeExecid=? ",(CompositeNodeExecidval,))
+    for l in cur:
+        print(l)
+    #print 'Affichage de tous les arcs associees a cette trace'
+    #cur.execute("SELECT * FROM elt_connection where CompositeNodeid=? ",(CompositeNodeidval,))
+    #for l in cur:
+    #    print(l)
+    #print 'Affichage de tous les arcs associees a cette trace'
+    #cur.execute("SELECT * FROM Node")
+    #print 'Affichage de tous les nodes'
+    #for l in cur:
+    #    print(l)
+    #cur.execute("SELECT * FROM CompositeNodeExec")
+    #print 'Affichage de tous les CompositeNodeExec'
+    #for l in cur:
+    #    print(l)
+    #seach in database specification and all trace for this Composite_node, package and workspace.
     nameval=workspace+"."+package+"."+composite_node
     # cur = db_connexion()
     #cur.execute("SELECT * FROM CompositeNode where name=? ",nameval)
     # cur.execute("SELECT * FROM CompositeNode")
     # for l in cur:
        # print(l)
+
     value1 = 0
     value2 = 1
-    value3 = 10
+    value3 = 2
     value4 = 100
     value5 = 1000
-	# Faire la recherche dans la base de donnees pour rechercher le composite_node le package et le workfspace
-	# Concatener le composite_node, le package et le workspace pour avoir le name du workflow
-	# select * from 
-    result = [["specification", "date", value1], ["Execution 1", "date", value2], ["Execution 2", "date", value3], ["Execution 3", "date", value4], ["Execution 4", "date", value5]]
+    # Faire la recherche dans la base de donnees pour rechercher le composite_node le package et le workfspace
+    # Concatener le composite_node, le package et le workspace pour avoir le name du workflow
+    # select * from 
+    result = [["specification", date, CompositeNodeidval], ["Execution 1", date2, value2], ["Execution 2", "date", value3], ["Execution 3", "date", value4], ["Execution 4", "date", value5]]
     
     prov_widget = ProvenanceViewerWidget(composite_node, package, workspace, result, parent=parent)
     print composite_node
@@ -43,7 +103,7 @@ def search_trace(composite_node, package, workspace, parent=None):
     dialog.show()
     dialog.raise_()
     dialog.exec_()
-	
+    
 class ProvenanceViewerWidget(QtGui.QWidget):
     def __init__(self, composite_node, package, workspace, traces, parent=None):
         super(ProvenanceViewerWidget, self).__init__(parent)
@@ -65,41 +125,47 @@ class ProvenanceViewerWidget(QtGui.QWidget):
             i += 1
     
     def show_provenance(self):
+        from openalea.core.provenance import db_connexion
+        cur=db_connexion()
         sender = self.sender()
         category = sender.category
         value = sender.prov
-        
         if "spec" in category:
             # Launch Visualea
-            pass
+            #pass
+            print value
+            cur.execute("SELECT * FROM CompositeNode where CompositeNodeid=? ",(value,))
+            for l in cur:
+                print(l)
         else:
             # Launch Graphviz
-            cmd = "notepad"
+            print value
+            cur.execute("SELECT * FROM CompositeNodeExec where CompositeNodeExecid=? ",(value,))
+            for l in cur:
+                print(l)
+            cur.execute("SELECT * FROM NodeExec where CompositeNodeExecid=? ",(value,))
+            for l in cur:
+                print(l)
+            #cd='chdir("C:/Program Files/Graphviz2.38/bin")'
+            
+            cmd = "gvedit.exe"
+            subprocess.call(cd)
             subprocess.call(cmd)
         
 class ProvenanceSelectorWidget(QtGui.QWidget):
     def __init__(self, parent=None):
         super(ProvenanceSelectorWidget, self).__init__(parent)
         layout = QtGui.QFormLayout(self)
-        # c_n_list = ["A","B","C"]
-        # pkgs_list = ["a","b","c"]
-        # workspace_list = ["1","2","3"]
-        
+
         layout.addRow(QtGui.QLabel("<H2>Search an execution trace of dataflow</H2>"))
         
         self.c_n = QtGui.QLineEdit("")
-        # self.c_n = QtGui.QComboBox()
-        # self.c_n.addItems(c_n_list)
         layout.addRow("Select Composite Node", self.c_n)
 
         self.pkg = QtGui.QLineEdit("")
-        # self.pkg = QtGui.QComboBox()
-        # self.pkg.addItems(pkgs_list)
         layout.addRow("Select Package", self.pkg)
         
         self.workspace = QtGui.QLineEdit("")
-        # self.workspace = QtGui.QComboBox()
-        # self.workspace.addItems(workspace_list)
         layout.addRow("Select Workspace", self.workspace)
         
 class ModalDialog(QtGui.QDialog):
