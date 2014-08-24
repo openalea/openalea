@@ -50,8 +50,6 @@ from openalea.visualea.logger import LoggerView
 from graph_operator import GraphOperator
 from graph_operator.vertex import VertexOperators
 
-from openalea.visualea.provenance import ModalDialog, ProvenanceSelectorWidget, search_trace
-
 import traceback
 
 PROVENANCE = False
@@ -77,7 +75,10 @@ class MainWindow(qt.QtGui.QMainWindow,
         self.tabWorkspace.setTabsClosable(True)
         self.ws_cpt = 0
         
-        self._prov = AbstractEvaluation.__provenance__
+        if hasattr(AbstractEvaluation, "__provenance__"):
+            self._prov = AbstractEvaluation.__provenance__
+        else:
+            self._prov = False
 
         #last opened nodes
         self._last_opened = []
@@ -241,8 +242,9 @@ class MainWindow(qt.QtGui.QMainWindow,
         
         :param provenance: boolean which is set to True if we want to register provenance. Else, False.
         """
-        self._prov = provenance
-        AbstractEvaluation.__provenance__ = self._prov
+        if hasattr(AbstractEvaluation,"__provenance__"):
+            self._prov = provenance
+            AbstractEvaluation.__provenance__ = self._prov
         
     def get_provenance(self):
         """
@@ -254,6 +256,7 @@ class MainWindow(qt.QtGui.QMainWindow,
         """
         Display the provenance
         """       
+        from openalea.visualea.provenance import ModalDialog, ProvenanceSelectorWidget, search_trace
         prov_widget = ProvenanceSelectorWidget(self)
         dialog = ModalDialog(prov_widget)
         dialog.show()
