@@ -171,7 +171,9 @@ class Project(Observed):
 
     def start(self,*args,**kwargs):
         """
+        Load controls if availabe, execute all files in startup.
         """
+        self._load_controls()
         self.started = True
         self.ns.clear()
         loading = [
@@ -447,6 +449,19 @@ class Project(Observed):
     def save_metadata(self):
         self._save_manifest()
 
+
+    def _save_controls(self):
+        from openalea.oalab.control.pyserial import save_controls
+        from openalea.oalab.control.manager import ControlManager
+        cm = ControlManager()
+        save_controls(cm.controls(), self.path / 'control.py')
+
+    def _load_controls(self):
+        control_path = self.path / 'control.py'
+        if control_path.exists():
+            code = file(control_path, 'r').read()
+            exec(code)
+
     def save(self):
         """
         Save a manifest file on disk. It name is defined by config_filename.
@@ -457,6 +472,7 @@ class Project(Observed):
             self.path.makedirs()
         config_path = self.path / self.config_filename
         config_path.touch()
+        self._save_controls()
         self._save_manifest()
         self.notify_listeners(('project_saved', self))
 
