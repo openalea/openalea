@@ -21,13 +21,10 @@ Working with Project class
 
 You can work directly on project:
 
-    >>> from openalea.vpltk.project import Project
-    >>> # Get the correct path
-    >>> from openalea.deploy.shared_data import shared_data
-    >>> from openalea import oalab
-    >>> path_of_my_proj = shared_data(oalab)/"mynewproj"
+    >>> from openalea.vpltk.project import Project, get_project_dir
     >>> # Real work on project:
-    >>> project1 = Project(path = path_of_my_proj)
+    >>> project_path = get_project_dir() / 'project1'
+    >>> project1 = Project(project_path)
     >>> project1.start()
 
 Change metadata:
@@ -80,10 +77,11 @@ Search other projects
 ---------------------
 
 To search projects that are not located inside default directories:
-    >>> project_manager.find_links.append('/path/to/search/projects')
+    >>> project_manager.repositories.append('/path/to/search/projects')
     >>> project_manager.discover()
     >>> list_of_projects = project_manager.projects
 
 """
+from openalea.core.settings import get_project_dir
 from openalea.vpltk.project.project import Project
 from openalea.vpltk.project.manager import ProjectManager
