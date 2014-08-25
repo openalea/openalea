@@ -378,17 +378,17 @@ class ProjectManagerView(QtGui.QTreeView):
             menu.addAction(editAction)
             editAction.triggered.connect(self.open)
 
-            rename = QtGui.QAction(qicon('Crystal_Clear_action_editcopy.png'), 'Rename "%s"' % obj, self)
+            rename = QtGui.QAction(qicon('Crystal_Clear_action_editcopy.png'), 'Rename', self)
             rename.triggered.connect(self.rename)
             menu.addAction(rename)
 
-            remove = QtGui.QAction(qicon('Crystal_Clear_action_edit_remove.png'), 'Remove "%s"' % obj, self)
+            remove = QtGui.QAction(qicon('Crystal_Clear_action_edit_remove.png'), 'Remove', self)
             remove.triggered.connect(self.remove)
             menu.addAction(remove)
 
             menu.addSeparator()
 
-            deleteAction = QtGui.QAction(qicon('Crystal_Clear_action_stop.png'), 'Delete "%s"' % obj, self)
+            deleteAction = QtGui.QAction(qicon('Crystal_Clear_action_stop.png'), 'Delete', self)
             menu.addAction(deleteAction)
             deleteAction.triggered.connect(self.delete)
 
