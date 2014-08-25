@@ -23,6 +23,8 @@ class Data(object):
         self.dtype = kwargs['dtype'] if 'dtype' in kwargs else None
         self._content = kwargs['content'] if 'content' in kwargs else None
 
+    def get_documentation(self):
+        return "No documentation for %s" % self.filename
 
     def is_same_data(self, other):
         if self.exists() and other.exists():

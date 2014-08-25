@@ -67,7 +67,7 @@ class Project(Observed):
 
     metadata_keys = OrderedDict([
         ("alias", MetaData('alias', 'IStr', 'MyProject')),
-        ("icon", MetaData('icon', 'IFileStr', 'icon.png')),
+        ("icon", MetaData('icon', 'IFileStr', '')),
         ("authors", MetaData('author', 'ISequence', [])),
         ("description", MetaData('description', 'IStr')),
         ("long_description", MetaData('long_description', 'IStr')),
