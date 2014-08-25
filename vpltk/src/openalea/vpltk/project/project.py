@@ -58,6 +58,8 @@ from openalea.oalab.service.interface import get_name
 from openalea.oalab.service.data import DataFactory, MimeType
 from openalea.oalab.control.control import Control
 
+from collections import OrderedDict
+
 class MetaData(Control):
     pass
 
@@ -94,7 +96,7 @@ class Project(Observed):
     def __init__(self, path, **kwargs):
         Observed.__init__(self)
 
-        self.metadata = {}
+        self.metadata = OrderedDict()
         self.categories = {}
 
         # listeners = kwargs['listeners'] if 'listeners' in kwargs else []
@@ -391,8 +393,16 @@ class Project(Observed):
             # Load file names in right place (dict.keys()) but don't load entire object:
             # ie. load keys but not values
             for category in config["manifest"].keys():
+
+                # Backward compatibility
+                if category == 'src':
+                    category = 'model'
+                    old_category = 'src'
+                else:
+                    old_category = category
+
                 if category in self.category_keys:
-                    filenames = config["manifest"][category]
+                    filenames = config["manifest"][old_category]
                     if not isinstance(filenames, list):
                         filenames = [filenames]
                     for filename in filenames:
@@ -422,7 +432,8 @@ class Project(Observed):
                 if not category_path.exists():
                     category_path.makedirs()
                 config['manifest'][category] = []
-                for data in filenames_dict.values():
+                for filename in sorted(filenames_dict.keys()):
+                    data = filenames_dict[filename]
                     data.save()
                     config['manifest'][category].append(data.filename)
 
