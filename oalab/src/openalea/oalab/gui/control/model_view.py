@@ -94,7 +94,7 @@ class ControlView(QtGui.QTreeView):
         if not filename:
             filename = QtGui.QFileDialog.getSaveFileName(self, 'Select python file')
         if filename:
-            from pyserial import save_controls
+            from openalea.oalab.control.pyserial import save_controls
             save_controls(self.model()._manager.controls(), filename)
  
     def load_controls(self, filename=None):
