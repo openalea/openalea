@@ -65,18 +65,18 @@ class MetaData(Control):
 
 class Project(Observed):
 
-    metadata_keys = {
-        "alias":MetaData('alias', 'IStr', 'MyProject'),
-        "icon":MetaData('icon', 'IFileStr', 'icon.png'),
-        "authors":MetaData('author', 'ISequence', []),
-        "description":MetaData('description', 'IStr'),
-        "long_description":MetaData('long_description', 'IStr'),
-        "citation":MetaData('citation', 'IStr'),
-        "url":MetaData('url', 'IStr'),
-        "dependencies":MetaData('dependencies', 'ISequence'),
-        "license":MetaData('license', 'IStr'),
-        "version":MetaData('version', 'IStr', '0.1'),
-        }
+    metadata_keys = OrderedDict([
+        ("alias", MetaData('alias', 'IStr', 'MyProject')),
+        ("icon", MetaData('icon', 'IFileStr', 'icon.png')),
+        ("authors", MetaData('author', 'ISequence', [])),
+        ("description", MetaData('description', 'IStr')),
+        ("long_description", MetaData('long_description', 'IStr')),
+        ("citation", MetaData('citation', 'IStr')),
+        ("url", MetaData('url', 'IStr')),
+        ("dependencies", MetaData('dependencies', 'ISequence')),
+        ("license", MetaData('license', 'IStr')),
+        ("version", MetaData('version', 'IStr', '0.1')),
+        ])
 
     category_keys = [
         "cache",
