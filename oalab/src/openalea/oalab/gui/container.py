@@ -65,8 +65,8 @@ class ParadigmContainer(QtGui.QTabWidget):
         self.setAccessibleName("Container")
         self.setElideMode(QtCore.Qt.ElideMiddle)
 
+        self.actionNewFile = QtGui.QAction(qicon("new.png"), "New file", self)
         self.actionOpenFile = QtGui.QAction(qicon("open.png"), "Open file", self)
-
         self.actionSave = QtGui.QAction(qicon("save.png"), "Save File", self)
         self.actionSaveAs = QtGui.QAction(qicon("save.png"), "Save As", self)
         self.actionRun = QtGui.QAction(qicon("run.png"), "Run", self)
@@ -86,15 +86,16 @@ class ParadigmContainer(QtGui.QTabWidget):
         self.actionUnComment = QtGui.QAction(qicon("commentOff.png"), "Uncomment", self)
         self.actionGoto = QtGui.QAction(qicon("next-green.png"), "Go To", self)
 
+        self.actionNewFile.setShortcut(self.tr("Ctrl+N"))
         self.actionOpenFile.setShortcut(
             QtGui.QApplication.translate("MainWindow", "Ctrl+O", None, QtGui.QApplication.UnicodeUTF8))
 
         self.actionRunSelection.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+E", None, QtGui.QApplication.UnicodeUTF8))
-        
+
         self.actionCloseCurrent.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+W", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSearch.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+F", None, QtGui.QApplication.UnicodeUTF8))
         self.actionGoto.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+G", None, QtGui.QApplication.UnicodeUTF8))
-        #self.actionSave.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionSave.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
         # self.actionRun.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+R", None, QtGui.QApplication.UnicodeUTF8))
         self.actionRun.setShortcuts([QtGui.QApplication.translate("MainWindow", "F1", None, QtGui.QApplication.UnicodeUTF8),QtGui.QApplication.translate("MainWindow", "Ctrl+R", None, QtGui.QApplication.UnicodeUTF8)])
         self.actionAnimate.setShortcut(QtGui.QApplication.translate("MainWindow", "F2", None, QtGui.QApplication.UnicodeUTF8))
@@ -102,6 +103,8 @@ class ParadigmContainer(QtGui.QTabWidget):
         self.actionStop.setShortcut(QtGui.QApplication.translate("MainWindow", "F4", None, QtGui.QApplication.UnicodeUTF8))
         self.actionInit.setShortcut(QtGui.QApplication.translate("MainWindow", "F5", None, QtGui.QApplication.UnicodeUTF8))
 
+
+        self.actionNewFile.triggered.connect(self.new_file)
         self.actionOpenFile.triggered.connect(self.open)
         self.actionSave.triggered.connect(self.save_current)
 #         self.actionSaveAs.triggered.connect(self.save_as)
@@ -126,15 +129,19 @@ class ParadigmContainer(QtGui.QTabWidget):
 
         self.actionStop.setEnabled(False)
 
-        self._actions = [["Project", "Manage", self.actionOpenFile, 1],
-                         ["Project", "Manage", self.actionSave, 1],
+        self._actions = [
+                         ["Project", "Manage", self.actionNewFile, 0],
                          ["Project", "Manage", self.actionAddFile, 1],
-#                          ["Project", "Manage", self.actionSaveAs, 1],
+                         ["Project", "Manage", self.actionOpenFile, 1],
+                         ["Project", "Manage", self.actionSave, 1],
+                         ["Project", "Manage", self.actionCloseCurrent, 1],
+
                          ["Project", "Play", self.actionRun, 0],
                          ["Project", "Play", self.actionAnimate, 0],
                          ["Project", "Play", self.actionStep, 0],
                          ["Project", "Play", self.actionStop, 0],
                          ["Project", "Play", self.actionInit, 0],
+
                          ["Edit", "Text Edit", self.actionUndo, 0],
                          ["Edit", "Text Edit", self.actionRedo, 0],
                          ["Edit", "Text Edit", self.actionSearch, 0],
@@ -142,7 +149,6 @@ class ParadigmContainer(QtGui.QTabWidget):
                          ["Edit", "Text Edit", self.actionComment, 0],
                          ["Edit", "Text Edit", self.actionUnComment, 0],
                          ["Edit", "Text Edit", self.actionRunSelection, 0],
-                         ["Project", "Manage", self.actionCloseCurrent, 1],
                          ]
         self.connect_paradigm_container()
         self.extensions = ""
@@ -205,6 +211,7 @@ class ParadigmContainer(QtGui.QTabWidget):
             self.setCurrentWidget(tab)
         else:
             applet = self.applet(obj, obj.default_name)
+            applet.textChanged.connect(self._on_text_changed)
 
             idx = self.addTab(applet, self.data_name(obj))
             if obj.path:
@@ -243,6 +250,8 @@ class ParadigmContainer(QtGui.QTabWidget):
     def save(self, tab=None):
         if tab is None:
             tab = self.currentWidget()
+        if tab is None:
+            return
 
         obj = self._open_tabs[tab]
         code = tab.get_code()
@@ -254,6 +263,7 @@ class ParadigmContainer(QtGui.QTabWidget):
             code = str(code).encode("utf8", "ignore")
             f.write(code)
             f.close()
+        self.setTabBlack(self.indexOf(tab))
 
     def new_file(self):
         category = 'model'
@@ -278,7 +288,6 @@ class ParadigmContainer(QtGui.QTabWidget):
             categories=[category]
         else:
             categories=Project.category_keys
-
         selector = SelectCategory(filename=name, categories=categories, dtypes=dtypes)
         dialog = ModalDialog(selector)
         if dialog.exec_():
@@ -472,6 +481,12 @@ class ParadigmContainer(QtGui.QTabWidget):
             logger.debug("Goto " + self.currentWidget().applet.name)
         else:
             logger.warning("Can't use method Goto in " + self.currentWidget().applet.name)
+
+    def _on_text_changed(self, *args):
+        tab = self.sender()
+        idx = self.indexOf(tab)
+        if idx >= 0:
+            self.setTabRed(idx)
 
 
 def showOpenFileDialog(extension=None, where=None, parent=None):

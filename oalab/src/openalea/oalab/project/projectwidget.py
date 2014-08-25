@@ -60,7 +60,8 @@ class SelectCategory(QtGui.QWidget):
 
         self.combo = QtGui.QComboBox(self)
         self.combo.addItems(categories)
-        self.combo.setCurrentIndex(0)
+        if 'model' in categories:
+            self.combo.setCurrentIndex(categories.index('model'))
 
         self.combo_dtypes = QtGui.QComboBox(self)
         self.combo_dtypes.addItems(dtypes)
@@ -246,6 +247,8 @@ class ProjectManagerView(QtGui.QTreeView):
         self.actionEditMeta = QtGui.QAction(qicon("book.png"), "Edit Project Information", self)
         self.actionEditMeta.triggered.connect(self.edit_metadata)
 
+
+
         self.actionImportFile = QtGui.QAction(qicon("open.png"), "Import file", self)
         self.actionImportFile.triggered.connect(self.import_file)
 
@@ -254,20 +257,19 @@ class ProjectManagerView(QtGui.QTreeView):
 
         self.actionSaveProj = QtGui.QAction(qicon("save.png"), "Save project", self)
         self.actionSaveProj.triggered.connect(self.save)
-        self.actionSaveProj.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionSaveProj.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Shift+S", None, QtGui.QApplication.UnicodeUTF8))
 
         self.actionCloseProj = QtGui.QAction(qicon("closeButton.png"), "Close project", self)
         self.actionCloseProj.triggered.connect(self.close)
+        self.actionCloseProj.setShortcut(self.tr("Ctrl+Shift+W"))
 
         self.actionNewProj = QtGui.QAction(qicon("new.png"), "New Project", self)
-        self.actionNewProj.setShortcut(
-            QtGui.QApplication.translate("MainWindow", "Ctrl+N", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionOpenProj = QtGui.QAction(qicon("open.png"), "Open Project", self)
-        self.actionOpenProj.setShortcut(
-            QtGui.QApplication.translate("MainWindow", "Ctrl+O", None, QtGui.QApplication.UnicodeUTF8))
-
         self.actionNewProj.triggered.connect(self.new_project)
+        self.actionNewProj.setShortcut(self.tr("Ctrl+Shift+N"))
+
+        self.actionOpenProj = QtGui.QAction(qicon("open.png"), "Open Project", self)
         self.actionOpenProj.triggered.connect(self.open_project)
+        self.actionOpenProj.setShortcut(self.tr('Ctrl+Shift+O'))
 
     #  API
 
@@ -335,8 +337,8 @@ class ProjectManagerView(QtGui.QTreeView):
         if index is None or project is None or data is None:
             return (None, None, None)
         else:
-            category, obj = data
-            return project, category, obj.filename
+            category, name = data
+            return project, category, name
 
     #  Slots
 
@@ -454,12 +456,15 @@ class ProjectManagerView(QtGui.QTreeView):
             dtype = applet.default_name
         project, category, data = self.selected_data()
         code = ''
+        project = self.project()
 
         if category == 'category':
             category = data
-        if category is None:
-            category = 'model'
-            project = self.project()
+        elif category in project.category_keys:
+            pass
+        else:
+            category = None
+
         if dtype is None and category in ['startup', 'lib']:
             dtype = 'Python'
 
@@ -534,6 +539,8 @@ class ProjectManagerView(QtGui.QTreeView):
         if project:
             project.save()
             self.save_controls()
+            if self.paradigm_container:
+                self.paradigm_container.save_all()
 
     def save_controls(self):    
         # Hack to save controls!!!
@@ -603,12 +610,13 @@ class ProjectManagerView(QtGui.QTreeView):
         data = self._model.projectdata(index)
         if data is None:
             return
-        category, obj = data
+        category, name = data
         # Check item in src
         # TODO move this part in dragEnterEvent with mimetype
         if category in ['src', 'model']:
             # Read file and parse model to get inputs, outputs, doc that may be
             # useful once dropped.
+            obj = self._model._project.get(category, name)
             obj.read()
             text = item.text()
 
@@ -752,7 +760,7 @@ class ProjectManagerModel(QtGui.QStandardItemModel):
         if index.parent().data() in self._project.category_keys:
             category = index.parent().data()
             name = index.data()
-            return category, self._project.get(category, name)
+            return category, name
         elif index.data() in self._project.category_keys:
             return ('category', index.data())
         elif index.data() == self._root_item:

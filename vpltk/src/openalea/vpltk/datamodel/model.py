@@ -327,7 +327,6 @@ class ModelFactory(AbstractFactory):
 
         pm = ProjectManager()
         model = pm.cproject.get_model(self.name)
-        model.read()
         if model is None:
             print "error loading model ", self.name
             print "Available models are ", pm.cproject.model.keys()
@@ -349,7 +348,7 @@ class ModelFactory(AbstractFactory):
 
         # If class is not a Node, embed object in a Node class
         if model:
-
+            model.read()
             self.inputs = signature(model.inputs_info)
             self.outputs = signature(model.outputs_info, out=True)
             if not self.outputs:
