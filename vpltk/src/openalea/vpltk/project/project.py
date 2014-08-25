@@ -57,7 +57,6 @@ from openalea.vpltk.project.saver import get_saver
 from openalea.oalab.service.interface import get_name
 from openalea.oalab.service.data import DataFactory, MimeType
 from openalea.oalab.control.control import Control
-#125, 133, 136, 144, 148, 151, 160, 208, 225, 238-240, 244, 250, 253-254, 259, 261, 283-284, 296, 311, 337
 
 class MetaData(Control):
     pass
@@ -106,17 +105,15 @@ class Project(Observed):
         self._path = Path(path).normlink().abspath()
 
         # Fill metadata
-        for k in self.metadata_keys:
-            if k in kwargs:
-                self.metadata[k] = kwargs[k]
-            else:
-                self.metadata[k] = self.metadata_keys[k].value
+        for k, v in self.metadata_keys.iteritems():
+            self.metadata[k] = kwargs.get(k, v.value)
+
 
         # Allocate category dictionaries
         for k in self.category_keys:
             self.__dict__[k] = {}
 
-        if self.path.exists():
+        if self._path.exists():
             self._load()
         #    self.notify_listeners(('project_loaded', (self, self.path)))
         # else:
@@ -135,13 +132,13 @@ class Project(Observed):
         elif key in self.category_keys:
             raise NameError, "cannot change '%s' attribute" % key
         else:
-            return object.__setattr__(self, key, value)
+            return super(Project, self).__setattr__(key, value)
 
     def __getattr__(self, key):
         if key in self.metadata_keys:
-            return object.__getattribute__(self, 'metadata')[key]
+            return super(Project, self).__getattribute__('metadata')[key]
         else:
-            return object.__getattribute__(self, key)
+            return super(Project, self).__getattribute__(key)
 
     def __repr__(self):
         return "%s(%r)" % (self.__class__.__name__, str(self.path))
@@ -171,6 +168,8 @@ class Project(Observed):
         return icon_name
 
     def start(self,*args,**kwargs):
+        """
+        """
         self.started = True
         self.ns.clear()
         loading = [
@@ -247,6 +246,7 @@ class Project(Observed):
             # If copy fails, we get original content and pass it to new data
             # If mode is "prefer link", we just keep original path (keep outside project)
             # TODO: Move to Data.copy
+            data_obj = None
             if new_path.abspath() != path.abspath() and mode == self.MODE_COPY:
                 try:
                     path.copyfile(new_path)
@@ -276,17 +276,26 @@ class Project(Observed):
             del category_dict[filename]
 
     def _rename_item(self, category, old, new):
-        if old == new:
-            return
+        pold = Path(old)
+        pnew = Path(new)
+        if pold.isabs() or pnew.isabs() or pnew.name != new or pold.name != old:
+            raise ValueError('You must give filename only, not path')
+
+        new_path = self.path / category / new
         data = self.get_item(category, old)
-        data.rename(new)
+        data.move(new_path)
         self._remove_item(category, filename=old)
         self._add_item(category, data)
+
+
+    def _project_changed(self):
+        self.notify_listeners(('project_changed', self))
+        self._save_manifest()
 
     def add_item(self, category, obj=None, **kwargs):
         data = self._add_item(category, obj, **kwargs)
         self.notify_listeners(('data_added', (self, category, data)))
-        self.notify_listeners(('project_changed', self))
+        self._project_changed()
         return data
 
     def remove_item(self, category, obj=None, **kwargs):
@@ -296,14 +305,14 @@ class Project(Observed):
             filename = kwargs['filename']
         self._remove_item(category, obj=obj, **kwargs)
         self.notify_listeners(('data_removed', (self, category, filename)))
-        self.notify_listeners(('project_changed', self))
+        self._project_changed()
 
     def rename_item(self, category, old, new):
         if old == new:
             return
         self._rename_item(category, old, new)
         self.notify_listeners(('data_renamed', (self, category, old, new)))
-        self.notify_listeners(('project_changed', self))
+        self._project_changed()
 
     def delete(self):
         raise NotImplementedError
@@ -321,7 +330,7 @@ class Project(Observed):
             src.move(dest)
         self._path = dest
         self.notify_listeners(('project_moved', (self, src, dest)))
-        self.notify_listeners(('project_changed', self))
+        self._project_changed()
 
     def get_item(self, category, filename):
         files = getattr(self, category)
@@ -390,11 +399,11 @@ class Project(Observed):
                         section = '%s.path' % category
                         if section in config:
                             if filename in config[section]:
-                                self.add(category, path=config[section][filename], mode=self.MODE_LINK)
+                                self._add_item(category, path=config[section][filename], mode=self.MODE_LINK)
                             else:
-                                self.add(category, filename=filename, mode=self.MODE_COPY)
+                                self._add_item(category, filename=filename, mode=self.MODE_COPY)
                         else:
-                            self.add(category, filename=filename, mode=self.MODE_COPY)
+                            self._add_item(category, filename=filename, mode=self.MODE_COPY)
 
     def _save_manifest(self):
         config = ConfigObj()

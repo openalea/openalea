@@ -31,7 +31,7 @@ from openalea.oalab.gui.utils import ModalDialog
 from openalea.vpltk.datamodel.model import Model
 
 from openalea.oalab.service.applet import get_applet
-from openalea.oalab.service.data import DataFactory, DataClass, MimeType
+from openalea.oalab.service.data import DataFactory, DataClass, DataType, MimeType
 
 from openalea.oalab.session.session import Session
 
@@ -278,7 +278,7 @@ class ParadigmContainer(QtGui.QTabWidget):
             categories=[category]
         else:
             categories=Project.category_keys
-        
+
         selector = SelectCategory(filename=name, categories=categories, dtypes=dtypes)
         dialog = ModalDialog(selector)
         if dialog.exec_():
@@ -303,7 +303,8 @@ class ParadigmContainer(QtGui.QTabWidget):
         if obj is None:
             return
 
-        project.add(category, obj)
+        dtype = DataType(mimetype=obj.mimetype)
+        self.add(project, obj.filename, obj.read(), dtype=dtype)
 
     def setTabRed(self, index=None):
         if index is None:

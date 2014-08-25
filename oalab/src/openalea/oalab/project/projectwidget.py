@@ -94,9 +94,9 @@ class RenameModel(QtGui.QWidget):
         self.label2 = QtGui.QLabel("Write new name: ")
         self.combo = QtGui.QComboBox(self)
         self.combo.addItems(self.models)
-        self.combo.setCurrentIndex(0)
         if not model_name:
             model_name = self.models[0]
+        self.combo.setCurrentIndex(self.models.index(model_name))
         self.line = QtGui.QLineEdit(str(model_name))
 
 #         self.ok_button = QtGui.QPushButton("Ok")
@@ -378,17 +378,17 @@ class ProjectManagerView(QtGui.QTreeView):
             menu.addAction(editAction)
             editAction.triggered.connect(self.open)
 
-            rename = QtGui.QAction(qicon('Crystal_Clear_device_floppy_unmount.png'), 'Save as', self)
+            rename = QtGui.QAction(qicon('Crystal_Clear_action_editcopy.png'), 'Rename', self)
             rename.triggered.connect(self.rename)
             menu.addAction(rename)
 
-            remove = QtGui.QAction(qicon('Crystal_Clear_action_edit_remove.png'), 'Remove "%s"' % obj, self)
+            remove = QtGui.QAction(qicon('Crystal_Clear_action_edit_remove.png'), 'Remove', self)
             remove.triggered.connect(self.remove)
             menu.addAction(remove)
 
             menu.addSeparator()
 
-            deleteAction = QtGui.QAction(qicon('Crystal_Clear_action_stop.png'), 'Delete "%s"' % obj, self)
+            deleteAction = QtGui.QAction(qicon('Crystal_Clear_action_stop.png'), 'Delete', self)
             menu.addAction(deleteAction)
             deleteAction.triggered.connect(self.delete)
 
@@ -494,14 +494,14 @@ class ProjectManagerView(QtGui.QTreeView):
                 self.paradigm_container.open_data(project.get(category, name))
 
     def _rename(self, project, category, name):
-        if category in ('model', 'src'):
-            list_models = project.list_models()
+        if category in project.category_keys:
+            list_models = project.model.keys()
             renamer = RenameModel(list_models, name)
             dialog = ModalDialog(renamer)
             if dialog.exec_():
                 old_name = renamer.old_name()
                 new_name = renamer.new_name()
-                project.rename(category, old_name, new_name)
+                project.rename_item(category, old_name, new_name)
         elif category == 'project':
             self.edit_metadata()
 
