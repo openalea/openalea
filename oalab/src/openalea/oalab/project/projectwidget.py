@@ -335,8 +335,8 @@ class ProjectManagerView(QtGui.QTreeView):
         if index is None or project is None or data is None:
             return (None, None, None)
         else:
-            category, name = data
-            return project, category, name
+            category, obj = data
+            return project, category, obj.filename
 
     #  Slots
 
@@ -607,6 +607,9 @@ class ProjectManagerView(QtGui.QTreeView):
         # Check item in src
         # TODO move this part in dragEnterEvent with mimetype
         if category in ['src', 'model']:
+            # Read file and parse model to get inputs, outputs, doc that may be
+            # useful once dropped.
+            obj.read()
             text = item.text()
 
             # name_without_ext = ".".join(text.split(".")[:-1])
@@ -747,7 +750,9 @@ class ProjectManagerModel(QtGui.QStandardItemModel):
             return
 
         if index.parent().data() in self._project.category_keys:
-            return (index.parent().data(), index.data())
+            category = index.parent().data()
+            name = index.data()
+            return category, self._project.get(category, name)
         elif index.data() in self._project.category_keys:
             return ('category', index.data())
         elif index.data() == self._root_item:
