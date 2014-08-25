@@ -54,6 +54,12 @@ class Data(object):
         else:
             self.path = new_path
 
+    def move(self, new_path):
+        if self.path.isfile():
+            self.path.move(new_path)
+        else:
+            self.path = new_path
+
     def exists(self):
         if self.path:
             return self.path.exists()
