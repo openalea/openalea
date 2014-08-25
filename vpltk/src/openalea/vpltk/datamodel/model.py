@@ -327,6 +327,7 @@ class ModelFactory(AbstractFactory):
 
         pm = ProjectManager()
         model = pm.cproject.get_model(self.name)
+        model.read()
         if model is None:
             print "error loading model ", self.name
             print "Available models are ", pm.cproject.model.keys()
