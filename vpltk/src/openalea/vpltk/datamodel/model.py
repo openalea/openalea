@@ -58,7 +58,7 @@ class Model(Data):
 
         self.inputs = {}
         self.outputs = []
-        self.doc = ''
+        self._doc = ''
         self.ns = dict()
 
         self._cache_mode = self.CACHE
@@ -77,7 +77,7 @@ class Model(Data):
 
     def get_documentation(self):
         self.read()
-        return self.doc
+        return self._doc
 
     def repr_code(self):
         return self.read()
