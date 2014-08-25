@@ -276,12 +276,18 @@ class Project(Observed):
             del category_dict[filename]
 
     def _rename_item(self, category, old, new):
-        if old == new:
-            return
+        pold = Path(old)
+        pnew = Path(new)
+        if pold.isabs() or pnew.isabs() or pnew.name != new or pold.name != old:
+            raise ValueError('You must give filename only, not path')
+
+        old_path = self.path / category / old
+        new_path = self.path / category / new
         data = self.get_item(category, old)
-        data.rename(new)
+        data.move(new_path)
         self._remove_item(category, filename=old)
         self._add_item(category, data)
+
 
     def add_item(self, category, obj=None, **kwargs):
         data = self._add_item(category, obj, **kwargs)

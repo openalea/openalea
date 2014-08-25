@@ -242,6 +242,25 @@ class TestProject(TestCase):
         model2_badpath = self.project.path / 'model' / '2'
         assert model2_badpath.exists() is False
 
+        msg = "You must give filename only, not path"
+
+        with self.assertRaises(ValueError) as cm:
+            self.project.rename_item("model", self.project.path / "model" / "1.py", "2.py")
+        self.assertEqual(cm.exception.message, msg)
+
+        with self.assertRaises(ValueError) as cm:
+            self.project.rename_item("model", "1.py", self.project.path / "model" / "2.py")
+        self.assertEqual(cm.exception.message, msg)
+
+        with self.assertRaises(ValueError) as cm:
+            self.project.rename_item("model", "model/1.py", "2.py")
+        self.assertEqual(cm.exception.message, msg)
+
+        with self.assertRaises(ValueError) as cm:
+            self.project.rename_item("model", "1.py", "model/2.py")
+        self.assertEqual(cm.exception.message, msg)
+
+
     def test_move_project(self):
         self.project.add("model", filename="1.py", content="blablabla")
         old_path = self.project.path
