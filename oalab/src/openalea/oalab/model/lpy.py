@@ -108,10 +108,16 @@ class LPyModel(Model):
         #     print "plotter: ", plotter
         #     registerPlotter(plotter)
 
+        # If path doesn't exists, that means all content is in memory (passed in constructor for example)
+        # So we need to parse it
+        if not self.exists():
+            self.parse()
+
     def get_documentation(self):
         """
         :return: a string with the documentation of the model
         """
+        self.read()
         if self._doc:
             return self._doc
         else:
