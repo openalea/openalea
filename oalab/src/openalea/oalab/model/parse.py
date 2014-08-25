@@ -519,8 +519,12 @@ def parse_functions(codestring):
     for x in functions_list:
         if x.name in exec_funcs_names:
             wrapped = ast.Interactive(body=[x.body[-1]])
-            code = compile(wrapped, 'tmp', 'single')
-            exec_funcs[x.name] = code
+            try:
+                code = compile(wrapped, 'tmp', 'single')
+            except:
+                pass
+            else:
+                exec_funcs[x.name] = code
 
     exec_funcs_list = [exec_funcs[func_name] for func_name in exec_funcs_names]
     return exec_funcs_list
