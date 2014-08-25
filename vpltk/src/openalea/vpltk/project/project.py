@@ -399,11 +399,11 @@ class Project(Observed):
                         section = '%s.path' % category
                         if section in config:
                             if filename in config[section]:
-                                self.add(category, path=config[section][filename], mode=self.MODE_LINK)
+                                self._add_item(category, path=config[section][filename], mode=self.MODE_LINK)
                             else:
-                                self.add(category, filename=filename, mode=self.MODE_COPY)
+                                self._add_item(category, filename=filename, mode=self.MODE_COPY)
                         else:
-                            self.add(category, filename=filename, mode=self.MODE_COPY)
+                            self._add_item(category, filename=filename, mode=self.MODE_COPY)
 
     def _save_manifest(self):
         config = ConfigObj()

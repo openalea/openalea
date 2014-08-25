@@ -93,9 +93,6 @@ class LPyModel(Model):
         self.context["scene_name"] = self.scene_name
         self.lsystem = Lsystem()
         self.axialtree = AxialTree()
-        code = self.read() # use it to force to parse doc, functions, inputs and outputs
-        self.content, control = import_lpy_file(code)
-
         self.axialtree = adapt_axialtree(self.axialtree, self.lsystem)
         # TODO: update control of the project with new ones
 
@@ -263,11 +260,11 @@ endlsystem"""
                     elif outp.name in namespace:
                         self._outputs.append(namespace[outp.name])
 
-
     def parse(self):
         """
         Set the content and parse it to get docstring, inputs and outputs info, some methods
         """
+        self._content, control = import_lpy_file(self._content)
         content = self._content
         self._doc = get_docstring(content)
         docstring = parse_lpy(content)
