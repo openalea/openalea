@@ -98,6 +98,7 @@ class MainWindow(QtGui.QMainWindow):
 
         # Shell
         self.shell = get_shell_class()(self.session.interpreter)
+        self.session.interpreter.locals['shell'] = self.shell
         self.add_applet(self.shell, 'Shell', area='shell')
 
         self.applets = self._plugins = {}
