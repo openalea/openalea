@@ -286,7 +286,7 @@ endlsystem"""
 
 
     def _set_inputs(self, *args, **kwargs):
-        self.inputs = prepare_inputs(self.inputs_info, *args, **kwargs)
+        self.inputs = prepare_inputs(self.inputs_info, name=self.filename, *args, **kwargs)
         if "axiom" in self.inputs.keys():
             self.temp_axiom = self.inputs["axiom"]
             del self.inputs["axiom"]

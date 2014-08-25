@@ -34,11 +34,14 @@ except ImportError:
     logger.warning("You should install **flake8** (using: pip install flake8)")
 
 class RichTextEditor(QtGui.QWidget):
+    textChanged = QtCore.Signal()
+
     def __init__(self, parent=None):
         super(RichTextEditor, self).__init__(parent)
 
         self.completer = DictionaryCompleter(parent=self)
         self.editor = TextEditor(parent=self)
+        self.editor.textChanged.connect(self.textChanged.emit)
         # self.editor.setCompleter(self.completer)
 
         self.goto_widget = GoToWidget(parent=self.editor)

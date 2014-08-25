@@ -454,11 +454,12 @@ class Project(Observed):
         from openalea.oalab.control.pyserial import save_controls
         from openalea.oalab.control.manager import ControlManager
         cm = ControlManager()
-        save_controls(cm.controls(), self.path / 'control.py')
+        if cm.controls():
+            save_controls(cm.controls(), self.path / 'control.py')
 
     def _load_controls(self):
         control_path = self.path / 'control.py'
-        if control_path.exists():
+        if control_path.isfile():
             code = file(control_path, 'r').read()
             exec(code)
 

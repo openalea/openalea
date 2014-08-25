@@ -42,7 +42,7 @@ class PythonModel(Model):
     def _run_code(self, code, *args, **kwargs):
         if code:
             # Set inputs
-            self.inputs = prepare_inputs(self.inputs_info, *args, **kwargs)
+            self.inputs = prepare_inputs(self.inputs_info, name=self.filename, *args, **kwargs)
             # Prepare namespace
             self._prepare_namespace()
             # Run inside namespace
