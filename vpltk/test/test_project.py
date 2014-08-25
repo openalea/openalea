@@ -235,8 +235,10 @@ class TestProject(TestCase):
         assert len(self.project.model) == 1
         assert "2.py" in self.project.model
         assert self.project.model["2.py"].read() == "blablabla"
+        assert self.project.model["2.py"].filename == "2.py"
         events = self.ev.events
         self.check_events(events, ['data_renamed', 'project_changed'])
+
 
         # Old bug, path lost extension at rename
         model2_badpath = self.project.path / 'model' / '2'

@@ -281,7 +281,6 @@ class Project(Observed):
         if pold.isabs() or pnew.isabs() or pnew.name != new or pold.name != old:
             raise ValueError('You must give filename only, not path')
 
-        old_path = self.path / category / old
         new_path = self.path / category / new
         data = self.get_item(category, old)
         data.move(new_path)
