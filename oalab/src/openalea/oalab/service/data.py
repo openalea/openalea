@@ -47,7 +47,21 @@ def MimeType(path=None, name=None):
         else:
             return False
 
-
+def DataType(path=None, name=None, mimetype=None):
+    if path:
+        name = Path(path).ext[1:].lower()
+        return name
+    elif name:
+        return Path(name).ext[1:].lower()
+    elif mimetype:
+        for ModelClass in iter_plugins('oalab.model'):
+            if ModelClass.mimetype == mimetype:
+                return ModelClass.default_name
+        for DataClass in iter_plugins('oalab.DataClass'):
+            if ModelClass.mimetype == mimetype:
+                return ModelClass.default_name
+    else:
+        return None
 
 def DataClass(dtype=None):
     """
