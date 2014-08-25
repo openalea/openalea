@@ -48,17 +48,21 @@ class Data(object):
             return self._content
 
     def rename(self, new):
+        pnew = Path(new)
+        if pnew.isabs() or pnew.name != new :
+            raise ValueError('You must give filename only, not path')
         new_path = self.path.parent / new
-        if self.path.isfile():
-            self.path.rename(new)
-        else:
-            self.path = new_path
+        self.move(new_path)
 
     def move(self, new_path):
+        new_path = Path(new_path)
+        if self._filename is not None:
+            self._filename = new_path.name
+
         if self.path.isfile():
             self.path.move(new_path)
-        else:
-            self.path = new_path
+
+        self.path = new_path
 
     def exists(self):
         if self.path:
