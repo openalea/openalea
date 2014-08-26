@@ -53,6 +53,10 @@ class ControlContainer(Observed, AbstractListener):
             control.unregister_listener(self)
             self.notify_listeners(('state_changed', (control)))
 
+    def clear(self):
+        for control in list(self._controls):
+            self.remove_control(control)
+
     def namespace(self, interface=None):
         """
         Returns namespace (dict control name -> value).

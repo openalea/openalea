@@ -25,6 +25,7 @@ from openalea.core.singleton import Singleton
 from openalea.core.observer import Observed, AbstractListener
 from ConfigParser import NoSectionError, NoOptionError
 from openalea.vpltk.plugin import iter_plugins
+from openalea.oalab.control.manager import ControlManager
 
 class ProjectManager(Observed, AbstractListener):
     """
@@ -44,6 +45,8 @@ class ProjectManager(Observed, AbstractListener):
 
         self._cproject = None
         self._cwd = Path('.').abspath()
+
+        self.cm = ControlManager()
 
         self.projects = []
         self.repositories = self.search_path()
@@ -281,6 +284,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
             os.chdir(self._cwd)
             if self._cproject:
                 self._cproject.unregister_listener(self)
+                self._cproject.stop()
                 del self._cproject
             self._cproject = None
         else:
