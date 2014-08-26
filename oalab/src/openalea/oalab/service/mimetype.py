@@ -11,6 +11,7 @@ def decode(mimetype, mimedata):
         control = ControlManager().control(name)
         if isinstance(control, list):
             return ControlManager().control(uid=identifier)
+        return control
     elif mimetype == 'openalealab/data':
         return mimedata
 

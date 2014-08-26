@@ -211,7 +211,8 @@ class ParadigmContainer(QtGui.QTabWidget):
             self.setCurrentWidget(tab)
         else:
             applet = self.applet(obj, obj.default_name)
-            applet.textChanged.connect(self._on_text_changed)
+            if hasattr(applet, 'textChanged'):
+                applet.textChanged.connect(self._on_text_changed)
 
             idx = self.addTab(applet, self.data_name(obj))
             if obj.path:

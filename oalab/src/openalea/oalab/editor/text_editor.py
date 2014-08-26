@@ -314,6 +314,8 @@ class TextEditor(QtGui.QTextEdit):
             # TODO: move outside TextEditor
             from openalea.oalab.service.mimetype import decode
             data = decode('openalealab/control', source.data('openalealab/control'))
+            if data is None:
+                return
             varname = '_'.join(data.name.split())
             pycode = '%s = get_control(%r) #%s' % (varname, data.name, data.interface)
             cursor = self.textCursor()
