@@ -253,6 +253,8 @@ class ParadigmContainer(QtGui.QTabWidget):
             tab = self.currentWidget()
         if tab is None:
             return
+        if tab not in self._open_tabs:
+            return
 
         obj = self._open_tabs[tab]
         code = tab.get_code()

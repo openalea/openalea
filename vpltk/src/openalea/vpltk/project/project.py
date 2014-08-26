@@ -190,6 +190,9 @@ class Project(Observed):
     def stop(self, *args, **kwargs):
         self.started = False
         self.ns.clear()
+        from openalea.oalab.control.manager import ControlManager
+        cm = ControlManager()
+        cm.clear()
 
     def run(self, filename, *args, **kwargs):
         model = self.get_model(filename)
