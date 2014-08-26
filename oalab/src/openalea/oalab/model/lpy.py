@@ -139,7 +139,9 @@ class LPyModel(Model):
         execute entire model
         """
         # TODO: get control from application and set them into self.context
+        ns = self._prepare_namespace()
         self._set_inputs(*args, **kwargs)
+        self.inputs.update(ns)
 
         self.context.update(self.inputs)
         self.lsystem.setCode(str(self.code), self.context)
@@ -172,7 +174,9 @@ class LPyModel(Model):
         """
         execute only one step of the model
         """
+        ns = self._prepare_namespace()
         self._set_inputs(*args, **kwargs)
+        self.inputs.update(ns)
         self.context.update(self.inputs)
 
         default_text = """Lsystem:
