@@ -5,6 +5,7 @@ class ControlPanel(PluginApplet):
 
     name = 'ControlPanel'
     alias = 'Control'
+    dependencies = ["openalea.lpy", "openalea.plantgl.all"]
 
     def __call__(self, mainwindow):
         # Load and instantiate graphical component that actually provide feature
