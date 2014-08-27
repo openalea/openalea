@@ -32,6 +32,8 @@ import pkg_resources
 import site
 import sys
 import warnings
+import importlib
+
 
 def discover(group, name=None):
     """
@@ -48,6 +50,7 @@ def discover(group, name=None):
 
     plugin_map = {ep.name:ep for ep in pkg_resources.iter_entry_points(group, name)}
     return plugin_map
+
 
 def iter_groups():
     groups = set()
@@ -98,8 +101,7 @@ def check_dependencies(plugin):
     if hasattr(plugin, "dependencies"):
         for dep in plugin.dependencies:
             try:
-                txt = "import " + str(dep)
-                exec txt
+                importlib.import_module(str(dep))
             except ImportError:
                 warnings.warn("Can't load plugin %s because can't import %s" % (str(plugin.name), str(dep)))
                 return False
