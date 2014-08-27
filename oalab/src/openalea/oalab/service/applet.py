@@ -1,5 +1,5 @@
 
-from openalea.vpltk.plugin import iter_plugins
+from openalea.vpltk.plugin import iter_plugins, check_dependencies
 
 class Applet(object):
     # TODO: become a manager ??
@@ -47,11 +47,12 @@ class Applet(object):
             else:
                 for plugin in iter_plugins('oalab.applet'):
                     if plugin.name == identifier:
-                        instance = plugin()
-                        applet = instance(**class_args)
-                        cls.register_applet(plugin.name, applet)
-                        instance = cls._applets[identifier]
-                        return instance
+                        if check_dependencies(plugin):
+                            instance = plugin()
+                            applet = instance(**class_args)
+                            cls.register_applet(plugin.name, applet)
+                            instance = cls._applets[identifier]
+                            return instance
         raise NotImplementedError, err
 
 get_applet = Applet.instance

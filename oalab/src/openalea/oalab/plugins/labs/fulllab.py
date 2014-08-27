@@ -1,4 +1,4 @@
-from openalea.vpltk.plugin import iter_plugins
+from openalea.vpltk.plugin import iter_plugins, check_dependencies
 
 
 class FullLab(object):
@@ -8,5 +8,6 @@ class FullLab(object):
         from openalea.oalab.session.session import Session
         session = Session()
         for plugin in iter_plugins('oalab.applet', debug=session.debug_plugins):
-            mainwin.add_plugin(plugin())
+            if check_dependencies(plugin):
+                mainwin.add_plugin(plugin())
         mainwin.initialize()

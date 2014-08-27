@@ -31,6 +31,7 @@ Plugin fundamentals are:
 import pkg_resources
 import site
 import sys
+import warnings
 
 def discover(group, name=None):
     """
@@ -87,6 +88,23 @@ def iter_plugins(group, name=None, debug=False):
                         yield item
                 else:
                     yield ep
+
+
+def check_dependencies(plugin):
+    """
+    Check if a specific plugin is ready to be load (if dependencies are installed)
+    :return: True if ok
+    """
+    if hasattr(plugin, "dependencies"):
+        for dep in plugin.dependencies:
+            try:
+                txt = "import " + str(dep)
+                exec txt
+            except ImportError:
+                warnings.warn("Can't load plugin %s because can't import %s" % (str(plugin.name), str(dep)))
+                return False
+    return True
+
 
 class Plugin(object):
     """ Define a Plugin from an entry point. """

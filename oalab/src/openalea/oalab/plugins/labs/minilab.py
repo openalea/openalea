@@ -1,4 +1,4 @@
-from openalea.vpltk.plugin import iter_plugins
+from openalea.vpltk.plugin import iter_plugins, check_dependencies
 
 class MiniLab(object):
 
@@ -9,4 +9,5 @@ class MiniLab(object):
         session = mainwin.session
         for plugin in iter_plugins('oalab.applet', debug=session.debug_plugins):
             if plugin.name in self.applets:
-                mainwin.add_plugin(plugin())
+                if check_dependencies(plugin):
+                    mainwin.add_plugin(plugin())
