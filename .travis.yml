@@ -16,14 +16,5 @@ before_install:
 
 install: python multisetup.py develop
 
-script:
-    - cd core
-    - nosetests
-    - cd ../vpltk
-    - nosetests
-    - cd ../oalab
-    - nosetests
-    - cd ../misc
-    - nosetests
-    
+script: nosetests -w core ../misc ../oalab ../vpltk   
 
