@@ -1,0 +1,18 @@
+language: python
+
+env:
+    - ENV="python=2.7"
+    - ENV="python=2.6"
+
+install: python multisetup.py develop
+
+script:
+    - cd core
+    - nosetests
+    - cd ../vpltk
+    - nosetests
+    - cd ../oalab
+    - nosetests
+    - cd ../misc
+    - nosetests
+    
