@@ -1,0 +1,50 @@
+[oalab.paradigm_applet]
+LPyApplet = openalea.oalab.plugins.models.lpygui:LPyModelGUI
+RApplet = openalea.oalab.plugins.models.rgui:RModelGUI
+VisualeaApplet = openalea.oalab.plugins.models.visualeagui:VisualeaModelGUI
+PythonApplet = openalea.oalab.plugins.models.pythongui:PythonModelGUI
+
+[oalab.qt_control]
+PluginOpenAleaLabWidgetSelectors = openalea.oalab.plugins.controls:PluginOpenAleaLabWidgetSelectors
+PluginVisualeaWidgetSelectors = openalea.oalab.plugins.controls:PluginVisualeaWidgetSelectors
+
+[oalab.lab]
+FullLab = openalea.oalab.plugins.labs.fulllab:FullLab
+PlantLab = openalea.oalab.plugins.labs.plantlab:PlantLab
+MiniLab = openalea.oalab.plugins.labs.minilab:MiniLab
+
+[oalab.interface]
+OpenAleaLabInterfacePlugin = openalea.oalab.plugins.interfaces:OpenAleaLabInterfacePlugin
+
+[plugin]
+oalab = openalea.oalab_wralea
+
+[oalab.project_repository]
+ProjectRepositoryTutorials = openalea.oalab.plugins.project_repository:tutorials
+
+[oalab.model]
+VisualeaModel = openalea.oalab.model.visualea:VisualeaModel
+LPyModel = openalea.oalab.model.lpy:LPyModel
+RModel = openalea.oalab.model.r:RModel
+
+[oalab.applet]
+HistoryWidget = openalea.oalab.plugins.applets.historywidget:HistoryWidget
+PkgManagerWidget = openalea.oalab.plugins.applets.packagemanager:PkgManagerWidget
+FileBrowser = openalea.oalab.plugins.applets.filebrowser:FileBrowser
+Viewer3D = openalea.oalab.plugins.applets.viewer3d:Viewer3D
+ControlManager = openalea.oalab.plugins.applets.controlmanager:ControlManager
+HelpWidget = openalea.oalab.plugins.applets.helpwidget:HelpWidget
+ProjectManager = openalea.oalab.plugins.applets.projectwidget:ProjectManager
+EditorManager = openalea.oalab.plugins.applets.editormanager:EditorManager
+World = openalea.oalab.plugins.applets.worldwidget:World
+ProjectWidget = openalea.oalab.plugins.applets.projectwidget:ProjectWidget
+Logger = openalea.oalab.plugins.applets.logger:Logger
+Plot2d = openalea.oalab.plugins.applets.plot2d:Plot2dWidget
+
+[wralea]
+oalab = openalea.oalab_wralea
+
+[gui_scripts]
+oalab = openalea.oalab.main:main
+openalealab = openalea.oalab.main:main
+

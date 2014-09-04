@@ -1,0 +1,18 @@
+[vpltk.saver]
+BinarySaver = openalea.vpltk.project.saver:BinarySaver
+BGEOMSaver = openalea.vpltk.project.saver:BGEOMSaver
+CPickleSaver = openalea.vpltk.project.saver:CPickleSaver
+GenericSaver = openalea.vpltk.project.saver:GenericSaver
+
+[vpltk.loader]
+BGEOMLoader = openalea.vpltk.project.loader:BGEOMLoader
+CPickleLoader = openalea.vpltk.project.loader:CPickleLoader
+BinaryLoader = openalea.vpltk.project.loader:BinaryLoader
+GenericLoader = openalea.vpltk.project.loader:GenericLoader
+
+[oalab.model]
+PythonModel = openalea.vpltk.datamodel.python:PythonModel
+
+[plugin]
+vpltksample = openalea.vpltk.sample
+
