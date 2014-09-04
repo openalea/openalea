@@ -1,2 +1,0 @@
-openalea
-oalab_postinstall
