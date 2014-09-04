@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: OpenAlea.OALab
+Version: 0.0.2
+Summary: OALab package for OpenAlea.
+Home-page: http://openalea.gforge.inria.fr
+Author: OpenAlea consortium
+Author-email: christophe pradal at cirad fr, julien coste at inria fr, guillaume baty at inria fr
+License: Cecill-C
+Description: The OpenAlea.OALab package is a GUI for OpenAlea wich permit to use Visualea and LPy and others in the same application.
+Platform: UNKNOWN

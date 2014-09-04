@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: OpenAlea.VPLTK
+Version: 1.1.0
+Summary: VPLTK package for OpenAlea.
+Home-page: http://openalea.gforge.inria.fr
+Author: XXX
+Author-email: XXX@XXX
+License: Cecill-C
+Description: The OpenAlea.VPLTK package is a typical package example to help developper to create their own package, compatible with OpenAlea standards.
+Platform: UNKNOWN

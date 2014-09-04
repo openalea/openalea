@@ -1,0 +1,11 @@
+[wralea]
+openalea.misc.test = openalea.misc_wralea_test
+openalea.misc = openalea.misc_wralea
+
+[console_scripts]
+upload_dist = openalea.misc.upload_dist:main
+alea_branch = openalea.misc.alea_branch:main
+make_develop = openalea.misc.make_develop:main
+gforge_upload = openalea.misc.gforge_upload:main
+alea_init_sphinx = openalea.misc.sphinx_tools:init
+
