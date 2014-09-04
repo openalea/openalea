@@ -75,8 +75,7 @@ class ProjectManager(Observed, AbstractListener):
         lst = list(repositories)
         try:
             s = config.get("ProjectManager", "Path")
-            # add path in the namespace for compatibility reasons
-            lst = eval(s,{"path":Path})
+            lst = eval(s)
         except NoSectionError, e:
             config.add_section("ProjectManager")
             config.add_option("ProjectManager", "Path", str([str(path) for path in lst]))
