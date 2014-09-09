@@ -60,6 +60,23 @@ from openalea.oalab.control.control import Control
 
 from collections import OrderedDict
 
+def _normpath(path):
+    """
+    Replace all symlink in path with real path and return its absolute path
+    For example, if given path is "local/bin/python" and "local" is a symbolic link to "/usr/local",
+    returned path will be "/usr/local/bin/python"
+    """
+    if hasattr(os, 'readlink'):
+        parts = Path(path).splitall()
+        _path = Path('')
+        for p in parts:
+            _path = _path / p
+            if _path.islink():
+                _path = _path.readlink()
+        return _path.abspath()
+    else:
+        return path.abspath()
+
 class MetaData(Control):
     pass
 
@@ -104,7 +121,7 @@ class Project(Observed):
         #    self.register_listener(listener)
 
         self.started = False
-        self._path = Path(path).normlink().abspath()
+        self._path = _normpath(path)
 
         # Fill metadata
         for k, v in self.metadata_keys.iteritems():
