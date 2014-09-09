@@ -4,7 +4,7 @@ class PlantLab(object):
     applets = [
 #         'ProjectManager',
 #         'ProjectWidget',
-        'ProjectManager2',
+        'ProjectManager',
         'ControlManager',
         'PkgManagerWidget',
         'EditorManager',

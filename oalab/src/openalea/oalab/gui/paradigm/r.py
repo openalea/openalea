@@ -23,8 +23,8 @@ from openalea.oalab.editor.text_editor import RichTextEditor as Editor
 from openalea.oalab.editor.highlight import Highlighter
 from openalea.oalab.model.r import RModel
 from openalea.oalab.service.help import display_help
-from openalea.oalab.control.manager import control_dict
 import types
+
 
 class RModelController(object):
     default_name = RModel.default_name
@@ -39,7 +39,7 @@ class RModelController(object):
             self.model = model
         else:
             self.model = RModel(name=name, code=code, filepath=filepath)
-        self.name = self.model.name
+        self.name = self.model.filename
         self.parent = parent
         self.editor_container = editor_container
         self._widget = None
@@ -56,7 +56,7 @@ class RModelController(object):
             display_help(doc)
         wid.display_help = types.MethodType(_diplay_help, wid)
 
-        wid.set_text(self.model.code)
+        wid.set_text(self.model.read())
         wid.replace_tab()
         return wid
 
@@ -67,34 +67,26 @@ class RModelController(object):
         return self.model.execute(code)
 
     def run(self, *args, **kwargs):
-        controls = control_dict()
-        self.model.ns.update(controls)
         code = self.widget().get_text()
-        self.model.code = code
+        self.model.content = code
         return self.model(*args, **kwargs)
 
     def step(self, *args, **kwargs):
-        controls = control_dict()
-        self.model.ns.update(controls)
         code = self.widget().get_text()
-        self.model.code = code
+        self.model.content = code
         return self.model.step(*args, **kwargs)
 
     def stop(self, *args, **kwargs):
         return self.model.stop(*args, **kwargs)
 
     def animate(self, *args, **kwargs):
-        controls = control_dict()
-        self.model.ns.update(controls)
         code = self.widget().get_text()
-        self.model.code = code
+        self.model.content = code
         return self.model.animate(*args, **kwargs)
 
     def init(self, *args, **kwargs):
-        controls = control_dict()
-        self.model.ns.update(controls)
         code = self.widget().get_text()
-        self.model.code = code
+        self.model.content = code
         return self.model.init(*args, **kwargs)
 
     def widget(self):

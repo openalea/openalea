@@ -46,7 +46,7 @@ class Session(object):
     """
 
     __metaclass__ = Singleton
-    instanciated = False
+    instantiated = False
 
     def __init__(self):
         self._project = None
@@ -70,7 +70,7 @@ class Session(object):
         else:
             print("You are using a version of ipython < 2. History is not implemented for this version.")
 
-        self.project_manager.set_shell(self.interpreter.shell)
+#         self.project_manager.set_shell(self.interpreter.shell)
 
         self.interpreter.locals['session'] = self
         self.debug_plugins = ''
@@ -79,7 +79,7 @@ class Session(object):
         self.gui = True
 
         self.old_syspath = sys.path
-        self.instanciated = True
+        self.__class__.instantiated = True
 
     @property
     def project(self):
@@ -100,6 +100,7 @@ class Session(object):
         self.interpreter.locals['control_manager'] = self.control_manager
         self.interpreter.locals['package_manager'] = self.package_manager
         self.interpreter.locals['world'] = self.world
+        self.interpreter.locals['get_control'] = self.control_manager.control
         self.interpreter.locals['follow'] = self.control_manager.register_follower
         self.interpreter.locals['unfollow'] = self.control_manager.unregister_follower
 

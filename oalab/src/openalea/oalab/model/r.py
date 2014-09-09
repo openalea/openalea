@@ -15,7 +15,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-from openalea.oalab.model.model import Model
+from openalea.vpltk.datamodel.model import Model
 from openalea.oalab.model.parse import parse_docstring_r, get_docstring_r, parse_functions_r
 
 # TODO : refactor (like class PythonModel in python.py)
@@ -26,20 +26,25 @@ class RModel(Model):
     pattern = "*.r"
     extension = "r"
     icon = ":/images/resources/RLogo.png"
+    mimetype = "text/x-r"
 
-    def __init__(self, name="script.r", code="", filepath="", inputs=[], outputs=[]):
-        super(RModel, self).__init__(name=name, code=code, filepath=filepath, inputs=inputs, outputs=outputs)
+    def __init__(self, **kwargs):
+        super(RModel, self).__init__(**kwargs)
         self._step = None
         self._animate = None
         self._init = None
-        self.ns = dict()
-        self.code = code  # use it to force to parse doc, functions, inputs and outputs
         self.has_run = False
+
+        # If path doesn't exists, that means all content is in memory (passed in constructor for example)
+        # So we need to parse it
+        if not self.exists():
+            self.parse()
 
     def get_documentation(self):
         """
         :return: a string with the documentation of the model
         """
+        self.read()
         if self._doc:
             return self._doc
         else:
@@ -175,15 +180,14 @@ more informations: http://www.r-project.org/
 
             return self.outputs
 
-    @property
-    def code(self):
-        return self._code
-
-    @code.setter
-    def code(self, code=""):
-        self._code = code
+    def parse(self):
+        """
+        Set the content and parse it to get docstring, inputs and outputs info, some methods
+        """
+        content = self._content
         # TODO define the 3 functions parse_docstring_r, parse_functions_r, get_docstring_r
-        model, self.inputs_info, self.outputs_info, self.cmdline = parse_docstring_r(code)
-        self._init, self._step, self._animate, self._run = parse_functions_r(code)
-        self._doc = get_docstring_r(self._code)
+        model, self.inputs_info, self.outputs_info, self.cmdline = parse_docstring_r(content)
+        self._init, self._step, self._animate, self._run = parse_functions_r(content)
+        self._doc = get_docstring_r(content)
         self.has_run = False
+

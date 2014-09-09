@@ -99,7 +99,6 @@ setup(
 
         'oalab.model': [
             'LPyModel = openalea.oalab.model.lpy:LPyModel',
-            'PythonModel = openalea.oalab.model.python:PythonModel',
             'RModel = openalea.oalab.model.r:RModel',
             'VisualeaModel = openalea.oalab.model.visualea:VisualeaModel',
             ],
@@ -114,8 +113,7 @@ setup(
             'HistoryWidget = openalea.oalab.plugins.applets.historywidget:HistoryWidget',
             'Logger = openalea.oalab.plugins.applets.logger:Logger',
             'PkgManagerWidget = openalea.oalab.plugins.applets.packagemanager:PkgManagerWidget',
-            'ProjectManager = openalea.oalab.plugins.applets.projectmanager:ProjectManager',
-            'ProjectManager2 = openalea.oalab.plugins.applets.projectwidget:ProjectManager2',
+            'ProjectManager = openalea.oalab.plugins.applets.projectwidget:ProjectManager',
             # 'Store = openalea.oalab.plugins.applets.store:Store',
             'Viewer3D = openalea.oalab.plugins.applets.viewer3d:Viewer3D',
             'World = openalea.oalab.plugins.applets.worldwidget:World',
@@ -135,6 +133,10 @@ setup(
 
         'oalab.interface': [
             'OpenAleaLabInterfacePlugin = openalea.oalab.plugins.interfaces:OpenAleaLabInterfacePlugin',
+            ],
+
+        'oalab.project_repository': [
+            'ProjectRepositoryTutorials = openalea.oalab.plugins.project_repository:tutorials',
             ],
 
         # 'console_scripts': [

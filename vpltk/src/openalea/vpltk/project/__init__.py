@@ -21,14 +21,10 @@ Working with Project class
 
 You can work directly on project:
 
-    >>> from openalea.vpltk.project import Project
-    >>> # Get the correct path
-    >>> from openalea.deploy.shared_data import shared_data
-    >>> from openalea import oalab
-    >>> path_of_my_proj = shared_data(oalab)
+    >>> from openalea.vpltk.project import Project, get_project_dir
     >>> # Real work on project:
-    >>> project1 = Project(name="mynewproj", projectdir=path_of_my_proj)
-    >>> project1.rename("project", "mynewproj", "hello_project")
+    >>> project_path = get_project_dir() / 'project1'
+    >>> project1 = Project(project_path)
     >>> project1.start()
 
 Change metadata:
@@ -39,11 +35,11 @@ Change metadata:
 
 ... project file, models, ... :
 
-    >>> success = project1.add(category="model", name="hello.py", value="print('Hello World')")
+    >>> success = project1.add(category="model", filename="hello.py", content="print('Hello World')")
     >>> project1.description = "This project is used to said hello to everyone"
-    >>> success = project1.add("startup", "begin_numpy", "import numpy as np")
-    >>> success = project1.add("model", "eye.py", "print np.eye(2)")
-    >>> project1.rename("model", "eye", "eye_numpy")
+    >>> startup_obj = project1.add(category="startup", filename="begin_numpy.py", content="import numpy as np")
+    >>> model_obj = project1.add(category="model", filename="eye.py", content="print np.eye(2)")
+    >>> project1.rename_data("model", "eye.py", "eye_numpy.py")
 
 
 Creation and Manipulation with Project Manager
@@ -81,10 +77,11 @@ Search other projects
 ---------------------
 
 To search projects that are not located inside default directories:
-    >>> project_manager.find_links.append('/path/to/search/projects')
+    >>> project_manager.repositories.append('/path/to/search/projects')
     >>> project_manager.discover()
     >>> list_of_projects = project_manager.projects
 
 """
+from openalea.core.settings import get_project_dir
 from openalea.vpltk.project.project import Project
 from openalea.vpltk.project.manager import ProjectManager

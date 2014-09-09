@@ -15,7 +15,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-from openalea.oalab.model.model import Model, ModelFactory
+from openalea.vpltk.datamodel.model import Model, ModelFactory
 from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.pkgmanager import PackageManager
 import copy
@@ -27,29 +27,17 @@ class VisualeaModel(Model):
     pattern = "*.wpy"
     extension = "wpy"
     icon = ":/images/resources/openalealogo.png"
+    mimetype = "text/x-visualea"
 
-    def __init__(self, name="workflow.wpy", code="", filepath="", inputs=[], outputs=[]):
-        super(VisualeaModel, self).__init__(name=name, code=code, filepath=filepath, inputs=inputs, outputs=outputs)
-        _name = self.name.split('.wpy')[0]
-        if (code is None) or (code is ""):
-            self._workflow = CompositeNodeFactory(_name).instantiate()
-        elif isinstance(code, CompositeNodeFactory):
-            # hakishhh
-            #CompositeNodeFactory.instantiate_node = monkey_patch_instantiate_node
-            self._workflow = code.instantiate()
-        else:
-            # Access to the current project
-            # 
-            cnf = eval(code, globals(), locals())
-            # hakishhh
-            #CompositeNodeFactory.instantiate_node = monkey_patch_instantiate_node
-            self._workflow = cnf.instantiate()
+    def __init__(self, **kwargs):
+        super(VisualeaModel, self).__init__(**kwargs)
 
     def get_documentation(self):
         """
 
         :return: docstring of current workflow
         """
+        self.read()
         if hasattr(self._workflow, "get_tip"):
             self._doc = self._workflow.get_tip()
         return self._doc
@@ -58,7 +46,7 @@ class VisualeaModel(Model):
         """
         :return: a string representation of model to save it on disk
         """
-        name = self.name
+        name = self.filename
 
         if name[-3:] in '.py':
             name = name[-3:]
@@ -113,10 +101,24 @@ class VisualeaModel(Model):
         """
         return self.run()
 
+    def parse(self):
+        code = self._content
+        if not code:
+            self._workflow = CompositeNodeFactory(self.filename).instantiate()
+        elif isinstance(code, CompositeNodeFactory):
+            # hakishhh
+            # CompositeNodeFactory.instantiate_node = monkey_patch_instantiate_node
+            self._workflow = code.instantiate()
+        else:
+            # Access to the current project
+            cnf = eval(code, globals(), locals())
+            # hakishhh
+            # CompositeNodeFactory.instantiate_node = monkey_patch_instantiate_node
+#             raise IOError(cnf)
+            self._workflow = cnf.instantiate()
 
 def monkey_patch_instantiate_node(self, vid, call_stack=None):
     (package_id, factory_id) = self.elt_factory[vid]
-    
     # my temporary patch
     if package_id in (None, ":projectmanager.current"):
         factory = ModelFactory(factory_id)
@@ -124,7 +126,7 @@ def monkey_patch_instantiate_node(self, vid, call_stack=None):
         pkgmanager = PackageManager()
         pkg = pkgmanager[package_id]
         factory = pkg.get_factory(factory_id)
-    
+
     node = factory.instantiate(call_stack)
 
     attributes = copy.deepcopy(self.elt_data[vid])

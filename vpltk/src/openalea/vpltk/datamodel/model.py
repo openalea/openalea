@@ -15,57 +15,79 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-import collections
-import string
+
 from copy import copy
+from openalea.vpltk.datamodel.data import Data
+import string
 from openalea.core.node import Node, AbstractFactory
-from openalea.vpltk.project.project import remove_extension
-from openalea.core.path import path as path_
+from openalea.core.path import path as Path
 
-
-class Model(object):
+class Model(Data):
     default_name = ""
-    default_file_name = ""
-    pattern = ""
-    extension = ""
-    icon = ""
-    
-    def __init__(self, name="", code="", filepath="", inputs=[], outputs=[]):
-        """
-        :param name: name of the model (name of the file?)
-        :param code: code of the model, can be a string or an other object
-        :param filepath: path to save the model on disk
-        :param inputs: list of identifier of inputs that come from outside model (from world for example)
-        :param outputs: list of objects to return outside model (to world for example)
-        """
-        name = remove_extension(name)
-        self.name = name
-        self.filepath = filepath
-        self.inputs_info = inputs
-        self.outputs_info = outputs
-        self._inputs = []
-        self._outputs = []
-        self._code = ""
-        self.code = code
-        self._doc = ""
+    default_file_name = "filename.ext"
+    pattern = "*.ext"
+    extension = "ext"
+    icon = ":/images/resources/logo.png"
+    mimetype = "text/"
+
+    CACHE = 0
+    NO_CACHE = 1
+
+    def __init__(self, **kwargs):
+        if 'code' in kwargs and 'content' in kwargs:
+            raise ValueError('Use content keyword only')
+        if 'name' not in kwargs:
+            kwargs['name'] = 'model'
+        # Backward compatibility with model
+        if 'code' in kwargs and 'content' not in kwargs:
+            kwargs['content'] = kwargs.pop('code')
+        if 'name' in kwargs and 'filename' not in kwargs and 'path' not in kwargs:
+            kwargs['filename'] = kwargs.pop('name')
+        if 'filepath' in kwargs and 'path' not in kwargs:
+            kwargs['path'] = kwargs.pop('filepath')
+
+        Data.__init__(self, **kwargs)
+
+        self._step = False
+        self._animate = False
+        self._init = False
+        self._run = False
+
+        self.inputs_info = kwargs['inputs'] if 'inputs' in kwargs else []
+        self.outputs_info = kwargs['outputs'] if 'outputs' in kwargs else []
+
+        self.inputs = {}
+        self.outputs = []
+        self._doc = ''
+        self.ns = dict()
+
+        self._cache_mode = self.CACHE
+        self._metadata = {'mtime':0, 'size':0}
+
+        # If path doesn't exists, that means all content is in memory (passed in constructor for example)
+        # So we need to parse it
+        if not self.exists():
+            self.parse()
+
+
+    #################
+    # REVIEW REQUIRED
+    #################
+
 
     def get_documentation(self):
-        """
-        :return: a string with the documentation of the model
-        """
+        self.read()
         return self._doc
 
     def repr_code(self):
-        """
-        :return: a string representation of model to save it on disk
-        """
-        raise NotImplementedError
+        return self.read()
+
 
     def __call__(self, *args, **kwargs):
         return self.run(*args, **kwargs)
 
-    def __repr__(self):
-        return "Instance of model " + str(type(self)) + " named " + str(self.name)
+    def __str__(self):
+        return str(self.filename)
 
     def run(self, *args, **kwargs):
         """
@@ -96,7 +118,7 @@ class Model(object):
         run model step by step
         """
         raise NotImplementedError
-    
+
     def execute(self, code):
         """
         Execute code (str) in current interpreter
@@ -104,104 +126,11 @@ class Model(object):
         from openalea.oalab.service.ipython import get_interpreter
         interpreter = get_interpreter()
         return interpreter.runcode(code)
-        
-    def execute_in_namespace(self, code, namespace={}):
-        """
-        Execute code in an isolate namespace
-        
-        :param code: text code to execute
-        :param namespace: dict namespace where code will be executed
-        
-        :return: namespace in which execution was done
-        """
-        from openalea.oalab.service.ipython import get_interpreter
-        interpreter = get_interpreter()
-        # Save current namespace
-        old_namespace = copy(interpreter.user_ns)
-        # Clear current namespace
-        interpreter.user_ns.clear()
-        # Set namespace with new one
-        interpreter.user_ns.update(namespace)
-        # Execute code in new namespace
-        self.execute(code)
-        # Get just modified namespace
-        namespace = copy(interpreter.user_ns)
-        # Restore previous namespace
-        interpreter.user_ns.clear()
-        interpreter.user_ns.update(old_namespace)
-        return namespace
-
-    def input_defaults(self):
-        return dict((x.name, eval(x.default)) for x in self.inputs_info if x.default)
-        
-    @property
-    def inputs(self):
-        """
-        List of inputs of the model.
-
-        :use:
-            >>> model.inputs = 4, 3
-            >>> rvalue = model.run()
-        """
-        return self._inputs
-
-    @inputs.setter
-    def inputs(self, *args):
-        self._inputs = dict()
-        if self.inputs_info:
-            args, kwargs = args[0]
-            not_set_inputs_info = copy(self.inputs_info) # Use it to know what we have to set and what is yet set
-
-            # Set positional arguments
-            if args:
-                inputs = list(args)
-                if len(inputs) == 1:
-                    if isinstance(inputs, collections.Iterable):
-                        inputs = inputs[0]
-                    elif isinstance(inputs, collections.Iterable):
-                        inputs = list(inputs)
-                    inputs = [inputs]
-                inputs.reverse()
-
-                if self.inputs_info:
-                    for input_info in self.inputs_info:
-                        if len(inputs):
-                            default_value = inputs.pop()
-                            if input_info.name:
-                                self._inputs[input_info.name] = default_value
-                            not_set_inputs_info.remove(input_info)
-                        else:
-                            break
-
-            # Set non-positional arguments
-            if kwargs:
-                if len(not_set_inputs_info):
-                    not_set_inputs_info_dict = dict((inp.name, inp) for inp in not_set_inputs_info)
-                    for name in kwargs:
-                        value = kwargs[name]
-                        if name in not_set_inputs_info_dict.keys():
-                            self._inputs[name] = value
-                            not_set_inputs_info.remove(not_set_inputs_info_dict[name])
-                            del not_set_inputs_info_dict[name]
-                        else:
-                            print "We can not put ", name, "inside inputs of model", self.name, "because such an input is not declared in the model."
-
-            # Fill others with defaults
-            if len(not_set_inputs_info):
-                for input_info in copy(not_set_inputs_info):
-                    if input_info.default:
-                        default_value = eval(input_info.default)
-                        self._inputs[input_info.name] = default_value
-                        not_set_inputs_info.remove(input_info)
-
-            # If one argument is missing, raise
-            if len(not_set_inputs_info):
-                raise Exception("Model %s have inputs not setted. Please set %s ." % (self.name, [inp.name for inp in not_set_inputs_info]))
 
     def _set_output_from_ns(self, namespace):
         """
         Get outputs from namespace and set them inside self.outputs
-        
+
         :param namespace: dict where the model will search the outputs
         """
         if self.outputs_info:
@@ -209,8 +138,8 @@ class Model(object):
             if len(self.outputs_info) > 0:
                 for outp in self.outputs_info:
                     if outp.name in namespace:
-                        self.outputs.append(namespace[outp.name])                    
-                        
+                        self.outputs.append(namespace[outp.name])
+
     @property
     def outputs(self):
         """
@@ -230,37 +159,98 @@ class Model(object):
     def outputs(self, outputs=[]):
         self._outputs = outputs
 
-    @property
-    def code(self):
-        return self._code
-
-    @code.setter
-    def code(self, code=""):
-        self._code = code
-
-    def abspath(self, parentdir):
-        """ Returns absolute path of a model.
-
-        parentdir is the path of the parent directory like projectdir/model
-
-        """
-        pd = path_(parentdir)
-        filename = self.name+'.'+self.extension
-        return (pd/filename).abspath()
-
     def _prepare_namespace(self):
         """
         :return: the current namespace updated with interpreter namespace and inputs
         """
         from openalea.oalab.service.ipython import get_interpreter
+        from openalea.oalab.control.manager import control_dict
+        from openalea.vpltk.project import ProjectManager
         interpreter = get_interpreter()
+
+        # Add project namespace inside namespace
+        pm = ProjectManager()
+        if pm.cproject:
+            self.ns.update(pm.cproject.ns)
+
+        # Add controls inside namespace
+        controls = control_dict()
+        if controls:
+            self.ns.update(controls)
 
         if interpreter:
             self.ns.update(interpreter.user_ns)
 
+        # Add inputs inside namespace
         if self.inputs:
-            self.ns.update(self.inputs) # Add inputs inside namespace
+            self.ns.update(self.inputs)
         return self.ns
+
+    def execute_in_namespace(self, code, namespace={}):
+        """
+        Execute code in an isolate namespace
+
+        :param code: text code to execute
+        :param namespace: dict namespace where code will be executed
+
+        :return: namespace in which execution was done
+        """
+        from openalea.oalab.service.ipython import get_interpreter
+        interpreter = get_interpreter()
+        # Save current namespace
+        old_namespace = copy(interpreter.user_ns)
+        # Clear current namespace
+        interpreter.user_ns.clear()
+        # Set namespace with new one
+        interpreter.user_ns.update(namespace)
+        # Execute code in new namespace
+        self.execute(code)
+        # Get just modified namespace
+        namespace = copy(interpreter.user_ns)
+        # Restore previous namespace
+        interpreter.user_ns.clear()
+        interpreter.user_ns.update(old_namespace)
+        return namespace
+
+    def clear_cache(self):
+        self._mtime = 0
+
+    def set_cache_mode(self, cache_mode=None):
+        if cache_mode is None:
+            self._cache_mode = self.CACHE
+        else:
+            self._cache_mode = cache_mode
+
+    def _has_changed(self):
+        if self._cache_mode == self.NO_CACHE:
+            return True
+        if self.path.getmtime() > self._metadata['mtime']:
+            return True
+        if self._metadata['size'] != self.path.size:
+            return True
+        return False
+
+    def read(self):
+        # If path exists and content has changed since last read,
+        # update Model.content and parse it
+        if self.exists():
+            if self._has_changed():
+                with open(self.path, 'rb') as f:
+                    self._content = f.read()
+                    self._metadata['mtime'] = self.path.getmtime()
+                    self._metadata['size'] = self.path.size
+                    self.parse()
+        return self._content
+
+    def _set_content(self, content):
+        self._content = content
+        self.parse()
+
+    def parse(self):
+        pass
+
+    content = property(fset=_set_content)
+    code = property(fget=read)
 
 
 class ModelNode(Node):
@@ -294,8 +284,8 @@ class ModelNode(Node):
 class ModelFactory(AbstractFactory):
     def __init__(self,
                  name,
-                 lazy = True,
-                 delay = 0,
+                 lazy=True,
+                 delay=0,
                  alias=None,
                  **kargs):
         super(ModelFactory, self).__init__(name, **kargs)
@@ -339,7 +329,7 @@ class ModelFactory(AbstractFactory):
         model = pm.cproject.get_model(self.name)
         if model is None:
             print "error loading model ", self.name
-            print "Available models are ", pm.cproject.list_models()
+            print "Available models are ", pm.cproject.model.keys()
 
         # TODO
         def signature(args_info, out=False):
@@ -358,11 +348,11 @@ class ModelFactory(AbstractFactory):
 
         # If class is not a Node, embed object in a Node class
         if model:
-
+            model.read()
             self.inputs = signature(model.inputs_info)
             self.outputs = signature(model.outputs_info, out=True)
             if not self.outputs:
-                self.outputs = (dict(name="out", interface=None), )
+                self.outputs = (dict(name="out", interface=None),)
 
             node = ModelNode(model, self.inputs, self.outputs)
 
@@ -380,9 +370,9 @@ class ModelFactory(AbstractFactory):
             return node
 
         else:
-            print "We can't instanciate node from project %s because we don't have model %s" %(pm.cproject.name,self.name)
+            print "We can't instanciate node from project %s because we don't have model %s" % (pm.cproject.name, self.name)
             print "We only have models : "
-            print pm.cproject.list_models()
+            print pm.cproject.model.keys()
 
     def instantiate_widget(self, node=None, parent=None, edit=False,
         autonomous=False):
@@ -419,5 +409,3 @@ $NAME = ModelFactory(name=$PNAME,
                                       LISTIN=repr(f.inputs),
                                       LISTOUT=repr(f.outputs),)
         return result
-
-

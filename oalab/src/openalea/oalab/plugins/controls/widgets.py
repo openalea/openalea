@@ -25,6 +25,23 @@ class BoolCheckBox(QtGui.QCheckBox, AbstractQtControlWidget):
     def value(self, interface=None):
         return self.isChecked()
 
+class StrLineEdit(QtGui.QLineEdit, AbstractQtControlWidget):
+
+    def __init__(self):
+        QtGui.QLineEdit.__init__(self)
+        AbstractQtControlWidget.__init__(self)
+        self.setFocusPolicy(QtCore.Qt.StrongFocus)
+        self.setAutoFillBackground(True)
+        self.value_changed_signal = self.editingFinished
+
+    def reset(self, value='', *kargs):
+        self.setText(value)
+
+    def setValue(self, value):
+        return self.setText(value)
+
+    def value(self, interface=None):
+        return self.text()
 
 class AbstractIntWidget(AbstractQtControlWidget):
     def __init__(self):

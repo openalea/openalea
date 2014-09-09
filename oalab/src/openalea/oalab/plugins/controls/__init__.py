@@ -76,10 +76,21 @@ class PluginBoolWidgetSelector(ControlWidgetSelectorPlugin):
         from openalea.oalab.plugins.controls.widgets import BoolCheckBox
         return BoolCheckBox
 
+class PluginStringWidgetSelector(ControlWidgetSelectorPlugin):
+
+    controls = ['IStr']
+    name = 'BoolWidgetSelector'
+    edit_shape = ['hline', 'large', 'small']
+
+    @classmethod
+    def load(cls):
+        from openalea.oalab.plugins.controls.widgets import StrLineEdit
+        return StrLineEdit
 
 PluginOpenAleaLabWidgetSelectors = [
     PluginBoolWidgetSelector,
-    PluginIntWidgetSelector
+    PluginIntWidgetSelector,
+    PluginStringWidgetSelector,
 ]
 
 ################################################################################
@@ -146,7 +157,8 @@ shapes = {
     'IBool':DEFAULT_SHAPES,
 }
 
-rejected = ['IInt']
+# Exclude interfaces that have widgets designed for controls
+rejected = ['IInt', 'IStr']
 
 for interface, widget_class in InterfaceWidgetMap().items():
     iname = interface.__name__

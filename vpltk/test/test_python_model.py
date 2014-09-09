@@ -15,7 +15,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-from openalea.oalab.model.python import PythonModel
+from openalea.vpltk.datamodel.python import PythonModel
 
 
 def test_model_get_documentation():
@@ -153,3 +153,4 @@ beautifull doc
     assert model.get_documentation() is not None
     assert len(model.inputs_info) == 4
     assert len(model.outputs_info) == 1
+

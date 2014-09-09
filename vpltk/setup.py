@@ -118,6 +118,11 @@ setup(
                         'BGEOMSaver = openalea.vpltk.project.saver:BGEOMSaver',
                         'BinarySaver = openalea.vpltk.project.saver:BinarySaver',
                         ],
+
+        'oalab.model': [
+            'PythonModel = openalea.vpltk.datamodel.python:PythonModel',
+            ],
+
         #'wralea' : ['vpltk = openalea.vpltk_wralea' if has_project else 'vpltk = vpltk_wralea' ],
         #'console_scripts': [
         #       'fake_script = openalea.fakepackage.amodule:console_script', ],

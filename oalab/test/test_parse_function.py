@@ -15,7 +15,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-from openalea.oalab.model.parse import has_step, has_animate, has_init, has_run
+from openalea.oalab.model.parse import parse_functions
 
 
 def test_detect_step_and_others():
@@ -55,12 +55,14 @@ def run():
         print result
 
 '''
-    assert has_step(model_src)
-    assert has_animate(model_src)
-    assert has_init(model_src)
-    assert not has_run(model_src)
+    has_init, has_step, has_animate, has_run = parse_functions(model_src)
+    assert has_step
+    assert has_animate
+    assert has_init
+    assert not has_run
 
-    assert not has_step(model_src2)
-    assert not has_animate(model_src2)
-    assert not has_init(model_src2)
-    assert has_run(model_src2)
+    has_init, has_step, has_animate, has_run = parse_functions(model_src2)
+    assert not has_step
+    assert not has_animate
+    assert not has_init
+    assert has_run

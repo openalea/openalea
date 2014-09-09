@@ -74,7 +74,6 @@ class ProjectSelector(QtGui.QWidget):
 
         i, j = 1, -1
         for project in self.projects:
-            project.load_manifest()
             # Create widget
             preview_widget = PrettyPreview(project, size=button_size)
             preview_widget.clicked.connect(self.showDetails)
@@ -104,7 +103,7 @@ class ProjectSelector(QtGui.QWidget):
         fname = self.showOpenProjectDialog()
         if fname:
             pm = ProjectManager()
-            pm.find_links.append(fname)
+            pm.repositories.append(fname)
             pm.write_settings()
             self.refresh_project_list()
 
