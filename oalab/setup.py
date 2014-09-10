@@ -84,14 +84,13 @@ setup(
 
     extras_require={
         'Test':  ['openalea.oalab>=0.0.2', 'openalea.vpltk>=1'],
-        'LPy': ['openalea.lpy'],
+        'LPy': ['vplants.lpy'],
         'R': ['rpy2'],
         'Visualea': ['openalea.visualea'],
-        #'PlantGL': ['openalea.plantgl.all'],# Doesn't work! Why???
-        'PlantGL': [''],
+        'PlantGL': ['vplants.plantgl'],
         'PyQGLViewer': ['PyQGLViewer'],
         'Matplotlib': ['matplotlib>=1.2.0'],
-        'DeployGUI': ['openalea.deploygui.alea_install_gui'],
+        'DeployGUI': ['openalea.deploygui'],
                    },
     # Declare src and wralea as entry_points (extensions) of your package
     entry_points={
