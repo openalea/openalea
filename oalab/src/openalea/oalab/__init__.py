@@ -16,3 +16,5 @@
 #
 ###############################################################################
 __revision__ = ""
+from metainfo import get_version
+__version__ = get_version()

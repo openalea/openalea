@@ -9,6 +9,7 @@ __all__ = ["DataFactory", "DataClass", "MimeType"]
 
 REGISTERY_MIME_CLASS = {}
 for ModelClass in iter_plugins('oalab.model'):
+    ModelClass = ModelClass()()
     REGISTERY_MIME_CLASS[ModelClass.mimetype] = ModelClass
 
 for DataClass in iter_plugins('oalab.DataClass'):
@@ -16,6 +17,7 @@ for DataClass in iter_plugins('oalab.DataClass'):
 
 REGISTERY_NAME_MIME = {}
 for ModelClass in iter_plugins('oalab.model'):
+    ModelClass = ModelClass()()
     REGISTERY_NAME_MIME[ModelClass.default_name.lower()] = ModelClass.mimetype
     REGISTERY_NAME_MIME[ModelClass.extension.lower()] = ModelClass.mimetype
 
@@ -55,11 +57,12 @@ def DataType(path=None, name=None, mimetype=None):
         return Path(name).ext[1:].lower()
     elif mimetype:
         for ModelClass in iter_plugins('oalab.model'):
+            ModelClass = ModelClass()()
             if ModelClass.mimetype == mimetype:
                 return ModelClass.default_name
         for DataClass in iter_plugins('oalab.DataClass'):
-            if ModelClass.mimetype == mimetype:
-                return ModelClass.default_name
+            if DataClass.mimetype == mimetype:
+                return DataClass.default_name
     else:
         return None
 

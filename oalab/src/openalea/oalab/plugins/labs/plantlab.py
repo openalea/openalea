@@ -17,15 +17,14 @@ class PlantLab(object):
 
 
     def __call__(self, mainwin):
-        from openalea.vpltk.plugin import iter_plugins, check_dependencies
+        from openalea.vpltk.plugin import iter_plugins
         session = mainwin.session
 
         # 1. Load applets
         plugins = {}
         for plugin in iter_plugins('oalab.applet', debug=session.debug_plugins):
             if plugin.name in self.applets:
-                if check_dependencies(plugin):
-                    plugins[plugin.name] = plugin()
+                plugins[plugin.name] = plugin()
 
         # 2. Place applet following given order,
         # this is important to order tabs correctly

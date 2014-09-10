@@ -82,6 +82,17 @@ setup(
     postinstall_scripts=['oalab_postinstall'],
     share_dirs={ 'share' : 'share' },
 
+    extras_require={
+        'Test':  ['openalea.oalab>=0.0.2', 'openalea.vpltk>=1'],
+        'LPy': ['openalea.lpy'],
+        'R': ['rpy2'],
+        'Visualea': ['openalea.visualea'],
+        #'PlantGL': ['openalea.plantgl.all'],# Doesn't work! Why???
+        'PlantGL': [''],
+        'PyQGLViewer': ['PyQGLViewer'],
+        'Matplotlib': ['matplotlib>=1.2.0'],
+        'DeployGUI': ['openalea.deploygui.alea_install_gui'],
+                   },
     # Declare src and wralea as entry_points (extensions) of your package
     entry_points={
 
@@ -91,17 +102,24 @@ setup(
             ],
 
         'oalab.paradigm_applet': [
-            'LPyApplet = openalea.oalab.plugins.models.lpygui:LPyModelGUI',
+            'LPyApplet = openalea.oalab.plugins.models.lpygui:LPyModelGUI[LPy]',
             'PythonApplet = openalea.oalab.plugins.models.pythongui:PythonModelGUI',
-            'RApplet = openalea.oalab.plugins.models.rgui:RModelGUI',
-            'VisualeaApplet = openalea.oalab.plugins.models.visualeagui:VisualeaModelGUI',
+            'RApplet = openalea.oalab.plugins.models.rgui:RModelGUI[R]',
+            'VisualeaApplet = openalea.oalab.plugins.models.visualeagui:VisualeaModelGUI[Visualea]',
             ],
 
         'oalab.model': [
-            'LPyModel = openalea.oalab.model.lpy:LPyModel',
-            'RModel = openalea.oalab.model.r:RModel',
-            'VisualeaModel = openalea.oalab.model.visualea:VisualeaModel',
+            'LPyModel = openalea.oalab.plugins.models.lpymodel:LPyModel[LPy]',
+            'PythonModel = openalea.oalab.plugins.models.pythonmodel:PythonModel',
+            'RModel = openalea.oalab.plugins.models.rmodel:RModel[R]',
+            'VisualeaModel = openalea.oalab.plugins.models.visualeamodel:VisualeaModel[Visualea]',
             ],
+
+        # 'oalab.model': [
+        #     'LPyModel = openalea.oalab.model.lpy:LPyModel',
+        #     'RModel = openalea.oalab.model.r:RModel',
+        #     'VisualeaModel = openalea.oalab.model.visualea:VisualeaModel',
+        #     ],
 
         'oalab.applet': [
             'ProjectWidget = openalea.oalab.plugins.applets.projectwidget:ProjectWidget',
@@ -112,12 +130,12 @@ setup(
             'HelpWidget = openalea.oalab.plugins.applets.helpwidget:HelpWidget',
             'HistoryWidget = openalea.oalab.plugins.applets.historywidget:HistoryWidget',
             'Logger = openalea.oalab.plugins.applets.logger:Logger',
-            'PkgManagerWidget = openalea.oalab.plugins.applets.packagemanager:PkgManagerWidget',
+            'PkgManagerWidget = openalea.oalab.plugins.applets.packagemanager:PkgManagerWidget[Visualea]',
             'ProjectManager = openalea.oalab.plugins.applets.projectwidget:ProjectManager',
-            # 'Store = openalea.oalab.plugins.applets.store:Store',
-            'Viewer3D = openalea.oalab.plugins.applets.viewer3d:Viewer3D',
+            # 'Store = openalea.oalab.plugins.applets.store:Store[DeployGUI]',
+            'Viewer3D = openalea.oalab.plugins.applets.viewer3d:Viewer3D[PyQGLViewer, PlantGL]',
             'World = openalea.oalab.plugins.applets.worldwidget:World',
-            'Plot2d = openalea.oalab.plugins.applets.plot2d:Plot2dWidget',
+            'Plot2d = openalea.oalab.plugins.applets.plot2d:Plot2dWidget[Matplotlib]',
             ],
 
         'oalab.qt_control':[

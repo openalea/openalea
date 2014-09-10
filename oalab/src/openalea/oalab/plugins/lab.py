@@ -74,11 +74,10 @@ class IPluginLab(object):
         .. code-block:: python
 
             def __call__(self, mainwin):
-                from openalea.vpltk.plugin import iter_plugins, check_dependencies
+                from openalea.vpltk.plugin import iter_plugins
                 for plugin in iter_plugins('oalab.applet'):
                     if plugin.name == 'AbcApplet':
-                        if check_dependencies(plugin)
-                            mainwin.add_plugin(plugin())
+                        mainwin.add_plugin(plugin())
 
         """
 
