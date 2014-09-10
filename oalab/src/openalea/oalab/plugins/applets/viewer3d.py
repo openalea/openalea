@@ -3,7 +3,6 @@ from openalea.oalab.plugins.applets import PluginApplet
 class Viewer3D(PluginApplet):
     name = 'Viewer3D'
     alias = 'Viewer'
-    dependencies = ["PyQGLViewer", "openalea.plantgl.all"]
 
     def __call__(self, mainwindow):
         # Load and instantiate graphical component that actually provide feature

@@ -5,7 +5,6 @@ class Store(PluginApplet):
 
     name = 'Store'
     alias = 'Store'
-    dependencies = ["openalea.deploygui.alea_install_gui"]
 
     def __call__(self, mainwindow):
         from openalea.oalab.gui.store import Store as StoreWidget

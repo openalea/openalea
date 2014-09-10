@@ -5,7 +5,6 @@ class Plot2dWidget(PluginApplet):
 
     name = 'Plot2d'
     alias = 'Plot2d'
-    dependencies = ["openalea.oalab.plot2d", "matplotlib"]
 
     def __call__(self, mainwindow):
         # Load and instantiate graphical component that actually provide feature
