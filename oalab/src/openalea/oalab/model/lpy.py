@@ -16,7 +16,7 @@
 #
 ###############################################################################
 # from openalea.oalab.model.model import Model
-from openalea.vpltk.datamodel.model import Model
+from openalea.vpltk.model import Model
 from openalea.oalab.model.parse import parse_doc, parse_lpy, OutputObj, InputObj, get_docstring, prepare_inputs
 from openalea.oalab.control.picklable_curves import geometry_2_piklable_geometry
 from openalea.lpy import Lsystem, AxialTree

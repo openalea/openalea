@@ -15,7 +15,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-from openalea.vpltk.datamodel.model import Model, ModelFactory
+from openalea.vpltk.model import Model, ModelFactory
 from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.pkgmanager import PackageManager
 import copy

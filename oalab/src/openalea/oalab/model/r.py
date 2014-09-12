@@ -15,7 +15,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-from openalea.vpltk.datamodel.model import Model
+from openalea.vpltk.model import Model
 from openalea.oalab.model.parse import parse_docstring_r, get_docstring_r, parse_functions_r
 
 # TODO : refactor (like class PythonModel in python.py)

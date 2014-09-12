@@ -1,8 +1,8 @@
 
 import unittest
 from openalea.core.path import tempdir, path
-from openalea.vpltk.datamodel.model import Model
-from openalea.vpltk.datamodel.data import Data
+from openalea.vpltk.model import Model
+from openalea.vpltk.data import Data
 
 def debug_parse(self):
     self.parsed = True

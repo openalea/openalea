@@ -120,7 +120,7 @@ setup(
                         ],
 
         'oalab.model': [
-            'PythonModel = openalea.vpltk.datamodel.python:PythonModel',
+            'PythonModel = openalea.vpltk.model:PythonModel',
             ],
 
         #'wralea' : ['vpltk = openalea.vpltk_wralea' if has_project else 'vpltk = vpltk_wralea' ],
