@@ -20,6 +20,10 @@ def load_interfaces():
 
 load_interfaces()
 
+def interfaces(debug=False):
+    for interface in set(IInterface.all):
+        yield interface
+
 # guess is not explicit enough
 # interface(1) is better than guess(1)
 # or to_interface(obj) -> interface
@@ -56,32 +60,46 @@ def get_class(interface=None):
     """
     if interface is None:
         return interfaces()
+
     interface_class = None
 
+    # interface is a builtin type (int, float, ...)
+    if isinstance(interface, type):
+        type_to_iname = {typ: [interface_.__name__] for (typ, interface_) in TypeInterfaceMap().items()}
+        if interface in type_to_iname:
+            return get_class(type_to_iname[interface][0])
+
+    # interface is a string of an interface or builtin type ('int', 'IInt', ...)
     if isinstance(interface, basestring):
         for _interface in interfaces():
             if _interface.__name__ == interface:
                 interface_class = _interface
                 break
+
+        # If interface has not been found, it may be because a string representing
+        # type has been passed, for example 'int' instead of 'IInt' or int
+        if interface_class is None:
+            try:
+                interface_eval = eval(interface)
+            except NameError:
+                pass
+            else:
+                return get_class(interface_eval)
+        else:
+            return interface_class
+
+    # interface is an IInterface instance
     elif isinstance(interface, IInterface):
-        interface_class = interface.__class__
+        return interface.__class__
+
+    # interface is an IInterface class
     elif issubclass(interface, IInterface):
-        interface_class = interface
+        return interface
 
-    # TODO: review @GBY
-    if interface_class is None:
-        type_to_iname = {typ: [interface_.__name__] for (typ, interface_) in TypeInterfaceMap().items()}
-        try:
-            interface_eval = eval(interface)
-            if interface_eval in type_to_iname:
-                interface_class = type_to_iname[interface_eval]
-        except NameError:
-            pass
-
-    if interface_class is None:
-        raise ValueError, 'Interface %s not found ' % repr(interface)
+    # Nothing found
     else:
-        return interface_class
+        raise ValueError, 'Interface %s not found ' % repr(interface)
+
 
 def get_name(interface=None):
     """
@@ -122,11 +140,6 @@ def new(interface=None, value=None, *args, **kwargs):
             raise ValueError, 'Cannot infer interface from %s' % value
     else:
         raise ValueError, 'you must define at least one of interface or value'
-
-def interfaces(debug=False):
-    for interface in set(IInterface.all):
-        yield interface
-
 
 def names(debug=False):
     names = [interface.__name__ for interface in interfaces()]

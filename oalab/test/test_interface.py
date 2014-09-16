@@ -21,9 +21,14 @@ def test_new_and_get_class():
     iname1 = interface.get_name(iname0)
     iname2 = interface.get_name(iclass1)
     iname3 = interface.get_name(iclass1())
+    iname4 = interface.get_name(int)
+    iname5 = interface.get_name('int')
+
     assert iname1 == iname0
     assert iname2 == iname0
     assert iname3 == iname0
+    assert iname4 == iname0
+    assert iname5 == iname0
 
     interface1 = interface.new(iname1, min=1, max=1)
     interface2 = interface.new(iclass1, min=1, max=2)
