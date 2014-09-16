@@ -500,8 +500,8 @@ class ProjectManagerView(QtGui.QTreeView):
 
     def _rename(self, project, category, name):
         if category in project.category_keys:
-            list_models = project.model.keys()
-            renamer = RenameModel(list_models, name)
+            filelist = getattr(project, category).keys()
+            renamer = RenameModel(filelist, name)
             dialog = ModalDialog(renamer)
             if dialog.exec_():
                 old_name = renamer.old_name()
