@@ -21,6 +21,9 @@ def load_interfaces():
 load_interfaces()
 
 def interfaces(debug=False):
+    """
+    Iterator that returns all interface found
+    """
     for interface in set(IInterface.all):
         yield interface
 
