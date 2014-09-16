@@ -1,5 +1,5 @@
-
 from openalea.core.path import path as Path
+
 
 class Data(object):
     mimetype = None
