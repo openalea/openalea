@@ -48,11 +48,11 @@ class AbstractIntWidget(AbstractQtControlWidget):
         AbstractQtControlWidget.__init__(self)
 
     def reset(self, value=1, minimum=None, maximum=None, **kwargs):
-        self.setValue(value)
-        if maximum is not None:
-            self.setMinimum(minimum)
         if minimum is not None:
+            self.setMinimum(minimum)
+        if maximum is not None:
             self.setMaximum(maximum)
+        self.setValue(value)
 
     def read(self, control):
         mini = control.interface.min
@@ -114,15 +114,14 @@ class IntSlider(QtGui.QWidget, AbstractIntWidget):
         self.value_changed_signal = self.valueChanged
 
     def reset(self, value=1, minimum=None, maximum=None, **kwargs):
-        self.setValue(value)
-
         if minimum is not None:
             self.slider.setMinimum(minimum)
             self.spinbox.setMinimum(minimum)
-
         if maximum is not None:
             self.slider.setMaximum(maximum)
             self.spinbox.setMaximum(maximum)
+
+        self.setValue(value)
 
     def apply(self, control):
         AbstractQtControlWidget.apply(self, control)
