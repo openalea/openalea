@@ -613,10 +613,10 @@ class ProjectManagerView(QtGui.QTreeView):
         category, name = data
         # Check item in src
         # TODO move this part in dragEnterEvent with mimetype
+        obj = self._model._project.get(category, name)
         if category in ['src', 'model']:
             # Read file and parse model to get inputs, outputs, doc that may be
             # useful once dropped.
-            obj = self._model._project.get(category, name)
             obj.read()
             text = item.text()
 
@@ -648,11 +648,11 @@ class ProjectManagerView(QtGui.QTreeView):
             drag.start(QtCore.Qt.CopyAction)
 
         elif category == 'data':
-            p = '%s/%r' % (category, obj)
-            mimetype, mimedata = encode(p, mimetype='openalealab/data')
+            p = '%s/%r' % (category, str(obj.filename))
+            mimetype, mimedata = encode(obj, mimetype='openalealab/data')
             qmime_data = QtCore.QMimeData()
             qmime_data.setData(mimetype, mimedata)
-            qmime_data.setText(mimedata)
+            qmime_data.setText(p)
             drag = QtGui.QDrag(self)
             drag.setMimeData(qmime_data)
             drag.start()
