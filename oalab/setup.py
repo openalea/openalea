@@ -84,6 +84,8 @@ setup(
 
     # Declare src and wralea as entry_points (extensions) of your package
     entry_points={
+        'pygments.lexers': ['LPyLexer = openalea.oalab.editor.lpy_lexer:LPyLexer'],
+
         'gui_scripts': [
             'oalab = openalea.oalab.main:main',
             'openalealab = openalea.oalab.main:main'
@@ -93,11 +95,13 @@ setup(
             'PythonApplet = openalea.oalab.plugins.models.pythongui:PythonModelGUI',
             'RApplet = openalea.oalab.plugins.models.rgui:RModelGUI',
             'VisualeaApplet = openalea.oalab.plugins.models.visualeagui:VisualeaModelGUI',
+            'TextualApplet = openalea.oalab.plugins.models.textualgui:TextualModelGUI',
             ],
 
         'oalab.model': [
             'RModel = openalea.oalab.model.r:RModel',
             'VisualeaModel = openalea.oalab.model.visualea:VisualeaModel',
+            'TextualModel = openalea.oalab.model.textual:TextualModel',
             ],
 
         'oalab.applet': [
