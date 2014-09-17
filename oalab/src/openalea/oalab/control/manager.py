@@ -3,13 +3,14 @@ import copy
 from openalea.core.observer import Observed, AbstractListener, lock_notify
 from openalea.core.singleton import Singleton
 from openalea.oalab.control.control import Control
+from collections import OrderedDict
 
 class ControlContainer(Observed, AbstractListener):
 
     def __init__(self):
         Observed.__init__(self)
         AbstractListener.__init__(self)
-        self._controls = set()
+        self._controls = OrderedDict()
 
     def control(self, name=None, uid=None):
         if name is None and uid is None:
@@ -38,7 +39,8 @@ class ControlContainer(Observed, AbstractListener):
         :param tag: If tag is specified, link control to this tag, else control is global to all tags in current project.
         """
         assert isinstance(control, Control)
-        self._controls.add(control)
+        if control not in self._controls:
+            self._controls[control] = None
         control.register_listener(self)
         self.notify_listeners(('state_changed', (control)))
 
@@ -49,12 +51,12 @@ class ControlContainer(Observed, AbstractListener):
         """
         assert isinstance(control, Control)
         if control in self._controls:
-            self._controls.remove(control)
+            del self._controls[control]
             control.unregister_listener(self)
             self.notify_listeners(('state_changed', (control)))
 
     def clear(self):
-        for control in list(self._controls):
+        for control in self._controls.keys():
             self.remove_control(control)
 
     def namespace(self, interface=None):
@@ -73,7 +75,7 @@ class ControlContainer(Observed, AbstractListener):
         return ns
 
     def controls(self):
-        return self._controls
+        return self._controls.keys()
 
     def notify(self, sender, event):
         if isinstance(sender, Control):
