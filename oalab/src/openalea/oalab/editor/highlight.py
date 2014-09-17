@@ -19,7 +19,7 @@ __revision__ = ""
 
 from openalea.vpltk.qt import QtGui
 from pygments.formatters.html import HtmlFormatter
-from pygments.lexers import PythonLexer, guess_lexer_for_filename
+from pygments.lexers import PythonLexer
 from pygments.styles import get_style_by_name
 
 
@@ -177,3 +177,4 @@ class GenericHighlighter(Highlighter):
         self._lexer = guess_lexer_for_filename(filename, "")
         print(self._lexer)
         self.set_style('default')
+

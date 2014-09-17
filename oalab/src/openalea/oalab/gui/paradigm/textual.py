@@ -20,7 +20,9 @@
 __revision__ = ""
 
 from openalea.oalab.editor.text_editor import RichTextEditor as Editor
-from openalea.oalab.editor.highlight import GenericHighlighter
+from openalea.oalab.editor.highlight import Highlighter
+from pygments.lexers import guess_lexer_for_filename
+from pygments.util import ClassNotFound
 
 
 
@@ -47,7 +49,11 @@ class TextualModelController(object):
         """
         self._widget = Editor(parent=self.parent)
         wid = self._widget
-        GenericHighlighter(wid.editor, filename=self.filepath)
+        try:
+            lexer = guess_lexer_for_filename(self.filepath, "")
+        except ClassNotFound:
+            lexer = None
+        Highlighter(wid.editor, lexer=lexer)
         wid.applet = self
 
         wid.set_text(self.model.code)
