@@ -74,15 +74,13 @@ class WorldModel(QtGui.QStandardItemModel):
     def set_world(self, world={}):
         self.clear()
         parentItem = self.invisibleRootItem()
-        self.setHorizontalHeaderLabels(["World Objects", "Value", "Type"])
+        self.setHorizontalHeaderLabels(["World Objects", "Type"])
         world_objects = world.keys()
         for world_object in world_objects:
             item1 = QtGui.QStandardItem(world_object)
-            objtype = type(world[world_object].obj)
+            objtype = type(world[world_object].obj).__name__
             item2 = QtGui.QStandardItem(str(objtype))
-            obj = world[world_object].obj
-            item3 = QtGui.QStandardItem(str(obj))
-            parentItem.appendRow([item1, item3, item2])
+            parentItem.appendRow([item1, item2])
 
 
 def main():
