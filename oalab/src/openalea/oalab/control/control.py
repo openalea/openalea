@@ -40,7 +40,7 @@ class Control(Observed):
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
-            raise NotImplementedError
+            return self is other
         else:
             return self.value == other
 

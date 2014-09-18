@@ -17,7 +17,7 @@
 ###############################################################################
 
 __all__ = [
-           "new", "get", "get_control",
+           "new", "get", "get_control", "group",
            "register", "unregister",
            "clear_ctrl_manager",
            "save_controls", "load_controls"
@@ -27,7 +27,7 @@ __all__ = [
 from openalea.vpltk.plugin import iter_plugins
 
 from openalea.oalab.control.control import Control
-from openalea.oalab.control.manager import ControlManager
+from openalea.oalab.control.manager import ControlManager, ControlContainer
 
 def discover_bash_controls():
     # Must move to entry_points oalab.bash_control
@@ -80,6 +80,11 @@ def get(name):
     cm = ControlManager()
     return cm.control(name)
 
+def group(control_list):
+    container = ControlContainer()
+    for control in control_list:
+        container.add_control(control)
+    return container
 
 def get_control(name):
     return get(name)
