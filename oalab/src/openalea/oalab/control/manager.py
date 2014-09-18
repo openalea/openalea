@@ -3,14 +3,13 @@ import copy
 from openalea.core.observer import Observed, AbstractListener, lock_notify
 from openalea.core.singleton import Singleton
 from openalea.oalab.control.control import Control
-from collections import OrderedDict
 
 class ControlContainer(Observed, AbstractListener):
 
     def __init__(self):
         Observed.__init__(self)
         AbstractListener.__init__(self)
-        self._controls = OrderedDict()
+        self._controls = []
 
     def control(self, name=None, uid=None):
         if name is None and uid is None:
@@ -40,7 +39,7 @@ class ControlContainer(Observed, AbstractListener):
         """
         assert isinstance(control, Control)
         if control not in self._controls:
-            self._controls[control] = None
+            self._controls.append(control)
         control.register_listener(self)
         self.notify_listeners(('state_changed', (control)))
 
@@ -51,12 +50,12 @@ class ControlContainer(Observed, AbstractListener):
         """
         assert isinstance(control, Control)
         if control in self._controls:
-            del self._controls[control]
+            self._controls.remove(control)
             control.unregister_listener(self)
             self.notify_listeners(('state_changed', (control)))
 
     def clear(self):
-        for control in self._controls.keys():
+        for control in list(self._controls): # make a copy of the list, required by for loop
             self.remove_control(control)
 
     def namespace(self, interface=None):
@@ -75,7 +74,7 @@ class ControlContainer(Observed, AbstractListener):
         return ns
 
     def controls(self):
-        return self._controls.keys()
+        return list(self._controls)
 
     def notify(self, sender, event):
         if isinstance(sender, Control):
