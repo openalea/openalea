@@ -2,6 +2,7 @@ from openalea.vpltk.qt import QtGui
 from openalea.oalab.service import interface as s_interface
 from openalea.vpltk.plugin import iter_plugins
 from openalea.oalab.control.control import Control
+from openalea.oalab.control.manager import ControlContainer
 
 from openalea.oalab.session.session import Session
 
@@ -74,6 +75,15 @@ def qt_editor(control, shape=None, preferred=None):
 #             widget.show()
         return widget
 
+def qt_container(container, **kwargs):
+    widget = QtGui.QWidget()
+    layout = QtGui.QFormLayout(widget)
+    for control in container.controls():
+        editor = qt_editor(control, 'hline')
+        if editor:
+            layout.addRow(control.name, editor)
+    return widget
+
 def qt_viewer(control, shape=None):
     pass
 
@@ -99,7 +109,10 @@ def edit(control):
     if 'PyQt4.QtGui' in sys.modules or 'PySide.QtGui' in sys.modules:
         from openalea.vpltk.qt import QtGui
         if QtGui.QApplication.instance():
-            return qt_editor(control)
+            if isinstance(control, Control):
+                return qt_editor(control)
+            elif isinstance(control, ControlContainer):
+                return qt_container(control)
     else:
         raise NotImplementedError, 'Only Qt editors are supported'
 
