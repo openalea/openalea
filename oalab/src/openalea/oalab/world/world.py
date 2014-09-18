@@ -55,6 +55,10 @@ class World(VPLScene, AbstractListener):
         world_obj.register_listener(self)
         VPLScene.__setitem__(self, key, world_obj)
 
+    def sync(self):
+        if not self._block:
+            self.notify_listeners(('world_sync', self))
+
     def add(self, data, transform=None, name=None):
         if name is None:
             name = 'data_%03d' % self.count
