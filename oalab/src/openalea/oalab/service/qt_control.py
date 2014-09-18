@@ -75,7 +75,7 @@ def qt_editor(control, shape=None, preferred=None):
 #             widget.show()
         return widget
 
-def qt_container(container, style=None):
+def qt_container(container, **kwargs):
     widget = QtGui.QWidget()
     layout = QtGui.QFormLayout(widget)
     for control in container.controls():
