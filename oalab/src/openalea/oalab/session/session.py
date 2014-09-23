@@ -51,15 +51,25 @@ class Session(object):
     def __init__(self):
         self._project = None
         self._is_proj = False
+        self.debug_plugins = ''
+        self._debug = False
+        self.gui = True
 
         self.tmpdir = path(get_openalea_tmp_dir())
 
         self._config = MainConfig()
         self.extension = None
 
+        self.applet = {}
+        self.manager = {}
+
         self.package_manager = package_manager
         self.control_manager = ControlManager()
         self.project_manager = ProjectManager()
+
+        self.manager['control'] = self.control_manager
+        self.manager['package'] = self.package_manager
+        self.manager['project'] = self.project_manager
 
         self.world = World()
 
@@ -73,10 +83,7 @@ class Session(object):
 #         self.project_manager.set_shell(self.interpreter.shell)
 
         self.interpreter.locals['session'] = self
-        self.debug_plugins = ''
-        self.debug = False
 
-        self.gui = True
 
         self.old_syspath = sys.path
         self.__class__.instantiated = True
@@ -92,13 +99,9 @@ class Session(object):
         self._config.load_config_file(filename=filename, path=path)
 
     def update_namespace(self):
-        """ Stub method from allwidgets. CPL: TODO
-
+        """
         Definition: Update namespace
         """
-        self.interpreter.locals['project_manager'] = self.project_manager
-        self.interpreter.locals['control_manager'] = self.control_manager
-        self.interpreter.locals['package_manager'] = self.package_manager
         self.interpreter.locals['world'] = self.world
         self.interpreter.locals['get_control'] = self.control_manager.control
         self.interpreter.locals['follow'] = self.control_manager.register_follower
@@ -134,4 +137,23 @@ class Session(object):
 
     config = property(fget=lambda self:self._config.config)
 
+    @property
+    def debug(self):
+        return self._debug
 
+    @debug.setter
+    def debug(self, enable):
+        """
+        If True, add some objects useful for debug in shell namespace:
+            - applet: dict containing weak references to all applets
+            - manager: dict containing all managers
+        """
+        self._debug = enable
+        env = self.interpreter.locals
+        if self._debug is True:
+            env['manager'] = self.manager
+            env['applet'] = self.applet
+        else:
+            for varname in ('applet', 'manager'):
+                if varname in env:
+                    del env[varname]

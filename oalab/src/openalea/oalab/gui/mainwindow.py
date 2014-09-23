@@ -27,6 +27,8 @@ from openalea.oalab.gui.menu import PanedMenu
 from openalea.vpltk.shell.shell import get_shell_class
 from openalea.oalab.service.applet import get_applets, register_applet
 
+import weakref
+
 class MainWindow(QtGui.QMainWindow):
     """
     This class is based on QMainWindow and provide widgets common to all openalea labs.
@@ -143,9 +145,11 @@ class MainWindow(QtGui.QMainWindow):
 
     def add_plugin(self, plugin):
         plugin(self)
+        self.session.applet['plugin_%s' % plugin.name] = plugin
 
     def initialize(self):
         for applet in get_applets():
+            self.session.applet[applet.__class__.__name__] = weakref.ref(applet)
             if hasattr(applet, 'initialize'):
                 applet.initialize()
             else:
