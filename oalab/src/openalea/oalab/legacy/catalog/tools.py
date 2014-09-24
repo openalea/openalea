@@ -19,7 +19,7 @@
 ###############################################################################
 
 import inspect
-from openalea.vpltk.catalog import Catalog
+from openalea.oalab.legacy.catalog import Catalog
 
 def color_interface_line(interface_id):
         catalog = Catalog()

@@ -18,7 +18,7 @@
 #
 ###############################################################################
 
-from openalea.vpltk.catalog.interface import IInterface
+from openalea.oalab.legacy.catalog.interface import IInterface
 
 
 class IRegister(IInterface):

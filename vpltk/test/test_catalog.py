@@ -1,4 +1,4 @@
-from openalea.vpltk.catalog import Catalog
+from openalea.oalab.legacy.catalog import Catalog
 
 catalog = Catalog()
 

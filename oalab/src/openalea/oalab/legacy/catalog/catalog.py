@@ -25,7 +25,7 @@ import site
 import sys
 
 from openalea.core.pkgmanager import UnknownPackageError
-from openalea.vpltk.catalog.pluginmanager import PluginManager
+from openalea.oalab.legacy.catalog.pluginmanager import PluginManager
 from openalea.core.singleton import Singleton
 from openalea.core.interface import IInterface
 
