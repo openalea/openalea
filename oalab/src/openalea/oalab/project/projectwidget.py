@@ -30,7 +30,7 @@ from openalea.core import settings
 from openalea.oalab.session.session import Session
 from openalea.oalab.service.mimetype import encode
 from openalea.oalab.service.data import DataClass, MimeType
-from openalea.vpltk.plugin import iter_plugins
+from openalea.core.plugin import iter_plugins
 from openalea.oalab.service.applet import get_applet
 from openalea.oalab.service.data import DataClass
 from openalea.file.files import start

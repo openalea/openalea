@@ -18,7 +18,7 @@ class PlantLab(object):
 
 
     def __call__(self, mainwin):
-        from openalea.vpltk.plugin import iter_plugins
+        from openalea.core.plugin import iter_plugins
         session = mainwin.session
 
         # 1. Load applets

@@ -1,6 +1,6 @@
 
 from openalea.core.path import path as Path
-from openalea.vpltk.plugin import iter_plugins
+from openalea.core.plugin import iter_plugins
 from openalea.vpltk.data import Data
 
 import mimetypes

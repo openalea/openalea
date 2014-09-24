@@ -58,7 +58,7 @@ class CommandLineParser(object):
         if args.list_plugins:
             self.session.gui = False
             import pkg_resources
-            from openalea.vpltk.plugin import iter_groups
+            from openalea.core.plugin import iter_groups
 
             if args.list_plugins in ['summary', 'all']:
                 for category in sorted(iter_groups()):

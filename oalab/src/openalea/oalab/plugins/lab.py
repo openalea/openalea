@@ -74,7 +74,7 @@ class IPluginLab(object):
         .. code-block:: python
 
             def __call__(self, mainwin):
-                from openalea.vpltk.plugin import iter_plugins
+                from openalea.core.plugin import iter_plugins
                 for plugin in iter_plugins('oalab.applet'):
                     if plugin.name == 'AbcApplet':
                         mainwin.add_plugin(plugin())

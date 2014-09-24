@@ -1,5 +1,5 @@
 
-from openalea.vpltk.plugin import iter_plugins
+from openalea.core.plugin import iter_plugins
 
 class Applet(object):
     # TODO: become a manager ??

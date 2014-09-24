@@ -40,7 +40,7 @@ def main():
     if session.gui:
         from openalea.vpltk.qt import QtGui
         from openalea.oalab.gui.mainwindow import MainWindow
-        from openalea.vpltk.plugin import iter_plugins
+        from openalea.core.plugin import iter_plugins
 
         app = QtGui.QApplication(sys.argv)
 

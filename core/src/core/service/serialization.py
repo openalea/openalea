@@ -19,3 +19,4 @@ def picklable_object(obj):
     entry_point:
     openalea.pickler
     """
+    pass

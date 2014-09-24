@@ -1,5 +1,5 @@
 from openalea.core.path import path
-from openalea.vpltk.plugin import iter_plugins
+from openalea.core.plugin import iter_plugins
 import warnings
 import os
 

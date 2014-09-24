@@ -18,7 +18,7 @@
 __revision__ = ""
 
 from openalea.vpltk.qt import QtCore, QtGui
-from openalea.vpltk.plugin import iter_plugins
+from openalea.core.plugin import iter_plugins
 from openalea.core import logger
 from openalea.oalab.gui.pages import WelcomePage2 as WelcomePage
 from openalea.core import settings

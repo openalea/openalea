@@ -144,8 +144,17 @@ class MainWindow(QtGui.QMainWindow):
             self.dockWidget(name, applet)
 
     def add_plugin(self, plugin):
-        plugin(self)
-        self.session.applet['plugin_%s' % plugin.name] = plugin
+        if self.session.debug_plugins in ('oalab.applet', 'all'):
+            plugin(self)
+            self.session.applet['plugin_%s' % plugin.name] = plugin
+        else:
+            try:
+                plugin(self)
+            except:
+                # TODO: log error
+                pass
+            else:
+                self.session.applet['plugin_%s' % plugin.name] = plugin
 
     def initialize(self):
         for applet in get_applets():
