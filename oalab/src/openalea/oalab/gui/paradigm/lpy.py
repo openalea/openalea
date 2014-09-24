@@ -159,7 +159,7 @@ class LPyModelController(object):
         # Else select a random one.
         def select_colormap():
             #@GBY must move to plantgl or lpy
-            from openalea.oalab.control.manager import ControlManager
+            from openalea.core.control.manager import ControlManager
             from openalea.plantgl.oaplugins.controls import to_material
             controls = ControlManager().namespace(interface='IColorList')
             for v in controls.values():

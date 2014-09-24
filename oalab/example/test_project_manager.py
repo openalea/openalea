@@ -34,8 +34,8 @@ if __name__ == '__main__':
         app.exec_()
 
 """
-from openalea.oalab.control.manager import ControlManager
-from openalea.oalab.control.control import Control
+from openalea.core.control.manager import ControlManager
+from openalea.core.control import Control
 a = Control('length', 'IInt', value=4)
 b = Control('curve', 'ICurve2D')
 c = Control('colors', 'IColorList')

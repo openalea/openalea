@@ -1,8 +1,8 @@
-from openalea.vpltk.qt import QtGui
-from openalea.oalab.service import interface as s_interface
+from openalea.core.control import Control
+from openalea.core.control.manager import ControlContainer
+from openalea.core.service import interface_name
 from openalea.vpltk.plugin import iter_plugins
-from openalea.oalab.control.control import Control
-from openalea.oalab.control.manager import ControlContainer
+from openalea.vpltk.qt import QtGui
 
 from openalea.oalab.session.session import Session
 
@@ -19,7 +19,7 @@ def discover_qt_controls():
     return [plugin for plugin in iter_plugins('oalab.qt_control', debug=session.debug_plugins)]
 
 def qt_editor_class(iname, shape=None, preferred=None):
-    iname = s_interface.get_name(iname)
+    iname = interface_name(iname)
     # Get all widget plugin for "iname" interface
     widget_plugins = qt_widget_plugins(iname)
 

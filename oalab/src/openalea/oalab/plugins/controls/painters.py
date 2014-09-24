@@ -3,7 +3,7 @@
 from openalea.vpltk.qt import QtCore, QtGui
 
 from openalea.oalab.service.interface import alias
-from openalea.oalab.control.control import Control
+from openalea.core.control import Control
 
 class AbstractPainter(object):
 

@@ -6,7 +6,7 @@ def decode(mimetype, mimedata):
     returns an object Model of model1
     """
     if mimetype == 'openalealab/control':
-        from openalea.oalab.control.manager import ControlManager
+        from openalea.core.control.manager import ControlManager
         identifier, name = mimedata.split(';')
         control = ControlManager().control(name)
         if isinstance(control, list):
@@ -23,7 +23,7 @@ def encode(data, mimetype=None):
     encode(Model("model1")) -> ("openalealab/model", "model1")
     returns a tuple mimetype, mimedata
     """
-    from openalea.oalab.control.control import Control
+    from openalea.core.control import Control
     from openalea.core.path import path
     if isinstance(data, Control) or mimetype == 'openalealab/control':
         return ('openalealab/control', '%s;%s' % (data.identifier, data.name))

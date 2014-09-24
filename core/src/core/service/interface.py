@@ -5,10 +5,17 @@
 
 """
 
-from openalea.vpltk.plugin import iter_plugins
+from openalea.core.plugin import iter_plugins
 from openalea.core.interface import IInterface, TypeInterfaceMap
 
-__all__ = []
+__all__ = [
+    'get_interface',
+    'guess_interface',
+    'interface_alias',
+    'interface_class',
+    'interface_name',
+    'new_interface',
+    ]
 
 def load_interfaces():
     """
@@ -30,7 +37,7 @@ def interfaces(debug=False):
 # guess is not explicit enough
 # interface(1) is better than guess(1)
 # or to_interface(obj) -> interface
-def guess(obj):
+def guess_interface(obj):
     """
     Returns interfaces than can correspond to object
 
@@ -57,39 +64,39 @@ def guess(obj):
 
     return interfaces
 
-def get_class(interface=None):
+def interface_class(interface=None):
     """
     Returns interface class corresponding to interface
     """
     if interface is None:
         return interfaces()
 
-    interface_class = None
+    _interface_class = None
 
     # interface is a builtin type (int, float, ...)
     if isinstance(interface, type):
         type_to_iname = {typ: [interface_.__name__] for (typ, interface_) in TypeInterfaceMap().items()}
         if interface in type_to_iname:
-            return get_class(type_to_iname[interface][0])
+            return interface_class(type_to_iname[interface][0])
 
     # interface is a string of an interface or builtin type ('int', 'IInt', ...)
     if isinstance(interface, basestring):
         for _interface in interfaces():
             if _interface.__name__ == interface:
-                interface_class = _interface
+                _interface_class = _interface
                 break
 
         # If interface has not been found, it may be because a string representing
         # type has been passed, for example 'int' instead of 'IInt' or int
-        if interface_class is None:
+        if _interface_class is None:
             try:
                 interface_eval = eval(interface)
             except NameError:
                 pass
             else:
-                return get_class(interface_eval)
+                return interface_class(interface_eval)
         else:
-            return interface_class
+            return _interface_class
 
     # interface is an IInterface instance
     elif isinstance(interface, IInterface):
@@ -104,17 +111,17 @@ def get_class(interface=None):
         raise ValueError, 'Interface %s not found ' % repr(interface)
 
 
-def get_name(interface=None):
+def interface_name(interface=None):
     """
     Returns interface name corresponding to interface
     """
     if interface is None:
-        return names()
+        return interface_names()
     else:
-        cls = get_class(interface)
+        cls = interface_class(interface)
         return cls.__name__
 
-def get(interface, *args, **kwargs):
+def get_interface(interface, *args, **kwargs):
     """
     If interface is yet an instance of interface, returns it else, return an
     instance based on interface.
@@ -122,33 +129,33 @@ def get(interface, *args, **kwargs):
     if isinstance(interface, IInterface):
         return interface
     else:
-        iclass = get_class(interface)
+        iclass = interface_class(interface)
         return iclass(*args, **kwargs)
 
-def check(value, interface):
+def check_value(value, interface):
     pass
 
-def new(interface=None, value=None, *args, **kwargs):
+def new_interface(interface=None, value=None, *args, **kwargs):
     if interface is not None and value is None:
-        return get(interface, *args, **kwargs)
+        return get_interface(interface, *args, **kwargs)
     elif interface is not None and value is not None:
-        interface = get(interface, *args, **kwargs)
-        check(value, interface)
+        interface = get_interface(interface, *args, **kwargs)
+        check_value(value, interface)
         return interface
     elif interface is None and value is not None:
-        interface = guess(value)
+        interface = guess_interface(value)
         if interfaces:
-            return get(interface[0], *args, **kwargs)
+            return get_interface(interface[0], *args, **kwargs)
         else:
             raise ValueError, 'Cannot infer interface from %s' % value
     else:
         raise ValueError, 'you must define at least one of interface or value'
 
-def names(debug=False):
+def interface_names(debug=False):
     names = [interface.__name__ for interface in interfaces()]
     return sorted(list(set(names)))
 
-def default_value(interface):
+def interface_default_value(interface):
     if hasattr(interface, 'sample'):
         return interface.sample()
     elif hasattr(interface, 'default'):
@@ -156,8 +163,8 @@ def default_value(interface):
     else:
         return None
 
-def alias(interface):
-    interface = get_class(interface)
+def interface_alias(interface):
+    interface = interface_class(interface)
     if hasattr(interface, '__alias__'):
         return interface.__alias__
     else:

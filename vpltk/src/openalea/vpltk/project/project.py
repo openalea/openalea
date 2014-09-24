@@ -54,9 +54,9 @@ from openalea.vpltk.project.configobj import ConfigObj
 from openalea.vpltk.project.loader import get_loader
 from openalea.vpltk.project.saver import get_saver
 
-from openalea.oalab.service.interface import get_name
+from openalea.core.service import interface_name
 from openalea.oalab.service.data import DataFactory, MimeType
-from openalea.oalab.control.control import Control
+from openalea.core.control import Control
 
 from collections import OrderedDict
 
@@ -207,7 +207,7 @@ class Project(Observed):
     def stop(self, *args, **kwargs):
         self.started = False
         self.ns.clear()
-        from openalea.oalab.control.manager import ControlManager
+        from openalea.core.control.manager import ControlManager
         cm = ControlManager()
         cm.clear()
 
@@ -406,7 +406,7 @@ class Project(Observed):
                     continue
                 else:
                     value = config['metadata'][info]
-                if get_name(self.metadata_keys[info].interface) == 'ISequence':
+                if interface_name(self.metadata_keys[info].interface) == 'ISequence':
                     if isinstance(value, basestring):
                         value = value.split(',')
                 setattr(self, info, value)
@@ -471,8 +471,8 @@ class Project(Observed):
 
 
     def _save_controls(self):
-        from openalea.oalab.control.pyserial import save_controls
-        from openalea.oalab.control.manager import ControlManager
+        from openalea.core.control.pyserial import save_controls
+        from openalea.core.control.manager import ControlManager
         cm = ControlManager()
         if cm.controls():
             save_controls(cm.controls(), self.path / 'control.py')

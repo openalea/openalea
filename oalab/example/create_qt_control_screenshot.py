@@ -12,10 +12,10 @@ except IndexError:
 app = QtGui.QApplication([])
 
 from openalea.oalab.service.qt_control import qt_widget_plugins
-from openalea.oalab.service.interface import names
-from openalea.oalab.control.control import Control
+from openalea.core.service import interface_names
+from openalea.core.control import Control
 
-for iname in names():
+for iname in interface_names():
     for plugin in qt_widget_plugins(iname):
         if 'responsive' in plugin.edit_shape:
             shapes = ['vline', 'hline', 'large']

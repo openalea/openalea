@@ -3,7 +3,7 @@ from openalea.vpltk.qt import QtGui, QtCore
 from control_sizes import Ui_Form
 
 import openalea.oalab.service.qt_control as scontrol
-from openalea.oalab.control.control import Control
+from openalea.core.control import Control
 
 class CheckSizes(Ui_Form, QtGui.QWidget):
     def __init__(self, iname='IInt', widget=None, edit_mode='edit'):

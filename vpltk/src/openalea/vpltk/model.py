@@ -164,7 +164,7 @@ class Model(Data):
         :return: the current namespace updated with interpreter namespace and inputs
         """
         from openalea.oalab.service.ipython import get_interpreter
-        from openalea.oalab.control.manager import control_dict
+        from openalea.core.control.manager import control_dict
         from openalea.vpltk.project import ProjectManager
         interpreter = get_interpreter()
 

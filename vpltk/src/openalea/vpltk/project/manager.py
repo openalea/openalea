@@ -25,7 +25,7 @@ from openalea.core.singleton import Singleton
 from openalea.core.observer import Observed, AbstractListener
 from ConfigParser import NoSectionError, NoOptionError
 from openalea.vpltk.plugin import iter_plugins
-from openalea.oalab.control.manager import ControlManager
+from openalea.core.control.manager import ControlManager
 
 class ProjectManager(Observed, AbstractListener):
     """

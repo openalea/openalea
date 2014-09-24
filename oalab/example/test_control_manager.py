@@ -3,7 +3,7 @@
 import openalea.lpy
 from openalea.deploy.shared_data import shared_data
 from openalea.vpltk.qt import QtGui
-from openalea.oalab.control.manager import ControlManager, ControlContainer
+from openalea.core.control.manager import ControlManager, ControlContainer
 from openalea.oalab.gui.control.manager import ControlManagerWidget
 from openalea.oalab.gui.control.panel import ControlPanel
 from openalea.oalab.service import control, interface, qt_control
@@ -92,8 +92,8 @@ if __name__ == '__main__':
         print >> sys.__stdout__, k, v
 
 """
-from openalea.oalab.control.manager import ControlManager
-from openalea.oalab.control.control import Control
+from openalea.core.control.manager import ControlManager
+from openalea.core.control import Control
 a = Control('length', 'IInt', value=4)
 b = Control('curve', 'ICurve2D')
 c = Control('colors', 'IColorList')

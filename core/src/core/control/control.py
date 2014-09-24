@@ -3,7 +3,7 @@
 
 """
 from openalea.core.observer import Observed
-from openalea.oalab.service.interface import new, default_value
+from openalea.core.service.interface import new_interface, interface_default_value
 
 class Control(Observed):
     """
@@ -32,11 +32,11 @@ class Control(Observed):
 
         if constraints is None:
             constraints = {}
-        self._interface = new(interface, value, **constraints)
+        self._interface = new_interface(interface, value, **constraints)
 
         self._value = value
         if value is None:
-            self._value = default_value(self._interface)
+            self._value = interface_default_value(self._interface)
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
@@ -53,7 +53,7 @@ class Control(Observed):
         return 'Control(%(name)r, %(interface)r, value=%(value)r)' % kargs
 
     def __json__(self):
-        from openalea.oalab.service.serialization import serialize
+        from openalea.core.service.serialization import serialize
         return {
                 'name':self.name,
                 'interface':repr(self.interface),

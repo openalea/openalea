@@ -2,7 +2,7 @@ import copy
 
 from openalea.core.observer import Observed, AbstractListener, lock_notify
 from openalea.core.singleton import Singleton
-from openalea.oalab.control.control import Control
+from .control import Control
 
 class ControlContainer(Observed, AbstractListener):
 
@@ -68,8 +68,8 @@ class ControlContainer(Observed, AbstractListener):
             if interface is None:
                 ns[control.name] = copy.deepcopy(control.value)
             else:
-                from openalea.oalab.service.interface import get_name
-                if get_name(control.interface) == interface:
+                from openalea.core.service.interface import interface_name
+                if interface_name(control.interface) == interface:
                     ns[control.name] = copy.deepcopy(control.value)
         return ns
 
