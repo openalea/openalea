@@ -20,13 +20,13 @@ Download the source file :download:`..\\..\\src\\openalea\\oalab\\main.py`.
     :show-inheritance:
     :synopsis: launcher of GUI
 
-.. currentmodule:: openalea.oalab.control
+.. currentmodule:: openalea.core.control
 
-:mod:`openalea.oalab.control.controlmanager` module
+:mod:`openalea.core.control.controlmanager` module
 ===================================================
 Download the source file :download:`..\\..\\src\\openalea\\oalab\\control\\controlmanager.py`.
 
-.. automodule:: openalea.oalab.control.controlmanager
+.. automodule:: openalea.core.control.controlmanager
     :members:
     :undoc-members:
     :inherited-members:

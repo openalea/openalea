@@ -1,5 +1,5 @@
-from openalea.vpltk.project.saver import GenericSaver
-from openalea.vpltk.project.loader import GenericLoader, PythonLoader
+from openalea.core.project.saver import GenericSaver
+from openalea.core.project.loader import GenericLoader, PythonLoader
 from openalea.core.path import path
 import os
 

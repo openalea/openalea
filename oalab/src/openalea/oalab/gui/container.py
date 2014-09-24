@@ -25,7 +25,7 @@ from openalea.core import settings
 from openalea.core.path import path
 from openalea.oalab.gui import resources_rc # do not remove this import else icon are not drawn
 from openalea.oalab.gui.utils import qicon
-from openalea.vpltk.project import ProjectManager, Project
+from openalea.core.project import ProjectManager, Project
 from openalea.oalab.project.projectwidget import SelectCategory
 from openalea.oalab.gui.utils import ModalDialog
 from openalea.vpltk.model import Model

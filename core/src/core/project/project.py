@@ -50,9 +50,9 @@ import sys
 
 from openalea.core.observer import Observed
 from openalea.core.path import path as Path
-from openalea.vpltk.project.configobj import ConfigObj
-from openalea.vpltk.project.loader import get_loader
-from openalea.vpltk.project.saver import get_saver
+from openalea.core.project.configobj import ConfigObj
+from openalea.core.project.loader import get_loader
+from openalea.core.project.saver import get_saver
 
 from openalea.core.service import interface_name
 from openalea.oalab.service.data import DataFactory, MimeType

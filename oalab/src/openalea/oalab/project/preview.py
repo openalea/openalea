@@ -1,6 +1,6 @@
 from openalea.vpltk.qt import QtGui
 from openalea.core.path import path
-from openalea.vpltk.project import Project
+from openalea.core.project import Project
 
 def pretty_print(obj):
     """
@@ -79,7 +79,7 @@ class Preview(QtGui.QWidget):
 
 
 def main():
-    from openalea.vpltk.project.manager import ProjectManager
+    from openalea.core.project.manager import ProjectManager
     import sys
 
     app = QtGui.QApplication(sys.argv)

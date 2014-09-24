@@ -20,7 +20,7 @@ import os
 import platform
 from openalea.core.path import path as Path
 from openalea.core import settings
-from openalea.vpltk.project.project import Project
+from openalea.core.project.project import Project
 from openalea.core.singleton import Singleton
 from openalea.core.observer import Observed, AbstractListener
 from ConfigParser import NoSectionError, NoOptionError
@@ -33,7 +33,7 @@ class ProjectManager(Observed, AbstractListener):
 
     It is a singleton.
 
-    >>> from openalea.vpltk.project import ProjectManager
+    >>> from openalea.core.project import ProjectManager
     >>> project_manager = ProjectManager()
 
     """

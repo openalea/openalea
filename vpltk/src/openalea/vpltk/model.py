@@ -165,7 +165,7 @@ class Model(Data):
         """
         from openalea.oalab.service.ipython import get_interpreter
         from openalea.core.control.manager import control_dict
-        from openalea.vpltk.project import ProjectManager
+        from openalea.core.project import ProjectManager
         interpreter = get_interpreter()
 
         # Add project namespace inside namespace
@@ -271,7 +271,7 @@ class ModelNode(Node):
 
 
         # # set model
-        # from openalea.vpltk.project.manager import ProjectManager
+        # from openalea.core.project.manager import ProjectManager
         # pm = ProjectManager()
         # model = pm.cproject.get_model(self.model.name)
         # if model:
@@ -323,7 +323,7 @@ class ModelFactory(AbstractFactory):
         :param call_stack: the list of NodeFactory id already in call stack
         (in order to avoir infinite recursion)
         """
-        from openalea.vpltk.project.manager import ProjectManager
+        from openalea.core.project.manager import ProjectManager
 
         pm = ProjectManager()
         model = pm.cproject.get_model(self.name)

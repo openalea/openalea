@@ -21,7 +21,7 @@ Working with Project class
 
 You can work directly on project:
 
-    >>> from openalea.vpltk.project import Project, get_project_dir
+    >>> from openalea.core.project import Project, get_project_dir
     >>> # Real work on project:
     >>> project_path = get_project_dir() / 'project1'
     >>> project1 = Project(project_path)
@@ -46,7 +46,7 @@ Creation and Manipulation with Project Manager
 ----------------------------------------------
 
 Or, you can create or load a *project* thanks to the *project manager*.
-    >>> from openalea.vpltk.project import ProjectManager
+    >>> from openalea.core.project import ProjectManager
     >>> project_manager = ProjectManager()
 
 Discover available projects
@@ -83,5 +83,5 @@ To search projects that are not located inside default directories:
 
 """
 from openalea.core.settings import get_project_dir
-from openalea.vpltk.project.project import Project
-from openalea.vpltk.project.manager import ProjectManager
+from openalea.core.project.project import Project
+from openalea.core.project.manager import ProjectManager

@@ -1,5 +1,5 @@
-from openalea.vpltk.project.saver import CPickleSaver
-from openalea.vpltk.project.loader import CPickleLoader
+from openalea.core.project.saver import CPickleSaver
+from openalea.core.project.loader import CPickleLoader
 from openalea.core.path import path
 import os
 

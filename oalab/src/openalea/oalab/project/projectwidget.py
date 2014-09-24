@@ -19,7 +19,7 @@
 
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core.observer import AbstractListener
-from openalea.vpltk.project.manager import ProjectManager
+from openalea.core.project.manager import ProjectManager
 from openalea.oalab.gui import resources_rc
 from openalea.oalab.gui.utils import qicon
 from openalea.oalab.project.pretty_preview import ProjectSelectorScroll

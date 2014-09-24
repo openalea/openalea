@@ -3,8 +3,8 @@ import unittest
 from openalea.core.unittest_tools import TestCase, EventTracker
 from openalea.core.path import tempdir
 from openalea.core.path import path as Path
-from openalea.vpltk.project.project import Project
-from openalea.vpltk.project.manager import ProjectManager
+from openalea.core.project.project import Project
+from openalea.core.project.manager import ProjectManager
 
 pm = ProjectManager()
 ev = EventTracker()
