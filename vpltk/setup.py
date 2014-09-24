@@ -108,15 +108,15 @@ setup(
     # Declare scripts and wralea as entry_points (extensions) of your package 
     entry_points = { 
         'plugin' : ['vpltksample = openalea.vpltk.sample'],
-        'vpltk.loader': ['GenericLoader = openalea.vpltk.project.loader:GenericLoader',
-                         'CPickleLoader = openalea.vpltk.project.loader:CPickleLoader',
-                         'BGEOMLoader = openalea.vpltk.project.loader:BGEOMLoader',
-                         'BinaryLoader = openalea.vpltk.project.loader:BinaryLoader',
+        'vpltk.loader': ['GenericLoader = openalea.core.project.loader:GenericLoader',
+                         'CPickleLoader = openalea.core.project.loader:CPickleLoader',
+                         'BGEOMLoader = openalea.core.project.loader:BGEOMLoader',
+                         'BinaryLoader = openalea.core.project.loader:BinaryLoader',
                          ],
-        'vpltk.saver': ['GenericSaver = openalea.vpltk.project.saver:GenericSaver',
-                        'CPickleSaver = openalea.vpltk.project.saver:CPickleSaver',
-                        'BGEOMSaver = openalea.vpltk.project.saver:BGEOMSaver',
-                        'BinarySaver = openalea.vpltk.project.saver:BinarySaver',
+        'vpltk.saver': ['GenericSaver = openalea.core.project.saver:GenericSaver',
+                        'CPickleSaver = openalea.core.project.saver:CPickleSaver',
+                        'BGEOMSaver = openalea.core.project.saver:BGEOMSaver',
+                        'BinarySaver = openalea.core.project.saver:BinarySaver',
                         ],
 
         'oalab.model': [
