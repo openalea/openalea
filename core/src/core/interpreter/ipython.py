@@ -1,7 +1,7 @@
 
+import types
 from IPython.kernel.inprocess.ipkernel import InProcessKernel
 from IPython.core.error import UsageError
-import types
 
 class Interpreter(InProcessKernel):
     """
@@ -56,7 +56,6 @@ class Interpreter(InProcessKernel):
             exec(source, namespace)
         else:
             exec(source, self.locals, self.locals)
-
 
 def showtraceback(self, exc_tuple=None, filename=None, tb_offset=None,
                   exception_only=False):
@@ -114,11 +113,3 @@ def showtraceback(self, exc_tuple=None, filename=None, tb_offset=None,
     except KeyboardInterrupt:
         self.write_err("\nKeyboardInterrupt\n")
 
-
-def main():
-    from shell import main as main_
-    main_()
-
-
-if(__name__ == "__main__"):
-    main()

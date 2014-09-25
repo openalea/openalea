@@ -22,7 +22,7 @@ __all__ = ['Session']
 
 import os, sys
 import warnings
-from openalea.vpltk.shell.shell import get_interpreter_class
+from openalea.core.interpreter import get_interpreter_class
 from openalea.oalab.package.manager import package_manager
 from openalea.core.project.manager import ProjectManager
 from openalea.core.control.manager import ControlManager

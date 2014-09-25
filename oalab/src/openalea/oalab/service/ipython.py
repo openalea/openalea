@@ -1,7 +1,7 @@
 __all__ = ["get_interpreter"]
            
 from openalea.oalab.session.session import Session
-from openalea.vpltk.shell.shell import get_interpreter_class
+from openalea.core.interpreter import get_interpreter_class
 
 
 def get_interpreter():

@@ -1,4 +1,4 @@
-from openalea.vpltk import plugin
+from openalea.core import plugin
 
 def test1():
     plugins = plugin.discover('wralea')

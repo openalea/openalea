@@ -65,7 +65,7 @@ class HistoryWidget(QtGui.QTextBrowser):
 def main():
     from openalea.vpltk.qt import QtCore, QtGui
     from openalea.vpltk.shell.ipythoninterpreter import Interpreter
-    from openalea.vpltk.shell.ipythonshell import ShellWidget
+    from openalea.oalab.shell import ShellWidget
     import sys
 
     app = QtGui.QApplication(sys.argv)

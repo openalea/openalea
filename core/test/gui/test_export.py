@@ -7,8 +7,6 @@ from openalea.core import export_app
 from openalea.core.pkgmanager import PackageManager
 from openalea.core import *
 import os
-import sys
-
 
 def test_export():
     """test export"""

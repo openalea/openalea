@@ -129,6 +129,9 @@ class TestProjectManager(TestCase):
         assert str(project.name) == "temp"
 
     def test_project_updated_event(self):
-        project = pm.cproject
-        project.add('model', filename='test.py')
+        project = pm.create('TestProject', self.tmpdir)
+        project.save()
+        pm.cproject = project
+        ev.events # clear
+        project.add('model', filename='newfile.py')
         self.check_events(ev.events, ['project_updated'])

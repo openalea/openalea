@@ -232,7 +232,6 @@ class PackageManager(Observed):
 
         # Use setuptools entry_point
         for epoint in iter_entry_points("wralea"):
-
             # Get Deprecated packages
             if self.verbose:
                 pmanLogger.debug(epoint.name + " " + epoint.module_name)

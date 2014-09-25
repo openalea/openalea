@@ -222,6 +222,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         :param projectdir: path of project to load. Must be a path (see module path.py). By default, try to guess with name only. If there are various projects with the same name, return the first.
         :return: Project
         """
+        project = None
         if 'proj_path' in kwargs:
             projectdir = kwargs['proj_path']
         elif 'path' in kwargs:
@@ -299,7 +300,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
 def main():
     from openalea.vpltk.qt import QtGui
     from openalea.vpltk.shell.ipythoninterpreter import Interpreter
-    from openalea.vpltk.shell.ipythonshell import ShellWidget
+    from openalea.oalab.shell import ShellWidget
     import sys
 
     # Create Window with IPython shell

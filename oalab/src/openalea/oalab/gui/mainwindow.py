@@ -24,7 +24,7 @@ __revision__ = ""
 from openalea.core.settings import Settings
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.oalab.gui.menu import PanedMenu
-from openalea.vpltk.shell.shell import get_shell_class
+from openalea.oalab.shell import get_shell_class
 from openalea.oalab.service.applet import get_applets, register_applet
 
 import weakref

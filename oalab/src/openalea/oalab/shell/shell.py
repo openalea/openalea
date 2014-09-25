@@ -33,7 +33,7 @@ def get_shell_class():
 
     if has_ipython() and has_full_deps():
         # Test IPython
-        from openalea.vpltk.shell.ipythonshell import ShellWidget
+        from openalea.oalab.shell import ShellWidget
         return ShellWidget
 
     else:
@@ -44,21 +44,6 @@ def get_shell_class():
 
         except ImportError:
             return PyCutExt
-
-
-def get_interpreter_class():
-    """
-    :return: the interpreter class to instantiate the shell
-    """
-
-    if has_ipython() and has_full_deps():
-        # Test IPython
-        from openalea.vpltk.shell.ipythoninterpreter import Interpreter
-        return Interpreter
-    else:
-        from code import InteractiveInterpreter
-        return InteractiveInterpreter
-
 
 class PyCutExt(QtGui.QTextEdit, GraphicalStreamRedirection):
 

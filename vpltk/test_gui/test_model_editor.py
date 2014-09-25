@@ -22,8 +22,8 @@ if __name__ == '__main__':
         model1 = data('data/model.py')
         pmw.open_data(model1)
 
-
-    from openalea.vpltk.shell.shell import get_shell_class, get_interpreter_class
+    from openalea.oalab.shell import get_shell_class
+    from openalea.core.interpreter import get_interpreter_class
 
     # Set interpreter
     interpreter = get_interpreter_class()()
