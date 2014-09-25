@@ -28,7 +28,7 @@ from openalea.oalab.gui.utils import qicon
 from openalea.core.project import ProjectManager, Project
 from openalea.oalab.project.projectwidget import SelectCategory
 from openalea.oalab.gui.utils import ModalDialog
-from openalea.vpltk.model import Model
+from openalea.core.model import Model
 
 from openalea.oalab.service.applet import get_applet
 from openalea.oalab.service.data import DataFactory, DataClass, DataType, MimeType

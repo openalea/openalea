@@ -15,7 +15,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-from openalea.vpltk.model import PythonModel
+from openalea.core.model import PythonModel
 
 
 def test_model_get_documentation():

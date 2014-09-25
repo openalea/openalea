@@ -66,8 +66,8 @@ class TestProject(unittest.TestCase):
 
 
     def test_DataClass(self):
-        from openalea.vpltk.data import Data
-        from openalea.vpltk.model import PythonModel
+        from openalea.core.data import Data
+        from openalea.core.model import PythonModel
 
         d = DataFactory(path='test.dat')
         self.assertIsInstance(d, Data)

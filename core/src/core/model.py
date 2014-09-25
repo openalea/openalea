@@ -17,7 +17,7 @@
 ###############################################################################
 
 from copy import copy
-from openalea.vpltk.data import Data
+from openalea.core.data import Data
 import string
 from openalea.core.node import Node, AbstractFactory
 
