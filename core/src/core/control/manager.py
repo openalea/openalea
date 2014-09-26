@@ -4,6 +4,7 @@ from openalea.core.observer import Observed, AbstractListener, lock_notify
 from openalea.core.singleton import Singleton
 from .control import Control
 
+
 class ControlContainer(Observed, AbstractListener):
 
     def __init__(self):
@@ -34,8 +35,7 @@ class ControlContainer(Observed, AbstractListener):
 
     def add_control(self, control):
         """
-        :param control: Control object or tuple(name, interface, widget). widget can be None
-        :param tag: If tag is specified, link control to this tag, else control is global to all tags in current project.
+        :param control: Control object
         """
         assert isinstance(control, Control)
         if control not in self._controls:
@@ -45,8 +45,7 @@ class ControlContainer(Observed, AbstractListener):
 
     def remove_control(self, control):
         """
-        :param control: Control object or tuple(name, interface, widget). widget can be None
-        :param tag: If tag is specified, link control to this tag, else control is global to all tags in current project.
+        :param control: Control object
         """
         assert isinstance(control, Control)
         if control in self._controls:
@@ -55,13 +54,15 @@ class ControlContainer(Observed, AbstractListener):
             self.notify_listeners(('state_changed', (control)))
 
     def clear(self):
-        for control in list(self._controls): # make a copy of the list, required by for loop
+        # make a copy of the list, required by for loop
+        for control in list(self._controls):
             self.remove_control(control)
 
     def namespace(self, interface=None):
         """
         Returns namespace (dict control name -> value).
-        :param tag: returns namespace corresponding to given tag. Default, returns global namespace
+        :param tag: returns namespace corresponding to given tag.
+                    Default, returns global namespace
         """
         ns = {}
         for control in self.controls():
@@ -80,10 +81,10 @@ class ControlContainer(Observed, AbstractListener):
         if isinstance(sender, Control):
             signal, data = event
             if signal == 'value_changed':
-                self.notify_listeners(('control_value_changed', (sender, data)))
+                self.notify_listeners(
+                    ('control_value_changed', (sender, data)))
             if signal == 'name_changed':
                 self.notify_listeners(('control_name_changed', (sender, data)))
-
 
     def __contains__(self, key):
         for control in self.controls():
@@ -93,6 +94,7 @@ class ControlContainer(Observed, AbstractListener):
 
 
 class Follower(AbstractListener):
+
     def __init__(self, name, func):
         AbstractListener.__init__(self)
         self._old_value = None
@@ -132,7 +134,8 @@ class ControlManager(ControlContainer):
 
 def control_dict():
     """
-    Get the controls from the control manager in a dictionary (key = name, value = object)
+    Get the controls from the control manager in a dictionary
+    (key = name, value = object)
 
     :return: dict of controls
     """

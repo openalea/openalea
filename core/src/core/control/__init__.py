@@ -1,4 +1,4 @@
-    # -*- python -*-
+# -*- python -*-
 #
 #       OpenAlea.OALab: Multi-Paradigm GUI
 #

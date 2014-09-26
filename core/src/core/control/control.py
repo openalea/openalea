@@ -3,26 +3,34 @@
 
 """
 from openalea.core.observer import Observed
-from openalea.core.service.interface import new_interface, interface_default_value
+from openalea.core.service.interface import (new_interface,
+                                             interface_default_value)
+
 
 class Control(Observed):
+
     """
     A Control is an observable variable with
       - name
       - interface
       - constraints on values
     """
-    def __init__(self, name, interface=None, value=None, widget=None, constraints=None):
+
+    def __init__(self, name, interface=None, value=None, widget=None,
+                 constraints=None):
         """
         :param name: Control name
         :type name: basestring
         :param interface: Interface name or class
-        :type interface: basestring or :class:`openalea.core.interface.IInterface`
-        :param value: value to initialise control [Default: use interface default value].
+        :type interface: basestring or
+                         :class:`openalea.core.interface.IInterface`
+        :param value: value to initialise control
+                      [Default: use interface default value].
         :type value: value compatible with interface
         :param widget: name of preferred widget [Default: undefined]
         :type widget: basestring
-        :param constraints: constraints to set to interface. See Interface documentation [Default: no constraints]
+        :param constraints: constraints to set to interface.
+                            See Interface documentation [Def: no constraints]
         :type constraints: :obj:`dict`
         """
         Observed.__init__(self)
@@ -49,17 +57,17 @@ class Control(Observed):
             interface=self._interface,
             name=self.name,
             value=self._value,
-            )
+        )
         return 'Control(%(name)r, %(interface)r, value=%(value)r)' % kargs
 
     def __json__(self):
         from openalea.core.service.serialization import serialize
         return {
-                'name':self.name,
-                'interface':repr(self.interface),
-                'value':serialize(self._value, fmt='json'),
-                'widget':self.widget
-            }
+            'name': self.name,
+            'interface': repr(self.interface),
+            'value': serialize(self._value, fmt='json'),
+            'widget': self.widget
+        }
 
     def notify_change(self):
         """
@@ -99,7 +107,8 @@ class Control(Observed):
         """
         TODO: CPL: To discuss !!!!
         Deepcopy or not ?
-        Currently, standard python behaviour : copy for non mutable else reference
+        Currently, standard python behaviour:
+        copy for non mutable else reference
         """
         if value != self._value:
             self._value = value
@@ -110,14 +119,14 @@ class Control(Observed):
         return self._interface
 
     def reset(self):
-        self.value = default_value(self._interface)
+        self.value = interface_default_value(self._interface)
 
     # Tries to behave like Node and InputNode
     def __getitem__(self, key):
         if key == 'name':
             return self.name
         else:
-            raise KeyError, key
+            raise KeyError(key)
 
     def get_input_port(self, name=None):
         return self
@@ -127,4 +136,3 @@ class Control(Observed):
 
     def get_label(self):
         return self.name
-
