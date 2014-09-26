@@ -21,7 +21,7 @@ from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core.observer import AbstractListener
 from openalea.core.path import path
 from openalea.oalab.service.qt_control import qt_painter, qt_editor
-from openalea.oalab.service.mimetype import encode
+from openalea.core.service.mimetype import encode
 from openalea.core.control.manager import ControlContainer
 from openalea.oalab.gui.control.editor import ControlEditor
 from openalea.oalab.gui.utils import ModalDialog

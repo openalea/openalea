@@ -1,7 +1,7 @@
 
 import unittest
 from openalea.core.path import tempdir, path
-from openalea.oalab.service.data import DataFactory, MimeType
+from openalea.core.service.data import DataFactory, MimeType
 
 
 def get_data(filename):
@@ -94,7 +94,7 @@ class TestProject(unittest.TestCase):
 
     def test_arrange_data_args(self):
         # arrange_data_args is not a public function, please do not use it outside service.data
-        from openalea.oalab.service.data import arrange_data_args
+        from openalea.core.service.data import arrange_data_args
         path1 = get_data('model.py')
         path2 = 'test.ext'
         self.assertEqual(arrange_data_args(path1, None, None), (path1, 'text/x-python'))

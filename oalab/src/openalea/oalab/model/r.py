@@ -92,7 +92,7 @@ more informations: http://www.r-project.org/
 
         cmdline = self.r_options(user_ns)
         
-        from openalea.oalab.service.ipython import get_interpreter
+        from openalea.core.service.ipython import get_interpreter
         interpreter = get_interpreter()
         if not self.has_run:
             try:
@@ -110,7 +110,7 @@ more informations: http://www.r-project.org/
         """
         execute subpart of a model (only code *code*)
         """
-        from openalea.oalab.service.ipython import get_interpreter
+        from openalea.core.service.ipython import get_interpreter
         interpreter = get_interpreter()
 
         user_ns = interpreter.user_ns

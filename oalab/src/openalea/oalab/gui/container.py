@@ -31,7 +31,7 @@ from openalea.oalab.gui.utils import ModalDialog
 from openalea.core.model import Model
 
 from openalea.oalab.service.applet import get_applet
-from openalea.oalab.service.data import DataFactory, DataClass, DataType, MimeType
+from openalea.core.service.data import DataFactory, DataClass, DataType, MimeType
 
 from openalea.oalab.session.session import Session
 

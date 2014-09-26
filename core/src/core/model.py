@@ -123,7 +123,7 @@ class Model(Data):
         """
         Execute code (str) in current interpreter
         """
-        from openalea.oalab.service.ipython import get_interpreter
+        from openalea.core.service.ipython import get_interpreter
         interpreter = get_interpreter()
         return interpreter.runcode(code)
 
@@ -163,7 +163,7 @@ class Model(Data):
         """
         :return: the current namespace updated with interpreter namespace and inputs
         """
-        from openalea.oalab.service.ipython import get_interpreter
+        from openalea.core.service.ipython import get_interpreter
         from openalea.core.control.manager import control_dict
         from openalea.core.project import ProjectManager
         interpreter = get_interpreter()
@@ -195,7 +195,7 @@ class Model(Data):
 
         :return: namespace in which execution was done
         """
-        from openalea.oalab.service.ipython import get_interpreter
+        from openalea.core.service.ipython import get_interpreter
         interpreter = get_interpreter()
         # Save current namespace
         old_namespace = copy(interpreter.user_ns)

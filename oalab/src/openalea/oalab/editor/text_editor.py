@@ -312,7 +312,7 @@ class TextEditor(QtGui.QTextEdit):
     def insertFromMimeData(self, source):
         if source.hasFormat('openalealab/control'):
             # TODO: move outside TextEditor
-            from openalea.oalab.service.mimetype import decode
+            from openalea.core.service.mimetype import decode
             data = decode('openalealab/control', source.data('openalealab/control'))
             if data is None:
                 return

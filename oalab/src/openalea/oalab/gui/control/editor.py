@@ -2,7 +2,7 @@
 import weakref
 from openalea.vpltk.qt import QtGui, QtCore
 
-from openalea.core.service import interface_alias
+from openalea.core.service.interface import interface_alias
 from openalea.oalab.service.qt_control import qt_widget_plugins
 from openalea.core.control import Control
 from openalea.deploy.shared_data import shared_data

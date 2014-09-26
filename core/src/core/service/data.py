@@ -5,7 +5,7 @@ from openalea.core.data import Data
 
 import mimetypes
 
-__all__ = ["DataFactory", "DataClass", "MimeType"]
+__all__ = ["DataFactory", "DataClass", "MimeType", "DataType"]
 
 REGISTERY_MIME_CLASS = {}
 for ModelClass in iter_plugins('oalab.model'):

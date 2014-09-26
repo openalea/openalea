@@ -116,7 +116,7 @@ class LPyModelController(object):
         self.editor_container = editor_container
         self._widget = None
 
-        from openalea.oalab.service.ipython import get_interpreter
+        from openalea.core.service.ipython import get_interpreter
         interpreter = get_interpreter()
         if interpreter:
             interpreter.locals['lsystem'] = self.model.lsystem

@@ -5,7 +5,7 @@ import ast
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core import settings
 from openalea.oalab.service.qt_control import qt_editor
-from openalea.core.service import guess_interface, new_interface
+from openalea.core.service.interface import guess_interface, new_interface
 from openalea.core.control import Control
 
 def Widget(option_name, value):

@@ -1,5 +1,5 @@
 
-from openalea.core.service import interface_name, interface_class, guess_interface, new_interface
+from openalea.core.service.interface import interface_name, interface_class, guess_interface, new_interface
 from openalea.core.interface import IInterface
 
 

@@ -101,7 +101,7 @@ class VisualeaModelController(object):
         self._widget = dataflowview.GraphicalGraph.create_view(self.model._workflow, clone=True)
         self._clipboard = CompositeNodeFactory("Clipboard")
 
-        from openalea.oalab.service.ipython import get_interpreter
+        from openalea.core.service.ipython import get_interpreter
         interpreter = get_interpreter()
 
         GraphOperator.globalInterpreter = interpreter

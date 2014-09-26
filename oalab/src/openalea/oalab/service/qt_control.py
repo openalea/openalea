@@ -1,6 +1,6 @@
 from openalea.core.control import Control
 from openalea.core.control.manager import ControlContainer
-from openalea.core.service import interface_name
+from openalea.core.service.interface import interface_name
 from openalea.core.plugin import iter_plugins
 from openalea.vpltk.qt import QtGui
 

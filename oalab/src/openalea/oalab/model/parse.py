@@ -18,7 +18,7 @@
 import ast
 import re
 from openalea.core import logger
-from openalea.core.service import interface_class, guess_interface
+from openalea.core.service.interface import interface_class, guess_interface
 import textwrap
 import collections
 from copy import copy

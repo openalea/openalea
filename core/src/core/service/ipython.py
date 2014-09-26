@@ -1,10 +1,10 @@
 __all__ = ["get_interpreter"]
            
-from openalea.oalab.session.session import Session
 from openalea.core.interpreter import get_interpreter_class
 
 
 def get_interpreter():
+    from openalea.oalab.session.session import Session
     if Session.instantiated:
         return Session().interpreter
 

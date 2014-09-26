@@ -3,7 +3,7 @@
 from openalea.vpltk.qt import QtGui
 import random
 from openalea.oalab.gui.container import ParadigmContainer
-from openalea.oalab.service.data import data
+from openalea.core.service.data import data
 from openalea.core.path import path as Path
 from openalea.core.path import tempdir
 

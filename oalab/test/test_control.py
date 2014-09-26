@@ -3,7 +3,7 @@
 
 def test_controls():
 
-    from openalea.core.service import create_control
+    from openalea.core.service.control import create_control
     from openalea.core.control import Control
 
     print Control('a', value=1,

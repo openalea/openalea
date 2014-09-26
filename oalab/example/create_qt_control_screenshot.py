@@ -12,7 +12,7 @@ except IndexError:
 app = QtGui.QApplication([])
 
 from openalea.oalab.service.qt_control import qt_widget_plugins
-from openalea.core.service import interface_names
+from openalea.core.service.interface import interface_names
 from openalea.core.control import Control
 
 for iname in interface_names():

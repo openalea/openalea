@@ -2,7 +2,7 @@
 
 from openalea.vpltk.qt import QtCore, QtGui
 
-from openalea.core.service import interface_alias
+from openalea.core.service.interface import interface_alias
 from openalea.core.control import Control
 
 class AbstractPainter(object):

@@ -1,7 +1,7 @@
 
 def save_controls(controls, filename):
     f = open(filename, 'w')
-    f.write('from openalea.core.service import new_control\n\n')
+    f.write('from openalea.core.service.control import new_control\n\n')
     moduleset = set()
     for c in controls:
         interfaceklass = c.interface.__class__.__name__

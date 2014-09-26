@@ -164,7 +164,7 @@ class ControlPanelScene(QtGui.QGraphicsScene):
         source = event.mimeData()
         fmt = 'openalealab/control'
         if source.hasFormat(fmt):
-            from openalea.oalab.service.mimetype import decode
+            from openalea.core.service.mimetype import decode
             control = decode(fmt, source.data(fmt))
             pos = event.scenePos()
             self.add_control(control, pos)

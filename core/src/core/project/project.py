@@ -46,16 +46,14 @@ You have here the default architecture of the project saved in directory "projec
 """
 
 import os
-import sys
 
 from openalea.core.observer import Observed
 from openalea.core.path import path as Path
 from openalea.core.project.configobj import ConfigObj
 from openalea.core.project.loader import get_loader
 from openalea.core.project.saver import get_saver
-
-from openalea.core.service import interface_name
-from openalea.oalab.service.data import DataFactory, MimeType
+from openalea.core.service.interface import interface_name
+from openalea.core.service.data import DataFactory, MimeType
 from openalea.core.control import Control
 
 from collections import OrderedDict
