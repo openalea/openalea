@@ -11,7 +11,7 @@ REGISTERY_MIME_CLASS = {}
 for ModelClass in iter_plugins('oalab.model'):
     REGISTERY_MIME_CLASS[ModelClass.mimetype] = ModelClass
 
-for DataClass in iter_plugins('oalab.DataClass'):
+for DataClass in iter_plugins('oalab.dataclass'):
     REGISTERY_MIME_CLASS[DataClass.mimetype] = DataClass
 
 REGISTERY_NAME_MIME = {}
@@ -20,9 +20,10 @@ for ModelClass in iter_plugins('oalab.model'):
     REGISTERY_NAME_MIME[ModelClass.extension.lower()] = ModelClass.mimetype
 
 
-for DataClass in iter_plugins('oalab.DataClass'):
+for DataClass in iter_plugins('oalab.dataclass'):
     REGISTERY_NAME_MIME[ModelClass.default_name.lower()] = DataClass.mimetype
     REGISTERY_NAME_MIME[ModelClass.extension.lower()] = DataClass.mimetype
+
 
 def MimeType(path=None, name=None):
     """
@@ -47,6 +48,7 @@ def MimeType(path=None, name=None):
         else:
             return False
 
+
 def DataType(path=None, name=None, mimetype=None):
     if path:
         name = Path(path).ext[1:].lower()
@@ -57,11 +59,12 @@ def DataType(path=None, name=None, mimetype=None):
         for ModelClass in iter_plugins('oalab.model'):
             if ModelClass.mimetype == mimetype:
                 return ModelClass.default_name
-        for DataClass in iter_plugins('oalab.DataClass'):
+        for DataClass in iter_plugins('oalab.dataclass'):
             if ModelClass.mimetype == mimetype:
                 return ModelClass.default_name
     else:
         return None
+
 
 def DataClass(dtype=None):
     """
@@ -78,6 +81,7 @@ def DataClass(dtype=None):
 
 DataClass.all = set(REGISTERY_MIME_CLASS.values() + [Data])
 
+
 def arrange_data_args(path, mimetype, dtype):
     if mimetype is None:
         if dtype:
@@ -90,18 +94,21 @@ def arrange_data_args(path, mimetype, dtype):
         if dtype:
             new_mimetype = MimeType(name=dtype)
             if mimetype != new_mimetype:
-                raise ValueError('dtype %r (%s) and mimetype %r are not compatible' % (dtype, new_mimetype, mimetype))
+                raise ValueError('dtype %r (%s) and mimetype %r are not compatible' % (
+                    dtype, new_mimetype, mimetype))
         return path, mimetype
 
 
 def DataFactory(path, mimetype=None, **kwargs):
     path = Path(path)
-    default_content = kwargs['default_content'] if 'default_content' in kwargs else None
+    default_content = kwargs[
+        'default_content'] if 'default_content' in kwargs else None
     dtype = kwargs['dtype'] if 'dtype' in kwargs else None
 
     if path.isfile():
         if default_content is not None:
-            raise ValueError("got multiple values for content (parameter and '%s')" % path.name)
+            raise ValueError(
+                "got multiple values for content (parameter and '%s')" % path.name)
         else:
             path, mimetype = arrange_data_args(path, mimetype, dtype)
             klass = DataClass(mimetype)

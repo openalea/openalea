@@ -1,7 +1,8 @@
 __all__ = [
     'decode',
     'encode',
-    ]
+]
+
 
 def decode(mimetype, mimedata):
     """
@@ -16,10 +17,11 @@ def decode(mimetype, mimedata):
             return ControlManager().control(uid=identifier)
         return control
     elif mimetype == 'openalealab/data':
-        from openalea.oalab.project.manager import ProjectManager
+        from openalea.core.project.manager import ProjectManager
         from openalea.core.path import path
         pm = ProjectManager()
         return pm.get('data', path(mimedata).name)
+
 
 def encode(data, mimetype=None):
     """
