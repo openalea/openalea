@@ -6,7 +6,8 @@ from openalea.vpltk.qt import QtGui
 from openalea.core.control.manager import ControlManager, ControlContainer
 from openalea.oalab.gui.control.manager import ControlManagerWidget
 from openalea.oalab.gui.control.panel import ControlPanel
-from openalea.core.service.control import new_control, new_interface, interface_names, get_interface
+from openalea.core.service.control import new_control
+from openalea.core.service.interface import new_interface, interface_names, get_interface
 from openalea.oalab.service import qt_control
 from openalea.oalab.gui.control.lpycontrol import import_lpy_controls
 
@@ -17,6 +18,7 @@ def test_all_lpy_controls():
     lpydir = shared_data(openalea.lpy.__path__, share_path='share/tutorial')
     for lpypath in lpydir.walkfiles('*.lpy'):
         import_lpy_controls(lpypath)
+
 
 def test_all_interfaces():
     # Fill al
@@ -31,9 +33,9 @@ def test_all_interfaces():
 
 if __name__ == '__main__':
     instance = QtGui.QApplication.instance()
-    if instance is None :
+    if instance is None:
         app = QtGui.QApplication([])
-    else :
+    else:
         app = instance
 
     cm = ControlManager()
@@ -43,8 +45,6 @@ if __name__ == '__main__':
     cmw = ControlManagerWidget()
 #     cmw.model.set_manager(cc2)
     cp = ControlPanel()
-
-
 
     percent = get_interface('IInt', min=0, max=100)
     c = new_control('i', percent)
@@ -60,7 +60,6 @@ if __name__ == '__main__':
 #     Highlighter(text)
 #     text.show()
 #     text.raise_()
-
 
     from openalea.core.interpreter import get_interpreter_class
     from openalea.oalab.shell import get_shell_class
@@ -85,9 +84,8 @@ if __name__ == '__main__':
     widget.show()
     widget.raise_()
 
-    if instance is None :
+    if instance is None:
         app.exec_()
-
 
     import sys
     for k, v in cm.namespace().items():
@@ -103,4 +101,3 @@ cm  = ControlManager()
 for control in (a, b, c):
     cm.add_control(control)
 """
-
