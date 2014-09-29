@@ -40,7 +40,9 @@ package_dir = dict([('', pkg_root_dir)] + [(namespace + "." + pkg, pkg_root_dir 
 
 # dependencies to other eggs
 setup_requires = ['openalea.deploy']
-install_requires = []
+
+# TODO: remove pygments 1.6 constraints when https://github.com/ipython/ipython/issues/6877 is fixed
+install_requires = ['pygments==1.6'] 
 
 # web sites where to find eggs
 dependency_links = ['http://openalea.gforge.inria.fr/pi']
@@ -125,6 +127,8 @@ setup(
             'Store = openalea.oalab.plugins.applets.store:Store',
             'World = openalea.oalab.plugins.applets.worldwidget:World',
             'Plot2d = openalea.oalab.plugins.applets.plot2d:Plot2dWidget',
+            'ShellWidget = openalea.oalab.plugins.applets.shellwidget:ShellWidget',
+            'PanedMenu = openalea.oalab.plugins.applets.panedmenu:PanedMenu',
         ],
 
         'oalab.qt_control': [

@@ -53,6 +53,7 @@ class Applet(object):
                         return instance
         raise NotImplementedError, err
 
+
 register_applet = Applet.register
 new_applet = Applet.new
 

@@ -106,6 +106,9 @@ class PluginInstanceManager(object):
             except:
                 return None
 
+    def has_instance(self, category, name):
+        return name in self._plugin_instance.get(category, {})
+
     def instance(self, category, name, class_args=None, class_kwds=None):
         """
         Use this function if you always want the same instance:
@@ -132,7 +135,7 @@ class PluginInstanceManager(object):
         """
         valid_instances = []
         if name is None:
-            for plugin_name in self._plugin_all_instances[category]:
+            for plugin_name in self._plugin_all_instances.get(category, []):
                 instances = list(self._plugin_all_instances[category][plugin_name])
                 for weakref in instances:
                     obj = weakref()
@@ -172,3 +175,4 @@ new_plugin_instance = PIM.new
 plugin_implementations = PIM.implementations
 plugin_instance = PIM.instance
 plugin_instances = PIM.instances
+plugin_instance_exists = PIM.has_instance

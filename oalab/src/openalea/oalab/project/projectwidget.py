@@ -127,6 +127,7 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
     def __init__(self):
         QtGui.QWidget.__init__(self)
         AbstractListener.__init__(self)
+        self.session = Session()
 
         layout = QtGui.QVBoxLayout(self)
         self.view = ProjectManagerView()
@@ -135,7 +136,6 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         layout.setContentsMargins(0, 0, 0, 0)
 
         self.pm = ProjectManager()
-        self.pm.register_listener(self)
 
         self.menu_available_projects = QtGui.QMenu(u'Available Projects')
 
@@ -158,7 +158,8 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         self.menu_available_projects = QtGui.QMenu(u'Available Projects')
         self.menu_available_projects.aboutToShow.connect(self._update_available_project_menu)
         self.action_available_project = {}  # Dict used to know what project corresponds to triggered action
-        self.session = Session()
+
+        self.pm.register_listener(self)
 
     def initialize(self):
         self.view.initialize()
