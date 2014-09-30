@@ -56,7 +56,10 @@ class ParadigmContainer(QtGui.QTabWidget):
         self._new_file_actions = {}
         self.paradigms_actions = []
         for applet in iter_plugins('oalab.paradigm_applet', debug=self.session.debug_plugins):
-            self.paradigms[applet.name] = applet()()
+            try:
+                self.paradigms[applet.name] = applet()()
+            except:
+                pass
 
         self._open_objects = {}
 

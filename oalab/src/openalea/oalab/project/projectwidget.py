@@ -27,8 +27,6 @@ from openalea.core.project.manager import ProjectManager
 from openalea.core.service.mimetype import encode
 from openalea.core.service.data import DataClass, MimeType
 
-from openalea.file.files import start
-
 from openalea.oalab.gui import resources_rc
 from openalea.oalab.gui.utils import ModalDialog
 from openalea.oalab.gui.utils import qicon
@@ -496,6 +494,7 @@ class ProjectManagerView(QtGui.QTreeView):
                 pass
                 #self.open_all_scripts_from_project(project)
             elif category == 'data':
+                from openalea.file.files import start
                 start(project.get(category, name).path)
             else:
                 self.paradigm_container.open_data(project.get(category, name))
