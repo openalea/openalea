@@ -4,6 +4,7 @@ from openalea.oalab.plugins.applets import PluginApplet
 class HistoryWidget(PluginApplet):
     name = 'HistoryWidget'
     alias = 'History'
+    icon = 'Crystal_Clear_app_clock.png'
 
     def __call__(self):
         # Load and instantiate graphical component that actually provide feature

@@ -1,6 +1,7 @@
 
 from openalea.oalab.plugins.applets import PluginApplet
 
+
 class Logger(PluginApplet):
 
     name = 'Logger'

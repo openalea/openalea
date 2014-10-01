@@ -18,10 +18,12 @@
 
 from openalea.oalab.plugins.applets import PluginApplet
 
+
 class FileBrowser(PluginApplet):
 
     name = 'FileBrowser'
     alias = 'File Browser'
+    icon = 'oxygen_system-file-manager.png'
 
     def __call__(self):
         # Load and instantiate graphical component that actually provide feature
@@ -36,4 +38,3 @@ class FileBrowser(PluginApplet):
             return
 
         mainwindow.add_applet(applet, self.alias, area='inputs')
-

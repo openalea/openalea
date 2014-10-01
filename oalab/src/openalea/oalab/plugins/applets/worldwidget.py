@@ -24,6 +24,7 @@ class World(PluginApplet):
 
     name = 'World'
     alias = 'World'
+    icon = 'oxygen_world.png'
 
     def __call__(self):
         # Load and instantiate graphical component that actually provide feature

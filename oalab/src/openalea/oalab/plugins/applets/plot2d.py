@@ -1,7 +1,8 @@
 
 from openalea.oalab.plugins.applets import PluginApplet
 
-class Plot2dWidget(PluginApplet):                     
+
+class Plot2dWidget(PluginApplet):
 
     name = 'Plot2d'
     alias = 'Plot2d'
@@ -17,7 +18,7 @@ class Plot2dWidget(PluginApplet):
 
         if applet is None or mainwindow is None:
             return
-    
+
         from openalea.oalab.plot2d import activate_in_pyplot
         from matplotlib import pyplot as plt
 
@@ -29,6 +30,7 @@ class Plot2dWidget(PluginApplet):
         mainwindow.add_applet(applet, self.alias, area='outputs')
 
         actions = applet.get_plugin_actions()
+
         if actions:
             for action in actions:
                 # Add actions in PanedMenu
@@ -37,4 +39,3 @@ class Plot2dWidget(PluginApplet):
                 # add action in classical menu
                 group_name, act, btn_type = action
                 mainwindow.add_action_to_existing_menu(action=act, menu_name='Plot2d', sub_menu_name=group_name)
-

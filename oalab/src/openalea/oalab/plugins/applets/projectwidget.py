@@ -1,10 +1,12 @@
 
 from openalea.oalab.plugins.applets import PluginApplet
 
+
 class ProjectManager(PluginApplet):
 
     name = 'ProjectManager'
     alias = 'Project'
+    icon = 'adwaita_accessories-dictionary.png'
 
     def __call__(self):
         from openalea.oalab.project.projectwidget import ProjectManagerWidget
@@ -18,6 +20,7 @@ class ProjectManager(PluginApplet):
             return
 
         self._fill_menu(mainwindow, applet)
+
         mainwindow.menu_classic['Project'].addSeparator()
         mainwindow.menu_classic['Project'].addMenu(applet.menu_available_projects)
         mainwindow.menu_classic['Project'].addSeparator()

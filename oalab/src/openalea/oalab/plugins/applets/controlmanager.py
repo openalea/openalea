@@ -1,10 +1,15 @@
 
 from openalea.oalab.plugins.applets import PluginApplet
+from openalea.deploy.shared_data import shared_data
+import openalea.oalab
+
+
 
 class ControlManager(PluginApplet):
 
     name = 'ControlManager'
     alias = 'Controls'
+    icon = 'controlmanager.png'
 
     def __call__(self):
         from openalea.oalab.gui.control.manager import ControlManagerWidget

@@ -100,7 +100,6 @@ For that purpose, we create a Plugin called HelpWidgetPlugin in helper package:
             from mypackage import MyApplet
             return MyApplet
 
-
         def graft(self, **kwds):
             # 1. Ask to mainwindow to place it
             # 2. Fill menus, actions, toolbars, ...
@@ -154,7 +153,9 @@ Details
 """
 from openalea.core.interface import IInterface
 
+
 class IApplet(IInterface):
+
     """
     Autonomous Graphical component
     """
@@ -166,13 +167,46 @@ class IApplet(IInterface):
 
     def actions(self):
         """
-        Optionnal, common to all applets
+        Optional: list of all actions available for this applet
+        """
+        pass
+
+    def toolbar_actions(self):
+        """
+        Optional: list of actions to use in contextual toolbar
+        """
+        pass
+
+    def menu_actions(self):
+        """
+        Contextual menu actions
+        """
+
+    def global_menu_actions(self):
+        pass
+
+    def global_toolbar_actions(self):
+        """
+        Optional: list of actions/menu to set in menu.
+        action: (menu name, action)
+
+        ..warning::
+
+            these actions must have a global effect as they are added only one time in application.
+            For example, if you add two time applet "Viewer3D", menu_actions are added only one time.
+
+            To get global effects, action cat ...
+                - manipulate core managers directly
+                - manipulate singleton
+                - iter on all applets of same type and apply effect on each
+
+            A contextual menu is also generated dynamically for current applet, see toolbar_actions, menu_actions
         """
         pass
 
 
-
 class IPluginApplet(object):
+
     """
     Graphical component displayed in main window.
     Component must respect :class:`~openalea.oalab.plugins.applet.IApplet` interface.

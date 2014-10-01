@@ -1,6 +1,7 @@
 
 from openalea.oalab.plugins.applets import PluginApplet
 
+
 class EditorManager(PluginApplet):
 
     name = 'EditorManager'

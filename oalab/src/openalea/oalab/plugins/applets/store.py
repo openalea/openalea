@@ -1,14 +1,15 @@
 
 from openalea.oalab.plugins.applets import PluginApplet
 
+
 class Store(PluginApplet):
 
     name = 'Store'
     alias = 'Store'
 
     def __call__(self):
-        from openalea.oalab.gui.store import Store as StoreWidget
-        return StoreWidget
+        from openalea.oalab.gui.store import Store
+        return Store
 
     def graft(self, **kwds):
         mainwindow = kwds['oa_mainwin'] if 'oa_mainwin' in kwds else None

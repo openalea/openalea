@@ -1,10 +1,12 @@
 
 from openalea.oalab.plugins.applets import PluginApplet
 
+
 class HelpWidget(PluginApplet):
 
     name = 'HelpWidget'
     alias = 'Help'
+    icon = 'oxygen_system-help.png'
 
     def __call__(self):
         # Load and instantiate graphical component that actually provide feature

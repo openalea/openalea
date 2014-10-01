@@ -30,7 +30,6 @@ from openalea.core.service.ipython import interpreter
 
 from openalea.core.service.plugin import plugin_class, plugin_instance, debug_plugin
 
-
 class MainWindow(QtGui.QMainWindow):
 
     """
@@ -150,6 +149,8 @@ class MainWindow(QtGui.QMainWindow):
     def add_plugin(self, plugin=None, name=None):
         if name and plugin is None:
             _plugin_class = plugin_class('oalab.applet', name)
+            if _plugin_class is None:
+                return
             plugin = _plugin_class()
 
         def plug():
