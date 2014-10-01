@@ -24,11 +24,11 @@ For example Xyz -> HelpApplet
         name = 'Xyz'
         alias = 'Xyz'
 
-        def __call__(self, mainwindow):
+        def __call__(self):
             # Write your code here
             pass
 
-        def instance(self):
+        def graft(self, **kwds):
             # Write your code here
             pass
 
@@ -95,21 +95,22 @@ For that purpose, we create a Plugin called HelpWidgetPlugin in helper package:
         # Data that describe plugin
         }
 
-        def __call__(self, mainwindow):
-            # 1. Import widget and instantiate it
-            # 2. Ask to mainwindow to place it
-            # 3. Fill menus, actions, toolbars, ...
+        def __call__(self):
+            # Import widget and return it
+            from mypackage import MyApplet
+            return MyApplet
+
+
+        def graft(self, **kwds):
+            # 1. Ask to mainwindow to place it
+            # 2. Fill menus, actions, toolbars, ...
 
             # 1.
-            from mypackage import MyApplet
-            self._applet = MyApplet()
+                mainwindow.add_applet(applet, self.alias, area='inputs')
 
-            # 2
-            mainwindow.add_applet(self._applet, self.alias, area='inputs')
-
-            # 3.
-            if self._applet.actions():
-                for action in self._applet.actions():
+            # 2.
+            if applet.actions():
+                for action in applet.actions():
                     # Add actions in PanedMenu
                     mainwindow.menu.addBtnByAction(*action)
 
@@ -180,20 +181,13 @@ class IPluginApplet(object):
     name = 'AppletName'
     alias = 'Applet alias'
 
-    def __call__(self, mainwindow):
+    def __call__(self):
+        """
+        Return applet class
+        """
+
+    def graft(self, **kwds):
         """
         Load and instantiate graphical component that actually provide feature.
         Then, place it in mainwindow (QMainWindow).
         """
-
-    def instance(self):
-        """
-        returns widget instance if plugin has been called, else None.
-
-        .. code-block:: python
-
-            return self._applet
-
-        """
-
-

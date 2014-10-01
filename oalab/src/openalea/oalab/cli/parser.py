@@ -87,6 +87,9 @@ class CommandLineParser(object):
                     print_plugin_name(ep)
 
         if args.debug_plugins:
-            self.session.debug_plugins = args.debug_plugins
+            debug = args.debug_plugins.split(',')
+            if 'oalab.lab' not in debug:
+                debug.append('oalab.lab')
+            self.session.plugin_manager.debug = debug
 
         self.session.extension = args.extension

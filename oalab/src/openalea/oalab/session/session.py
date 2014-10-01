@@ -27,6 +27,8 @@ from openalea.core.service.run import get_model
 from openalea.oalab.package.manager import package_manager
 from openalea.core.project.manager import ProjectManager
 from openalea.core.control.manager import ControlManager
+from openalea.core.plugin.manager import PluginManager
+
 from openalea.core.settings import get_openalea_tmp_dir
 from openalea.oalab.config.main import MainConfig
 from openalea.oalab.world.world import World
@@ -52,7 +54,6 @@ class Session(object):
     def __init__(self):
         self._project = None
         self._is_proj = False
-        self.debug_plugins = ''
         self._debug = False
         self.gui = True
 
@@ -67,10 +68,12 @@ class Session(object):
         self.package_manager = package_manager
         self.control_manager = ControlManager()
         self.project_manager = ProjectManager()
+        self.plugin_manager = PluginManager()
 
         self.manager['control'] = self.control_manager
         self.manager['package'] = self.package_manager
         self.manager['project'] = self.project_manager
+        self.manager['plugin'] = self.plugin_manager
 
         self.world = World()
 
@@ -151,6 +154,10 @@ class Session(object):
         display_history(input_)
 
     config = property(fget=lambda self: self._config.config)
+
+    @property
+    def debug_plugins(self):
+        return self.plugin_manager.debug
 
     @property
     def debug(self):

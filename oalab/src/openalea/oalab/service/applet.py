@@ -53,7 +53,26 @@ class Applet(object):
                         return instance
         raise NotImplementedError, err
 
-get_applet = Applet.instance
-get_applets = Applet.instances
 register_applet = Applet.register
 new_applet = Applet.new
+
+from openalea.core.service.plugin import plugin_instances, plugin_instance
+
+
+def get_applets():
+    return plugin_instances('oalab.applet')
+
+
+def get_applet(**kwargs):
+    if 'class_args' in kwargs:
+        class_args = kwargs['class_args']
+    else:
+        class_args = {}
+
+    instance = None
+    err = 'Cannot find required applet'
+
+    if 'identifier' in kwargs:
+        identifier = kwargs['identifier']
+
+        return plugin_instance('oalab.applet', identifier, class_kwds=class_args)

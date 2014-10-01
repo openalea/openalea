@@ -28,9 +28,11 @@ from openalea.oalab.shell import get_shell_class
 from openalea.oalab.service.applet import get_applets, register_applet
 from openalea.core.service.ipython import interpreter
 
-import weakref
+from openalea.core.service.plugin import plugin_class, plugin_instance, debug_plugin
+
 
 class MainWindow(QtGui.QMainWindow):
+
     """
     This class is based on QMainWindow and provide widgets common to all openalea labs.
     Some are inherited from QMainWindow:
@@ -63,11 +65,11 @@ class MainWindow(QtGui.QMainWindow):
             self.areas[area_name] = QtGui.QTabWidget()
 
         self.dockWidget("Inputs", self.areas['inputs'], name="Inputs",
-                         position=QtCore.Qt.LeftDockWidgetArea)
+                        position=QtCore.Qt.LeftDockWidgetArea)
         self.dockWidget("Outputs", self.areas['outputs'], name="Outputs",
-                         position=QtCore.Qt.RightDockWidgetArea)
+                        position=QtCore.Qt.RightDockWidgetArea)
         self.dockWidget("Shell", self.areas['shell'], name="Shell, log and history",
-                         position=QtCore.Qt.BottomDockWidgetArea)
+                        position=QtCore.Qt.BottomDockWidgetArea)
 
         self.split = QtGui.QSplitter()
         self.setCentralWidget(self.split)
@@ -88,7 +90,7 @@ class MainWindow(QtGui.QMainWindow):
         self.menu = PanedMenu()
 
         # Organize order of tabs
-        for menu_name in menu_names :
+        for menu_name in menu_names:
             self.menu_paned[menu_name] = self.menu.addSpecialTab(menu_name)
 
         dock_menu = self.dockWidget("Menu", self.menu, position=QtCore.Qt.TopDockWidgetArea)
@@ -106,7 +108,7 @@ class MainWindow(QtGui.QMainWindow):
         self.add_applet(self.shell, 'Shell', area='shell')
 
         self.applets = self._plugins = {}
-        #self.resize(QtGui.qApp.desktop().size())
+        # self.resize(QtGui.qApp.desktop().size())
 
     def add_action_to_existing_menu(self, action, menu_name, sub_menu_name):
         """
@@ -145,30 +147,30 @@ class MainWindow(QtGui.QMainWindow):
         else:
             self.dockWidget(name, applet)
 
-    def add_plugin(self, plugin):
-        if self.session.debug_plugins in ('oalab.applet', 'all'):
-            plugin(self)
+    def add_plugin(self, plugin=None, name=None):
+        if name and plugin is None:
+            _plugin_class = plugin_class('oalab.applet', name)
+            plugin = _plugin_class()
+
+        def plug():
+            applet = plugin_instance('oalab.applet', plugin.name)
+            plugin.graft(applet=applet, oa_mainwin=self)
             self.session.applet['plugin_%s' % plugin.name] = plugin
-        else:
-            try:
-                plugin(self)
-            except:
-                # TODO: log error
-                pass
-            else:
-                self.session.applet['plugin_%s' % plugin.name] = plugin
+            self.session.applet[applet.__class__.__name__] = applet
+
+        # Use plugin manager call to handle debug mode automatically
+        debug_plugin('oalab.applet', func=plug)
 
     def initialize(self):
         for applet in get_applets():
-            self.session.applet[applet.__class__.__name__] = weakref.ref(applet)
             if hasattr(applet, 'initialize'):
                 applet.initialize()
             else:
                 pass
 
     def dockWidget(self, identifier, widget, name=None,
-                    allowed_area=None, position=None, alias=None):
-        if name is None :
+                   allowed_area=None, position=None, alias=None):
+        if name is None:
             name = identifier.capitalize()
 
         if allowed_area is None:
@@ -194,13 +196,12 @@ class MainWindow(QtGui.QMainWindow):
 
         return dock_widget
 
-
     def closeEvent(self, event):
         self.writeSettings()
         super(QtGui.QMainWindow, self).closeEvent(event)
 
     ####################################################################
-    # ## Settings
+    # Settings
     ####################################################################
     def writeSettings(self):
         """
@@ -210,6 +211,6 @@ class MainWindow(QtGui.QMainWindow):
         if self.session.project:
             last_proj = self.session.project.name
             config = Settings()
-            
+
             config.set("ProjectManager", "Last Project", last_proj)
             config.write()

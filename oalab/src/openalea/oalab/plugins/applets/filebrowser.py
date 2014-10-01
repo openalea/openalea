@@ -23,10 +23,17 @@ class FileBrowser(PluginApplet):
     name = 'FileBrowser'
     alias = 'File Browser'
 
-    def __call__(self, mainwindow):
+    def __call__(self):
         # Load and instantiate graphical component that actually provide feature
         from openalea.oalab.gui.browser import FileBrowser
-        self._applet = self.new(self.name, FileBrowser, controller=mainwindow)
-        mainwindow.add_applet(self._applet, self.alias, area='inputs')
+        return FileBrowser
 
+    def graft(self, **kwds):
+        mainwindow = kwds['oa_mainwin'] if 'oa_mainwin' in kwds else None
+        applet = kwds['applet'] if 'applet' in kwds else None
+
+        if applet is None or mainwindow is None:
+            return
+
+        mainwindow.add_applet(applet, self.alias, area='inputs')
 

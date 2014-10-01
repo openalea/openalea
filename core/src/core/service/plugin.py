@@ -160,10 +160,14 @@ class PluginInstanceManager(object):
         """
         raise NotImplementedError
 
+PM = PluginManager()
 PIM = PluginInstanceManager()
 
+plugins = PM.plugins
+plugin_class = PM.plugin
 
 clear_plugin_instances = PIM.clear
+debug_plugin = PIM.__call__
 new_plugin_instance = PIM.new
 plugin_implementations = PIM.implementations
 plugin_instance = PIM.instance

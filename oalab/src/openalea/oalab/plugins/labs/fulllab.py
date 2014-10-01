@@ -1,12 +1,13 @@
-from openalea.core.plugin import iter_plugins
 
 
 class FullLab(object):
     name = 'full'
 
     def __call__(self, mainwin):
-        from openalea.oalab.session.session import Session
-        session = Session()
-        for plugin in iter_plugins('oalab.applet', debug=session.debug_plugins):
-            mainwin.add_plugin(plugin())
+        from openalea.core.plugin.manager import PluginManager
+        pm = PluginManager()
+        # Load, create and place applets in mainwindow
+        for plugin_class in pm.plugins('oalab.applet'):
+            mainwin.add_plugin(plugin=plugin_class())
+        # Initialize all applets
         mainwin.initialize()

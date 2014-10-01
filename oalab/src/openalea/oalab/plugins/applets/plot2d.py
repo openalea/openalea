@@ -6,21 +6,29 @@ class Plot2dWidget(PluginApplet):
     name = 'Plot2d'
     alias = 'Plot2d'
 
-    def __call__(self, mainwindow):
+    def __call__(self):
         # Load and instantiate graphical component that actually provide feature
-        from openalea.oalab.plot2d import activate_in_pyplot
         from openalea.oalab.plot2d.widget import MplTabWidget
-        from matplotlib import pyplot as plt                     
-        
+        return MplTabWidget
+
+    def graft(self, **kwds):
+        mainwindow = kwds['oa_mainwin'] if 'oa_mainwin' in kwds else None
+        applet = kwds['applet'] if 'applet' in kwds else None
+
+        if applet is None or mainwindow is None:
+            return
+    
+        from openalea.oalab.plot2d import activate_in_pyplot
+        from matplotlib import pyplot as plt
+
         # work with qt4agg backend
         plt.switch_backend('qt4agg')
 
-        self._applet = MplTabWidget.get_singleton()
         activate_in_pyplot()
         plt.ion()
-        mainwindow.add_applet(self._applet, self.alias, area='outputs')
-        
-        actions = self._applet.get_plugin_actions()
+        mainwindow.add_applet(applet, self.alias, area='outputs')
+
+        actions = applet.get_plugin_actions()
         if actions:
             for action in actions:
                 # Add actions in PanedMenu

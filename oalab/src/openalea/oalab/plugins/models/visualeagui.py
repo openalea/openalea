@@ -1,7 +1,5 @@
-from openalea.oalab.plugins.applets import PluginApplet
 
-
-class VisualeaModelGUI(PluginApplet):
+class VisualeaModelGUI(object):
     name = 'Workflow'
     mimetype_model = "text/x-visualea"
     mimetype_data = "text/x-visualea"

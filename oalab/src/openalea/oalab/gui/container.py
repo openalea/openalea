@@ -44,7 +44,7 @@ class ParadigmContainer(QtGui.QTabWidget):
     identifier = "WidgetEditorContainer"
     name = "Editor Container"
 
-    def __init__(self, controller, session, parent=None):
+    def __init__(self, parent=None):
         super(ParadigmContainer, self).__init__(parent=parent)
         self.session = Session()
 
