@@ -190,7 +190,7 @@ class IPluginApplet(object):
         """
         returns widget instance if plugin has been called, else None.
 
-        .. code-block :: python
+        .. code-block:: python
 
             return self._applet
 

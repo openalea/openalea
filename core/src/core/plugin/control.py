@@ -133,31 +133,31 @@ We will use these widgets depending on context:
     - QSlider for vline
     - QSpinBox for hline
 
-.. literalinclude:: ../../../../oalab/src/openalea/oalab/plugins/controls/widgets.py
+.. literalinclude:: ../../../openalea-src/oalab/src/openalea/oalab/plugins/controls/widgets.py
     :linenos:
     :pyobject: AbstractIntWidget
 
-.. literalinclude:: ../../../../oalab/src/openalea/oalab/plugins/controls/widgets.py
+.. literalinclude:: ../../../openalea-src/oalab/src/openalea/oalab/plugins/controls/widgets.py
     :linenos:
     :pyobject: IntDial
 
-.. literalinclude:: ../../../../oalab/src/openalea/oalab/plugins/controls/widgets.py
+.. literalinclude:: ../../../openalea-src/oalab/src/openalea/oalab/plugins/controls/widgets.py
     :linenos:
     :pyobject: IntSpinBox
 
-.. literalinclude:: ../../../../oalab/src/openalea/oalab/plugins/controls/widgets.py
+.. literalinclude:: ../../../openalea-src/oalab/src/openalea/oalab/plugins/controls/widgets.py
     :linenos:
     :pyobject: IntSimpleSlider
 
 We define also a widget to edit constraints
 
-.. literalinclude:: ../../../../oalab/src/openalea/oalab/plugins/controls/constraints.py
+.. literalinclude:: ../../../openalea-src/oalab/src/openalea/oalab/plugins/controls/constraints.py
     :linenos:
     :pyobject: IntConstraintWidget
 
 Now, lets define widget selector to group all classes together :
 
-.. literalinclude:: ../../../../oalab/src/openalea/oalab/plugins/controls/selectors.py
+.. literalinclude:: ../../../openalea-src/oalab/src/openalea/oalab/plugins/controls/selectors.py
     :linenos:
     :emphasize-lines: 11
     :pyobject: IntWidgetSelector
@@ -166,7 +166,7 @@ You can notice in line 11, instruction to set widget to fit to vline shape.
 
 And finally, lets define plugin that links to it.
 
-.. literalinclude:: ../../../../oalab/src/openalea/oalab/plugins/controls/__init__.py
+.. literalinclude:: ../../../openalea-src/oalab/src/openalea/oalab/plugins/controls/__init__.py
     :linenos:
     :pyobject: PluginIntWidgetSelector
 
