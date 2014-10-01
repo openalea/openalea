@@ -6,10 +6,12 @@ class Store(PluginApplet):
     name = 'Store'
     alias = 'Store'
 
-    def __call__(self, mainwindow):
+    def __call__(self):
         from openalea.oalab.gui.store import Store as StoreWidget
+        return StoreWidget
 
-        self._applet = self.new(self.name, StoreWidget, mainwindow.session, mainwindow)
+    def graft(self, mainwindow):
+        self._applet = self.new(self.name, self(), mainwindow.session, mainwindow)
         self._fill_menu(mainwindow, self._applet)
 
         mainwindow.add_applet(self._applet, self.alias, area='inputs')

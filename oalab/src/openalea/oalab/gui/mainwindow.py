@@ -147,11 +147,11 @@ class MainWindow(QtGui.QMainWindow):
 
     def add_plugin(self, plugin):
         if self.session.debug_plugins in ('oalab.applet', 'all'):
-            plugin(self)
+            plugin.graft(self)
             self.session.applet['plugin_%s' % plugin.name] = plugin
         else:
             try:
-                plugin(self)
+                plugin.graft(self)
             except:
                 # TODO: log error
                 pass

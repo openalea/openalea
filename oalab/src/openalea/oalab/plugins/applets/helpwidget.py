@@ -6,11 +6,12 @@ class HelpWidget(PluginApplet):
     name = 'HelpWidget'
     alias = 'Help'
 
-    def __call__(self, mainwindow):
+    def __call__(self):
         # Load and instantiate graphical component that actually provide feature
         from openalea.oalab.gui.help import HelpWidget
+        return HelpWidget
 
-        self._applet = self.new(self.name, HelpWidget)
+    def graft(self, mainwindow):
+        self._applet = self.new(self.name, self())
         self._fill_menu(mainwindow, self._applet)
-
         mainwindow.add_applet(self._applet, self.alias, area='outputs')

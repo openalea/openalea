@@ -25,10 +25,12 @@ class World(PluginApplet):
     name = 'World'
     alias = 'World'
 
-    def __call__(self, mainwindow):
+    def __call__(self):
         # Load and instantiate graphical component that actually provide feature
         from openalea.oalab.gui.world import WorldBrowser
+        return WorldBrowser
 
-        self._applet = self.new(self.name, WorldBrowser, mainwindow.session.world)
+    def graft(self, mainwindow):
+        self._applet = self.new(self.name, self(), mainwindow.session.world)
         self._fill_menu(mainwindow, self._applet)
         mainwindow.add_applet(self._applet, self.alias, area='inputs')

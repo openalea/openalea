@@ -1,7 +1,5 @@
-from openalea.oalab.plugins.applets import PluginApplet
 
-
-class PythonModelGUI(PluginApplet):
+class PythonModelGUI(object):
     name = 'Python'
     mimetype_model = 'text/x-python'
     mimetype_data = 'text/x-python'

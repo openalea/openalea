@@ -24,11 +24,11 @@ For example Xyz -> HelpApplet
         name = 'Xyz'
         alias = 'Xyz'
 
-        def __call__(self, mainwindow):
+        def __call__(self):
             # Write your code here
             pass
 
-        def instance(self):
+        def graft(self, mainwindow):
             # Write your code here
             pass
 
@@ -95,14 +95,19 @@ For that purpose, we create a Plugin called HelpWidgetPlugin in helper package:
         # Data that describe plugin
         }
 
-        def __call__(self, mainwindow):
-            # 1. Import widget and instantiate it
+        def __call__(self):
+            # Import widget and return it
+            from mypackage import MyApplet
+            return MyApplet
+
+
+        def graft(self, mainwindow):
+            # 1. Instantiate applet
             # 2. Ask to mainwindow to place it
             # 3. Fill menus, actions, toolbars, ...
 
-            # 1.
-            from mypackage import MyApplet
-            self._applet = MyApplet()
+            #1.
+            self._applet = self()
 
             # 2
             mainwindow.add_applet(self._applet, self.alias, area='inputs')
@@ -180,20 +185,15 @@ class IPluginApplet(object):
     name = 'AppletName'
     alias = 'Applet alias'
 
-    def __call__(self, mainwindow):
+    def __call__(self):
+        """
+        Return applet class
+        """
+
+    def graft(self, mainwindow):
         """
         Load and instantiate graphical component that actually provide feature.
         Then, place it in mainwindow (QMainWindow).
-        """
-
-    def instance(self):
-        """
-        returns widget instance if plugin has been called, else None.
-
-        .. code-block:: python
-
-            return self._applet
-
         """
 
 
