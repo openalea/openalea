@@ -194,6 +194,6 @@ class IPluginApplet(object):
         """
         Load and instantiate graphical component that actually provide feature.
         Then, place it in mainwindow (QMainWindow).
+
+        returns widget instance if plugin has been called, else None.
         """
-
-
