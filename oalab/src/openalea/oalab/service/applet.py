@@ -72,7 +72,6 @@ def get_applet(**kwargs):
     instance = None
     err = 'Cannot find required applet'
 
-
     if 'identifier' in kwargs:
         identifier = kwargs['identifier']
 

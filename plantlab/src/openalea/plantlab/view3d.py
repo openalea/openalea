@@ -28,6 +28,7 @@ from PyQGLViewer import QGLViewer, Vec, Quaternion
 import sys
 
 from openalea.oalab.service.geometry import to_shape3d
+from openalea.oalab.session.session import Session
 
 
 class view3D(QGLViewer):
@@ -179,7 +180,7 @@ class Viewer(AbstractListener, view3D):
     Widget of 3D Viewer to show the scene.
     """
 
-    def __init__(self, session, controller, parent=None):
+    def __init__(self, parent=None):
 #         super(Viewer, self).__init__()
         AbstractListener.__init__(self)
         view3D.__init__(self, parent=parent)
@@ -233,6 +234,7 @@ class Viewer(AbstractListener, view3D):
         QtCore.QObject.connect(actionBlack, QtCore.SIGNAL('triggered(bool)'), self.set_bg_black)
         QtCore.QObject.connect(actionWhite, QtCore.SIGNAL('triggered(bool)'), self.set_bg_white)
 
+        session = Session()
         session.world.register_listener(self)
 
         self._actions = [["Viewer", "Zoom", actionResetZoom, 0],

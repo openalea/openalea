@@ -10,10 +10,13 @@ class HistoryWidget(PluginApplet):
         from openalea.oalab.gui.history import HistoryWidget as History
         return History
 
-    def graft(self, mainwindow):
-        from openalea.oalab.service.history import register_history_diplayer
+    def graft(self, **kwds):
+        mainwindow = kwds['oa_mainwin'] if 'oa_mainwin' in kwds else None
+        applet = kwds['applet'] if 'applet' in kwds else None
+        if applet is None or mainwindow is None:
+            return
 
-        self._applet = self.new(self.name, self())
-        register_history_diplayer(self._applet)
-        self._fill_menu(mainwindow, self._applet)
-        mainwindow.add_applet(self._applet, self.alias, area='shell')
+        from openalea.oalab.service.history import register_history_diplayer
+        register_history_diplayer(applet)
+        self._fill_menu(mainwindow, applet)
+        mainwindow.add_applet(applet, self.alias, area='shell')

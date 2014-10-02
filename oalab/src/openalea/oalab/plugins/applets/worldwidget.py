@@ -30,7 +30,12 @@ class World(PluginApplet):
         from openalea.oalab.gui.world import WorldBrowser
         return WorldBrowser
 
-    def graft(self, mainwindow):
-        self._applet = self.new(self.name, self(), mainwindow.session.world)
-        self._fill_menu(mainwindow, self._applet)
-        mainwindow.add_applet(self._applet, self.alias, area='inputs')
+    def graft(self, **kwds):
+        mainwindow = kwds['oa_mainwin'] if 'oa_mainwin' in kwds else None
+        applet = kwds['applet'] if 'applet' in kwds else None
+
+        if applet is None or mainwindow is None:
+            return
+
+        self._fill_menu(mainwindow, applet)
+        mainwindow.add_applet(applet, self.alias, area='inputs')

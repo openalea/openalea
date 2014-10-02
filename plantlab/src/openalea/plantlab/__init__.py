@@ -20,10 +20,14 @@ class Viewer3D(PluginApplet):
         from openalea.plantlab.view3d import Viewer
         return Viewer
 
-    def graft(self, mainwindow):
+    def graft(self, **kwds):
+        mainwindow = kwds['oa_mainwin'] if 'oa_mainwin' in kwds else None
+        applet = kwds['applet'] if 'applet' in kwds else None
+        if applet is None or mainwindow is None:
+            return
+
         from openalea.oalab.service.plot import register_plotter
 
-        self._applet = self.new(self.name, self(), mainwindow.session, mainwindow)
-        self._fill_menu(mainwindow, self._applet)
-        register_plotter(self._applet)
-        mainwindow.add_applet(self._applet, self.alias, area='outputs')
+        self._fill_menu(mainwindow, applet)
+        register_plotter(applet)
+        mainwindow.add_applet(applet, self.alias, area='outputs')

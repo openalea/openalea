@@ -28,7 +28,7 @@ For example Xyz -> HelpApplet
             # Write your code here
             pass
 
-        def graft(self, mainwindow):
+        def graft(self, **kwds):
             # Write your code here
             pass
 
@@ -101,20 +101,16 @@ For that purpose, we create a Plugin called HelpWidgetPlugin in helper package:
             return MyApplet
 
 
-        def graft(self, mainwindow):
-            # 1. Instantiate applet
-            # 2. Ask to mainwindow to place it
-            # 3. Fill menus, actions, toolbars, ...
+        def graft(self, **kwds):
+            # 1. Ask to mainwindow to place it
+            # 2. Fill menus, actions, toolbars, ...
 
-            #1.
-            self._applet = self()
+            # 1.
+                mainwindow.add_applet(applet, self.alias, area='inputs')
 
-            # 2
-            mainwindow.add_applet(self._applet, self.alias, area='inputs')
-
-            # 3.
-            if self._applet.actions():
-                for action in self._applet.actions():
+            # 2.
+            if applet.actions():
+                for action in applet.actions():
                     # Add actions in PanedMenu
                     mainwindow.menu.addBtnByAction(*action)
 
@@ -190,10 +186,8 @@ class IPluginApplet(object):
         Return applet class
         """
 
-    def graft(self, mainwindow):
+    def graft(self, **kwds):
         """
         Load and instantiate graphical component that actually provide feature.
         Then, place it in mainwindow (QMainWindow).
-
-        returns widget instance if plugin has been called, else None.
         """

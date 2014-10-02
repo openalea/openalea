@@ -23,6 +23,7 @@ __revision__ = "$Id: $"
 from openalea.deploygui.alea_install_gui import MainWindow as MainWindowAleaInstall
 from openalea.deploygui.alea_install_gui import * 
 
+import sys
 
 class Store(MainWindowAleaInstall):
     """
@@ -31,7 +32,7 @@ class Store(MainWindowAleaInstall):
     Warning!!! Will kill OALab!!!
     """
     
-    def __init__(self, session, controller, parent=None):
+    def __init__(self, parent=None):
         # Save stdout and stderr because MainWindowAleaInstall try to redirect it.
         oldstdout = sys.stdout
         oldstderr = sys.stderr
@@ -46,7 +47,6 @@ class Store(MainWindowAleaInstall):
         self.label_3.hide()        
         
         self.show = False
-        self.session = session
         #self.actionShowHide = QtGui.QAction(QtGui.QIcon(":/images/resources/store.png"),"Show/Hide", self)
         #QtCore.QObject.connect(self.actionShowHide, QtCore.SIGNAL('triggered(bool)'),self.showhide)
         #self._actions = [["Help","Package Store",self.actionShowHide,0]]
