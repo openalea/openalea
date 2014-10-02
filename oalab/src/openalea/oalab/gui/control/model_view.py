@@ -25,6 +25,7 @@ from openalea.core.service.mimetype import encode
 from openalea.core.control.manager import ControlContainer
 from openalea.oalab.gui.control.editor import ControlEditor
 from openalea.oalab.gui.utils import ModalDialog
+from openalea.core.control.pyserial import save_controls
 
 class ControlView(QtGui.QTreeView):
     controlsSelected = QtCore.Signal(list)
@@ -94,7 +95,6 @@ class ControlView(QtGui.QTreeView):
         if not filename:
             filename = QtGui.QFileDialog.getSaveFileName(self, 'Select python file')
         if filename:
-            from openalea.oalab.control.pyserial import save_controls
             save_controls(self.model()._manager.controls(), filename)
  
     def load_controls(self, filename=None):

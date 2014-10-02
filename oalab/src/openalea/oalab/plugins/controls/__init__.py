@@ -21,7 +21,7 @@
 # Manual definition of Qt control widgets from openalea node widgets
 ################################################################################
 
-from openalea.oalab.plugins.control import ControlWidgetSelectorPlugin
+from openalea.core.plugin.control import ControlWidgetSelectorPlugin
 from openalea.deploy.shared_data import shared_data
 import openalea.oalab
 """

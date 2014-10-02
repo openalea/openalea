@@ -100,7 +100,7 @@ XyzControlWidgetSelector instead of XyzControlWidget.
 
 .. code-block:: python
 
-     from openalea.oalab.plugins.control import ControlWidgetSelectorPlugin
+     from openalea.oalab.plugin.control import ControlWidgetSelectorPlugin
      from openalea.deploy.shared_data import shared_data
 
      class PluginXyzWidgetSelector(ControlWidgetSelectorPlugin):

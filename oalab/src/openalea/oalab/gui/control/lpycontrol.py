@@ -2,7 +2,8 @@
 
 from openalea.core.control import Control
 from openalea.core.path import path
-from openalea.core.service.interface import guess_interface, register_control
+from openalea.core.service.interface import guess_interface
+from openalea.core.service.control import register_control
 
 from openalea.lpy import Lsystem
 from openalea.lpy.__lpy_kernel__ import LpyParsing
