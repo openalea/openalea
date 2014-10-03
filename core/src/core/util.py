@@ -9,7 +9,7 @@ def warn_deprecated(old_name, new_name, date=None):
     """
     tb = traceback.extract_stack()
     if date:
-        final_date = datetime.date(*date) + datetime.timedelta(30) # deleted after 30 days
+        final_date = datetime.date(*date) + datetime.timedelta(100) # deleted after 100 days
         datemsg = 'on %s' % (final_date)
     else:
         datemsg = 'soon'
