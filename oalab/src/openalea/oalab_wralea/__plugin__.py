@@ -20,7 +20,7 @@ from openalea.oalab.interfaces.all import (IApplet, IParadigmApplet,
 __all__ = ['IApplet', 'IParadigmApplet', 'IQTextWidget', 'IHelper']
 
 # Declare object factories
-from openalea.vpltk.catalog.factories import ObjectFactory
+from openalea.oalab.legacy.catalog.factories import ObjectFactory
 HelpWidget = ObjectFactory(name='HelpWidget', 
                           description="Help Widget", 
                           category="helpers", 

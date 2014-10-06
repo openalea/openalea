@@ -19,8 +19,6 @@
 
 from openalea.vpltk.qt import QtCore
 from openalea.core.observer import AbstractListener
-from openalea.oalab.service.interface import get_class
-
 
 class AbstractControlWidget(AbstractListener):
     """

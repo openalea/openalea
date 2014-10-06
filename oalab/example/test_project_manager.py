@@ -4,7 +4,7 @@ from openalea.vpltk.qt import QtGui
 from openalea.oalab.service.applet import get_applet
 from openalea.oalab.gui.mainwindow import MainWindow
 from openalea.oalab.session.session import  Session
-from openalea.vpltk.plugin import iter_plugins
+from openalea.core.plugin import iter_plugins
 
 if __name__ == '__main__':
     instance = QtGui.QApplication.instance()
@@ -34,8 +34,8 @@ if __name__ == '__main__':
         app.exec_()
 
 """
-from openalea.oalab.control.manager import ControlManager
-from openalea.oalab.control.control import Control
+from openalea.core.control.manager import ControlManager
+from openalea.core.control import Control
 a = Control('length', 'IInt', value=4)
 b = Control('curve', 'ICurve2D')
 c = Control('colors', 'IColorList')

@@ -27,7 +27,7 @@ __revision__ = '$Id$'
 from openalea.core import *
 from openalea.plantgl.all import Scene as PglScene
 from openalea.oalab.world.world import World
-from openalea.oalab.control.manager import ControlManager
+from openalea.core.control.manager import ControlManager
 
 # Nodes for read/write in world
 

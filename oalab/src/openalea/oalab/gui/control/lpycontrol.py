@@ -1,15 +1,17 @@
 
+
+from openalea.core.control import Control
+from openalea.core.path import path
+from openalea.core.service.interface import guess_interface
+from openalea.core.service.control import register_control
+
+from openalea.lpy import Lsystem
 from openalea.lpy.__lpy_kernel__ import LpyParsing
 from openalea.lpy.gui.objectmanagers import get_managers
 from openalea.lpy.gui.scalar import ProduceScalar
-from openalea.oalab.control.control import Control
-from openalea.oalab.service.interface import guess
+
 from openalea.plantgl.all import Material, NurbsCurve2D
 from openalea.plantgl.oaplugins.controls import to_color
-from openalea.lpy import Lsystem
-from openalea.core.path import path
-
-from openalea.oalab.service.control import register as register_control
 
 def export_lpy_controls(controls, filename):
     """
@@ -103,7 +105,7 @@ def import_lpy_controls(filepath):
 
     new_controls = []
     for name, value in control.items():
-        interfaces = guess(value)
+        interfaces = guess_interface(value)
         if interfaces:
             new_controls.append(Control(name, interfaces[0], value))
 

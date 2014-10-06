@@ -22,6 +22,7 @@
 
 __all__ = ['CommandLineParser']
 
+import os
 import argparse
 from openalea.oalab.session.all import Session
 
@@ -50,15 +51,19 @@ class CommandLineParser(object):
                            help='List available plugin for given category. If all, list all plugins. If summary, list only categories')
         group.add_argument('--debug-plugins', metavar='category', default='',
                             help='Raise error while loading instead of passing it silently. Use "all" to debug all plugins')
+        group.add_argument('--color', help='Color terminal output', action="store_true")
 
         args = self.parser.parse_args()
         self.session.gui = True
 
+        if args.color:
+            self.session.color_cli = True
+            os.environ['OA_CLICOLOR'] = '1'
 
         if args.list_plugins:
             self.session.gui = False
             import pkg_resources
-            from openalea.vpltk.plugin import iter_groups
+            from openalea.core.plugin import iter_groups
 
             if args.list_plugins in ['summary', 'all']:
                 for category in sorted(iter_groups()):
@@ -78,7 +83,6 @@ class CommandLineParser(object):
                 print 'Plugins for category %r' % args.list_plugins
                 for ep in pkg_resources.iter_entry_points(args.list_plugins):
                     print_plugin_name(ep)
-
 
         if args.debug_plugins:
             self.session.debug_plugins = args.debug_plugins

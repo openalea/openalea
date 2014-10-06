@@ -24,7 +24,7 @@ __revision__ = ""
 from openalea.core.settings import Settings
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.oalab.gui.menu import PanedMenu
-from openalea.vpltk.shell.shell import get_shell_class
+from openalea.oalab.shell import get_shell_class
 from openalea.oalab.service.applet import get_applets, register_applet
 
 import weakref
@@ -144,8 +144,17 @@ class MainWindow(QtGui.QMainWindow):
             self.dockWidget(name, applet)
 
     def add_plugin(self, plugin):
-        plugin(self)
-        self.session.applet['plugin_%s' % plugin.name] = plugin
+        if self.session.debug_plugins in ('oalab.applet', 'all'):
+            plugin(self)
+            self.session.applet['plugin_%s' % plugin.name] = plugin
+        else:
+            try:
+                plugin(self)
+            except:
+                # TODO: log error
+                pass
+            else:
+                self.session.applet['plugin_%s' % plugin.name] = plugin
 
     def initialize(self):
         for applet in get_applets():

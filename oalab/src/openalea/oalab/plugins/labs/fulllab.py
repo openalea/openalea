@@ -1,4 +1,4 @@
-from openalea.vpltk.plugin import iter_plugins
+from openalea.core.plugin import iter_plugins
 
 
 class FullLab(object):

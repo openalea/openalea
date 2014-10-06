@@ -24,7 +24,7 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 
-import inspect
+#import inspect
 import os
 import sys
 import string
@@ -35,7 +35,7 @@ import shutil
 from openalea.core.pkgdict import PackageDict, protected
 from openalea.core.path import path as _path
 from openalea.core.vlab import vlab_object
-from openalea.core import logger
+#from openalea.core import logger
 
 # Exceptions
 
@@ -44,7 +44,7 @@ class UnknownNodeError (Exception):
 
     def __init__(self, name):
         Exception.__init__(self)
-        self.message = "Cannot find node : %s"%(name)
+        self.message = "Cannot find node : %s" % (name)
 
     def __str__(self):
         return self.message
@@ -52,6 +52,7 @@ class UnknownNodeError (Exception):
 
 class FactoryExistsError(Exception):
     pass
+
 
 ###############################################################################
 class DynamicPackage(PackageDict):
@@ -62,8 +63,8 @@ class DynamicPackage(PackageDict):
         self.metainfo = metainfo
         self.name = name
         PackageDict.__init__(self)
-        
-        
+
+
 class Package(PackageDict):
     """
     A Package is a dictionnary of node factory.
@@ -168,7 +169,7 @@ class Package(PackageDict):
 
         sources = self.get_pkg_files()
 
-        s = set() # set of full path name
+        s = set()  # set of full path name
         for f in sources:
             if (f.endswith('.py')):
                 f += 'c'
@@ -198,22 +199,22 @@ class Package(PackageDict):
     def get_tip(self):
         """ Return the package description """
 
-        str= "<b>Package:</b>%s<br/>\n"%(self.name, )
+        str = "<b>Package:</b>%s<br/>\n" % (self.name, )
         try:
-            str += "<b>Description : </b>%s<br/>\n"%(self.metainfo['description'].replace('\n','<br/>'), )
+            str += "<b>Description : </b>%s<br/>\n" % (self.metainfo['description'].replace('\n', '<br/>'), )
         except:
             pass
         try:
-            str += "<b>Authors :</b> %s<br/>\n"%(self.metainfo['authors'], )
+            str += "<b>Authors :</b> %s<br/>\n" % (self.metainfo['authors'],)
         except:
             pass
         try:
-            str += "<b>Institutes :</b> %s<br/>\n"%(self.metainfo['institutes'], )
+            str += "<b>Institutes :</b> %s<br/>\n" % (self.metainfo['institutes'], )
         except:
             pass
 
         try:
-            str += "<b>URL : </b>%s<br/>\n"%(self.metainfo['url'], )
+            str += "<b>URL : </b>%s<br/>\n" % (self.metainfo['url'], )
         except:
             pass
 
@@ -232,9 +233,7 @@ class Package(PackageDict):
         """ Add to the package a factory ( node or subgraph ) """
 
         if (factory.name in self):
-            raise Exception("Factory %s already defined. Ignored !" \
-                % (factory.name, ))
-
+            raise Exception("Factory %s already defined. Ignored !" % (factory.name, ))
 
         self[factory.name] = factory
         factory.package = self
@@ -323,8 +322,8 @@ class UserPackage(Package):
 
         # Copy deeply all the factory
         for k, v in pkg.iteritems():
-            self[k] = v.copy(replace_pkg = (pkg, self),
-                             path = self.path)
+            self[k] = v.copy(replace_pkg=(pkg, self),
+                             path=self.path)
 
             #self.update(copy.deepcopy(pkg))
 
@@ -351,7 +350,7 @@ class UserPackage(Package):
     # Convenience function
 
     def create_user_node(self, name, category, description,
-                            inputs, outputs):
+                         inputs, outputs):
         """
         Return a new user node factory
         This function create a new python module in the package directory
@@ -373,9 +372,9 @@ class UserPackage(Package):
             in_names.append(in_name)
             in_value = input['value']
             if in_value is not None:
-                arg = '%s=%s'%(in_name, repr(in_value))
+                arg = '%s=%s' % (in_name, repr(in_value))
             else:
-                arg = '%s'%(in_name, )
+                arg = '%s' % (in_name, )
             ins.append(arg)
         in_args = ', '.join(ins)
 
@@ -387,15 +386,14 @@ class UserPackage(Package):
             # if an input arg is equal to an output one,
             # change its name.
             while arg in in_names:
-                arg = 'out_'+arg
-            out_values += '%s = None; '%(arg, )
-            return_values.append('%s'%(arg, ))
+                arg = 'out_' + arg
+            out_values += '%s = None; ' % (arg, )
+            return_values.append('%s' % (arg, ))
 
         if return_values:
-            return_values = ', '.join(return_values)+','
+            return_values = ', '.join(return_values) + ','
         # Create the module file
-        my_template = \
-"""\
+        my_template = """\
 def %s(%s):
     '''\
     %s
@@ -423,31 +421,28 @@ def %s(%s):
                               nodemodule=classname,
                               nodeclass=classname,
                               authors='',
-                              search_path = [localdir])
+                              search_path=[localdir])
 
         self.add_factory(factory)
         self.write()
 
         return factory
 
-
     # Convenience function
-
     def create_user_compositenode(self, name, category, description,
-                                   inputs, outputs):
+                                  inputs, outputs):
         """
         Add a new user composite node factory to the package
         and save the package.
         Returns the cn factory.
         """
-
         # Avoid cyclic import:
         # composite node factory import package...
         from compositenode import CompositeNodeFactory
 
         newfactory = CompositeNodeFactory(name=name,
-                                          description= description,
-                                          category = category,
+                                          description=description,
+                                          category=category,
                                           inputs=inputs,
                                           outputs=outputs,
                                           )
@@ -512,9 +507,7 @@ def %s(%s):
         #self.write()
 
 
-
 ################################################################################
-
 
 class AbstractPackageReader(object):
     """
@@ -567,7 +560,6 @@ class PyPackageReader(AbstractPackageReader):
     def register_packages(self, pkgmanager):
         """ Execute Wralea.py """
 
-        retlist = []
         pkg = None
 
         basename = os.path.basename(self.filename)
@@ -589,13 +581,13 @@ class PyPackageReader(AbstractPackageReader):
 
         except Exception, e:
             try:
-                pkgmanager.log.add('%s is invalid : %s'%(self.filename, e))
+                pkgmanager.log.add('%s is invalid : %s' % (self.filename, e))
             except Exception, e:
-                print '%s is invalid : %s'%(self.filename, e)
+                print '%s is invalid : %s' % (self.filename, e)
                 pass
 
-        except: # Treat all exception
-            pkgmanager.add('%s is invalid :'%(self.filename, ))
+        except:  # Treat all exception
+            pkgmanager.add('%s is invalid :' % (self.filename, ))
 
         if (file):
             file.close()
@@ -631,25 +623,23 @@ class PyPackageReaderWralea(PyPackageReader):
 
         # Build Metainfo
         metainfo = dict(
-            version = '',
-            license = '',
-            authors = '',
-            institutes = '',
-            description = '',
-            url = '',
-            icon = '',
-            alias = [],
-            )
+            version='',
+            license='',
+            authors='',
+            institutes='',
+            description='',
+            url='',
+            icon='',
+            alias=[], )
 
         for k, v in wraleamodule.__dict__.iteritems():
 
             if not (k.startswith('__') and k.endswith('__')):
                 continue
-            k = k[2:-2] # remove __
-            if (not metainfo.has_key(k)):
+            k = k[2:-2]  # remove __
+            if k not in metainfo:
                 continue
             metainfo[k] = v
-
 
         # Build Package
         path = wraleamodule.__file__
@@ -679,9 +669,9 @@ class PyPackageReaderWralea(PyPackageReader):
             if protected(name) in pkgmanager:
                 alias_pkg = pkgmanager[protected(name)]
                 for name_factory, factory in p.iteritems():
-                    if name_factory not in alias_pkg and \
-                     alias_pkg.name+'.'+name_factory not in pkgmanager:
-                         alias_pkg[name_factory] = factory
+                    if (name_factory not in alias_pkg and
+                       (alias_pkg.name + '.' + name_factory) not in pkgmanager):
+                        alias_pkg[name_factory] = factory
             else:
                 pkgmanager[protected(name)] = p
 
@@ -715,8 +705,7 @@ class PyPackageReaderVlab(AbstractPackageReader):
 class PyPackageWriter(object):
     """ Write a wralea python file """
 
-    wralea_template =\
-"""
+    wralea_template = """
 # This file has been generated at $TIME
 
 from openalea.core import *
@@ -725,8 +714,7 @@ $PKG_DECLARATION
 
 """
 
-    pkg_template = \
-"""
+    pkg_template = """
 $PKGNAME
 
 $METAINFO
@@ -767,16 +755,16 @@ $FACTORY_DECLARATION
 
         editable = isinstance(self.package, UserPackage)
 
-        metainfo = '__editable__ = %s\n'%(repr(editable))
+        metainfo = '__editable__ = %s\n' % (repr(editable))
 
         for (k, v) in self.package.metainfo.iteritems():
-            key = "__%s__"%(k)
+            key = "__%s__" % (k)
             val = repr(v)
-            metainfo += "%s = %s\n"%(key, val)
+            metainfo += "%s = %s\n" % (key, val)
 
-        result = pstr.safe_substitute(PKGNAME="__name__ = %s"%(repr(self.package.name)),
+        result = pstr.safe_substitute(PKGNAME="__name__ = %s" % (repr(self.package.name)),
                                       METAINFO=metainfo,
-                                      ALL="__all__ = %s"%(repr(all), ),
+                                      ALL="__all__ = %s" % (repr(all), ),
                                       FACTORY_DECLARATION=fstr,
                                       )
 
@@ -811,4 +799,3 @@ $FACTORY_DECLARATION
         # Recompile
         import py_compile
         py_compile.compile(full_filename)
-

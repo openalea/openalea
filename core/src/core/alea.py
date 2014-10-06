@@ -25,7 +25,7 @@ from openalea.core.pkgmanager import PackageManager
 
 
 def start_qt(factory, node):
-    """ Start QT, and open widget of factory, node
+    """ Start Qt, and open widget of factory, node
 
     :param factory: todo
     :param node: todo
@@ -147,6 +147,7 @@ def run(component, inputs, pm=None, vtx_id=-1):
     else:
         node.eval_as_expression(vtx_id)
         return _outputs(node.node(vtx_id))
+
 
 def query(component, pm=None):
     """ show help of component """

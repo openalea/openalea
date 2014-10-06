@@ -5,8 +5,8 @@ import ast
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core import settings
 from openalea.oalab.service.qt_control import qt_editor
-from openalea.oalab.service import interface
-from openalea.oalab.control.control import Control
+from openalea.core.service.interface import guess_interface, new_interface
+from openalea.core.control import Control
 
 def Widget(option_name, value):
     """
@@ -21,7 +21,7 @@ def Widget(option_name, value):
     except (ValueError, SyntaxError):
         eval_value = value
     
-    inames = interface.guess(eval_value)
+    inames = guess_interface(eval_value)
     if len(inames):
         iname = inames[0]
     else:
@@ -29,7 +29,7 @@ def Widget(option_name, value):
         
     # Dirty hack to handle int constraints on font size.
     if 'font' in option_name and iname == 'IInt':
-        iname = interface.new(iname, min=5, max=200)
+        iname = new_interface(iname, min=5, max=200)
 
     control = Control(option_name, iname, eval_value)
     editor = qt_editor(control)

@@ -50,6 +50,7 @@ vpltk
 core
 misc
 oalab
+plantlab
 """.split()
 #openalea_meta
 

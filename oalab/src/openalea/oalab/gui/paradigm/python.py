@@ -21,7 +21,7 @@ __revision__ = ""
 
 from openalea.oalab.editor.text_editor import RichTextEditor as Editor
 from openalea.oalab.editor.highlight import Highlighter
-from openalea.vpltk.model import PythonModel
+from openalea.core.model import PythonModel
 from openalea.oalab.service.help import display_help
 import types
 

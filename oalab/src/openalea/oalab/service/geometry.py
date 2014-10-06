@@ -17,7 +17,7 @@ def find_plugins(plugin_name='oalab.service.to_shape3d', debug=False):
     3D model.
     """
     register = {}
-    from openalea.vpltk.plugin import iter_plugins
+    from openalea.core.plugin import iter_plugins
     for plugin in iter_plugins(plugin_name, debug=debug):
         register.update(plugin.registry)
     return register

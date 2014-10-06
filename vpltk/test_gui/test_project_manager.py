@@ -3,7 +3,7 @@
 from openalea.vpltk.qt import QtGui
 import random
 from openalea.oalab.project.projectwidget import ProjectManagerWidget
-from openalea.vpltk.project.manager import ProjectManager
+from openalea.core.project.manager import ProjectManager
 from openalea.oalab.session.session import  Session
 from openalea.core.path import tempdir
 
@@ -42,7 +42,8 @@ if __name__ == '__main__':
     pmw.initialize()
 #     pm.load('mtg')
 
-    from openalea.vpltk.shell.shell import get_shell_class, get_interpreter_class
+    from openalea.oalab.shell import get_shell_class
+    from openalea.core.interpreter import get_interpreter_class
 
     # Set interpreter
     interpreter = get_interpreter_class()()

@@ -92,7 +92,6 @@ setup(
             ],
 
         'oalab.paradigm_applet': [
-            'LPyApplet = openalea.oalab.plugins.models.lpygui:LPyModelGUI',
             'PythonApplet = openalea.oalab.plugins.models.pythongui:PythonModelGUI',
             'RApplet = openalea.oalab.plugins.models.rgui:RModelGUI',
             'VisualeaApplet = openalea.oalab.plugins.models.visualeagui:VisualeaModelGUI',
@@ -105,7 +104,6 @@ setup(
             ],
 
         'oalab.applet': [
-            'ProjectWidget = openalea.oalab.plugins.applets.projectwidget:ProjectWidget',
             'ControlManager = openalea.oalab.plugins.applets.controlmanager:ControlManager',
             # 'ControlPanel = openalea.oalab.plugins.applets.controlpanel:ControlPanel',
             'EditorManager = openalea.oalab.plugins.applets.editormanager:EditorManager',
@@ -116,7 +114,6 @@ setup(
             'PkgManagerWidget = openalea.oalab.plugins.applets.packagemanager:PkgManagerWidget',
             'ProjectManager = openalea.oalab.plugins.applets.projectwidget:ProjectManager',
             # 'Store = openalea.oalab.plugins.applets.store:Store',
-            'Viewer3D = openalea.oalab.plugins.applets.viewer3d:Viewer3D',
             'World = openalea.oalab.plugins.applets.worldwidget:World',
             'Plot2d = openalea.oalab.plugins.applets.plot2d:Plot2dWidget',
             ],
@@ -129,7 +126,6 @@ setup(
         'oalab.lab': [
             'FullLab = openalea.oalab.plugins.labs.fulllab:FullLab',
             'MiniLab = openalea.oalab.plugins.labs.minilab:MiniLab',
-            'PlantLab = openalea.oalab.plugins.labs.plantlab:PlantLab',
             ],
 
         'oalab.interface': [

@@ -18,20 +18,20 @@
 __revision__ = ""
 
 from openalea.vpltk.qt import QtCore, QtGui
-from openalea.vpltk.plugin import iter_plugins
+from openalea.core.plugin import iter_plugins
 from openalea.core import logger
 from openalea.oalab.gui.pages import WelcomePage2 as WelcomePage
 from openalea.core import settings
 from openalea.core.path import path
 from openalea.oalab.gui import resources_rc # do not remove this import else icon are not drawn
 from openalea.oalab.gui.utils import qicon
-from openalea.vpltk.project import ProjectManager, Project
+from openalea.core.project import ProjectManager, Project
 from openalea.oalab.project.projectwidget import SelectCategory
 from openalea.oalab.gui.utils import ModalDialog
-from openalea.vpltk.model import Model
+from openalea.core.model import Model
 
 from openalea.oalab.service.applet import get_applet
-from openalea.oalab.service.data import DataFactory, DataClass, DataType, MimeType
+from openalea.core.service.data import DataFactory, DataClass, DataType, MimeType
 
 from openalea.oalab.session.session import Session
 
@@ -56,7 +56,10 @@ class ParadigmContainer(QtGui.QTabWidget):
         self._new_file_actions = {}
         self.paradigms_actions = []
         for applet in iter_plugins('oalab.paradigm_applet', debug=self.session.debug_plugins):
-            self.paradigms[applet.name] = applet()()
+            try:
+                self.paradigms[applet.name] = applet()()
+            except:
+                pass
 
         self._open_objects = {}
 

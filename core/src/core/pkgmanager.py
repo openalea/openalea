@@ -14,6 +14,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+
 """This module defines the package manager.
 
 It is able to find installed package and their wralea.py
@@ -23,15 +24,12 @@ It stores the packages and nodes informations
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-import openalea
-
 import sys
 import os
 from os.path import join as pj
 from os.path import isdir
 
 import tempfile
-import glob
 import urlparse
 from openalea.core.path import path
 from fnmatch import fnmatch
@@ -40,7 +38,7 @@ from pkg_resources import iter_entry_points
 from openalea.core.singleton import Singleton
 from openalea.core.observer import Observed
 from openalea.core.package import (Package, UserPackage, PyPackageReader,
-PyPackageReaderWralea, PyPackageReaderVlab)
+                                   PyPackageReaderWralea, PyPackageReaderVlab)
 from openalea.core.settings import get_userpkg_dir, Settings
 from openalea.core.pkgdict import PackageDict, is_protected, protected
 from openalea.core.category import PackageManagerCategory
@@ -48,13 +46,18 @@ from openalea.core import logger
 
 from ConfigParser import NoSectionError, NoOptionError
 
+###########################################################################
 # Exceptions
+###########################################################################
+
 import time
 DEBUG = False
 SEARCH_OUTSIDE_ENTRY_POINTS = True
 
+
 class UnknowFileType(Exception):
     pass
+
 
 class UnknownPackageError (Exception):
     def __init__(self, name):
@@ -63,6 +66,7 @@ class UnknownPackageError (Exception):
 
     def __str__(self):
         return self.message
+
 
 class IllFormedUrlError (Exception):
     def __init__(self, url):
@@ -73,9 +77,12 @@ class IllFormedUrlError (Exception):
         return self.message
 
 
+###############################################################################
 # Logging
+
 pmanLogger = logger.get_logger(__name__)
 logger.connect_loggers_to_handlers(pmanLogger, logger.get_handler_names())
+
 
 class Logger(object):
     """ OpenAlea logging class """
@@ -87,7 +94,6 @@ class Logger(object):
         f = open(self.log_file, 'w')
         f.write("OpenAlea Log\n\n")
         f.close()
-
 
     def add(self, msg):
         """ Write to log file """
@@ -106,8 +112,6 @@ class Logger(object):
         f.close()
 
 
-
-
 ###############################################################################
 
 class PackageManager(Observed):
@@ -118,7 +122,7 @@ class PackageManager(Observed):
 
     __metaclass__ = Singleton
 
-    def __init__ (self, verbose=True):
+    def __init__(self, verbose=True):
         """ Constructor """
         Observed.__init__(self)
         self.log = Logger()
@@ -148,38 +152,34 @@ class PackageManager(Observed):
         # for packages that we don't want to save in the config file
         self.temporary_wralea_paths = set()
 
-
+        # Compute system and user PATH to look for packages
         self.set_user_wralea_path()
         self.set_sys_wralea_path()
-
-
 
     def emit_update(self):
         self.notify_listeners("update")
 
+   # def get_include_namespace(self):
+   #     """ Read user config and return include namespace status """
 
-#    def get_include_namespace(self):
-#        """ Read user config and return include namespace status """
-#
-#        config = Settings()
-#
-#        # include namespace
-#        try:
-#            s = config.get("pkgmanager", "include_namespace")
-#            self.include_namespace = bool(eval(s))
-#
-#        except:
-#            self.include_namespace = False
-#
-#        return self.include_namespace
-#
+   #     config = Settings()
+
+   #     # include namespace
+   #     try:
+   #         s = config.get("pkgmanager", "include_namespace")
+   #         self.include_namespace = bool(eval(s))
+
+   #     except:
+   #         self.include_namespace = False
+
+   #     return self.include_namespace
+
     def get_wralea_path(self):
         """ return the list of wralea path (union of user and system)"""
 
         dirs = list(self.temporary_wralea_paths.union(self.sys_wralea_path.union(self.user_wralea_path)))
         dirs = filter(isdir, dirs)
         return dirs
-
 
     def set_user_wralea_path(self):
         """ Read user config """
@@ -196,14 +196,13 @@ class PackageManager(Observed):
         try:
             s = config.get("pkgmanager", "path")
             l = eval(s)
-        except NoSectionError, e:
+        except NoSectionError:
             config.add_section("pkgmanager")
             config.add_option("pkgmanager", "path", str([]))
-        except NoOptionError, e:
+        except NoOptionError:
             config.add_option("pkgmanager", "path", str([]))
         for p in l:
             self.add_wralea_path(os.path.abspath(p), self.user_wralea_path)
-
 
     def write_config(self):
         """ Write user config """
@@ -213,16 +212,14 @@ class PackageManager(Observed):
 #        config.set("pkgmanager", "include_namespace", repr(self.include_namespace))
         config.write()
 
-
     def set_sys_wralea_path(self):
-        """
-        Define the default wralea search path
+        """ Define the default wralea search path
+
         For that, we look for "wralea" entry points
         and deprecated_wralea entry point
         if a package is declared as deprecated_wralea,
         the module is not load
         """
-
 
         if self.sys_wralea_path:
             return
@@ -232,7 +229,6 @@ class PackageManager(Observed):
 
         # Use setuptools entry_point
         for epoint in iter_entry_points("wralea"):
-
             # Get Deprecated packages
             if self.verbose:
                 pmanLogger.debug(epoint.name + " " + epoint.module_name)
@@ -254,7 +250,7 @@ class PackageManager(Observed):
                 continue
 
             l = list(m.__path__)
-            for p in l :
+            for p in l:
                 p = os.path.abspath(p)
                 logger.info("Wralea entry point: %s (%s) " % (epoint.module_name, p))
                 # self.log.add("Wralea entry point: %s (%s) "%(epoint.module_name, p))
@@ -270,7 +266,6 @@ class PackageManager(Observed):
         if SEARCH_OUTSIDE_ENTRY_POINTS:
             self.add_wralea_path(os.path.dirname(__file__), self.sys_wralea_path)
             self.add_wralea_path(get_userpkg_dir(), self.sys_wralea_path)
-
 
     def init(self, dirname=None, verbose=True):
         """ Initialize package manager
@@ -289,7 +284,7 @@ class PackageManager(Observed):
 
             if (not dirname):
                 self.find_and_register_packages()
-            else :
+            else:
                 self.load_directory(dirname)
 
         finally:
@@ -298,10 +293,12 @@ class PackageManager(Observed):
                 sys.stdout.close()
                 sys.stdout = sysout
 
-
     def reload(self, pkg=None):
-        """ Reload all packages if pkg is None
-        else reload only pkg"""
+        """ Reload one or all packages.
+
+        If the package `pkg` is None reloa all the packages.
+        Else reload only `pkg`.
+        """
 
         if(not pkg):
             self.clear()
@@ -313,7 +310,6 @@ class PackageManager(Observed):
             self.load_directory(pkg.path)
         self.notify_listeners("update")
 
-
     def clear(self):
         """ Remove all packages """
 
@@ -324,7 +320,6 @@ class PackageManager(Observed):
         self.recover_syspath()
         self.category = PseudoGroup('Root')
 
-
     # Path Functions
     def add_wralea_path(self, path, container):
         """
@@ -334,14 +329,14 @@ class PackageManager(Observed):
         :param container: set containing the path
         """
 
-        if(not os.path.isdir(path)): return
+        if not os.path.isdir(path):
+            return
 
         # Ensure to add a non existing path
         for p in container:
             common = os.path.commonprefix((p, path))
             # the path is already in wraleapth
-            if(common == p and
-                os.path.join(common, path[len(common):]) == path):
+            if (common == p and os.path.join(common, path[len(common):]) == path):
                 return
             # the new path is more generic, we keep it
             if(common == path and
@@ -352,27 +347,22 @@ class PackageManager(Observed):
         # the path is absent
         container.add(path)
 
-
     def recover_syspath(self):
         """ Restore the initial sys path """
         sys.path = self.old_syspath[:]
-
 
     # Accessors
     def add_package(self, package):
         """ Add a package to the pkg manager """
 
         # Test if the package is deprecated
-        if(package.name.lower() in self.deprecated_pkg):
+        if package.name.lower() in self.deprecated_pkg:
             logger.warning("Deprecated : Ignoring %s" % (package.name))
-            # self.log.add("Deprecated : Ignoring %s"%(package.name))
             del(package)
             return
 
-        # if( not self.pkgs.has_key(package.get_id())):
         self[package.get_id()] = package
         self.update_category(package)
-
 
     def get_pseudo_pkg(self):
         """ Return a pseudopackage structure """
@@ -380,18 +370,15 @@ class PackageManager(Observed):
         pt = PseudoPackage('Root')
 
         # Build the name tree (on uniq objects)
-        s = set()
         for k, v in self.pkgs.iteritems():
             if(not is_protected(k)):
                 pt.add_name(k, v)
 
         return pt
 
-
     def get_pseudo_cat(self):
         """ Return a pseudo category structure """
         return self.category
-
 
     # Category management
     def update_category(self, package):
@@ -414,7 +401,7 @@ class PackageManager(Observed):
                 # search for the sub category (split by .)
                 try:
                     c_root, c_others = c.split('.', 1)
-                except: # if there is no '.', c_others is empty
+                except:  # if there is no '.', c_others is empty
                     c_root = c
                     c_others = ''
 
@@ -425,15 +412,12 @@ class PackageManager(Observed):
                 else:
                     self.category.add_name(c.title(), nf)
 
-
     def rebuild_category(self):
         """ Rebuild all the category """
 
         self.category = PseudoGroup('Root')
         for p in self.pkgs.itervalues():
             self.update_category(p)
-
-
 
     # Wralea functions
     def load_directory(self, dirname):
@@ -470,7 +454,6 @@ class PackageManager(Observed):
 
         return ret
 
-
     def find_vlab_dir(self, directory, recursive=True):
         """
         Find in a directory vlab specification file.
@@ -479,8 +462,6 @@ class PackageManager(Observed):
 
         :return: a list of pkgreader instances
         """
-
-        from path import path
 
         spec_files = set()
         if(not os.path.isdir(directory)):
@@ -502,7 +483,6 @@ class PackageManager(Observed):
 
         return map(self.get_pkgreader, spec_files)
 
-
     def find_wralea_dir(self, directory, recursive=True):
         """
         Find in a directory wralea files,
@@ -522,9 +502,8 @@ class PackageManager(Observed):
 
         p = path(directory).abspath()
 
-
         # search for wralea.py
-        if(recursive and SEARCH_OUTSIDE_ENTRY_POINTS):
+        if recursive and SEARCH_OUTSIDE_ENTRY_POINTS:
             for f in p.walkfiles("*wralea*.py"):
                 wralea_files.add(str(f))
         else:
@@ -548,9 +527,7 @@ class PackageManager(Observed):
 
         return readers
 
-
-
-    def find_wralea_files (self):
+    def find_wralea_files(self):
         """
         Find on the system all wralea.py files
 
@@ -569,31 +546,37 @@ class PackageManager(Observed):
             # No cache : search recursively on the disk
 
         if DEBUG:
-            t1 = time.clock()
+            # t1 = time.clock()
+            pass 
 
         directories = self.get_wralea_path()
         if DEBUG:
             # print '      ~~~~~~~~~~'
-            t2 = time.clock()
+            # t2 = time.clock()
             # print '      get_wralea_path %f sec'%(t2-t1)
             # print '\n'.join(directories)
+            pass
 
         recursive = True
 
         for wp in directories:
-            if DEBUG: t0 = time.clock()
+            #if DEBUG: t0 = time.clock()
+
             ret = self.find_wralea_dir(wp, recursive)
             if(ret):
                 readers += ret
+
             if DEBUG:
                 # print '      ~~~~~~~~~~'
-                t1 = time.clock()
+                # t1 = time.clock()
                 # print '      find_wralea %s %f sec'%(wp, t1-t0)
+                pass
 
         if DEBUG:
             # print '      ~~~~~~~~~~'
-            t3 = time.clock()
+            # t3 = time.clock()
             # print '      find_wralea_dir %f sec'%(t3-t2)
+            pass
 
         return readers
 
@@ -616,8 +599,7 @@ class PackageManager(Observed):
         return files
 
     def create_readers(self, wralea_files):
-        return  filter(None, (self.get_pkgreader(f) for f in wralea_files))
-
+        return filter(None, (self.get_pkgreader(f) for f in wralea_files))
 
     def get_pkgreader(self, filename):
         """ Return the pkg reader corresponding to the filename """
@@ -630,13 +612,12 @@ class PackageManager(Observed):
         elif(filename.endswith('specifications')):
             reader = PyPackageReaderVlab(filename)
 
-        else :
+        else:
             return None
 
         return reader
 
-
-    def find_and_register_packages (self, no_cache=False):
+    def find_and_register_packages(self, no_cache=False):
         """
         Find all wralea on the system and register them
         If no_cache is True, ignore cache file
@@ -673,45 +654,39 @@ class PackageManager(Observed):
 
         self.rebuild_category()
 
-
     # Cache functions
-#    def get_cache_filename(self):
-#        """ Return the cache filename """
-#
-#        return os.path.join(tempfile.gettempdir(), ".alea_pkg_cache")
+    # def get_cache_filename(self):
+    #     """ Return the cache filename """
 
+    #     return os.path.join(tempfile.gettempdir(), ".alea_pkg_cache")
 
-#    def save_cache(self):
-#        """ Save in cache current package manager state """
-#
-#        f = open(self.get_cache_filename(),'w')
-#        s = set([pkg.path + "\n" for pkg in self.pkgs.itervalues()])
-#        f.writelines(list(s))
-#        f.close()
-#
-#
-#    def delete_cache(self):
-#        """ Remove cache """
-#
-#        n = self.get_cache_filename()
-#
-#        if(os.path.exists(n)):
-#            os.remove(n)
-#
-#
-#    def get_cache(self):
-#        """ Return cache contents """
-#
-#        f = open(self.get_cache_filename(), "r")
-#
-#        for d in f:
-#            d = d.strip()
-#            yield d
-#
-#        f.close()
+    # def save_cache(self):
+    #     """ Save in cache current package manager state """
 
+    #     f = open(self.get_cache_filename(),'w')
+    #     s = set([pkg.path + "\n" for pkg in self.pkgs.itervalues()])
+    #     f.writelines(list(s))
+    #     f.close()
 
+    # def delete_cache(self):
+    #     """ Remove cache """
+
+    #     n = self.get_cache_filename()
+
+    #     if(os.path.exists(n)):
+    #         os.remove(n)
+
+    # def get_cache(self):
+    #     """ Return cache contents """
+    #     f = open(self.get_cache_filename(), "r")
+    #     for d in f:
+    #         d = d.strip()
+    #         yield d
+    #     f.close()
+
+    ###############################################################################
     # Package creation
+    ###############################################################################
 
     def create_user_package(self, name, metainfo, path=None):
         """
@@ -720,18 +695,18 @@ class PackageManager(Observed):
         :param path : the directory where to create the package
         """
 
-        if(self.pkgs.has_key(name)):
+        if name in self.pkgs:
             return self.pkgs[name]
 
         # Create directory
-        if(not path):
+        if not path:
             path = get_userpkg_dir()
         path = os.path.join(path, name)
 
-        if(not isdir(path)):
+        if not isdir(path):
             os.mkdir(path)
 
-        if(not os.path.exists(os.path.join(path, "__wralea__.py"))):
+        if not os.path.exists(os.path.join(path, "__wralea__.py")):
             # Create new Package and its wralea
             p = UserPackage(name, metainfo, path)
             p.write()
@@ -743,12 +718,10 @@ class PackageManager(Observed):
         p = self.pkgs.get(name)
         return p
 
-
     def get_user_packages(self):
         """ Return the list of user packages """
 
         return [x for x in self.pkgs.values() if isinstance(x, UserPackage)]
-
 
     def rename_package(self, old_name, new_name):
         """ Rename package 'old_name' to 'new_name' """
@@ -757,16 +730,15 @@ class PackageManager(Observed):
         self.pkgs[new_name] = self.pkgs[old_name]
         self.pkgs[old_name].name = new_name
 
-        if(self.pkgs[old_name].metainfo.has_key('alias')):
+        if 'alias' in self.pkgs[old_name].metainfo:
             self.pkgs[old_name].metainfo['alias'].append(old_name)
 
         self.pkgs[old_name].write()
         del(self.pkgs[old_name])
         self.notify_listeners("update")
 
-
+    ###############################################################################
     # Dictionnary behaviour
-
     def __getitem__(self, key):
         try:
             return self.pkgs[key]
@@ -830,7 +802,7 @@ class PackageManager(Observed):
         "factoryName" is the of factory
         "factoryType" is one of {"CompositeNodeFactory", "NodeFactory", "DataFactory"}
         """
-        pkg, queries = self.get_package_from_url(url) # url.path.strip("/") #the path is preceded by one "/"
+        pkg, queries = self.get_package_from_url(url)  # url.path.strip("/") #the path is preceded by one "/"
         if "fac" not in queries:
             raise IllFormedUrlError(url.geturl())
         factory_id = queries["fac"][0]
@@ -842,10 +814,9 @@ class PackageManager(Observed):
             url = urlparse.urlparse(url)
         assert isinstance(url, urlparse.ParseResult)
         queries = urlparse.parse_qs(url.query)
-        pkg_id = url.path.strip("/") # the path is preceded by one "/"
+        pkg_id = url.path.strip("/")  # the path is preceded by one "/"
         pkg = self[pkg_id]
         return pkg, queries
-
 
     def get_node(self, pkg_id, factory_id):
         """ Return a node instance giving a pkg_id and a factory_id """
@@ -853,8 +824,7 @@ class PackageManager(Observed):
         factory = pkg[factory_id]
         return factory.instantiate()
 
-
-    def search_node(self, search_str, nb_inputs= -1, nb_outputs= -1):
+    def search_node(self, search_str, nb_inputs=-1, nb_outputs=-1):
         """
         Return a list of Factory corresponding to search_str
         If nb_inputs or nb_outputs is specified,
@@ -873,15 +843,16 @@ class PackageManager(Observed):
 
         search_str = search_str.upper()
 
-        best = None
         match = []
-        scored = []
+
         # Search for each package and for each factory
         for name, pkg in self.iteritems():
-            if(is_protected(name)): continue # alias
+            if is_protected(name):
+                continue  # alias
 
             for fname, factory in pkg.iteritems():
-                if(is_protected(fname)): continue # alias
+                if is_protected(fname): 
+                    continue  # alias
 
                 # -- The scores for each string that is explored.
                 # They are long ints because we make a 96 bits bitshift
@@ -904,8 +875,8 @@ class PackageManager(Observed):
                     l = float(len(pname))
                     pkgNameScore = long(100 * (1 - pname.index(search_str) / l))
 
-                score = facNameScore << (32 * 3) | facDescScore << (32 * 2) | \
-                        facCateScore << (32 * 1) | pkgNameScore << (32)
+                score = (facNameScore << (32 * 3) | facDescScore << (32 * 2) | 
+                         facCateScore << (32 * 1) | pkgNameScore << (32))
                 if score > 0:
                     match.append((score, factory))
 
@@ -923,7 +894,6 @@ class PackageManager(Observed):
 
         return match
 
-
     ####################################################################################
     # Methods to introspect globally the PkgManager
     ####################################################################################
@@ -940,22 +910,24 @@ class PackageManager(Observed):
             pkgs = set(pk.name for pk in self.itervalues() if not is_protected(pk.name))
         return [self[p] for p in pkgs]
 
-
     def get_data(self, pattern='*.*', pkg_name=None, as_paths=False):
         """ Return all data that match the pattern. """
         pkgs = self.get_packages(pkg_name)
-        datafiles = [(pj(p.path, f.name) if as_paths else f) for p in pkgs \
-                         for f in p.itervalues() if not is_protected(f.name) and f.is_data() and fnmatch(f.name, pattern)]
+        datafiles = [
+            (pj(p.path, f.name) if as_paths else f) 
+            for p in pkgs for f in p.itervalues() if( 
+                not is_protected(f.name) and
+                f.is_data() and fnmatch(f.name, pattern))]
         return datafiles
 
     def get_composite_nodes(self, pkg_name=None):
         pkgs = self.get_packages(pkg_name)
-        cn = [f for p in pkgs for f in p.itervalues() if f.is_composite_node() ]
+        cn = [f for p in pkgs for f in p.itervalues() if f.is_composite_node()]
         return cn
 
     def get_nodes(self, pkg_name=None):
         pkgs = self.get_packages(pkg_name)
-        nf = [f for p in pkgs for f in p.itervalues() if f.is_node() ]
+        nf = [f for p in pkgs for f in p.itervalues() if f.is_node()]
         return nf
 
     def _dependencies(self, factory):
@@ -1028,10 +1000,11 @@ class PackageManager(Observed):
                 d[pkg.name] = m
         return d
 
-
     def _pkg_dependencies(self, package):
-        cns = [f for f in package.itervalues() if f.is_composite_node() ]
-        factories = set((f.package.name, f.name) for cn_factory in cns for f in self._dependencies(cn_factory) if f.package.name != package.name)
+        cns = [f for f in package.itervalues() if f.is_composite_node()]
+        factories = set(
+            (f.package.name, f.name) for cn_factory in cns for f in self._dependencies(cn_factory) 
+            if f.package.name != package.name)
         return sorted(factories)
 
     def _cn_dependencies(self, factory):
@@ -1045,11 +1018,12 @@ class PackageManager(Observed):
             if m:
                 d[pkg.name] = m
         return d
+
     def _missing_pkg_dependencies(self, package):
-        cns = [f for f in package.itervalues() if f.is_composite_node() ]
+        cns = [f for f in package.itervalues() if f.is_composite_node()]
         l = []
         for cn in cns:
-           self._missing(cn, l)
+            self._missing(cn, l)
         factories = set(l)
         if factories:
             return sorted(factories)
@@ -1070,19 +1044,21 @@ class PackageManager(Observed):
         res = []
         for pkg in self.get_packages():
             cns = [f for f in pkg.itervalues() if f.is_composite_node()]
-            res.extend((pkg.name, cn.name) for cn in cns for pname, name in self._cn_dependencies(cn) if name == factory_name)
+            res.extend(
+                (pkg.name, cn.name) for cn in cns for pname, name in self._cn_dependencies(cn) 
+                if name == factory_name)
         return res
+
 
 def cmp_name(x, y):
     """ Comparison function """
     return cmp(x.name.lower(), y.name.lower())
 
 
-
 class PseudoGroup(PackageDict):
     """ Data structure used to separate dotted naming (packages, category) """
 
-    sep = '.' # Separator
+    sep = '.'  # Separator
     mimetype = "openalea/package"
 
     def __init__(self, name):
@@ -1104,11 +1080,10 @@ class PseudoGroup(PackageDict):
         """todo"""
         return self.name
 
-
     def add_name(self, name, value):
         """ Add a value in the structure with the key name_tuple """
 
-        if(not name) :
+        if(not name):
             # if value is a dict we include sub nodes
             self.item = value
             try:
@@ -1147,7 +1122,6 @@ class PseudoGroup(PackageDict):
                 pass
 
 
-
 class PseudoPackage(PseudoGroup):
     """ Package structure used to separate dotted naming (packages, category) """
 
@@ -1157,12 +1131,12 @@ class PseudoPackage(PseudoGroup):
 
     def is_real_package(self):
         """todo"""
-        return self.item != None
-
+        return self.item is not None
 
     def get_tip(self):
         """todo"""
-        if(self.item) : return self.item.get_tip()
+        if self.item: 
+            return self.item.get_tip()
 
         return "Sub Package : %s" % (self.name,)
 
@@ -1171,5 +1145,3 @@ class PseudoPackage(PseudoGroup):
         if(self.item):
             return self.item.get_metainfo(key)
         return ""
-
-
