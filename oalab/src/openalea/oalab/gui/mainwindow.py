@@ -146,15 +146,10 @@ class MainWindow(QtGui.QMainWindow):
             self.dockWidget(name, applet)
 
     def add_plugin(self, plugin):
-        import sys
         from openalea.core.plugin.manager import PluginManager
         pm = PluginManager()
-        pm.loadPlugins('oalab.applet')
-
-
 
         if self.session.debug_plugins in ('oalab.applet', 'all'):
-            print >> sys.__stdout__, 'load plugin', plugin.name
             applet = pm.instance('oalab.applet', plugin.name)
             plugin.graft(applet=applet, oa_mainwin=self)
             self.session.applet['plugin_%s' % plugin.name] = plugin
