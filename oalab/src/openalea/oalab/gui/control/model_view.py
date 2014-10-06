@@ -233,7 +233,7 @@ class ControlModel(QtGui.QStandardItemModel, AbstractListener):
         mimetype, mimedata = encode(control)
         qmime_data = QtCore.QMimeData()
         qmime_data.setData(mimetype, mimedata)
-        qmime_data.setText(mimedata)
+        qmime_data.setText(control.name)
         return qmime_data
 
     def data (self, index, role):
