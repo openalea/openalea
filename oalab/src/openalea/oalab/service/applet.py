@@ -62,7 +62,6 @@ from openalea.core.service.plugin import plugin_instances, plugin_instance
 def get_applets():
     return plugin_instances('oalab.applet')
 
-
 def get_applet(**kwargs):
     if 'class_args' in kwargs:
         class_args = kwargs['class_args']
