@@ -16,6 +16,23 @@
 #
 ###############################################################################
 from openalea.oalab.model.parse import get_docstring, parse_function, parse_input_and_output, parse_docstring, parse_doc
+from openalea.oalab.model.parse import prepare_inputs, InputObj
+
+
+def test_prepare_inputs():
+    inputs_info = [InputObj('a:int=1'), InputObj('b:int=2')]
+    dict_1 = {'a': 1, 'b': 2}
+    dict_2 = {'a': 10, 'b': 2}
+    dict_3 = {'a': 10, 'b': 20}
+    assert prepare_inputs(inputs_info) == dict_1
+    assert prepare_inputs(inputs_info, 10) == dict_2
+    assert prepare_inputs(inputs_info, 10, 20) == dict_3
+
+
+def test_prepare_inputs2():
+    inputs_info = [InputObj('a:int=1'), InputObj('b:int=2')]
+    dict_1 = {'a': 1, 'b': 2}
+    assert prepare_inputs(inputs_info, name="model_name") == dict_1
 
 
 def test_ast_getdoc():

@@ -281,8 +281,8 @@ endlsystem"""
             model, self.inputs_info, self.outputs_info = parse_doc(docstring)
 
         # Default input
-        # if self.inputs_info == []:
-        #     self.inputs_info = [InputObj('lstring:IStr=""')]
+        if self.inputs_info == []:
+            self.inputs_info = [InputObj('lstring:IStr=""')]
         # Default output
         if self.outputs_info == []:
             self.outputs_info = [OutputObj("lstring:IStr")]
