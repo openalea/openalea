@@ -13,6 +13,21 @@ def pretty_print(obj):
         text = str(obj).decode('utf-8')
     return text
 
+def html_item_summary(project):
+    html = ''
+    for items, title in [
+        (project.model, 'Models'),
+        (project.lib, 'Libraries'),
+        (project.startup, 'Startup Files'),
+        ]:
+        if not items:
+            continue
+        html += '<b><u>%s</u></b>\n<ul>' % title
+        for item_name  in sorted(items):
+            model = items[item_name]
+            html += '<li><b>%s</b>%s</li>' % (model.filename.namebase, model.filename.ext)
+        html += '</ul>'
+    return html
 
 class Preview(QtGui.QWidget):
     """
@@ -58,17 +73,15 @@ class Preview(QtGui.QWidget):
             layout.addWidget(QtGui.QLabel(pretty_print(getattr(project, label))), i, 1)
             i += 1
 
-        layout.addWidget(QtGui.QLabel("model:"), 12, 0)
-        layout.addWidget(QtGui.QLabel(pretty_print(project.model.keys())), 12, 1)
+        layout.addWidget(QtGui.QLabel("Items:"), i, 0, 1, 2)
+        model_list = QtGui.QTextEdit()
+        layout.addWidget(model_list, i + 1, 0, 1, 2)
+
+        model_list.setText(html_item_summary(project))
 
         open_button = QtGui.QPushButton("Open this project")
         open_button.clicked.connect(self.on_project_opened)
-        layout.addWidget(open_button, 13, 0, 13, 2)
-
-        verticalSpacer = QtGui.QSpacerItem(0, 0);
-        layout.addItem(verticalSpacer, 14, 0, 14, 1)
-        horizontalSpacer = QtGui.QSpacerItem(0, 0)
-        layout.addItem(horizontalSpacer, 0, 2, 14, 2)
+        layout.addWidget(open_button, i + 2, 0)
 
         self.setLayout(layout)
 
