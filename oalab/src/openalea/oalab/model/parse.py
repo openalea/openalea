@@ -447,7 +447,7 @@ def prepare_inputs(inputs_info, *args, **kwargs):
     >>> prepare_inputs(inputs_info, 10, 20) #DOCTEST: +IGNORE
     {'a':10, 'b':20}
     """
-    filename = kwargs['name'] if 'name' in kwargs else "unknown"
+    filename = kwargs.pop('name') if 'name' in kwargs else "unknown"
     # TODO: refactor with types.FunctionType
     _inputs = dict()
     if inputs_info:
@@ -485,7 +485,7 @@ def prepare_inputs(inputs_info, *args, **kwargs):
                         not_set_inputs_info.remove(not_set_inputs_info_dict[name])
                         del not_set_inputs_info_dict[name]
                     else:
-                        print "We can not put ", name, "inside inputs of model", name, "because such an input is not declared in the model."
+                        raise Exception("We can not put ", name, "inside inputs of model", name, "because such an input is not declared in the model.")
 
         # Fill others with defaults
         if len(not_set_inputs_info):
