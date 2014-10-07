@@ -193,6 +193,10 @@ class Viewer(AbstractListener, view3D):
         self.grid = True
 
         actionResetZoom = QtGui.QAction(QtGui.QIcon(":/images/resources/resetzoom.png"), "Home", self)
+        self.actionAutoFocus = QtGui.QAction(QtGui.QIcon(":/images/resources/resetzoom.png"), "Auto Focus", self)
+        self.actionAutoFocus.setCheckable(True)
+        self.actionAutoFocus.setChecked(self.autofocus)
+        self.actionAutoFocus.changed.connect(self._on_autofocus_changed)
         actionZoomOut = QtGui.QAction(QtGui.QIcon(":/images/resources/zoomout.png"), "Zoom Out", self)
         actionZoomIn = QtGui.QAction(QtGui.QIcon(":/images/resources/zoomin.png"), "Zoom In", self)
         actionShowAxis = QtGui.QAction(QtGui.QIcon(":/images/resources/axis.png"), "Show Axis", self)
@@ -234,6 +238,7 @@ class Viewer(AbstractListener, view3D):
         self._actions = [["Viewer", "Zoom", actionResetZoom, 0],
                          ["Viewer", "Zoom", actionZoomOut, 0],
                          ["Viewer", "Zoom", actionZoomIn, 0],
+                         ["Viewer", "Zoom", self.actionAutoFocus, 0],
                          ["Viewer", "Camera", actionShowAxis, 0],
                          ["Viewer", "Camera", actionShowGrid, 0],
                          ["Viewer", "Camera", actionRadius, 0],
@@ -311,7 +316,9 @@ class Viewer(AbstractListener, view3D):
         super(Viewer, self).setScene(scenes)
         if self.autofocus:
             self.update_radius()
-            self.autofocus = False
+
+    def _on_autofocus_changed(self):
+        self.autofocus = self.actionAutoFocus.isChecked()
 
 
 def main():
