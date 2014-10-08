@@ -16,20 +16,7 @@
 #
 ###############################################################################
 from openalea.core.model import PythonModel
-from openalea.oalab.model.parse import parse_functions, parse_docstring, get_docstring
 
-code = '''
-"""
-input = x=1, y=2
-output = result
-"""
-result = x + y
-'''
-
-
-model, inputs_info, outputs_info = parse_docstring(code)
-_init, _step, _animate, _run = parse_functions(code)
-doc = get_docstring(code)
 
 def test_run():
     model_src = '''"""input = x=1, y=2
