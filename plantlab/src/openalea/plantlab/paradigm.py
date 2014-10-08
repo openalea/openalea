@@ -116,10 +116,10 @@ class LPyModelController(object):
         self.editor_container = editor_container
         self._widget = None
 
-        from openalea.core.service.ipython import get_interpreter
-        interpreter = get_interpreter()
-        if interpreter:
-            interpreter.locals['lsystem'] = self.model.lsystem
+        from openalea.core.service.ipython import interpreter
+        interp = interpreter()
+        if interp:
+            interp.locals['lsystem'] = self.model.lsystem
 
     def instanciate_widget(self):
         # todo register viewer

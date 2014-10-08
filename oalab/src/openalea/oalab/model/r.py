@@ -92,15 +92,15 @@ more informations: http://www.r-project.org/
 
         cmdline = self.r_options(user_ns)
         
-        from openalea.core.service.ipython import get_interpreter
-        interpreter = get_interpreter()
+        from openalea.core.service.ipython import interpreter
+        interp = interpreter()
         if not self.has_run:
             try:
-                interpreter.run_line_magic('load_ext','rpy2.ipython') #better as it solves display error but neeeds rpy2 > 2.4.2
+                interp.run_line_magic('load_ext','rpy2.ipython') #better as it solves display error but neeeds rpy2 > 2.4.2
             except ImportError:
-                interpreter.run_line_magic('load_ext','rmagic')
+                interp.run_line_magic('load_ext','rmagic')
             
-        interpreter.run_cell_magic('R', cmdline, code)
+        interp.run_cell_magic('R', cmdline, code)
         
         # Set outputs after execution
         self._set_output_from_ns(user_ns)
@@ -110,15 +110,15 @@ more informations: http://www.r-project.org/
         """
         execute subpart of a model (only code *code*)
         """
-        from openalea.core.service.ipython import get_interpreter
-        interpreter = get_interpreter()
+        from openalea.core.service.ipython import interpreter
+        interp = interpreter()
 
-        user_ns = interpreter.user_ns
+        user_ns = interp.user_ns
         user_ns.update(self.ns)
         try:
-            shell = interpreter.shell
-        except:
-            shell = interpreter
+            shell = interp.shell
+        except AttributeError:
+            shell = interp
 
         cmdline = self.r_options(user_ns)
         if not self.has_run:

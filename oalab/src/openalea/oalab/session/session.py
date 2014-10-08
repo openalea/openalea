@@ -20,9 +20,9 @@ __revision__ = ""
 
 __all__ = ['Session']
 
-import os, sys
-import warnings
-from openalea.core.interpreter import get_interpreter_class
+import os
+import sys
+from openalea.core.service.ipython import interpreter
 from openalea.oalab.package.manager import package_manager
 from openalea.core.project.manager import ProjectManager
 from openalea.core.control.manager import ControlManager
@@ -73,12 +73,15 @@ class Session(object):
 
         self.world = World()
 
-        interpreter_class = get_interpreter_class()
-        self.interpreter = interpreter_class()
+        self.interpreter = interpreter()
+
+        # Hack if interpreter is an object from class TerminalInteractiveShell
+        if not hasattr(self.interpreter, "shell"):
+            self.interpreter.shell = self.interpreter
         if hasattr(self.interpreter.shell, "events"):
             self.interpreter.shell.events.register("post_execute", self.add_to_history)
         else:
-            print("You are using a version of ipython < 2. History is not implemented for this version.")
+            print("You need ipython >= 2.0 to use history.")
 
 #         self.project_manager.set_shell(self.interpreter.shell)
 
