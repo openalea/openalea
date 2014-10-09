@@ -6,13 +6,13 @@ from openalea.core.project.manager import ProjectManager
 import sys
 
 
-class PrettyPreview(QtGui.QPushButton):
+class ProjectPushButton(QtGui.QPushButton):
     """
     PushButton initialized from a project : gets its name, icon and version and displays it.
     """
 
     def __init__(self, project, size=200, parent=None):
-        super(PrettyPreview, self).__init__(parent)
+        super(ProjectPushButton, self).__init__(parent)
         wanted_size = size
 
         self.setMinimumSize(wanted_size, wanted_size)
@@ -24,7 +24,7 @@ class PrettyPreview(QtGui.QPushButton):
         icon_name = icon_path if icon_path else ":/images/resources/openalealogo.png"
         text = pretty_print(project.name)
 
-        pixmap = QtGui.QPixmap(icon_name)
+        pixmap = QtGui.QPixmap(icon_name).scaled(size, size)
         label = QtGui.QLabel()
         label.setScaledContents(True)
 
@@ -75,7 +75,7 @@ class ProjectSelector(QtGui.QWidget):
         i, j = 1, -1
         for project in self.projects:
             # Create widget
-            preview_widget = PrettyPreview(project, size=button_size)
+            preview_widget = ProjectPushButton(project, size=button_size)
             preview_widget.clicked.connect(self.showDetails)
 
             if j < maxcolumn - 1:
