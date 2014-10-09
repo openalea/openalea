@@ -14,12 +14,15 @@ def pretty_print(obj):
     return text
 
 def html_item_summary(project):
+    excluded_categories = ['cache', 'world']
+
     html = ''
-    for items, title in [
-        (project.model, 'Models'),
-        (project.lib, 'Libraries'),
-        (project.startup, 'Startup Files'),
-        ]:
+    # Loop on all categories available in this project
+    for category, desc  in project.category_keys.items():
+        if category in excluded_categories:
+            continue
+        title = desc['title']
+        items = project.items(category)
         if not items:
             continue
         html += '<b><u>%s</u></b>\n<ul>' % title
