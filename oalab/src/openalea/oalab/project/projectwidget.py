@@ -423,6 +423,7 @@ class ProjectManagerView(QtGui.QTreeView):
                 if _proj.name != project.name or _proj.projectdir != project.projectdir:
                     project.move(_proj.path)
                 project.metadata = project_creator.metadata()
+                project.save()
 
     def open_project(self, name=False, path=None):
         """
