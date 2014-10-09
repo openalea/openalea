@@ -23,7 +23,7 @@ from openalea.lpy.gui.objectpanel import ObjectPanelManager, TriggerParamFunc, O
 from openalea.lpy.gui.scalareditor import ScalarEditor
 from openalea.lpy.gui.objectmanagers import get_managers
 from openalea.core import logger
-from openalea.oalab.control.picklable_curves import geometry_2_piklable_geometry
+from openalea.plantlab.picklable_curves import geometry_2_piklable_geometry
 
 
 class ControlPanel(QtGui.QTabWidget):

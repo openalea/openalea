@@ -52,6 +52,9 @@ setup(
     entry_points = {
               "wralea": ["openalea.flow control = openalea.core.system",],
               "console_scripts": ["alea = openalea.core.alea:main"],
+              'oalab.model': [
+            'PythonModel = openalea.core.model:PythonModel',
+            ],
               },
 
 

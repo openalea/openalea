@@ -116,7 +116,7 @@ setup(
         'pygments.lexers': ['LPyLexer = openalea.plantlab.lpy_lexer:LPyLexer'],
 
         'oalab.model': [
-            'LPyModel = openalea.oalab.model.lpy:LPyModel',
+            'LPyModel = openalea.plantlab.lpy:LPyModel',
             ],
 
         'oalab.paradigm_applet': [

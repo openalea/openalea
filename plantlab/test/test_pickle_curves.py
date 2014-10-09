@@ -1,5 +1,5 @@
 from openalea.plantgl.all import BezierCurve2D, NurbsCurve2D, Polyline2D, NurbsPatch
-from openalea.oalab.control.picklable_curves import RedNurbs2D, RedBezierNurbs2D, RedPolyline2D, RedNurbsPatch
+from openalea.plantlab.picklable_curves import RedNurbs2D, RedBezierNurbs2D, RedPolyline2D, RedNurbsPatch
 from pickle import loads, dumps
 
 def curve():

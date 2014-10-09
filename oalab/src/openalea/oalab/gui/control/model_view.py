@@ -108,13 +108,13 @@ class ControlView(QtGui.QTreeView):
  
 
     def import_lpy(self):
-        from openalea.oalab.gui.control.lpycontrol import import_lpy_controls
+        from openalea.plantlab.lpycontrol import import_lpy_controls
         filename = QtGui.QFileDialog.getOpenFileName(self, 'Select L-Py file')
         if filename:
             import_lpy_controls(filename)
 
     def export_lpy(self):
-        from openalea.oalab.gui.control.lpycontrol import export_lpy_controls
+        from openalea.plantlab.lpycontrol import export_lpy_controls
         filename = QtGui.QFileDialog.getSaveFileName(self, 'Select L-Py file')
         if filename:
             mcontrols = [(c.name, c.interface, c.value) for c in  self.model()._manager.controls()]

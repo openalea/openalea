@@ -16,9 +16,9 @@
 #
 ###############################################################################
 from openalea.core.model import Model
-from openalea.oalab.model.parse import parse_doc, OutputObj, get_docstring, prepare_inputs
+from openalea.oalab.model.parse import parse_doc, InputObj, OutputObj, get_docstring, prepare_inputs
 from openalea.plantlab.parse_model import parse_lpy
-from openalea.oalab.control.picklable_curves import geometry_2_piklable_geometry
+from openalea.plantlab.picklable_curves import geometry_2_piklable_geometry
 from openalea.lpy import Lsystem, AxialTree
 from openalea.lpy.__lpy_kernel__ import LpyParsing
 from openalea.lpy.gui.objectmanagers import get_managers
