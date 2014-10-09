@@ -76,6 +76,9 @@ def _normpath(path):
 class MetaData(Control):
     pass
 
+class CategoryInfo(dict):
+    pass
+
 class Project(Observed):
 
     metadata_keys = OrderedDict([
@@ -91,15 +94,15 @@ class Project(Observed):
         ("version", MetaData('version', 'IStr', '0.1')),
         ])
 
-    category_keys = [
-        "cache",
-        "data",
-        "model",
-        "world",
-        "startup",
-        "doc",
-        "lib",
-        ]
+    category_keys = OrderedDict([
+        ("cache", CategoryInfo(title='Temporary Data')),
+        ("data", CategoryInfo(title='Data')),
+        ("model", CategoryInfo(title='Models')),
+        ("world", CategoryInfo(title='World')),
+        ("startup", CategoryInfo(title='Startup')),
+        ("doc", CategoryInfo(title='Documentation')),
+        ("lib", CategoryInfo(title='Libraries')),
+        ])
 
     config_filename = "oaproject.cfg"
 
@@ -351,6 +354,9 @@ class Project(Observed):
         self._path = dest
         self.notify_listeners(('project_moved', (self, src, dest)))
         self._project_changed()
+
+    def items(self, category, **kwds):
+        return getattr(self, category)
 
     def get_item(self, category, filename):
         files = getattr(self, category)

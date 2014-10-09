@@ -293,7 +293,7 @@ class ParadigmContainer(QtGui.QTabWidget):
         if category:
             categories=[category]
         else:
-            categories=Project.category_keys
+            categories = Project.category_keys.keys()
         selector = SelectCategory(filename=name, categories=categories, dtypes=dtypes)
         dialog = ModalDialog(selector)
         if dialog.exec_():
