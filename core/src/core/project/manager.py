@@ -17,7 +17,7 @@
 ###############################################################################
 
 import os
-import platform
+
 from openalea.core.path import path as Path
 from openalea.core import settings
 from openalea.core.project.project import Project
@@ -27,7 +27,9 @@ from ConfigParser import NoSectionError, NoOptionError
 from openalea.core.plugin import iter_plugins
 from openalea.core.control.manager import ControlManager
 
+
 class ProjectManager(Observed, AbstractListener):
+
     """
     Object which permit to access to projects: creation, loading, searching, ...
 
@@ -76,10 +78,10 @@ class ProjectManager(Observed, AbstractListener):
         try:
             s = config.get("ProjectManager", "Path")
             lst = eval(s)
-        except NoSectionError, e:
+        except NoSectionError:
             config.add_section("ProjectManager")
             config.add_option("ProjectManager", "Path", str([str(path) for path in lst]))
-        except NoOptionError, e:
+        except NoOptionError:
             config.add_option("ProjectManager", "Path", str([str(path) for path in lst]))
 
         for repo in lst:
@@ -92,7 +94,6 @@ class ProjectManager(Observed, AbstractListener):
             if not p.isdir():
                 continue
             final_list.add(p)
-
 
         return list(final_list)
 
@@ -134,7 +135,6 @@ class ProjectManager(Observed, AbstractListener):
                 project = Project(p.parent)
                 projects[project.path] = project
         self.projects = projects.values()
-
 
     def search(self, **kwargs):
         """
@@ -195,7 +195,8 @@ You can rename/move this project thanks to the button "Save As" in menu.
             >>> project2 = project_manager.create('project2', '/path/to/project')
 
         :param name: name of project to create (str)
-        :param path: path where project will be saved. By default, path is the user path of all projects ($HOME/.openalea/projects/).
+        :param path: path where project will be saved.
+                     By default, path is the user path of all projects ($HOME/.openalea/projects/).
         :return: Project
         """
         if projectdir is None:
@@ -219,7 +220,9 @@ You can rename/move this project thanks to the button "Save As" in menu.
             >>> project2 = project_manager.load('project2', '/path/to/project')
 
         :param name: name of project to load. Must be a string.
-        :param projectdir: path of project to load. Must be a path (see module path.py). By default, try to guess with name only. If there are various projects with the same name, return the first.
+        :param projectdir: path of project to load. Must be a path (see module path.py).
+                           By default, try to guess with name only.
+                           If there are various projects with the same name, return the first.
         :return: Project
         """
         project = None
@@ -297,6 +300,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
             project.register_listener(self)
         self.notify_listeners(('project_changed', self))
 
+
 def main():
     from openalea.vpltk.qt import QtGui
     from openalea.core.service.ipython import interpreter
@@ -316,7 +320,7 @@ def main():
 
     # Create or load project
     name = "project_test"
-    proj = pm.load(name)
+    pm.load(name)
 
     app.exec_()
 

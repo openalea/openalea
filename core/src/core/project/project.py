@@ -49,7 +49,7 @@ import os
 
 from openalea.core.observer import Observed
 from openalea.core.path import path as Path
-from openalea.core.project.configobj import ConfigObj
+from openalea.core.external.configobj import ConfigObj
 from openalea.core.service.interface import interface_name
 from openalea.core.service.data import DataFactory
 from openalea.core.control import Control
@@ -179,7 +179,8 @@ class Project(Observed):
     @property
     def icon_path(self):
         """
-        :return: the complete path of the icon. To modify it, you have to modify the path of project, the name of project and/or the self.icon.
+        :return: the complete path of the icon. To modify it, you have to modify the path of project,
+                 the name of project and/or the self.icon.
         """
         icon_name = None
         if self.icon:
@@ -383,7 +384,7 @@ class Project(Observed):
                 dic = dict(
                     NUM=nmodels,
                     BASENAME=str(Path(modelname).namebase),
-                    LST=', '.join([repr(str(model.filename)) for model in found_models])
+                    LST=', '.join([repr(str(_model.filename)) for _model in found_models])
                 )
                 raise ValueError('%(NUM)d model have basename %(BASENAME)r: %(LST)s' % dic)
 
@@ -394,7 +395,11 @@ class Project(Observed):
         1. Read manifest file (oaproject.cfg).
         2. Load metadata inside project from manifest.
         3. Create Data objects for each file inside project.
-        :warning: **Doesn't** load data content ! If you want to load data, please use :meth:`Data.read<openalea.oalab.model.model.Data.read>`.
+
+        .. warning::
+
+            **Doesn't** load data content ! If you want to load data,
+            please use :meth:`Data.read<openalea.oalab.model.model.Data.read>`.
 
         """
         config = ConfigObj(self.path / self.config_filename)
