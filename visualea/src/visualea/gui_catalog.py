@@ -439,6 +439,7 @@ class ISequenceWidget(IInterfaceWidget, qt.QtGui.QWidget):
 
         qt.QtGui.QWidget.__init__(self, parent)
         IInterfaceWidget.__init__(self, node, parent, parameter_str, interface)
+        self.connected = False
 
         self.gridlayout = qt.QtGui.QGridLayout(self)
         self.gridlayout.setContentsMargins(3, 3, 3, 3)
@@ -512,13 +513,18 @@ class ISequenceWidget(IInterfaceWidget, qt.QtGui.QWidget):
 
         self.subwidget.clear()
 
-        if not isiterable(seq): return
+        if not isiterable(seq):
+            self.updating = False
+            self.unvalidate()
+            return
+
         for elt in seq :
             item = qt.QtGui.QListWidgetItem(str(elt))
             item.setFlags(qt.QtCore.Qt.ItemIsEditable | qt.QtCore.Qt.ItemIsEnabled |
                           qt.QtCore.Qt.ItemIsSelectable)
             self.subwidget.addItem(item)
         self.updating = False
+        self.unvalidate()
 
     def get_widget_value(self):
         return [self.subwidget.item(i).text() for i in range(self.subwidget.count())]
@@ -526,11 +532,14 @@ class ISequenceWidget(IInterfaceWidget, qt.QtGui.QWidget):
     @lock_notify
     def button_clicked(self):
         seq = self.get_value()
+        if seq is None:
+            seq = []
         seq.append(None)
         item = qt.QtGui.QListWidgetItem(str(None))
         item.setFlags(qt.QtCore.Qt.ItemIsEditable | qt.QtCore.Qt.ItemIsEnabled |
                       qt.QtCore.Qt.ItemIsSelectable)
         self.subwidget.addItem(item)
+        self.set_value(seq)
         self.unvalidate()
 
 
@@ -551,7 +560,7 @@ class ISequenceWidget(IInterfaceWidget, qt.QtGui.QWidget):
     @lock_notify
     def buttonmoins_clicked(self):
         seq = self.get_value()
-        row = self.subwidget.currentRow ()
+        row = self.subwidget.currentRow()
         if(row < 0): return
         val = seq[row]
         del(seq[row])

@@ -443,13 +443,15 @@ class NodeFactoryView(object):
     Implements Drag and Drop facilities.
     """
 
-    def __init__(self, main_win, parent=None):
+    def __init__(self, main_win=None, parent=None):
         """
         @param main_win : main window
         @param parent : parent widget
         """
-
-        self.main_win = ref(main_win)
+        if main_win:
+            self.set_main_win(main_win)
+        else:
+            self.main_win = None
 
         self.setDragEnabled(True)
         self.setDropIndicatorShown(True)
@@ -459,6 +461,8 @@ class NodeFactoryView(object):
         except:
             pass
 
+    def set_main_win(self, main_win):
+        self.main_win = ref(main_win)
 
     def dragEnterEvent(self, event):
         mimedata = event.mimeData()
@@ -697,7 +701,11 @@ class NodeFactoryView(object):
         """ Set the package icon """
 
         pkg = self.get_current_pkg()
-        pix = grab_icon(self.main_win())
+        if self.main_win is None:
+            parent = self
+        else:
+            parent = self.main_win()
+        pix = grab_icon(parent)
 
         fname = os.path.join(pkg.path, "icon.png")
         pix.save(fname)
@@ -720,7 +728,14 @@ class NodeFactoryView(object):
         filename = pkg.get_wralea_path()
         widget = get_editor()(self)
         widget.edit_file(filename)
-        if(widget.is_widget()) : open_dialog(self.main_win(), widget, pkg.name)
+
+        if self.main_win is None:
+            parent = self
+        else:
+            parent = self.main_win()
+
+        if(widget.is_widget()) :
+            open_dialog(parent, widget, pkg.name)
 
 
     def reload_package(self):
@@ -797,6 +812,9 @@ class NodeFactoryView(object):
 
 
     def mouseDoubleClickEvent(self, event):
+        # TODO: emit signal to make widget totally independent
+        if self.main_win is None:
+            return
 
         item = self.currentIndex()
         obj =  item.internalPointer()
@@ -828,9 +846,14 @@ Do you want to continue?""",
         item = self.currentIndex()
         obj =  item.internalPointer()
 
+        if self.main_win is None:
+            parent = self
+        else:
+            parent = self.main_win()
+
         if(isinstance(obj, AbstractFactory)):
             widget = obj.instantiate_widget(autonomous=True)
-            open_dialog(self.main_win(), widget, obj.get_id())
+            open_dialog(parent, widget, obj.get_id())
 
 
         elif(isinstance(obj, PseudoPackage)):
@@ -843,6 +866,9 @@ Do you want to continue?""",
     @exception_display
     def edit_node(self):
         """ Edit Node in tab workspace"""
+
+        if self.main_win is None:
+            return
 
         item = self.currentIndex()
         obj =  item.internalPointer()
@@ -897,7 +923,8 @@ Do you want to continue?""",
             self.reinit_treeview()
 
     def reinit_treeview(self):
-        self.main_win().reinit_treeview()
+        if self.main_win:
+            self.main_win().reinit_treeview()
 
 
 class NodeFactoryTreeView(NodeFactoryView, qt.QtGui.QTreeView):

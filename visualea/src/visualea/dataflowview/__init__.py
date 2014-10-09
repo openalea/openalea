@@ -192,7 +192,7 @@ class DataflowView( qt.View ):
 
             try:
                 # version > August 2014 (Git)
-                from openalea.vpltk.datamodel.model import ModelFactory
+                from openalea.core.model import ModelFactory
             except ImportError:
                 try:
                     # Backward compatibility with oalab from svn June 2014
