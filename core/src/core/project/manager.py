@@ -77,7 +77,7 @@ class ProjectManager(Observed, AbstractListener):
         lst = list(repositories)
         try:
             s = config.get("ProjectManager", "Path")
-            lst = eval(s)
+            lst = eval(s, {"path": Path})
         except NoSectionError:
             config.add_section("ProjectManager")
             config.add_option("ProjectManager", "Path", str([str(path) for path in lst]))
