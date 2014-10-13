@@ -21,8 +21,8 @@ __revision__ = ""
 
 from openalea.oalab.editor.text_editor import RichTextEditor as Editor
 from openalea.oalab.editor.highlight import Highlighter
-from openalea.oalab.editor.lpy_lexer import LPyLexer
-from openalea.oalab.control.picklable_curves import geometry_2_piklable_geometry
+from openalea.plantlab.lpy_lexer import LPyLexer
+from openalea.plantlab.picklable_curves import geometry_2_piklable_geometry
 from openalea.lpy import Lsystem
 from openalea.lpy.__lpy_kernel__ import LpyParsing
 from openalea.lpy.gui.objectmanagers import get_managers

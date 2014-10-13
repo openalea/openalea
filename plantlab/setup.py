@@ -113,6 +113,11 @@ setup(
         # 'gui_scripts': [
         #      'fake_gui = openalea.fakepackage.amodule:gui_script',],
         #	'wralea': wralea_entry_points
+        'pygments.lexers': ['LPyLexer = openalea.plantlab.lpy_lexer:LPyLexer'],
+
+        'oalab.model': [
+            'LPyModel = openalea.plantlab.lpy:LPyModel',
+            ],
 
         'oalab.paradigm_applet': [
             'LPyApplet = openalea.plantlab:LPyModelGUI',

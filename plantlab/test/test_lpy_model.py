@@ -15,7 +15,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-from openalea.oalab.model.lpy import LPyModel
+from openalea.plantlab.lpy import LPyModel
 
 
 def test_model_get_documentation():

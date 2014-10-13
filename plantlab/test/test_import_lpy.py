@@ -1,4 +1,4 @@
-from openalea.oalab.gui.paradigm.lpy import import_lpy_file
+from openalea.plantlab.lpy import import_lpy_file
 
 lpy_str = """
 Axiom: A

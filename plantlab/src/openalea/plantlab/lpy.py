@@ -15,16 +15,15 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-# from openalea.oalab.model.model import Model
 from openalea.core.model import Model
-from openalea.oalab.model.parse import parse_doc, parse_lpy, OutputObj, InputObj, get_docstring, prepare_inputs
-from openalea.oalab.control.picklable_curves import geometry_2_piklable_geometry
+from openalea.oalab.model.parse import parse_doc, InputObj, OutputObj, get_docstring, prepare_inputs
+from openalea.plantlab.parse_model import parse_lpy
+from openalea.plantlab.picklable_curves import geometry_2_piklable_geometry
 from openalea.lpy import Lsystem, AxialTree
 from openalea.lpy.__lpy_kernel__ import LpyParsing
 from openalea.lpy.gui.objectmanagers import get_managers
 from openalea.lpy.gui.scalar import ProduceScalar
 from openalea.lpy.gui import documentation as doc_lpy
-import collections
 import types
 
 
@@ -282,8 +281,8 @@ endlsystem"""
             model, self.inputs_info, self.outputs_info = parse_doc(docstring)
 
         # Default input
-        # if self.inputs_info == []:
-        #     self.inputs_info = [InputObj('lstring:IStr=""')]
+        if self.inputs_info == []:
+            self.inputs_info = [InputObj('lstring:IStr=""')]
         # Default output
         if self.outputs_info == []:
             self.outputs_info = [OutputObj("lstring:IStr")]

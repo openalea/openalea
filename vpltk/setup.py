@@ -108,20 +108,6 @@ setup(
     # Declare scripts and wralea as entry_points (extensions) of your package 
     entry_points = { 
         'plugin' : ['vpltksample = openalea.vpltk.sample'],
-        'vpltk.loader': ['GenericLoader = openalea.core.project.loader:GenericLoader',
-                         'CPickleLoader = openalea.core.project.loader:CPickleLoader',
-                         'BGEOMLoader = openalea.core.project.loader:BGEOMLoader',
-                         'BinaryLoader = openalea.core.project.loader:BinaryLoader',
-                         ],
-        'vpltk.saver': ['GenericSaver = openalea.core.project.saver:GenericSaver',
-                        'CPickleSaver = openalea.core.project.saver:CPickleSaver',
-                        'BGEOMSaver = openalea.core.project.saver:BGEOMSaver',
-                        'BinarySaver = openalea.core.project.saver:BinarySaver',
-                        ],
-
-        'oalab.model': [
-            'PythonModel = openalea.core.model:PythonModel',
-            ],
 
         #'wralea' : ['vpltk = openalea.vpltk_wralea' if has_project else 'vpltk = vpltk_wralea' ],
         #'console_scripts': [
