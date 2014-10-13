@@ -26,6 +26,7 @@ from openalea.vpltk.qt import QtGui, QtCore
 from openalea.oalab.gui.menu import PanedMenu
 from openalea.oalab.shell import get_shell_class
 from openalea.oalab.service.applet import get_applets, register_applet
+from openalea.core.service.ipython import interpreter
 
 import weakref
 
@@ -54,7 +55,8 @@ class MainWindow(QtGui.QMainWindow):
     def __init__(self, session, parent=None, args=None):
         super(QtGui.QMainWindow, self).__init__()
         self.session = session
-        self.session.interpreter.locals['mainwindow'] = self
+        interp = interpreter()
+        interp.locals['mainwindow'] = self
 
         self.areas = {}
         for area_name in ('inputs', 'outputs', 'shell'):
@@ -99,8 +101,8 @@ class MainWindow(QtGui.QMainWindow):
         dock_menu.setSizePolicy(size_policy)
 
         # Shell
-        self.shell = get_shell_class()(self.session.interpreter)
-        self.session.interpreter.locals['shell'] = self.shell
+        self.shell = get_shell_class()(interp)
+        interp.locals['shell'] = self.shell
         self.add_applet(self.shell, 'Shell', area='shell')
 
         self.applets = self._plugins = {}

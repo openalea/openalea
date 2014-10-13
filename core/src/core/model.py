@@ -123,9 +123,9 @@ class Model(Data):
         """
         Execute code (str) in current interpreter
         """
-        from openalea.core.service.ipython import get_interpreter
-        interpreter = get_interpreter()
-        return interpreter.runcode(code)
+        from openalea.core.service.ipython import interpreter
+        interp = interpreter()
+        return interp.runcode(code)
 
     def _set_output_from_ns(self, namespace):
         """
@@ -163,10 +163,10 @@ class Model(Data):
         """
         :return: the current namespace updated with interpreter namespace and inputs
         """
-        from openalea.core.service.ipython import get_interpreter
+        from openalea.core.service.ipython import interpreter
         from openalea.core.control.manager import control_dict
         from openalea.core.project import ProjectManager
-        interpreter = get_interpreter()
+        interp = interpreter()
 
         # Add project namespace inside namespace
         pm = ProjectManager()
@@ -178,8 +178,8 @@ class Model(Data):
         if controls:
             self.ns.update(controls)
 
-        if interpreter:
-            self.ns.update(interpreter.user_ns)
+        if interp:
+            self.ns.update(interp.user_ns)
 
         # Add inputs inside namespace
         if self.inputs:
@@ -195,21 +195,21 @@ class Model(Data):
 
         :return: namespace in which execution was done
         """
-        from openalea.core.service.ipython import get_interpreter
-        interpreter = get_interpreter()
+        from openalea.core.service.ipython import interpreter
+        interp = interpreter()
         # Save current namespace
-        old_namespace = copy(interpreter.user_ns)
+        old_namespace = copy(interp.user_ns)
         # Clear current namespace
-        interpreter.user_ns.clear()
+        interp.user_ns.clear()
         # Set namespace with new one
-        interpreter.user_ns.update(namespace)
+        interp.user_ns.update(namespace)
         # Execute code in new namespace
         self.execute(code)
         # Get just modified namespace
-        namespace = copy(interpreter.user_ns)
+        namespace = copy(interp.user_ns)
         # Restore previous namespace
-        interpreter.user_ns.clear()
-        interpreter.user_ns.update(old_namespace)
+        interp.user_ns.clear()
+        interp.user_ns.update(old_namespace)
         return namespace
 
     def clear_cache(self):

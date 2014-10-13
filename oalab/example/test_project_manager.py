@@ -3,8 +3,9 @@
 from openalea.vpltk.qt import QtGui
 from openalea.oalab.service.applet import get_applet
 from openalea.oalab.gui.mainwindow import MainWindow
-from openalea.oalab.session.session import  Session
+from openalea.oalab.session.session import Session
 from openalea.core.plugin import iter_plugins
+from openalea.core.service.ipython import interpreter
 
 if __name__ == '__main__':
     instance = QtGui.QApplication.instance()
@@ -24,8 +25,9 @@ if __name__ == '__main__':
     pmw = get_applet(identifier='ProjectManager', class_args=dict(mainwindow=mainwin))
     pcw = get_applet(identifier='EditorManager', class_args=dict(mainwindow=mainwin))
 
-    session.interpreter.locals['pmw'] = pmw
-    session.interpreter.locals['pcw'] = pcw
+    interp = interpreter()
+    interp.locals['pmw'] = pmw
+    interp.locals['pcw'] = pcw
 
     mainwin.show()
     mainwin.raise_()

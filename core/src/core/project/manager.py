@@ -299,14 +299,14 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
 def main():
     from openalea.vpltk.qt import QtGui
-    from openalea.core.interpreter import Interpreter
+    from openalea.core.service.ipython import interpreter
     from openalea.oalab.shell import ShellWidget
     import sys
 
     # Create Window with IPython shell
     app = QtGui.QApplication(sys.argv)
-    interpreter = Interpreter()
-    shellwdgt = ShellWidget(interpreter)
+    interp = interpreter()
+    shellwdgt = ShellWidget(interp)
     mainWindow = QtGui.QMainWindow()
     mainWindow.setCentralWidget(shellwdgt)
     mainWindow.show()

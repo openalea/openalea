@@ -586,13 +586,13 @@ class TextEditor(QtGui.QTextEdit):
 def main():
     import sys
     from openalea.oalab.shell import get_shell_class
-    from openalea.core.interpreter import get_interpreter_class
+    from openalea.core.service.ipython import interpreter
     from openalea.oalab.editor.highlight import Highlighter
     app = QtGui.QApplication(sys.argv)
     
     edit = TextEditor()
     Highlighter(edit)
-    interp = get_interpreter_class()()
+    interp = interpreter()
     shell = get_shell_class()(interp)
     
     win = QtGui.QMainWindow()

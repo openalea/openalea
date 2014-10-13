@@ -64,7 +64,7 @@ class HistoryWidget(QtGui.QTextBrowser):
 
 def main():
     from openalea.vpltk.qt import QtCore, QtGui
-    from openalea.vpltk.shell.ipythoninterpreter import Interpreter
+    from openalea.core.service.ipython import interpreter as interpreter_
     from openalea.oalab.shell import ShellWidget
     import sys
 
@@ -72,7 +72,7 @@ def main():
 
     history = HistoryWidget()
     # Set interpreter
-    interpreter = Interpreter()
+    interpreter = interpreter_()
 
     interpreter.locals['interp'] = interpreter
     interpreter.locals['hist'] = history
