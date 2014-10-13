@@ -6,7 +6,7 @@ except ImportError:
     class Interpreter(InteractiveInterpreter):
         def __init__(self):
             super(Interpreter, self).__init__()
-            self.user_nas = self.locals
+            self.user_ns = self.locals
 
 
 def get_interpreter_class():
