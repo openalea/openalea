@@ -74,11 +74,29 @@ class IInterpreter(object):
     """
     TODO: complete
     """
+    def __init__(self, *args, **kwargs):
+        self.user_ns = dict()
+
     def run_cell(self, raw_cell, store_history=False, silent=False, shell_futures=True):
         pass
 
     def runcode(self, code_obj):
         pass
 
-    def push(self, variables, interactive=True):
-        pass
+    # def push(self, variables, interactive=True):
+    #     """
+    #     :param variables: dict, str or list/tuple of str
+    # The variables to inject into the user's namespace.  If a dict, a
+    # simple update is done.  If a str, the string is assumed to have
+    # variable names separated by spaces.  A list/tuple of str can also
+    # be used to give the variable names.  If just the variable names are
+    # give (list/tuple/str) then the variable values looked up in the
+    # callers frame.
+    #     :param interactive: bool
+    # If True (default), the variables will be listed with the ``who``
+    # magic.
+    #     """
+    #
+    #     # Unused for the moment
+    #     # code.InteractiveInterpreter class doesn't have method push
+    #     pass
