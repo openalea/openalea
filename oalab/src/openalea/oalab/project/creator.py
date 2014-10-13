@@ -24,14 +24,17 @@ from openalea.core import settings
 from openalea.core.project import Project, ProjectManager
 from openalea.oalab.service.qt_control import widget
 
+
 class CreateProjectWidget(QtGui.QWidget):
+
     """
     Object which permit to create projects.
     """
+
     def __init__(self, proj=None, parent=None):
         super(CreateProjectWidget, self).__init__(parent)
-        self.pm = ProjectManager() 
- 
+        self.pm = ProjectManager()
+
         self.widget_metadata = QtGui.QWidget()
         self.widget_path = QtGui.QWidget()
 
@@ -58,7 +61,7 @@ class CreateProjectWidget(QtGui.QWidget):
         layout_metadata = QtGui.QFormLayout(self.widget_metadata)
         layout_metadata.setLabelAlignment(QtCore.Qt.AlignLeft)
 
-        for cat, metadata in Project.metadata_keys.iteritems():
+        for cat, metadata in Project.DEFAULT_METADATA.iteritems():
             label = QtGui.QLabel(metadata.name.capitalize().replace('_', ' '))
             editor = widget(metadata.interface, metadata.value)
             editor.setSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Preferred)
@@ -66,7 +69,7 @@ class CreateProjectWidget(QtGui.QWidget):
             layout_metadata.addRow(label, editor)
 
         if proj:
-            for key in proj.metadata_keys:
+            for key in proj.DEFAULT_METADATA:
                 self._metadata[key].setValue(proj.metadata[key])
             title = "Edit '%s' metadata" % proj.name
         else:
@@ -89,6 +92,7 @@ class CreateProjectWidget(QtGui.QWidget):
         for key, editor in self._metadata.iteritems():
             metadata[key] = editor.value()
         return metadata
+
 
 def main():
     import sys

@@ -1,4 +1,4 @@
- # -*- python -*-
+# -*- python -*-
 #
 #       OpenAlea.OALab: Multi-Paradigm GUI
 #
@@ -23,7 +23,7 @@ from openalea.core import logger
 from openalea.oalab.gui.pages import WelcomePage2 as WelcomePage
 from openalea.core import settings
 from openalea.core.path import path
-from openalea.oalab.gui import resources_rc # do not remove this import else icon are not drawn
+from openalea.oalab.gui import resources_rc  # do not remove this import else icon are not drawn
 from openalea.oalab.gui.utils import qicon
 from openalea.core.project import ProjectManager, Project
 from openalea.oalab.project.projectwidget import SelectCategory
@@ -35,7 +35,9 @@ from openalea.core.service.data import DataFactory, DataClass, DataType, MimeTyp
 
 from openalea.oalab.session.session import Session
 
+
 class ParadigmContainer(QtGui.QTabWidget):
+
     """
     Contains paradigm applets (oalab.paradigm_applet)
     """
@@ -93,19 +95,28 @@ class ParadigmContainer(QtGui.QTabWidget):
         self.actionOpenFile.setShortcut(
             QtGui.QApplication.translate("MainWindow", "Ctrl+O", None, QtGui.QApplication.UnicodeUTF8))
 
-        self.actionRunSelection.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+E", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionRunSelection.setShortcut(
+            QtGui.QApplication.translate("MainWindow", "Ctrl+E", None, QtGui.QApplication.UnicodeUTF8))
 
-        self.actionCloseCurrent.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+W", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionSearch.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+F", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionGoto.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+G", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionSave.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionCloseCurrent.setShortcut(
+            QtGui.QApplication.translate("MainWindow", "Ctrl+W", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionSearch.setShortcut(
+            QtGui.QApplication.translate("MainWindow", "Ctrl+F", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionGoto.setShortcut(
+            QtGui.QApplication.translate("MainWindow", "Ctrl+G", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionSave.setShortcut(
+            QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
         # self.actionRun.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+R", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionRun.setShortcuts([QtGui.QApplication.translate("MainWindow", "F1", None, QtGui.QApplication.UnicodeUTF8),QtGui.QApplication.translate("MainWindow", "Ctrl+R", None, QtGui.QApplication.UnicodeUTF8)])
-        self.actionAnimate.setShortcut(QtGui.QApplication.translate("MainWindow", "F2", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionStep.setShortcut(QtGui.QApplication.translate("MainWindow", "F3", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionStop.setShortcut(QtGui.QApplication.translate("MainWindow", "F4", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionInit.setShortcut(QtGui.QApplication.translate("MainWindow", "F5", None, QtGui.QApplication.UnicodeUTF8))
-
+        self.actionRun.setShortcuts([QtGui.QApplication.translate("MainWindow", "F1", None, QtGui.QApplication.UnicodeUTF8), QtGui.QApplication.translate(
+            "MainWindow", "Ctrl+R", None, QtGui.QApplication.UnicodeUTF8)])
+        self.actionAnimate.setShortcut(
+            QtGui.QApplication.translate("MainWindow", "F2", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionStep.setShortcut(
+            QtGui.QApplication.translate("MainWindow", "F3", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionStop.setShortcut(
+            QtGui.QApplication.translate("MainWindow", "F4", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionInit.setShortcut(
+            QtGui.QApplication.translate("MainWindow", "F5", None, QtGui.QApplication.UnicodeUTF8))
 
         self.actionNewFile.triggered.connect(self.new_file)
         self.actionOpenFile.triggered.connect(self.open)
@@ -133,26 +144,26 @@ class ParadigmContainer(QtGui.QTabWidget):
         self.actionStop.setEnabled(False)
 
         self._actions = [
-                         ["Project", "Manage", self.actionNewFile, 0],
-                         ["Project", "Manage", self.actionAddFile, 1],
-                         ["Project", "Manage", self.actionOpenFile, 1],
-                         ["Project", "Manage", self.actionSave, 1],
-                         ["Project", "Manage", self.actionCloseCurrent, 1],
+            ["Project", "Manage", self.actionNewFile, 0],
+            ["Project", "Manage", self.actionAddFile, 1],
+            ["Project", "Manage", self.actionOpenFile, 1],
+            ["Project", "Manage", self.actionSave, 1],
+            ["Project", "Manage", self.actionCloseCurrent, 1],
 
-                         ["Project", "Play", self.actionRun, 0],
-                         ["Project", "Play", self.actionAnimate, 0],
-                         ["Project", "Play", self.actionStep, 0],
-                         ["Project", "Play", self.actionStop, 0],
-                         ["Project", "Play", self.actionInit, 0],
+            ["Project", "Play", self.actionRun, 0],
+            ["Project", "Play", self.actionAnimate, 0],
+            ["Project", "Play", self.actionStep, 0],
+            ["Project", "Play", self.actionStop, 0],
+            ["Project", "Play", self.actionInit, 0],
 
-                         ["Edit", "Text Edit", self.actionUndo, 0],
-                         ["Edit", "Text Edit", self.actionRedo, 0],
-                         ["Edit", "Text Edit", self.actionSearch, 0],
-                         ["Edit", "Text Edit", self.actionGoto, 0],
-                         ["Edit", "Text Edit", self.actionComment, 0],
-                         ["Edit", "Text Edit", self.actionUnComment, 0],
-                         ["Edit", "Text Edit", self.actionRunSelection, 0],
-                         ]
+            ["Edit", "Text Edit", self.actionUndo, 0],
+            ["Edit", "Text Edit", self.actionRedo, 0],
+            ["Edit", "Text Edit", self.actionSearch, 0],
+            ["Edit", "Text Edit", self.actionGoto, 0],
+            ["Edit", "Text Edit", self.actionComment, 0],
+            ["Edit", "Text Edit", self.actionUnComment, 0],
+            ["Edit", "Text Edit", self.actionRunSelection, 0],
+        ]
         self.connect_paradigm_container()
         self.extensions = ""
         self.connect(self, QtCore.SIGNAL('tabCloseRequested(int)'), self.autoClose)
@@ -291,9 +302,9 @@ class ParadigmContainer(QtGui.QTabWidget):
             dtypes = [dtype]
 
         if category:
-            categories=[category]
+            categories = [category]
         else:
-            categories = Project.category_keys.keys()
+            categories = Project.DEFAULT_CATEGORIES.keys()
         selector = SelectCategory(filename=name, categories=categories, dtypes=dtypes)
         dialog = ModalDialog(selector)
         if dialog.exec_():
@@ -303,7 +314,7 @@ class ParadigmContainer(QtGui.QTabWidget):
             path = project.path / category / filename
             if path.exists():
                 box = QtGui.QMessageBox.information(self, 'Data yet exists',
-                    'Data with name %s already exists in this project, just add it' % filename)
+                                                    'Data with name %s already exists in this project, just add it' % filename)
                 code = None
             data = project.add(category=category, filename=filename, content=code, dtype=dtype)
             if data:
@@ -342,7 +353,7 @@ class ParadigmContainer(QtGui.QTabWidget):
         Display a welcome tab if nothing is opened
         """
         pm = get_applet(identifier='ProjectManager')
-        if pm :
+        if pm:
             actions = [pm.actionNewProj, pm.actionOpenProj]
             welcomePage = WelcomePage(actions=actions, parent=self.parent())
             self.addTab(welcomePage, "Welcome")
