@@ -53,8 +53,8 @@ class Model(Data):
         self._init = False
         self._run = False
 
-        self.inputs_info = kwargs['inputs'] if 'inputs' in kwargs else []
-        self.outputs_info = kwargs['outputs'] if 'outputs' in kwargs else []
+        self.inputs_info = kwargs.pop('inputs', [])
+        self.outputs_info = kwargs.pop('outputs', [])
 
         self.inputs = {}
         self.outputs = []
@@ -62,18 +62,16 @@ class Model(Data):
         self.ns = dict()
 
         self._cache_mode = self.CACHE
-        self._metadata = {'mtime':0, 'size':0}
+        self._metadata = {'mtime': 0, 'size': 0}
 
         # If path doesn't exists, that means all content is in memory (passed in constructor for example)
         # So we need to parse it
         if not self.exists():
             self.parse()
 
-
     #################
     # REVIEW REQUIRED
     #################
-
 
     def get_documentation(self):
         self.read()
@@ -81,7 +79,6 @@ class Model(Data):
 
     def repr_code(self):
         return self.read()
-
 
     def __call__(self, *args, **kwargs):
         return self.run(*args, **kwargs)
@@ -254,6 +251,7 @@ class Model(Data):
 
 
 class ModelNode(Node):
+
     def __init__(self, model, inputs=(), outputs=()):
         super(ModelNode, self).__init__(inputs=inputs, outputs=outputs)
         self.set_model(model)
@@ -269,8 +267,7 @@ class ModelNode(Node):
     # def reload(self):
     #     node = self.factory.instanciate()
 
-
-        # # set model
+        # set model
         # from openalea.core.project.manager import ProjectManager
         # pm = ProjectManager()
         # model = pm.cproject.get_model(self.model.name)
@@ -282,6 +279,7 @@ class ModelNode(Node):
 
 
 class ModelFactory(AbstractFactory):
+
     def __init__(self,
                  name,
                  lazy=True,
@@ -299,8 +297,10 @@ class ModelFactory(AbstractFactory):
     @property
     def package(self):
         class fake_package(object):
+
             def get_id(self):
                 return ":projectmanager.current"
+
             def reload(self):
                 pass
                 # print 2, "package reload"
@@ -375,7 +375,7 @@ class ModelFactory(AbstractFactory):
             print pm.cproject.model.keys()
 
     def instantiate_widget(self, node=None, parent=None, edit=False,
-        autonomous=False):
+                           autonomous=False):
         """ Return the corresponding widget initialised with node"""
         pass
         # TODO: open corresponding model
@@ -386,6 +386,7 @@ class ModelFactory(AbstractFactory):
 
 
 class PyModelNodeFactoryWriter(object):
+
     """ NodeFactory python Writer """
 
     nodefactory_template = """
@@ -502,4 +503,3 @@ class PythonModel(Model):
         model, self.inputs_info, self.outputs_info = parse_docstring(content)
         self._init, self._step, self._animate, self._run = parse_functions(content)
         self._doc = get_docstring(content)
-

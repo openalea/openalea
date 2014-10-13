@@ -49,7 +49,7 @@ import os
 
 from openalea.core.observer import Observed
 from openalea.core.path import path as Path
-from openalea.core.external.configobj import ConfigObj
+from openalea.core.project.configobj import ConfigObj
 from openalea.core.service.interface import interface_name
 from openalea.core.service.data import DataFactory
 from openalea.core.control import Control
@@ -229,7 +229,7 @@ class Project(Observed):
         return self.remove_item(category, obj=obj, **kwargs)
 
     def _add_item(self, category, obj=None, **kwargs):
-        mode = kwargs['mode'] if 'mode' in kwargs else self.MODE_COPY
+        mode = kwargs.pop('mode', self.MODE_COPY)
         if obj:
             # TODO: Check obj follow Data or Model interface ??
             new_path = self.path / category / obj.path.name
@@ -244,11 +244,11 @@ class Project(Observed):
                 raise ValueError("data '%s' already exists in project '%s'" % (obj.filename, self.alias))
             return obj
         else:
-            filename = Path(kwargs['filename']) if 'filename' in kwargs else None
-            content = kwargs['content'] if 'content' in kwargs else None
-            dtype = kwargs['dtype'] if 'dtype' in kwargs else None
-            mimetype = kwargs['mimetype'] if 'mimetype' in kwargs else None
-            path = Path(kwargs['path']) if 'path' in kwargs else None
+            filename = Path(kwargs.pop('filename')) if 'filename' in kwargs else None
+            content = kwargs.pop('content', None)
+            dtype = kwargs.pop('dtype', None)
+            mimetype = kwargs.pop('mimetype', None)
+            path = Path(kwargs.pop('path')) if 'path' in kwargs else None
             # If project path exists, ie project exists on disk,
             # Create category dir if necessary
             category_path = self.path / category

@@ -150,9 +150,9 @@ class ProjectManager(Observed, AbstractListener):
 
         :TODO: implement with real filter (ex: name = "*mtg*", authors = "*OpenAlea*", ...)
         """
-        regexpr = kwargs['regexpr'] if 'regexpr' in kwargs else False
-        name = kwargs['name'] if 'name' in kwargs else None
-        alias = kwargs['alias'] if 'alias' in kwargs else None
+        regexpr = kwargs.pop('regexpr', False)
+        name = kwargs.pop('name', None)
+        alias = kwargs.pop('alias', None)
         if regexpr:
             raise NotImplementedError
 
