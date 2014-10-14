@@ -56,6 +56,7 @@ from openalea.core.control import Control
 
 from collections import OrderedDict
 
+
 def _normpath(path):
     """
     Replace all symlink in path with real path and return its absolute path
@@ -73,12 +74,18 @@ def _normpath(path):
     else:
         return path.abspath()
 
+
 class MetaData(Control):
     pass
 
+
+class CategoryInfo(dict):
+    pass
+
+
 class Project(Observed):
 
-    metadata_keys = OrderedDict([
+    DEFAULT_METADATA = OrderedDict([
         ("alias", MetaData('alias', 'IStr', 'MyProject')),
         ("icon", MetaData('icon', 'IFileStr', '')),
         ("authors", MetaData('author', 'ISequence', [])),
@@ -89,17 +96,17 @@ class Project(Observed):
         ("dependencies", MetaData('dependencies', 'ISequence')),
         ("license", MetaData('license', 'IStr')),
         ("version", MetaData('version', 'IStr', '0.1')),
-        ])
+    ])
 
-    category_keys = [
-        "cache",
-        "data",
-        "model",
-        "world",
-        "startup",
-        "doc",
-        "lib",
-        ]
+    DEFAULT_CATEGORIES = OrderedDict([
+        ("cache", CategoryInfo(title='Temporary Data')),
+        ("data", CategoryInfo(title='Data')),
+        ("model", CategoryInfo(title='Model')),
+        ("world", CategoryInfo(title='World')),
+        ("startup", CategoryInfo(title='Startup')),
+        ("doc", CategoryInfo(title='Documentation')),
+        ("lib", CategoryInfo(title='Libraries')),
+    ])
 
     config_filename = "oaproject.cfg"
 
@@ -120,12 +127,11 @@ class Project(Observed):
         self._path = _normpath(path)
 
         # Fill metadata
-        for k, v in self.metadata_keys.iteritems():
+        for k, v in self.DEFAULT_METADATA.iteritems():
             self.metadata[k] = kwargs.get(k, v.value)
 
-
         # Allocate category dictionaries
-        for k in self.category_keys:
+        for k in self.DEFAULT_CATEGORIES:
             self.__dict__[k] = {}
 
         if self._path.exists():
@@ -138,19 +144,19 @@ class Project(Observed):
         self.ns = {}
 
     def __setattr__(self, key, value):
-        if key in self.metadata_keys:
+        if key in self.DEFAULT_METADATA:
             old_value = self.metadata[key]
             if old_value != value:
                 self.metadata[key] = value
                 self.notify_listeners(('metadata_changed', (self, key, old_value, value)))
                 self.notify_listeners(('project_changed', self))
-        elif key in self.category_keys:
+        elif key in self.DEFAULT_CATEGORIES:
             raise NameError, "cannot change '%s' attribute" % key
         else:
             return super(Project, self).__setattr__(key, value)
 
     def __getattr__(self, key):
-        if key in self.metadata_keys:
+        if key in self.DEFAULT_METADATA:
             return super(Project, self).__getattribute__('metadata')[key]
         else:
             return super(Project, self).__getattribute__(key)
@@ -182,7 +188,7 @@ class Project(Observed):
                 icon_name = self.path / self.icon
         return icon_name
 
-    def start(self,*args,**kwargs):
+    def start(self, *args, **kwargs):
         """
         Load controls if availabe, execute all files in startup.
         """
@@ -190,9 +196,9 @@ class Project(Observed):
         self.started = True
         self.ns.clear()
         loading = [
-          'import sys',
-          'sys.path.insert(0, %r)' % str(self.path / 'lib')
-          ]
+            'import sys',
+            'sys.path.insert(0, %r)' % str(self.path / 'lib')
+        ]
         loading = '\n'.join(loading)
         for startup in self.startup.values():
             ns = startup.execute_in_namespace(loading, self.ns)
@@ -307,7 +313,6 @@ class Project(Observed):
         self._remove_item(category, filename=old)
         self._add_item(category, data)
 
-
     def _project_changed(self):
         self.notify_listeners(('project_changed', self))
         self._save_manifest()
@@ -352,6 +357,9 @@ class Project(Observed):
         self.notify_listeners(('project_moved', (self, src, dest)))
         self._project_changed()
 
+    def items(self, category, **kwds):
+        return getattr(self, category)
+
     def get_item(self, category, filename):
         files = getattr(self, category)
         return files.get(filename)
@@ -376,7 +384,7 @@ class Project(Observed):
                     NUM=nmodels,
                     BASENAME=str(Path(modelname).namebase),
                     LST=', '.join([repr(str(model.filename)) for model in found_models])
-                    )
+                )
                 raise ValueError('%(NUM)d model have basename %(BASENAME)r: %(LST)s' % dic)
 
     def _load(self):
@@ -402,7 +410,7 @@ class Project(Observed):
                     continue
                 else:
                     value = config['metadata'][info]
-                if interface_name(self.metadata_keys[info].interface) == 'ISequence':
+                if interface_name(self.DEFAULT_METADATA[info].interface) == 'ISequence':
                     if isinstance(value, basestring):
                         value = value.split(',')
                 setattr(self, info, value)
@@ -419,7 +427,7 @@ class Project(Observed):
                 else:
                     old_category = category
 
-                if category in self.category_keys:
+                if category in self.DEFAULT_CATEGORIES:
                     filenames = config["manifest"][old_category]
                     if not isinstance(filenames, list):
                         filenames = [filenames]
@@ -443,7 +451,7 @@ class Project(Observed):
         config['manifest'] = dict()
         config['metadata'] = self.metadata
 
-        for category in self.category_keys:
+        for category in self.DEFAULT_CATEGORIES:
             filenames_dict = getattr(self, category)
             if filenames_dict:
                 category_path = self.path / category
@@ -464,7 +472,6 @@ class Project(Observed):
 
     def save_metadata(self):
         self._save_manifest()
-
 
     def _save_controls(self):
         from openalea.core.control.pyserial import save_controls
@@ -492,6 +499,3 @@ class Project(Observed):
         self._save_controls()
         self._save_manifest()
         self.notify_listeners(('project_saved', self))
-
-
-

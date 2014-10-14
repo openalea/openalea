@@ -2,6 +2,7 @@ from openalea.vpltk.qt import QtGui
 from openalea.core.path import path
 from openalea.core.project import Project
 
+
 def pretty_print(obj):
     """
     :param obj: to decode. Can be a string/unicode or a list of string/unicod
@@ -13,26 +14,33 @@ def pretty_print(obj):
         text = str(obj).decode('utf-8')
     return text
 
+
 def html_item_summary(project):
+    excluded_categories = ['cache', 'world']
+
     html = ''
-    for items, title in [
-        (project.model, 'Models'),
-        (project.lib, 'Libraries'),
-        (project.startup, 'Startup Files'),
-        ]:
+    # Loop on all categories available in this project
+    for category, desc in project.DEFAULT_CATEGORIES.items():
+        if category in excluded_categories:
+            continue
+        title = desc['title']
+        items = project.items(category)
         if not items:
             continue
         html += '<b><u>%s</u></b>\n<ul>' % title
-        for item_name  in sorted(items):
+        for item_name in sorted(items):
             model = items[item_name]
             html += '<li><b>%s</b>%s</li>' % (model.filename.namebase, model.filename.ext)
         html += '</ul>'
     return html
 
+
 class Preview(QtGui.QWidget):
+
     """
     This widget displays meta-information about project.
     """
+
     def __init__(self, project, open_project=None, parent=None):
         super(Preview, self).__init__(parent)
         self.open_project = open_project
@@ -43,9 +51,9 @@ class Preview(QtGui.QWidget):
         icon_name = ":/images/resources/openalea_icon2.png"
         if len(project.icon):
             if project.icon[0] is not ":":
-                #local icon
+                # local icon
                 icon_name = project.path / project.icon
-                #else native icon from oalab.gui.resources
+                # else native icon from oalab.gui.resources
 
         image = QtGui.QImage(icon_name)
         label = QtGui.QLabel()
@@ -61,7 +69,7 @@ class Preview(QtGui.QWidget):
         layout.addWidget(QtGui.QLabel("<b><FONT SIZE = 40>" + pretty_print(project.name) + "<\b>"), 0, 1)
 
         i = 1
-        for label in Project.metadata_keys:
+        for label in Project.DEFAULT_METADATA:
             layout.addWidget(QtGui.QLabel(label), i, 0)
             # GBY Review:
             # QLabel expects a QString and QString is equivalent to unicode
