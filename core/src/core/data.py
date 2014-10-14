@@ -27,6 +27,7 @@ import string
 
 
 class PackageData(object):
+
     """ String representing a package data """
 
     # if __local__ is True, then PackageData point to a
@@ -61,15 +62,16 @@ class PackageData(object):
 
 
 class DataFactory(AbstractFactory):
+
     """ Data representation as factory """
 
     #mimetype = "openalea/datafactory"
 
     def __init__(self,
                  name,
-                 description = '',
-                 editors = None,
-                 includes = None,
+                 description='',
+                 editors=None,
+                 includes=None,
                  **kargs):
         """
         name : filename
@@ -79,7 +81,7 @@ class DataFactory(AbstractFactory):
         """
 
         AbstractFactory.__init__(self, name, description,
-            category='data', **kargs)
+                                 category='data', **kargs)
         self.pkgdata_cache = None
 
         self.editors = editors
@@ -87,14 +89,15 @@ class DataFactory(AbstractFactory):
 
     def is_data(self):
         return True
+
     def is_valid(self):
         """
         Return True if the factory has associated data.
         Else raise an exception
         """
         if(not os.path.exists(str(self.get_pkg_data()))):
-            raise Exception("%s does'nt exists. Ignoring" % \
-                (str(self.get_pkg_data())))
+            raise Exception("%s does'nt exists. Ignoring" %
+                            (str(self.get_pkg_data())))
 
     def get_pkg_data(self):
         """ Return the associated PackageData object """
@@ -116,8 +119,8 @@ class DataFactory(AbstractFactory):
         node.factory = self
         return node
 
-    def instantiate_widget(self, node=None, parent=None, \
-            edit=False, autonomous=False):
+    def instantiate_widget(self, node=None, parent=None,
+                           edit=False, autonomous=False):
         """ Return the corresponding widget initialized with node """
 
         if(node):
@@ -139,7 +142,6 @@ class DataFactory(AbstractFactory):
         if not _edit:
             editors['edit'] = None
 
-
         from openalea.visualea.code_editor import EditorSelector
         return EditorSelector(parent, editors, (self.get_pkg_data(), ))
 
@@ -153,21 +155,21 @@ class DataFactory(AbstractFactory):
 
 
 class DataNode(Node):
+
     """ Node representing a Data """
 
     __color__ = (200, 200, 200)
 
-    def __init__(self, packagedata, editors=None, includes= []):
+    def __init__(self, packagedata, editors=None, includes=[]):
         """
         @packagedata : A file contained in a defined package.
         @editors : A dictionary of commands which act on the file.
         @includes : Other files that are included in the data file.
         """
-        Node.__init__(self, inputs=\
-            (dict(name='data', interface=IData, value=packagedata),
-             dict(name='editors', interface=None, value=editors),
-             dict(name='includes', interface=None, value=includes)),
-             outputs=(dict(name='data', interface=IData), ), )
+        Node.__init__(self, inputs=(dict(name='data', interface=IData, value=packagedata),
+                                    dict(name='editors', interface=None, value=editors),
+                                    dict(name='includes', interface=None, value=includes)),
+                      outputs=(dict(name='data', interface=IData), ), )
         self.caption = '%s' % (packagedata.name)
         self.watch = None
         self.monitor_file(str(packagedata))
@@ -188,8 +190,8 @@ class DataNode(Node):
             from openalea.vpltk.qt import QtCore
 
             self.watch = QtCore.QFileSystemWatcher()
-            QtCore.QCoreApplication.instance().connect(\
-                self.watch, QtCore.SIGNAL("fileChanged(const QString&)"),\
+            QtCore.QCoreApplication.instance().connect(
+                self.watch, QtCore.SIGNAL("fileChanged(const QString&)"),
                 self.changed)
 
             self.watch.addPath(filename)
@@ -200,12 +202,13 @@ class DataNode(Node):
     def changed(self, path):
         """ Call listeners """
         self.continuous_eval.notify_listeners(("node_modified", ))
-    
-    def to_script (self):
+
+    def to_script(self):
         return "\n"
 
 
 class PyDataFactoryWriter(object):
+
     """ DataFactory python Writer """
 
     datafactory_template = """
@@ -243,16 +246,16 @@ class Data(object):
         Use :meth:`~Data.read` to get content
         """
         # TODO: document args
-        self.path = Path(kwargs['path']) if 'path' in kwargs else None
-        self._filename = Path(kwargs['filename']).name if 'filename' in kwargs else None
+        self.path = Path(kwargs.pop('path')) if 'path' in kwargs else None
+        self._filename = Path(kwargs.pop('filename')).name if 'filename' in kwargs else None
 
         if self._filename is None and self.path is None:
             raise ValueError('path or filename required')
         if self._filename and self.path and self.path.name != self._filename:
             raise ValueError("path '%s'  and filename '%s' are not compatible" % (self.path, self._filename))
 
-        self.dtype = kwargs['dtype'] if 'dtype' in kwargs else None
-        self._content = kwargs['content'] if 'content' in kwargs else None
+        self.dtype = kwargs.pop('dtype', None)
+        self._content = kwargs.pop('content', None)
 
     def get_documentation(self):
         return "No documentation for %s" % self.filename
@@ -282,7 +285,7 @@ class Data(object):
 
     def rename(self, new):
         pnew = Path(new)
-        if pnew.isabs() or pnew.name != new :
+        if pnew.isabs() or pnew.name != new:
             raise ValueError('You must give filename only, not path')
         new_path = self.path.parent / new
         self.move(new_path)

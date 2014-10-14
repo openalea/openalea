@@ -31,7 +31,9 @@ Change metadata:
 
     >>> project1.authors = "OpenAlea Consortium and John Doe"
     >>> project1.description = "Test project concept with numpy"
-    >>> project1.long_description = 'This project import numpy. Then, it create and display a numpy eye. We use it to test concept of Project.'
+    >>> project1.long_description = ' '.join([
+    ... 'This project import numpy. Then, it create and display a numpy eye.',
+    ... 'We use it to test concept of Project.'])
 
 ... project file, models, ... :
 

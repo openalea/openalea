@@ -103,7 +103,7 @@ def DataFactory(path, mimetype=None, **kwargs):
     path = Path(path)
     default_content = kwargs[
         'default_content'] if 'default_content' in kwargs else None
-    dtype = kwargs['dtype'] if 'dtype' in kwargs else None
+    dtype = kwargs.pop('dtype', None)
 
     if path.isfile():
         if default_content is not None:
