@@ -18,10 +18,10 @@
 __revision__ = ""
 
 from openalea.vpltk.qt import QtGui
-
 from pygments.formatters.html import HtmlFormatter
 from pygments.lexers import PythonLexer
 from pygments.styles import get_style_by_name
+
 
 class Highlighter(QtGui.QSyntaxHighlighter):
     def __init__(self, parent, lexer=None):
@@ -150,6 +150,7 @@ class Highlighter(QtGui.QSyntaxHighlighter):
                       int(color[4:6], base=16))
         return qcolor
 
+
 class PygmentsBlockUserData(QtGui.QTextBlockUserData):
     """ Storage for the user data associated with each line.
     """
@@ -166,3 +167,14 @@ class PygmentsBlockUserData(QtGui.QTextBlockUserData):
         kwds = ', '.join([ '%s=%r' % (attr, getattr(self, attr))
                            for attr in attrs ])
         return 'PygmentsBlockUserData(%s)' % kwds
+
+
+class GenericHighlighter(Highlighter):
+    def __init__(self, parent, lexer=None, filename="a.txt"):
+        super(GenericHighlighter, self).__init__(parent=parent, lexer=lexer)
+        self._document = self.document()
+        self._formatter = HtmlFormatter()
+        self._lexer = guess_lexer_for_filename(filename, "")
+        print(self._lexer)
+        self.set_style('default')
+
