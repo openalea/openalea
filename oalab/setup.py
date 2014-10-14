@@ -84,7 +84,6 @@ setup(
 
     # Declare src and wralea as entry_points (extensions) of your package
     entry_points={
-        'pygments.lexers': ['LPyLexer = openalea.oalab.editor.lpy_lexer:LPyLexer'],
 
         'gui_scripts': [
             'oalab = openalea.oalab.main:main',
