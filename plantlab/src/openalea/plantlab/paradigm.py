@@ -27,7 +27,7 @@ from openalea.lpy import Lsystem
 from openalea.lpy.__lpy_kernel__ import LpyParsing
 from openalea.lpy.gui.objectmanagers import get_managers
 from openalea.lpy.gui.scalar import ProduceScalar
-from openalea.oalab.model.lpy import LPyModel
+from openalea.plantlab.lpy import LPyModel
 from openalea.oalab.service.help import display_help
 import types
 
