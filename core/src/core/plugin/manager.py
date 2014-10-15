@@ -266,7 +266,7 @@ class PluginManager(object):
         """
         Return all existing instances corresponding to this plugin
         """
-        applets = []
+        valid_instances = []
         if name is None:
             for plugin_name in self._plugin_all_instances[category]:
                 instances = list(self._plugin_all_instances[category][plugin_name])
@@ -275,20 +275,20 @@ class PluginManager(object):
                     if obj is None:
                         self._plugin_all_instances[category][plugin_name].remove(weakref)
                     else:
-                        applets.append(obj)
+                        valid_instances.append(obj)
         else:
             try:
                 # return actual value instead of weakref
-                applets = []
+                valid_instances = []
                 for weakref in self._plugin_all_instances[category][name]:
                     obj = weakref()
                     if obj is None:
                         self._plugin_all_instances[category][name].remove(weakref)
                     else:
-                        applets.append(obj)
+                        valid_instances.append(obj)
             except KeyError:
                 pass
-        return applets
+        return valid_instances
 
     def implementations(self, interface, **kwds):
         """
