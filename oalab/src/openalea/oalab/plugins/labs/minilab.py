@@ -1,4 +1,3 @@
-from openalea.core.plugin import iter_plugins
 
 class MiniLab(object):
 
@@ -6,7 +5,8 @@ class MiniLab(object):
     applets = ['EditorManager']
 
     def __call__(self, mainwin):
-        session = mainwin.session
-        for plugin in iter_plugins('oalab.applet', debug=session.debug_plugins):
-            if plugin.name in self.applets:
-                mainwin.add_plugin(plugin())
+        # Load, create and place applets in mainwindow
+        for name in self.applets:
+            mainwin.add_plugin(name=name)
+        # Initialize all applets
+        mainwin.initialize()

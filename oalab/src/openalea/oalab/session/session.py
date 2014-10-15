@@ -54,7 +54,6 @@ class Session(object):
     def __init__(self):
         self._project = None
         self._is_proj = False
-        self.debug_plugins = ''
         self._debug = False
         self.gui = True
 
@@ -155,6 +154,10 @@ class Session(object):
         display_history(input_)
 
     config = property(fget=lambda self: self._config.config)
+
+    @property
+    def debug_plugins(self):
+        return self.plugin_manager.debug
 
     @property
     def debug(self):
