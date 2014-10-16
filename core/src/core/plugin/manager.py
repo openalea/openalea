@@ -22,7 +22,7 @@ from openalea.core.singleton import Singleton
 
 __all__ = ['PluginManager']
 
-log = logging.getLogger(__name__)
+from openalea.core import logger
 
 
 class PluginManager(object):
@@ -42,13 +42,19 @@ class PluginManager(object):
 
         self._debug = []
 
-        self._extraplugins = {}
         self._proxies = {}
 
         self.proxy_class = proxy_class
 
         if plugins is not None:
             self.add_plugins(plugins)
+
+    def clear(self):
+        self._plugin = {}  # dict category -> plugin name -> Plugin class or Plugin proxy
+        self._plugin_instance = {}
+        self._plugin_loaded = {}
+        self._plugin_all_instances = {}
+        self._proxies = {}
 
     @property
     def debug(self):
@@ -81,6 +87,7 @@ class PluginManager(object):
             try:
                 return func(*func_args, **func_kwds)
             except:
+                logger.error('%s: error calling %s ' % (category, func))
                 if callback:
                     callback()
 
@@ -117,20 +124,24 @@ class PluginManager(object):
         if identifier in self._plugin_loaded:
             plugin_class = self._plugin_loaded[identifier]
         else:
-            log.debug('%s load plugin %s', self.__class__.__name__, ep)
-            try:
+            if self._debug_mode('loading'):
                 plugin_class = ep.load()
-            except KeyboardInterrupt:
-                pass
-            except Exception, e:
-                # never want a plugin load to kill the test run
-                # but we can't log here because the logger is not yet
-                # configured
-                warn("Unable to load plugin %s: %s" % (ep, e),
-                     RuntimeWarning)
+                logger.debug('%s load plugin %s', self.__class__.__name__, ep)
             else:
-                self._plugin_loaded[identifier] = plugin_class
-                self.add_plugin(category, plugin_class, proxy_class=proxy_class)
+                try:
+                    plugin_class = ep.load()
+                except KeyboardInterrupt:
+                    logger.error('%s: error loading %s ' % (category, ep))
+                except Exception, e:
+                    # never want a plugin load to kill the test run
+                    # but we can't log here because the logger is not yet
+                    # configured
+                    warn("Unable to load plugin %s: %s" % (ep, e),
+                         RuntimeWarning)
+                else:
+                    logger.debug('%s load plugin %s', self.__class__.__name__, ep)
+                    self._plugin_loaded[identifier] = plugin_class
+                    self.add_plugin(category, plugin_class, proxy_class=proxy_class)
 
         return plugin_class
 
@@ -138,10 +149,6 @@ class PluginManager(object):
         from pkg_resources import iter_entry_points
         for ep in iter_entry_points(category):
             self._load_entry_point_plugin(category, ep, proxy_class=proxy_class)
-
-        if category in self._extraplugins:
-            for plugin in self._extraplugins[category]:
-                self.add_plugin(category, plugin, proxy_class=proxy_class)
 
     def plugin(self, category, name=None):
         """
