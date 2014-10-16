@@ -58,6 +58,10 @@ def install_package():
                 'Plugin1 = tstpkg1.plugin:C2Plugin1',
                 'Plugin2 = tstpkg1.plugin:C2Plugin2',
             ],
+            'test.err1': ['Plugin = tstpkg1.plugin:C3PluginDoNotExist'],
+            'test.err2': ['Plugin = tstpkg1.plugin:C3PluginFailInstantiation'],
+            'test.err3': ['Plugin = tstpkg1.plugin:C3PluginFailCall'],
+            'test.err4': ['Plugin = tstpkg1.plugin:C3PluginClassFailInstantiation'],
         },
         script_args=[
             'install',
@@ -88,6 +92,7 @@ class TestPluginManager(unittest.TestCase):
     def setUp(self):
         from openalea.core.plugin.manager import PluginManager
         self.pm = PluginManager()
+        self.pm.debug = False
 
     def test_autoload(self):
         assert self.pm._plugin == {}
@@ -95,23 +100,23 @@ class TestPluginManager(unittest.TestCase):
         assert 'test.c1' in self.pm._plugin
 
     def test_dynamic_plugin(self):
-        self.pm.add_plugin('test.c3', AlgoPlugin1)
-        self.pm.add_plugin('test.c3', AlgoPlugin2)
-        assert len(self.pm.plugins('test.c3')) == 2
+        self.pm.add_plugin('test.dynamic3', AlgoPlugin1)
+        self.pm.add_plugin('test.dynamic3', AlgoPlugin2)
+        assert len(self.pm.plugins('test.dynamic3')) == 2
 
-        objc3c1 = self.pm.instance('test.c3', 'AlgoPlugin1')
+        objc3c1 = self.pm.instance('test.dynamic3', 'AlgoPlugin1')
         assert objc3c1
         assert isinstance(objc3c1, Algo)
-        objc3c2 = self.pm.instance('test.c3', 'MyAlgoPlugin2')
+        objc3c2 = self.pm.instance('test.dynamic3', 'MyAlgoPlugin2')
         assert objc3c2
         assert isinstance(objc3c1, Algo)
 
     def test_proxy_plugin(self):
         from openalea.core.plugin.manager import SimpleClassPluginProxy
-        self.pm.add_plugin('test.c4', Algo, proxy_class=SimpleClassPluginProxy)
-        objc4c1 = self.pm.instance('test.c4', 'Algo')
-        objc4c1_2 = self.pm.instance('test.c4', 'Algo')
-        objc4c1_3 = self.pm.new('test.c4', 'Algo')
+        self.pm.add_plugin('test.dynamic4', Algo, proxy_class=SimpleClassPluginProxy)
+        objc4c1 = self.pm.instance('test.dynamic4', 'Algo')
+        objc4c1_2 = self.pm.instance('test.dynamic4', 'Algo')
+        objc4c1_3 = self.pm.new('test.dynamic4', 'Algo')
         assert objc4c1
         assert isinstance(objc4c1, Algo)
         assert objc4c1 is objc4c1_2
@@ -186,6 +191,17 @@ class TestPluginManager(unittest.TestCase):
         assert len(self.pm.instances('test.c1', 'MyPlugin1')) == 2
         assert len(self.pm.instances('test.c1', 'MyPlugin2')) == 0
         assert len(self.pm.instances('test.c1')) == 2
+
+    def test_debug_ep_load(self):
+
+        self.pm.clear()
+        self.pm.debug = 'loading'
+        with self.assertRaises(ImportError):
+            self.pm.plugins('test.err1')
+
+        self.pm.clear()
+        self.pm.debug = False
+        self.pm.plugins('test.err1')
 
     @classmethod
     def tearDownClass(cls):

@@ -13,3 +13,13 @@ class C2Class1(object):
 
 class C2Class2(object):
     pass
+
+
+class ClassInstatiationError(Exception):
+    pass
+
+
+class C3ClassFailInstantiation(object):
+
+    def __init__(self):
+        raise ClassInstatiationError

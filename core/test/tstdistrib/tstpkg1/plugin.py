@@ -27,3 +27,30 @@ class C2Plugin2(object):
     def __call__(self):
         from tstpkg1.impl import C2Class2
         return C2Class2
+
+
+class PluginInstatiationError(Exception):
+    pass
+
+
+class PluginCallError(Exception):
+    pass
+
+
+class C3PluginFailInstantiation(object):
+
+    def __init__(self):
+        raise PluginInstatiationError
+
+
+class C3PluginFailCall(object):
+
+    def __call__(self):
+        raise PluginCallError
+
+
+class C3PluginClassFailInstantiation(object):
+
+    def __call__(self):
+        from tstpkg1.impl import C3ClassFailInstantiation
+        return C3ClassFailInstantiation
