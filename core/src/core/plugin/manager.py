@@ -1,5 +1,5 @@
 """
-This plugin manager is derivated from nose PluginManager(s) released under LGPL license.
+This plugin manager is inspired by nose PluginManager(s) released under LGPL license.
 You can get a full copy of this license at https://github.com/nose-devs/nose/blob/master/lgpl.txt
 You can get original nose code at https://github.com/nose-devs/nose/blob/master/nose/plugins/manager.py
 
@@ -14,21 +14,6 @@ The plugin managers provided with nose are:
 
 :class:`PluginManager`
     This manager uses setuptools entrypoints to load plugins.
-
-Writing a plugin manager
-========================
-
-If you want to load plugins via some other means, you can write a
-plugin manager and pass an instance of your plugin manager class when
-instantiating the :class:`nose.config.Config` instance that you pass to
-:class:`TestProgram` (or :func:`main` or :func:`run`).
-
-To implement your plugin loading scheme, implement ``loadPlugins()``,
-and in that method, call ``add_plugin()`` with an instance of each plugin
-you wish to make available. Make sure to call
-``super(self).loadPlugins()`` as well if have subclassed a manager
-other than ``PluginManager``.
-
 """
 import logging
 import weakref
@@ -42,11 +27,13 @@ log = logging.getLogger(__name__)
 
 class PluginManager(object):
 
-    """
-    """
     __metaclass__ = Singleton
 
     def __init__(self, plugins=None, proxy_class=None):
+        """
+        :param plugins: list of plugins you want to add manually
+        :param proxy_class: proxy class to use by default
+        """
         self._plugin = {}  # dict category -> plugin name -> Plugin class or Plugin proxy
         self._plugin_instance = {}
         self._plugin_proxy = {}
@@ -80,6 +67,11 @@ class PluginManager(object):
         return category in self.debug or True in self.debug
 
     def __call__(self, category, func=None, **kwds):
+        """
+        Use this method to launch a function in debug mode.
+        If debug is enabled for this category, errors are raised,
+        else debug is disable, errors pass silently.
+        """
         func_args = kwds.pop('func_args', [])
         func_kwds = kwds.pop('func_kwds', {})
         callback = kwds.pop('callback', None)
@@ -110,20 +102,12 @@ class PluginManager(object):
         except AttributeError:
             name = plugin.__name__
         self._plugin.setdefault(category, {})[name] = plugin
-        # plugins[:] = [p for p in plugins if getattr(p, 'name', None) != new_name]
-        # plugins.append(plugin)
 
-    def add_plugins(self, plugins=None, extraplugins=None):
+    def add_plugins(self, plugins=None):
         if plugins is None:
             plugins = {}
-        if extraplugins is None:
-            extraplugins = {}
-        self._extraplugins = extraplugins
 
         for category, plugin in plugins.iteritems():
-            self.add_plugin(category, plugin)
-
-        for category, plugin in extraplugins.iteritems():
             self.add_plugin(category, plugin)
 
     def _load_entry_point_plugin(self, category, entry_point, proxy_class=None):
