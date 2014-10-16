@@ -6,16 +6,24 @@ from openalea.core.path import path as Path
 from openalea.core.path import tempdir
 
 
-class MyAlgo(object):
+class Algo(object):
 
     def __init__(self):
         pass
 
 
-class MyAlgoPlugin(object):
+class AlgoPlugin1(object):
 
     def __call__(self):
-        return MyAlgo
+        return Algo
+
+
+class AlgoPlugin2(object):
+
+    name = 'MyAlgoPlugin2'
+
+    def __call__(self):
+        return Algo
 
 
 def install_package():
@@ -87,7 +95,27 @@ class TestPluginManager(unittest.TestCase):
         assert 'test.c1' in self.pm._plugin
 
     def test_dynamic_plugin(self):
-        pass
+        self.pm.add_plugin('test.c3', AlgoPlugin1)
+        self.pm.add_plugin('test.c3', AlgoPlugin2)
+        assert len(self.pm.plugins('test.c3')) == 2
+
+        objc3c1 = self.pm.instance('test.c3', 'AlgoPlugin1')
+        assert objc3c1
+        assert isinstance(objc3c1, Algo)
+        objc3c2 = self.pm.instance('test.c3', 'MyAlgoPlugin2')
+        assert objc3c2
+        assert isinstance(objc3c1, Algo)
+
+    def test_proxy_plugin(self):
+        from openalea.core.plugin.manager import SimpleClassPluginProxy
+        self.pm.add_plugin('test.c4', Algo, proxy_class=SimpleClassPluginProxy)
+        objc4c1 = self.pm.instance('test.c4', 'Algo')
+        objc4c1_2 = self.pm.instance('test.c4', 'Algo')
+        objc4c1_3 = self.pm.new('test.c4', 'Algo')
+        assert objc4c1
+        assert isinstance(objc4c1, Algo)
+        assert objc4c1 is objc4c1_2
+        assert objc4c1 is not objc4c1_3
 
     def test_plugin_name(self):
         import tstpkg1.plugin

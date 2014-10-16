@@ -297,7 +297,7 @@ class PluginManager(object):
         raise NotImplementedError
 
 
-class Proxy(object):
+class SimpleClassPluginProxy(object):
 
     """
     Plugin approach used in OpenAlea is :
@@ -307,18 +307,18 @@ class Proxy(object):
     entry_point --(load)--> RealClass
 
     You can use this class as a proxy.
-    RealClass is now embeded in a Proxy and can be reached with "klass" attribute.
+    RealClass is now embeded in a SimpleClassPluginProxy and can be reached with "klass" attribute.
     Plugin is now compatible with pluginmanager.
 
     Then, you can define meta-information, generally generated from RealClass attributes.
     By default, plugin name is "RealClass" name
 
-    class ThirdPartyProxy(Proxy):
+    class ThirdPartyProxy(SimpleClassPluginProxy):
         alias = property(fget=lambda self: self.klass.title)
 
     .. warning::
 
-        You should not use this Proxy because the plugin may slow down the entire application:
+        You should not use this proxy because the plugin may slow down the entire application:
         all code and imports defined in module containing "RealClass" are loaded at first query or listing instead of only when used
     """
     name = property(fget=lambda self: self.klass.__name__)
@@ -340,7 +340,7 @@ if __name__ == '__main__':
 
     # TODO: move to test
     pm = PluginManager()
-    pm.set_proxy('oalab.model', Proxy)
+    pm.set_proxy('oalab.model', SimpleClassPluginProxy)
 
     w1 = pm.instance('oalab.model', 'PythonModel')
     w2 = pm.instance('oalab.model', 'PythonModel')
