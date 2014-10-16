@@ -126,7 +126,7 @@ class PluginManager(object):
         else:
             if self._debug_mode('loading'):
                 plugin_class = ep.load()
-                logger.debug('%s load plugin %s', self.__class__.__name__, ep)
+                logger.debug('%s load plugin %s' % (self.__class__.__name__, ep))
             else:
                 try:
                     plugin_class = ep.load()
@@ -139,7 +139,7 @@ class PluginManager(object):
                     warn("Unable to load plugin %s: %s" % (ep, e),
                          RuntimeWarning)
                 else:
-                    logger.debug('%s load plugin %s', self.__class__.__name__, ep)
+                    logger.debug('%s load plugin %s' % (self.__class__.__name__, ep))
                     self._plugin_loaded[identifier] = plugin_class
                     self.add_plugin(category, plugin_class, proxy_class=proxy_class)
 
