@@ -7,16 +7,17 @@ else:
 
 
 class ShellWidget(RichIPythonWidget, GraphicalStreamRedirection):
+
     """
     ShellWidget is an IPython shell.
     """
 
-    def __new__(self, interpreter, message="", log='', parent=None):
+    def __new__(self, interpreter=None, message="", log='', parent=None):
         obj = RichIPythonWidget()
         obj.__class__ = ShellWidget
         return obj
 
-    def __init__(self, interpreter, message="", log='', parent=None):
+    def __init__(self, interpreter=None, message="", log='', parent=None):
         """
         :param interpreter : InteractiveInterpreter in which
         the code will be executed
@@ -27,6 +28,9 @@ class ShellWidget(RichIPythonWidget, GraphicalStreamRedirection):
         If no parent widget has been specified, it is possible to
         exit the interpreter by Ctrl-D.
         """
+        if interpreter is None:
+            from openalea.core.service.ipython import interpreter
+            interpreter = interpreter()
         # Set interpreter
         self.interpreter = interpreter
         self.interpreter.widget = self
@@ -66,7 +70,7 @@ class ShellWidget(RichIPythonWidget, GraphicalStreamRedirection):
 
             self.kernel_manager = km
             self.kernel_client = kernel_client
-        # # For Debug Only
+        # For Debug Only
         # self.interpreter.locals['shell'] = self
 
     def read(self, *args, **kwargs):

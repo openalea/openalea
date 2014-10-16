@@ -4,6 +4,14 @@ from openalea.vpltk.qt import QtGui, QtCore
 from openalea.oalab.service.applet import new_applet
 from openalea.oalab.gui.splitterui import SplittableUI, BinaryTree
 from openalea.core.plugin.manager import PluginManager
+from openalea.oalab.gui.utils import qicon
+
+
+def obj_icon(obj):
+    if hasattr(obj, 'icon'):
+        return qicon(obj.icon)
+    else:
+        return qicon('Crystal_Clear_action_edit_add.png')
 
 class AppletSelector(QtGui.QWidget):
 
@@ -23,7 +31,7 @@ class AppletSelector(QtGui.QWidget):
         self._cb_applets.addItem('Select applet')
         for plugin_class in plugins('oalab.applet'):
             self._applet_plugins.append(plugin_class)
-            self._cb_applets.addItem(plugin_class.alias)
+            self._cb_applets.addItem(obj_icon(plugin_class), plugin_class.alias)
 
         self._layout.addWidget(self._cb_applets)
 
@@ -103,13 +111,14 @@ class AppletTabWidget(QtGui.QTabWidget):
 
     def set_applet(self, name):
         # clear view
-        for applet in self._applets.values():
+
+        idx = self.currentIndex()
+        for applet in self._applets.get(idx, {}).values():
             applet.hide()
 
-        if name in self._applets:
-            applet = self._applets[name]
+        if name in self._name.get(idx, {}):
+            applet = self._applets[idx][name]
             applet.show()
-            self._name[self.currentIndex()] = name
         else:
             applet = pm.new('oalab.applet', name)
             self._applets[name] = applet
@@ -117,7 +126,13 @@ class AppletTabWidget(QtGui.QTabWidget):
                 return
             tab = self.currentWidget()
             tab.layout().addWidget(applet)
-            self._name[self.currentIndex()] = name
+            self._applets.setdefault(idx, {})[name] = applet
+            self._name[idx] = name
+
+        plugin_class = pm.plugin('oalab.applet', name)
+        self.setTabText(idx, plugin_class.alias)
+        self.setTabIcon(idx, obj_icon(plugin_class))
+        self.setTabToolTip(idx, _plugin_class.alias)
 
     def currentApplet(self):
         try:
@@ -261,6 +276,7 @@ class InitContainerVisitor(object):
                 if i:
                     container._tabwidget.new_tab()
                 container._tabwidget.set_applet(name)
+            container._tabwidget.setCurrentIndex(0)
             widget = container
         return widget
 
@@ -464,7 +480,7 @@ if __name__ == '__main__':
                                   'position': 0}},
                    6: {'amount': 0.6, 'splitDirection': 1},
                    7: {'widget': ['EditorManager']},
-                   8: {'widget': ['Viewer3D', 'VtkViewer', 'HelpWidget']}})
+                   8: {'widget': ['VtkViewer', 'LineageViewer', 'HelpWidget']}})
 
     mw = OALabMainWin(layout=layout)
     interp.user_ns['mainwin'] = mw

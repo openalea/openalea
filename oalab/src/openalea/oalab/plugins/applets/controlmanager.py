@@ -4,7 +4,6 @@ from openalea.deploy.shared_data import shared_data
 import openalea.oalab
 
 
-
 class ControlManager(PluginApplet):
 
     name = 'ControlManager'

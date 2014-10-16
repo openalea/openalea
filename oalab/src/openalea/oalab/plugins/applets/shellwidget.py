@@ -12,3 +12,4 @@ class ShellWidget(object):
 
     def graft(self, **kwds):
         pass
+
