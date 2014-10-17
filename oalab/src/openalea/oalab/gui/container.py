@@ -47,7 +47,6 @@ class ParadigmContainer(QtGui.QTabWidget):
     def __init__(self, controller, session, parent=None):
         super(ParadigmContainer, self).__init__(parent=parent)
         self.session = Session()
-#         self.controller = controller
 
         self.setTabsClosable(True)
         self.setMinimumSize(100, 100)
@@ -169,6 +168,8 @@ class ParadigmContainer(QtGui.QTabWidget):
         self.connect(self, QtCore.SIGNAL('tabCloseRequested(int)'), self.autoClose)
         self.connect(self, QtCore.SIGNAL('currentChanged(int)'), self.safe_display_help)
 
+        self.addDefaultTab()
+
     def connect_paradigm_container(self):
         # Connect actions from self.paradigms to menu (newPython, newLpy,...)
         for applet in self.paradigms.values():
@@ -228,6 +229,7 @@ class ParadigmContainer(QtGui.QTabWidget):
             if hasattr(applet, 'textChanged'):
                 applet.textChanged.connect(self._on_text_changed)
 
+            self.rmTab("Welcome")
             idx = self.addTab(applet, self.data_name(obj))
             if obj.path:
                 self.setTabToolTip(idx, obj.path)
@@ -254,10 +256,7 @@ class ParadigmContainer(QtGui.QTabWidget):
             del self._open_tabs[tab]
 
         if self.count() == 0:
-            if self.project():
-                self.addCreateFileTab()
-            else:
-                self.addDefaultTab()
+            self.addDefaultTab()
 
     def save_current(self):
         self.save()
@@ -348,7 +347,7 @@ class ParadigmContainer(QtGui.QTabWidget):
         for index in range(self.count()):
             self.setTabBlack(index)
 
-    def addDefaultTab(self):
+    def addProjectTab(self):
         """
         Display a welcome tab if nothing is opened
         """
@@ -366,8 +365,14 @@ class ParadigmContainer(QtGui.QTabWidget):
             page = WelcomePage(actions=self.paradigms_actions)
             self.addTab(page, "Create File")
         else:
-            self.addDefaultTab()
+            self.addProjectTab()
         self.rmTab("Welcome")
+
+    def addDefaultTab(self):
+        if self.project():
+            self.addCreateFileTab()
+        else:
+            self.addProjectTab()
 
     def rmTab(self, tabname="Welcome"):
         """

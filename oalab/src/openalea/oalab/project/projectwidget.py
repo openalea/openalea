@@ -595,14 +595,12 @@ class ProjectManagerView(QtGui.QTreeView):
             my_path = my_path / default_name
         if not text:
             text = 'Select name to create project'
-        fname = QtGui.QFileDialog.getSaveFileName(parent, text,
-                                                  my_path)
+        fname = QtGui.QFileDialog.getSaveFileName(parent, text, my_path)
         return fname
 
     def showOpenProjectDialog(self, parent=None):
         my_path = path(settings.get_project_dir())
-        fname = QtGui.QFileDialog.getExistingDirectory(parent, 'Select Project Directory',
-                                                       my_path)
+        fname = QtGui.QFileDialog.getExistingDirectory(parent, 'Select Project Directory', my_path)
         return fname
 
     # Drag and drop
