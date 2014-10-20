@@ -70,7 +70,7 @@ class PluginManager(object):
             self._debug = value
 
     def _debug_mode(self, category):
-        return category in self.debug or True in self.debug
+        return category in self.debug or True in self.debug or 'all' in self.debug
 
     def __call__(self, category, func=None, **kwds):
         """
@@ -127,6 +127,8 @@ class PluginManager(object):
             if self._debug_mode('loading'):
                 plugin_class = ep.load()
                 logger.debug('%s load plugin %s' % (self.__class__.__name__, ep))
+                self._plugin_loaded[identifier] = plugin_class
+                self.add_plugin(category, plugin_class, proxy_class=proxy_class)
             else:
                 try:
                     plugin_class = ep.load()
