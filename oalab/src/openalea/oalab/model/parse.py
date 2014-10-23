@@ -161,6 +161,33 @@ def parse_doc(docstring):
     return model, ret_inputs, ret_outputs
 
 
+def extract_functions(codestring, filename='tmp'):
+    """
+    parse the code *codestring* and detect what are the functions defined inside
+    :return: dict name -> code
+    """
+    # TODO: use ast.iter_child_nodes instead of walk to know nested level
+    # For example, currently this code fails because indent level is wrong
+    # if True:
+    #   def f():
+    #       print('hello')
+    # This code fails because "return is outside of function"
+    # def f():
+    #    return 1
+    # TODO: support IPython %magic
+
+    funcs = {}
+
+    r = ast_parse(codestring)
+    for statement in ast.walk(r):
+        if isinstance(statement, ast.FunctionDef):
+            wrapped = ast.Interactive(body=statement.body)
+            code = compile(wrapped, filename, 'single')
+            funcs[statement.name] = code
+
+    return funcs
+
+
 def parse_function(docstring):
     """
     Parse a docstring with format:
@@ -539,7 +566,7 @@ def parse_functions(codestring):
     functions_list = [x for x in ast.walk(r) if isinstance(x, ast.FunctionDef)]
     for x in functions_list:
         if x.name in exec_funcs_names:
-            wrapped = ast.Interactive(body=[x.body[-1]])
+            wrapped = ast.Interactive(body=x.body)
             try:
                 code = compile(wrapped, 'tmp', 'single')
             except:

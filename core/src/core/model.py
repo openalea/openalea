@@ -98,40 +98,37 @@ class Model(object):
 
     def __init__(self, name=None, **kwds):
         from openalea.core.service.ipython import interpreter
-        self.set_interpreter(interpreter())
+        self.interp = interpreter()
 
         self.inputs_info = []
         self.outputs_info = []
-
-        self.outputs = []
-
-        self.init_code = None
-        self.step_code = None
-        self.step_func = None
 
         self.name = name
 
         self._ns = {}
         self._global_ns = {}
+        self._code = {}
 
-        if 'content' in kwds:
-            self.set_code(kwds['content'])
+        self.outputs = []
 
     def __copy__(self):
         m = self.__class__(self.name)
         m.inputs_info = list(self.inputs_info)
         m.outputs_info = list(self.outputs_info)
-        m.step_code = self.step_code
-        m.init_code = self.init_code
+        for fname, code in self._code.iteritems():
+            m.set_func_code(fname, code)
         return m
 
     def set_step_code(self, code):
-        self.step_code = code
+        self.set_func_code('step', code)
+
+    def set_func_code(self, fname, code):
+        self._code[fname] = code
 
     def init(self, *args, **kwds):
         # Save default namespace
         #         old_global_ns = interp.user_global_ns
-        old_ns = self.interp.user_ns
+        old_ns = copy(self.interp.user_ns)
 
         # Create a new namespace with
         #  - previous namespace
@@ -140,67 +137,86 @@ class Model(object):
         ns = kwds.pop('namespace', {})
 
         global_ns = {}
-        global_ns.update(copy(old_ns))
+        global_ns.update(old_ns)
         global_ns.update(self._global_ns)
         global_ns.update(ns)
         global_ns.update(kwds)
+        global_ns['this'] = self
 
-        kwds = self.inputs_from_ns(self.inputs_info, global_ns, *args, **kwds)
+        kwargs = self.inputs_from_ns(self.inputs_info, global_ns, *args, **kwds)
+        global_ns.update(kwargs)
 
-        self._ns = {}
-        self._ns.update(global_ns)
-        self._ns.update(kwds)
+        self._ns = global_ns
+        # self._ns.update(global_ns)
 
         self.interp.user_ns.clear()
         self.interp.user_ns.update(self._ns)
+        #self.interp.user_ns = self._ns
 
         # Run init code
-        if self.init_code:
-            self.run_code(self.init_code)
+        if 'init' in self._code:
+            self.interp.runcode(self._code['init'])
+
+        # add vars defined in init function
+        for k in self.interp.user_ns:
+            if k not in self._ns:
+                self._ns[k] = self.interp.user_ns[k]
 
         # Restore original namespace
         self.interp.user_ns.clear()
         self.interp.user_ns.update(old_ns)
+        # self.interp.user_ns = old_ns
 
-    def set_interpreter(self, interpreter):
-        self.interp = interpreter
-
-    def step(self):
-        # Save namespace
-        old_ns = self.interp.user_ns
-        self.interp.user_ns.clear()
-        self.interp.user_ns.update(self._ns)
-
-        if self.step_code:
-            self.run_code(self.step_code)
-        outputs = self.outputs_from_ns(self.outputs_info, self.interp.user_ns)
-
-        # Restore original namespace
-        self.interp.user_ns.clear()
-        self.interp.user_ns.update(old_ns)
-
-        if len(outputs) == 0:
-            self.outputs = None
-        elif len(outputs) == 1:
-            self.outputs = outputs[0]
-        else:
-            self.outputs = outputs
-        return self.outputs
+        return self.output_from_ns(self._ns)
 
     def __call__(self, *args, **kwds):
         return self.run(*args, **kwds)
 
-    def run(self, *args, **kwds):
-        nstep = kwds.pop('nstep', 1)
-        self.init(*args, **kwds)
-        out = []
-        for i in range(nstep):
-            out = self.step()
-        return out
+    def _exec(self, fname='step'):
+        # Save namespace
+        old_ns = self.interp.user_ns
+        self.interp.user_ns = self._ns
 
-    @classmethod
-    def inputs_from_ns(cls, inputs, ns, *args, **kwargs):
+        # Run init code
+        if fname in self._code:
+            self.interp.runcode(self._code[fname])
+        outputs = self.output_from_ns(self.interp.user_ns)
+
+        self.interp.user_ns = old_ns
+
+        self.outputs = outputs
+        return outputs
+
+    def step(self):
+        return self._exec('step')
+
+    def animate(self, *args, **kwds):
+        if 'animate' in self._code:
+            return self._exec('animate')
+        else:
+            nstep = kwds.pop('nstep', 1)
+            self.init(*args, **kwds)
+            out = []
+            for i in range(nstep):
+                out = self.step()
+                # refresh world
+            return out
+
+    def run(self, *args, **kwds):
+        if 'run' in self._code:
+            return self._exec('run')
+        else:
+            nstep = kwds.pop('nstep', 1)
+            self.init(*args, **kwds)
+            out = []
+            for i in range(nstep):
+                out = self.step()
+            return out
+
+    def inputs_from_ns(self, inputs, ns, *args, **kwargs):
         kwds = {}
+        if inputs is None:
+            return kwds
         for i, inp in enumerate(inputs):
             name = inp.name
             default = inp.default
@@ -218,30 +234,32 @@ class Model(object):
                         pass
         return kwds
 
-    @classmethod
-    def outputs_from_ns(cls, outputs, ns):
+    def output_from_ns(self, namespace):
         """
         Get outputs from namespace and set them inside self.outputs
 
         :param namespace: dict where the model will search the outputs
         """
-        output_values = []
-        if outputs:
-            if len(outputs) > 0:
-                for outp in outputs:
-                    if outp.name in ns:
-                        output_values.append(ns[outp.name])
-        return output_values
+        outputs = []
+        if self.outputs_info:
+            if len(self.outputs_info) > 0:
+                for outp in self.outputs_info:
+                    if outp.name in namespace:
+                        outputs.append(namespace[outp.name])
+        if len(outputs) == 0:
+            return None
+        elif len(outputs) == 1:
+            return outputs[0]
+        else:
+            return outputs
 
-    def run_code(self, source=None):
-        """
-        Reimplement this method to use an other run_code method
-        For example, if you want to use IPython magic
-        """
-        self.interp.runcode('result=x+y')
+    @property
+    def step_code(self):
+        return self._code['step']
 
-    def set_code(self, code):
-        raise NotImplementedError
+    @step_code.setter
+    def step_code(self, code):
+        self._code['step'] = code
 
 
 class FileModel(Data):
@@ -656,12 +674,12 @@ class NewPythonModel(Model):
         # Backward compatibility with model
         if 'code' in kwargs and 'content' not in kwargs:
             kwargs['content'] = kwargs.pop('code')
-        if 'name' in kwargs and 'filename' not in kwargs and 'path' not in kwargs:
-            kwargs['filename'] = kwargs.pop('name')
-        if 'filepath' in kwargs and 'path' not in kwargs:
-            kwargs['path'] = kwargs.pop('filepath')
 
         Model.__init__(self, **kwargs)
+
+        content = kwargs.pop('content', None)
+        if content:
+            self.set_code(content)
 
     def get_documentation(self):
         """
@@ -684,10 +702,18 @@ class NewPythonModel(Model):
 
     def set_code(self, code):
         self.code = code
-        from openalea.oalab.model.parse import parse_docstring, get_docstring, parse_functions
+        from openalea.oalab.model.parse import parse_docstring, get_docstring, extract_functions
         model, self.inputs_info, self.outputs_info = parse_docstring(code)
-        self._init, self._step, self._animate, self._run = parse_functions(code)
-        self.set_step_code(code)
+        funcs = extract_functions(code)
+        if 'step' in funcs:
+            self.set_step_code(funcs['step'])
+        else:
+            self.set_step_code(code)
+
+        for fname in ['init', 'run', 'animate']:
+            if fname in funcs:
+                self.set_func_code(fname, funcs[fname])
+
         self._doc = get_docstring(code)
 
 

@@ -15,7 +15,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-from openalea.core.model import PythonModel
+from openalea.core.model import NewPythonModel as PythonModel
 
 
 def test_run():
@@ -156,34 +156,36 @@ result = x + y
     assert result == 4
 
 
-def test_step():
-    model_src = '''"""
-output = a"""
-a = 0
-N = 10
+model_src = '''
+"""
+output = a
+"""
 
 def init():
+    N=10
     a = 0
 
 def step():
     a = a + 1
 
 def animate():
-    for i in range(N):
-        a = a + 1
-
+    for i in range(10):
+        this.step()
 '''
+
+
+def test_step():
+
     model = PythonModel(code=model_src)
 
     result = model()
-    assert result == 0
-
-    result = model.step()
     assert result == 1
     result = model.step()
     assert result == 2
     result = model.step()
     assert result == 3
+    result = model.step()
+    assert result == 4
 
     result = model.init()
     assert result == 0
@@ -193,41 +195,23 @@ def animate():
 
 
 def test_step_animate():
-    model_src = '''"""
-output = a"""
-a = 0
-N = 10
 
-def init():
-    global a
-    a = 0
-
-def step():
-    global a
-    a = a + 1
-
-def animate():
-    for i in range(N):
-        # Call function define before
-        step()
-
-'''
     model = PythonModel(code=model_src)
 
     result = model()
-    assert result == 0
-
-    result = model.step()
     assert result == 1
+
     result = model.step()
     assert result == 2
     result = model.step()
     assert result == 3
+    result = model.step()
+    assert result == 4
 
     result = model.init()
     assert result == 0
 
-    result = model.animate()
+    result = model.animate(nstep=10)
     assert result == 10
 
 
@@ -235,11 +219,9 @@ def test_step_without_run():
     model_src = '''"""
 output = a"""
 def init():
-    global a
     a = 0
 
 def step():
-    global a
     a = a + 1
 '''
     model = PythonModel(code=model_src)
