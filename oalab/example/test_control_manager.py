@@ -9,7 +9,7 @@ from openalea.oalab.gui.control.panel import ControlPanel
 from openalea.core.service.control import new_control
 from openalea.core.service.interface import new_interface, interface_names, get_interface
 from openalea.oalab.service import qt_control
-from openalea.oalab.gui.control.lpycontrol import import_lpy_controls
+from openalea.plantlab.lpycontrol import import_lpy_controls
 
 
 def test_all_lpy_controls():
@@ -61,11 +61,11 @@ if __name__ == '__main__':
 #     text.show()
 #     text.raise_()
 
-    from openalea.core.interpreter import get_interpreter_class
+    from openalea.core.service.ipython import interpreter
     from openalea.oalab.shell import get_shell_class
 
     # Set interpreter
-    interpreter = get_interpreter_class()()
+    interpreter = interpreter()
     interpreter.locals['interp'] = interpreter
     interpreter.locals.update(locals())
     # Set Shell Widget

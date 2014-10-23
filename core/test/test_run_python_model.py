@@ -47,7 +47,6 @@ result = x + y
     # assert result == 11
 
 
-
 def test_run_list():
     model_src = '''"""input = x, y=[1,2,3]
 output = result"""
@@ -135,7 +134,7 @@ r = a + b
     xi, xj = 0, 1
     nb_step = 20
     for i in range(int(nb_step) - 1):
-        xi, xj = fibo(xi, xj)
+        xi, xj = fibo(xi, xj, namespace=locals())
 
     assert xi == 4181
     assert xj == 6765

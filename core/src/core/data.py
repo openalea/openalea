@@ -238,7 +238,10 @@ $NAME = DataFactory(name=$PNAME,
 class Data(object):
     mimetype = None
     default_name = 'Data'
-    extension = None
+    default_file_name = "filename.ext"
+    pattern = "*.ext"
+    extension = "ext"
+    icon = ":/images/resources/logo.png"
 
     def __init__(self, **kwargs):
         """

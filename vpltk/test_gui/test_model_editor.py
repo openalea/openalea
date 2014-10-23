@@ -3,7 +3,7 @@
 from openalea.vpltk.qt import QtGui
 import random
 from openalea.oalab.gui.container import ParadigmContainer
-from openalea.core.service.data import data
+from openalea.core.service.data import DataFactory
 from openalea.core.path import path as Path
 from openalea.core.path import tempdir
 
@@ -11,15 +11,15 @@ if __name__ == '__main__':
     tmp = tempdir()
 
     instance = QtGui.QApplication.instance()
-    if instance is None :
+    if instance is None:
         app = QtGui.QApplication([])
-    else :
+    else:
         app = instance
 
-
     pmw = ParadigmContainer(None, None)
+
     def test():
-        model1 = data('data/model.py')
+        model1 = DataFactory('data/model.py')
         pmw.open_data(model1)
 
     from openalea.oalab.shell import get_shell_class
@@ -30,7 +30,7 @@ if __name__ == '__main__':
     interpreter.locals['interp'] = interpreter
     interpreter.locals.update(locals())
     interpreter.locals['pmw'] = pmw
-    interpreter.locals['data'] = data
+    interpreter.locals['data'] = DataFactory
 
     # Set Shell Widget
     widget = QtGui.QWidget()
@@ -47,8 +47,7 @@ if __name__ == '__main__':
     widget.show()
     widget.raise_()
 
-    if instance is None :
+    if instance is None:
         app.exec_()
 
     tmp.rmtree()
-

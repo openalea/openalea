@@ -15,7 +15,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-from openalea.core.model import Model
+from openalea.core.model import FileModel
 from openalea.oalab.model.parse import parse_doc, InputObj, OutputObj, get_docstring, prepare_inputs
 from openalea.plantlab.parse_model import parse_lpy
 from openalea.plantlab.picklable_curves import geometry_2_piklable_geometry
@@ -76,7 +76,7 @@ class LsysObj(object):
         return self.lsystem.sceneInterpretation(self.axialtree)
 
 
-class LPyModel(Model):
+class LPyModel(FileModel):
     default_name = "LSystem"
     default_file_name = "script.lpy"
     pattern = "*.lpy"
@@ -187,9 +187,9 @@ class LPyModel(Model):
             self.lsystem.axiom = self.temp_axiom
             self.temp_axiom = None
 
-        # if you are at derivation length, re-init
-        if self._step >= self.lsystem.derivationLength:
-            self._step = -1
+# if you are at derivation length, re-init
+#         if self._step >= self.lsystem.derivationLength:
+#             self._step = -1
 
         # clasical case: evolve one step
         if i is None:
@@ -223,6 +223,7 @@ class LPyModel(Model):
         """
         run model step by step
         """
+        self._step = 0
         self._set_inputs(*args, **kwargs)
         self.context.update(self.inputs)
         self.step(*args, **kwargs)

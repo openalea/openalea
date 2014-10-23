@@ -15,13 +15,13 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-from openalea.core.model import Model, ModelFactory
+from openalea.core.model import FileModel, ModelFactory
 from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.pkgmanager import PackageManager
 import copy
 
 
-class VisualeaModel(Model):
+class VisualeaModel(FileModel):
     default_name = "Workflow"
     default_file_name = "workflow.wpy"
     pattern = "*.wpy"
@@ -117,6 +117,7 @@ class VisualeaModel(Model):
 #             raise IOError(cnf)
             self._workflow = cnf.instantiate()
 
+
 def monkey_patch_instantiate_node(self, vid, call_stack=None):
     (package_id, factory_id) = self.elt_factory[vid]
     # my temporary patch
@@ -138,9 +139,9 @@ def monkey_patch_instantiate_node(self, vid, call_stack=None):
 
     for vs in values:
         try:
-            #the two first elements are the historical
-            #values : port Id and port value
-            #the values beyond are not used.
+            # the two first elements are the historical
+            # values : port Id and port value
+            # the values beyond are not used.
             port, v = vs[:2]
             node.set_input(port, eval(v))
             node.input_desc[port].get_ad_hoc_dict().set_metadata("hide",

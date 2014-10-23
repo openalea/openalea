@@ -15,10 +15,10 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-from openalea.vpltk.model import Model
+from openalea.vpltk.model import FileModel
 
 
-class TextualModel(Model):
+class TextualModel(FileModel):
     default_name = "Textual"
     default_file_name = ""
     pattern = ""

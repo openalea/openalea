@@ -101,8 +101,7 @@ def arrange_data_args(path, mimetype, dtype):
 
 def DataFactory(path, mimetype=None, **kwargs):
     path = Path(path)
-    default_content = kwargs[
-        'default_content'] if 'default_content' in kwargs else None
+    default_content = kwargs['default_content'] if 'default_content' in kwargs else None
     dtype = kwargs.pop('dtype', None)
 
     if path.isfile():

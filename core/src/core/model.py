@@ -16,13 +16,235 @@
 #
 ###############################################################################
 
+"""
+
+A Model is an object that can be run.
+It is generally used to define algorithms or process.
+
+A model has inputs, outputs and an internal state.
+Inputs and outputs are used to allow communication between environnement and models and between models.
+Internal state is used by the model itself but cannot be reached from outside.
+This in internal step is generally used when user want to execute model step by step, 
+each step depending on previous one.
+
+To define model instruction, you need to define at least "step" instructions.
+To do that, you can use:
+    - :meth:`~IModel.set_func`
+    - :meth:`~IModel.set_code`
+
+
+Default "init" and "run" instructions are defined:
+    - init reset internal state and fill namespace
+    - run launch init and call step one time or more (depending on nstep parameter)
+
+
+
+To reset internal state, use :meth:`~openalea.core.model.IModel.init` method.
+To run one step, use :meth:`~openalea.core.model.IModel.step` method.
+
+Two convenience methods, see :meth:`~openalea.core.model.IModel.run` and "call"
+can be used to reset internal state and run a given number of step (one by default)
+
+"""
+
+from ast import literal_eval
 from copy import copy
 from openalea.core.data import Data
 import string
 from openalea.core.node import Node, AbstractFactory
 
 
-class Model(Data):
+class IModel(object):
+
+    def __init__(self, **kwds):
+        """
+        keywords:
+            - name: model name
+        """
+
+    def __call__(self, *args, **kwargs):
+        """
+        Equivalent to :meth:`~openalea.core.model.IModel.run`.
+        """
+
+    def run(self, *args, **kwargs):
+        """
+        Run current model
+        """
+        raise NotImplementedError
+
+    def init(self, *args, **kwargs):
+        raise NotImplementedError
+
+    def step(self, *args, **kwargs):
+        raise NotImplementedError
+
+    def stop(self, *args, **kwargs):
+        raise NotImplementedError
+
+    def animate(self, *args, **kwargs):
+        raise NotImplementedError
+
+    def set_code(self, code):
+        """
+        """
+
+    def set_step_code(self, code):
+        """
+        """
+
+
+class Model(object):
+
+    def __init__(self, name=None, **kwds):
+        from openalea.core.service.ipython import interpreter
+        self.set_interpreter(interpreter())
+
+        self.inputs_info = []
+        self.outputs_info = []
+
+        self.outputs = []
+
+        self.init_code = None
+        self.step_code = None
+        self.step_func = None
+
+        self.name = name
+
+        self._ns = {}
+        self._global_ns = {}
+
+        if 'content' in kwds:
+            self.set_code(kwds['content'])
+
+    def __copy__(self):
+        m = self.__class__(self.name)
+        m.inputs_info = list(self.inputs_info)
+        m.outputs_info = list(self.outputs_info)
+        m.step_code = self.step_code
+        m.init_code = self.init_code
+        return m
+
+    def set_step_code(self, code):
+        self.step_code = code
+
+    def init(self, *args, **kwds):
+        # Save default namespace
+        #         old_global_ns = interp.user_global_ns
+        old_ns = self.interp.user_ns
+
+        # Create a new namespace with
+        #  - previous namespace
+        #  - passed namespace
+        #  - init inputs and default inputs
+        ns = kwds.pop('namespace', {})
+
+        global_ns = {}
+        global_ns.update(copy(old_ns))
+        global_ns.update(self._global_ns)
+        global_ns.update(ns)
+        global_ns.update(kwds)
+
+        kwds = self.inputs_from_ns(self.inputs_info, global_ns, *args, **kwds)
+
+        self._ns = {}
+        self._ns.update(global_ns)
+        self._ns.update(kwds)
+
+        self.interp.user_ns.clear()
+        self.interp.user_ns.update(self._ns)
+
+        # Run init code
+        if self.init_code:
+            self.run_code(self.init_code)
+
+        # Restore original namespace
+        self.interp.user_ns.clear()
+        self.interp.user_ns.update(old_ns)
+
+    def set_interpreter(self, interpreter):
+        self.interp = interpreter
+
+    def step(self):
+        # Save namespace
+        old_ns = self.interp.user_ns
+        self.interp.user_ns.clear()
+        self.interp.user_ns.update(self._ns)
+
+        if self.step_code:
+            self.run_code(self.step_code)
+        outputs = self.outputs_from_ns(self.outputs_info, self.interp.user_ns)
+
+        # Restore original namespace
+        self.interp.user_ns.clear()
+        self.interp.user_ns.update(old_ns)
+
+        if len(outputs) == 0:
+            self.outputs = None
+        elif len(outputs) == 1:
+            self.outputs = outputs[0]
+        else:
+            self.outputs = outputs
+        return self.outputs
+
+    def __call__(self, *args, **kwds):
+        return self.run(*args, **kwds)
+
+    def run(self, *args, **kwds):
+        nstep = kwds.pop('nstep', 1)
+        self.init(*args, **kwds)
+        out = []
+        for i in range(nstep):
+            out = self.step()
+        return out
+
+    @classmethod
+    def inputs_from_ns(cls, inputs, ns, *args, **kwargs):
+        kwds = {}
+        for i, inp in enumerate(inputs):
+            name = inp.name
+            default = inp.default
+            try:
+                kwds[name] = args[i]
+            except IndexError:
+                if name in kwargs:
+                    kwds[name] = kwargs[name]
+                else:
+                    if default:
+                        kwds[name] = literal_eval(default)
+                    elif name in ns:
+                        kwds[name] = ns[name]
+                    else:
+                        pass
+        return kwds
+
+    @classmethod
+    def outputs_from_ns(cls, outputs, ns):
+        """
+        Get outputs from namespace and set them inside self.outputs
+
+        :param namespace: dict where the model will search the outputs
+        """
+        output_values = []
+        if outputs:
+            if len(outputs) > 0:
+                for outp in outputs:
+                    if outp.name in ns:
+                        output_values.append(ns[outp.name])
+        return output_values
+
+    def run_code(self, source=None):
+        """
+        Reimplement this method to use an other run_code method
+        For example, if you want to use IPython magic
+        """
+        self.interp.runcode('result=x+y')
+
+    def set_code(self, code):
+        raise NotImplementedError
+
+
+class FileModel(Data):
     default_name = ""
     default_file_name = "filename.ext"
     pattern = "*.ext"
@@ -423,7 +645,53 @@ more informations: http://www.python.org/
 """
 
 
-class PythonModel(Model):
+class NewPythonModel(Model):
+
+    def __init__(self, **kwargs):
+        if 'code' in kwargs and 'content' in kwargs:
+            raise ValueError('Use content keyword only')
+        if 'name' not in kwargs:
+            kwargs['name'] = 'model'
+
+        # Backward compatibility with model
+        if 'code' in kwargs and 'content' not in kwargs:
+            kwargs['content'] = kwargs.pop('code')
+        if 'name' in kwargs and 'filename' not in kwargs and 'path' not in kwargs:
+            kwargs['filename'] = kwargs.pop('name')
+        if 'filepath' in kwargs and 'path' not in kwargs:
+            kwargs['path'] = kwargs.pop('filepath')
+
+        Model.__init__(self, **kwargs)
+
+    def get_documentation(self):
+        """
+        :return: a string with the documentation of the model
+        """
+        self.read()
+        if self._doc:
+            return self._doc
+        else:
+            return DEFAULT_DOC % str(self.icon)
+
+    def repr_code(self):
+        """
+        :return: a string representation of model to save it on disk
+        """
+        return self.code
+
+    def read(self):
+        return self.code
+
+    def set_code(self, code):
+        self.code = code
+        from openalea.oalab.model.parse import parse_docstring, get_docstring, parse_functions
+        model, self.inputs_info, self.outputs_info = parse_docstring(code)
+        self._init, self._step, self._animate, self._run = parse_functions(code)
+        self.set_step_code(code)
+        self._doc = get_docstring(code)
+
+
+class PythonModel(FileModel):
     default_name = "Python"
     default_file_name = "script.py"
     pattern = "*.py"
@@ -432,7 +700,7 @@ class PythonModel(Model):
     mimetype = "text/x-python"
 
     def __init__(self, **kwargs):
-        Model.__init__(self, **kwargs)
+        FileModel.__init__(self, **kwargs)
 
     def get_documentation(self):
         """

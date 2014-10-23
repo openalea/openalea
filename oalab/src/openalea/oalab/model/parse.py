@@ -388,6 +388,8 @@ class InputObj(object):
     1
     >>> obj.interface
     'IFloat'
+    >>> print obj
+    InputObj('a:IFloat=1')
 
     :param string: string object with format "input_name:input_type=input_default_value" or "input_name=input_default_value" or "input_name:input_type" or "input_name"
     """
@@ -415,6 +417,15 @@ class InputObj(object):
 
     def __str__(self):
         return self.__class__.__name__ + ". Name: " + str(self.name) + ". Interface: " + str(self.interface) + ". Default Value: " + str(self.default) + "."
+
+    def __repr__(self):
+        classname = self.__class__.__name__
+        string = self.name
+        if self.interface:
+            string += ":%s" % self.interface
+        if self.default:
+            string += "=%s" % self.default
+        return "%s(%r)" % (classname, string)
 
 
 def set_interface(input_obj):
@@ -490,8 +501,9 @@ def prepare_inputs(inputs_info, *args, **kwargs):
                         not_set_inputs_info.remove(not_set_inputs_info_dict[name])
                         del not_set_inputs_info_dict[name]
                     else:
-                        raise Exception("We can not put ", name, "inside inputs of model", name,
-                                        "because such an input is not declared in the model.")
+                        msg = "We can not put %r inside inputs of model %r" % (name, name)
+                        msg += " because such an input is not declared in the model."
+                        raise Exception(msg)
 
         # Fill others with defaults
         if len(not_set_inputs_info):
