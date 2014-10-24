@@ -15,7 +15,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-from openalea.core.model import PythonModel
+from openalea.core.model import NewPythonModel as PythonModel
 
 
 def test_model_get_documentation():
@@ -60,7 +60,6 @@ print "ok"
     # assert model.inputs_info[3].interface == "bool"
     assert model.outputs_info[0].name == "success"
 
-    print model.get_documentation()
     assert model.get_documentation() == """input = x:int=4, y:float=3.14, z, debug:bool
 output = success
 
@@ -153,4 +152,3 @@ beautifull doc
     assert model.get_documentation() is not None
     assert len(model.inputs_info) == 4
     assert len(model.outputs_info) == 1
-

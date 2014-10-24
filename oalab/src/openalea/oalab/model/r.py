@@ -15,12 +15,13 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-from openalea.core.model import Model
+from openalea.core.model import FileModel
 from openalea.oalab.model.parse import parse_docstring_r, get_docstring_r, parse_functions_r
 
 # TODO : refactor (like class PythonModel in python.py)
 
-class RModel(Model):
+
+class RModel(FileModel):
     default_name = "R"
     default_file_name = "script.r"
     pattern = "*.r"
@@ -56,7 +57,7 @@ class RModel(Model):
  TITLE="R logo">R language</H1>
 
 more informations: http://www.r-project.org/
-"""%str(self.icon)
+""" % str(self.icon)
 
     def repr_code(self):
         """
@@ -69,16 +70,16 @@ more informations: http://www.r-project.org/
         print self.inputs_info
         l = self.inputs_info
         input_names = [input.name for input in l]
-        input_names= [name for name in input_names if name in namespace]
+        input_names = [name for name in input_names if name in namespace]
         #input_values = [input.split('=')[1] for input in l]
 
         if input_names:
-            cmd+= ' -i %s'%(','.join(input_names))
+            cmd += ' -i %s' % (','.join(input_names))
 
         l = self.outputs_info
         output_names = [input.name for input in l]
         if output_names:
-            cmd+= ' -o %s'%(','.join(output_names))
+            cmd += ' -o %s' % (','.join(output_names))
 
         print cmd
 
@@ -91,20 +92,20 @@ more informations: http://www.r-project.org/
         user_ns = self._prepare_namespace()
 
         cmdline = self.r_options(user_ns)
-        
+
         from openalea.core.service.ipython import interpreter
         interp = interpreter()
         if not self.has_run:
             try:
-                interp.run_line_magic('load_ext','rpy2.ipython') #better as it solves display error but neeeds rpy2 > 2.4.2
+                # better as it solves display error but neeeds rpy2 > 2.4.2
+                interp.run_line_magic('load_ext', 'rpy2.ipython')
             except ImportError:
-                interp.run_line_magic('load_ext','rmagic')
-            
+                interp.run_line_magic('load_ext', 'rmagic')
+
         interp.run_cell_magic('R', cmdline, code)
-        
+
         # Set outputs after execution
         self._set_output_from_ns(user_ns)
-
 
     def execute(self, code):
         """
@@ -123,9 +124,10 @@ more informations: http://www.r-project.org/
         cmdline = self.r_options(user_ns)
         if not self.has_run:
             try:
-                shell.run_line_magic('load_ext','rpy2.ipython') #better as it solves display error but needs rpy2 > 2.4.2
+                # better as it solves display error but needs rpy2 > 2.4.2
+                shell.run_line_magic('load_ext', 'rpy2.ipython')
             except ImportError:
-                shell.run_line_magic('load_ext','rmagic')
+                shell.run_line_magic('load_ext', 'rmagic')
 
         shell.run_cell_magic('R', cmdline, code)
 
@@ -135,8 +137,8 @@ more informations: http://www.r-project.org/
         """
         # TODO: check if we can do by an other way for inputs, outputs (ex %%R -i inputs, -o outputs)
 
-        self._universal_run(self.code,*args,**kwargs)
-        self.has_run = True        
+        self._universal_run(self.code, *args, **kwargs)
+        self.has_run = True
         return self.outputs
 
     def init(self, *args, **kwargs):
@@ -147,7 +149,7 @@ more informations: http://www.r-project.org/
             self.run(*args, **kwargs)
         if self._init:
             code = '\ninit()\n'
-            self._universal_run(code,*args,**kwargs)
+            self._universal_run(code, *args, **kwargs)
             return self.outputs
 
     def step(self, *args, **kwargs):
@@ -157,7 +159,7 @@ more informations: http://www.r-project.org/
         if not self.has_run:
             self.run(*args, **kwargs)
         code = '\nstep()\n'
-        self._universal_run(code,*args,**kwargs)
+        self._universal_run(code, *args, **kwargs)
 
         return self.outputs
 
@@ -176,7 +178,7 @@ more informations: http://www.r-project.org/
                 self.run(*args, **kwargs)
 
             code = '\nanimate()\n'
-            self._universal_run(code,*args,**kwargs)
+            self._universal_run(code, *args, **kwargs)
 
             return self.outputs
 
@@ -190,4 +192,3 @@ more informations: http://www.r-project.org/
         self._init, self._step, self._animate, self._run = parse_functions_r(content)
         self._doc = get_docstring_r(content)
         self.has_run = False
-

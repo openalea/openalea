@@ -16,13 +16,290 @@
 #
 ###############################################################################
 
+"""
+
+A Model is an object that can be run.
+It is generally used to define algorithms or process.
+
+A model has inputs, outputs and an internal state.
+Inputs and outputs are used to allow communication between environnement and models and between models.
+Internal state is used by the model itself but cannot be reached from outside.
+This internal step is generally used when user want to execute model step by step, 
+each step depending on previous one.
+
+To define model instructions, you need to define at least "step" instructions.
+To do that, you can use:
+    - :meth:`~IModel.set_step_code`
+To use a Model, you also need to define set_code method that is able to extract inputs, outpus and step, init, ... 
+from given source code.
+
+Animate notification are not yet implemented.
+
+To reset internal state, use :meth:`~openalea.core.model.IModel.init` method.
+To run one step, use :meth:`~openalea.core.model.IModel.step` method.
+
+Two convenience methods, see :meth:`~openalea.core.model.IModel.run` and "call"
+can be used to reset internal state and run a given number of step (one by default)
+
+By default, functions are generated for "init", "run" and "animate"
+"""
+
+from ast import literal_eval
 from copy import copy
 from openalea.core.data import Data
 import string
 from openalea.core.node import Node, AbstractFactory
 
 
-class Model(Data):
+class IModel(object):
+
+    def __init__(self, **kwds):
+        """
+        keywords:
+            - name: model name
+        """
+
+    def __call__(self, *args, **kwargs):
+        """
+        Equivalent to :meth:`~openalea.core.model.IModel.run`.
+        """
+
+    def run(self, *args, **kwargs):
+        """
+        Init model and run "nstep" step(s).
+        """
+        raise NotImplementedError
+
+    def init(self, *args, **kwargs):
+        """
+        Reset internal state, fill namespace and run "init code" if defined.
+        """
+        raise NotImplementedError
+
+    def step(self, *args, **kwargs):
+        """
+        run "step code" if defined.
+        """
+        raise NotImplementedError
+
+    def stop(self, *args, **kwargs):
+        """
+        Stop execution.
+        """
+        raise NotImplementedError
+
+    def animate(self, *args, **kwargs):
+        """
+        Like run but send notification at each step.
+        """
+        raise NotImplementedError
+
+    def set_code(self, code):
+        """
+        extract and set inputs, outputs and functions from code.
+        For example, if "code" is::
+
+            '''
+            input = a, b:int=5
+            output = c
+            '''
+            def step():
+                c = a+b
+
+        you can extract input, output and step function.
+        So, 
+        m = Model("m1")
+        m.set_code(code)
+
+        is equivalent to
+
+        m = Model("m1")
+        m.set_func_code("step", "c=a+b")
+        m.inputs_info = [InputObj('a'), InputObj('b:int=5')]
+        m.outputs_info = [OutputObj('c')]
+        """
+
+    def set_func_code(self, fname, code):
+        """
+        :param fname: function name: "step", "init", "animate", ...
+        :param code: python source code
+        """
+
+    def set_step_code(self, code):
+        """
+        convenience method equivalent to set_func_code("step", code)
+        """
+
+
+class Model(object):
+
+    def __init__(self, name=None, **kwds):
+        from openalea.core.service.ipython import interpreter
+        self.interp = interpreter()
+
+        self.inputs_info = []
+        self.outputs_info = []
+
+        self.name = name
+
+        self._ns = {}
+        self._global_ns = {}
+        self._code = {}
+
+        self.outputs = []
+
+    def __copy__(self):
+        m = self.__class__(self.name)
+        m.inputs_info = list(self.inputs_info)
+        m.outputs_info = list(self.outputs_info)
+        for fname, code in self._code.iteritems():
+            m.set_func_code(fname, code)
+        return m
+
+    def set_step_code(self, code):
+        self.set_func_code('step', code)
+
+    def set_func_code(self, fname, code):
+        self._code[fname] = code
+
+    def init(self, *args, **kwds):
+        # Save default namespace
+        #         old_global_ns = interp.user_global_ns
+        old_ns = copy(self.interp.user_ns)
+
+        # Create a new namespace with
+        #  - previous namespace
+        #  - passed namespace
+        #  - init inputs and default inputs
+        ns = kwds.pop('namespace', {})
+
+        global_ns = {}
+        global_ns.update(old_ns)
+        global_ns.update(self._global_ns)
+        global_ns.update(ns)
+        global_ns.update(kwds)
+        global_ns['this'] = self
+
+        kwargs = self.inputs_from_ns(self.inputs_info, global_ns, *args, **kwds)
+        global_ns.update(kwargs)
+
+        self._ns = global_ns
+        # self._ns.update(global_ns)
+
+        self.interp.user_ns.clear()
+        self.interp.user_ns.update(self._ns)
+        #self.interp.user_ns = self._ns
+
+        # Run init code
+        if 'init' in self._code:
+            self.interp.runcode(self._code['init'])
+
+        # add vars defined in init function
+        for k in self.interp.user_ns:
+            if k not in self._ns:
+                self._ns[k] = self.interp.user_ns[k]
+
+        # Restore original namespace
+        self.interp.user_ns.clear()
+        self.interp.user_ns.update(old_ns)
+        # self.interp.user_ns = old_ns
+
+        return self.output_from_ns(self._ns)
+
+    def __call__(self, *args, **kwds):
+        return self.run(*args, **kwds)
+
+    def _exec(self, fname='step'):
+        # Save namespace
+        old_ns = self.interp.user_ns
+        self.interp.user_ns = self._ns
+
+        # Run init code
+        if fname in self._code:
+            self.interp.runcode(self._code[fname])
+        outputs = self.output_from_ns(self.interp.user_ns)
+
+        self.interp.user_ns = old_ns
+
+        self.outputs = outputs
+        return outputs
+
+    def step(self):
+        return self._exec('step')
+
+    def animate(self, *args, **kwds):
+        if 'animate' in self._code:
+            return self._exec('animate')
+        else:
+            nstep = kwds.pop('nstep', 1)
+            self.init(*args, **kwds)
+            out = []
+            for i in range(nstep):
+                out = self.step()
+                # refresh world
+            return out
+
+    def run(self, *args, **kwds):
+        if 'run' in self._code:
+            return self._exec('run')
+        else:
+            nstep = kwds.pop('nstep', 1)
+            self.init(*args, **kwds)
+            out = []
+            for i in range(nstep):
+                out = self.step()
+            return out
+
+    def inputs_from_ns(self, inputs, ns, *args, **kwargs):
+        kwds = {}
+        if inputs is None:
+            return kwds
+        for i, inp in enumerate(inputs):
+            name = inp.name
+            default = inp.default
+            try:
+                kwds[name] = args[i]
+            except IndexError:
+                if name in kwargs:
+                    kwds[name] = kwargs[name]
+                else:
+                    if default:
+                        kwds[name] = literal_eval(default)
+                    elif name in ns:
+                        kwds[name] = ns[name]
+                    else:
+                        pass
+        return kwds
+
+    def output_from_ns(self, namespace):
+        """
+        Get outputs from namespace and set them inside self.outputs
+
+        :param namespace: dict where the model will search the outputs
+        """
+        outputs = []
+        if self.outputs_info:
+            if len(self.outputs_info) > 0:
+                for outp in self.outputs_info:
+                    if outp.name in namespace:
+                        outputs.append(namespace[outp.name])
+        if len(outputs) == 0:
+            return None
+        elif len(outputs) == 1:
+            return outputs[0]
+        else:
+            return outputs
+
+    @property
+    def step_code(self):
+        return self._code['step']
+
+    @step_code.setter
+    def step_code(self, code):
+        self._code['step'] = code
+
+
+class FileModel(Data):
     default_name = ""
     default_file_name = "filename.ext"
     pattern = "*.ext"
@@ -423,7 +700,61 @@ more informations: http://www.python.org/
 """
 
 
-class PythonModel(Model):
+class NewPythonModel(Model):
+
+    def __init__(self, **kwargs):
+        if 'code' in kwargs and 'content' in kwargs:
+            raise ValueError('Use content keyword only')
+        if 'name' not in kwargs:
+            kwargs['name'] = 'model'
+
+        # Backward compatibility with model
+        if 'code' in kwargs and 'content' not in kwargs:
+            kwargs['content'] = kwargs.pop('code')
+
+        Model.__init__(self, **kwargs)
+
+        content = kwargs.pop('content', None)
+        if content:
+            self.set_code(content)
+
+    def get_documentation(self):
+        """
+        :return: a string with the documentation of the model
+        """
+        self.read()
+        if self._doc:
+            return self._doc
+        else:
+            return DEFAULT_DOC % str(self.icon)
+
+    def repr_code(self):
+        """
+        :return: a string representation of model to save it on disk
+        """
+        return self.code
+
+    def read(self):
+        return self.code
+
+    def set_code(self, code):
+        self.code = code
+        from openalea.oalab.model.parse import parse_docstring, get_docstring, extract_functions
+        model, self.inputs_info, self.outputs_info = parse_docstring(code)
+        funcs = extract_functions(code)
+        if 'step' in funcs:
+            self.set_step_code(funcs['step'])
+        else:
+            self.set_step_code(code)
+
+        for fname in ['init', 'run', 'animate']:
+            if fname in funcs:
+                self.set_func_code(fname, funcs[fname])
+
+        self._doc = get_docstring(code)
+
+
+class PythonModel(FileModel):
     default_name = "Python"
     default_file_name = "script.py"
     pattern = "*.py"
@@ -432,7 +763,7 @@ class PythonModel(Model):
     mimetype = "text/x-python"
 
     def __init__(self, **kwargs):
-        Model.__init__(self, **kwargs)
+        FileModel.__init__(self, **kwargs)
 
     def get_documentation(self):
         """

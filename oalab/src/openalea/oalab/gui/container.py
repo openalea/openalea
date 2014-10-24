@@ -28,7 +28,7 @@ from openalea.oalab.gui.utils import qicon
 from openalea.core.project import ProjectManager, Project
 from openalea.oalab.project.projectwidget import SelectCategory
 from openalea.oalab.gui.utils import ModalDialog
-from openalea.core.model import Model
+from openalea.core.model import FileModel
 
 from openalea.oalab.service.applet import get_applet
 from openalea.core.service.data import DataFactory, DataClass, DataType, MimeType
@@ -271,7 +271,7 @@ class ParadigmContainer(QtGui.QTabWidget):
 
         obj = self._open_tabs[tab]
         code = tab.get_code()
-        if isinstance(obj, Model):
+        if isinstance(obj, FileModel):
             obj.content = code
             obj.save()
         else:

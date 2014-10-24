@@ -2,13 +2,16 @@
 import unittest
 from openalea.core.data import Data
 from openalea.core.path import tempdir, path
-from openalea.core.model import Model
+from openalea.core.model import FileModel
+
 
 def debug_parse(self):
     self.parsed = True
 
+
 def get_data(filename):
     return path(__file__).parent.abspath() / 'data' / filename
+
 
 class TestProject(unittest.TestCase):
 
@@ -18,17 +21,16 @@ class TestProject(unittest.TestCase):
     def tearDown(self):
         self.tmpdir.rmtree()
 
-
     def test_inmemory_model(self):
-        Model.parse = debug_parse
-        Model.parsed = False
+        FileModel.parse = debug_parse
+        FileModel.parsed = False
 
         # Check content is parsed
-        model = Model(content='Hi ho')
+        model = FileModel(content='Hi ho')
         assert model.parsed is True
         model.parsed = False
 
-        model = Model(content='Hi ho')
+        model = FileModel(content='Hi ho')
 
         # Check content is not parsed because content has not changed
         model.parsed = False
@@ -45,10 +47,10 @@ class TestProject(unittest.TestCase):
         with open(pyfile, 'w') as f:
             f.write('data 1')
 
-        Model.parse = debug_parse
+        FileModel.parse = debug_parse
 
         # Check no parse. At this moment we don't want to read content for performance reason
-        model = Model(path=pyfile)
+        model = FileModel(path=pyfile)
         assert hasattr(model, 'parsed') is False
 
         # To get documentation, Model need to read content
