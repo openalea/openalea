@@ -35,13 +35,10 @@ class PluginManager(object):
         :param proxy_class: proxy class to use by default
         """
         self._plugin = {}  # dict category -> plugin name -> Plugin class or Plugin proxy
-        self._plugin_instance = {}
         self._plugin_proxy = {}
         self._plugin_loaded = {}
-        self._plugin_all_instances = {}
 
-        self._debug = []
-
+        self.debug = False
         self._proxies = {}
 
         self.proxy_class = proxy_class
@@ -51,49 +48,12 @@ class PluginManager(object):
 
     def clear(self):
         self._plugin = {}  # dict category -> plugin name -> Plugin class or Plugin proxy
-        self._plugin_instance = {}
         self._plugin_loaded = {}
-        self._plugin_all_instances = {}
         self._proxies = {}
-
-    @property
-    def debug(self):
-        return self._debug
-
-    @debug.setter
-    def debug(self, value):
-        if value in (True, 'all', ['all']):
-            self._debug = [True]
-        elif value is False:
-            self._debug = []
-        else:
-            self._debug = value
-
-    def _debug_mode(self, category):
-        return category in self.debug or True in self.debug or 'all' in self.debug
-
-    def __call__(self, category, func=None, **kwds):
-        """
-        Use this method to launch a function in debug mode.
-        If debug is enabled for this category, errors are raised,
-        else debug is disable, errors pass silently.
-        """
-        func_args = kwds.pop('func_args', [])
-        func_kwds = kwds.pop('func_kwds', {})
-        callback = kwds.pop('callback', None)
-        if self._debug_mode(category):
-            return func(*func_args, **func_kwds)
-        else:
-            try:
-                return func(*func_args, **func_kwds)
-            except:
-                logger.error('%s: error calling %s ' % (category, func))
-                if callback:
-                    callback()
 
     def set_proxy(self, category, proxy_class):
         """
-        Embed all plugin in category in proxy_class
+        Embed all plugin for given category in proxy_class.
         """
         self._plugin_proxy[category] = proxy_class
 
@@ -124,7 +84,7 @@ class PluginManager(object):
         if identifier in self._plugin_loaded:
             plugin_class = self._plugin_loaded[identifier]
         else:
-            if self._debug_mode('loading'):
+            if self.debug:
                 plugin_class = ep.load()
                 logger.debug('%s load plugin %s' % (self.__class__.__name__, ep))
                 self._plugin_loaded[identifier] = plugin_class
@@ -184,6 +144,55 @@ class PluginManager(object):
         else:
             return list(plugins)
 
+
+class PluginInstanceManager(object):
+    __metaclass__ = Singleton
+
+    def __init__(self, plugins=None, proxy_class=None):
+        self._plugin_instance = {}
+        self._plugin_all_instances = {}
+        self._debug = []
+        self.pm = PluginManager()
+
+    def clear(self):
+        self._plugin_instance = {}
+        self._plugin_all_instances = {}
+
+    @property
+    def debug(self):
+        return self._debug
+
+    @debug.setter
+    def debug(self, value):
+        if value in (True, 'all', ['all']):
+            self._debug = [True]
+        elif value is False:
+            self._debug = []
+        else:
+            self._debug = value
+
+    def _debug_mode(self, category):
+        return category in self.debug or True in self.debug or 'all' in self.debug
+
+    def __call__(self, category, func=None, **kwds):
+        """
+        Use this method to launch a function in debug mode.
+        If debug is enabled for this category, errors are raised,
+        else debug is disable, errors pass silently.
+        """
+        func_args = kwds.pop('func_args', [])
+        func_kwds = kwds.pop('func_kwds', {})
+        callback = kwds.pop('callback', None)
+        if self._debug_mode(category):
+            return func(*func_args, **func_kwds)
+        else:
+            try:
+                return func(*func_args, **func_kwds)
+            except:
+                logger.error('%s: error calling %s ' % (category, func))
+                if callback:
+                    callback()
+
     def register(self, category, name, instance):
         """
         Add a weakref to instance in dict
@@ -205,10 +214,10 @@ class PluginManager(object):
             pass
 
     def _new(self, category, name, class_args=None, class_kwds=None):
-        if category not in self._plugin:
-            self._load_plugins(category)
+        if category not in self.pm._plugin:
+            self.pm._load_plugins(category)
         try:
-            plugin_class = self._plugin[category][name]
+            plugin_class = self.pm._plugin[category][name]
         except KeyError:
             pass
         else:
