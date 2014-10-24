@@ -24,20 +24,16 @@ It is generally used to define algorithms or process.
 A model has inputs, outputs and an internal state.
 Inputs and outputs are used to allow communication between environnement and models and between models.
 Internal state is used by the model itself but cannot be reached from outside.
-This in internal step is generally used when user want to execute model step by step, 
+This internal step is generally used when user want to execute model step by step, 
 each step depending on previous one.
 
-To define model instruction, you need to define at least "step" instructions.
+To define model instructions, you need to define at least "step" instructions.
 To do that, you can use:
-    - :meth:`~IModel.set_func`
-    - :meth:`~IModel.set_code`
+    - :meth:`~IModel.set_step_code`
+To use a Model, you also need to define set_code method that is able to extract inputs, outpus and step, init, ... 
+from given source code.
 
-
-Default "init" and "run" instructions are defined:
-    - init reset internal state and fill namespace
-    - run launch init and call step one time or more (depending on nstep parameter)
-
-
+Animate notification are not yet implemented.
 
 To reset internal state, use :meth:`~openalea.core.model.IModel.init` method.
 To run one step, use :meth:`~openalea.core.model.IModel.step` method.
@@ -45,6 +41,7 @@ To run one step, use :meth:`~openalea.core.model.IModel.step` method.
 Two convenience methods, see :meth:`~openalea.core.model.IModel.run` and "call"
 can be used to reset internal state and run a given number of step (one by default)
 
+By default, functions are generated for "init", "run" and "animate"
 """
 
 from ast import literal_eval
@@ -69,28 +66,68 @@ class IModel(object):
 
     def run(self, *args, **kwargs):
         """
-        Run current model
+        Init model and run "nstep" step(s).
         """
         raise NotImplementedError
 
     def init(self, *args, **kwargs):
+        """
+        Reset internal state, fill namespace and run "init code" if defined.
+        """
         raise NotImplementedError
 
     def step(self, *args, **kwargs):
+        """
+        run "step code" if defined.
+        """
         raise NotImplementedError
 
     def stop(self, *args, **kwargs):
+        """
+        Stop execution.
+        """
         raise NotImplementedError
 
     def animate(self, *args, **kwargs):
+        """
+        Like run but send notification at each step.
+        """
         raise NotImplementedError
 
     def set_code(self, code):
         """
+        extract and set inputs, outputs and functions from code.
+        For example, if "code" is::
+
+            '''
+            input = a, b:int=5
+            output = c
+            '''
+            def step():
+                c = a+b
+
+        you can extract input, output and step function.
+        So, 
+        m = Model("m1")
+        m.set_code(code)
+
+        is equivalent to
+
+        m = Model("m1")
+        m.set_func_code("step", "c=a+b")
+        m.inputs_info = [InputObj('a'), InputObj('b:int=5')]
+        m.outputs_info = [OutputObj('c')]
+        """
+
+    def set_func_code(self, fname, code):
+        """
+        :param fname: function name: "step", "init", "animate", ...
+        :param code: python source code
         """
 
     def set_step_code(self, code):
         """
+        convenience method equivalent to set_func_code("step", code)
         """
 
 
