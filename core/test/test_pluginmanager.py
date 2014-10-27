@@ -115,7 +115,7 @@ class TestPluginManager(unittest.TestCase):
 
     def test_proxy_plugin(self):
         from openalea.core.plugin.manager import SimpleClassPluginProxy
-        self.pm.add_plugin('test.dynamic4', Algo, proxy_class=SimpleClassPluginProxy)
+        self.pm.add_plugin('test.dynamic4', Algo, plugin_proxy=SimpleClassPluginProxy)
         objc4c1 = plugin_instance('test.dynamic4', 'Algo')
         objc4c1_2 = plugin_instance('test.dynamic4', 'Algo')
         objc4c1_3 = new_plugin_instance('test.dynamic4', 'Algo')

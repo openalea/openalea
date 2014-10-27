@@ -1,19 +1,25 @@
 """
 This plugin manager is inspired by nose PluginManager(s) released under LGPL license.
-You can get a full copy of this license at https://github.com/nose-devs/nose/blob/master/lgpl.txt
-You can get original nose code at https://github.com/nose-devs/nose/blob/master/nose/plugins/manager.py
+You can get a full copy of this license on nosetest repository:`lgpl.txt <https://github.com/nose-devs/nose/blob/master/lgpl.txt>`_
+You can get original nose code on `github <https://github.com/nose-devs/nose/blob/master/nose/plugins/manager.py>`_
 
 
 Plugin Manager
 --------------
 
-A plugin manager class is used to load plugins, manage the list of
-loaded plugins, and proxy calls to those plugins.
+A plugin manager class is used to load plugins, search among it and manage the list of loaded plugins.
+Plugins are loaded from entry points or can be added dynamically to manager.
+  - To *list* plugins, see :meth:`PluginManager.plugin` and :meth:`PluginManager.plugins`.
+  - To *add* plugins dynamically, see :meth:`PluginManager.add_plugin` and :meth:`PluginManager.add_plugins`.
 
-The plugin managers provided with nose are:
+All plugin are sorted in categories, each category defining a contract.
+This contract is generally described in an interface class or documentation.
 
-:class:`PluginManager`
-    This manager uses setuptools entrypoints to load plugins.
+If you want to use third party plugins that doesn't fit perfectly to your contract,
+you can embed its in plugin proxies.
+To do that, you can specify a proxy class for an entire category or for one plugin.
+See :meth:`PluginManager.set_proxy` and "plugin_proxy" parameter in :meth:`PluginManager.add_plugin`.
+
 """
 
 from warnings import warn
@@ -27,10 +33,10 @@ class PluginManager(object):
 
     __metaclass__ = Singleton
 
-    def __init__(self, plugins=None, proxy_class=None):
+    def __init__(self, plugins=None, plugin_proxy=None):
         """
         :param plugins: list of plugins you want to add manually
-        :param proxy_class: proxy class to use by default
+        :param plugin_proxy: proxy class to use by default
         """
         self._plugin = {}  # dict category -> plugin name -> Plugin class or Plugin proxy
         self._plugin_proxy = {}
@@ -39,7 +45,7 @@ class PluginManager(object):
         self.debug = False
         self._proxies = {}
 
-        self.proxy_class = proxy_class
+        self.plugin_proxy = plugin_proxy
 
         if plugins is not None:
             self.add_plugins(plugins)
@@ -49,18 +55,18 @@ class PluginManager(object):
         self._plugin_loaded = {}
         self._proxies = {}
 
-    def set_proxy(self, category, proxy_class):
+    def set_proxy(self, category, plugin_proxy):
         """
-        Embed all plugin for given category in proxy_class.
+        Embed all plugin for given category in plugin_proxy.
         """
-        self._plugin_proxy[category] = proxy_class
+        self._plugin_proxy[category] = plugin_proxy
 
-    def add_plugin(self, category, plugin, proxy_class=None):
-        if proxy_class is None and category in self._plugin_proxy:
-            proxy_class = self._plugin_proxy[category]
+    def add_plugin(self, category, plugin, plugin_proxy=None):
+        if plugin_proxy is None and category in self._plugin_proxy:
+            plugin_proxy = self._plugin_proxy[category]
 
-        if proxy_class:
-            plugin = proxy_class(plugin)
+        if plugin_proxy:
+            plugin = plugin_proxy(plugin)
 
         try:
             name = plugin.name
@@ -75,7 +81,7 @@ class PluginManager(object):
         for category, plugin in plugins.iteritems():
             self.add_plugin(category, plugin)
 
-    def _load_entry_point_plugin(self, category, entry_point, proxy_class=None):
+    def _load_entry_point_plugin(self, category, entry_point, plugin_proxy=None):
         ep = entry_point
         identifier = '%s:%s:%s' % (category, ep.module_name, ep.name)
         plugin_class = None
@@ -86,7 +92,7 @@ class PluginManager(object):
                 plugin_class = ep.load()
                 logger.debug('%s load plugin %s' % (self.__class__.__name__, ep))
                 self._plugin_loaded[identifier] = plugin_class
-                self.add_plugin(category, plugin_class, proxy_class=proxy_class)
+                self.add_plugin(category, plugin_class, plugin_proxy=plugin_proxy)
             else:
                 try:
                     plugin_class = ep.load()
@@ -101,14 +107,14 @@ class PluginManager(object):
                 else:
                     logger.debug('%s load plugin %s' % (self.__class__.__name__, ep))
                     self._plugin_loaded[identifier] = plugin_class
-                    self.add_plugin(category, plugin_class, proxy_class=proxy_class)
+                    self.add_plugin(category, plugin_class, plugin_proxy=plugin_proxy)
 
         return plugin_class
 
-    def _load_plugins(self, category, proxy_class=None):
+    def _load_plugins(self, category, plugin_proxy=None):
         from pkg_resources import iter_entry_points
         for ep in iter_entry_points(category):
-            self._load_entry_point_plugin(category, ep, proxy_class=proxy_class)
+            self._load_entry_point_plugin(category, ep, plugin_proxy=plugin_proxy)
 
     def plugin(self, category, name=None):
         """
