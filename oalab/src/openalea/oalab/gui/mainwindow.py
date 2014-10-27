@@ -28,8 +28,7 @@ from openalea.oalab.shell import get_shell_class
 from openalea.oalab.service.applet import get_applets, register_applet
 from openalea.core.service.ipython import interpreter
 
-from openalea.core.plugin.manager import PluginManager
-pm = PluginManager()
+from openalea.core.service.plugin import plugin_class, plugin_instance, debug_plugin
 
 
 class MainWindow(QtGui.QMainWindow):
@@ -150,17 +149,17 @@ class MainWindow(QtGui.QMainWindow):
 
     def add_plugin(self, plugin=None, name=None):
         if name and plugin is None:
-            plugin_class = pm.plugin('oalab.applet', name)
-            plugin = plugin_class()
+            _plugin_class = plugin_class('oalab.applet', name)
+            plugin = _plugin_class()
 
         def plug():
-            applet = pm.instance('oalab.applet', plugin.name)
+            applet = plugin_instance('oalab.applet', plugin.name)
             plugin.graft(applet=applet, oa_mainwin=self)
             self.session.applet['plugin_%s' % plugin.name] = plugin
             self.session.applet[applet.__class__.__name__] = applet
 
         # Use plugin manager call to handle debug mode automatically
-        pm('oalab.applet', func=plug)
+        debug_plugin('oalab.applet', func=plug)
 
     def initialize(self):
         for applet in get_applets():

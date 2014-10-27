@@ -22,6 +22,7 @@ import sys
 from openalea.oalab.cli.parser import CommandLineParser
 from openalea.oalab.project.symlink import create_project_shortcut
 from openalea.oalab.session.all import Session
+from openalea.core.service.plugin import debug_plugin, plugins
 
 
 def main():
@@ -41,7 +42,6 @@ def main():
     if session.gui:
         from openalea.vpltk.qt import QtGui
         from openalea.oalab.gui.mainwindow import MainWindow
-        from openalea.core.plugin import iter_plugins
 
         app = QtGui.QApplication(sys.argv)
 
@@ -49,8 +49,7 @@ def main():
         # Run all extension matching session.extension
         available_extensions = []
 
-        pm = session.plugin_manager
-        for plugin_class in pm.plugins('oalab.lab'):
+        for plugin_class in plugins('oalab.lab'):
             try:
                 ext = plugin_class.name
             except AttributeError:
@@ -64,7 +63,7 @@ def main():
             if session.extension == ext:
                 plugin = plugin_class()
                 win = MainWindow(session)
-                pm('oalab.lab', func=plugin, func_args=[win])
+                debug_plugin('oalab.lab', func=plugin, func_args=[win])
                 win.show()
                 win.raise_()
                 break
