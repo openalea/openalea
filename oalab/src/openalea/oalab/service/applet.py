@@ -1,6 +1,7 @@
 
 from openalea.core.plugin import iter_plugins
 
+
 class Applet(object):
     # TODO: become a manager ??
     _applets = {}
@@ -17,7 +18,6 @@ class Applet(object):
             applet = klass(*args, **kwargs)
             cls.register(name, applet)
             return applet
-
 
     @classmethod
     def instances(cls, **kwargs):
@@ -36,7 +36,6 @@ class Applet(object):
 
         instance = None
         err = 'Cannot find required applet'
-
 
         if 'identifier' in kwargs:
             identifier = kwargs['identifier']
@@ -57,11 +56,12 @@ class Applet(object):
 register_applet = Applet.register
 new_applet = Applet.new
 
-from openalea.core.plugin.manager import PluginManager
-pm = PluginManager()
+from openalea.core.service.plugin import plugin_instances, plugin_instance
+
 
 def get_applets():
-    return pm.instances('oalab.applet')
+    return plugin_instances('oalab.applet')
+
 
 def get_applet(**kwargs):
     if 'class_args' in kwargs:
@@ -75,4 +75,4 @@ def get_applet(**kwargs):
     if 'identifier' in kwargs:
         identifier = kwargs['identifier']
 
-        return pm.instance('oalab.applet', identifier, class_kwds=class_args)
+        return plugin_instance('oalab.applet', identifier, class_kwds=class_args)
