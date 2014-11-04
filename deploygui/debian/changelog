@@ -1,3 +1,21 @@
+openalea-deploygui (1.2.0~ppa2) precise; urgency=medium
+
+  * Port to precise  
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Thu, 16 Oct 2014 17:19:12 +0200
+
+openalea-deploygui (1.2.0~ppa1) precise; urgency=medium
+
+  * Port to precise  
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Thu, 16 Oct 2014 17:12:52 +0200
+
+openalea-deploygui (1.2.0~ppa1) trusty; urgency=medium
+
+  * Port to Trusty 
+
+ -- Christophe Pradal <christophe.pradal@cirad.fr>  Wed, 01 Oct 2014 18:34:41 +0200
+
 openalea-deploygui (1.0.1~ppa8) quantal; urgency=low
 
   * Port to Quantal 
