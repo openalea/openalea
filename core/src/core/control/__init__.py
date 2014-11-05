@@ -1,10 +1,11 @@
 # -*- python -*-
+# -*- coding: utf8 -*-
 #
-#       OpenAlea.OALab: Multi-Paradigm GUI
+#       OpenAlea.OALab
 #
-#       Copyright 2013 INRIA - CIRAD - INRA
+#       Copyright 2014 INRIA - CIRAD - INRA
 #
-#       File author(s): Julien Coste <julien.coste@inria.fr>
+#       File author(s): Guillaume Baty <guillaume.baty@inria.fr>
 #
 #       File contributor(s):
 #

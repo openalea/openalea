@@ -1,10 +1,13 @@
 # -*- python -*-
+# -*- coding: utf8 -*-
 #
 #       OpenAlea.Core
 #
-#       Copyright 2006-2009 INRIA - CIRAD - INRA
+#       Copyright 2006-2014 INRIA - CIRAD - INRA
 #
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
+#                       Julien Coste <julien.coste@inria.fr>
+#                       Guillaume Baty <guillaume.baty@inria.fr>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
@@ -13,6 +16,8 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+
+
 """Data management classes"""
 
 __license__ = "Cecill-C"
