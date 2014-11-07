@@ -1,10 +1,12 @@
 # -*- python -*-
+# -*- coding: utf8 -*-
 #
-#       OpenAlea.OALab: Multi-Paradigm GUI
+#       OpenAlea.OALab
 #
 #       Copyright 2014 INRIA - CIRAD - INRA
 #
 #       File author(s): Julien Coste <julien.coste@inria.fr>
+#                       Guillaume Baty <guillaume.baty@inria.fr>
 #
 #       File contributor(s):
 #
@@ -16,420 +18,337 @@
 #
 ###############################################################################
 
+"""
+
+A Model is an object that can be run.
+It is generally used to define algorithms or process.
+
+A model has inputs, outputs and an internal state.
+Inputs and outputs are used to allow communication between environnement and models and between models.
+Internal state is used by the model itself but cannot be reached from outside.
+This internal step is generally used when user want to execute model step by step, 
+each step depending on previous one.
+
+To define model instructions, you need to define at least "step" instructions.
+To do that, you can use:
+    - :meth:`~IModel.set_step_code`
+To use a Model, you also need to define set_code method that is able to extract inputs, outpus and step, init, ... 
+from given source code.
+
+Animate notification are not yet implemented.
+
+To reset internal state, use :meth:`~openalea.core.model.IModel.init` method.
+To run one step, use :meth:`~openalea.core.model.IModel.step` method.
+
+Two convenience methods, see :meth:`~openalea.core.model.IModel.run` and "call"
+can be used to reset internal state and run a given number of step (one by default)
+
+By default, functions are generated for "init", "run" and "animate"
+"""
+
+from ast import literal_eval
 from copy import copy
-from openalea.core.data import Data
-import string
-from openalea.core.node import Node, AbstractFactory
 
 
-class Model(Data):
-    default_name = ""
-    default_file_name = "filename.ext"
-    pattern = "*.ext"
-    extension = "ext"
-    icon = ":/images/resources/logo.png"
-    mimetype = "text/"
+class IModel(object):
+    dtype = None
+    mimetype = None
 
-    CACHE = 0
-    NO_CACHE = 1
-
-    def __init__(self, **kwargs):
-        if 'code' in kwargs and 'content' in kwargs:
-            raise ValueError('Use content keyword only')
-        if 'name' not in kwargs:
-            kwargs['name'] = 'model'
-        # Backward compatibility with model
-        if 'code' in kwargs and 'content' not in kwargs:
-            kwargs['content'] = kwargs.pop('code')
-        if 'name' in kwargs and 'filename' not in kwargs and 'path' not in kwargs:
-            kwargs['filename'] = kwargs.pop('name')
-        if 'filepath' in kwargs and 'path' not in kwargs:
-            kwargs['path'] = kwargs.pop('filepath')
-
-        Data.__init__(self, **kwargs)
-
-        self._step = False
-        self._animate = False
-        self._init = False
-        self._run = False
-
-        self.inputs_info = kwargs.pop('inputs', [])
-        self.outputs_info = kwargs.pop('outputs', [])
-
-        self.inputs = {}
-        self.outputs = []
-        self._doc = ''
-        self.ns = dict()
-
-        self._cache_mode = self.CACHE
-        self._metadata = {'mtime': 0, 'size': 0}
-
-        # If path doesn't exists, that means all content is in memory (passed in constructor for example)
-        # So we need to parse it
-        if not self.exists():
-            self.parse()
-
-    #################
-    # REVIEW REQUIRED
-    #################
-
-    def get_documentation(self):
-        self.read()
-        return self._doc
-
-    def repr_code(self):
-        return self.read()
+    def __init__(self, **kwds):
+        """
+        keywords:
+            - name: model name
+        """
 
     def __call__(self, *args, **kwargs):
-        return self.run(*args, **kwargs)
-
-    def __str__(self):
-        return str(self.filename)
+        """
+        Equivalent to :meth:`~openalea.core.model.IModel.run`.
+        """
 
     def run(self, *args, **kwargs):
         """
-        execute model
+        Init model and run "nstep" step(s).
         """
         raise NotImplementedError
 
     def init(self, *args, **kwargs):
         """
-        go back to initial step
+        Reset internal state, fill namespace and run "init code" if defined.
         """
         raise NotImplementedError
 
     def step(self, *args, **kwargs):
         """
-        execute only one step of the model
+        run "step code" if defined.
         """
         raise NotImplementedError
 
     def stop(self, *args, **kwargs):
         """
-        stop execution
+        Stop execution.
         """
         raise NotImplementedError
 
     def animate(self, *args, **kwargs):
         """
-        run model step by step
+        Like run but send notification at each step.
         """
         raise NotImplementedError
 
-    def execute(self, code):
+    def set_code(self, code):
         """
-        Execute code (str) in current interpreter
-        """
-        from openalea.core.service.ipython import interpreter
-        interp = interpreter()
-        return interp.runcode(code)
+        extract and set inputs, outputs and functions from code.
+        For example, if "code" is::
 
-    def _set_output_from_ns(self, namespace):
+            '''
+            input = a, b:int=5
+            output = c
+            '''
+            def step():
+                c = a+b
+
+        you can extract input, output and step function.
+        So, 
+        m = Model("m1")
+        m.set_code(code)
+
+        is equivalent to
+
+        m = Model("m1")
+        m.set_func_code("step", "c=a+b")
+        m.inputs_info = [InputObj('a'), InputObj('b:int=5')]
+        m.outputs_info = [OutputObj('c')]
+        """
+
+    def set_func_code(self, fname, code):
+        """
+        :param fname: function name: "step", "init", "animate", ...
+        :param code: python source code
+        """
+
+    def set_step_code(self, code):
+        """
+        convenience method equivalent to set_func_code("step", code)
+        """
+
+
+class Model(object):
+    icon = ''
+
+    def __init__(self, name=None, **kwds):
+        from openalea.core.service.ipython import interpreter
+        self.interp = interpreter()
+
+        self.inputs_info = []
+        self.outputs_info = []
+
+        self.name = name
+
+        self._ns = {}
+        self._code = {}
+        self._initial_code = ''
+
+        self.outputs = []
+        code = kwds.pop('code', None)
+        if code:
+            self.set_code(code)
+
+    def __copy__(self):
+        m = self.__class__(name=self.name)
+        m.inputs_info = list(self.inputs_info)
+        m.outputs_info = list(self.outputs_info)
+        for fname, code in self._code.iteritems():
+            m.set_func_code(fname, code)
+        return m
+
+    def set_code(self, code):
+        self.set_step_code(code)
+
+    def set_func_code(self, fname, code):
+        self._code[fname] = code
+
+    def set_step_code(self, code):
+        self.set_func_code('step', code)
+
+    def init(self, *args, **kwds):
+        # Save default namespace
+        old_ns = copy(self.interp.user_ns)
+
+        # Create a new namespace with
+        #  - interpreter namespace
+        #  - initial namespace given by user (namespace keyword)
+        #  - passed variables
+        # Then, replace input variable names with right values
+        initial_ns = kwds.pop('namespace', {})
+
+        global_ns = {}
+        global_ns.update(old_ns)
+        global_ns.update(initial_ns)
+        global_ns.update(kwds)
+        global_ns['this'] = self
+
+        kwargs = self.inputs_from_ns(self.inputs_info, global_ns, *args, **kwds)
+        global_ns.update(kwargs)
+
+        self._ns = global_ns
+
+        self.interp.user_ns.clear()
+        self.interp.user_ns.update(self._ns)
+
+        # Run init code
+        if 'init' in self._code:
+            self.interp.shell.run_code(self._code['init'])
+
+        # add vars defined in init function
+        for k in self.interp.user_ns:
+            if k not in self._ns:
+                self._ns[k] = self.interp.user_ns[k]
+
+        # Restore original namespace
+        self.interp.user_ns.clear()
+        self.interp.user_ns.update(old_ns)
+
+        return self.output_from_ns(self._ns)
+
+    def __call__(self, *args, **kwds):
+        return self.run(*args, **kwds)
+
+    def _exec(self, fname='step'):
+        # Save namespace
+        old_ns = {}
+        old_ns.update(self.interp.user_ns)
+        self.interp.user_ns.clear()
+        self.interp.user_ns.update(self._ns)
+
+        # Run code
+        if fname in self._code:
+            self.interp.shell.run_code(self._code[fname])
+        outputs = self.output_from_ns(self.interp.user_ns)
+
+        self.interp.user_ns.clear()
+        self.interp.user_ns.update(old_ns)
+
+        self.outputs = outputs
+        return outputs
+
+    def run_code(self, code, namespace):
+        # Save namespace
+        ns = {}
+        ns.update(namespace)
+        old_ns = self.interp.user_ns
+        self.interp.user_ns = ns
+        self.interp.run_cell(code)
+        self.interp.user_ns = old_ns
+
+        final_ns = {}
+        for key in ns:
+            if key in old_ns:
+                continue
+            final_ns[key] = ns[key]
+        return final_ns
+
+    def execute(self, code):
+        self.set_func_code('selection', code)
+        outputs = self._exec('selection')
+        del self._code['selection']
+        return outputs
+
+    def step(self):
+        return self._exec('step')
+
+    def animate(self, *args, **kwds):
+        if 'animate' in self._code:
+            return self._exec('animate')
+        else:
+            nstep = kwds.pop('nstep', 1)
+            self.init(*args, **kwds)
+            out = []
+            for i in range(nstep):
+                out = self.step()
+                # refresh world
+            return out
+
+    def run(self, *args, **kwds):
+        if 'run' in self._code:
+            return self._exec('run')
+        else:
+            nstep = kwds.pop('nstep', 1)
+            self.init(*args, **kwds)
+            out = []
+            for i in range(nstep):
+                out = self.step()
+            return out
+
+    def eval_value(self, value):
+        return literal_eval(value)
+
+    def inputs_from_ns(self, inputs, ns, *args, **kwargs):
+        kwds = {}
+        if inputs is None:
+            return kwds
+        for i, inp in enumerate(inputs):
+            name = inp.name
+            default = inp.default
+            try:
+                kwds[name] = args[i]
+            except IndexError:
+                if name in kwargs:
+                    kwds[name] = kwargs[name]
+                else:
+                    if default is not None:
+                        kwds[name] = self.eval_value(default)
+                    elif name in ns:
+                        kwds[name] = ns[name]
+                    else:
+                        pass
+        return kwds
+
+    def output_from_ns(self, namespace):
         """
         Get outputs from namespace and set them inside self.outputs
 
         :param namespace: dict where the model will search the outputs
         """
+        outputs = []
         if self.outputs_info:
-            self.outputs = []
             if len(self.outputs_info) > 0:
                 for outp in self.outputs_info:
                     if outp.name in namespace:
-                        self.outputs.append(namespace[outp.name])
-
-    @property
-    def outputs(self):
-        """
-        Return outputs of the model after running it.
-
-        :use:
-            >>> outputs = model.run()
-            >>> outputs == model.outputs
-            True
-        """
-        if self.outputs_info and self._outputs:
-            if len(self.outputs_info) == 1 and len(self._outputs) == 1:
-                return self._outputs[0]
-        return self._outputs
-
-    @outputs.setter
-    def outputs(self, outputs=[]):
-        self._outputs = outputs
-
-    def _prepare_namespace(self):
-        """
-        :return: the current namespace updated with interpreter namespace and inputs
-        """
-        from openalea.core.service.ipython import interpreter
-        from openalea.core.control.manager import control_dict
-        from openalea.core.project import ProjectManager
-        interp = interpreter()
-
-        # Add project namespace inside namespace
-        pm = ProjectManager()
-        if pm.cproject:
-            self.ns.update(pm.cproject.ns)
-
-        # Add controls inside namespace
-        controls = control_dict()
-        if controls:
-            self.ns.update(controls)
-
-        if interp:
-            self.ns.update(interp.user_ns)
-
-        # Add inputs inside namespace
-        if self.inputs:
-            self.ns.update(self.inputs)
-        return self.ns
-
-    def execute_in_namespace(self, code, namespace={}):
-        """
-        Execute code in an isolate namespace
-
-        :param code: text code to execute
-        :param namespace: dict namespace where code will be executed
-
-        :return: namespace in which execution was done
-        """
-        from openalea.core.service.ipython import interpreter
-        interp = interpreter()
-        # Save current namespace
-        old_namespace = copy(interp.user_ns)
-        # Clear current namespace
-        interp.user_ns.clear()
-        # Set namespace with new one
-        interp.user_ns.update(namespace)
-        # Execute code in new namespace
-        self.execute(code)
-        # Get just modified namespace
-        namespace = copy(interp.user_ns)
-        # Restore previous namespace
-        interp.user_ns.clear()
-        interp.user_ns.update(old_namespace)
-        return namespace
-
-    def clear_cache(self):
-        self._mtime = 0
-
-    def set_cache_mode(self, cache_mode=None):
-        if cache_mode is None:
-            self._cache_mode = self.CACHE
+                        outputs.append(namespace[outp.name])
+                        self._ns[outp.name] = namespace[outp.name]
+        if len(outputs) == 0:
+            return None
+        elif len(outputs) == 1:
+            return outputs[0]
         else:
-            self._cache_mode = cache_mode
-
-    def _has_changed(self):
-        if self._cache_mode == self.NO_CACHE:
-            return True
-        if self.path.getmtime() > self._metadata['mtime']:
-            return True
-        if self._metadata['size'] != self.path.size:
-            return True
-        return False
-
-    def read(self):
-        # If path exists and content has changed since last read,
-        # update Model.content and parse it
-        if self.exists():
-            if self._has_changed():
-                with open(self.path, 'rb') as f:
-                    self._content = f.read()
-                    self._metadata['mtime'] = self.path.getmtime()
-                    self._metadata['size'] = self.path.size
-                    self.parse()
-        return self._content
-
-    def _set_content(self, content):
-        self._content = content
-        self.parse()
-
-    def parse(self):
-        pass
-
-    content = property(fset=_set_content)
-    code = property(fget=read)
-
-
-class ModelNode(Node):
-
-    def __init__(self, model, inputs=(), outputs=()):
-        super(ModelNode, self).__init__(inputs=inputs, outputs=outputs)
-        self.set_model(model)
-
-    def set_model(self, model):
-        self.model = model
-        self.__doc__ = self.model.get_documentation()
-
-    def __call__(self, inputs=()):
-        """ Call function. Must be overriden """
-        return self.model(*inputs)
-
-    # def reload(self):
-    #     node = self.factory.instanciate()
-
-        # set model
-        # from openalea.core.project.manager import ProjectManager
-        # pm = ProjectManager()
-        # model = pm.cproject.get_model(self.model.name)
-        # if model:
-        #     self.set_model(model)
-
-        # reset inputs and outputs
-        # super(ModelNode, self).reload()
-
-
-class ModelFactory(AbstractFactory):
-
-    def __init__(self,
-                 name,
-                 lazy=True,
-                 delay=0,
-                 alias=None,
-                 **kargs):
-        super(ModelFactory, self).__init__(name, **kargs)
-        self.delay = delay
-        self.alias = alias
-        self._model = None
-
-    def get_id(self):
-        return str(self.name)
-
-    @property
-    def package(self):
-        class fake_package(object):
-
-            def get_id(self):
-                return ":projectmanager.current"
-
-            def reload(self):
-                pass
-                # print 2, "package reload"
-        return fake_package()
-
-    def get_classobj(self):
-        module = self.get_node_module()
-        classobj = module.__dict__.get(self.nodeclass_name, None)
-        return classobj
+            return outputs
 
     def get_documentation(self):
-        if self._model is None:
-            self.instantiate()
-
-        return self._model.get_documentation()
-
-    def instantiate(self, call_stack=[]):
         """
-        Returns a node instance.
-        :param call_stack: the list of NodeFactory id already in call stack
-        (in order to avoir infinite recursion)
+        :return: a string with the documentation of the model
         """
-        from openalea.core.project.manager import ProjectManager
+        return ''
 
-        pm = ProjectManager()
-        model = pm.cproject.get_model(self.name)
-        if model is None:
-            print "error loading model ", self.name
-            print "Available models are ", pm.cproject.model.keys()
+    @property
+    def step_code(self):
+        return self._code['step']
 
-        # TODO
-        def signature(args_info, out=False):
-            args = []
-            if args_info:
-                for arg in args_info:
-                    d = {}
-                    d['name'] = arg.name
-                    if arg.interface:
-                        d['interface'] = arg.interface
-                    if not out and arg.default is not None:
-                        d['value'] = arg.default
-                    if d:
-                        args.append(d)
-            return args
+    @step_code.setter
+    def step_code(self, code):
+        self._code['step'] = code
 
-        # If class is not a Node, embed object in a Node class
-        if model:
-            model.read()
-            self.inputs = signature(model.inputs_info)
-            self.outputs = signature(model.outputs_info, out=True)
-            if not self.outputs:
-                self.outputs = (dict(name="out", interface=None),)
+    def _set_code(self, code):
+        self.set_code(code)
 
-            node = ModelNode(model, self.inputs, self.outputs)
+    def repr_code(self):
+        raise NotImplementedError
 
-            # Properties
-            try:
-                node.factory = self
-                node.lazy = self.lazy
-                if(not node.caption):
-                    node.set_caption(self.name)
-
-                node.delay = self.delay
-            except:
-                pass
-
-            return node
-
-        else:
-            print "We can't instanciate node from project %s because we don't have model %s" % (pm.cproject.name, self.name)
-            print "We only have models : "
-            print pm.cproject.model.keys()
-
-    def instantiate_widget(self, node=None, parent=None, edit=False,
-                           autonomous=False):
-        """ Return the corresponding widget initialised with node"""
-        pass
-        # TODO: open corresponding model
-
-    def get_writer(self):
-        """ Return the writer class """
-        return PyModelNodeFactoryWriter(self)
-
-
-class PyModelNodeFactoryWriter(object):
-
-    """ NodeFactory python Writer """
-
-    nodefactory_template = """
-
-$NAME = ModelFactory(name=$PNAME,
-                inputs=$LISTIN,
-                outputs=$LISTOUT,
-               )
-
-"""
-
-    def __init__(self, factory):
-        self.factory = factory
-
-    def __repr__(self):
-        """ Return the python string representation """
-        f = self.factory
-        fstr = string.Template(self.nodefactory_template)
-
-        result = fstr.safe_substitute(NAME=repr(f.name),
-                                      LISTIN=repr(f.inputs),
-                                      LISTOUT=repr(f.outputs),)
-        return result
-
-
-DEFAULT_DOC = """
-<H1><IMG SRC=%s
- ALT="icon"
- HEIGHT=25
- WIDTH=25
- TITLE="Python logo">Python</H1>
-
-more informations: http://www.python.org/
-"""
+    code = property(fset=_set_code)
 
 
 class PythonModel(Model):
-    default_name = "Python"
-    default_file_name = "script.py"
-    pattern = "*.py"
-    extension = "py"
-    icon = ":/images/resources/Python-logo.png"
-    mimetype = "text/x-python"
+    dtype = 'Python'
+    mimetype = 'text/x-python'
 
     def __init__(self, **kwargs):
         Model.__init__(self, **kwargs)
@@ -438,68 +357,40 @@ class PythonModel(Model):
         """
         :return: a string with the documentation of the model
         """
-        self.read()
-        if self._doc:
+        try:
             return self._doc
-        else:
-            return DEFAULT_DOC % str(self.icon)
+        except AttributeError:
+            return ''
 
     def repr_code(self):
-        """
-        :return: a string representation of model to save it on disk
-        """
-        return self.code
+        try:
+            return self._initial_code
+        except AttributeError:
+            code = '"""\n'
+            if self.inputs_info:
+                code += 'input = %s\n' % (', '.join([inp.repr_code() for inp in self.inputs_info]))
+            if self.outputs_info:
+                code += 'output = %s\n' % (', '.join([out.repr_code() for out in self.outputs_info]))
+            code += '"""\n'
+            if 'step' in self._code:
+                code += self._code['step'] + '\n'
+            for fname in ['init', 'run', 'animate', 'stop']:
+                if fname in self._code:
+                    code += 'def %s():\n' % fname
+                    for l in self._code[fname].split('\n'):
+                        code += '    ' + l
+                    code += '\n'
+            return code
 
-    def _run_code(self, code, *args, **kwargs):
-        if code:
-            # Set inputs
-            from openalea.oalab.model.parse import prepare_inputs
-            self.inputs = prepare_inputs(self.inputs_info, name=self.filename, *args, **kwargs)
-            # Prepare namespace
-            self._prepare_namespace()
-            # Run inside namespace
-            user_ns = self.execute_in_namespace(code, namespace=self.ns)
-            self.ns.update(user_ns)
-            # Set outputs after execution
-            self._set_output_from_ns(self.ns)
-            return self.outputs
+    def set_code(self, code):
+        from openalea.oalab.model.parse import parse_docstring, get_docstring, extract_functions
+        self._initial_code = code
+        model, self.inputs_info, self.outputs_info = parse_docstring(code)
+        funcs = extract_functions(code)
+        self.set_step_code(code)
 
-    def run(self, *args, **kwargs):
-        """
-        execute entire model
+        for fname in ['init', 'run', 'animate']:
+            if fname in funcs:
+                self.set_func_code(fname, funcs[fname])
 
-        :return: outputs of the model
-        """
-        return self._run_code(self.code, *args, **kwargs)
-
-    def init(self, *args, **kwargs):
-        """
-        go back to initial step
-        """
-        return self._run_code(self._init, *args, **kwargs)
-
-    def step(self, *args, **kwargs):
-        """
-        execute only one step of the model
-        """
-        return self._run_code(self._step, *args, **kwargs)
-
-    def animate(self, *args, **kwargs):
-        """
-        run model step by step
-        """
-        return self._run_code(self._animate, *args, **kwargs)
-
-    def stop(self, *args, **kwargs):
-        """
-        stop execution
-        """
-        # TODO : to implement
-        pass
-
-    def parse(self):
-        from openalea.oalab.model.parse import parse_docstring, get_docstring, parse_functions
-        content = self._content
-        model, self.inputs_info, self.outputs_info = parse_docstring(content)
-        self._init, self._step, self._animate, self._run = parse_functions(content)
-        self._doc = get_docstring(content)
+        self._doc = get_docstring(code)

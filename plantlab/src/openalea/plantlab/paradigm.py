@@ -23,13 +23,17 @@ from openalea.oalab.editor.text_editor import RichTextEditor as Editor
 from openalea.oalab.editor.highlight import Highlighter
 from openalea.plantlab.lpy_lexer import LPyLexer
 from openalea.plantlab.picklable_curves import geometry_2_piklable_geometry
+from openalea.oalab.session.session import Session
 from openalea.lpy import Lsystem
 from openalea.lpy.__lpy_kernel__ import LpyParsing
 from openalea.lpy.gui.objectmanagers import get_managers
 from openalea.lpy.gui.scalar import ProduceScalar
-from openalea.plantlab.lpy import LPyModel
+from openalea.plantlab.lpy import LPyModel, LPyFile
 from openalea.oalab.service.help import display_help
 import types
+
+from openalea.oalab.gui.paradigm.python import PythonModelController
+
 
 def import_lpy_file(script):
     """
@@ -42,7 +46,8 @@ def import_lpy_file(script):
     """
     control = dict()
 
-    if script is None: script = ""
+    if script is None:
+        script = ""
     beginTag = LpyParsing.InitialisationBeginTag
     if not beginTag in script:
         return str(script), control
@@ -65,19 +70,21 @@ def import_lpy_file(script):
             lpy_code_version = context['__lpy_code_version__']
         if context.has_key('__scalars__'):
             scalars_ = context['__scalars__']
-            scalars = [ ProduceScalar(v) for v in scalars_ ]
-        if context.has_key('__functions__') and lpy_code_version <= 1.0 :
+            scalars = [ProduceScalar(v) for v in scalars_]
+        if context.has_key('__functions__') and lpy_code_version <= 1.0:
             functions = context['__functions__']
-            for n, c in functions: c.name = n
-            functions = [ c for n, c in functions ]
+            for n, c in functions:
+                c.name = n
+            functions = [c for n, c in functions]
             funcmanager = managers['Function']
             geoms += [(funcmanager, func) for func in functions]
-        if context.has_key('__curves__') and lpy_code_version <= 1.0 :
+        if context.has_key('__curves__') and lpy_code_version <= 1.0:
             curves = context['__curves__']
-            for n, c in curves: c.name = n
-            curves = [ c for n, c in curves ]
+            for n, c in curves:
+                c.name = n
+            curves = [c for n, c in curves]
             curvemanager = managers['Curve2D']
-            geoms += [ (curvemanager, curve) for curve in curves ]
+            geoms += [(curvemanager, curve) for curve in curves]
         if context.has_key('__parameterset__'):
             for panelinfo, objects in context['__parameterset__']:
                 for typename, obj in objects:
@@ -98,45 +105,18 @@ def import_lpy_file(script):
         return new_script, control
 
 
-class LPyModelController(object):
-    default_name = LPyModel.default_name
-    default_file_name = LPyModel.default_file_name
-    pattern = LPyModel.pattern
-    extension = LPyModel.extension
-    icon = LPyModel.icon
+class LPyModelController(PythonModelController):
+    default_name = LPyFile.default_name
+    default_file_name = LPyFile.default_file_name
+    pattern = LPyFile.pattern
+    extension = LPyFile.extension
+    icon = LPyFile.icon
+    mimetype_data = LPyFile.mimetype
+    mimetype_model = LPyModel.mimetype
 
-    def __init__(self, name="", code="", model=None, filepath=None, editor_container=None, parent=None):
-        self.filepath = filepath
-        if model:
-            self.model = model
-        else:
-            self.model = LPyModel(name=name, code=code)
-        self.name = self.model.filename
-        self.parent = parent
-        self.editor_container = editor_container
-        self._widget = None
-
-        from openalea.core.service.ipython import interpreter
-        interp = interpreter()
-        if interp:
-            interp.locals['lsystem'] = self.model.lsystem
-
-    def instanciate_widget(self):
-        # todo register viewer
-        self._widget = Editor(parent=self.parent)
-        wid = self._widget
-        Highlighter(wid.editor, lexer=LPyLexer())
-        wid.applet = self
-
-        # Add method to widget to display help
-        def _diplay_help(widget):
-            doc = widget.applet.model.get_documentation()
-            display_help(doc)
-        wid.display_help = types.MethodType(_diplay_help, wid)
-
-        wid.set_text(self.model.read())
-        wid.replace_tab()
-        return wid
+    def __init__(self, **kwds):
+        PythonModelController.__init__(self, **kwds)
+        self.session = Session()
 
     def focus_change(self):
         """
@@ -145,18 +125,18 @@ class LPyModelController(object):
         doc = self.model.get_documentation()
         display_help(doc)
 
-    def execute(self):
-        """
-        Run selected code like a PYTHON code (not LPy code).
-        If nothing selected, run like LPy (not Python).
-        """
-        code = self.widget().get_selected_text()
-        return self.model.execute(code)
+    def update_world(self):
+        # TODO: remove this hard link!
+        # Update world ?
+        world = self.session.world
+        world[self.model.scene_name] = self.model.axialtree
 
-    def run(self, *args, **kwargs):
+    def namespace(self, **kwargs):
+        ns = PythonModelController.namespace(self, **kwargs)
         # Extract one colorlist to set as THE colormap.
         # In case of ambiguity, select the one whose the name contains lpy.
         # Else select a random one.
+
         def select_colormap():
             # @GBY must move to plantgl or lpy
             from openalea.core.control.manager import ControlManager
@@ -169,62 +149,33 @@ class LPyModelController(object):
         if materials:
             for i, mat in enumerate(materials):
                 self.model.lsystem.context().turtle.setMaterial(i, mat)
+        ns['colormap'] = materials
+        return ns
 
-        code = self.widget().get_text()
-        self.model.content = code
-
-        # todo: put result in the world ?
-        ret = self.model(*args, **kwargs)
-        # TODO: remove this hard link!
-        world = self.editor_container.session.world
-        world[self.model.scene_name] = self.model.axialtree
-
+    def run(self, *args, **kwargs):
+        ret = PythonModelController.run(self, *args, **kwargs)
+        self.update_world()
         return ret
 
     def step(self, i=None, *args, **kwargs):
-        code = self.widget().get_text()
-        if code != self.model.read():
-            self.model.content = code
-
-        # todo: put result in the world ?
+        self.apply()
         ret = self.model.step(i=i, *args, **kwargs)
-        # TODO: remove this hard link!
-        world = self.editor_container.session.world
-        world[self.model.scene_name] = self.model.axialtree
-
+        self.update_world()
         return ret
 
     def stop(self, *args, **kwargs):
-        # todo: put result in the world ?
-        ret = self.model.stop(*args, **kwargs)
-        # TODO: remove this hard link!
-        world = self.editor_container.session.world
-        world[self.model.scene_name] = self.model.axialtree
-
+        ret = PythonModelController.stop(self, *args, **kwargs)
+        self.update_world()
         return ret
 
     def animate(self, *args, **kwargs):
-        code = self.widget().get_text()
-        self.model.content = code
-
-        # todo: put result in the world ?
-        ret = self.model.animate(*args, **kwargs)
-        # TODO: remove this hard link!
-        world = self.editor_container.session.world
-        world[self.model.scene_name] = self.model.axialtree
-
+        ret = PythonModelController.animate(self, *args, **kwargs)
+        self.update_world()
         return ret
 
     def init(self, *args, **kwargs):
-        code = self.widget().get_text()
-        self.model.content = code
-
-        # todo: put result in the world ?
-        ret = self.model.init(*args, **kwargs)
-        # TODO: remove this hard link!
-        world = self.editor_container.session.world
-        world[self.model.scene_name] = self.model.axialtree
-
+        ret = PythonModelController.init(self, *args, **kwargs)
+        self.update_world()
         return ret
 
     def widget(self):

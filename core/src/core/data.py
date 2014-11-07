@@ -238,7 +238,10 @@ $NAME = DataFactory(name=$PNAME,
 class Data(object):
     mimetype = None
     default_name = 'Data'
-    extension = None
+    default_file_name = "filename.ext"
+    pattern = "*.ext"
+    extension = "ext"
+    icon = ":/images/resources/logo.png"
 
     def __init__(self, **kwargs):
         """
@@ -256,6 +259,7 @@ class Data(object):
 
         self.dtype = kwargs.pop('dtype', None)
         self._content = kwargs.pop('content', None)
+        self.mimetype = kwargs.pop('mimetype', None)
 
     def get_documentation(self):
         return "No documentation for %s" % self.filename
@@ -313,6 +317,35 @@ class Data(object):
         else:
             return self._filename
 
+    @property
+    def name(self):
+        return self.filename
+
     @filename.setter
     def filename(self, value):
         self._filename = value
+
+    def _set_content(self, content):
+        self._content = content
+
+    def _get_content(self):
+        if self._content is None:
+            return self.read()
+        else:
+            return self._content
+
+    content = property(fget=_get_content, fset=_set_content)
+    code = property()
+
+
+class PythonFile(Data):
+    mimetype = 'text/x-python'
+    default_name = 'Python'
+    default_file_name = "script.py"
+    pattern = "*.py"
+    extension = "py"
+    icon = ":/images/resources/Python-logo.png"
+
+    def get_documentation(self):
+        from openalea.oalab.model.parse import get_docstring
+        return get_docstring(self.read())

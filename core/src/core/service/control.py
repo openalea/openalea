@@ -17,18 +17,20 @@
 ###############################################################################
 
 __all__ = [
-           "create_control",
-           "get_control",
-           "group_controls",
-           "new_control",
-           "register_control",
-           "unregister_control",
-           ]
+    "clear_controls",
+    "create_control",
+    "get_control",
+    "group_controls",
+    "new_control",
+    "register_control",
+    "unregister_control",
+]
 
 
 from openalea.core.plugin import iter_plugins
 from openalea.core.control.control import Control
 from openalea.core.control.manager import ControlManager, ControlContainer
+
 
 def create_control(name, iname=None, value=None, constraints=None):
     """
@@ -41,6 +43,7 @@ def create_control(name, iname=None, value=None, constraints=None):
     control = Control(name, iname, value, constraints=constraints)
     return control
 
+
 def register_control(control):
     """
     Ask application to track control.
@@ -48,12 +51,14 @@ def register_control(control):
     cm = ControlManager()
     cm.add_control(control)
 
+
 def unregister_control(control):
     """
     Ask application to stop tracking control.
     """
     cm = ControlManager()
     cm.remove_control(control)
+
 
 def new_control(name, iname=None, value=None, constraints=None):
     """
@@ -63,6 +68,7 @@ def new_control(name, iname=None, value=None, constraints=None):
     register_control(control)
     return control
 
+
 def get_control(name):
     """
     Get a tracked control by name.
@@ -71,8 +77,14 @@ def get_control(name):
     cm = ControlManager()
     return cm.control(name)
 
+
 def group_controls(control_list):
     container = ControlContainer()
     for control in control_list:
         container.add_control(control)
     return container
+
+
+def clear_controls():
+    cm = ControlManager()
+    return cm.clear()

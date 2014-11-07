@@ -276,7 +276,7 @@ class TextEditor(QtGui.QTextEdit):
     def get_selected_text(self):
         cursor = self.textCursor()
         txt = cursor.selectedText()
-        return txt
+        return unicode(txt).replace(u'\u2029', u'\n')  # replace paragraph separators by new lines
 
     def get_text(self, start='sof', end='eof'):
         """
@@ -289,7 +289,7 @@ class TextEditor(QtGui.QTextEdit):
         txt = self.toPlainText()
         if txt is None:
             txt = ""
-        return txt
+        return unicode(txt).replace(u'\u2029', u'\n')  # replace paragraph separators by new lines
         
     def replace_tab(self):
         """

@@ -7,6 +7,7 @@
 #       Copyright 2013 INRIA - CIRAD - INRA
 #
 #       File author(s): Julien Coste <julien.coste@inria.fr>
+#                       Guillaume Baty <guillaume.baty@inria.fr>
 #
 #       File contributor(s):
 #
@@ -19,84 +20,56 @@
 ###############################################################################
 __revision__ = ""
 
-from openalea.oalab.editor.text_editor import RichTextEditor as Editor
-from openalea.oalab.editor.highlight import Highlighter
+from openalea.core.data import PythonFile
 from openalea.core.model import PythonModel
-from openalea.oalab.service.help import display_help
 import types
 
 
-class PythonModelController(object):
-    default_name = PythonModel.default_name
-    default_file_name = PythonModel.default_file_name
-    pattern = PythonModel.pattern
-    extension = PythonModel.extension
-    icon = PythonModel.icon
+from openalea.oalab.gui.paradigm.controller import ParadigmController
 
-    def __init__(self, name="", code="", model=None, filepath=None, editor_container=None, parent=None):
-        self.filepath = filepath
-        if model is not None:
-            self.model = model
-        else:
-            self.model = PythonModel(name=name, code=code, filepath=filepath)
-        self.name = self.model.filename
-        self.parent = parent
-        self.editor_container = editor_container
-        self._widget = None
 
-    def instanciate_widget(self):
-        """
-        Instanciate the widget managing the current model
+class PythonModelController(ParadigmController):
+    default_name = PythonFile.default_name
+    default_file_name = PythonFile.default_file_name
+    pattern = PythonFile.pattern
+    extension = PythonFile.extension
+    icon = PythonFile.icon
+    mimetype_data = PythonFile.mimetype
+    mimetype_model = PythonModel.mimetype
 
-        :return: the instanciated widget
-        """
+    def instantiate_widget(self):
+        from openalea.oalab.editor.text_editor import RichTextEditor as Editor
+        from openalea.oalab.editor.highlight import Highlighter
+        from openalea.oalab.service.help import display_help
         self._widget = Editor(parent=self.parent)
-        wid = self._widget
-        Highlighter(wid.editor)
-        wid.applet = self
+        Highlighter(self._widget.editor)
 
         # Add method to widget to display help
         def _diplay_help(widget):
-            doc = widget.applet.model.get_documentation()
-            display_help(doc)
-        wid.display_help = types.MethodType(_diplay_help, wid)
+            if self.model:
+                display_help(self.model.get_documentation())
+            else:
+                display_help(self._obj.get_documentation())
+        self._widget.display_help = types.MethodType(_diplay_help, self._widget)
+        self._widget.applet = self
 
-        wid.set_text(self.model.read())
-        wid.replace_tab()
+        self.read()
         return self.widget()
+
+    def widget_value(self):
+        if self._widget:
+            return self._widget.get_text()
+        else:
+            return None
+
+    def set_widget_value(self, value):
+        if self._widget:
+            self._widget.set_text(value)
 
     def execute(self):
         """
         Execute only selected text.
         """
-        code = self.widget().get_selected_text()
-        return self.model.execute(code)
-
-    def run(self, *args, **kwargs):
-        code = self.widget().get_text()
-        self.model.content = code
-        return self.model(*args, **kwargs)
-
-    def step(self, *args, **kwargs):
-        code = self.widget().get_text()
-        self.model.content = code
-        return self.model.step(*args, **kwargs)
-
-    def stop(self, *args, **kwargs):
-        return self.model.stop(*args, **kwargs)
-
-    def animate(self, *args, **kwargs):
-        code = self.widget().get_text()
-        self.model.content = code
-        return self.model.animate(*args, **kwargs)
-
-    def init(self, *args, **kwargs):
-        code = self.widget().get_text()
-        self.model.content = code
-        return self.model.init(*args, **kwargs)
-
-    def widget(self):
-        """
-        :return: the edition widget
-        """
-        return self._widget
+        if self._widget:
+            code = self._widget.get_selected_text()
+            return self.model.execute(code)
