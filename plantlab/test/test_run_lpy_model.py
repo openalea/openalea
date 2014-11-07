@@ -18,7 +18,7 @@
 from openalea.plantlab.lpy import LPyModel
 
 
-def test_run():
+def code_run():
     model_src = '''"""
 input = lstring="_(0.01)-(90)F(1)", N=2
 output = lstring
@@ -33,7 +33,45 @@ F(x) :
 
 endlsystem
 '''
-    model = LPyModel(code=model_src)
+    return model_src
+
+
+def code_step():
+    model_src = '''"""
+input = lstring="F(1)", N=3
+output = lstring
+"""
+
+derivation length: N
+
+production:
+
+F(x) :
+  produce  F(x)+F(x)
+
+endlsystem
+'''
+    return model_src
+
+
+def code_no_lstring():
+    model_src = '''
+derivation length: 2
+
+production:
+
+F(x) :
+  produce  F(x)+F(x)
+
+endlsystem
+
+'''
+    return model_src
+
+
+def test_run():
+
+    model = LPyModel(code=code_run())
     assert model is not None
     assert model.outputs == []
     result = model()
@@ -59,23 +97,7 @@ endlsystem
     assert result == "F(5)"
 
 
-def test_step():
-    model_src = '''"""
-input = lstring="F(1)", N=3
-output = lstring
-"""
-
-derivation length: N
-
-production:
-
-F(x) :
-  produce  F(x)+F(x)
-
-endlsystem
-'''
-    model = LPyModel(code=model_src)
-    # model()
+def run_step(model):
     result = model.init()
     assert str(result) == "F(1)"
 
@@ -93,8 +115,8 @@ endlsystem
     result = model.init()
     assert str(result) == "F(1)"
 
-    # result = model.animate() # Will display QGLViewer !!!
-    # assert str(result) == "F(1)+F(1)+F(1)+F(1)+F(1)+F(1)+F(1)+F(1)"
+    # result = model.animate()  # Will display QGLViewer !!!
+    #assert str(result) == "F(1)+F(1)+F(1)+F(1)+F(1)+F(1)+F(1)+F(1)"
 
     result = model.init()
     assert str(result) == "F(1)"
@@ -103,19 +125,21 @@ endlsystem
     assert str(result) == "F(1)+F(1)+F(1)+F(1)+F(1)+F(1)+F(1)+F(1)"
 
 
+def test_step():
+    model = LPyModel(code=code_step())
+    run_step(model)
+
+
+def test_step_copy():
+    import copy
+    model = LPyModel(code=code_step())
+    model2 = copy.copy(model)
+    run_step(model2)
+
+
 def test_default_in_out_lstring():
     # Issue 5, part 4
-    model_src = '''
-derivation length: 2
 
-production:
-
-F(x) :
-  produce  F(x)+F(x)
-
-endlsystem
-
-'''
-    model = LPyModel(code=model_src)
+    model = LPyModel(code=code_no_lstring())
     result = model("F(1)")
     assert str(result) == "F(1)+F(1)+F(1)+F(1)"
