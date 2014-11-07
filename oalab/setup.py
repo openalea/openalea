@@ -29,8 +29,8 @@ for key, value in metadata.iteritems():
 # Packages list, namespace and root directory of packages
 
 pkg_root_dir = 'src'
-pkgs = [ pkg for pkg in find_packages(pkg_root_dir)]
-top_pkgs = [pkg for pkg in pkgs if  len(pkg.split('.')) < 2]
+pkgs = [pkg for pkg in find_packages(pkg_root_dir)]
+top_pkgs = [pkg for pkg in pkgs if len(pkg.split('.')) < 2]
 packages = pkgs
 package_dir = dict([('', pkg_root_dir)] + [(namespace + "." + pkg, pkg_root_dir + "/" + pkg) for pkg in top_pkgs])
 
@@ -80,7 +80,7 @@ setup(
     # package_data = {'' : ['*.pyd', '*.so'],},
 
     postinstall_scripts=['oalab_postinstall'],
-    share_dirs={ 'share' : 'share' },
+    share_dirs={'share': 'share'},
 
     # Declare src and wralea as entry_points (extensions) of your package
     entry_points={
@@ -88,20 +88,30 @@ setup(
         'gui_scripts': [
             'oalab = openalea.oalab.main:main',
             'openalealab = openalea.oalab.main:main'
-            ],
+        ],
 
         'oalab.paradigm_applet': [
             'PythonApplet = openalea.oalab.plugins.models.pythongui:PythonModelGUI',
             'RApplet = openalea.oalab.plugins.models.rgui:RModelGUI',
             'VisualeaApplet = openalea.oalab.plugins.models.visualeagui:VisualeaModelGUI',
             'TextualApplet = openalea.oalab.plugins.models.textualgui:TextualModelGUI',
-            ],
+        ],
+
+        'oalab.dataclass': [
+            'VisualeaFile = openalea.oalab.model.visualea:VisualeaFile',
+            'RFile = openalea.oalab.model.r:RFile',
+        ],
+
+        'oalab.modelclass': [
+            'VisualeaModel = openalea.oalab.model.visualea:VisualeaModel',
+            'RModel = openalea.oalab.model.r:RModel',
+        ],
 
         'oalab.model': [
             'RModel = openalea.oalab.model.r:RModel',
             'VisualeaModel = openalea.oalab.model.visualea:VisualeaModel',
             'TextualModel = openalea.oalab.model.textual:TextualModel',
-            ],
+        ],
 
         'oalab.applet': [
             'ControlManager = openalea.oalab.plugins.applets.controlmanager:ControlManager',
@@ -116,9 +126,9 @@ setup(
             # 'Store = openalea.oalab.plugins.applets.store:Store',
             'World = openalea.oalab.plugins.applets.worldwidget:World',
             'Plot2d = openalea.oalab.plugins.applets.plot2d:Plot2dWidget',
-            ],
+        ],
 
-        'oalab.qt_control':[
+        'oalab.qt_control': [
             'PluginOpenAleaLabWidgetSelectors = openalea.oalab.plugins.controls:PluginOpenAleaLabWidgetSelectors',
             'PluginVisualeaWidgetSelectors = openalea.oalab.plugins.controls:PluginVisualeaWidgetSelectors',
         ],
@@ -126,27 +136,26 @@ setup(
         'oalab.lab': [
             'FullLab = openalea.oalab.plugins.labs.fulllab:FullLab',
             'MiniLab = openalea.oalab.plugins.labs.minilab:MiniLab',
-            ],
+        ],
 
         'oalab.interface': [
             'OpenAleaLabInterfacePlugin = openalea.oalab.plugins.interfaces:OpenAleaLabInterfacePlugin',
-            ],
+        ],
 
         'oalab.project_repository': [
             'ProjectRepositoryTutorials = openalea.oalab.plugins.project_repository:tutorials',
-            ],
+        ],
 
         # 'console_scripts': [
         #       'fake_script = openalea.fakepackage.amodule:console_script', ],
         # 'gui_scripts': [
         #      'fake_gui = openalea.fakepackage.amodule:gui_script',],
-        'wralea' : [
+        'wralea': [
             'oalab = openalea.oalab_wralea',
-            ],
+        ],
 
-        'plugin' : [
+        'plugin': [
             'oalab = openalea.oalab_wralea',
-            ]
-        },
-    )
-
+        ]
+    },
+)

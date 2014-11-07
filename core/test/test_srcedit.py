@@ -28,7 +28,7 @@ def setup_func():
     """ Create test_module  and wralea """
 
     modsrc = \
-           """
+        """
 from openalea.core import *
 
 class MyNode:
@@ -45,9 +45,8 @@ class MyNode:
     file.write(modsrc)
     file.close()
 
-
     wraleasrc = \
-    """
+        """
 from openalea.core import *
 
 
@@ -95,7 +94,7 @@ def test_srcedit():
     pm = PackageManager()
     pm.wraleapath = '.'
 
-    pm.init()
+    pm.init('.')
     factory = pm['TestPackage']['test']
 
     node1 = factory.instantiate()
