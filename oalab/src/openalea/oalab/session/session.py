@@ -89,6 +89,9 @@ class Session(object):
         self.interpreter.locals['session'] = self
 
         self.old_syspath = sys.path
+
+        self.load_default()
+
         self.__class__.instantiated = True
 
     @property
@@ -100,6 +103,13 @@ class Session(object):
 
     def load_config_file(self, filename, path=None):
         self._config.load_config_file(filename=filename, path=path)
+
+    def clear(self):
+        self.world.clear()
+        self.control_manager.clear()
+
+    def load_default(self):
+        self.project_manager.load_default()
 
     def update_namespace(self):
         """

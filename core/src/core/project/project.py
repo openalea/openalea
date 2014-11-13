@@ -494,6 +494,7 @@ class Project(Observed):
         self._save_manifest()
 
     def _save_controls(self):
+        # TODO: use saver/loaders instead
         from openalea.core.control.pyserial import save_controls
         from openalea.core.control.manager import ControlManager
         cm = ControlManager()
@@ -501,10 +502,14 @@ class Project(Observed):
             save_controls(cm.controls(), self.path / 'control.py')
 
     def _load_controls(self):
+        # TODO: use saver/loaders instead
         control_path = self.path / 'control.py'
         if control_path.isfile():
             code = file(control_path, 'r').read()
-            exec(code)
+            try:
+                exec(code)
+            except Exception, e:
+                pass
 
     def save(self):
         """

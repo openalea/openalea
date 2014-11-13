@@ -52,6 +52,7 @@ class ProjectManager(Observed, AbstractListener):
 
         self.projects = []
         self.repositories = self.search_path()
+        self.previous_project = "temp"
 
         self.shell = None
         # TODO Search in preference file if user has path to append in self.repositories
@@ -101,12 +102,28 @@ class ProjectManager(Observed, AbstractListener):
     def defaultdir(self):
         return Path(settings.get_project_dir())
 
+    def load_settings(self):
+        config = settings.Settings()
+        try:
+            self.previous_project = config.get("ProjectManager", "Last Project")
+        except (settings.NoSectionError, settings.NoOptionError):
+            pass
+
     def write_settings(self):
         """ Add a new path to the settings. """
         lst = list(set(self.repositories))
         lst = map(str, lst)
         config = settings.Settings()
         config.set("ProjectManager", "Path", str(lst))
+
+        try:
+            config.set("ProjectManager", "Last Project", str(self.previous_project))
+        except settings.NoSectionError, e:
+            config.add_section("ProjectManager")
+            config.add_option("ProjectManager", "Last Project", str(self.previous_project))
+        except settings.NoOptionError, e:
+            config.add_option("ProjectManager", "Last Project", str(self.previous_project))
+
         config.write()
 
     def discover(self, config_name='oaproject.cfg'):
@@ -211,6 +228,16 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
         return project
 
+    def load_default(self):
+        self.discover()
+        self.load_settings()
+        projects = [proj for proj in self.projects if proj.name == self.previous_project]
+        if len(projects):
+            project = projects[0]
+        else:
+            project = self.default()
+        self.cproject = project
+
     def load(self, name, projectdir=None, **kwargs):
         """
         Load existing project
@@ -282,15 +309,19 @@ You can rename/move this project thanks to the button "Save As" in menu.
     def cproject(self, project):
         if project is self._cproject:
             if project and not project.started:
+                self.notify_listeners(('start_project', self))
                 project.start(shell=self.shell)
+                self.notify_listeners(('project_started', self))
             return
         if project is None:
             os.chdir(self._cwd)
             if self._cproject:
+                self.notify_listeners(('close_project', self))
                 self._cproject.unregister_listener(self)
                 self._cproject.stop()
                 del self._cproject
             self._cproject = None
+            self.notify_listeners(('project_closed', self))
         else:
             if project.path.isdir():
                 os.chdir(project.path)

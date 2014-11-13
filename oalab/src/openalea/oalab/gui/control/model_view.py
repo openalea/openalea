@@ -27,6 +27,7 @@ from openalea.oalab.gui.control.editor import ControlEditor
 from openalea.oalab.gui.utils import ModalDialog
 from openalea.core.control.pyserial import save_controls
 
+
 class ControlView(QtGui.QTreeView):
     controlsSelected = QtCore.Signal(list)
 
@@ -81,7 +82,7 @@ class ControlView(QtGui.QTreeView):
             control = editor.control()
             if self.model()._manager.control(control.name):
                 QtGui.QMessageBox.information(self, 'Error on adding control',
-                    'A control with name %s already exists' % control.name)
+                                              'A control with name %s already exists' % control.name)
             else:
                 self.model().add_control(control)
 
@@ -96,16 +97,15 @@ class ControlView(QtGui.QTreeView):
             filename = QtGui.QFileDialog.getSaveFileName(self, 'Select python file')
         if filename:
             save_controls(self.model()._manager.controls(), filename)
- 
+
     def load_controls(self, filename=None):
         if not filename:
             filename = QtGui.QFileDialog.getOpenFileName(self, 'Select python file')
         if filename:
             if path(filename).exists():
-                self.model()._manager.controls().clear()
-                code = file(filename,'r').read()
+                self.model()._manager.clear()
+                code = file(filename, 'r').read()
                 exec(code)
- 
 
     def import_lpy(self):
         from openalea.plantlab.lpycontrol import import_lpy_controls
@@ -117,7 +117,7 @@ class ControlView(QtGui.QTreeView):
         from openalea.plantlab.lpycontrol import export_lpy_controls
         filename = QtGui.QFileDialog.getSaveFileName(self, 'Select L-Py file')
         if filename:
-            mcontrols = [(c.name, c.interface, c.value) for c in  self.model()._manager.controls()]
+            mcontrols = [(c.name, c.interface, c.value) for c in self.model()._manager.controls()]
             export_lpy_controls(mcontrols, filename)
 
     def selectionChanged(self, selected, deselected):
@@ -132,6 +132,7 @@ class ControlView(QtGui.QTreeView):
 
     def onRowsInserted(self, *args, **kwargs):
         self.resizeColumnToContents(0)
+
 
 class ValueControlDelegate(QtGui.QStyledItemDelegate):
 
@@ -236,7 +237,7 @@ class ControlModel(QtGui.QStandardItemModel, AbstractListener):
         qmime_data.setText(control.name)
         return qmime_data
 
-    def data (self, index, role):
+    def data(self, index, role):
         if role == QtCore.Qt.DisplayRole and index.column() == 0:
             return unicode(self.control(index).name)
         elif role == QtCore.Qt.DisplayRole and index.column() == 1:
