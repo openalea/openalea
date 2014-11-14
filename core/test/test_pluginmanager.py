@@ -205,6 +205,25 @@ class TestPluginManager(unittest.TestCase):
         self.pm.debug = False
         self.pm.plugins('test.err1')
 
+    def test_plugin_proxy(self):
+
+        from openalea.core.plugin.manager import SimpleClassPluginProxy
+
+        pm = PluginManager()
+        pm.set_proxy('oalab.modelclass', SimpleClassPluginProxy)
+
+        clear_plugin_instances()
+        w1 = plugin_instance('oalab.modelclass', 'PythonModel')
+        w2 = plugin_instance('oalab.modelclass', 'PythonModel')
+        w3 = plugin_instance('oalab.modelclass', 'PythonModel')
+        w4 = new_plugin_instance('oalab.modelclass', 'PythonModel')
+
+        assert w1
+        assert w1 is w2 is w3
+        assert w1 is not w4
+
+        assert len(plugin_instances('oalab.modelclass', 'PythonModel')) == 2
+
     @classmethod
     def tearDownClass(cls):
         cls.tmppath.rmtree()

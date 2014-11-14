@@ -186,19 +186,3 @@ class SimpleClassPluginProxy(object):
                 return self.klass
 
         return PluginInstance(self.klass)
-
-
-if __name__ == '__main__':
-
-    # TODO: move to test
-    pm = PluginManager()
-    pm.set_proxy('oalab.model', SimpleClassPluginProxy)
-
-    w1 = pm.instance('oalab.model', 'PythonModel')
-    w2 = pm.instance('oalab.model', 'PythonModel')
-    w3 = pm.instance('oalab.model', 'PythonModel')
-    w4 = pm.new('oalab.model', 'PythonModel')
-    assert w1 is w2 is w3
-    assert w1 is not w4
-
-    assert len(pm.instances('oalab.model', 'PythonModel')) == 2
