@@ -136,9 +136,9 @@ class LPyModel(PythonModel):
 
         # BEGIN ACTUAL CODE RUN
         self.lsystem.setCode(str(self.code), self._ns)
-        if "axiom" in self._ns:
+        if "axiom" in self._ns and self._ns['axiom']:
             self.lsystem.axiom = self._ns['axiom']
-        elif "lstring" in self._ns:
+        elif "lstring" in self._ns and self._ns['lstring']:
             self.lsystem.axiom = self._ns['lstring']
         self.axialtree = self.lsystem.axiom
         # END ACTUAL CODE RUN

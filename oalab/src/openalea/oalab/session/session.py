@@ -110,6 +110,7 @@ class Session(object):
 
     def load_default(self):
         self.project_manager.load_default()
+        self.update_namespace()
 
     def update_namespace(self):
         """
