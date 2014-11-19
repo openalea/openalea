@@ -128,15 +128,29 @@ setup(
         ],
 
         'oalab.paradigm_applet': [
-            'LPyApplet = openalea.plantlab:LPyModelGUI',
+            'LPyApplet = openalea.plantlab.plugins:LPyModelGUI',
         ],
 
         'oalab.applet': [
-            'Viewer3D = openalea.plantlab:Viewer3D',
+            'Viewer3D = openalea.plantlab.plugins:Viewer3D',
         ],
 
         'oalab.lab': [
-            'PlantLab = openalea.plantlab.lab:PlantLab',
+            'PlantLab = openalea.plantlab.plugins:PlantLab',
         ],
+
+
+        'oalab.qt_control': [
+            'PluginColorListWidget = openalea.plantlab.plugins:PluginColorListWidget',
+            'PluginMaterialListWidget = openalea.plantlab.plugins:PluginMaterialListWidget',
+            'PluginCurve2DWidget = openalea.plantlab.plugins:PluginCurve2DWidget',
+            'PluginQuantisedFunctionWidget = openalea.plantlab.plugins:PluginQuantisedFunctionWidget',
+            'PluginPatchWidget = openalea.plantlab.plugins:PluginPatchWidget',
+        ],
+        'oalab.interface': [
+            'PlantGLOAInterfacePlugin = openalea.plantlab.plugins:PlantGLOAInterfacePlugin',
+        ],
+
+
     },
 )
