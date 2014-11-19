@@ -24,6 +24,8 @@ import os
 import sys
 from openalea.core.service.ipython import interpreter
 from openalea.core.service.run import get_model
+from openalea.core.service.plugin import PluginInstanceManager
+
 from openalea.oalab.package.manager import package_manager
 from openalea.core.project.manager import ProjectManager
 from openalea.core.control.manager import ControlManager
@@ -69,11 +71,13 @@ class Session(object):
         self.control_manager = ControlManager()
         self.project_manager = ProjectManager()
         self.plugin_manager = PluginManager()
+        self.plugin_instance_manager = PluginInstanceManager()
 
         self.manager['control'] = self.control_manager
         self.manager['package'] = self.package_manager
         self.manager['project'] = self.project_manager
         self.manager['plugin'] = self.plugin_manager
+        self.manager['plugin_instance'] = self.plugin_instance_manager
 
         self.world = World()
 

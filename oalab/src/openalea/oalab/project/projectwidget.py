@@ -226,7 +226,6 @@ class ProjectManagerView(QtGui.QTreeView):
 
     def __init__(self):
         QtGui.QTreeView.__init__(self)
-        self.paradigm_container = None
 
         self._model = ProjectManagerModel()
         self.pm = ProjectManager()
@@ -275,8 +274,22 @@ class ProjectManagerView(QtGui.QTreeView):
 
     #  API
 
+    def toolbar_actions(self):
+        return [
+            ["Project", "Manage", self.actionNewProj, 0],
+            ["Project", "Manage", self.actionOpenProj, 0],
+            ["Project", "Manage", self.actionSaveProj, 0],
+            ["Project", "Manage", self.actionCloseProj, 0],
+            ["Project", "Manage", self.actionSaveProjAs, 1],
+            ["Project", "Manage", self.actionEditMeta, 1],
+        ]
+
+    def _get_paradigm_container(self):
+        return get_applet(identifier='EditorManager')
+    paradigm_container = property(fget=_get_paradigm_container)
+
     def initialize(self):
-        self.paradigm_container = get_applet(identifier='EditorManager')
+        pass
 
     def set_project(self, project):
         # TODO: Dirty hack to remove asap. Close project selector if widget has been created
@@ -478,6 +491,7 @@ class ProjectManagerView(QtGui.QTreeView):
                 from openalea.file.files import start
                 start(project.get(category, name).path)
             else:
+                print project
                 self.paradigm_container.open_data(project.get(category, name))
 
     def _rename(self, project, category, name):

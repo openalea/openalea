@@ -168,6 +168,7 @@ class ParadigmContainer(QtGui.QTabWidget):
             ["Edit", "Text Edit", self.actionUnComment, 0],
             ["Edit", "Text Edit", self.actionRunSelection, 0],
         ]
+
         self.connect_paradigm_container()
         self.extensions = ""
         self.connect(self, QtCore.SIGNAL('tabCloseRequested(int)'), self.autoClose)
@@ -175,6 +176,29 @@ class ParadigmContainer(QtGui.QTabWidget):
         self.currentChanged.connect(self.on_current_tab_changed)
 
         self.addDefaultTab()
+
+    def toolbar_actions(self):
+        return [
+            ["Project", "Manage", self.actionNewFile, 0],
+            ["Project", "Manage", self.actionAddFile, 1],
+            ["Project", "Manage", self.actionOpenFile, 1],
+            ["Project", "Manage", self.actionSave, 1],
+            ["Project", "Manage", self.actionCloseCurrent, 1],
+
+            ["Project", "Play", self.actionRun, 0],
+            ["Project", "Play", self.actionAnimate, 0],
+            ["Project", "Play", self.actionStep, 0],
+            ["Project", "Play", self.actionStop, 0],
+            ["Project", "Play", self.actionInit, 0],
+
+            ["Edit", "Text Edit", self.actionUndo, 0],
+            ["Edit", "Text Edit", self.actionRedo, 0],
+            ["Edit", "Text Edit", self.actionSearch, 0],
+            ["Edit", "Text Edit", self.actionGoto, 0],
+            ["Edit", "Text Edit", self.actionComment, 0],
+            ["Edit", "Text Edit", self.actionUnComment, 0],
+            ["Edit", "Text Edit", self.actionRunSelection, 0],
+        ]
 
     def on_current_tab_changed(self):
         controller = self.current_controller()

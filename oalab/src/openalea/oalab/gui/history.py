@@ -18,13 +18,15 @@
 __revision__ = ""
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.oalab.editor.highlight import Highlighter
-import resources_rc # do not remove this import else icon are not drawn
+import resources_rc  # do not remove this import else icon are not drawn
 
 
 class HistoryWidget(QtGui.QTextBrowser):
+
     """
     Widget which permit to display history
     """
+
     def __init__(self, parent=None):
         super(HistoryWidget, self).__init__(parent=parent)
         Highlighter(self)
@@ -44,6 +46,9 @@ class HistoryWidget(QtGui.QTextBrowser):
 
     def actions(self):
         return self._actions
+
+    def toolbar_actions(self):
+        return self.actions()
 
     def append(self, txt):
         """
@@ -91,5 +96,5 @@ def main():
     app.exec_()
 
 
-if( __name__ == "__main__"):
+if(__name__ == "__main__"):
     main()

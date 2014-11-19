@@ -23,6 +23,7 @@ from openalea.oalab.session.session import Session
 
 
 class GenericWorldBrowser(QtGui.QWidget):
+
     def __init__(self):
         super(GenericWorldBrowser, self).__init__()
         layout = QtGui.QGridLayout()
@@ -38,6 +39,7 @@ class GenericWorldBrowser(QtGui.QWidget):
 
 
 class WorldBrowser(GenericWorldBrowser, AbstractListener):
+
     def __init__(self, world=None):
         AbstractListener.__init__(self)
         super(WorldBrowser, self).__init__()
@@ -56,6 +58,9 @@ class WorldBrowser(GenericWorldBrowser, AbstractListener):
 
     def actions(self):
         return self._actions
+
+    def toolbar_actions(self):
+        return self.actions()
 
     def notify(self, sender, event=None):
         signal, data = event
@@ -84,6 +89,7 @@ class WorldBrowser(GenericWorldBrowser, AbstractListener):
 
 
 class WorldModel(QtGui.QStandardItemModel):
+
     def set_world(self, world={}):
         self.clear()
         parentItem = self.invisibleRootItem()

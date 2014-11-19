@@ -69,6 +69,9 @@ class Store(MainWindowAleaInstall):
         """
         return self._actions
 
+    def toolbar_actions(self):
+        return self.actions()
+
     def mainMenu(self):
         """
         :return: Name of menu tab to automatically set current when current widget

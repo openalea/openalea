@@ -51,15 +51,3 @@ if __name__ == '__main__':
 
     if instance is None:
         app.exec_()
-
-
-"""
-from openalea.core.control.manager import ControlManager
-from openalea.core.control import Control
-a = Control('length', 'IInt', value=4)
-b = Control('curve', 'ICurve2D')
-c = Control('colors', 'IColorList')
-cm  = ControlManager()
-for control in (a, b, c):
-    cm.add_control(control)
-"""

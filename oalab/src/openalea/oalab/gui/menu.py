@@ -51,7 +51,7 @@ check_rc_generation('resources.qrc')
 """
 
 Policy = QtGui.QSizePolicy
-size_policy_small = Policy(Policy.Preferred, Policy.Maximum)
+size_policy_small = Policy(Policy.Maximum, Policy.Preferred)
 size_policy_preferred = Policy(Policy.MinimumExpanding, Policy.Preferred)
 
 big_btn_size = QtCore.QSize(25, 25)
@@ -101,6 +101,7 @@ style = """
 
 
 class PanedMenu(QtGui.QTabWidget):
+
     """
     A widget that tries to mimic menu of Microsoft Office 2010.
     Cf. Ribbon Bar.
@@ -156,7 +157,6 @@ class PanedMenu(QtGui.QTabWidget):
         # Add Btn
         return grp.addBtn(btn_name, btn_icon, btn_type)
 
-
     def addBtnByAction(self, pane_name, group_name, action, btn_type=0):
         """
         :param pane_name: name of pane. type:String.
@@ -189,7 +189,9 @@ class PanedMenu(QtGui.QTabWidget):
         else:
             self.setCurrentIndex(index)
 
+
 class Pane(QtGui.QWidget):
+
     def __init__(self, parent=None):
         # TODO : scroll doesn't work yet
         super(Pane, self).__init__()
@@ -216,23 +218,30 @@ class Pane(QtGui.QWidget):
         self.layout.addWidget(grp, 0, column, QtCore.Qt.AlignHCenter)
         self.group_name.append(name)
 
+
 class Group(QtGui.QWidget):
 
-    def __init__(self, name):
+    def __init__(self, name, orientation=QtCore.Qt.Horizontal):
         super(Group, self).__init__()
         self.setToolTip(name)
         self.setObjectName('Group')
         self.name = name
-        
+
         self.row_number = 2
 
-        self.layout = QtGui.QHBoxLayout()
+        if orientation == QtCore.Qt.Horizontal:
+            self.layout = QtGui.QHBoxLayout()
+        else:
+            self.layout = QtGui.QVBoxLayout()
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setSpacing(0)
         self.layout.setAlignment(QtCore.Qt.AlignLeft)
         self.setLayout(self.layout)
 
-        self.layout.addWidget(SubGroupH())
+        if orientation == QtCore.Qt.Horizontal:
+            self.layout.addWidget(SubGroupH())
+        else:
+            self.layout.addWidget(SubGroupV())
         self.layout.addWidget(SubGroupGrid())
 
         self.setSizePolicy(size_policy_preferred)
@@ -353,7 +362,9 @@ class Group(QtGui.QWidget):
             if str(widget.text()) == str(name):
                 widget.hide()
 
+
 class SubGroupH(QtGui.QWidget):
+
     def __init__(self):
         super(SubGroupH, self).__init__()
         self.setObjectName('SubGroupH')
@@ -365,7 +376,9 @@ class SubGroupH(QtGui.QWidget):
         self.setSizePolicy(size_policy_preferred)
         self.setStyleSheet(style)
 
+
 class SubGroupV(QtGui.QWidget):
+
     def __init__(self):
         super(SubGroupV, self).__init__()
         self.setObjectName('SubGroupV')
@@ -377,7 +390,9 @@ class SubGroupV(QtGui.QWidget):
         self.setSizePolicy(size_policy_preferred)
         self.setStyleSheet(style)
 
+
 class SubGroupGrid(QtGui.QWidget):
+
     def __init__(self):
         super(SubGroupGrid, self).__init__()
         self.setObjectName('SubGroupGrid')
@@ -389,7 +404,9 @@ class SubGroupGrid(QtGui.QWidget):
         self.setSizePolicy(size_policy_preferred)
         self.setStyleSheet(style)
 
+
 class ToolButton(QtGui.QToolButton):
+
     def __init__(self, action, icon=None):
         super(ToolButton, self).__init__()
         self.setObjectName('ToolButton')
@@ -405,7 +422,9 @@ class ToolButton(QtGui.QToolButton):
         self.setStyleSheet(style)
         self.setSizePolicy(size_policy_small)
 
+
 class BigToolButton(ToolButton):
+
     def __init__(self, action, icon=None):
         super(BigToolButton, self).__init__(action, icon)
 
@@ -413,13 +432,58 @@ class BigToolButton(ToolButton):
         self.setIconSize(big_icon_size)
         self.setMinimumSize(big_btn_size)
 
+
 class SmallToolButton(ToolButton):
+
     def __init__(self, action, icon=None):
         super(SmallToolButton, self).__init__(action, icon)
 
         self.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
         self.setIconSize(small_icon_size)
         self.setMinimumSize(big_btn_size)
+
+import weakref
+import sys
+
+
+class ContextualMenu(QtGui.QWidget):
+
+    def __init__(self, parent=None):
+        QtGui.QWidget.__init__(self, parent=parent)
+        self._layout = QtGui.QHBoxLayout(self)
+        self._group = None
+        self.clear()
+        self.setContentsMargins(0, 0, 0, 0)
+        self._layout.setContentsMargins(0, 0, 0, 0)
+        self.setSizePolicy(size_policy_preferred)
+        self.setStyleSheet(style_paned_menu)
+
+    def _new_group(self):
+        width = self.size().width()
+        height = self.size().height()
+        if height > width:
+            orientation = QtCore.Qt.Vertical
+        else:
+            orientation = QtCore.Qt.Horizontal
+        group = Group("name", orientation=orientation)
+        group.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        self._layout.addWidget(group)
+        group.show()
+        self._group = weakref.ref(group)
+
+    def clear(self):
+        if self._group:
+            group = self._group()
+            if group:
+                self._layout.removeWidget(group)
+                group.close()
+                del group
+        self._new_group()
+
+    def addBtnByAction(self, pane_name, group_name, action, btn_type=0):
+        if self._group is None:
+            self._new_group()
+        self._group().addBtnByAction(action, btn_type)
 
 if __name__ == '__main__':
 
