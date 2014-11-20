@@ -131,29 +131,8 @@ class LPyModel(PythonModel):
     def init(self, *args, **kwds):
         self._step = 1
 
-        # Save default namespace
-        old_ns = copy(self.interp.user_ns)
-
-        # Create a new namespace with
-        #  - interpreter namespace
-        #  - initial namespace given by user (namespace keyword)
-        #  - passed variables
-        # Then, replace input variable names with right values
-        initial_ns = kwds.pop('namespace', {})
-
-        global_ns = {}
-        global_ns.update(old_ns)
-        global_ns.update(initial_ns)
-        global_ns.update(kwds)
-        global_ns['this'] = self
-
-        kwargs = self.inputs_from_ns(self.inputs_info, global_ns, *args, **kwds)
-        global_ns.update(kwargs)
-
-        self._ns = global_ns
-
-        self.interp.user_ns.clear()
-        self.interp.user_ns.update(self._ns)
+        self._save_original_ns()
+        self._fill_namespace(*args, **kwds)
 
         # BEGIN ACTUAL CODE RUN
         self.lsystem.setCode(str(self.code), self._ns)
@@ -164,14 +143,8 @@ class LPyModel(PythonModel):
         self.axialtree = self.lsystem.axiom
         # END ACTUAL CODE RUN
 
-        # add vars defined in init function
-        for k in self.interp.user_ns:
-            if k not in self._ns:
-                self._ns[k] = self.interp.user_ns[k]
-
-        # Restore original namespace
-        self.interp.user_ns.clear()
-        self.interp.user_ns.update(old_ns)
+        self._save_init_variables()
+        self._reload_original_ns()
 
         return self.output_from_ns(self._ns)
 

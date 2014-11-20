@@ -40,6 +40,7 @@ class RModel(PythonModel):
     extension = "r"
     icon = ":/images/resources/RLogo.png"
     mimetype = "text/x-r"
+    dtype = "R"
 
     def __copy__(self):
         m = PythonModel.__copy__(self)
@@ -84,12 +85,7 @@ class RModel(PythonModel):
 
         return cmd
 
-    def _universal_run(self, code, *args, **kwargs):
-        """ This method is used by others...
-        """
-        PythonModel.init(self, *args, **kwargs)
-        cmdline = self.r_options(self._ns)
-
+    def _load_r_magic(self):
         if not self.has_run:
             try:
                 # better as it solves display error but needs rpy2 > 2.4.2
@@ -97,10 +93,19 @@ class RModel(PythonModel):
             except ImportError:
                 self.interp.shell.run_line_magic('load_ext', 'rmagic')
 
-        old_ns = self.interp.user_ns
-        self.interp.user_ns = self._ns
+    def _universal_run(self, code, *args, **kwargs):
+        """ This method is used by others...
+        """
+        self._save_original_ns()
+        self._fill_namespace(*args, **kwargs)
+
+        cmdline = self.r_options(self._ns)
+
+        self._load_r_magic()
         self.interp.shell.run_cell_magic('R', cmdline, code)
-        self.interp.user_ns = old_ns
+
+        self._save_init_variables()
+        self._reload_original_ns()
 
         # Set outputs after execution
         self.outputs = self.output_from_ns(self._ns)
@@ -110,25 +115,7 @@ class RModel(PythonModel):
         """
         execute subpart of a model (only code *code*)
         """
-        from openalea.core.service.ipython import interpreter
-        interp = interpreter()
-
-        user_ns = interp.user_ns
-        user_ns.update(self.ns)
-        try:
-            shell = interp.shell
-        except AttributeError:
-            shell = interp
-
-        cmdline = self.r_options(user_ns)
-        if not self.has_run:
-            try:
-                # better as it solves display error but needs rpy2 > 2.4.2
-                shell.run_line_magic('load_ext', 'rpy2.ipython')
-            except ImportError:
-                shell.run_line_magic('load_ext', 'rmagic')
-
-        shell.run_cell_magic('R', cmdline, code)
+        return self._universal_run(code)
 
     def run(self, *args, **kwargs):
         """

@@ -170,10 +170,11 @@ class Model(object):
     def set_step_code(self, code):
         self.set_func_code('step', code)
 
-    def init(self, *args, **kwds):
+    def _save_original_ns(self):
         # Save default namespace
-        old_ns = copy(self.interp.user_ns)
+        self._old_ns = copy(self.interp.user_ns)
 
+    def _fill_namespace(self, *args, **kwds):
         # Create a new namespace with
         #  - interpreter namespace
         #  - initial namespace given by user (namespace keyword)
@@ -182,7 +183,7 @@ class Model(object):
         initial_ns = kwds.pop('namespace', {})
 
         global_ns = {}
-        global_ns.update(old_ns)
+        global_ns.update(self._old_ns)
         global_ns.update(initial_ns)
         global_ns.update(kwds)
         global_ns['this'] = self
@@ -195,18 +196,27 @@ class Model(object):
         self.interp.user_ns.clear()
         self.interp.user_ns.update(self._ns)
 
-        # Run init code
-        if 'init' in self._code:
-            self.interp.shell.run_code(self._code['init'])
-
+    def _save_init_variables(self):
         # add vars defined in init function
         for k in self.interp.user_ns:
             if k not in self._ns:
                 self._ns[k] = self.interp.user_ns[k]
 
+    def _reload_original_ns(self):
         # Restore original namespace
         self.interp.user_ns.clear()
-        self.interp.user_ns.update(old_ns)
+        self.interp.user_ns.update(self._old_ns)
+
+    def init(self, *args, **kwds):
+        self._save_original_ns()
+        self._fill_namespace(*args, **kwds)
+
+        # Run init code
+        if 'init' in self._code:
+            self.interp.shell.run_code(self._code['init'])
+
+        self._save_init_variables()
+        self._reload_original_ns()
 
         return self.output_from_ns(self._ns)
 
