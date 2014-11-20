@@ -8,6 +8,6 @@ class FullLab(object):
         pm = PluginManager()
         # Load, create and place applets in mainwindow
         for plugin_class in pm.plugins('oalab.applet'):
-            mainwin.add_plugin(plugin=plugin_class())
+            mainwin.add_plugin(name=plugin_class.name)
         # Initialize all applets
         mainwin.initialize()

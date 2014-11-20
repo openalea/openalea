@@ -7,6 +7,22 @@ from openalea.core.plugin.manager import PluginManager
 from openalea.core import logger
 
 
+def enhanced_error(error, **kwds):
+    plugin = kwds.pop('plugin', None)
+    plugin_class = kwds.pop('plugin_class', None)
+    if plugin:
+        plugin_class = kwds.pop('plugin_class', plugin.__class__)
+        path = '%s.%s' % (plugin_class.__module__, plugin_class.__name__)
+        message = '%s (%s): %s' % (plugin.name, path, error.message)
+        return error.__class__(message)
+    elif plugin_class:
+        path = '%s.%s' % (plugin_class.__module__, plugin_class.__name__)
+        message = '%s: %s' % (path, error.message)
+        return error.__class__(message)
+    else:
+        return error
+
+
 class PluginInstanceManager(object):
     __metaclass__ = Singleton
 
@@ -83,13 +99,24 @@ class PluginInstanceManager(object):
         except KeyError:
             pass
         else:
-            plugin = plugin_class()
+            try:
+                plugin = plugin_class()
+            except TypeError, e:
+                raise enhanced_error(e, plugin_class=plugin_class)
+
             if class_args is None:
                 class_args = []
             if class_kwds is None:
                 class_kwds = {}
-            klass = plugin()
-            instance = klass(*class_args, **class_kwds)
+
+            try:
+                klass = plugin()
+            except TypeError, e:
+                raise enhanced_error(e, plugin=plugin, plugin_class=plugin_class)
+            try:
+                instance = klass(*class_args, **class_kwds)
+            except TypeError, e:
+                raise enhanced_error(e, plugin_class=klass)
             self.register(category, name, instance)
             return instance
 

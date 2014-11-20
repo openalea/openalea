@@ -393,7 +393,7 @@ class ToolButton(QtGui.QToolButton):
                 self.setIcon(icon)
 
         self.setStyleSheet(style)
-        self.setSizePolicy(size_policy_xsmall)
+        self.setSizePolicy(size_policy_preferred)
 
 
 class BigToolButton(ToolButton):

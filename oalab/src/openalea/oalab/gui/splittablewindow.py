@@ -514,10 +514,7 @@ class OALabMainWin(QtGui.QMainWindow):
             if isinstance(obj.toolbar_actions, list):
                 actions = obj.toolbar_actions
             else:
-                try:
-                    actions = obj.toolbar_actions()
-                except TypeError:
-                    pass
+                actions = obj.toolbar_actions()
 
         if actions is None:
             return []
