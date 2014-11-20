@@ -62,8 +62,10 @@ if __name__ == '__main__':
     PIM.debug = True
     mw = TestMainWin(tests=[hello_world])
 
-    mw.resize(1024, 768)
+    #mw.resize(1024, 768)
+    mw.showMaximized()
     mw.show()
+    mw.set_edit_mode(False)
 
     mw.initialize()
 

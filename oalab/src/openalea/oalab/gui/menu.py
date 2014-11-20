@@ -51,8 +51,9 @@ check_rc_generation('resources.qrc')
 """
 
 Policy = QtGui.QSizePolicy
-size_policy_small = Policy(Policy.Maximum, Policy.Preferred)
-size_policy_preferred = Policy(Policy.MinimumExpanding, Policy.Preferred)
+size_policy_xsmall = Policy(Policy.Maximum, Policy.Preferred)
+size_policy_ysmall = Policy(Policy.Preferred, Policy.Maximum)
+size_policy_preferred = Policy(Policy.Preferred, Policy.Preferred)
 
 big_btn_size = QtCore.QSize(25, 25)
 small_btn_size = QtCore.QSize(140, 16)
@@ -215,7 +216,7 @@ class Pane(QtGui.QWidget):
     def addGroup(self, name):
         grp = Group(name)
         column = self.layout.columnCount()
-        self.layout.addWidget(grp, 0, column, QtCore.Qt.AlignHCenter)
+        self.layout.addWidget(grp, 0, column)
         self.group_name.append(name)
 
 
@@ -228,24 +229,29 @@ class Group(QtGui.QWidget):
         self.name = name
 
         self.row_number = 2
+        self.orientation = orientation
 
         if orientation == QtCore.Qt.Horizontal:
             self.layout = QtGui.QHBoxLayout()
+            self.layout.setAlignment(QtCore.Qt.AlignLeft)
         else:
             self.layout = QtGui.QVBoxLayout()
+            self.layout.setAlignment(QtCore.Qt.AlignTop)
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setSpacing(0)
-        self.layout.setAlignment(QtCore.Qt.AlignLeft)
         self.setLayout(self.layout)
 
         if orientation == QtCore.Qt.Horizontal:
-            self.layout.addWidget(SubGroupH())
+            self._group_big = SubGroupH()
+            self._group_small = SubGroupGrid()
         else:
-            self.layout.addWidget(SubGroupV())
-        self.layout.addWidget(SubGroupGrid())
+            self._group_big = SubGroupV()
+            self._group_small = SubGroupV()
+
+        self.layout.addWidget(self._group_big)
+        self.layout.addWidget(self._group_small)
 
         self.setSizePolicy(size_policy_preferred)
-#         self.setSizePolicy(size_policy_small)
 
         self.setStyleSheet(style_group)
 
@@ -259,81 +265,33 @@ class Group(QtGui.QWidget):
         elif style == PanedMenu.BigWidget:
             return self.addWidget(action, "big")
 
-    def addWidget(self, widget, style="big"):
+    def addWidget(self, widget, style="bigwidget"):
         """
         Permit to add small widget like if it was a small button
         """
-        btn = widget
-        if style == "small":
-            layout = self.layout.itemAt(1).widget().layout
-            self.check_unicity_group(layout, btn.accessibleName())
-            column = layout.columnCount()
-            row = layout.rowCount()
-            nb = layout.count()
-
-            new_row = nb - nb / self.row_number * self.row_number
-
-            # If not a new column
-            if new_row > 0:
-                layout.addWidget(btn, new_row + 1, column - 1)
-            # If new column
-            else:
-                layout.addWidget(btn, 1, column)
-        elif style == "big":
-            layout = self.layout.itemAt(0).widget().layout
-            self.check_unicity_box(layout, btn.accessibleName())
-            layout.addWidget(btn)
-        return btn
+        if style == 'big':
+            self._group_big.addWidget(widget)
+        else:
+            self._group_small.addWidget(widget)
 
     def addBigBtn(self, name, icon):
         btn = BigToolButton(name, icon)
-        layout = self.layout.itemAt(0).widget().layout
-        self.check_unicity_box(layout, name)
-
-        layout.addWidget(btn)
+        self._group_big.addWidget(btn)
         return btn
 
     def addSmallBtn(self, name, icon):
         btn = SmallToolButton(name, icon)
-        layout = self.layout.itemAt(1).widget().layout
-        self.check_unicity_group(layout, name)
-        column = layout.columnCount()
-        row = layout.rowCount()
-        nb = layout.count()
-
-        new_row = nb - nb / self.row_number * self.row_number
-
-        # If not a new column
-        if new_row > 0:
-            layout.addWidget(btn, new_row + 1, column - 1)
-        # If new column
-        else:
-            layout.addWidget(btn, 1, column)
+        self._group_small.addWidget(btn)
         return btn
 
     def addBigToolButton(self, action):
         btn = BigToolButton(action)
-        layout = self.layout.itemAt(0).widget().layout
-        self.check_unicity_box(layout, btn.defaultAction().iconText())
-        layout.addWidget(btn)
+        self._group_big.addWidget(btn)
         return btn
 
     def addSmallToolButton(self, action):
         btn = SmallToolButton(action)
-        layout = self.layout.itemAt(1).widget().layout
-        self.check_unicity_group(layout, btn.defaultAction().iconText())
-        column = layout.columnCount()
-        row = layout.rowCount()
-        nb = layout.count()
-
-        new_row = nb - nb / self.row_number * self.row_number
-
-        # If not a new column
-        if new_row > 0:
-            layout.addWidget(btn, new_row + 1, column - 1)
-        # If new column
-        else:
-            layout.addWidget(btn, 1, column)
+        self._group_small.addWidget(btn)
         return btn
 
     def check_unicity_group(self, layout, name):
@@ -376,6 +334,9 @@ class SubGroupH(QtGui.QWidget):
         self.setSizePolicy(size_policy_preferred)
         self.setStyleSheet(style)
 
+    def addWidget(self, widget):
+        self.layout.addWidget(widget)
+
 
 class SubGroupV(QtGui.QWidget):
 
@@ -387,14 +348,18 @@ class SubGroupV(QtGui.QWidget):
         self.layout.setSpacing(0)
         self.layout.setAlignment(QtCore.Qt.AlignTop)
         self.setLayout(self.layout)
-        self.setSizePolicy(size_policy_preferred)
+        self.setSizePolicy(size_policy_ysmall)
         self.setStyleSheet(style)
+
+    def addWidget(self, widget):
+        self.layout.addWidget(widget)
 
 
 class SubGroupGrid(QtGui.QWidget):
 
-    def __init__(self):
+    def __init__(self, row_number=2):
         super(SubGroupGrid, self).__init__()
+        self.row_number = row_number
         self.setObjectName('SubGroupGrid')
         self.layout = QtGui.QGridLayout()
         self.layout.setContentsMargins(0, 0, 0, 0)
@@ -403,6 +368,14 @@ class SubGroupGrid(QtGui.QWidget):
         self.setLayout(self.layout)
         self.setSizePolicy(size_policy_preferred)
         self.setStyleSheet(style)
+
+        self._count = 0
+
+    def addWidget(self, widget):
+        row = self._count % self.row_number
+        col = self._count / self.row_number
+        self.layout.addWidget(widget, row, col)
+        self._count += 1
 
 
 class ToolButton(QtGui.QToolButton):
@@ -420,7 +393,7 @@ class ToolButton(QtGui.QToolButton):
                 self.setIcon(icon)
 
         self.setStyleSheet(style)
-        self.setSizePolicy(size_policy_small)
+        self.setSizePolicy(size_policy_xsmall)
 
 
 class BigToolButton(ToolButton):
