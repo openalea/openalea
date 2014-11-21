@@ -212,6 +212,7 @@ class VisualeaModel(Model):
 class ModelNode(Node):
 
     def __init__(self, model, inputs=(), outputs=()):
+        import sys
         super(ModelNode, self).__init__(inputs=inputs, outputs=outputs)
         self.set_model(model)
 
@@ -222,7 +223,8 @@ class ModelNode(Node):
     def __call__(self, inputs=()):
         """ Call function. Must be overriden """
         from openalea.core.service.run import namespace
-        return self.model(*inputs, namespace=namespace())
+        outputs = self.model(*inputs, namespace=namespace())
+        return outputs
 
 
 class ModelNodeFactory(AbstractFactory):

@@ -23,6 +23,7 @@ from openalea.core import settings
 from openalea.core.observer import AbstractListener
 from openalea.core.path import path
 from openalea.core.plugin import iter_plugins
+from openalea.core.project import Project
 from openalea.core.project.manager import ProjectManager
 from openalea.core.service.mimetype import encode
 from openalea.core.service.data import DataClass, MimeType
@@ -48,7 +49,7 @@ class SelectCategory(QtGui.QWidget):
         super(SelectCategory, self).__init__(parent=parent)
 
         if categories is None:
-            categories = CATEGORIES
+            categories = Project.DEFAULT_CATEGORIES.keys()
         if dtypes is None:
             dtypes = [plugin.default_name for plugin in iter_plugins('oalab.paradigm_applet')]
             dtypes.append('Other')
@@ -136,7 +137,6 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         self.pm = ProjectManager()
         self.pm.register_listener(self)
 
-        self.paradigm_container = None
         self.menu_available_projects = QtGui.QMenu(u'Available Projects')
 
         self.actionNewProj = self.view.actionNewProj
@@ -161,14 +161,8 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         self.session = Session()
 
     def initialize(self):
-        self.paradigm_container = get_applet(identifier='EditorManager')
         self.view.initialize()
-
-        # As default project has been defined before having connected this widget
-        # We close it and open it again.
-        default = self.pm.cproject
-        self.pm.cproject = None
-        self.pm.cproject = default
+        self.set_project(self.pm.cproject)
 
     def close(self):
         pass
@@ -282,26 +276,8 @@ class ProjectManagerView(QtGui.QTreeView):
 
     def initialize(self):
         self.paradigm_container = get_applet(identifier='EditorManager')
-        config = settings.Settings()
-        last_proj = "temp"
-        try:
-            last_proj = config.get("ProjectManager", "Last Project")
-        except settings.NoSectionError, e:
-            config.add_section("ProjectManager")
-            config.add_option("ProjectManager", "Last Project", str(last_proj))
-        except settings.NoOptionError, e:
-            config.add_option("ProjectManager", "Last Project", str(last_proj))
-
-        self.pm.discover()
-        projects = [proj for proj in self.pm.projects if proj.name == last_proj]
-        if len(projects):
-            project = projects[0]
-        else:
-            project = self.pm.default()
-        self.set_project(project)
 
     def set_project(self, project):
-        self.pm.cproject = project
         # TODO: Dirty hack to remove asap. Close project selector if widget has been created
         if hasattr(self, "proj_selector"):
             del self.proj_selector

@@ -154,3 +154,5 @@ class ParadigmController(object):
         :return: the edition widget
         """
         return self._widget
+
+    name = property(fget=lambda self: self._obj.name)
