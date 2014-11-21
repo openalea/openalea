@@ -104,15 +104,16 @@ class Control(Node, AbstractListener):
             self.set_caption(name)
             self.notify_listeners(("input_modified", 0))
 
-
-    def __call__(self, inputs):
-        """ inputs is the list of input values """
-
-        key = inputs[0]
-        if key in self.cm:
-            obj = self.cm.control(key)
-            self.set_caption("%s"%(key, ))
-        return (obj.value, )
+     def __call__(self, inputs):
+         """ inputs is the list of input values """
+ 
+         key = inputs[0]
+         if key in self.cm:
+             obj = self.cm.control(name=key)
+             self.set_caption("%s" % (key, ))
+         if isinstance(obj, list):
+             obj = obj[0]
+         return (obj.value, )
 
 
 class Scene2Geom(Node):

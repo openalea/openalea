@@ -48,11 +48,13 @@ You have here the default architecture of the project saved in directory "projec
 import os
 
 from openalea.core.observer import Observed
+from openalea.core.control import Control
 from openalea.core.path import path as Path
 from openalea.core.project.configobj import ConfigObj
-from openalea.core.service.interface import interface_name
+from openalea.core.data import Data
 from openalea.core.service.data import DataFactory
-from openalea.core.control import Control
+from openalea.core.service.interface import interface_name
+from openalea.core.service.model import to_model, ModelFactory
 
 from collections import OrderedDict
 
@@ -191,21 +193,26 @@ class Project(Observed):
 
     def start(self, *args, **kwargs):
         """
-        Load controls if availabe, execute all files in startup.
+        Load controls if available, execute all files in startup.
         """
         self._load_controls()
         self.started = True
         self.ns.clear()
-        loading = [
+        loading_code = [
             'import sys',
             'sys.path.insert(0, %r)' % str(self.path / 'lib')
         ]
-        loading = '\n'.join(loading)
+        loading_code = '\n'.join(loading_code)
+        loading = ModelFactory(mimetype='text/x-python')
+        ns = loading.run_code(loading_code, self.ns)
+        self.ns.update(ns)
         for startup in self.startup.values():
-            ns = startup.execute_in_namespace(loading, self.ns)
+            model = to_model(startup)
+            ns = model.run_code(startup.read(), self.ns)
             self.ns.update(ns)
-            ns = startup.execute_in_namespace(startup.read(), self.ns)
-            self.ns.update(ns)
+        shell = kwargs.get('shell')
+        if shell:
+            shell.user_ns = self.ns
 
     def stop(self, *args, **kwargs):
         self.started = False
@@ -230,7 +237,7 @@ class Project(Observed):
 
     def _add_item(self, category, obj=None, **kwargs):
         mode = kwargs.pop('mode', self.MODE_COPY)
-        if obj:
+        if obj and isinstance(obj, Data):
             # TODO: Check obj follow Data or Model interface ??
             new_path = self.path / category / obj.path.name
             if obj.path != new_path and mode == self.MODE_COPY:
@@ -242,6 +249,13 @@ class Project(Observed):
                 category_dict[str(obj.filename)] = obj
             else:
                 raise ValueError("data '%s' already exists in project '%s'" % (obj.filename, self.alias))
+            return obj
+        elif obj:
+            category_dict = getattr(self, category)
+            if obj.name not in category_dict:
+                category_dict[str(obj.name)] = obj
+            else:
+                raise ValueError("data '%s' already exists in project '%s'" % (obj.name, self.alias))
             return obj
         else:
             filename = Path(kwargs.pop('filename')) if 'filename' in kwargs else None
@@ -465,13 +479,14 @@ class Project(Observed):
                 config['manifest'][category] = []
                 for filename in sorted(filenames_dict.keys()):
                     data = filenames_dict[filename]
-                    data.save()
-                    config['manifest'][category].append(data.filename)
+                    if hasattr(data, 'save'):
+                        data.save()
+                        config['manifest'][category].append(data.name)
 
-                    # If data is stored outside project, register data.path in section category.path
-                    if data.path.parent != category_path:
-                        section = category + ".path"
-                        config.setdefault(section, {})[data.filename] = data.path
+                        # If data is stored outside project, register data.path in section category.path
+                        if data.path.parent != category_path:
+                            section = category + ".path"
+                            config.setdefault(section, {})[data.name] = data.path
 
         config.write()
 

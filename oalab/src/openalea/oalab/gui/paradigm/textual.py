@@ -19,29 +19,24 @@
 ###############################################################################
 __revision__ = ""
 
-from openalea.oalab.editor.text_editor import RichTextEditor as Editor
+
 from openalea.oalab.editor.highlight import Highlighter
+from openalea.oalab.editor.text_editor import RichTextEditor as Editor
+from openalea.oalab.gui.paradigm.controller import ParadigmController
+from openalea.oalab.service.help import display_help
 from pygments.lexers import guess_lexer_for_filename
 from pygments.util import ClassNotFound
+import types
 
 
-
-class TextualModelController(object):
+class TextualModelController(ParadigmController):
     default_name = "file"
     default_file_name = "file"
     pattern = ""
     extension = ""
     icon = ""
 
-    def __init__(self, name="", code="", model=None, filepath=None, editor_container=None, parent=None):
-        self.filepath = filepath
-        self.model = model
-        self.name = name
-        self.parent = parent
-        self.editor_container = editor_container
-        self._widget = None
-
-    def instanciate_widget(self):
+    def instantiate_widget(self):
         """
         Instanciate the widget managing the current model
 
@@ -49,15 +44,22 @@ class TextualModelController(object):
         """
         self._widget = Editor(parent=self.parent)
         wid = self._widget
+
         try:
             lexer = guess_lexer_for_filename(self.filepath, "")
         except ClassNotFound:
             lexer = None
         Highlighter(wid.editor, lexer=lexer)
+
         wid.applet = self
 
-        wid.set_text(self.model.code)
-        wid.replace_tab()
+        # Add method to widget to display help
+        def _diplay_help(widget):
+            doc = widget.applet.model.get_documentation()
+            display_help(doc)
+        wid.display_help = types.MethodType(_diplay_help, wid)
+
+        self.read()
         return self.widget()
 
     def execute(self):
@@ -80,9 +82,3 @@ class TextualModelController(object):
 
     def init(self, *args, **kwargs):
         return None
-
-    def widget(self):
-        """
-        :return: the edition widget
-        """
-        return self._widget

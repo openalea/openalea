@@ -8,21 +8,19 @@ import mimetypes
 __all__ = ["DataFactory", "DataClass", "MimeType", "DataType"]
 
 REGISTERY_MIME_CLASS = {}
-for ModelClass in iter_plugins('oalab.model'):
-    REGISTERY_MIME_CLASS[ModelClass.mimetype] = ModelClass
-
 for DataClass in iter_plugins('oalab.dataclass'):
     REGISTERY_MIME_CLASS[DataClass.mimetype] = DataClass
+# for ModelClass in iter_plugins('oalab.model'):
+#     REGISTERY_MIME_CLASS[ModelClass.mimetype] = ModelClass
 
 REGISTERY_NAME_MIME = {}
-for ModelClass in iter_plugins('oalab.model'):
-    REGISTERY_NAME_MIME[ModelClass.default_name.lower()] = ModelClass.mimetype
-    REGISTERY_NAME_MIME[ModelClass.extension.lower()] = ModelClass.mimetype
-
-
 for DataClass in iter_plugins('oalab.dataclass'):
-    REGISTERY_NAME_MIME[ModelClass.default_name.lower()] = DataClass.mimetype
-    REGISTERY_NAME_MIME[ModelClass.extension.lower()] = DataClass.mimetype
+    REGISTERY_NAME_MIME[DataClass.default_name.lower()] = DataClass.mimetype
+    REGISTERY_NAME_MIME[DataClass.extension.lower()] = DataClass.mimetype
+
+# for ModelClass in iter_plugins('oalab.model'):
+#     REGISTERY_NAME_MIME[ModelClass.default_name.lower()] = ModelClass.mimetype
+#     REGISTERY_NAME_MIME[ModelClass.extension.lower()] = ModelClass.mimetype
 
 
 def MimeType(path=None, name=None):
@@ -56,12 +54,12 @@ def DataType(path=None, name=None, mimetype=None):
     elif name:
         return Path(name).ext[1:].lower()
     elif mimetype:
-        for ModelClass in iter_plugins('oalab.model'):
-            if ModelClass.mimetype == mimetype:
-                return ModelClass.default_name
+        #         for ModelClass in iter_plugins('oalab.model'):
+        #             if ModelClass.mimetype == mimetype:
+        #                 return ModelClass.default_name
         for DataClass in iter_plugins('oalab.dataclass'):
-            if ModelClass.mimetype == mimetype:
-                return ModelClass.default_name
+            if DataClass.mimetype == mimetype:
+                return DataClass.default_name
     else:
         return None
 
@@ -101,8 +99,7 @@ def arrange_data_args(path, mimetype, dtype):
 
 def DataFactory(path, mimetype=None, **kwargs):
     path = Path(path)
-    default_content = kwargs[
-        'default_content'] if 'default_content' in kwargs else None
+    default_content = kwargs['default_content'] if 'default_content' in kwargs else None
     dtype = kwargs.pop('dtype', None)
 
     if path.isfile():
@@ -130,3 +127,16 @@ def DataFactory(path, mimetype=None, **kwargs):
         path, mimetype = arrange_data_args(path, mimetype, dtype)
         klass = DataClass(mimetype)
         return klass(path=path, mimetype=mimetype, content=content)
+
+
+def to_data(model, mimetype):
+    # TODO: check filename/filepath/path argument
+    # TODO: must be extended using plugins
+    klass = DataClass(DataType(mimetype=mimetype))
+    kwds = {}
+    if 'filename' not in kwds:
+        kwds['filename'] = model.name + '.' + klass.extension
+    kwds['dtype'] = model.dtype
+    kwds['mimetype'] = klass.mimetype
+    data = klass(**kwds)
+    data.content = model.repr_code()

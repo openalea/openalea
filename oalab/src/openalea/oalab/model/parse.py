@@ -151,14 +151,45 @@ def parse_doc(docstring):
     if outputs2:
         outputs = outputs2
 
-    ret_inputs = None
-    ret_outputs = None
+    ret_inputs = []
+    ret_outputs = []
     if inputs:
         ret_inputs = [InputObj(inp) for inp in inputs]
     if outputs:
         ret_outputs = [OutputObj(outp) for outp in outputs]
 
     return model, ret_inputs, ret_outputs
+
+
+def extract_functions(codestring, filename='tmp'):
+    """
+    parse the code *codestring* and detect what are the functions defined inside
+    :return: dict name -> code
+    """
+    # TODO: use ast.iter_child_nodes instead of walk to know nested level
+    # For example, currently this code fails because indent level is wrong
+    # if True:
+    #   def f():
+    #       print('hello')
+    # This code fails because "return is outside of function"
+    # def f():
+    #    return 1
+    # TODO: support IPython %magic
+
+    funcs = {}
+
+    r = ast_parse(codestring)
+    for statement in ast.walk(r):
+        if isinstance(statement, ast.FunctionDef):
+            wrapped = ast.Interactive(body=statement.body)
+            try:
+                code = compile(wrapped, filename, 'single')
+            except SyntaxError:
+                logger.debug("Parsing code %s not yet supported" % statement.name)
+            else:
+                funcs[statement.name] = code
+
+    return funcs
 
 
 def parse_function(docstring):
@@ -287,8 +318,8 @@ def parse_input_and_output(docstring):
 
     :use:
         >>> comment = '''
-        >>> inputs = a:int=4, b
-        >>> outputs = r:float
+        >>> input = a:int=4, b
+        >>> output = r:float
         >>> '''
         >>> inputs, outputs = parse_input_and_output(comment)
         >>> inputs
@@ -304,11 +335,11 @@ def parse_input_and_output(docstring):
         docsplit = docstring.splitlines()
         for line in docsplit:
             line = line.strip()
-            if re.search('^input\s*=', line):
+            if re.search('^#*\s*input\s*=', line):
                 line = "input".join(line.split('input')[1:])
                 line = "=".join(line.split('=', 1)[1:]).strip()
                 inputs = _safe_split(line)
-            if re.search('^output\s*=', line):
+            if re.search('^#*\s*output\s*=', line):
                 line = "output".join(line.split('output')[1:])
                 line = line.split('=', 1)[1].strip()
                 outputs = _safe_split(line)
@@ -388,6 +419,8 @@ class InputObj(object):
     1
     >>> obj.interface
     'IFloat'
+    >>> print obj
+    InputObj('a:IFloat=1')
 
     :param string: string object with format "input_name:input_type=input_default_value" or "input_name=input_default_value" or "input_name:input_type" or "input_name"
     """
@@ -415,6 +448,18 @@ class InputObj(object):
 
     def __str__(self):
         return self.__class__.__name__ + ". Name: " + str(self.name) + ". Interface: " + str(self.interface) + ". Default Value: " + str(self.default) + "."
+
+    def repr_code(self):
+        string = self.name
+        if self.interface:
+            string += ":%s" % self.interface
+        if self.default:
+            string += "=%s" % self.default
+        return string
+
+    def __repr__(self):
+        classname = self.__class__.__name__
+        return "%s(%r)" % (classname, self.repr_code())
 
 
 def set_interface(input_obj):
@@ -490,8 +535,9 @@ def prepare_inputs(inputs_info, *args, **kwargs):
                         not_set_inputs_info.remove(not_set_inputs_info_dict[name])
                         del not_set_inputs_info_dict[name]
                     else:
-                        raise Exception("We can not put ", name, "inside inputs of model", name,
-                                        "because such an input is not declared in the model.")
+                        msg = "We can not put %r inside inputs of model %r" % (name, name)
+                        msg += " because such an input is not declared in the model."
+                        raise Exception(msg)
 
         # Fill others with defaults
         if len(not_set_inputs_info):
@@ -527,7 +573,7 @@ def parse_functions(codestring):
     functions_list = [x for x in ast.walk(r) if isinstance(x, ast.FunctionDef)]
     for x in functions_list:
         if x.name in exec_funcs_names:
-            wrapped = ast.Interactive(body=[x.body[-1]])
+            wrapped = ast.Interactive(body=x.body)
             try:
                 code = compile(wrapped, 'tmp', 'single')
             except:

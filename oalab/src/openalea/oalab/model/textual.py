@@ -15,10 +15,10 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-from openalea.vpltk.model import Model
+from openalea.core.data import Data
 
 
-class TextualModel(Model):
+class TextualModel(Data):
     default_name = "Textual"
     default_file_name = ""
     pattern = ""
@@ -30,7 +30,7 @@ class TextualModel(Model):
         """
         :return: a string representation of model to save it on disk
         """
-        return self.code
+        return self._initial_code
 
     def run(self, *args, **kwargs):
         """
@@ -61,3 +61,6 @@ class TextualModel(Model):
         run model step by step
         """
         return None
+
+    def set_code(self, code):
+        self._initial_code = code

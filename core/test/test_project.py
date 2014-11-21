@@ -13,6 +13,7 @@ import re
 def get_data(filename):
     return Path(__file__).parent.abspath() / 'data' / filename
 
+
 class TestProject(TestCase):
 
     def setUp(self):
@@ -178,13 +179,12 @@ class TestProject(TestCase):
         proj = self.project
         model1 = proj.add("model", filename="plop.py", content="print 'plop world'")
         model2 = proj.add("model", path=get_data('model.py'), mode=proj.MODE_LINK)
-        events = self.ev.events # clear events
+        events = self.ev.events  # clear events
 
         proj.save()
         events = self.ev.events
         self.check_events(events, ['project_saved'])
         assert len(proj.model) == 2
-
 
         proj2 = Project(self.tmpdir / 'test')
         assert len(proj2.model) == 2
@@ -204,7 +204,6 @@ class TestProject(TestCase):
 
         self.project.add("model", filename="1.lpy")
 
-
         # Case datatype is not defined
         with self.assertRaises(ValueError) as cm:
             model = self.project.get_model('1')
@@ -214,9 +213,6 @@ class TestProject(TestCase):
 
         model = self.project.get_model('1.py')
         assert model.filename == '1.py'
-
-
-
 
     def test_add_script(self):
         self.project.add("model", filename="1.py", content="blablabla")
@@ -230,7 +226,7 @@ class TestProject(TestCase):
         model1_path = self.project.path / 'model' / '1.py'
         self.assertEqual(self.project.get('model', '1.py').path, model1_path)
 
-        events = self.ev.events # clear events
+        events = self.ev.events  # clear events
         self.project.rename_item("model", "1.py", "2.py")
         assert len(self.project.model) == 1
         assert "2.py" in self.project.model
@@ -238,7 +234,6 @@ class TestProject(TestCase):
         assert self.project.model["2.py"].filename == "2.py"
         events = self.ev.events
         self.check_events(events, ['data_renamed', 'project_changed'])
-
 
         # Old bug, path lost extension at rename
         model2_badpath = self.project.path / 'model' / '2'
@@ -262,15 +257,14 @@ class TestProject(TestCase):
             self.project.rename_item("model", "1.py", "model/2.py")
         self.assertEqual(cm.exception.message, msg)
 
-
     def test_move_project(self):
         self.project.add("model", filename="1.py", content="blablabla")
         old_path = self.project.path
         tmpdir2 = tempdir()
 
-        events = self.ev.events # clear events
+        events = self.ev.events  # clear events
 
-        self.project.move(tmpdir2/"test2")
+        self.project.move(tmpdir2 / "test2")
         assert old_path.exists() is False
         assert self.project.path != old_path
         assert self.project.name == "test2"
@@ -308,11 +302,10 @@ class TestProject(TestCase):
         assert len(self.project.model) == 1
         assert (self.project.path / "model" / "1.py").exists()
 
-        events = self.ev.events # clear events
+        events = self.ev.events  # clear events
         self.project.remove_item("model", filename="1.py")
         events = self.ev.events
         self.check_events(events, ['data_removed', 'project_changed'])
 
         assert len(self.project.model) == 0
         assert (self.project.path / "model" / "1.py").exists()
-

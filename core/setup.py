@@ -13,7 +13,7 @@ pj = os.path.join
 
 from openalea.deploy.metainfo import read_metainfo
 metadata = read_metainfo('metainfo.ini', verbose=True)
-for key,value in metadata.iteritems():
+for key, value in metadata.iteritems():
     exec("%s = '%s'" % (key, value))
 
 
@@ -27,37 +27,41 @@ setup(
     url=url,
     license=license,
 
-    namespace_packages = ['openalea'],
-    create_namespaces = True,
-    zip_safe = False,
-    include_package_data = True,
+    namespace_packages=['openalea'],
+    create_namespaces=True,
+    zip_safe=False,
+    include_package_data=True,
 
-    packages = [ 'openalea.core', 'openalea.core.graph', 'openalea.core.algo', 'openalea.core.system',
-                'openalea.core.graph.interface' ],
-    
-    package_dir = { 'openalea.core' : pj('src','core'),
-                    'openalea.core.system' : pj('src','core', 'system'),
-                    'openalea.core.algo' : pj('src','core', 'algo'),
-                    'openalea.core.graph' : pj('src','core', 'graph'),
-                    'openalea.core.graph.interface' : pj('src', 'core', 'graph','interface'),
-                    '':'src',
-                  },
+    packages=['openalea.core', 'openalea.core.graph', 'openalea.core.algo', 'openalea.core.system',
+              'openalea.core.graph.interface'],
+
+    package_dir={'openalea.core': pj('src', 'core'),
+                 'openalea.core.system': pj('src', 'core', 'system'),
+                 'openalea.core.algo': pj('src', 'core', 'algo'),
+                 'openalea.core.graph': pj('src', 'core', 'graph'),
+                 'openalea.core.graph.interface': pj('src', 'core', 'graph', 'interface'),
+                 '': 'src',
+                 },
 
     # Dependencies
-    setup_requires = ['openalea.deploy'],
-    install_requires = [],
-    dependency_links = ['http://openalea.gforge.inria.fr/pi'],
+    setup_requires=['openalea.deploy'],
+    install_requires=[],
+    dependency_links=['http://openalea.gforge.inria.fr/pi'],
 
     # entry_points
-    entry_points = {
-              "wralea": ["openalea.flow control = openalea.core.system",],
-              "console_scripts": ["alea = openalea.core.alea:main"],
-              'oalab.model': [
+    entry_points={
+        "wralea": ["openalea.flow control = openalea.core.system", ],
+        "console_scripts": ["alea = openalea.core.alea:main"],
+        'oalab.dataclass': [
+            'PythonFile = openalea.core.data:PythonFile',
+        ],
+        #         'oalab.model': [
+        #             'PythonFileModel = openalea.core.model:PythonFileModel',
+        #         ],
+        'oalab.modelclass': [
             'PythonModel = openalea.core.model:PythonModel',
-            ],
-              },
+        ],
+    },
 
 
-    )
-
-
+)

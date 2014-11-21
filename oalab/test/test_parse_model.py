@@ -55,7 +55,7 @@ ok
 
 
 # def test_ast_getdoc_uniline():
-#     model_src = '''#This is the doc of my model
+# model_src = '''#This is the doc of my model
 #
 # print "ok"
 # result = 42
@@ -278,7 +278,7 @@ print "ok"
     model, inputs, outputs = parse_docstring(model_src)
 
     assert len(inputs) == 2
-    assert outputs is None
+    assert outputs == []
     assert inputs[0].name == "x"
     assert eval(inputs[0].default) == "blablabla([1,2,3,4,5,6],['something'])"
     assert inputs[1].name == "y"
@@ -297,7 +297,7 @@ print "ok"
     model, inputs, outputs = parse_docstring(model_src)
 
     assert len(inputs) == 2
-    assert outputs is None
+    assert outputs == []
     assert inputs[0].name == "x"
     assert eval(inputs[0].default) == "input=True,False"
     assert inputs[1].name == "y"
