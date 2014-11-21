@@ -17,6 +17,8 @@
 ###############################################################################
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core import settings
+from openalea.oalab.service.applet import get_applet
+from openalea.core.service.data import DataFactory
 import sys
 
 
@@ -43,14 +45,15 @@ class GenericFileBrowser(QtGui.QWidget):
 
 
 class FileBrowser(GenericFileBrowser):
-    def __init__(self, controller):
+    def __init__(self):
         super(FileBrowser, self).__init__()
-        self.controller = controller
 
     def open_file(self, index):
+        # TODO: Use signal
         filename = self.model.filePath(index)
         if filename:
-            self.controller.paradigm_container.open_file(filename=filename)
+            paradigm_container = get_applet(identifier='EditorManager')
+            paradigm_container.open_data(DataFactory(filename))
 
 
 def main():

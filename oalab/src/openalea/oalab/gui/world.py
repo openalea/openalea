@@ -19,6 +19,7 @@ __revision__ = ""
 
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core.observer import AbstractListener
+from openalea.oalab.session.session import Session
 
 
 class GenericWorldBrowser(QtGui.QWidget):
@@ -37,17 +38,20 @@ class GenericWorldBrowser(QtGui.QWidget):
 
 
 class WorldBrowser(GenericWorldBrowser, AbstractListener):
-    def __init__(self, world):
+    def __init__(self, world=None):
         AbstractListener.__init__(self)
         super(WorldBrowser, self).__init__()
-        world.register_listener(self)
-        self.world = world
-        self.set_world(self.world)
+        if world:
+            self.set_world(self.world)
+        else:
+            session = Session()
+            if session.world:
+                self.set_world(self.world)
 
         QtCore.QObject.connect(self.tree, QtCore.SIGNAL('doubleClicked(const QModelIndex&)'), self.show_world_object)
 
         actionClearWorld = QtGui.QAction(QtGui.QIcon(":/images/resources/plant.png"), "Clear World", self)
-        actionClearWorld.triggered.connect(self.world.clear)
+        actionClearWorld.triggered.connect(self.clear)
         self._actions = [["Project", "World", actionClearWorld, 0]]
 
     def actions(self):
@@ -64,8 +68,17 @@ class WorldBrowser(GenericWorldBrowser, AbstractListener):
         if world_name in self.world:
             print "World object named ", world_name, " : ", self.world[world_name]
 
+    def clear(self):
+        if self.world:
+            self.world.clear()
+
     def set_world(self, world):
+        if self.world is world:
+            return
+        if self.world:
+            self.world.unregister_listener(self)
         self.world = world
+        self.world.register_listener(self)
         self.model.set_world(self.world)
         self.tree.expandAll()
 

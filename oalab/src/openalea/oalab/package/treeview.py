@@ -27,11 +27,8 @@ from openalea.core.service.model import ModelFactory
 
 
 class OALabTreeView(NodeFactoryTreeView):
-
-    def __init__(self, session, controller, parent=None):
-        super(OALabTreeView, self).__init__(controller)
-        self.session = session
-        self.controller = controller
+    def __init__(self, parent=None):
+        super(OALabTreeView, self).__init__(parent)
 
     def mouseDoubleClickEvent(self, event):
 
@@ -51,11 +48,9 @@ class OALabTreeView(NodeFactoryTreeView):
 
 class OALabSearchView(SearchListView):
 
-    def __init__(self, session, controller, parent=None):
+    def __init__(self, parent=None):
         main_win = QtGui.QWidget()
         super(OALabSearchView, self).__init__(main_win)
-        self.session = session
-        self.controller = controller
 
     def mouseDoubleClickEvent(self, event):
 

@@ -7,7 +7,7 @@ class PluginApplet(object):
     You can use it by derivating your class from PluginApplet.
     """
 
-    def __call__(self, mainwindow):
+    def __call__(self):
         pass
 
     def new(self, name, klass, *args, **kwargs):

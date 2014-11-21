@@ -29,21 +29,19 @@ from openalea.oalab.service.applet import get_applet
 
 
 class PackageManagerTreeView(QtGui.QTabWidget):
-    def __init__(self, session, controller, parent=None):
+    def __init__(self, parent=None):
         super(PackageManagerTreeView, self).__init__(parent=parent)
-        self.addTab(PackageViewWidget(session=session, controller=controller), "Packages")
-        self.addTab(PackageCategorieViewWidget(session=session, controller=controller), "Packages Categories")
-        self.addTab(PackageSearchWidget(session=session, controller=controller), "Search Packages")
+        self.addTab(PackageViewWidget(), "Packages")
+        self.addTab(PackageCategorieViewWidget(), "Packages Categories")
+        self.addTab(PackageSearchWidget(), "Search Packages")
 
 
 class PackageViewWidget(OALabTreeView):
     """
     Widget for Package Manager
     """
-    def __init__(self, session, controller, parent=None):
-        super(PackageViewWidget, self).__init__(session, controller, parent=parent) 
-        self.session = session
-        self.controller = controller
+    def __init__(self, parent=None):
+        super(PackageViewWidget, self).__init__(parent=parent)
 
         # package tree view
         self.pkg_model = PkgModel(package_manager)
@@ -74,10 +72,8 @@ class PackageCategorieViewWidget(OALabTreeView):
     """
     Widget for Package Manager Categories
     """
-    def __init__(self, session, controller, parent=None):
-        super(PackageCategorieViewWidget, self).__init__(session, controller, parent=parent) 
-        self.session = session
-        self.controller = controller
+    def __init__(self, parent=None):
+        super(PackageCategorieViewWidget, self).__init__(parent=parent)
         # category tree view
         self.cat_model = CategoryModel(package_manager)
         self.setModel(self.cat_model)
@@ -109,12 +105,10 @@ class PackageSearchWidget(QtGui.QWidget):
     
     Widget with line edit (to search) and finding packages.
     """
-    def __init__(self, session, controller, parent=None):
+    def __init__(self, parent=None):
         super(PackageSearchWidget, self).__init__(parent=parent)
-        self.session = session
-        self.controller = controller
 
-        self.result_widget = OALabSearchView(session, controller, parent)
+        self.result_widget = OALabSearchView(parent)
         self.search_model = SearchModel()
         self.result_widget.setModel(self.search_model)
         
@@ -138,8 +132,9 @@ class PackageSearchWidget(QtGui.QWidget):
             txt = factory.get_tip(asRst=True) + "\n\n"
             if factoryDoc is not None:
                 txt += "**Docstring:**\n" + factoryDoc
-            if self.controller.applets.has_key("Help"):
-                self.controller.applets['Help'].setText(txt)
+            applet = get_applet(identifier='HelpWidget')
+            if applet:
+                applet.setText(txt)
             
     def search_node(self):
         """ Activated when search line edit is validated """

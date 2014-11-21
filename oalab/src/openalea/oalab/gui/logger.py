@@ -36,7 +36,7 @@ class Logger(LoggerView):
     logger.warning("Can't do that!")
     logger.info("John is in the kitchen")
     """
-    def __init__(self, session, controller, parent=None):         
+    def __init__(self, parent=None):
         # -- reconfigure LoggerOffice to use Qt log handler and a file handler --
         logger.default_init(level=logger.DEBUG, handlers=["qt"]) #TODO get level from settings
         logger.connect_loggers_to_handlers(logger.get_logger_names(), logger.get_handler_names())
