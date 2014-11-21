@@ -96,7 +96,7 @@ class RModel(PythonModel):
     def _universal_run(self, code, *args, **kwargs):
         """ This method is used by others...
         """
-        self._save_original_ns()
+        self._push_ns()
         self._fill_namespace(*args, **kwargs)
 
         cmdline = self.r_options(self._ns)
@@ -104,8 +104,8 @@ class RModel(PythonModel):
         self._load_r_magic()
         self.interp.shell.run_cell_magic('R', cmdline, code)
 
-        self._save_init_variables()
-        self._reload_original_ns()
+        self._populate_ns()
+        self._pop_ns()
 
         # Set outputs after execution
         self.outputs = self.output_from_ns(self._ns)
