@@ -171,6 +171,22 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
     def actions(self):
         return self._actions
 
+    def toolbar_actions(self):
+        return [
+            ["Project", "Manage", self.view.actionNewProj, 0],
+            ["Project", "Manage", self.view.actionOpenProj, 0],
+            ["Project", "Manage", self.view.actionSaveProj, 0],
+            ["Project", "Manage", self.view.actionCloseProj, 0],
+            ["Project", "Manage", self.view.actionSaveProjAs, 1],
+            ["Project", "Manage", self.view.actionEditMeta, 1],
+        ]
+
+    def global_menu_actions(self):
+        actions = self.toolbar_actions()
+        actions.append(["Project", "Manage", "-", None])
+        actions.append(["Project", "Manage", self.menu_available_projects, None])
+        return actions
+
     def project(self):
         if self.pm:
             return self.pm.cproject
@@ -273,16 +289,6 @@ class ProjectManagerView(QtGui.QTreeView):
         self.actionOpenProj.setShortcut(self.tr('Ctrl+Shift+O'))
 
     #  API
-
-    def toolbar_actions(self):
-        return [
-            ["Project", "Manage", self.actionNewProj, 0],
-            ["Project", "Manage", self.actionOpenProj, 0],
-            ["Project", "Manage", self.actionSaveProj, 0],
-            ["Project", "Manage", self.actionCloseProj, 0],
-            ["Project", "Manage", self.actionSaveProjAs, 1],
-            ["Project", "Manage", self.actionEditMeta, 1],
-        ]
 
     def _get_paradigm_container(self):
         return get_applet(identifier='EditorManager')

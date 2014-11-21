@@ -200,6 +200,11 @@ class ParadigmContainer(QtGui.QTabWidget):
             ["Edit", "Text Edit", self.actionRunSelection, 0],
         ]
 
+    def global_menu_actions(self):
+        actions = self.toolbar_actions()
+        actions.insert(0, ["Project", "Manage", "-", 0])
+        return actions
+
     def on_current_tab_changed(self):
         controller = self.current_controller()
         if controller:

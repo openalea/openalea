@@ -263,6 +263,9 @@ class Viewer(AbstractListener, view3D):
     def toolbar_actions(self):
         return self.actions()
 
+    def global_menu_actions(self):
+        return self.actions()
+
     def resetzoom(self):
         self.camera().setOrientation(self.orientation_initiale)
         self.camera().setPosition(self.position_initiale)

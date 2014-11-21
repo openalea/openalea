@@ -92,6 +92,7 @@ class AppletSelector(QtGui.QWidget):
 
 
 class AppletTabWidget(QtGui.QTabWidget):
+    appletSet = QtCore.Signal(object, object)
 
     def __init__(self):
         QtGui.QTabWidget.__init__(self)
@@ -134,8 +135,8 @@ class AppletTabWidget(QtGui.QTabWidget):
 
     def set_applet(self, name):
         # clear view
-
         idx = self.currentIndex()
+        old = self._name.get(idx, None)
         for applet in self._applets.get(idx, {}).values():
             applet.hide()
 
@@ -164,6 +165,7 @@ class AppletTabWidget(QtGui.QTabWidget):
         #self.setTabText(idx, _plugin_class.alias)
         self.setTabIcon(idx, obj_icon(_plugin_class))
         self.setTabToolTip(idx, _plugin_class.alias)
+        self.appletSet.emit(old, name)
 
     def currentApplet(self):
         try:
@@ -177,6 +179,7 @@ class AppletTabWidget(QtGui.QTabWidget):
 
 
 class AppletContainer(QtGui.QWidget):
+    appletSet = QtCore.Signal(object, object)
 
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, None)
@@ -184,9 +187,12 @@ class AppletContainer(QtGui.QWidget):
         self._layout = QtGui.QVBoxLayout(self)
         self._layout.setContentsMargins(0, 0, 0, 0)
         self.setContentsMargins(0, 0, 0, 0)
+
+        self._applets = []
         self._edit_mode = True
 
         self._tabwidget = AppletTabWidget()
+        self._tabwidget.appletSet.connect(self.appletSet.emit)
         self._tabwidget.currentChanged.connect(self._on_tab_changed)
 
         self._applet_selector = AppletSelector()
@@ -240,6 +246,20 @@ class AppletContainer(QtGui.QWidget):
             self._position_actions[action] = position
 
         self.set_edit_mode()
+
+    def emit_applet_set(self):
+        for applet in self._applets:
+            self.appletSet.emit(None, applet)
+
+    def add_applets(self, applets, **kwds):
+        position = kwds.pop('position', 0)
+        for i, name in enumerate(applets):
+            if i:
+                self._tabwidget.new_tab()
+            self._tabwidget.set_applet(name)
+        self._tabwidget.setCurrentIndex(0)
+        self._tabwidget.setTabPosition(position)
+        self._applets = applets
 
     def _on_tab_position_changed(self):
         self._tabwidget.setTabPosition(self._position_actions[self.sender()])
@@ -303,12 +323,7 @@ class InitContainerVisitor(object):
             if applets is None:
                 return widget
             container = AppletContainer()
-            for i, name in enumerate(applets):
-                if i:
-                    container._tabwidget.new_tab()
-                container._tabwidget.set_applet(name)
-            container._tabwidget.setCurrentIndex(0)
-            container._tabwidget.setTabPosition(position)
+            container.add_applets(applets, position=position)
             widget = container
         return widget
 
@@ -323,6 +338,7 @@ class InitContainerVisitor(object):
 
         if not self.g.has_children(vid):
             self.wid._install_child(vid, widget)
+            widget.emit_applet_set()
             return False, False
 
         direction = self.g.get_property(vid, "splitDirection")
@@ -335,6 +351,7 @@ class InitContainerVisitor(object):
 class OALabSplittableUi(SplittableUI):
 
     reprProps = ["amount", "splitDirection", "widget"]
+    appletSet = QtCore.Signal(object, object)
 
     def __init__(self, parent=None, content=None):
         """Contruct a SplittableUI.
@@ -353,13 +370,28 @@ class OALabSplittableUi(SplittableUI):
         self._geomCache[0] = self.contentsRect()
         self._install_child(0, content)
 
+        self._containers = {}
+
         self.set_edit_mode()
 
+    def _connect_container(self, container):
+        if isinstance(container, AppletContainer):
+            if container not in self._containers:
+                container.appletSet.connect(self.appletSet.emit)
+                self._containers[container] = container
+
     def getPlaceHolder(self):
-        return AppletContainer()
+        container = AppletContainer()
+        self._connect_container(container)
+        return container
+
+    def setContentAt(self, paneId, wid, **kwargs):
+        self._connect_container(wid)
+        return SplittableUI.setContentAt(self, paneId, wid, **kwargs)
 
     def _install_child(self, paneId, widget, **kwargs):
         g = self._g
+        self._connect_container(widget)
 
         # -- get the old content --
         oldWidget = None
@@ -372,6 +404,7 @@ class OALabSplittableUi(SplittableUI):
         if widget is not None:
             widget.setParent(self)
             widget.show()
+
         g.set_property(paneId, "widget", widget)
 
         if not kwargs.get("noTearOffs", False):
@@ -379,9 +412,8 @@ class OALabSplittableUi(SplittableUI):
         return oldWidget
 
     @classmethod
-    def fromString(cls, rep, parent=None):
+    def FromString(cls, rep, parent=None):
         g, tup = OABinaryTree.fromString(rep)
-        print g
 
         newWid = cls(parent=parent)
         w0 = newWid._uninstall_child(0)
@@ -395,6 +427,20 @@ class OALabSplittableUi(SplittableUI):
         newWid._geomCache[0] = newWid.contentsRect()
         newWid.computeGeoms(0)
         return newWid
+
+    def fromString(self, rep, parent=None):
+        g, tup = OABinaryTree.fromString(rep)
+
+        w0 = self._uninstall_child(0)
+        if w0:
+            w0.setParent(None)
+            w0.close()
+
+        self._g = g
+        visitor = InitContainerVisitor(g, self)
+        g.visit_i_breadth_first(visitor)
+        self._geomCache[0] = self.contentsRect()
+        self.computeGeoms(0)
 
     def _onSplitRequest(self, paneId, orientation, amount):
         if self._edit_mode:
@@ -420,27 +466,31 @@ class OALabSplittableUi(SplittableUI):
 
 
 class OALabMainWin(QtGui.QMainWindow):
+    appletSet = QtCore.Signal(object, object)
+    DEFAULT_MENU_NAMES = ('Project', 'Edit', 'Viewer', 'Help')
 
     def __init__(self, layout=None):
         QtGui.QMainWindow.__init__(self)
 
-        menu_names = ('Project', 'Edit', 'Viewer', 'Help')
-
         # Classic menu
         self.menu_classic = {}
+        self._registered_applets = []
         menubar = QtGui.QMenuBar()
 
-        for menu_name in menu_names:
+        for menu_name in self.DEFAULT_MENU_NAMES:
             self.menu_classic[menu_name] = menubar.addMenu(menu_name)
 
         self.setMenuBar(menubar)
 
+        self.splittable = OALabSplittableUi(parent=self)
+        self.splittable.appletSet.connect(self.appletSet.emit)
+        self.appletSet.connect(self._on_applet_set)
+
         if layout is None:
             container = AppletContainer()
-            self.splittable = OALabSplittableUi(parent=self)
             self.splittable.setContentAt(0, container)
         else:
-            self.splittable = OALabSplittableUi.fromString(str(layout))
+            self.splittable.fromString(str(layout))
 
         self.setCentralWidget(self.splittable)
 
@@ -513,21 +563,28 @@ class OALabMainWin(QtGui.QMainWindow):
         for menu in menus:
             menu.clear()
 
-    def add_action_to_existing_menu(self, action, menu_name, sub_menu_name):
-        """
-        Permit to add in a classic menubar the "action" in the menu "menu_name"
-        in the sub_menu "sub_menu_name"
-        """
-        menubar = self.menuBar()
-        if menu_name in self.menu_classic:
-            menu = self.menu_classic[menu_name]
-        else:
-            menu = self.menu_classic[menu_name] = menubar.addMenu(menu_name)
+    def _on_applet_set(self, old, new):
+        if new in self._registered_applets:
+            return
 
-        menu.addAction(action)
+        self._registered_applets.append(new)
+        applet = plugin_instance('oalab.applet', new)
 
-    def add_applet(self, *args, **kwds):
-        pass
+        if applet and hasattr(applet, 'global_menu_actions'):
+            actions = applet.global_menu_actions()
+            if actions is None:
+                return
+            for menu_name, submenu_name, action, style in actions:
+                if menu_name in self.menu_classic:
+                    menu = self.menu_classic[menu_name]
+                else:
+                    menu = QtGui.QMenu(menu_name)
+                if isinstance(action, QtGui.QAction):
+                    menu.addAction(action)
+                elif isinstance(action, QtGui.QMenu):
+                    menu.addMenu(action)
+                elif action == '-':
+                    menu.addSeparator()
 
     def layout(self):
         return eval(self.splittable.toString())
