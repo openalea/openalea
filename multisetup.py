@@ -52,8 +52,8 @@ misc
 grapheditor
 visualea
 oalab
-plantlab
 """.split()
+#plantlab
 #openalea_meta
 
 

@@ -23,6 +23,7 @@ from openalea.oalab.cli.parser import CommandLineParser
 from openalea.oalab.project.symlink import create_project_shortcut
 from openalea.oalab.session.all import Session
 
+
 def main():
     """
     1. Parse command line arguments.

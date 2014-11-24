@@ -1,6 +1,7 @@
 
 from openalea.core.plugin import iter_plugins
 
+
 class Applet(object):
     # TODO: become a manager ??
     _applets = {}
@@ -17,7 +18,6 @@ class Applet(object):
             applet = klass(*args, **kwargs)
             cls.register(name, applet)
             return applet
-
 
     @classmethod
     def instances(cls, **kwargs):
@@ -36,7 +36,6 @@ class Applet(object):
 
         instance = None
         err = 'Cannot find required applet'
-
 
         if 'identifier' in kwargs:
             identifier = kwargs['identifier']
