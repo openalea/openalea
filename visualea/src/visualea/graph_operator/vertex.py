@@ -31,6 +31,7 @@ from openalea.core import observer, node
 
 INSPECTOR_EDGE_OFFSET = 15
 
+
 class VertexOperators(Base):
     __compositeWidgetMap__ = weakref.WeakKeyDictionary()
 
@@ -41,39 +42,39 @@ class VertexOperators(Base):
         if not isinstance(vertex, CompositeNode):
             return
 
-        widget= VertexOperators.__compositeWidgetMap__.get(vertex, None)
+        widget = VertexOperators.__compositeWidgetMap__.get(vertex, None)
         if(widget):
             if(widget.isVisible()):
-                widget.raise_ ()
-                widget.activateWindow ()
+                widget.raise_()
+                widget.activateWindow()
             else:
                 widget.show()
             return
         else:
             widget = compositenode_inspector.CompositeInspector.create_view(vertex,
-                                                                            parent = parwidget)
+                                                                            parent=parwidget)
             VertexOperators.__compositeWidgetMap__[vertex] = widget
 
             ###################################
             # -- Let's fix the window size -- #
             ###################################
             scRectF = widget.scene().itemsBoundingRect()
-            tl      = scRectF.topLeft()
+            tl = scRectF.topLeft()
             # -- check the rect doesn't have crazy negative values or too close to screen edge
             # -- or else we loose window or window decorations.
-            scRectF.moveTo(INSPECTOR_EDGE_OFFSET, INSPECTOR_EDGE_OFFSET*2)
-            scRect     = scRectF.toRect()
+            scRectF.moveTo(INSPECTOR_EDGE_OFFSET, INSPECTOR_EDGE_OFFSET * 2)
+            scRect = scRectF.toRect()
             screenGeom = qt.QtGui.QApplication.instance().desktop().screenGeometry(widget)
             ratio = 1.
             if not screenGeom.contains(scRect):
                 if scRect.width() > screenGeom.width():
-                    ratio    = screenGeom.width() / scRectF.width()*0.75
-                    scRect.setWidth(ratio*scRect.width())
+                    ratio = screenGeom.width() / scRectF.width() * 0.75
+                    scRect.setWidth(ratio * scRect.width())
                 if scRect.height() > screenGeom.height():
-                    ratio    = screenGeom.height() / scRectF.height()*0.75
-                    scRect.setHeight(ratio*scRect.height())
+                    ratio = screenGeom.height() / scRectF.height() * 0.75
+                    scRect.setHeight(ratio * scRect.height())
             widget.resize(scRect.size())
-            widget.scale(1./ratio, 1./ratio)
+            widget.scale(1. / ratio, 1. / ratio)
             ##################
             # -- Finished -- #
             ##################
@@ -95,8 +96,8 @@ class VertexOperators(Base):
         vwidget = item.get_editor_instance()
         if(vwidget):
             if(vwidget.isVisible()):
-                vwidget.raise_ ()
-                vwidget.activateWindow ()
+                vwidget.raise_()
+                vwidget.activateWindow()
             else:
                 vwidget.show()
             return
@@ -106,9 +107,11 @@ class VertexOperators(Base):
         # THIS IS NOT DESIRED BECAUSE IT COUPLES THE MODEL
         # TO THE UI.
         factory = vertex.get_factory()
-        if(not factory) : return
+        if(not factory):
+            return
         innerWidget = factory.instantiate_widget(vertex, None)
-        if(not innerWidget) : return
+        if(not innerWidget):
+            return
         if (innerWidget.is_empty()):
             innerWidget.close()
             del innerWidget
@@ -129,10 +132,8 @@ class VertexOperators(Base):
         master = self.master
         master.get_graph_scene().remove_vertex(master.get_vertex_item().vertex())
 
-
     def vertex_reset(self):
         self.master.get_vertex_item().vertex().reset()
-
 
     @classmethod
     def vertex_observer_copy(cls, oldVertex, newVertex):
@@ -143,7 +144,7 @@ class VertexOperators(Base):
     @busy_cursor
     def vertex_replace(self):
         """ Replace a node by an other """
-        master  = self.master
+        master = self.master
         adapter = master.get_graph_scene().get_adapter()
         widget = master.get_sensible_parent()
         dialog = NodeChooser(widget)
@@ -151,14 +152,14 @@ class VertexOperators(Base):
         dialog.search('', vItem.vertex().get_nb_input(),
                       vItem.vertex().get_nb_output())
         ret = dialog.exec_()
-        if(not ret): return
+        if(not ret):
+            return
 
         factory = dialog.get_selection()
         oldVertex = vItem.vertex()
         newVertex = factory.instantiate()
         adapter.replace_vertex(oldVertex, newVertex)
         self.vertex_observer_copy(oldVertex, newVertex)
-
 
     def vertex_reload(self):
         """ Reload the vertex """
@@ -176,16 +177,14 @@ class VertexOperators(Base):
         master.get_graph().set_actor(oldVertex.get_id(), newVertex)
         self.vertex_observer_copy(oldVertex, newVertex)
 
-
     def vertex_set_caption(self):
         """ Open a input dialog to set node caption """
 
         n = self.master.get_vertex_item().vertex()
         (result, ok) = qt.QtGui.QInputDialog.getText(None, "Node caption", "",
-                                   qt.QtGui.QLineEdit.Normal, n.caption)
+                                                     qt.QtGui.QLineEdit.Normal, n.caption)
         if(ok):
             n.caption = str(result)
-
 
     def vertex_show_hide_ports(self):
         """ Open port show/hide dialog """
@@ -193,20 +192,16 @@ class VertexOperators(Base):
         editor = ShowPortDialog(self.master.get_vertex_item().vertex(), widget)
         editor.exec_()
 
-
     def vertex_mark_user_app(self, val):
         master = self.master
         master.get_graph().set_continuous_eval(master.get_vertex_item().vertex().get_id(),
                                                bool(val))
 
-
     def vertex_set_lazy(self, val):
         self.master.get_vertex_item().vertex().lazy = val
 
-
     def vertex_block(self, val):
         self.master.get_vertex_item().vertex().block = val
-
 
     def vertex_edit_internals(self):
         """ Edit node internal data """
@@ -218,5 +213,3 @@ class VertexOperators(Base):
         if(ret):
             for k in editor.modified_key:
                 master.get_vertex_item().vertex().set_data(k, editor.pdict[k])
-
-
