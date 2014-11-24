@@ -1,0 +1,12 @@
+Source: openalea-grapheditor
+Maintainer: Daniel Barbeau <daniel.barbeau@sophia.inria.fr>
+Section: python
+Priority: optional
+Build-Depends: python-all (>= 2.6.6-3~), python-setuptools, debhelper (>= 7), python-openalea.deploy
+
+Package: python-openalea.grapheditor
+Architecture: all
+Depends: ${misc:Depends}, ${python:Depends}, python-openalea.deploy, python-qt4
+Provides: ${python:Provides}
+Description: GraphEditor package for OpenAlea.
+ An attempt at generalising the viewing and interacting of various sorts of graphs.

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Visualea
+Comment=Visual Programming environment of OpenAlea
+Exec=visualea
+Icon=openalea_icon
+Terminal=false
+Type=Application
+Categories=Education;Science;Biology;
+StartupNotify=true

@@ -1,0 +1,10 @@
+|visualea| provides a graphical user interface to :
+
+* View installed package on the system
+* Build graphically dataflow by interconnecting boxes.
+* Access directly to python functionality.
+* Display widgets
+
+  .. image:: _static/visualea.png
+    :width: 60%
+

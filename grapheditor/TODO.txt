@@ -1,0 +1,5 @@
+
+This file can be used to document future development
+
+ * continue the generalisation process.
+ * document once it is more stable
