@@ -26,7 +26,7 @@ from openalea.vpltk.qt import qt
 from openalea.vpltk.qt.compat import to_qvariant
 from openalea.visualea.graph_operator import GraphOperator
 from openalea.core import compositenode, node
-from openalea.core.pkgmanager import PackageManager # for drag and drop
+from openalea.core.pkgmanager import PackageManager  # for drag and drop
 from openalea.core.node import RecursionError
 from openalea.core.algo import dataflow_evaluation as evalmodule
 from openalea.grapheditor import qt
@@ -36,22 +36,20 @@ from openalea.core.compositenode import CompositeNodeFactory
 import openalea.grapheditor.base
 
 
-
-
-class DataflowView( qt.View ):
+class DataflowView(qt.View):
 
     def __init__(self, parent, *args, **kwargs):
         qt.View.__init__(self, parent)
 
         self.__clipboard = None
-        self.__siblings  = None
+        self.__siblings = None
 
         # -- Configure the drop handlers --
-        mimeFormatsMap = {node.NodeFactory.mimetype:self.node_factory_drop_handler,
-                          compositenode.CompositeNodeFactory.mimetype:self.node_factory_drop_handler,
-                          "openalea/data_instance":self.node_datapool_drop_handler,
-                          "openalealab/model":self.node_model_factory_drop_handler,
-                          "openalealab/control":self.node_control_drop_handler,
+        mimeFormatsMap = {node.NodeFactory.mimetype: self.node_factory_drop_handler,
+                          compositenode.CompositeNodeFactory.mimetype: self.node_factory_drop_handler,
+                          "openalea/data_instance": self.node_datapool_drop_handler,
+                          "openalealab/model": self.node_model_factory_drop_handler,
+                          "openalealab/control": self.node_control_drop_handler,
                           }
         self.set_mime_handler_map(mimeFormatsMap)
 
@@ -81,12 +79,12 @@ class DataflowView( qt.View ):
         self.__siblings = sibs
 
     def get_graph_operator(self):
-        operator=GraphOperator(graph        = self.scene().get_graph(),
-                               graphAdapter = self.scene().get_adapter(),
-                               graphScene   = self.scene(),
-                               clipboard    = self.__clipboard,
-                               siblings     = self.__siblings,
-                               )
+        operator = GraphOperator(graph=self.scene().get_graph(),
+                                 graphAdapter=self.scene().get_adapter(),
+                                 graphScene=self.scene(),
+                                 clipboard=self.__clipboard,
+                                 siblings=self.__siblings,
+                                 )
         return operator
 
     def on_copy_request(self, view, scene, a):
@@ -113,8 +111,6 @@ class DataflowView( qt.View ):
         operator(fName="graph_remove_selection")()
         a.accept = True
 
-
-
     #######################################################
     # THIS DOESN'T BELONG HERE! OR AT LEAST NOT LIKE THIS #
     #######################################################
@@ -132,37 +128,36 @@ class DataflowView( qt.View ):
             return node
         except RecursionError:
             mess = qt.QtGui.QMessageBox.warning(self, "Error",
-                                             "A graph cannot be contained in itself.")
+                                                "A graph cannot be contained in itself.")
             return None
-
 
     def __check_factory(self, factory):
             # -- Check if no other instance of this factory is opened --
-            operator = self.get_graph_operator()
-            for ws in operator.get_siblings():
-                if factory == ws.factory:
-                    res = qt.QtGui.QMessageBox.warning(self, "Other instances are already opened!",
-                    "You are trying to insert a composite node that has already been opened.\n" +\
-                    "Doing this might cause confusion later on.\n" +\
-                    "Do you want to continue?",
-                                                    qt.QtGui.QMessageBox.Ok | qt.QtGui.QMessageBox.Cancel)
-                    if res == qt.QtGui.QMessageBox.Cancel:
-                        return False
-                    else:
-                        break
-            return True
-
+        operator = self.get_graph_operator()
+        for ws in operator.get_siblings():
+            if factory == ws.factory:
+                res = qt.QtGui.QMessageBox.warning(self, "Other instances are already opened!",
+                                                   "You are trying to insert a composite node that has already been opened.\n" +
+                                                   "Doing this might cause confusion later on.\n" +
+                                                   "Do you want to continue?",
+                                                   qt.QtGui.QMessageBox.Ok | qt.QtGui.QMessageBox.Cancel)
+                if res == qt.QtGui.QMessageBox.Cancel:
+                    return False
+                else:
+                    break
+        return True
 
     def node_factory_drop_handler(self, event):
         """ Drag and Drop from the PackageManager """
         mimedata = event.mimeData()
         if mimedata.hasFormat(NodeFactory.mimetype) or mimedata.hasFormat(CompositeNodeFactory.mimetype):
-            format = NodeFactory.mimetype if mimedata.hasFormat(NodeFactory.mimetype) else CompositeNodeFactory.mimetype
+            format = NodeFactory.mimetype if mimedata.hasFormat(
+                NodeFactory.mimetype) else CompositeNodeFactory.mimetype
             # -- retreive the data from the event mimeData --
             pieceData = event.mimeData().data(format)
             dataStream = qt.QtCore.QDataStream(pieceData, qt.QtCore.QIODevice.ReadOnly)
             package_id = str(dataStream.readString())
-            factory_id = str(dataStream.readString())  
+            factory_id = str(dataStream.readString())
 
             # -- find node factory --
             pkgmanager = PackageManager()
@@ -177,7 +172,7 @@ class DataflowView( qt.View ):
             position = self.mapToScene(event.pos())
             self.__drop_from_factory(factory, [position.x(), position.y()])
             event.setDropAction(qt.QtCore.Qt.MoveAction)
-            #event.accept()
+            # event.accept()
 
     def node_model_factory_drop_handler(self, event):
         """ Drag and Drop from the Model """
@@ -186,13 +181,13 @@ class DataflowView( qt.View ):
             # -- retreive the data from the event mimeData --
             pieceData = mimedata.data("openalealab/model")
             dataStream = qt.QtCore.QDataStream(pieceData, qt.QtCore.QIODevice.ReadOnly)
-            
+
             dataStream.readString()
             model_id = str(dataStream.readString())
 
             try:
                 # version > August 2014 (Git)
-                from openalea.core.model import ModelFactory
+                from openalea.oalab.model.visualea import ModelNodeFactory
             except ImportError:
                 try:
                     # Backward compatibility with oalab from svn June 2014
@@ -200,7 +195,10 @@ class DataflowView( qt.View ):
                 except ImportError:
                     event.ignore()
                     return
-            factory = ModelFactory(model_id)
+                else:
+                    factory = ModelFactory(model_id)
+            else:
+                factory = ModelNodeFactory(model_id)
             """
             # -- see if we can safely open this factory (with user input) --
             if not self.__check_factory(factory):
@@ -210,7 +208,7 @@ class DataflowView( qt.View ):
             position = self.mapToScene(event.pos())
             self.__drop_from_factory(factory, [position.x(), position.y()])
             event.setDropAction(qt.QtCore.Qt.MoveAction)
-            #event.accept()
+            # event.accept()
 
     def node_control_drop_handler(self, event):
         # Drag and Drop from the DataPool
@@ -253,7 +251,7 @@ class DataflowView( qt.View ):
             node = self.__drop_from_factory(factory, [position.x(), position.y()])
             if node:
                 node.set_input(0, data_key)
-                node.set_caption("pool ['%s']"%(data_key,))
+                node.set_caption("pool ['%s']" % (data_key,))
             event.setDropAction(qt.QtCore.Qt.MoveAction)
             event.accept()
 
@@ -282,7 +280,7 @@ class DataflowView( qt.View ):
             # toolbar in the right place and reveals it.
             # If the pointer not over an annotation it is hidden unless it is over
             # the toolbar. --
-            items = self.items( e.pos() )
+            items = self.items(e.pos())
             annotations = [i for i in items if isinstance(i, anno.GraphicalAnnotation)]
             if len(annotations) > 0:
                 firstAnno = annotations[0]
@@ -315,7 +313,7 @@ class DataflowView( qt.View ):
         classlist.sort()
         selectitem = None
         for c in classlist:
-            action = operator(c, evaluatorSubmenu, "graph_set_evaluator_"+c)
+            action = operator(c, evaluatorSubmenu, "graph_set_evaluator_" + c)
             evaluatorSubmenu.addAction(action)
             action.setCheckable(True)
             if c == self.scene().get_graph().eval_algo:
@@ -327,21 +325,15 @@ class DataflowView( qt.View ):
         event.accept()
 
 
-
-
-
-
-
-
 def initialise_graph_view_from_model(graphView, graphModel):
 
     # -- do the base node class initialisation --
-    mdict  = graphModel.get_ad_hoc_dict()
+    mdict = graphModel.get_ad_hoc_dict()
 
-    #graphical data init.
+    # graphical data init.
     mdict.simulate_full_data_change(graphView, graphModel)
 
-    #other attributes init (composite node is subclass of node)
+    # other attributes init (composite node is subclass of node)
     for i in graphModel.input_desc:
         graphView.notify(graphModel, ("input_port_added", i))
     for i in graphModel.output_desc:
@@ -358,20 +350,22 @@ def initialise_graph_view_from_model(graphView, graphModel):
         vtype = "vertex"
         doNotify = True
         vertex = graphModel.node(eltid)
-        if(vertex.__class__.__dict__.has_key("__graphitem__")): vtype = "annotation"
+        if(vertex.__class__.__dict__.has_key("__graphitem__")):
+            vtype = "annotation"
         elif isinstance(vertex, compositenode.CompositeNodeOutput):
             vtype = "outNode"
             doNotify = True if len(vertex.input_desc) else False
-        elif isinstance(vertex, compositenode.CompositeNodeInput) :
+        elif isinstance(vertex, compositenode.CompositeNodeInput):
             vtype = "inNode"
             doNotify = True if len(vertex.output_desc) else False
-        else: pass
+        else:
+            pass
         if doNotify:
             graphView.notify(graphModel, ("vertex_added", (vtype, vertex)))
 
     for eid in graphModel.edges():
         (src_id, dst_id) = graphModel.source(eid), graphModel.target(eid)
-        etype=None
+        etype = None
         src_port_id = graphModel.local_id(graphModel.source_port(eid))
         dst_port_id = graphModel.local_id(graphModel.target_port(eid))
 
@@ -384,14 +378,12 @@ def initialise_graph_view_from_model(graphView, graphModel):
         graphView.notify(graphModel, ("edge_added", edgedata))
 
 
-GraphicalGraph = openalea.grapheditor.qt.QtGraphStrategyMaker( graphView            = DataflowView,
-                                                               vertexWidgetMap      = {"vertex":vertex.GraphicalVertex,
-                                                                                       "annotation":anno.GraphicalAnnotation,
-                                                                                       "inNode":vertex.GraphicalInVertex,
-                                                                                       "outNode":vertex.GraphicalOutVertex},
-                                                               edgeWidgetMap        = {"default":edge.GraphicalEdge,
-                                                                                       "floating-default":edge.FloatingEdge},
-                                                               graphViewInitialiser = initialise_graph_view_from_model,
-                                                               adapterType          = adapter.GraphAdapter )
-
-
+GraphicalGraph = openalea.grapheditor.qt.QtGraphStrategyMaker(graphView=DataflowView,
+                                                              vertexWidgetMap={"vertex": vertex.GraphicalVertex,
+                                                                               "annotation": anno.GraphicalAnnotation,
+                                                                               "inNode": vertex.GraphicalInVertex,
+                                                                               "outNode": vertex.GraphicalOutVertex},
+                                                              edgeWidgetMap={"default": edge.GraphicalEdge,
+                                                                             "floating-default": edge.FloatingEdge},
+                                                              graphViewInitialiser=initialise_graph_view_from_model,
+                                                              adapterType=adapter.GraphAdapter)

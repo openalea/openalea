@@ -136,6 +136,7 @@ setup(
         'oalab.lab': [
             'FullLab = openalea.oalab.plugins.labs.fulllab:FullLab',
             'MiniLab = openalea.oalab.plugins.labs.minilab:MiniLab',
+            'Default = openalea.oalab.plugins.labs.default:DefaultLab',
         ],
 
         'oalab.interface': [
