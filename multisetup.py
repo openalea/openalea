@@ -49,6 +49,8 @@ dirs = """
 vpltk
 core
 misc
+grapheditor
+visualea
 oalab
 plantlab
 """.split()
