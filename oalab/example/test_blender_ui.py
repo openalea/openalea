@@ -60,7 +60,7 @@ if __name__ == '__main__':
 
     from openalea.core.service.plugin import PIM
     PIM.debug = True
-    mw = TestMainWin(tests=[hello_world], layout=tissuelab_conf)
+    mw = TestMainWin(tests=[hello_world])
 
     mw.resize(1024, 768)
     mw.showMaximized()

@@ -91,6 +91,16 @@ class MplTabWidget(QtGui.QTabWidget, AbstractMplWidget):
         self.setFocusPolicy(QtCore.Qt.StrongFocus)  # keyboard & mouse focus
         self.setAcceptDrops(True)                  # accept drop event
 
+    def initialize(self):
+        from openalea.oalab.plot2d import activate_in_pyplot
+        from matplotlib import pyplot as plt
+
+        # work with qt4agg backend
+        plt.switch_backend('qt4agg')
+
+        activate_in_pyplot()
+        plt.ion()
+
     # manage canvas tabs
     # ------------------
     def add_tab_canvas(self, fig_num=None, close_function=None):

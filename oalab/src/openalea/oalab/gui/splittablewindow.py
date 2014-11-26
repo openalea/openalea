@@ -616,6 +616,17 @@ class TestMainWin(OALabMainWin):
         self.interp.user_ns['mainwin'] = self
         self.interp.user_ns['debug'] = self.debug
 
+        from openalea.core.service.plugin import plugin_instance, plugin_instances
+
+        def applet(name):
+            return plugin_instance('oalab.applet', name)
+
+        def applets(name):
+            return plugin_instances('oalab.applet', name)
+
+        self.interp.user_ns['applet'] = applet
+        self.interp.user_ns['applets'] = applet
+
         for f in kwds.pop('tests', []):
             self.interp.user_ns['run_%s' % f.__name__] = f
 

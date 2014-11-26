@@ -2,6 +2,17 @@
 from openalea.oalab.plugins.applets import PluginApplet
 
 
+class MatplotlibWidget(object):
+
+    name = 'MatplotlibWidget'
+    alias = '2D Plot'
+
+    def __call__(self):
+        # Load and instantiate graphical component that actually provide feature
+        from openalea.oalab.plot2d.widget2 import MatplotlibWidget
+        return MatplotlibWidget
+
+
 class Plot2dWidget(PluginApplet):
 
     name = 'Plot2d'
@@ -19,14 +30,6 @@ class Plot2dWidget(PluginApplet):
         if applet is None or mainwindow is None:
             return
 
-        from openalea.oalab.plot2d import activate_in_pyplot
-        from matplotlib import pyplot as plt
-
-        # work with qt4agg backend
-        plt.switch_backend('qt4agg')
-
-        activate_in_pyplot()
-        plt.ion()
         mainwindow.add_applet(applet, self.alias, area='outputs')
 
         actions = applet.get_plugin_actions()
