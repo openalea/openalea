@@ -453,6 +453,16 @@ class ContextualMenu(QtGui.QWidget):
                 del group
         self._new_group()
 
+    def set_actions(self, actions):
+        self.clear()
+        for action in actions:
+            if isinstance(action, QtGui.QAction):
+                self.addBtnByAction('', 'Default', action, 0)
+            elif isinstance(action, (list, tuple)):
+                self.addBtnByAction(*action)
+            else:
+                continue
+
     def addBtnByAction(self, pane_name, group_name, action, btn_type=0):
         if self._group is None:
             self._new_group()

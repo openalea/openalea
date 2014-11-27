@@ -25,6 +25,7 @@ from openalea.oalab.gui.splitterui import SplittableUI, BinaryTree
 from openalea.core.service.plugin import (new_plugin_instance, plugin_instances, plugin_class,
                                           plugins, plugin_instance, plugin_instance_exists)
 from openalea.oalab.gui.utils import qicon
+from openalea.oalab.gui.menu import ContextualMenu
 from openalea.core.plugin.manager import PluginManager
 import openalea.core
 
@@ -80,7 +81,7 @@ class AppletSelector(QtGui.QWidget):
         else:
             return None
 
-    def currentApplet(self):
+    def currentAppletName(self):
         return self.applet(self._cb_applets.currentIndex())
 
     def setCurrentApplet(self, name):
@@ -167,9 +168,16 @@ class AppletTabWidget(QtGui.QTabWidget):
         self.setTabToolTip(idx, _plugin_class.alias)
         self.appletSet.emit(old, name)
 
-    def currentApplet(self):
+    def currentAppletName(self):
         try:
             return self._name[self.currentIndex()]
+        except KeyError:
+            return None
+
+    def currentApplet(self):
+        try:
+            name = self.currentAppletName()
+            return self._applets[self.currentIndex()][name]
         except KeyError:
             return None
 
@@ -190,10 +198,14 @@ class AppletContainer(QtGui.QWidget):
 
         self._applets = []
         self._edit_mode = True
+        self._show_toolbar = False
 
         self._tabwidget = AppletTabWidget()
         self._tabwidget.appletSet.connect(self.appletSet.emit)
         self._tabwidget.currentChanged.connect(self._on_tab_changed)
+        self.appletSet.connect(self._on_applet_changed)
+
+        self._menu = ContextualMenu()
 
         self._applet_selector = AppletSelector()
         self._applet_selector.appletChanged.connect(self._tabwidget.set_applet)
@@ -201,11 +213,12 @@ class AppletContainer(QtGui.QWidget):
         self._applet_selector.removeTabClicked.connect(self._tabwidget.remove_tab)
 
         self._layout.addWidget(self._tabwidget)
+        self._layout.addWidget(self._menu)
         self._layout.addWidget(self._applet_selector)
 
         self._tabwidget.new_tab()
 
-        applet_name = self._applet_selector.currentApplet()
+        applet_name = self._applet_selector.currentAppletName()
         if applet_name:
             self._tabwidget.set_applet(applet_name)
 
@@ -228,7 +241,13 @@ class AppletContainer(QtGui.QWidget):
             qicon('Crystal_Clear_action_edit_remove.png'), "Remove tab", self.menu_edit_on)
         self.action_remove_tab.triggered.connect(self._tabwidget.remove_tab)
 
+        self.action_toolbar = QtGui.QAction("Toolbar", self.menu_edit_on)
+        self.action_toolbar.setCheckable(True)
+        self.action_toolbar.toggled.connect(self.show_toolbar)
+
         self.menu_edit_on.addAction(self.action_lock)
+        self.menu_edit_on.addSeparator()
+        self.menu_edit_on.addAction(self.action_toolbar)
         self.menu_edit_on.addSeparator()
         self.menu_edit_on.addAction(self.action_add_tab)
         self.menu_edit_on.addAction(self.action_remove_tab)
@@ -251,6 +270,38 @@ class AppletContainer(QtGui.QWidget):
         for applet in self._applets:
             self.appletSet.emit(None, applet)
 
+    def show_toolbar(self, show=True):
+        self._show_toolbar = show
+        if show:
+            self.fill_toolbar()
+        else:
+            self.clear_toolbar()
+
+    def fill_toolbar(self):
+
+        if self._show_toolbar is False:
+            return
+
+        applet = self._tabwidget.currentApplet()
+        if applet is None:
+            return
+
+        # Fill toolbar
+        self._menu.show()
+        self.clear_toolbar()
+        try:
+            actions = applet.toolbar_actions()
+        except AttributeError:
+            pass
+        else:
+            self._menu.set_actions(actions)
+
+    def clear_toolbar(self):
+        if self._show_toolbar:
+            self._menu.clear()
+        else:
+            self._menu.hide()
+
     def add_applets(self, applets, **kwds):
         position = kwds.pop('position', 0)
         for i, name in enumerate(applets):
@@ -261,11 +312,14 @@ class AppletContainer(QtGui.QWidget):
         self._tabwidget.setTabPosition(position)
         self._applets = applets
 
+    def _on_applet_changed(self, old, new):
+        self.fill_toolbar()
+
     def _on_tab_position_changed(self):
         self._tabwidget.setTabPosition(self._position_actions[self.sender()])
 
     def _on_tab_changed(self, idx):
-        applet_name = self._tabwidget.currentApplet()
+        applet_name = self._tabwidget.currentAppletName()
         if applet_name:
             self._applet_selector.setCurrentApplet(applet_name)
 
@@ -526,6 +580,9 @@ class OALabMainWin(QtGui.QMainWindow):
             self.clear_toolbar()
             return
 
+        if old is new:
+            return
+
         # Generally focus is on "leaf" widget on widget hierarchy.
         # We try to browse all tree to get widget defining actions
         # For example, if an editor is defined as MyEditor -> Container -> Editor -> QTextEdit
@@ -547,6 +604,8 @@ class OALabMainWin(QtGui.QMainWindow):
             self.fill_toolbar(actions)
         else:
             self.clear_toolbar()
+        # toolbar creation/destruction set focus to toolbar so we reset it to widget
+        new.setFocus(QtCore.Qt.OtherFocusReason)
 
     def fill_toolbar(self, actions):
         menus = plugin_instances('oalab.applet', 'ContextualMenu')

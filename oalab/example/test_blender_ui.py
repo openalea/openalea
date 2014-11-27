@@ -47,7 +47,7 @@ if __name__ == '__main__':
                        7: {'amount': 0.7252336448598131, 'splitDirection': 2},
                        8: {'amount': 0.4803738317757009, 'splitDirection': 2},
                        9: {'widget': {'applet': [u'VtkViewer', u'LineageViewer'], 'position': 0}},
-                       10: {'widget': {'applet': [u'Viewer3D', u'Plot2d'], 'position': 0}},
+                       10: {'widget': {'applet': [u'Viewer3D', u'MplFigureWidget'], 'position': 0}},
                        11: {'widget': {'applet': [u'EditorManager'], 'position': 0}},
                        12: {'widget': {'applet': [u'ShellWidget',
                                                   u'HistoryWidget',
@@ -60,6 +60,7 @@ if __name__ == '__main__':
 
     from openalea.core.service.plugin import PIM
     PIM.debug = True
+    TestMainWin.DEFAULT_LAYOUT = tissuelab_conf
     mw = TestMainWin(tests=[hello_world])
 
     mw.resize(1024, 768)
