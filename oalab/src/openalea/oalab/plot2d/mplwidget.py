@@ -237,7 +237,7 @@ class FigureManagerQTwithTab(mpl_FigureManagerQT):
 
     def __init__(self, num):
         """ overwrite the FigureManageAt.__init__ """
-        focused = QtGui.QApplication.focusWidget()
+        #focused = QtGui.QApplication.focusWidget()
         self.window = MplTabWidget.get_singleton()
         self.canvas, self.widget = self.window.add_tab_canvas(num, self._widgetclosed)
         FigureManagerBase.__init__(self, self.canvas, num)
@@ -254,7 +254,7 @@ class FigureManagerQTwithTab(mpl_FigureManagerQT):
         # clicked
         # on. http://developer.qt.nokia.com/doc/qt-4.8/qt.html#FocusPolicy-enum
         self.canvas.setFocusPolicy(QtCore.Qt.StrongFocus)
-        self.canvas.setFocus()
+        # self.canvas.setFocus()
 
         # QtCore.QObject.connect( self.widget, QtCore.SIGNAL( 'destroyed()' ),
         # self._widgetclosed )
@@ -289,8 +289,8 @@ class FigureManagerQTwithTab(mpl_FigureManagerQT):
                 self.toolbar.update()
         self.canvas.figure.add_axobserver(notify_axes_change)
 
-        if focused is not None:
-            focused.setFocus()
+        # if focused is not None:
+        #    focused.setFocus()
 
     def destroy(self, *args):
         """ override to close only the suitable tab, not the whole MplTabWidget """

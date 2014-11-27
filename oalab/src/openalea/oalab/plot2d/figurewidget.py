@@ -36,7 +36,7 @@ try:
 except ImportError:
     figureoptions = None
 
-from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg
+from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg, NavigationToolbar2QT
 from matplotlib.figure import Figure
 
 from matplotlib import _pylab_helpers
@@ -45,13 +45,7 @@ all_widgets = []
 
 
 class MplFigure(Figure):
-
-    def __getattribute__(self, *args, **kwargs):
-        return Figure.__getattribute__(self, *args, **kwargs)
-
-    def __setattr__(self, *args, **kwargs):
-        print args
-        return Figure.__setattr__(self, *args, **kwargs)
+    pass
 
 
 class MplCanvas(FigureCanvasQTAgg):
@@ -61,12 +55,11 @@ class MplCanvas(FigureCanvasQTAgg):
     def __init__(self, parent=None):
         fig = MplFigure()
         FigureCanvasQTAgg.__init__(self, fig)
-        self.figure.add_axobserver(self._on_axes_changed)
-
-    def _on_axes_changed(self, *args):
-        print 'redraw'
-        self.draw()
-        self.draw_idle()
+#         self.figure.add_axobserver(self._on_axes_changed)
+#
+#     def _on_axes_changed(self, *args):
+#         self.draw()
+#         self.draw_idle()
 
 
 class FigureManagerQT(FigureManagerBase):
@@ -88,22 +81,42 @@ class FigureManagerQT(FigureManagerBase):
         self.canvas = canvas
         self.canvas.setFocusPolicy(QtCore.Qt.StrongFocus)
 
+    def show(self):
+        print 'pylab.plot'
 
-class MatplotlibWidget(QtGui.QFrame):
+
+class MplFigureWidget(QtGui.QFrame):
+
+    count = 0
 
     def __init__(self):
         QtGui.QWidget.__init__(self)
 
+        c = self.palette().color(self.backgroundRole())
+        self._default_color = str((c.red(), c.green(), c.blue()))
+
         self.canvas = MplCanvas()
-        self.manager = FigureManagerQT(self.canvas, 0)
+        self.manager = FigureManagerQT(self.canvas, MplFigureWidget.count)
+        self.mpl_toolbar = NavigationToolbar2QT(self.canvas, None)
+        self.mpl_toolbar.setStyleSheet("background-color: rgb%s;" % self._default_color)
+        self.mpl_toolbar.hide()
+
+        MplFigureWidget.count += 1
         all_widgets.append(self)
-        self.activate()
+
+        self.setToolTip("Figure %d" % self.manager.num)
 
         self.setFrameShape(QtGui.QFrame.Box)
         self.setFrameShadow(QtGui.QFrame.Plain)
 
         self._layout = QtGui.QVBoxLayout(self)
         self._layout.addWidget(self.canvas)
+
+    def initialize(self):
+        self.activate()
+
+    def toolbar_actions(self):
+        return [['', '', action, 0] for action in self.mpl_toolbar.actions()]
 
     def show_active(self):
         self.setFrameShape(QtGui.QFrame.Box)
@@ -158,9 +171,15 @@ def draw_if_interactive():
     if figManager is not None:
         figManager.canvas.draw_idle()
 
-pyplot.switch_backend('qt4agg')
-backend_qt4.draw_if_interactive = draw_if_interactive
-backend_qt4agg.draw_if_interactive = draw_if_interactive
 
-backend_qt4.new_figure_manager_given_figure = new_figure_manager_given_figure
-backend_qt4agg.new_figure_manager_given_figure = new_figure_manager_given_figure
+def activate():
+    pyplot.switch_backend('qt4agg')
+    backend_qt4.draw_if_interactive = draw_if_interactive
+    backend_qt4agg.draw_if_interactive = draw_if_interactive
+
+    backend_qt4.new_figure_manager_given_figure = new_figure_manager_given_figure
+    backend_qt4agg.new_figure_manager_given_figure = new_figure_manager_given_figure
+
+    backend_qt4agg.show = lambda: None
+
+activate()

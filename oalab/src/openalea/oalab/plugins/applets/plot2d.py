@@ -2,25 +2,25 @@
 from openalea.oalab.plugins.applets import PluginApplet
 
 
-class MatplotlibWidget(object):
+class MplFigureWidget(object):
 
-    name = 'MatplotlibWidget'
-    alias = '2D Plot'
+    name = 'FigureWidget'
+    alias = 'Figure (Matplotlib)'
 
     def __call__(self):
         # Load and instantiate graphical component that actually provide feature
-        from openalea.oalab.plot2d.widget2 import MatplotlibWidget
-        return MatplotlibWidget
+        from openalea.oalab.plot2d.figurewidget import MplFigureWidget
+        return MplFigureWidget
 
 
-class Plot2dWidget(PluginApplet):
+class MplTabWidget(PluginApplet):
 
     name = 'Plot2d'
-    alias = 'Plot2d'
+    alias = '2D Plots (Matplotlib)'
 
     def __call__(self):
         # Load and instantiate graphical component that actually provide feature
-        from openalea.oalab.plot2d.widget import MplTabWidget
+        from openalea.oalab.plot2d.mplwidget import MplTabWidget
         return MplTabWidget
 
     def graft(self, **kwds):
