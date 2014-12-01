@@ -411,7 +411,7 @@ class ProjectManagerView(QtGui.QTreeView):
         """
         self.pm.discover()
         projects = self.pm.projects
-        self.proj_selector = ProjectSelectorScroll(projects=projects, open_project=self.set_project)
+        self.proj_selector = ProjectSelectorScroll(projects=projects)
         self.proj_selector.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.proj_selector.show()
 
