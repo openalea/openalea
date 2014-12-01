@@ -468,6 +468,13 @@ class ContextualMenu(QtGui.QWidget):
             self._new_group()
         self._group().addBtnByAction(action, btn_type)
 
+    def properties(self):
+        return dict(style=0)
+
+    def set_properties(self, properties):
+        get = properties.get
+        style = get('style', 0)
+
 if __name__ == '__main__':
 
     import sys

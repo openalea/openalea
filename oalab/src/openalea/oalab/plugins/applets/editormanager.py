@@ -5,7 +5,8 @@ from openalea.oalab.plugins.applets import PluginApplet
 class EditorManager(PluginApplet):
 
     name = 'EditorManager'
-    alias = 'EditorManager'
+    alias = 'Model Editor'
+    icon = 'oxygen_text-x-python.png'
 
     def __call__(self):
         # Load and instantiate graphical component that actually provide feature

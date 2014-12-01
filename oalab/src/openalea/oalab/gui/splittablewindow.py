@@ -30,11 +30,19 @@ from openalea.core.plugin.manager import PluginManager
 import openalea.core
 
 
-def obj_icon(obj):
+def obj_icon(obj, rotation=0, size=(64, 64)):
     if hasattr(obj, 'icon'):
-        return qicon(obj.icon)
+        icon = qicon(obj.icon)
     else:
-        return qicon('Crystal_Clear_action_edit_add.png')
+        icon = qicon('oxygen_application-x-desktop.png')
+
+    if rotation:
+        pix = icon.pixmap(*size)
+        transform = QtGui.QTransform()
+        transform.rotate(rotation)
+        pix = pix.transformed(transform)
+        icon = QtGui.QIcon(pix)
+    return icon
 
 
 class AppletSelector(QtGui.QWidget):
@@ -97,15 +105,25 @@ class AppletTabWidget(QtGui.QTabWidget):
 
     def __init__(self):
         QtGui.QTabWidget.__init__(self)
+
+        # Display options
         self.setContentsMargins(0, 0, 0, 0)
-        self.tabCloseRequested.connect(self.remove_tab)
         self.setDocumentMode(True)
+
+        # Tab management
         self.setMovable(True)
+        self.tabCloseRequested.connect(self.remove_tab)
+        self.tabBar().tabMoved.connect(self._on_tab_moved)
 
+        # Internal dicts
+        # dict: idx -> name -> applet.
+        # Ex: self._applets[0]['Help'] -> <HelpWidget instance at 0x7fea19a07d88>
         self._applets = {}
-        self._name = {}
-        self._current = None
 
+        # dict: idx -> name of current applet
+        self._name = {}
+
+        # Set in edit mode by default
         self.set_edit_mode()
 
     def tabInserted(self, index):
@@ -113,6 +131,18 @@ class AppletTabWidget(QtGui.QTabWidget):
 
     def tabRemoved(self, index):
         self.tabBar().setVisible(self.count() > 1)
+
+    def setTabPosition(self, *args, **kwargs):
+        rvalue = QtGui.QTabWidget.setTabPosition(self, *args, **kwargs)
+        for idx in range(self.count()):
+            self._redraw_tab(idx)
+        return rvalue
+
+    def _on_tab_moved(self, old, new):
+        self._name[old], self._name[new] = self._name[new], self._name[old]
+        self._applets[old], self._applets[new] = self._applets[new], self._applets[old]
+        self._redraw_tab(old)
+        self._redraw_tab(new)
 
     def set_edit_mode(self, mode=True):
         self._edit_mode = mode
@@ -127,15 +157,25 @@ class AppletTabWidget(QtGui.QTabWidget):
         self.setCurrentWidget(widget)
 
     def remove_tab(self, idx):
+        """
+         - Destroy all applets in current tabs (current applet and previous hidden applets)
+         - Then, remove tab.
+        """
         if idx in self._applets:
+            tab = self.currentWidget()
             for applet in self._applets[idx].values():
+                tab.layout().removeWidget(applet)
                 applet.close()
                 del applet
-            self._applets[idx] = {}
+            del self._applets[idx]
+            del self._name[idx]
         self.removeTab(idx)
 
-    def set_applet(self, name):
-        # clear view
+    def set_applet(self, name, properties=None):
+        """
+        Show applet "name" in current tab.
+        """
+        # clear view (hide all widgets in current tab)
         idx = self.currentIndex()
         old = self._name.get(idx, None)
         for applet in self._applets.get(idx, {}).values():
@@ -144,29 +184,57 @@ class AppletTabWidget(QtGui.QTabWidget):
         if not name:
             return
 
-        if name in self._name.get(idx, {}):
+        # If applet has been instantiated before, just show it
+        # Else, instantiate a new one, place it in layout and show it
+        if name in self._applets.get(idx, {}):
             applet = self._applets[idx][name]
             applet.show()
         else:
-            # If applet is not yet instantiated, we instantiate it as the main instance (ie reachable thanks to plugin_instance)
+            # If applet has never been instantiated in the whole application,
+            # we instantiate it as the "main" instance (ie reachable thanks to plugin_instance)
             # else, just create a new one.
             if plugin_instance_exists('oalab.applet', name):
                 applet = new_plugin_instance('oalab.applet', name)
             else:
                 applet = plugin_instance('oalab.applet', name)
+
             if applet is None:
                 return
+
+            applet.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+            if properties:
+                try:
+                    applet.set_properties(properties)
+                except AttributeError:
+                    print applet, 'do not support properties'
+
             tab = self.currentWidget()
             tab.layout().addWidget(applet)
             self._applets.setdefault(idx, {})[name] = applet
-            self._name[idx] = name
 
-        _plugin_class = plugin_class('oalab.applet', name)
+        self._name[idx] = name
+        self._redraw_tab(idx)
 
-        #self.setTabText(idx, _plugin_class.alias)
-        self.setTabIcon(idx, obj_icon(_plugin_class))
-        self.setTabToolTip(idx, _plugin_class.alias)
         self.appletSet.emit(old, name)
+
+    def _redraw_tab(self, idx):
+        """
+        """
+        if idx not in self._name:
+            return
+
+        name = self._name[idx]
+        _plugin_class = plugin_class('oalab.applet', name)
+        #self.setTabText(idx, _plugin_class.alias)
+        if self.tabPosition() == QtGui.QTabWidget.East:
+            rotation = -90
+        elif self.tabPosition() == QtGui.QTabWidget.West:
+            rotation = 90
+        else:
+            rotation = 0
+
+        self.setTabIcon(idx, obj_icon(_plugin_class, rotation=rotation))
+        self.setTabToolTip(idx, _plugin_class.alias)
 
     def currentAppletName(self):
         try:
@@ -181,8 +249,25 @@ class AppletTabWidget(QtGui.QTabWidget):
         except KeyError:
             return None
 
+    def properties(self):
+        return dict(position=self.tabPosition())
+
+    def set_properties(self, properties):
+        get = properties.get
+        self.setTabPosition(get('position', 0))
+
     def toString(self):
-        layout = dict(applet=self._name.values(), position=self.tabPosition())
+        applets = []
+        for idx in range(self.count()):
+            if idx in self._name:
+                name = self._name[idx]
+                try:
+                    properties = self._applets[idx][name].properties()
+                    applet_dict = dict(name=name, properties=properties)
+                except AttributeError:
+                    applet_dict = dict(name=name)
+                applets.append(applet_dict)
+        layout = dict(applets=applets, properties=self.properties())
         return layout
 
 
@@ -303,14 +388,21 @@ class AppletContainer(QtGui.QWidget):
             self._menu.hide()
 
     def add_applets(self, applets, **kwds):
-        position = kwds.pop('position', 0)
-        for i, name in enumerate(applets):
+        """
+        applets: list of dict defining applets.
+        Each dict must define at least a key "name".
+        Ex: applets = [{'name':'MyWidget'}]
+        """
+        names = []
+        for i, applet in enumerate(applets):
+            name = applet['name']
+            names.append(name)
+            properties = applet.get('properties', {})
             if i:
                 self._tabwidget.new_tab()
-            self._tabwidget.set_applet(name)
+            self._tabwidget.set_applet(name, properties=properties)
         self._tabwidget.setCurrentIndex(0)
-        self._tabwidget.setTabPosition(position)
-        self._applets = applets
+        self._applets = names
 
     def _on_applet_changed(self, old, new):
         self.fill_toolbar()
@@ -343,6 +435,12 @@ class AppletContainer(QtGui.QWidget):
         else:
             self.menu_edit_off.exec_(event.globalPos())
 
+    def properties(self):
+        return self._tabwidget.properties()
+
+    def set_properties(self, properties):
+        self._tabwidget.set_properties(properties)
+
     def toString(self):
         return self._tabwidget.toString()
 
@@ -372,12 +470,13 @@ class InitContainerVisitor(object):
 
     def _to_qwidget(self, widget):
         if isinstance(widget, dict):
-            position = widget.get('position', 0)
-            applets = widget.get('applet', [])
+            properties = widget.get('properties', {})
+            applets = widget.get('applets', [])
             if applets is None:
                 return widget
             container = AppletContainer()
-            container.add_applets(applets, position=position)
+            container.add_applets(applets)
+            container.set_properties(properties)
             widget = container
         return widget
 
@@ -650,7 +749,12 @@ from openalea.core.service.ipython import interpreter
 
 
 class TestMainWin(OALabMainWin):
-    DEFAULT_LAYOUT = ({}, {0: None}, {0: {'widget': {'position': 0, 'applet': [u'ShellWidget']}}})
+    DEFAULT_LAYOUT = ({}, {0: None}, {0: {
+        'widget': {
+            'properties': {'position': 0},
+            'applets': [{'name': 'ShellWidget'}]
+        }
+    }})
 
     def __init__(self, layout=None, **kwds):
         """

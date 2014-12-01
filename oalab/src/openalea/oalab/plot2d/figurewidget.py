@@ -136,6 +136,16 @@ class MplFigureWidget(QtGui.QFrame):
         else:
             self.manager.num = num
             Gcf.figs[num] = self.manager
+            self.setToolTip("Figure %d" % self.manager.num)
+
+    def properties(self):
+        return dict(num=self.manager.num)
+
+    def set_properties(self, properties):
+        get = properties.get
+        num = get('num', None)
+        if num is not None:
+            self.set_num(num)
 
     def activate(self):
         def make_active(event):

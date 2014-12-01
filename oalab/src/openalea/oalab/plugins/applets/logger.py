@@ -6,6 +6,7 @@ class Logger(PluginApplet):
 
     name = 'Logger'
     alias = 'Logger'
+    icon = 'icon_logger2.png'
 
     def __call__(self):
         # Load and instantiate graphical component that actually provide feature

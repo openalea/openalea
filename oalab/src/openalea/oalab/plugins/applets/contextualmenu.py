@@ -2,7 +2,7 @@
 class ContextualMenu(object):
 
     name = 'ContextualMenu'
-    alias = 'Menu'
+    alias = 'Contextual Menu'
 
     def __call__(self):
         from openalea.oalab.gui.menu import ContextualMenu

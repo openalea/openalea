@@ -6,6 +6,7 @@ class MplFigureWidget(object):
 
     name = 'FigureWidget'
     alias = 'Figure (Matplotlib)'
+    icon = 'icon_mplfigure.png'
 
     def __call__(self):
         # Load and instantiate graphical component that actually provide feature
@@ -17,6 +18,7 @@ class MplTabWidget(PluginApplet):
 
     name = 'Plot2d'
     alias = '2D Plots (Matplotlib)'
+    icon = 'icon_mplwidget.png'
 
     def __call__(self):
         # Load and instantiate graphical component that actually provide feature
