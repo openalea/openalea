@@ -1,6 +1,7 @@
 from openalea.vpltk.qt import QtGui
 from openalea.core.path import path
 from openalea.core.project import Project
+from openalea.core.project.manager import ProjectManager
 
 
 def pretty_print(obj):
@@ -41,9 +42,8 @@ class Preview(QtGui.QWidget):
     This widget displays meta-information about project.
     """
 
-    def __init__(self, project, open_project=None, parent=None):
+    def __init__(self, project, parent=None):
         super(Preview, self).__init__(parent)
-        self.open_project = open_project
         wanted_size = 50
         self.project = project
 
@@ -94,9 +94,9 @@ class Preview(QtGui.QWidget):
         self.setLayout(layout)
 
     def on_project_opened(self):
-        if self.open_project:
-            self.open_project(self.project)
-            self.hide()
+        pm = ProjectManager()
+        pm.cproject = self.project
+        self.hide()
 
 
 def main():
