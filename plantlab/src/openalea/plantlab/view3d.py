@@ -263,8 +263,11 @@ class Viewer(AbstractListener, view3D):
     def toolbar_actions(self):
         return self.actions()
 
-    def global_menu_actions(self):
-        return self.actions()
+    def menus(self):
+        menu = QtGui.QMenu('View', self)
+        actions = [action[2] for action in self.actions()]
+        menu.addActions(actions)
+        return [menu]
 
     def resetzoom(self):
         self.camera().setOrientation(self.orientation_initiale)

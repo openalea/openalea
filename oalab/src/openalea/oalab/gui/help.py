@@ -90,8 +90,11 @@ class HelpWidget(QtGui.QTextBrowser):
     def toolbar_actions(self):
         return self.actions()
 
-    def global_menu_actions(self):
-        return self.actions()
+    def menus(self):
+        menu = QtGui.QMenu('Help', self)
+        actions = [action[2] for action in self.actions()]
+        menu.addActions(actions)
+        return [menu]
 
     def openWebsiteOpenalea(self):
         self.openWeb('http://openalea.github.io')

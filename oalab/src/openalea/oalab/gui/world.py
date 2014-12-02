@@ -43,12 +43,13 @@ class WorldBrowser(GenericWorldBrowser, AbstractListener):
     def __init__(self, world=None):
         AbstractListener.__init__(self)
         super(WorldBrowser, self).__init__()
+        self.world = None
         if world:
             self.set_world(self.world)
         else:
             session = Session()
             if session.world:
-                self.set_world(self.world)
+                self.set_world(session.world)
 
         QtCore.QObject.connect(self.tree, QtCore.SIGNAL('doubleClicked(const QModelIndex&)'), self.show_world_object)
 

@@ -200,10 +200,50 @@ class ParadigmContainer(QtGui.QTabWidget):
             ["Edit", "Text Edit", self.actionRunSelection, 0],
         ]
 
-    def global_menu_actions(self):
-        actions = self.toolbar_actions()
-        actions.insert(0, ["Project", "Manage", "-", 0])
+    def menu_actions(self):
+        actions = []
+        for menu in self.menus():
+            actions += menu.actions()
         return actions
+
+    def menus(self):
+
+        menu_project = QtGui.QMenu("Project", self)
+        menu_edit = QtGui.QMenu("Edit", self)
+
+        menu_play = QtGui.QMenu("Run", menu_project)
+        menu_manage = QtGui.QMenu("Files", menu_project)
+
+        menu_project.addMenu(menu_manage)
+        menu_project.addMenu(menu_play)
+
+        menu_manage.addActions([
+            self.actionNewFile,
+            self.actionAddFile,
+            self.actionOpenFile,
+            self.actionSave,
+            self.actionCloseCurrent,
+        ])
+
+        menu_play.addActions([
+            self.actionRun,
+            self.actionAnimate,
+            self.actionStep,
+            self.actionStop,
+            self.actionInit,
+        ])
+
+        menu_edit.addActions([
+            self.actionUndo,
+            self.actionRedo,
+            self.actionSearch,
+            self.actionGoto,
+            self.actionComment,
+            self.actionUnComment,
+            self.actionRunSelection,
+        ])
+
+        return [menu_project, menu_edit]
 
     def on_current_tab_changed(self):
         controller = self.current_controller()

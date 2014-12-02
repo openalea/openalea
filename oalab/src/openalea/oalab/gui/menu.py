@@ -101,6 +101,16 @@ style = """
 """
 
 
+def fill_panedmenu(menu, actions):
+    for action in actions:
+        if isinstance(action, QtGui.QAction):
+            menu.addBtnByAction('', 'Default', action, 0)
+        elif isinstance(action, (list, tuple)):
+            menu.addBtnByAction(*action)
+        else:
+            continue
+
+
 class PanedMenu(QtGui.QTabWidget):
 
     """
@@ -455,13 +465,7 @@ class ContextualMenu(QtGui.QWidget):
 
     def set_actions(self, actions):
         self.clear()
-        for action in actions:
-            if isinstance(action, QtGui.QAction):
-                self.addBtnByAction('', 'Default', action, 0)
-            elif isinstance(action, (list, tuple)):
-                self.addBtnByAction(*action)
-            else:
-                continue
+        fill_panedmenu(self, actions)
 
     def addBtnByAction(self, pane_name, group_name, action, btn_type=0):
         if self._group is None:

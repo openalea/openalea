@@ -181,11 +181,13 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
             ["Project", "Manage", self.view.actionEditMeta, 1],
         ]
 
-    def global_menu_actions(self):
-        actions = self.toolbar_actions()
-        actions.append(["Project", "Manage", "-", None])
-        actions.append(["Project", "Manage", self.menu_available_projects, None])
-        return actions
+    def menus(self):
+        actions = [action[2] for action in self.toolbar_actions()]
+        menu = QtGui.QMenu('Project', self)
+        menu.addActions(actions)
+        menu.addSeparator()
+        menu.addMenu(self.menu_available_projects)
+        return [menu]
 
     def project(self):
         if self.pm:
