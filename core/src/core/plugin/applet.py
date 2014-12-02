@@ -168,27 +168,25 @@ class IApplet(IInterface):
     def actions(self):
         """
         Optional: list of all actions available for this applet
+        See original QtGui.QWidget.actions method.
+
+        Example::
+
+            # instructions written in constructor
+            action_new = QtGui.QAction('New', self)
+            self.addAction(action_new)
         """
         pass
 
-    def toolbar_actions(self):
+    def toolbars(self):
         """
-        Optional: list of actions to use in contextual toolbar
+        Optional: return a list of QToolBar
         """
-        pass
-
-    def menu_actions(self):
-        """
-        Contextual menu actions
-        """
-
-    def global_menu_actions(self):
-        pass
 
     def global_toolbar_actions(self):
         """
-        Optional: list of actions/menu to set in menu.
-        action: (menu name, action)
+        Optional: list of actions to use in main toolbar.
+        See toolbar
 
         ..warning::
 
@@ -203,6 +201,46 @@ class IApplet(IInterface):
             A contextual menu is also generated dynamically for current applet, see toolbar_actions, menu_actions
         """
         pass
+
+    def toolbar_actions(self):
+        """
+        Optional: list of actions to use in contextual toolbar
+
+        Example::
+
+            def toolbar_actions(self):
+                action_new = QtGui.QAction("New")
+                action_open = QtGui.QAction("Open")
+                action_save = QtGui.QAction("Save")
+
+                action_run = QtGui.QAction("Run")
+                action_debug = QtGui.QAction("Debug")
+                menu_run = QtGui.QMenu("Run")
+                menu_run.addActions([action_run, action_debug])
+
+                actions = [
+                    menu_run, # Menu syntax (generally transformed as toolbutton)
+                    action_new, # Default syntax
+                    {'action': action_open, 'style':0} # Dict syntax
+                ]
+
+        .. warning ::
+
+            List syntax ["Panel", "Group", action, style] is now deprecated.
+            Use dict syntax instead
+
+        """
+        pass
+
+    def menus(self):
+        """
+        Optional: list of QMenu to use in main menu
+        """
+
+    def menu_actions(self):
+        """
+        Optional: list of QAction/QMenu to use in contextual menu
+        """
 
 
 class IPluginApplet(object):

@@ -116,6 +116,9 @@ class PluginManager(object):
         for ep in iter_entry_points(category):
             self._load_entry_point_plugin(category, ep, plugin_proxy=plugin_proxy)
 
+    def discover(self, category):
+        self._load_plugins(category)
+
     def plugin(self, category, name=None):
         """
         Return a list of all plugins available for this category.

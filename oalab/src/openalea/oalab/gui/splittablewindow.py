@@ -18,6 +18,7 @@
 #
 ###############################################################################
 
+
 import weakref
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.oalab.service.applet import new_applet
@@ -27,7 +28,53 @@ from openalea.core.service.plugin import (new_plugin_instance, plugin_instances,
 from openalea.oalab.gui.utils import qicon
 from openalea.oalab.gui.menu import ContextualMenu
 from openalea.core.plugin.manager import PluginManager
+
 import openalea.core
+
+
+def menu_actions(widget):
+    actions = []
+    if widget is None:
+        return actions
+    if hasattr(widget, 'menu_actions'):
+        actions += widget.menu_actions()
+    elif widget.actions():
+        actions += widget.actions()
+    return actions
+
+
+def fill_menu(menu, actions):
+    for action in actions:
+        if isinstance(action, QtGui.QAction):
+            menu.addAction(action)
+        elif isinstance(action, (list, tuple)):
+            menu.addAction(action[2])
+        elif isinstance(action, QtGui.QMenu):
+            menu.addMenu(action)
+        elif action == '-':
+            menu.addSeparator()
+        else:
+            continue
+
+
+def fill_panedmenu(menu, actions):
+    for action in actions:
+        if isinstance(action, QtGui.QAction):
+            menu.addBtnByAction('Default', 'Default', action, 0)
+        elif isinstance(action, (list, tuple)):
+            menu.addBtnByAction(*action)
+        elif isinstance(action, dict):
+            args = [
+                action.get('pane', 'Default'),
+                action.get('group', 'Default'),
+                action['action'],
+                action.get('style', 0)
+            ]
+            menu.addBtnByAction(*args)
+        elif isinstance(action, QtGui.QMenu):
+            pass
+        else:
+            continue
 
 
 def obj_icon(obj, rotation=0, size=(64, 64)):
@@ -47,9 +94,13 @@ def obj_icon(obj, rotation=0, size=(64, 64)):
 
 class AppletSelector(QtGui.QWidget):
 
+    """
+    Combobox listing all applets available.
+    Signals:
+      - appletChanged(name): sent when an applet is selected 
+    """
+
     appletChanged = QtCore.Signal(str)
-    addTabClicked = QtCore.Signal()
-    removeTabClicked = QtCore.Signal()
 
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self)
@@ -100,6 +151,131 @@ class AppletSelector(QtGui.QWidget):
                 break
 
 
+class AppletFrame(QtGui.QWidget):
+
+    """
+    """
+
+    def __init__(self):
+        QtGui.QWidget.__init__(self)
+
+        self._show_toolbar = False
+        self._show_title = False
+        self._edit_mode = False
+
+        self._applet = None
+
+        self.setContentsMargins(0, 0, 0, 0)
+        self._layout = QtGui.QVBoxLayout(self)
+        self._layout.setContentsMargins(0, 0, 0, 0)
+
+        self._l_title = QtGui.QLabel('No applet selected')
+        self._l_title.hide()
+        self._menu = ContextualMenu()
+
+        p = QtGui.QSizePolicy
+        self._l_title.setSizePolicy(p(p.MinimumExpanding, p.Maximum))
+        self._l_title.setAlignment(QtCore.Qt.AlignVCenter)
+
+        self._layout.setAlignment(self._l_title, QtCore.Qt.AlignVCenter)
+
+        self._layout.addWidget(self._l_title)
+        self._layout.addWidget(self._menu)
+
+        self._create_actions()
+
+    def _create_actions(self):
+        self.action_toolbar = QtGui.QAction("Toolbar", self)
+        self.action_toolbar.setCheckable(True)
+        self.action_toolbar.toggled.connect(self.show_toolbar)
+
+        self.action_title = QtGui.QAction("Title", self)
+        self.action_title.setCheckable(True)
+        self.action_title.toggled.connect(self.show_title)
+
+    def menu_actions(self):
+        if self._applet:
+            applet = self._applet()
+        else:
+            applet = None
+        if self._edit_mode:
+            actions = [self.action_title, self.action_toolbar]
+        else:
+            actions = menu_actions(applet)
+        return actions
+
+    def contextMenuEvent(self, event):
+        menu = QtGui.QMenu()
+        fill_menu(menu, self.menu_actions())
+        menu.exec_(event.globalPos())
+
+    def set_edit_mode(self, edit=True):
+        self._edit_mode = edit
+
+    def set_applet(self, applet):
+        self._applet = weakref.ref(applet)
+        self._layout.insertWidget(1, applet)
+        _plugin_class = plugin_class('oalab.applet', applet.name)
+        self._l_title.setText(_plugin_class.alias)
+        p = QtGui.QSizePolicy
+        applet.setSizePolicy(p(p.MinimumExpanding, p.MinimumExpanding))
+
+    def remove_applet(self, applet):
+        self._layout.removeWidget(applet)
+
+    def show_title(self, show=True):
+        self._show_title = show
+        self.action_title.setChecked(show)
+        self._l_title.setVisible(show)
+
+    def show_toolbar(self, show=True):
+        self._show_toolbar = show
+        self.action_toolbar.setChecked(show)
+        if show:
+            self.fill_toolbar()
+        else:
+            self.clear_toolbar()
+
+    def fill_toolbar(self):
+
+        if self._show_toolbar is False:
+            return
+
+        if self._applet is None:
+            return
+
+        applet = self._applet()
+        if applet is None:
+            return
+
+        # Fill toolbar
+        self._menu.show()
+        self.clear_toolbar()
+        try:
+            actions = applet.toolbar_actions()
+        except AttributeError:
+            pass
+        else:
+            fill_panedmenu(self._menu, actions)
+
+    def clear_toolbar(self):
+        if self._show_toolbar:
+            self._menu.clear()
+        else:
+            self._menu.hide()
+
+    def properties(self):
+        return dict(
+            toolbar=self._show_toolbar,
+            title=self._show_title
+        )
+
+    def set_properties(self, properties):
+        get = properties.get
+        self.show_toolbar(get('toolbar', False))
+        self.show_title(get('title', False))
+
+
 class AppletTabWidget(QtGui.QTabWidget):
     appletSet = QtCore.Signal(object, object)
 
@@ -146,13 +322,22 @@ class AppletTabWidget(QtGui.QTabWidget):
 
     def set_edit_mode(self, mode=True):
         self._edit_mode = mode
+        applet_frame = self.currentWidget()
+        if applet_frame:
+            applet_frame.set_edit_mode(mode)
         self.setTabsClosable(mode)
 
+    def menu_actions(self):
+        return menu_actions(self.currentWidget())
+
+    def contextMenuEvent(self, event):
+        menu = QtGui.QMenu()
+        fill_menu(menu, self.menu_actions())
+        menu.exec_(event.globalPos())
+
     def new_tab(self):
-        widget = QtGui.QWidget()
-        widget.setContentsMargins(0, 0, 0, 0)
-        layout = QtGui.QVBoxLayout(widget)
-        layout.setContentsMargins(0, 0, 0, 0)
+        widget = AppletFrame()
+        widget.setContextMenuPolicy(QtCore.Qt.NoContextMenu)
         self.addTab(widget, '')
         self.setCurrentWidget(widget)
 
@@ -164,7 +349,7 @@ class AppletTabWidget(QtGui.QTabWidget):
         if idx in self._applets:
             tab = self.currentWidget()
             for applet in self._applets[idx].values():
-                tab.layout().removeWidget(applet)
+                tab.remove_applet(applet)
                 applet.close()
                 del applet
             del self._applets[idx]
@@ -202,14 +387,16 @@ class AppletTabWidget(QtGui.QTabWidget):
                 return
 
             applet.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+            applet.setContextMenuPolicy(QtCore.Qt.NoContextMenu)
+            applet.name = name
             if properties:
                 try:
                     applet.set_properties(properties)
                 except AttributeError:
-                    print applet, 'do not support properties'
+                    pass
 
             tab = self.currentWidget()
-            tab.layout().addWidget(applet)
+            tab.set_applet(applet)
             self._applets.setdefault(idx, {})[name] = applet
 
         self._name[idx] = name
@@ -235,6 +422,7 @@ class AppletTabWidget(QtGui.QTabWidget):
 
         self.setTabIcon(idx, obj_icon(_plugin_class, rotation=rotation))
         self.setTabToolTip(idx, _plugin_class.alias)
+        self.widget(idx).set_edit_mode(self._edit_mode)
 
     def currentAppletName(self):
         try:
@@ -261,12 +449,12 @@ class AppletTabWidget(QtGui.QTabWidget):
         for idx in range(self.count()):
             if idx in self._name:
                 name = self._name[idx]
+                properties = self.currentWidget().properties()
                 try:
-                    properties = self._applets[idx][name].properties()
-                    applet_dict = dict(name=name, properties=properties)
+                    properties.update(self._applets[idx][name].properties())
                 except AttributeError:
-                    applet_dict = dict(name=name)
-                applets.append(applet_dict)
+                    pass
+                applets.append(dict(name=name, properties=properties))
         layout = dict(applets=applets, properties=self.properties())
         return layout
 
@@ -283,22 +471,17 @@ class AppletContainer(QtGui.QWidget):
 
         self._applets = []
         self._edit_mode = True
-        self._show_toolbar = False
 
         self._tabwidget = AppletTabWidget()
+        self._tabwidget.setContextMenuPolicy(QtCore.Qt.NoContextMenu)
         self._tabwidget.appletSet.connect(self.appletSet.emit)
         self._tabwidget.currentChanged.connect(self._on_tab_changed)
         self.appletSet.connect(self._on_applet_changed)
 
-        self._menu = ContextualMenu()
-
         self._applet_selector = AppletSelector()
         self._applet_selector.appletChanged.connect(self._tabwidget.set_applet)
-        self._applet_selector.addTabClicked.connect(self._tabwidget.new_tab)
-        self._applet_selector.removeTabClicked.connect(self._tabwidget.remove_tab)
 
         self._layout.addWidget(self._tabwidget)
-        self._layout.addWidget(self._menu)
         self._layout.addWidget(self._applet_selector)
 
         self._tabwidget.new_tab()
@@ -312,6 +495,7 @@ class AppletContainer(QtGui.QWidget):
         self.action_unlock = QtGui.QAction(qicon('oxygen_object-unlocked.png'), "Edit layout", self.menu_edit_off)
         self.action_unlock.triggered.connect(self.unlock_layout)
         self.menu_edit_off.addAction(self.action_unlock)
+        self.menu_edit_off.addSeparator()
 
         # Menu if edit mode is ON
         self.menu_edit_on = QtGui.QMenu(self)
@@ -326,13 +510,7 @@ class AppletContainer(QtGui.QWidget):
             qicon('Crystal_Clear_action_edit_remove.png'), "Remove tab", self.menu_edit_on)
         self.action_remove_tab.triggered.connect(self._tabwidget.remove_tab)
 
-        self.action_toolbar = QtGui.QAction("Toolbar", self.menu_edit_on)
-        self.action_toolbar.setCheckable(True)
-        self.action_toolbar.toggled.connect(self.show_toolbar)
-
         self.menu_edit_on.addAction(self.action_lock)
-        self.menu_edit_on.addSeparator()
-        self.menu_edit_on.addAction(self.action_toolbar)
         self.menu_edit_on.addSeparator()
         self.menu_edit_on.addAction(self.action_add_tab)
         self.menu_edit_on.addAction(self.action_remove_tab)
@@ -351,41 +529,18 @@ class AppletContainer(QtGui.QWidget):
 
         self.set_edit_mode()
 
+    def menu_actions(self):
+        if self._edit_mode is True:
+            actions = self.menu_edit_on.actions()
+            actions += self._tabwidget.menu_actions()
+        else:
+            actions = self.menu_edit_off.actions()
+            actions += self._tabwidget.menu_actions()
+        return actions
+
     def emit_applet_set(self):
         for applet in self._applets:
             self.appletSet.emit(None, applet)
-
-    def show_toolbar(self, show=True):
-        self._show_toolbar = show
-        if show:
-            self.fill_toolbar()
-        else:
-            self.clear_toolbar()
-
-    def fill_toolbar(self):
-
-        if self._show_toolbar is False:
-            return
-
-        applet = self._tabwidget.currentApplet()
-        if applet is None:
-            return
-
-        # Fill toolbar
-        self._menu.show()
-        self.clear_toolbar()
-        try:
-            actions = applet.toolbar_actions()
-        except AttributeError:
-            pass
-        else:
-            self._menu.set_actions(actions)
-
-    def clear_toolbar(self):
-        if self._show_toolbar:
-            self._menu.clear()
-        else:
-            self._menu.hide()
 
     def add_applets(self, applets, **kwds):
         """
@@ -401,11 +556,9 @@ class AppletContainer(QtGui.QWidget):
             if i:
                 self._tabwidget.new_tab()
             self._tabwidget.set_applet(name, properties=properties)
+            self._tabwidget.currentWidget().set_properties(properties)
         self._tabwidget.setCurrentIndex(0)
         self._applets = names
-
-    def _on_applet_changed(self, old, new):
-        self.fill_toolbar()
 
     def _on_tab_position_changed(self):
         self._tabwidget.setTabPosition(self._position_actions[self.sender()])
@@ -414,6 +567,9 @@ class AppletContainer(QtGui.QWidget):
         applet_name = self._tabwidget.currentAppletName()
         if applet_name:
             self._applet_selector.setCurrentApplet(applet_name)
+
+    def _on_applet_changed(self, old, new):
+        pass
 
     def lock_layout(self):
         self.set_edit_mode(False)
@@ -430,10 +586,9 @@ class AppletContainer(QtGui.QWidget):
         self._tabwidget.set_edit_mode(mode)
 
     def contextMenuEvent(self, event):
-        if self._edit_mode:
-            self.menu_edit_on.exec_(event.globalPos())
-        else:
-            self.menu_edit_off.exec_(event.globalPos())
+        menu = QtGui.QMenu()
+        fill_menu(menu, self.menu_actions())
+        menu.exec_(event.globalPos())
 
     def properties(self):
         return self._tabwidget.properties()
@@ -620,7 +775,7 @@ class OALabSplittableUi(SplittableUI):
 
 class OALabMainWin(QtGui.QMainWindow):
     appletSet = QtCore.Signal(object, object)
-    DEFAULT_MENU_NAMES = ('Project', 'Edit', 'Viewer', 'Help')
+    DEFAULT_MENU_NAMES = ('Project', 'Edit', 'View', 'Help')
 
     def __init__(self, layout=None):
         QtGui.QMainWindow.__init__(self)
@@ -710,13 +865,37 @@ class OALabMainWin(QtGui.QMainWindow):
         menus = plugin_instances('oalab.applet', 'ContextualMenu')
         for menu in menus:
             menu.clear()
-            for action in actions:
-                menu.addBtnByAction(*action)
+            fill_panedmenu(menu, actions)
 
     def clear_toolbar(self):
         menus = plugin_instances('oalab.applet', 'ContextualMenu')
         for menu in menus:
             menu.clear()
+
+    def _merge_menus(self, menus):
+        parent = self
+        default_menus = self.menu_classic
+        menubar = self.menuBar()
+
+        for _menu in menus:
+            menu_name = _menu.title()
+            if menu_name in default_menus:
+                menu = default_menus[menu_name]
+            else:
+                menu = QtGui.QMenu(menu_name, parent)
+                default_menus[menu_name] = menu
+                menubar.addMenu(menu)
+
+        for _menu in menus:
+            menu_name = _menu.title()
+            menu = default_menus[menu_name]
+            for action in _menu.actions():
+                if isinstance(action, QtGui.QAction):
+                    menu.addAction(action)
+                elif isinstance(action, QtGui.QMenu):
+                    menu.addMenu(action)
+                elif action == '-':
+                    menu.addSeparator()
 
     def _on_applet_set(self, old, new):
         if new in self._registered_applets:
@@ -725,21 +904,20 @@ class OALabMainWin(QtGui.QMainWindow):
         self._registered_applets.append(new)
         applet = plugin_instance('oalab.applet', new)
 
-        if applet and hasattr(applet, 'global_menu_actions'):
-            actions = applet.global_menu_actions()
-            if actions is None:
+        # Add global menus
+        if applet and hasattr(applet, 'menus'):
+            menus = applet.menus()
+            if menus is None:
                 return
-            for menu_name, submenu_name, action, style in actions:
-                if menu_name in self.menu_classic:
-                    menu = self.menu_classic[menu_name]
-                else:
-                    menu = QtGui.QMenu(menu_name)
-                if isinstance(action, QtGui.QAction):
-                    menu.addAction(action)
-                elif isinstance(action, QtGui.QMenu):
-                    menu.addMenu(action)
-                elif action == '-':
-                    menu.addSeparator()
+            self._merge_menus(menus)
+
+        # Add global toolbars
+        if applet and hasattr(applet, 'toolbars'):
+            toolbars = applet.toolbars()
+            if toolbars is None:
+                return
+            for toolbar in toolbars:
+                self.addToolBar(QtCore.Qt.TopToolBarArea, toolbar)
 
     def layout(self):
         return eval(self.splittable.toString())
@@ -788,7 +966,7 @@ class TestMainWin(OALabMainWin):
             return plugin_instances('oalab.applet', name)
 
         self.interp.user_ns['applet'] = applet
-        self.interp.user_ns['applets'] = applet
+        self.interp.user_ns['applets'] = applets
 
         for f in kwds.pop('tests', []):
             self.interp.user_ns['run_%s' % f.__name__] = f
