@@ -3,7 +3,7 @@ from openalea.core.control.manager import ControlContainer
 from openalea.core.service.interface import interface_name
 from openalea.core.plugin import iter_plugins
 from openalea.vpltk.qt import QtGui
-
+from openalea.oalab.gui.utils import ModalDialog
 from openalea.oalab.session.session import Session
 
 """
@@ -14,21 +14,23 @@ If shape is a string, returns widget corresponding to this shape.
 If it's a list, search widget for first shape. If no widgets found, search for second shape and so on.
 """
 
+
 def discover_qt_controls():
     session = Session()
     return [plugin for plugin in iter_plugins('oalab.qt_control', debug=session.debug_plugins)]
+
 
 def qt_editor_class(iname, shape=None, preferred=None):
     iname = interface_name(iname)
     # Get all widget plugin for "iname" interface
     widget_plugins = qt_widget_plugins(iname)
 
-    # If preferred widget(s) is/are specified, try to find it 
+    # If preferred widget(s) is/are specified, try to find it
     if isinstance(preferred, str):
         preferred_widgets = [preferred]
     else:
         preferred_widgets = preferred
-        
+
     if preferred_widgets:
         for preferred in preferred_widgets:
             # Load widget specified with control
@@ -38,7 +40,7 @@ def qt_editor_class(iname, shape=None, preferred=None):
                     return widget_class
 
     # No preferred widget specified or preferred widget not found.
-    # We try to find a widget corresponding to shapes                    
+    # We try to find a widget corresponding to shapes
     if shape is None:
         shapes = ['hline', 'large', 'small']
     elif isinstance(shape, str):
@@ -46,7 +48,7 @@ def qt_editor_class(iname, shape=None, preferred=None):
     else:
         shapes = list(shape)
 
-    for shape in shapes :
+    for shape in shapes:
         for plugin in widget_plugins:
             if shape in plugin.edit_shape or 'responsive' in plugin.edit_shape:
                 widget_class = plugin.load()
@@ -54,11 +56,34 @@ def qt_editor_class(iname, shape=None, preferred=None):
                 return widget_class
     return None
 
+
 def widget(iname, value, shape=None, preferred=None):
     control = Control(iname, iname, value)
     return qt_editor(control, shape, preferred)
 
-def qt_editor(control, shape=None, preferred=None):
+
+def qt_dialog(control=None, **kwds):
+    """
+    You can pass control factory arguments:
+        - name: Control name
+        - interface: Control interface
+        - value: Control value
+
+    You can also pass qt_editor factory arguments
+        - shape: widget shape
+        - preferred: preferred widget
+    """
+    if control is None:
+        control = Control(**kwds)
+    widget = qt_editor(control, **kwds)
+    dialog = ModalDialog(widget)
+    if dialog.exec_() == QtGui.QDialog.Accepted:
+        return control.value
+    else:
+        return None
+
+
+def qt_editor(control, shape=None, preferred=None, **kwds):
     widget_class = qt_editor_class(control.interface, shape, preferred)
     # TODO: FIX THIS HACK
     if hasattr(widget_class, 'shape'):
@@ -75,6 +100,7 @@ def qt_editor(control, shape=None, preferred=None):
 #             widget.show()
         return widget
 
+
 def qt_container(container, **kwargs):
     widget = QtGui.QWidget()
     layout = QtGui.QFormLayout(widget)
@@ -84,8 +110,10 @@ def qt_container(container, **kwargs):
             layout.addRow(control.name, editor)
     return widget
 
+
 def qt_viewer(control, shape=None):
     pass
+
 
 def qt_painter(control, shape=None, preferred=None):
     cname = control.interface.__class__.__name__
@@ -94,7 +122,7 @@ def qt_painter(control, shape=None, preferred=None):
     if preferred:
         # Load widget specified with control
         for plugin in widget_plugins:
-            if preferred == plugin.name and plugin.paint :
+            if preferred == plugin.name and plugin.paint:
                 widget_class = plugin.load()
                 return widget_class.paint(control, shape)
 
@@ -103,6 +131,7 @@ def qt_painter(control, shape=None, preferred=None):
         if plugin.paint:
             widget_class = plugin.load()
             return widget_class.paint(control, shape)
+
 
 def edit(control):
     import sys
@@ -125,7 +154,7 @@ def qt_widget_plugins(iname=None):
     if iname is None:
         plugins = discover_qt_controls()
         widget_plugins = {}
-        for plugin in plugins :
+        for plugin in plugins:
             for iname in plugin.controls:
                 widget_plugins.setdefault(iname, []).append(plugin)
         return widget_plugins
@@ -135,4 +164,3 @@ def qt_widget_plugins(iname=None):
             return widget_plugins[iname]
         except KeyError:
             return []
-
