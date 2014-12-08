@@ -35,7 +35,7 @@ class Control(Observed):
     """
 
     def __init__(self, name, interface=None, value=None, widget=None,
-                 constraints=None):
+                 constraints=None, **kwds):
         """
         :param name: Control name
         :type name: basestring
