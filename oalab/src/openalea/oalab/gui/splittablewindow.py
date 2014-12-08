@@ -189,7 +189,7 @@ class AppletFrame(QtGui.QWidget):
         self.action_toolbar.setCheckable(True)
         self.action_toolbar.toggled.connect(self.show_toolbar)
 
-        self.action_title = QtGui.QAction("Title", self)
+        self.action_title = QtGui.QAction("Show Tab Title", self)
         self.action_title.setCheckable(True)
         self.action_title.toggled.connect(self.show_title)
 
@@ -444,7 +444,7 @@ class AppletTabWidget(QtGui.QTabWidget):
         get = properties.get
         self.setTabPosition(get('position', 0))
 
-    def toString(self):
+    def _repr_json_(self):
         applets = []
         for idx in range(self.count()):
             if idx in self._name:
@@ -472,6 +472,9 @@ class AppletContainer(QtGui.QWidget):
         self._applets = []
         self._edit_mode = True
 
+        self._e_title = QtGui.QLabel('')
+        self._e_title.hide()
+
         self._tabwidget = AppletTabWidget()
         self._tabwidget.setContextMenuPolicy(QtCore.Qt.NoContextMenu)
         self._tabwidget.appletSet.connect(self.appletSet.emit)
@@ -481,6 +484,7 @@ class AppletContainer(QtGui.QWidget):
         self._applet_selector = AppletSelector()
         self._applet_selector.appletChanged.connect(self._tabwidget.set_applet)
 
+        self._layout.addWidget(self._e_title)
         self._layout.addWidget(self._tabwidget)
         self._layout.addWidget(self._applet_selector)
 
@@ -490,15 +494,18 @@ class AppletContainer(QtGui.QWidget):
         if applet_name:
             self._tabwidget.set_applet(applet_name)
 
-        # Menu if edit mode is OFF
-        self.menu_edit_off = QtGui.QMenu(self)
+        self._create_menus()
+        self._create_actions()
+        self._fill_menus()
+
+        self.set_edit_mode()
+
+    def _create_actions(self):
+        self.action_title = QtGui.QAction("Set Title", self)
+        self.action_title.triggered.connect(self._on_set_title_triggered)
+
         self.action_unlock = QtGui.QAction(qicon('oxygen_object-unlocked.png'), "Edit layout", self.menu_edit_off)
         self.action_unlock.triggered.connect(self.unlock_layout)
-        self.menu_edit_off.addAction(self.action_unlock)
-        self.menu_edit_off.addSeparator()
-
-        # Menu if edit mode is ON
-        self.menu_edit_on = QtGui.QMenu(self)
 
         self.action_lock = QtGui.QAction(qicon('oxygen_object-locked.png'), "Lock layout", self.menu_edit_on)
         self.action_lock.triggered.connect(self.lock_layout)
@@ -510,11 +517,23 @@ class AppletContainer(QtGui.QWidget):
             qicon('Crystal_Clear_action_edit_remove.png'), "Remove tab", self.menu_edit_on)
         self.action_remove_tab.triggered.connect(self._tabwidget.remove_tab)
 
+    def _create_menus(self):
+        # Menu if edit mode is OFF
+        self.menu_edit_off = QtGui.QMenu(self)
+        self.menu_edit_on = QtGui.QMenu(self)
+
+    def _fill_menus(self):
+        self.menu_edit_off.addAction(self.action_unlock)
+        self.menu_edit_off.addSeparator()
+
+        # Menu if edit mode is ON
+
         self.menu_edit_on.addAction(self.action_lock)
         self.menu_edit_on.addSeparator()
         self.menu_edit_on.addAction(self.action_add_tab)
         self.menu_edit_on.addAction(self.action_remove_tab)
         self.menu_edit_on.addSeparator()
+        self.menu_edit_on.addAction(self.action_title)
 
         self._position_actions = {}
         for name, position in [
@@ -526,8 +545,6 @@ class AppletContainer(QtGui.QWidget):
             action.triggered.connect(self._on_tab_position_changed)
             self.menu_edit_on.addAction(action)
             self._position_actions[action] = position
-
-        self.set_edit_mode()
 
     def menu_actions(self):
         if self._edit_mode is True:
@@ -578,10 +595,7 @@ class AppletContainer(QtGui.QWidget):
         self.set_edit_mode(True)
 
     def set_edit_mode(self, mode=True):
-        if mode:
-            self._applet_selector.show()
-        else:
-            self._applet_selector.hide()
+        self._applet_selector.setVisible(mode)
         self._edit_mode = mode
         self._tabwidget.set_edit_mode(mode)
 
@@ -591,13 +605,35 @@ class AppletContainer(QtGui.QWidget):
         menu.exec_(event.globalPos())
 
     def properties(self):
-        return self._tabwidget.properties()
+        properties = {}
+        properties.update(self._tabwidget.properties())
+        title = unicode(self._e_title.text()).strip()
+        if title:
+            properties['title'] = title
+        return properties
 
     def set_properties(self, properties):
         self._tabwidget.set_properties(properties)
+        self.set_title(properties.get('title', None))
+
+    def _on_set_title_triggered(self):
+        from openalea.oalab.service.qt_control import qt_dialog
+        value = qt_dialog(name='Title', interface='IStr', value=self._e_title.text())
+        if value is not None:
+            self.set_title(value)
+
+    def set_title(self, title):
+        if title:
+            self._e_title.show()
+            self._e_title.setText(title)
+        else:
+            self._e_title.hide()
+            self._e_title.setText('')
 
     def toString(self):
-        return self._tabwidget.toString()
+        json = self._tabwidget._repr_json_()
+        json.setdefault('properties', {}).update(self.properties())
+        return json
 
 
 class OABinaryTree(BinaryTree):

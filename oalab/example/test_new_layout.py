@@ -99,8 +99,8 @@ if __name__ == '__main__':
                        4: {'amount': 0.6540136901057871, 'splitDirection': 1},
                        5: {'widget':
                            {'applets': [
-                               {'name': u'ProjectManager', 'properties': {'title': True}}],
-                            'properties': {'position': 0}
+                               {'name': u'ProjectManager'}],
+                            'properties': {'position': 0, 'title': '<b>Project</b>'}
                             }},
                        6: {'widget':
                            {'applets': [
@@ -116,13 +116,13 @@ if __name__ == '__main__':
                                {'name': u'LineageViewer'},
                                {'name': u'FigureWidget'},
                                {'name': u'FigureWidget'}],
-                            'properties': {'position': 2}
+                            'properties': {'position': 2, 'title': '<b>2D</b> Viewers'}
                             }},
                        10: {'widget':
                             {'applets': [
                                 {'name': u'Viewer3D'},
                                 {'name': u'VtkViewer'}],
-                             'properties': {'position': 2}}},
+                             'properties': {'position': 2, 'title': '<b>3D</b> Viewers'}}},
                        11: {'widget':
                             {'applets': [
                                 {'name': u'EditorManager'}],
