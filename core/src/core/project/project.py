@@ -56,6 +56,7 @@ from openalea.core.service.data import DataFactory
 from openalea.core.service.interface import interface_name
 from openalea.core.service.model import to_model, ModelFactory
 
+
 from collections import OrderedDict
 
 
@@ -461,55 +462,21 @@ class Project(Observed):
                             self._add_item(category, filename=filename, mode=self.MODE_COPY)
 
     def _save_manifest(self):
-        config = ConfigObj()
-        config_path = self.path / self.config_filename
-        if not config_path.isfile():
-            return
-
-        config.filename = config_path
-        config['manifest'] = dict()
-        config['metadata'] = self.metadata
-
-        for category in self.DEFAULT_CATEGORIES:
-            filenames_dict = getattr(self, category)
-            if filenames_dict:
-                category_path = self.path / category
-                if not category_path.exists():
-                    category_path.makedirs()
-                config['manifest'][category] = []
-                for filename in sorted(filenames_dict.keys()):
-                    data = filenames_dict[filename]
-                    if hasattr(data, 'save'):
-                        data.save()
-                        config['manifest'][category].append(data.name)
-
-                        # If data is stored outside project, register data.path in section category.path
-                        if data.path.parent != category_path:
-                            section = category + ".path"
-                            config.setdefault(section, {})[data.name] = data.path
-
-        config.write()
+        from .serialization import ProjectSaver
+        saver = ProjectSaver()
+        saver.save(self, self.path, config_filename=self.config_filename, mode='metadata')
 
     def save_metadata(self):
         self._save_manifest()
 
-    def _save_controls(self):
-        # TODO: use saver/loaders instead
-        from openalea.core.control.pyserial import save_controls
-        from openalea.core.control.manager import ControlManager
-        cm = ControlManager()
-        if cm.controls():
-            save_controls(cm.controls(), self.path / 'control.py')
-
     def _load_controls(self):
-        # TODO: use saver/loaders instead
         control_path = self.path / 'control.py'
-        if control_path.isfile():
-            code = file(control_path, 'r').read()
-            try:
-                exec(code)
-            except Exception, e:
-                pass
+        from openalea.core.control.serialization import ControlLoader
+        from openalea.core.service.control import register_control
+        loader = ControlLoader()
+        controls = loader.load(control_path)
+        for control in controls:
+            register_control(control)
 
     def save(self):
         """
@@ -517,10 +484,7 @@ class Project(Observed):
 
         It contains **list of files** that are inside project (*manifest*) and **metadata** (author, version, ...).
         """
-        if not self.path.exists():
-            self.path.makedirs()
-        config_path = self.path / self.config_filename
-        config_path.touch()
-        self._save_controls()
-        self._save_manifest()
+        from .serialization import ProjectSaver
+        saver = ProjectSaver()
+        saver.save(self, self.path, config_filename=self.config_filename)
         self.notify_listeners(('project_saved', self))
