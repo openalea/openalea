@@ -19,7 +19,6 @@ __revision__ = ""
 
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core.observer import AbstractListener
-from openalea.oalab.session.session import Session
 
 
 class GenericWorldBrowser(QtGui.QWidget):
@@ -40,22 +39,20 @@ class GenericWorldBrowser(QtGui.QWidget):
 
 class WorldBrowser(GenericWorldBrowser, AbstractListener):
 
-    def __init__(self, world=None):
+    def __init__(self):
         AbstractListener.__init__(self)
         super(WorldBrowser, self).__init__()
         self.world = None
-        if world:
-            self.set_world(self.world)
-        else:
-            session = Session()
-            if session.world:
-                self.set_world(session.world)
 
         QtCore.QObject.connect(self.tree, QtCore.SIGNAL('doubleClicked(const QModelIndex&)'), self.show_world_object)
 
         actionClearWorld = QtGui.QAction(QtGui.QIcon(":/images/resources/plant.png"), "Clear World", self)
         actionClearWorld.triggered.connect(self.clear)
         self._actions = [["Project", "World", actionClearWorld, 0]]
+
+    def initialize(self):
+        from openalea.oalab.session.session import Session
+        self.set_world(Session().world)
 
     def actions(self):
         return self._actions
@@ -67,6 +64,7 @@ class WorldBrowser(GenericWorldBrowser, AbstractListener):
         signal, data = event
         if signal == 'WorldChanged':
             self.set_world(data)
+            self.refresh()
 
     def show_world_object(self, index):
         item = index.model().itemFromIndex(index)
@@ -77,6 +75,12 @@ class WorldBrowser(GenericWorldBrowser, AbstractListener):
     def clear(self):
         if self.world:
             self.world.clear()
+            self.refresh()
+
+    def refresh(self):
+        if self.world:
+            self.model.set_world(self.world)
+            self.tree.expandAll()
 
     def set_world(self, world):
         if self.world is world:
@@ -85,8 +89,6 @@ class WorldBrowser(GenericWorldBrowser, AbstractListener):
             self.world.unregister_listener(self)
         self.world = world
         self.world.register_listener(self)
-        self.model.set_world(self.world)
-        self.tree.expandAll()
 
 
 class WorldModel(QtGui.QStandardItemModel):
