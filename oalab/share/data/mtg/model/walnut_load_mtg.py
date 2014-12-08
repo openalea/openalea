@@ -12,4 +12,6 @@ pf = PlantFrame(g,TopDiameter='TopDia',DressingData = dressing_data)
 world['lpy_scene'] = pf.plot(gc=True, display=False)
 
 def init():
-  del world['lpy_scene']
+    if 'lpy_scene' in world:
+        del world['lpy_scene']
+
