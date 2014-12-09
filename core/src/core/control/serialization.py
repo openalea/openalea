@@ -1,21 +1,20 @@
 
 from .control import Control
 from .pyserial import serialize_controls
-from openalea.core.serialization import AbstractSaver, AbstractLoader
+from openalea.core.serialization import AbstractSaver, AbstractLoader, AbstractDeserializer
 
 
 class ControlSerializer(object):
-    dtype = 'openalealab/control'
 
-    def serialize(self, obj, fmt=None, **kwds):
+    def serialize(self, obj, protocol=None, **kwds):
         if isinstance(obj, Control):
             obj = [obj]
         return serialize_controls(obj)
 
 
-class ControlDeserializer(object):
+class ControlDeserializer(AbstractDeserializer):
 
-    def deserialize(self, lines, fmt=None, **kwds):
+    def deserialize(self, lines, protocol=None, **kwds):
         ns = {}
         for l in lines:
             exec l in ns
@@ -24,14 +23,18 @@ class ControlDeserializer(object):
 
 
 class ControlSaver(AbstractSaver):
+    dtype = 'IControl'
+    protocols = ['text/x-python']
 
-    def _serialize(self, obj, fmt, **kwds):
+    def _serialize(self, obj, protocol, **kwds):
         serializer = ControlSerializer()
-        return serializer.serialize(obj, fmt, **kwds)
+        return serializer.serialize(obj, protocol=protocol, **kwds)
 
 
 class ControlLoader(AbstractLoader):
+    dtype = 'IControl'
+    protocols = ['text/x-python']
 
-    def _deserialize(self, lines, fmt, **kwds):
+    def _deserialize(self, lines, protocol, **kwds):
         serializer = ControlDeserializer()
-        return serializer.deserialize(lines, fmt=fmt, **kwds)
+        return serializer.deserialize(lines, protocol=protocol, **kwds)

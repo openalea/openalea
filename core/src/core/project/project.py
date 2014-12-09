@@ -417,49 +417,9 @@ class Project(Observed):
             please use :meth:`Data.read<openalea.oalab.model.model.Data.read>`.
 
         """
-        config = ConfigObj(self.path / self.config_filename)
-        if 'metadata' in config:
-            for info in config["metadata"].keys():
-                if info == 'name':
-                    info = 'alias'
-                    value = config['metadata']['name']
-                elif info == 'author':
-                    info = 'authors'
-                    value = config['metadata']['author']
-                elif info == 'author_email':
-                    continue
-                else:
-                    value = config['metadata'][info]
-                if interface_name(self.DEFAULT_METADATA[info].interface) == 'ISequence':
-                    if isinstance(value, basestring):
-                        value = value.split(',')
-                setattr(self, info, value)
-
-        if 'manifest' in config:
-            # Load file names in right place (dict.keys()) but don't load entire object:
-            # ie. load keys but not values
-            for category in config["manifest"].keys():
-
-                # Backward compatibility
-                if category == 'src':
-                    category = 'model'
-                    old_category = 'src'
-                else:
-                    old_category = category
-
-                if category in self.DEFAULT_CATEGORIES:
-                    filenames = config["manifest"][old_category]
-                    if not isinstance(filenames, list):
-                        filenames = [filenames]
-                    for filename in filenames:
-                        section = '%s.path' % category
-                        if section in config:
-                            if filename in config[section]:
-                                self._add_item(category, path=config[section][filename], mode=self.MODE_LINK)
-                            else:
-                                self._add_item(category, filename=filename, mode=self.MODE_COPY)
-                        else:
-                            self._add_item(category, filename=filename, mode=self.MODE_COPY)
+        from .serialization import ProjectLoader
+        loader = ProjectLoader()
+        loader.update(self, self.path, mode='lazy')
 
     def _save_manifest(self):
         from .serialization import ProjectSaver
@@ -470,9 +430,9 @@ class Project(Observed):
         self._save_manifest()
 
     def _load_controls(self):
-        control_path = self.path / 'control.py'
         from openalea.core.control.serialization import ControlLoader
         from openalea.core.service.control import register_control
+        control_path = self.path / 'control.py'
         loader = ControlLoader()
         controls = loader.load(control_path)
         for control in controls:

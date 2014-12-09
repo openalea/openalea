@@ -20,13 +20,80 @@
 
 from openalea.core.serialization import AbstractSaver
 from openalea.core.path import path as Path
+from configobj import ConfigObj
+from openalea.core.service.interface import interface_name
+
+
+class ProjectLoader(object):
+    dtype = ['IProject']
+    protocols = ['inode/directory']
+    options = ['config_filename=oaproject.cfg', 'default_metadata']
+
+    def load(self, path, protocol=None, **kwds):
+        from openalea.core.project import Project
+        project = Project(path)
+        return self.update(project, path, protocol=protocol, **kwds)
+
+    def update(self, obj, path, protocol=None, **kwds):
+        project = obj
+        default_metadata = kwds.pop('default_metadata', project.DEFAULT_METADATA)
+        default_categories = kwds.pop('default_categories', project.DEFAULT_CATEGORIES)
+        config_filename = kwds.pop('config_filename', 'oaproject.cfg')
+
+        config = ConfigObj(path / config_filename)
+        if 'metadata' in config:
+            for info in config["metadata"].keys():
+                if info == 'name':
+                    info = 'alias'
+                    value = config['metadata']['name']
+                elif info == 'author':
+                    info = 'authors'
+                    value = config['metadata']['author']
+                elif info == 'author_email':
+                    continue
+                else:
+                    value = config['metadata'][info]
+                if interface_name(default_metadata[info].interface) == 'ISequence':
+                    if isinstance(value, basestring):
+                        value = value.split(',')
+                setattr(project, info, value)
+
+        if 'manifest' in config:
+            # Load file names in right place (dict.keys()) but don't load entire object:
+            # ie. load keys but not values
+            for category in config["manifest"].keys():
+
+                # Backward compatibility
+                if category == 'src':
+                    category = 'model'
+                    old_category = 'src'
+                else:
+                    old_category = category
+
+                if category in default_categories:
+                    filenames = config["manifest"][old_category]
+                    if not isinstance(filenames, list):
+                        filenames = [filenames]
+                    for filename in filenames:
+                        section = '%s.path' % category
+                        if section in config:
+                            if filename in config[section]:
+                                project._add_item(category, path=config[section][filename], mode=project.MODE_LINK)
+                            else:
+                                project._add_item(category, filename=filename, mode=project.MODE_COPY)
+                        else:
+                            project._add_item(category, filename=filename, mode=project.MODE_COPY)
+        return project
 
 
 class ProjectSaver(AbstractSaver):
-    dtype = 'openalealab/project'
-    fmts = ['inode/directory']
+    dtype = ['IProject']
+    protocols = ['inode/directory']
+    options = [
+        {'name': 'mode', 'interface': 'IStr', 'value': 'all', 'values': ['all', 'metadata']}
+    ]
 
-    def save(self, obj, path, fmt=None, **kwds):
+    def save(self, obj, path, protocol=None, **kwds):
         mode = kwds.pop('mode', 'all')
 
         path = Path(path)

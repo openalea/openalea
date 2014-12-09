@@ -30,18 +30,40 @@ class ISaver(object):
     """
     Generic interface class for savers
     """
-    mimetype = unicode
-    fmts = []
+    default_name = str  # Saver name. If not defined, use class name (ex: 'PythonControlSaver')
+    dtype = []  # Interface that can be managed by the saver. (ex: 'IControl')
+    protocols = []  # supported output mimetypes. First element is used by default (ex: ['text/x-python'])
+    # list of available options (that can be passed in kwds)
+    # ex: ['author', {'name':'algorithm', 'interface':'IStr', 'values':['jpg', 'lzw', 'none']}, 'quality:IFloat=0.8']
+    options = []
 
-    def save(self, obj, path, fmt=None, **kwds):
+    def save(self, obj, path, protocol=None, **kwds):
+        """
+        """
         raise NotImplementedError
 
 
 class ILoader(object):
-    mimetype = unicode
-    fmts = []
+    default_name = str  # Loader name. If not defined, use class name (ex: 'PythonControlLoader')
+    dtype = []  # Interface that can be output by loader (ex: 'IControl')
+    protocols = []  # supported input mimetypes. First element is used by default (ex: ['text/x-python'])
+    options = []  # list of available options (that can be passed in kwds). (ex: 'mode=lazy')
 
-    def load(self, path, fmt=None, **kwds):
+    def load(self, path, protocol=None, **kwds):
+        raise NotImplementedError
+
+    def update(self, obj, path, protocol=None, **kwds):
+        """
+        Like "load" but update, if available, an existing object and return it.
+        If no update is available, method must return new instance.
+
+        Ex::
+
+            data = MyData()
+            loader = MyLoader()
+            data2 = data.update('test.dat', data)
+            data is data2 # True if update is supported, else False  
+        """
         raise NotImplementedError
 
 
@@ -50,10 +72,14 @@ class ISerializer(object):
     """
     Generic interface class for savers
     """
-    dtype = unicode
-    fmts = []
+    default_name = str  # Serializer name. If not defined, use class name (ex: 'PythonControlSerializer')
+    dtype = []  # Interface that can be managed by serializer. (ex: 'IControl')
+    protocols = []  # supported output mimetypes. First element is used by default (ex: ['text/x-python'])
 
-    def serialize(self, obj, fmt=None, **kwds):
+    # list of available options (that can be passed in kwds). (ex: 'separator:IStr=;' for a CSV serializer)
+    options = []
+
+    def serialize(self, obj, protocol=None, **kwds):
         """
         This method must return an iterable object, ideally an iterator
         """
@@ -65,11 +91,17 @@ class IDeserializer(object):
     """
     Generic interface class for savers
     """
-    dtype = unicode
-    fmts = []
+    default_name = str  # Deserializer name. If not defined, use class name (ex: 'PythonControlDeserializer')
+    dtype = []  # Interface that can be output by deserializer. (ex: 'IControl')
+    protocols = []  # supported input mimetypes. First element is used by default (ex: ['text/x-python'])
+    # list of available options (that can be passed in kwds). (ex: 'separator:IStr=;' for a CSV deserializer)
+    options = []
 
-    def deserialize(self, lines, fmt=None, **kwds):
+    def deserialize(self, lines, protocol=None, **kwds):
         return 'data'
+
+    def update(self, lines,  obj, protocol=None, **kwds):
+        pass
 
 
 class AbstractSaver(object):
@@ -94,12 +126,12 @@ class AbstractSaver(object):
             file_.write(line)
         file_.close()
 
-    def save(self, obj, path, fmt=None, **kwds):
-        lines = self._serialize(obj, fmt=fmt, **kwds)
+    def save(self, obj, path, protocol=None, **kwds):
+        lines = self._serialize(obj, protocol=protocol, **kwds)
         file_ = self._open_file(path)
         self._write(lines, file_)
 
-    def _serialize(self, obj, fmt, **kwds):
+    def _serialize(self, obj, protocol, **kwds):
         raise NotImplementedError
 
 
@@ -110,17 +142,29 @@ class AbstractLoader(object):
             yield line
         file_.close()
 
-    def load(self, path, fmt=None, **kwds):
+    def load(self, path, protocol=None, **kwds):
         try:
             file_ = open(path, 'r')
         except IOError:
             lines = []
         else:
             lines = self._iter_file(file_)
-        return self._deserialize(lines, fmt=fmt, **kwds)
+        return self._deserialize(lines, protocol=protocol, **kwds)
 
-    def _deserialize(self, lines, fmt=None, **kwds):
+    def _deserialize(self, lines, protocol=None, **kwds):
         raise NotImplementedError
+
+    def update(self, obj, path, protocol=None, **kwds):
+        return self.load(path, protocol=protocol, **kwds)
+
+
+class AbstractDeserializer(object):
+
+    def deserialize(self, lines, protocol=None, **kwds):
+        raise NotImplementedError
+
+    def update(self, obj, lines, protocol=None, **kwds):
+        return self.deserialize(lines, protocol, **kwds)
 
 
 class GenericTextSaver(AbstractSaver):
