@@ -60,7 +60,6 @@ print "ok"
     # assert model.inputs_info[3].interface == "bool"
     assert model.outputs_info[0].name == "success"
 
-    print model.get_documentation()
     assert model.get_documentation() == """input = x:int=4, y:float=3.14, z, debug:bool
 output = success
 
@@ -111,6 +110,7 @@ beautifull doc
 print "ok"
 '''
     model = PythonModel(code=model_src)
+    print '>>>', model.repr_code(), '<<<'
     assert model.repr_code() == model_src
 
 
@@ -153,4 +153,3 @@ beautifull doc
     assert model.get_documentation() is not None
     assert len(model.inputs_info) == 4
     assert len(model.outputs_info) == 1
-

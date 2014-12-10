@@ -1,12 +1,14 @@
 # -*- python -*-
 #
 #       Visualea Manager applet
-# 
+#
 #       OpenAlea.OALab: Multi-Paradigm GUI
 #
 #       Copyright 2013 INRIA - CIRAD - INRA
 #
 #       File author(s): Julien Coste <julien.coste@inria.fr>
+#                       Guillaume Baty <guillaume.baty@inria.fr>
+#                       Christophe Pradal <christophe.pradal@inria.fr>
 #
 #       File contributor(s):
 #
@@ -24,19 +26,15 @@ DEBUG = False
 import types
 import sys
 
-from openalea.oalab.model.visualea import VisualeaModel
+from openalea.oalab.model.visualea import VisualeaModel, VisualeaFile
 from openalea.visualea.graph_operator import GraphOperator
 from openalea.visualea import dataflowview
 from openalea.core.compositenode import CompositeNodeFactory
 from openalea.oalab.service.help import display_help
 from openalea.oalab.service.plot import get_plotters
+from openalea.core.service.model import to_model
 
-
-def get_code(self):
-    """
-    :return: workflow string representation to save it on disk
-    """
-    return self.applet.model.repr_code()
+from openalea.oalab.gui.paradigm.controller import ParadigmController
 
 
 def actions(self):
@@ -79,25 +77,16 @@ def _set_viewer3d():
         viewernode.registerPlotter(viewer)
 
 
-class VisualeaModelController(object):
+class VisualeaModelController(ParadigmController):
     default_name = VisualeaModel.default_name
     default_file_name = VisualeaModel.default_file_name
     pattern = VisualeaModel.pattern
     extension = VisualeaModel.extension
     icon = VisualeaModel.icon
+    mimetype_model = VisualeaModel.mimetype
+    mimetype_data = VisualeaFile.mimetype
 
-    def __init__(self, name="workflow.wpy", code="", model=None, filepath=None, editor_container=None, parent=None):
-        self.name = name
-        self.filepath = filepath
-        if model:
-            self.model = model
-        else:
-            self.model = VisualeaModel(name=name, code=code)
-        self.parent = parent
-        self.editor_container = editor_container
-        self._widget = None
-
-    def instanciate_widget(self):
+    def instantiate_widget(self):
         self._widget = dataflowview.GraphicalGraph.create_view(self.model._workflow, clone=True)
         self._clipboard = CompositeNodeFactory("Clipboard")
 
@@ -105,22 +94,21 @@ class VisualeaModelController(object):
         interp = interpreter()
 
         GraphOperator.globalInterpreter = interp
-        self._operator = GraphOperator(graph = self.model._workflow,
-                                 graphScene = self._widget.scene(),
-                                 clipboard  = self._clipboard,
-                                 )
+        self._operator = GraphOperator(graph=self.model._workflow,
+                                       graphScene=self._widget.scene(),
+                                       clipboard=self._clipboard,
+                                       )
         self._widget.mainMenu = types.MethodType(mainMenu, self._widget)
         self._widget.applet = self
         self._widget._actions = None
 
         methods = {}
         methods['actions'] = actions
-        methods['get_code'] = get_code
         methods['mainMenu'] = mainMenu
         methods['display_help'] = _display_help
 
         self._widget = adapt_widget(self._widget, methods)
-        
+
         if not VIEWER3D_SET:
             _set_viewer3d()
 
@@ -144,35 +132,33 @@ class VisualeaModelController(object):
         """
         return self._widget
 
+    def widget_value(self):
+        return self.model.repr_code()
+
     def execute(self):
         return self.model.execute()
 
-    def run(self, *args, **kwargs):
-        # todo : register plotter
-        if not VIEWER3D_SET:
-            _set_viewer3d()
-
-        return self.model(*args, **kwargs)
-
-    def animate(self, *args, **kwargs):
-        # todo : register plotter
-        if not VIEWER3D_SET:
-            _set_viewer3d()
-
-        return self.model.animate(*args, **kwargs)
-        
-    def step(self, *args, **kwargs):
-        return self.model.step(*args, **kwargs)
-        
-    def stop(self, *args, **kwargs):
-        return self.stop(*args, **kwargs)
+    def namespace(self, **kwargs):
+        from openalea.core.service.ipython import interpreter
+        project_ns = ParadigmController.namespace(self, **kwargs)
+        interp = interpreter()
+        shell_ns = interp.user_ns
+        ns = {}
+        ns.update(shell_ns)
+        ns.update(project_ns)
+        return ns
 
     def init(self, *args, **kwargs):
-        return self.model.init(*args, **kwargs)
+        # todo : register plotter
+        if not VIEWER3D_SET:
+            _set_viewer3d()
+
+        return ParadigmController.init(self, *args, **kwargs)
 
 
 def adapt_widget(widget, methods):
-    method_list = ['actions', 'get_code', 'mainMenu', 'display_help']
+    method_list = ['actions',  'mainMenu', 'display_help']
+
     def check():
         for m in method_list:
             if m not in methods:

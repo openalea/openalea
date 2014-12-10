@@ -47,7 +47,6 @@ class ParadigmContainer(QtGui.QTabWidget):
     def __init__(self, controller, session, parent=None):
         super(ParadigmContainer, self).__init__(parent=parent)
         self.session = Session()
-#         self.controller = controller
 
         self.setTabsClosable(True)
         self.setMinimumSize(100, 100)
@@ -58,10 +57,7 @@ class ParadigmContainer(QtGui.QTabWidget):
         self._new_file_actions = {}
         self.paradigms_actions = []
         for applet in iter_plugins('oalab.paradigm_applet', debug=self.session.debug_plugins):
-            try:
-                self.paradigms[applet.name] = applet()()
-            except:
-                pass
+            self.paradigms[applet.name] = applet()()
 
         self._open_objects = {}
 
@@ -143,6 +139,14 @@ class ParadigmContainer(QtGui.QTabWidget):
 
         self.actionStop.setEnabled(False)
 
+        self._run_actions = [
+            self.actionAnimate,
+            self.actionInit,
+            self.actionRun,
+            self.actionStep,
+            self.actionStop,
+        ]
+
         self._actions = [
             ["Project", "Manage", self.actionNewFile, 0],
             ["Project", "Manage", self.actionAddFile, 1],
@@ -168,6 +172,25 @@ class ParadigmContainer(QtGui.QTabWidget):
         self.extensions = ""
         self.connect(self, QtCore.SIGNAL('tabCloseRequested(int)'), self.autoClose)
         self.connect(self, QtCore.SIGNAL('currentChanged(int)'), self.safe_display_help)
+        self.currentChanged.connect(self.on_current_tab_changed)
+
+        self.addDefaultTab()
+
+    def on_current_tab_changed(self):
+        controller = self.current_controller()
+        if controller:
+            runnable = controller.runnable()
+        else:
+            runnable = False
+        self._set_run_mode(runnable)
+
+    def _set_run_mode(self, mode=True):
+        if mode:
+            for action in self._run_actions:
+                action.setEnabled(True)
+        else:
+            for action in self._run_actions:
+                action.setEnabled(False)
 
     def connect_paradigm_container(self):
         # Connect actions from self.paradigms to menu (newPython, newLpy,...)
@@ -197,12 +220,16 @@ class ParadigmContainer(QtGui.QTabWidget):
         if applet_class is None:
             applet_class = self.paradigms["Python"]
 
-        # TODO: case Python paradigm does not exists
-        return applet_class(name=obj.filename, code=obj.read(), model=obj,
-                            filepath=obj.path, editor_container=self, parent=None).instanciate_widget()
+        return applet_class(data=obj).instantiate_widget()
 
     def data_name(self, obj):
         return obj.filename
+
+    def current_controller(self):
+        try:
+            return self.currentWidget().applet
+        except AttributeError:
+            return None
 
     def current_data(self):
         tab = self.currentWidget()
@@ -228,6 +255,7 @@ class ParadigmContainer(QtGui.QTabWidget):
             if hasattr(applet, 'textChanged'):
                 applet.textChanged.connect(self._on_text_changed)
 
+            self.rmTab("Welcome")
             idx = self.addTab(applet, self.data_name(obj))
             if obj.path:
                 self.setTabToolTip(idx, obj.path)
@@ -254,10 +282,7 @@ class ParadigmContainer(QtGui.QTabWidget):
             del self._open_tabs[tab]
 
         if self.count() == 0:
-            if self.project():
-                self.addCreateFileTab()
-            else:
-                self.addDefaultTab()
+            self.addDefaultTab()
 
     def save_current(self):
         self.save()
@@ -271,15 +296,13 @@ class ParadigmContainer(QtGui.QTabWidget):
             return
 
         obj = self._open_tabs[tab]
-        code = tab.get_code()
-        if isinstance(obj, Model):
-            obj.content = code
-            obj.save()
-        else:
-            f = open(obj.path, "w")
-            code = str(code).encode("utf8", "ignore")
-            f.write(code)
-            f.close()
+        try:
+            controller = tab.applet
+        except AttributeError:
+            return
+
+        controller.apply()
+        obj.save()
         self.setTabBlack(self.indexOf(tab))
 
     def new_file(self):
@@ -297,7 +320,7 @@ class ParadigmContainer(QtGui.QTabWidget):
 
     def add(self, project, name, code, dtype=None, category=None):
         if dtype is None:
-            dtypes = [ModelClass.default_name for ModelClass in iter_plugins('oalab.model')]
+            dtypes = [ModelClass.default_name for ModelClass in iter_plugins('oalab.modelclass')]
         else:
             dtypes = [dtype]
 
@@ -348,7 +371,7 @@ class ParadigmContainer(QtGui.QTabWidget):
         for index in range(self.count()):
             self.setTabBlack(index)
 
-    def addDefaultTab(self):
+    def addProjectTab(self):
         """
         Display a welcome tab if nothing is opened
         """
@@ -366,8 +389,14 @@ class ParadigmContainer(QtGui.QTabWidget):
             page = WelcomePage(actions=self.paradigms_actions)
             self.addTab(page, "Create File")
         else:
-            self.addDefaultTab()
+            self.addProjectTab()
         self.rmTab("Welcome")
+
+    def addDefaultTab(self):
+        if self.project():
+            self.addCreateFileTab()
+        else:
+            self.addProjectTab()
 
     def rmTab(self, tabname="Welcome"):
         """
@@ -430,8 +459,7 @@ class ParadigmContainer(QtGui.QTabWidget):
         """
         n = self.count()
         for i in range(n):
-            self.setCurrentIndex(i)
-            self.save()
+            self.save(tab=self.widget(i))
 
     def execute(self):
         self.currentWidget().applet.execute()

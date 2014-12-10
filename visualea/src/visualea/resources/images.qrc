@@ -1,0 +1,20 @@
+<RCC>
+	<qresource prefix="/icons" >
+		<file>node.png</file>
+		<file>pkg.png</file>
+		<file>pseudopkg.png</file>
+		<file>usrpkg.png</file>
+		<file>category.png</file>
+		<file>openalea_icon.png</file>
+		<file>ccmime.png</file>
+		<file>search.png</file>
+		<file>diagram.png</file>
+		 <file>datapool.png</file>
+		<file>splash.png</file>
+		<file>info.png</file>
+		<file>data.png</file>
+		<file>cursor_icon.png</file>
+		<file>package.png</file>
+		<file>clock.svg</file>
+	</qresource>
+</RCC>

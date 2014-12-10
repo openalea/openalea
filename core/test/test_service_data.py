@@ -7,6 +7,7 @@ from openalea.core.service.data import DataFactory, MimeType
 def get_data(filename):
     return path(__file__).parent.abspath() / 'data' / filename
 
+
 class TestProject(unittest.TestCase):
 
     def setUp(self):
@@ -45,7 +46,7 @@ class TestProject(unittest.TestCase):
         self.assertEqual(cm.exception.message, msg)
 
         # Path is a directory and not a file
-        empty_dir = self.tmpdir/"empty"
+        empty_dir = self.tmpdir / "empty"
         empty_dir.mkdir()  # No need to remove it after test. Parent dir will be removed in tearDown
 
         with self.assertRaises(ValueError) as cm:
@@ -64,16 +65,14 @@ class TestProject(unittest.TestCase):
         self.assertEqual(MimeType(name='Python'), 'text/x-python')
         self.assertEqual(MimeType('image.tiff'), 'image/tiff')
 
-
     def test_DataClass(self):
-        from openalea.core.data import Data
-        from openalea.core.model import PythonModel
+        from openalea.core.data import Data, PythonFile
 
         d = DataFactory(path='test.dat')
         self.assertIsInstance(d, Data)
 
         d = DataFactory(path='test.py')
-        self.assertIsInstance(d, PythonModel)
+        self.assertIsInstance(d, PythonFile)
 
         d = DataFactory(path='test.py', dtype='data')
         self.assertIsInstance(d, Data)

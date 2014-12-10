@@ -37,20 +37,22 @@ def print_plugin_name(ep):
     else:
         print '  - %s (%s)' % (name, ep)
 
+
 class CommandLineParser(object):
+
     def __init__(self, args, session=None):
         if session is None:
             session = Session()
         self.session = session
 
         self.parser = argparse.ArgumentParser(description='OALab Command Line')
-        self.parser.add_argument('-e', '--extension', metavar='extension', type=str, default="plant",
+        self.parser.add_argument('-e', '--extension', metavar='extension', type=str, default="default",
                                  help='Lab extension to launch')
         group = self.parser.add_argument_group('Plugin development')
         group.add_argument('--list-plugins', metavar='category', type=str, default='',
                            help='List available plugin for given category. If all, list all plugins. If summary, list only categories')
         group.add_argument('--debug-plugins', metavar='category', default='',
-                            help='Raise error while loading instead of passing it silently. Use "all" to debug all plugins')
+                           help='Raise error while loading instead of passing it silently. Use "all" to debug all plugins')
         group.add_argument('--color', help='Color terminal output', action="store_true")
 
         args = self.parser.parse_args()
@@ -86,6 +88,5 @@ class CommandLineParser(object):
 
         if args.debug_plugins:
             self.session.debug_plugins = args.debug_plugins
-
 
         self.session.extension = args.extension

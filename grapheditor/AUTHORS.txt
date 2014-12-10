@@ -1,0 +1,5 @@
+.. This file must contain the list of the package authors
+
+* Daniel Barbeau
+
+

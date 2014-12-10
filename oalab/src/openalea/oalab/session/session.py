@@ -23,6 +23,7 @@ __all__ = ['Session']
 import os
 import sys
 from openalea.core.service.ipython import interpreter
+from openalea.core.service.run import get_model
 from openalea.oalab.package.manager import package_manager
 from openalea.core.project.manager import ProjectManager
 from openalea.core.control.manager import ControlManager
@@ -33,8 +34,8 @@ from openalea.core.singleton import Singleton
 from openalea.core.path import path
 
 
-
 class Session(object):
+
     """
     Session is a non graphical class that centralize managers for ...
 
@@ -87,8 +88,10 @@ class Session(object):
 
         self.interpreter.locals['session'] = self
 
-
         self.old_syspath = sys.path
+
+        self.load_default()
+
         self.__class__.instantiated = True
 
     @property
@@ -100,6 +103,14 @@ class Session(object):
 
     def load_config_file(self, filename, path=None):
         self._config.load_config_file(filename=filename, path=path)
+
+    def clear(self):
+        self.world.clear()
+        self.control_manager.clear()
+
+    def load_default(self):
+        self.project_manager.load_default()
+        self.update_namespace()
 
     def update_namespace(self):
         """
@@ -117,8 +128,9 @@ class Session(object):
             else:
                 os.chdir(self.tmpdir)
                 sys.path.insert(0, str(self.tmpdir / 'lib'))
+            self.interpreter.locals.update(self.project.ns)
             self.interpreter.locals['project'] = self.project
-            self.interpreter.locals['Model'] = self.project.get_model
+            self.interpreter.locals['Model'] = get_model
             self.interpreter.locals['data'] = self.project.path / 'data'
         else:
             # close
@@ -138,7 +150,7 @@ class Session(object):
             pass
         display_history(input_)
 
-    config = property(fget=lambda self:self._config.config)
+    config = property(fget=lambda self: self._config.config)
 
     @property
     def debug(self):

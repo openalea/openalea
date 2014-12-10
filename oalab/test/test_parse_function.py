@@ -66,3 +66,28 @@ def run():
     assert not has_animate
     assert not has_init
     assert has_run
+
+from openalea.oalab.model.parse import extract_functions
+
+
+def test_extract_func():
+    code = '''
+def run():
+    a = 0
+    for i in range(10):
+        a += 1
+'''
+    _, _, _, run = parse_functions(code)
+    d = {}
+    exec run in d
+    assert d['a'] == 10
+
+
+def todo_return_statement():
+    codestring = 'def f():return 1'
+    funcs = extract_functions(codestring)
+
+
+def todo_indent():
+    codestring = 'if True:\n  def f():\n    a=1.23'
+    funcs = extract_functions(codestring)

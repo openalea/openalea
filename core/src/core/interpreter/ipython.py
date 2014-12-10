@@ -1,9 +1,30 @@
+# -*- python -*-
+# -*- coding: utf8 -*-
+#
+#       OpenAlea.OALab
+#
+#       Copyright 2014 INRIA - CIRAD - INRA
+#
+#       File author(s): Julien Coste <julien.coste@inria.fr>
+#                       Guillaume Baty <guillaume.baty@inria.fr>
+#
+#       File contributor(s):
+#
+#       Distributed under the Cecill-C License.
+#       See accompanying file LICENSE.txt or copy at
+#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
+#
+#       OpenAlea WebSite : http://openalea.gforge.inria.fr
+#
+###############################################################################
 
 import types
 from IPython.kernel.inprocess.ipkernel import InProcessKernel
 from IPython.core.error import UsageError
 
+
 class Interpreter(InProcessKernel):
+
     """
     Interpreter is an IPython kernel adapted for OpenAlea.
 
@@ -57,6 +78,7 @@ class Interpreter(InProcessKernel):
         else:
             exec(source, self.locals, self.locals)
 
+
 def showtraceback(self, exc_tuple=None, filename=None, tb_offset=None,
                   exception_only=False):
     """Display the exception that just occurred.
@@ -99,7 +121,7 @@ def showtraceback(self, exc_tuple=None, filename=None, tb_offset=None,
                     stb = value._render_traceback_()
                 except Exception:
                     stb = self.InteractiveTB.structured_traceback(etype,
-                                        value, tb, tb_offset=tb_offset)
+                                                                  value, tb, tb_offset=tb_offset)
 
                 self._showtraceback(etype, value, stb)
                 if self.call_pdb:
@@ -112,4 +134,3 @@ def showtraceback(self, exc_tuple=None, filename=None, tb_offset=None,
 
     except KeyboardInterrupt:
         self.write_err("\nKeyboardInterrupt\n")
-

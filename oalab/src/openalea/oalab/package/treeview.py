@@ -23,30 +23,34 @@ from openalea.core.package import Package
 from openalea.visualea.node_treeview import NodeFactoryTreeView
 from openalea.visualea.node_treeview import SearchListView
 from openalea.oalab.service.applet import get_applet
+from openalea.core.service.model import ModelFactory
+
 
 class OALabTreeView(NodeFactoryTreeView):
+
     def __init__(self, session, controller, parent=None):
-        super(OALabTreeView, self).__init__(controller) 
+        super(OALabTreeView, self).__init__(controller)
         self.session = session
         self.controller = controller
 
     def mouseDoubleClickEvent(self, event):
 
         item = self.currentIndex()
-        obj =  item.internalPointer()
+        obj = item.internalPointer()
 
         if(isinstance(obj, CompositeNodeFactory)):
             applet = get_applet(identifier='EditorManager')
             if applet:
-                #applet.newTab('Workflow', obj.name + '.wpy', obj)
-                cat, fn = applet.add(applet.project(), obj.name + '.wpy', obj, category='model', dtype='Workflow')
-                applet.open_project_data(cat, fn)
-                #applet.open_data(obj, dtype='Workflow')
+                model = ModelFactory(dtype='Workflow', mimetype='text/x-visualea', code=obj)
+                cat, data = applet.add(applet.project(), obj.name + '.wpy',
+                                       code=model.repr_code(), category='model', dtype='Workflow')
+                applet.open_data(data)
         elif (not isinstance(obj, Package)):
             self.open_node()
 
 
 class OALabSearchView(SearchListView):
+
     def __init__(self, session, controller, parent=None):
         main_win = QtGui.QWidget()
         super(OALabSearchView, self).__init__(main_win)
@@ -56,15 +60,15 @@ class OALabSearchView(SearchListView):
     def mouseDoubleClickEvent(self, event):
 
         item = self.currentIndex()
-        obj =  item.internalPointer()
+        obj = item.internalPointer()
 
         if(isinstance(obj, CompositeNodeFactory)):
             applet = get_applet(identifier='EditorManager')
             if applet:
-                #applet.newTab('Workflow', obj.name + '.wpy', obj)
-                cat, fn = applet.add(applet.project(), obj.name + '.wpy', obj, category='model', dtype='Workflow')
-                applet.open_project_data(cat, fn)
-
+                model = ModelFactory(dtype='Workflow', mimetype='text/x-visualea', code=obj)
+                cat, data = applet.add(applet.project(), obj.name + '.wpy',
+                                       code=model.repr_code(), category='model', dtype='Workflow')
+                applet.open_data(data)
 
         elif (not isinstance(obj, Package)):
             self.open_node()

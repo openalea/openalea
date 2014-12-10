@@ -27,7 +27,7 @@ for i in range(n):
         transform = IntSphere
     else:
         transform = IntCube
-    print transform
+    print(transform)
     world.add(i, transform=transform(i))
 
 world.add(2, transform=transform(-1))

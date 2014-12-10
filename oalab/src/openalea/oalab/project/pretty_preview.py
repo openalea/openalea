@@ -7,6 +7,7 @@ import sys
 
 
 class ProjectPushButton(QtGui.QPushButton):
+
     """
     PushButton initialized from a project : gets its name, icon and version and displays it.
     """
@@ -42,11 +43,11 @@ class ProjectPushButton(QtGui.QPushButton):
 
 
 class ProjectSelector(QtGui.QWidget):
-    def __init__(self, projects, open_project=None, parent=None):
+
+    def __init__(self, projects, parent=None):
         super(ProjectSelector, self).__init__(parent)
         self.projects = projects
         self.layout = QtGui.QGridLayout(self)
-        self.open_project = open_project
         self.init()
 
     def init(self):
@@ -62,7 +63,6 @@ class ProjectSelector(QtGui.QWidget):
         # Pb: we want the size of QScrollArea and not self
         actual_width = self.size().width()
         maxcolumn = int(actual_width / nb_proj)
-
 
         if maxcolumn > 5:
             maxcolumn = 5
@@ -90,7 +90,7 @@ class ProjectSelector(QtGui.QWidget):
 
     def showDetails(self):
         sender = self.sender()
-        self.current_preview = Preview(project=sender.project, open_project=self.open_project)
+        self.current_preview = Preview(project=sender.project)
         self.current_preview.show()
 
     def refresh_project_list(self):
@@ -113,9 +113,10 @@ class ProjectSelector(QtGui.QWidget):
 
 
 class ProjectSelectorScroll(QtGui.QScrollArea):
-    def __init__(self, projects, open_project=None, parent=None):
+
+    def __init__(self, projects, parent=None):
         super(ProjectSelectorScroll, self).__init__(parent)
-        widget = ProjectSelector(projects, open_project=open_project, parent=parent)
+        widget = ProjectSelector(projects, parent=parent)
         self.setWidget(widget)
 
 
