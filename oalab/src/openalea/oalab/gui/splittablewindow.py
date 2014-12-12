@@ -18,7 +18,7 @@
 #
 ###############################################################################
 
-
+import json
 import weakref
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.oalab.service.applet import new_applet
@@ -454,8 +454,8 @@ class AppletTabWidget(QtGui.QTabWidget):
                     properties.update(self._applets[idx][name].properties())
                 except AttributeError:
                     pass
-                applets.append(dict(name=name, properties=properties))
-        layout = dict(applets=applets, properties=self.properties())
+                applets.append(dict(name=name, properties=properties, interface='IPluginInstance', ep='oalab.applet'))
+        layout = dict(applets=applets, properties=self.properties(), interface='IAppletTabWidget')
         return layout
 
 
@@ -630,25 +630,58 @@ class AppletContainer(QtGui.QWidget):
             self._e_title.hide()
             self._e_title.setText('')
 
-    def toString(self):
+    def _repr_json_(self):
         json = self._tabwidget._repr_json_()
         json.setdefault('properties', {}).update(self.properties())
+        json['interface'] = 'IAppletContainer'
         return json
 
 
 class OABinaryTree(BinaryTree):
 
     def toString(self, props=[]):
+        raise NotImplementedError
+
+    @classmethod
+    def _convert_keys_to_int(cls, dic):
+        for k in dic.keys():
+            if isinstance(k, int):
+                continue
+            dic[int(k)] = dic[k]
+            del dic[k]
+        return dic
+
+    @classmethod
+    def fromJSON(cls, layout):
+
+        g = cls()
+        toPar = layout.get('parents', {})
+        toCh = layout.get('children', {})
+        props = layout.get('properties', {})
+
+        cls._convert_keys_to_int(toPar)
+        cls._convert_keys_to_int(toCh)
+        cls._convert_keys_to_int(props)
+
+        g.__vid = max(props.iterkeys()) + 1
+        g._toChildren = toCh.copy()
+        g._toParents = toPar.copy()
+        g._properties = props.copy()
+        return g
+
+    def _repr_json_(self, props=[]):
         filteredProps = {}
         for vid, di in self._properties.iteritems():
             filteredProps[vid] = {}
             for k, v in di.iteritems():
                 if k in props:
-                    if hasattr(v, 'toString'):
-                        filteredProps[vid][k] = v.toString()
+                    if hasattr(v, '_repr_json_'):
+                        filteredProps[vid][k] = v._repr_json_()
                     else:
                         filteredProps[vid][k] = v
-        return repr(self._toChildren) + ", " + repr(self._toParents) + ", " + repr(filteredProps)
+        return dict(children=self._toChildren,
+                    parents=self._toParents,
+                    properties=filteredProps)
 
 
 class InitContainerVisitor(object):
@@ -756,8 +789,8 @@ class OALabSplittableUi(SplittableUI):
         return oldWidget
 
     @classmethod
-    def FromString(cls, rep, parent=None):
-        g, tup = OABinaryTree.fromString(rep)
+    def FromJSON(cls, layout, parent=None):
+        g = OABinaryTree.fromJSON(layout)
 
         newWid = cls(parent=parent)
         w0 = newWid._uninstall_child(0)
@@ -772,8 +805,8 @@ class OALabSplittableUi(SplittableUI):
         newWid.computeGeoms(0)
         return newWid
 
-    def fromString(self, rep, parent=None):
-        g, tup = OABinaryTree.fromString(rep)
+    def fromJSON(self, layout, parent=None):
+        g = OABinaryTree.fromJSON(layout)
 
         w0 = self._uninstall_child(0)
         if w0:
@@ -785,6 +818,14 @@ class OALabSplittableUi(SplittableUI):
         g.visit_i_breadth_first(visitor)
         self._geomCache[0] = self.contentsRect()
         self.computeGeoms(0)
+
+    def toString(self):
+        raise NotImplementedError
+
+    def _repr_json_(self):
+        dic = self._g._repr_json_(self.reprProps)
+        dic['interface'] = 'ISplittableUi'
+        return dic
 
     def _onSplitRequest(self, paneId, orientation, amount):
         if self._edit_mode:
@@ -834,7 +875,7 @@ class OALabMainWin(QtGui.QMainWindow):
             container = AppletContainer()
             self.splittable.setContentAt(0, container)
         else:
-            self.splittable.fromString(str(layout))
+            self.splittable.fromJSON(layout)
 
         self.setCentralWidget(self.splittable)
 
@@ -956,19 +997,24 @@ class OALabMainWin(QtGui.QMainWindow):
                 self.addToolBar(QtCore.Qt.TopToolBarArea, toolbar)
 
     def layout(self):
-        return eval(self.splittable.toString())
+        return self.splittable._repr_json_()
 
 from openalea.core.path import path as Path
 from openalea.core.service.ipython import interpreter
 
 
 class TestMainWin(OALabMainWin):
-    DEFAULT_LAYOUT = ({}, {0: None}, {0: {
-        'widget': {
-            'properties': {'position': 0},
-            'applets': [{'name': 'ShellWidget'}]
-        }
-    }})
+    DEFAULT_LAYOUT = dict(
+        children={},
+        parents={0: None},
+        properties={
+            0: {
+                'widget': {
+                    'properties': {'position': 0},
+                    'applets': [{'name': 'ShellWidget'}]
+                }
+            }}
+    )
 
     def __init__(self, layout=None, **kwds):
         """
@@ -982,7 +1028,12 @@ class TestMainWin(OALabMainWin):
         if layout is None:
             if self.layout_filepath.exists():
                 with open(self.layout_filepath) as layout_file:
-                    layout = eval(layout_file.read())
+                    content = layout_file.read()
+                    try:
+                        layout = json.loads(content)
+                    except ValueError:
+                        l = eval(content)
+                        layout = dict(children=l[0], parents=l[1], properties=l[2])
 
         if layout is None:
             layout = default_layout
@@ -1011,7 +1062,7 @@ class TestMainWin(OALabMainWin):
 
     def closeEvent(self, event):
         with open(self.layout_filepath, 'w') as layout_file:
-            layout_file.write(str(self.layout()))
+            json.dump(self.layout(), layout_file, sort_keys=True, indent=2)
 
     def debug(self):
         from openalea.oalab.session.session import Session
