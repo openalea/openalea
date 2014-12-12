@@ -33,7 +33,10 @@ def symlink(source, link_name):
     """
     os_symlink = getattr(os, "symlink", None)
     if callable(os_symlink):
-        os_symlink(source, link_name)
+        try:
+            os_symlink(source, link_name)
+        except:
+            pass
     else:
         import ctypes
         csl = ctypes.windll.kernel32.CreateSymbolicLinkW
