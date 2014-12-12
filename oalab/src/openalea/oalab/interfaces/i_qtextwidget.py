@@ -1,7 +1,8 @@
-from openalea.oalab.legacy.catalog.interface import IInterfacefrom openalea.oalab.legacy.catalog
+from openalea.core.interface import IInterface
+
 
 class IQTextWidget(IInterface):
-    name = 'IQTextWidget' # Unique identifier
+    name = 'IQTextWidget'  # Unique identifier
 
     def setText(self, text):
         pass
@@ -9,9 +10,9 @@ class IQTextWidget(IInterface):
     def text(self):
         pass
 
+
 class IHelper(IInterface):
     name = 'IHelper'
 
     def setText(self, text):
         pass
-
