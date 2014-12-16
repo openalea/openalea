@@ -26,8 +26,11 @@ from openalea.oalab.gui.splitterui import SplittableUI, BinaryTree
 from openalea.core.service.plugin import (new_plugin_instance, plugin_instances, plugin_class,
                                           plugins, plugin_instance, plugin_instance_exists)
 from openalea.oalab.gui.utils import qicon
+
+from openalea.oalab.gui.control.qcontainer import QControlContainer
 from openalea.oalab.gui.menu import ContextualMenu
 from openalea.core.plugin.manager import PluginManager
+from openalea.core.control import Control
 
 import openalea.core
 
@@ -159,8 +162,14 @@ class AppletFrame(QtGui.QWidget):
     def __init__(self):
         QtGui.QWidget.__init__(self)
 
-        self._show_toolbar = False
-        self._show_title = False
+        self._show_toolbar = Control('toolbar', interface='IBool', value=False, alias='Show Toolbar')
+        self._show_title = Control('title', interface='IBool', value=False, alias='Show Applet Title')
+
+        self._props = QControlContainer()
+        self._props.controlValueChanged.connect(self._on_prop_changed)
+        self._props.add_control(self._show_toolbar)
+        self._props.add_control(self._show_title)
+
         self._edit_mode = False
 
         self._applet = None
@@ -184,14 +193,14 @@ class AppletFrame(QtGui.QWidget):
 
         self._create_actions()
 
-    def _create_actions(self):
-        self.action_toolbar = QtGui.QAction("Toolbar", self)
-        self.action_toolbar.setCheckable(True)
-        self.action_toolbar.toggled.connect(self.show_toolbar)
+    def _on_prop_changed(self, prop, value):
+        if prop is self._show_toolbar:
+            self.show_toolbar(value)
+        elif prop is self._show_title:
+            self.show_title(value)
 
-        self.action_title = QtGui.QAction("Show Tab Title", self)
-        self.action_title.setCheckable(True)
-        self.action_title.toggled.connect(self.show_title)
+    def _create_actions(self):
+        self._props.create_actions(self)
 
     def menu_actions(self):
         if self._applet:
@@ -199,7 +208,7 @@ class AppletFrame(QtGui.QWidget):
         else:
             applet = None
         if self._edit_mode:
-            actions = [self.action_title, self.action_toolbar]
+            actions = self._props.actions()
         else:
             actions = menu_actions(applet)
         return actions
@@ -224,13 +233,11 @@ class AppletFrame(QtGui.QWidget):
         self._layout.removeWidget(applet)
 
     def show_title(self, show=True):
-        self._show_title = show
-        self.action_title.setChecked(show)
+        self._show_title.value = show
         self._l_title.setVisible(show)
 
     def show_toolbar(self, show=True):
-        self._show_toolbar = show
-        self.action_toolbar.setChecked(show)
+        self._show_toolbar.value = show
         if show:
             self.fill_toolbar()
         else:
@@ -238,7 +245,7 @@ class AppletFrame(QtGui.QWidget):
 
     def fill_toolbar(self):
 
-        if self._show_toolbar is False:
+        if self._show_toolbar.value is False:
             return
 
         if self._applet is None:
@@ -259,21 +266,16 @@ class AppletFrame(QtGui.QWidget):
             fill_panedmenu(self._menu, actions)
 
     def clear_toolbar(self):
-        if self._show_toolbar:
+        if self._show_toolbar.value:
             self._menu.clear()
         else:
             self._menu.hide()
 
     def properties(self):
-        return dict(
-            toolbar=self._show_toolbar,
-            title=self._show_title
-        )
+        return self._props.namespace()
 
     def set_properties(self, properties):
-        get = properties.get
-        self.show_toolbar(get('toolbar', False))
-        self.show_title(get('title', False))
+        self._props.update(properties)
 
 
 class AppletTabWidget(QtGui.QTabWidget):
@@ -449,7 +451,8 @@ class AppletTabWidget(QtGui.QTabWidget):
         for idx in range(self.count()):
             if idx in self._name:
                 name = self._name[idx]
-                properties = self.currentWidget().properties()
+                applet_frame = self.widget(idx)
+                properties = applet_frame.properties()
                 try:
                     properties.update(self._applets[idx][name].properties())
                 except AttributeError:
@@ -517,6 +520,22 @@ class AppletContainer(QtGui.QWidget):
             qicon('Crystal_Clear_action_edit_remove.png'), "Remove tab", self.menu_edit_on)
         self.action_remove_tab.triggered.connect(self._tabwidget.remove_tab)
 
+        self.action_push_to_shell = QtGui.QAction("DEBUG push applet to shell", self.menu_edit_on)
+        self.action_push_to_shell.triggered.connect(self._push_applet_to_shell)
+
+    def _push_applet_to_shell(self):
+        interp = interpreter()
+        interp.user_ns['debug_dict'] = dict(
+            container=self,
+            c_applets=self._applets,
+            c_tabwidget=self._tabwidget,
+            frame=self._tabwidget.currentWidget(),
+            applet_dict=self._tabwidget._applets,
+            applet=self._tabwidget._applets[self._tabwidget.currentIndex()]
+        )
+        for k, v in interp.user_ns['debug_dict'].items():
+            interp.user_ns['debug_%s' % k] = v
+
     def _create_menus(self):
         # Menu if edit mode is OFF
         self.menu_edit_off = QtGui.QMenu(self)
@@ -534,6 +553,8 @@ class AppletContainer(QtGui.QWidget):
         self.menu_edit_on.addAction(self.action_remove_tab)
         self.menu_edit_on.addSeparator()
         self.menu_edit_on.addAction(self.action_title)
+        self.menu_edit_on.addSeparator()
+        # self.menu_edit_on.addAction(self.action_push_to_shell)
 
         self._position_actions = {}
         for name, position in [
@@ -1042,7 +1063,10 @@ class TestMainWin(OALabMainWin):
 
         self.interp = interpreter()
         self.interp.user_ns['mainwin'] = self
+        self.interp.user_ns['splittable'] = self.splittable
         self.interp.user_ns['debug'] = self.debug
+        self.interp.user_ns['QtCore'] = QtCore
+        self.interp.user_ns['QtGui'] = QtGui
 
         from openalea.core.service.plugin import plugin_instance, plugin_instances
 
