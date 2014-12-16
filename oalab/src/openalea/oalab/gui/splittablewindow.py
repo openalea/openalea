@@ -866,8 +866,23 @@ class OALabMainWin(QtGui.QMainWindow):
     appletSet = QtCore.Signal(object, object)
     DEFAULT_MENU_NAMES = ('Project', 'Edit', 'View', 'Help')
 
-    def __init__(self, layout=None):
+    DEFAULT_LAYOUT = dict(
+        children={},
+        parents={0: None},
+        properties={
+            0: {
+                'widget': {
+                    'properties': {'position': 0},
+                    'applets': [{'name': 'ShellWidget'}]
+                }
+            }}
+    )
+    DEFAULT_LAYOUT_PATH = 'layout.oaui'
+
+    def __init__(self, layout=None, **kwds):
         QtGui.QMainWindow.__init__(self)
+
+        layout = self._load_layout(layout, **kwds)
 
         # Classic menu
         self.menu_classic = {}
@@ -892,6 +907,30 @@ class OALabMainWin(QtGui.QMainWindow):
         self.setCentralWidget(self.splittable)
 
         QtGui.QApplication.instance().focusChanged.connect(self._on_focus_changed)
+        self.set_edit_mode(False)
+
+    def _load_layout(self, layout=None, **kwds):
+        layout_file = kwds.pop('layout_file', self.DEFAULT_LAYOUT_PATH)
+        default_layout = kwds.pop('default_layout', self.DEFAULT_LAYOUT)
+
+        self.layout_filepath = Path(layout_file).abspath()
+        if layout is None:
+            if self.layout_filepath.exists():
+                with open(self.layout_filepath) as layout_file:
+                    content = layout_file.read()
+                    try:
+                        layout = json.loads(content)
+                    except ValueError:
+                        l = eval(content)
+                        layout = dict(children=l[0], parents=l[1], properties=l[2])
+
+        if layout is None:
+            layout = default_layout
+        return layout
+
+    def closeEvent(self, event):
+        with open(self.layout_filepath, 'w') as layout_file:
+            json.dump(self.layout(), layout_file, sort_keys=True, indent=2)
 
     def set_edit_mode(self, mode=True):
         for widget in self.splittable.getAllContents():
@@ -1062,41 +1101,13 @@ from openalea.core.service.ipython import interpreter
 
 
 class TestMainWin(OALabMainWin):
-    DEFAULT_LAYOUT = dict(
-        children={},
-        parents={0: None},
-        properties={
-            0: {
-                'widget': {
-                    'properties': {'position': 0},
-                    'applets': [{'name': 'ShellWidget'}]
-                }
-            }}
-    )
 
     def __init__(self, layout=None, **kwds):
         """
         tests: list of function runnable in shell (name changed to run_<funcname>)
         layout_file
         """
-        layout_file = kwds.pop('layout_file', 'layout.oaui')
-        default_layout = kwds.pop('default_layout', self.DEFAULT_LAYOUT)
-
-        self.layout_filepath = Path(layout_file).abspath()
-        if layout is None:
-            if self.layout_filepath.exists():
-                with open(self.layout_filepath) as layout_file:
-                    content = layout_file.read()
-                    try:
-                        layout = json.loads(content)
-                    except ValueError:
-                        l = eval(content)
-                        layout = dict(children=l[0], parents=l[1], properties=l[2])
-
-        if layout is None:
-            layout = default_layout
-
-        OALabMainWin.__init__(self, layout=layout)
+        OALabMainWin.__init__(self, layout=layout, **kwds)
 
         self.interp = interpreter()
         self.interp.user_ns['mainwin'] = self
@@ -1120,10 +1131,6 @@ class TestMainWin(OALabMainWin):
             self.interp.user_ns['run_%s' % f.__name__] = f
 
         self.set_edit_mode()
-
-    def closeEvent(self, event):
-        with open(self.layout_filepath, 'w') as layout_file:
-            json.dump(self.layout(), layout_file, sort_keys=True, indent=2)
 
     def debug(self):
         from openalea.oalab.session.session import Session

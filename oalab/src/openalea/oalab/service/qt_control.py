@@ -58,7 +58,7 @@ def qt_editor_class(iname, shape=None, preferred=None):
 
 
 def widget(iname, value, shape=None, preferred=None):
-    control = Control(iname, iname, value)
+    control = Control(iname.__class__.__name__, iname, value)
     return qt_editor(control, shape, preferred)
 
 

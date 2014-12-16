@@ -89,7 +89,7 @@ setup(
 
         'gui_scripts': [
             'oalab = openalea.oalab.main:main',
-            'openalealab = openalea.oalab.main:main'
+            'openalealab = openalea.oalab.main:main2'
         ],
 
         'oalab.paradigm_applet': [

@@ -4,7 +4,24 @@ class MiniLab(object):
     name = 'mini'
     applets = ['EditorManager']
 
-    def __call__(self, mainwin):
+    # NEW LAYOUT API
+    menu_names = ('File', 'Edit', 'Help')
+
+    layout = dict(
+        children={},
+        parents={0: None},
+        properties={
+            0: {
+                'widget': {
+                    'properties': {'position': 0},
+                    'applets': [{'name': 'ShellWidget'}]
+                }
+            }}
+    )
+
+    def __call__(self, mainwin=None):
+        if mainwin is None:
+            return self.__class__
         # Load, create and place applets in mainwindow
         for name in self.applets:
             mainwin.add_plugin(name=name)
