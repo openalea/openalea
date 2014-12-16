@@ -1,0 +1,89 @@
+(1) lien cassé: pylab/matplotlib -> applet
+la fenêtre n'est plus selectionnable, plusieurs tab semble poser des pb)
+
+(2) lien cassé : world -> applet 
+
+(3) Action dupliquées dans le menu contextuel
+check unicity ?
+
+(4) Ajouter ce test:
++    def test_not_saved_project(self):
++        new_project = Project(self.tmpdir / 'NEW_PROJECT', alias='test')
++        model = new_project.add('model', filename='model.py', content='print(1)')
++        assert new_project.path.exists() is False
++        assert 'model.py' in new_project.model
++        model.save()
+
+
+(5) comprendre ce bug: 
+
+ouvrir toolbox plant, supprm lineage, relancer -> crash
+
+ajiouter apply pour les controles lourd
+
+ajouter "voulez vous sauver les models avant de quitter"
+
+
+Crash New layout du à un crash de matplotlib:
+
+backends/backend_agg.py
+
+    def get_renderer(self, cleared=False):
+        l, b, w, h = self.figure.bbox.bounds
+        key = w, h, self.figure.dpi
+        try: self._lastKey, self.renderer
+        except AttributeError: need_new_renderer = True
+        else:  need_new_renderer = (self._lastKey != key)
+
+        if need_new_renderer:
+            self.renderer = RendererAgg(w, h, self.figure.dpi) # <------------------------------------------- segfault ici
+            self._lastKey = key
+        elif cleared:
+            self.renderer.clear()
+        return self.renderer
+
+Passe avec matplotlib système mais message d'erreur:
+
+Traceback (most recent call last):
+  File "/usr/lib/pymodules/python2.7/matplotlib/backends/backend_qt4.py", line 299, in resizeEvent
+    self.draw()
+  File "/usr/lib/pymodules/python2.7/matplotlib/backends/backend_qt4agg.py", line 154, in draw
+    FigureCanvasAgg.draw(self)
+  File "/usr/lib/pymodules/python2.7/matplotlib/backends/backend_agg.py", line 446, in draw
+    self.renderer = self.get_renderer(cleared=True)
+  File "/usr/lib/pymodules/python2.7/matplotlib/backends/backend_agg.py", line 465, in get_renderer
+    self.renderer = RendererAgg(w, h, self.figure.dpi)
+  File "/usr/lib/pymodules/python2.7/matplotlib/backends/backend_agg.py", line 84, in __init__
+    self._renderer = _RendererAgg(int(width), int(height), dpi, debug=False)
+ValueError: width and height must each be below 32768
+
+(6) comprendre ce bug
+
+
+Traceback (most recent call last):
+  File ".../oalab/src/openalea/oalab/gui/splittablewindow.py", line 871, in _onSplitRequest
+    SplittableUI._onSplitRequest(self, paneId, orientation, amount)
+  File ".../oalab/src/openalea/oalab/gui/splitterui.py", line 716, in _onSplitRequest
+    self.splitPane(fake, paneId, orientation, amount)
+  File ".../oalab/src/openalea/oalab/gui/splitterui.py", line 477, in splitPane
+    self.computeGeoms(paneId)
+  File ".../oalab/src/openalea/oalab/gui/splitterui.py", line 558, in computeGeoms
+    self._g.visit_i_breadth_first(visitor, baseNode)
+  File ".../oalab/src/openalea/oalab/gui/splitterui.py", line 311, in visit_i_breadth_first
+    ignoreFirst, ignoreSecond = visitor.visit(currNode)
+  File ".../oalab/src/openalea/oalab/gui/splitterui.py", line 885, in visit
+    direction = self.g.get_property(vid, "splitDirection")
+  File ".../oalab/src/openalea/oalab/gui/splitterui.py", line 276, in get_property
+    raise BinaryTree.PropertyException(vid, key)
+openalea.oalab.gui.splitterui.PropertyException: No splitDirection for node 2
+
+(7) LPy step ne fonctionne plus
+
+Traceback (most recent call last):
+  File "/home/gbaty/prog/openalea/openalea-git/oalab/src/openalea/oalab/gui/container.py", line 546, in step
+    self.currentWidget().applet.step()
+  File "/home/gbaty/prog/openalea/openalea-git/oalab/src/openalea/oalab/gui/paradigm/controller.py", line 136, in step
+    return self.model.step(nstep=nstep)
+TypeError: step() got an unexpected keyword argument 'nstep'
+
+

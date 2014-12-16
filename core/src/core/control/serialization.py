@@ -17,7 +17,10 @@ class ControlDeserializer(AbstractDeserializer):
     def deserialize(self, lines, protocol=None, **kwds):
         ns = {}
         for l in lines:
-            exec l in ns
+            try:
+                exec l in ns
+            except:
+                pass
         controls = ns.get('controls', [])
         return controls
 
