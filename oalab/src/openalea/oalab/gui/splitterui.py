@@ -125,6 +125,32 @@ class BinaryTree(object):
         return repr(self._toChildren) + ", " + repr(self._toParents) + ", " + repr(filteredProps)
 
     @classmethod
+    def _convert_keys_to_int(cls, dic):
+        for k in dic.keys():
+            if isinstance(k, int):
+                continue
+            dic[int(k)] = dic[k]
+            del dic[k]
+        return dic
+
+    @classmethod
+    def fromJSON(cls, layout):
+        g = cls()
+        toPar = layout.get('parents', {})
+        toCh = layout.get('children', {})
+        props = layout.get('properties', {})
+
+        cls._convert_keys_to_int(toPar)
+        cls._convert_keys_to_int(toCh)
+        cls._convert_keys_to_int(props)
+
+        g.__vid = max(props.iterkeys()) + 1
+        g._toChildren = toCh.copy()
+        g._toParents = toPar.copy()
+        g._properties = props.copy()
+        return g
+
+    @classmethod
     def fromString(cls, rep):
         try:
             tup = eval(rep)
@@ -150,7 +176,7 @@ class BinaryTree(object):
         Raises BinaryTree.BadIdException if vid is not in the list of children.
         """
         if vid not in self._toParents:
-            raise BinaryTree.BadIdException(vid)
+            raise self.__class__.BadIdException(vid)
         return self._toParents[vid]
 
     def leaves(self):
@@ -164,7 +190,7 @@ class BinaryTree(object):
         Raises BinaryTree.BadIdException if vid is not in the list of parents.
         """
         if vid not in self._toChildren:
-            raise BinaryTree.BadIdException(vid)
+            raise self.__class__.BadIdException(vid)
         return self._toChildren[vid]
 
     def has_children(self, vid):
@@ -184,7 +210,7 @@ class BinaryTree(object):
         if vid == self.__root:
             return True
         if vid not in self._toParents:
-            raise BinaryTree.BadIdException(vid)
+            raise self.__class__.BinaryTree.BadIdException(vid)
         par = self._toParents[vid]
         chds = self.children(par)
         return chds.index(vid) == 0
@@ -194,7 +220,7 @@ class BinaryTree(object):
 
         Raises BinaryTree.BadIdException if vid is not in the graph."""
         if vid not in self._properties:
-            raise BinaryTree.BadIdException(vid)
+            raise self.__class__.BadIdException(vid)
         fid, sid = self.__vid, self.__vid + 1
         self.__vid += 2
         self.__new_node(fid, vid)
@@ -207,10 +233,10 @@ class BinaryTree(object):
         Raises BinaryTree.BadIdException if vid is not in the graph.
         Raises BinaryTree.NonAnteTerminalException if children of vid have children."""
         if vid not in self._properties:
-            raise BinaryTree.BadIdException(vid)
+            raise self.__class__.BadIdException(vid)
         fid, sid = self._toChildren[vid]
         if fid in self._toChildren or sid in self._toChildren:
-            raise BinaryTree.NonAnteTerminalException(vid)
+            raise self.__class__.NonAnteTerminalException(vid)
         self.__del_node(fid, vid)
         self.__del_node(sid, vid)
         return fid, sid
@@ -221,7 +247,7 @@ class BinaryTree(object):
         Raises BinaryTree.ParentCompleteException if parent already has two children"""
         chen = self._toChildren.setdefault(parent, [])
         if len(chen) > 1:
-            raise BinaryTree.ParentCompleteException(parent)
+            raise self.__class__.ParentCompleteException(parent)
         chen.append(vid)
         self._toParents[vid] = parent
         self._properties[vid] = {}
@@ -246,7 +272,7 @@ class BinaryTree(object):
          - `value` (object) - the value to store
         """
         if vid not in self._properties:
-            raise BinaryTree.BadIdException(vid)
+            raise self.__class__.BadIdException(vid)
         self._properties[vid][key] = value
 
     def has_property(self, vid, key):
@@ -258,7 +284,7 @@ class BinaryTree(object):
         Raises BinaryTree.BadIdException if `vid` is not in graph.
         """
         if vid not in self._properties:
-            raise BinaryTree.BadIdException(vid)
+            raise self.__class__.BadIdException(vid)
         return key in self._properties[vid]
 
     def get_property(self, vid, key):
@@ -271,9 +297,9 @@ class BinaryTree(object):
         Raises BinaryTree.PropertyException if `key` is not a property of `vid` (ie. if not set yet)
         """
         if vid not in self._properties:
-            raise BinaryTree.BadIdException(vid)
+            raise self.__class__.BadIdException(vid)
         if key not in self._properties[vid]:
-            raise BinaryTree.PropertyException(vid, key)
+            raise self.__class__.PropertyException(vid, key)
         return self._properties[vid].get(key)
 
     def pop_property(self, vid, key):
@@ -286,9 +312,9 @@ class BinaryTree(object):
         Raises BinaryTree.PropertyException if `key` is not a property of `vid` (ie. if not set yet)
         """
         if vid not in self._properties:
-            raise BinaryTree.BadIdException(vid)
+            raise self.__class__.BadIdException(vid)
         if key not in self._properties[vid]:
-            raise BinaryTree.PropertyException(vid, key)
+            raise self.__class__.PropertyException(vid, key)
         return self._properties[vid].pop(key)
 
     def visit_i_breadth_first(self, visitor=None, node=0):

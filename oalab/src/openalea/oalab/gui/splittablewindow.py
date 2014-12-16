@@ -681,33 +681,6 @@ class OABinaryTree(BinaryTree):
     def toString(self, props=[]):
         raise NotImplementedError
 
-    @classmethod
-    def _convert_keys_to_int(cls, dic):
-        for k in dic.keys():
-            if isinstance(k, int):
-                continue
-            dic[int(k)] = dic[k]
-            del dic[k]
-        return dic
-
-    @classmethod
-    def fromJSON(cls, layout):
-
-        g = cls()
-        toPar = layout.get('parents', {})
-        toCh = layout.get('children', {})
-        props = layout.get('properties', {})
-
-        cls._convert_keys_to_int(toPar)
-        cls._convert_keys_to_int(toCh)
-        cls._convert_keys_to_int(props)
-
-        g.__vid = max(props.iterkeys()) + 1
-        g._toChildren = toCh.copy()
-        g._toParents = toPar.copy()
-        g._properties = props.copy()
-        return g
-
     def _repr_json_(self, props=[]):
         filteredProps = {}
         for vid, di in self._properties.iteritems():
