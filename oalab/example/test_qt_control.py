@@ -4,8 +4,11 @@ from control_sizes import Ui_Form
 
 import openalea.oalab.service.qt_control as scontrol
 from openalea.core.control import Control
+from openalea.oalab.gui.control.qcontainer import QControlContainer
+
 
 class CheckSizes(Ui_Form, QtGui.QWidget):
+
     def __init__(self, iname='IInt', widget=None, edit_mode='edit'):
         QtGui.QWidget.__init__(self)
         self.setupUi(self)
@@ -13,6 +16,9 @@ class CheckSizes(Ui_Form, QtGui.QWidget):
         self.l_title.setText('%s, %s, %s' % (iname, widget, edit_mode))
 
         self._control = Control('a', iname, widget=widget)
+        self._qcontainer = QControlContainer()
+        self._qcontainer.add_control(self._control)
+        self._qcontainer.create_actions(self)
 
 #        m = getattr(scontrol, '%s_qt' % edit_mode)
         m = getattr(scontrol, 'qt_editor')
@@ -36,6 +42,11 @@ class CheckSizes(Ui_Form, QtGui.QWidget):
             self.cb_read.toggled.connect(self.on_mode_changed)
             self.cb_apply.toggled.connect(self.on_mode_changed)
 
+    def contextMenuEvent(self, event):
+        menu = QtGui.QMenu(self)
+        menu.addActions(self._qcontainer.actions())
+        menu.exec_(event.pos())
+
     def on_mode_changed(self, state):
         autoread = self.cb_read.isChecked()
         autoapply = self.cb_apply.isChecked()
@@ -49,14 +60,14 @@ if __name__ == '__main__':
     import sys
 
     instance = QtGui.QApplication.instance()
-    if instance is None :
+    if instance is None:
         app = QtGui.QApplication([])
-    else :
+    else:
         app = instance
 
     w = CheckSizes(*sys.argv[1:])
     w.show()
     w.raise_()
 
-    if instance is None :
+    if instance is None:
         app.exec_()

@@ -52,6 +52,17 @@ class ControlContainer(Observed, AbstractListener):
         else:
             return self.control(None, uid)
 
+    def add(self, name, **kwds):
+        control = Control(name, **kwds)
+        self.add_control(control)
+
+    def update(self, dic):
+        for name, value in dic.items():
+            control = self.control(name=name)
+            if control is None:
+                continue
+            control.value = value
+
     def add_control(self, control):
         """
         :param control: Control object
@@ -92,6 +103,13 @@ class ControlContainer(Observed, AbstractListener):
                 if interface_name(control.interface) == interface:
                     ns[control.name] = copy.deepcopy(control.value)
         return ns
+
+    def changed(self):
+        dic = {}
+        for control in self._controls:
+            if control.value != control.default:
+                dic[control.name] = control.value
+        return dic
 
     def controls(self):
         return list(self._controls)

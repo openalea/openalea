@@ -73,12 +73,14 @@ def qt_dialog(control=None, **kwds):
         - shape: widget shape
         - preferred: preferred widget
     """
+    autoapply = kwds.get('autoapply', False)
     if control is None:
         control = Control(**kwds)
     widget = qt_editor(control, **kwds)
+    widget.autoapply(control, autoapply)
     dialog = ModalDialog(widget)
     if dialog.exec_() == QtGui.QDialog.Accepted:
-        return control.value
+        return widget.value()
     else:
         return None
 
