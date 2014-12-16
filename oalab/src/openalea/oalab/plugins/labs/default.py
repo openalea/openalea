@@ -70,9 +70,6 @@ class DefaultLab(MiniLab):
         ('applet', 'signal', 'applet', 'slot')
     ]
 
-    applets = []
-    excluded = []
-
     def __call__(self, mainwin=None):
         if mainwin is None:
             return self.__class__
