@@ -123,12 +123,18 @@ class AppletSelector(QtGui.QWidget):
         self._layout.setContentsMargins(0, 0, 0, 0)
 
         self._cb_applets = QtGui.QComboBox()
-        self._applet_plugins = []
+        self._applet_alias = []  # list of alias sorted by name
+        self._applet_plugins = {}  # alias -> plugin class
 
         self._cb_applets.addItem('Select applet')
         for plugin_class in plugins('oalab.applet'):
-            self._applet_plugins.append(plugin_class)
-            self._cb_applets.addItem(obj_icon(plugin_class), plugin_class.alias)
+            self._applet_alias.append(plugin_class.alias)
+            self._applet_plugins[plugin_class.alias] = plugin_class
+        self._applet_alias.sort()
+
+        for alias in self._applet_alias:
+            plugin_class = self._applet_plugins[alias]
+            self._cb_applets.addItem(obj_icon(plugin_class), alias)
 
         self._layout.addWidget(self._cb_applets)
 
@@ -149,7 +155,7 @@ class AppletSelector(QtGui.QWidget):
 
     def applet(self, idx):
         if 1 <= idx <= len(self._applet_plugins):
-            plugin_class = self._applet_plugins[idx - 1]
+            plugin_class = self._applet_plugins[self._applet_alias[idx - 1]]
             return plugin_class.name
         else:
             return None
@@ -159,7 +165,8 @@ class AppletSelector(QtGui.QWidget):
 
     def setCurrentApplet(self, name):
         self._cb_applets.setCurrentIndex(0)
-        for i, plugin_class in enumerate(self._applet_plugins):
+        for i, alias in enumerate(self._applet_alias):
+            plugin_class = self._applet_plugins[alias]
             if plugin_class.name == name:
                 self._cb_applets.setCurrentIndex(i + 1)
                 break
