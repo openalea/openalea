@@ -19,13 +19,16 @@
 
 __all__ = ['qicon']
 
+import pickle
 import openalea.oalab
-from openalea.vpltk.qt import QtGui
+from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core.customexception import CustomException, cast_error
 from openalea.deploy.shared_data import shared_data
 
+
 def get_shared_data(filename):
     return shared_data(openalea.oalab, filename)
+
 
 def qicon(filename):
     path = get_shared_data('icons/%s' % filename)
@@ -38,6 +41,7 @@ def qicon(filename):
 
 
 class ModalDialog(QtGui.QDialog):
+
     def __init__(self, widget, parent=None):
         QtGui.QDialog.__init__(self, parent)
         self.setContentsMargins(0, 0, 0, 0)
@@ -56,6 +60,45 @@ class ModalDialog(QtGui.QDialog):
         layout.setContentsMargins(0, 5, 0, 5)
         layout.addWidget(widget)
         layout.addWidget(bbox)
+
+
+class Splitter(QtGui.QSplitter):
+
+    ORIENTATION = QtCore.Qt.Vertical
+
+    def __init__(self):
+        QtGui.QSplitter.__init__(self)
+        self._applets = []
+
+        self._action_clear = QtGui.QAction('Clear', self)
+        self._action_clear.triggered.connect(self.clear)
+
+        self._action_switch = QtGui.QAction('Change orientation', self)
+        self._action_switch.triggered.connect(self.toggle_orientation)
+
+    def menu_actions(self):
+        return [self._action_clear, self._action_switch]
+
+    def toggle_orientation(self):
+        self.setOrientation(int(not self.orientation()))
+
+    def clear(self):
+        for widget in self.children():
+            widget.close()
+
+    def set_properties(self, properties):
+        self.setOrientation(properties.get('position', self.ORIENTATION))
+        self.icon = properties.get('icon', None)
+        state = properties.get('state', None)
+        if state:
+            self.restoreState(pickle.loads(state))
+
+    def properties(self):
+        return dict(
+            position=self.orientation(),
+            state=pickle.dumps(str(self.saveState())),
+            icon=self.icon,
+        )
 
 
 def make_error_dialog(e, parent=None, icon=QtGui.QMessageBox.Critical):

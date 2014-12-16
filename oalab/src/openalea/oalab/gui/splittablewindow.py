@@ -31,8 +31,7 @@ from openalea.core.service.plugin import (new_plugin_instance, plugin_instances,
 from openalea.oalab.gui.control.qcontainer import QControlContainer
 from openalea.oalab.gui.menu import ContextualMenu
 from openalea.oalab.gui.splitterui import SplittableUI, BinaryTree
-from openalea.oalab.gui.utils import ModalDialog
-from openalea.oalab.gui.utils import qicon
+from openalea.oalab.gui.utils import ModalDialog, qicon, Splitter
 
 from openalea.vpltk.qt import QtGui, QtCore
 
@@ -1040,34 +1039,27 @@ class OALabMainWin(QtGui.QMainWindow):
         return self.splittable._repr_json_()
 
 
-class SplitterApplet(QtGui.QSplitter):
+class SplitterApplet(Splitter):
 
     ORIENTATION = QtCore.Qt.Vertical
 
     def __init__(self):
-        QtGui.QSplitter.__init__(self)
+        Splitter.__init__(self)
         self._applets = {}
 
         self._action_add_applet = QtGui.QAction('Add applet', self)
         self._action_add_applet.triggered.connect(self._on_add_applet_triggered)
 
-        self._action_clear = QtGui.QAction('Clear', self)
-        self._action_clear.triggered.connect(self.clear)
-
-        self._action_switch = QtGui.QAction('Change orientation', self)
-        self._action_switch.triggered.connect(self.toggle_orientation)
-
     def menu_actions(self):
-        return [self._action_add_applet, self._action_clear, self._action_switch]
+        actions = Splitter.menu_actions(self)
+        actions.append(self._action_add_applet)
+        return actions
 
     def _on_add_applet_triggered(self):
         widget = AppletSelector()
         dialog = ModalDialog(widget)
         if dialog.exec_() == dialog.Accepted:
             self.add_applet(widget.currentAppletName())
-
-    def toggle_orientation(self):
-        self.setOrientation(int(not self.orientation()))
 
     def clear(self):
         for applet in self._applets.itervalues():
@@ -1081,22 +1073,16 @@ class SplitterApplet(QtGui.QSplitter):
         self.addWidget(applet)
 
     def set_properties(self, properties):
-        self.setOrientation(properties.get('position', self.ORIENTATION))
         applets = properties.get('applets', [])
-        self.icon = properties.get('icon', None)
         for name in applets:
             self.add_applet(name)
-        state = properties.get('state', None)
-        if state:
-            self.restoreState(pickle.loads(state))
+        # applet have to be loaded before to restore state
+        Splitter.set_properties(self, properties)
 
     def properties(self):
-        return dict(
-            applets=self._applets.keys(),
-            position=self.orientation(),
-            state=pickle.dumps(str(self.saveState())),
-            icon=self.icon,
-        )
+        dic = Splitter.properties(self)
+        dic['applets'] = self._applets.keys()
+        return dic
 
 from openalea.core.path import path as Path
 from openalea.core.service.ipython import interpreter
