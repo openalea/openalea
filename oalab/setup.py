@@ -130,6 +130,7 @@ setup(
             'MplFigureWidget = openalea.oalab.plugins.applets.plot2d:MplFigureWidget',
             'ShellWidget = openalea.oalab.plugins.applets.shellwidget:ShellWidget',
             'ContextualMenu = openalea.oalab.plugins.applets.contextualmenu:ContextualMenu',
+            'SplitterApplet = openalea.oalab.plugins.applets.splitter:SplitterApplet',
         ],
 
         'oalab.qt_control': [

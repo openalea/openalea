@@ -72,6 +72,7 @@ class TestAppletPlugin(object):
     def __call__(self):
         return TestApplet
 
+
 from openalea.core.plugin.manager import PluginManager
 pm = PluginManager()
 pm.discover('oalab.applet')

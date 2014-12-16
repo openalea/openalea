@@ -20,17 +20,21 @@
 
 import json
 import weakref
-from openalea.vpltk.qt import QtGui, QtCore
-from openalea.oalab.service.applet import new_applet
-from openalea.oalab.gui.splitterui import SplittableUI, BinaryTree
-from openalea.core.service.plugin import (new_plugin_instance, plugin_instances, plugin_class,
-                                          plugins, plugin_instance, plugin_instance_exists)
-from openalea.oalab.gui.utils import qicon
+import pickle
+
+
+from openalea.core.control import Control
+from openalea.core.plugin.manager import PluginManager
+from openalea.core.service.plugin import (new_plugin_instance, plugin_instances, plugin_class, plugins,
+                                          plugin_instance, plugin_instance_exists)
 
 from openalea.oalab.gui.control.qcontainer import QControlContainer
 from openalea.oalab.gui.menu import ContextualMenu
-from openalea.core.plugin.manager import PluginManager
-from openalea.core.control import Control
+from openalea.oalab.gui.splitterui import SplittableUI, BinaryTree
+from openalea.oalab.gui.utils import ModalDialog
+from openalea.oalab.gui.utils import qicon
+
+from openalea.vpltk.qt import QtGui, QtCore
 
 import openalea.core
 
@@ -80,8 +84,15 @@ def fill_panedmenu(menu, actions):
             continue
 
 
-def obj_icon(obj, rotation=0, size=(64, 64)):
-    if hasattr(obj, 'icon'):
+def obj_icon(obj, rotation=0, size=(64, 64), applet=None):
+    if hasattr(applet, 'icon'):
+        applet_icon = applet.icon
+    else:
+        applet_icon = None
+
+    if applet_icon:
+        icon = qicon(applet_icon)
+    elif hasattr(obj, 'icon'):
         icon = qicon(obj.icon)
     else:
         icon = qicon('oxygen_application-x-desktop.png')
@@ -414,6 +425,7 @@ class AppletTabWidget(QtGui.QTabWidget):
 
         name = self._name[idx]
         _plugin_class = plugin_class('oalab.applet', name)
+        applet = self._applets[idx][name]
         #self.setTabText(idx, _plugin_class.alias)
         if self.tabPosition() == QtGui.QTabWidget.East:
             rotation = -90
@@ -422,7 +434,7 @@ class AppletTabWidget(QtGui.QTabWidget):
         else:
             rotation = 0
 
-        self.setTabIcon(idx, obj_icon(_plugin_class, rotation=rotation))
+        self.setTabIcon(idx, obj_icon(_plugin_class, applet=applet, rotation=rotation))
         self.setTabToolTip(idx, _plugin_class.alias)
         self.widget(idx).set_edit_mode(self._edit_mode)
 
@@ -1019,6 +1031,65 @@ class OALabMainWin(QtGui.QMainWindow):
 
     def layout(self):
         return self.splittable._repr_json_()
+
+
+class SplitterApplet(QtGui.QSplitter):
+
+    ORIENTATION = QtCore.Qt.Vertical
+
+    def __init__(self):
+        QtGui.QSplitter.__init__(self)
+        self._applets = {}
+
+        self._action_add_applet = QtGui.QAction('Add applet', self)
+        self._action_add_applet.triggered.connect(self._on_add_applet_triggered)
+
+        self._action_clear = QtGui.QAction('Clear', self)
+        self._action_clear.triggered.connect(self.clear)
+
+        self._action_switch = QtGui.QAction('Change orientation', self)
+        self._action_switch.triggered.connect(self.toggle_orientation)
+
+    def menu_actions(self):
+        return [self._action_add_applet, self._action_clear, self._action_switch]
+
+    def _on_add_applet_triggered(self):
+        widget = AppletSelector()
+        dialog = ModalDialog(widget)
+        if dialog.exec_() == dialog.Accepted:
+            self.add_applet(widget.currentAppletName())
+
+    def toggle_orientation(self):
+        self.setOrientation(int(not self.orientation()))
+
+    def clear(self):
+        for applet in self._applets.itervalues():
+            applet.close()
+        self._applets.clear()
+
+    def add_applet(self, name):
+        applet = new_plugin_instance('oalab.applet', name)
+        applet.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        self._applets[name] = applet
+        self.addWidget(applet)
+
+    def set_properties(self, properties):
+        self.setOrientation(properties.get('position', self.ORIENTATION))
+        applets = properties.get('applets', [])
+        self.icon = properties.get('icon', None)
+        for name in applets:
+            self.add_applet(name)
+        state = properties.get('state', None)
+        if state:
+            self.restoreState(pickle.loads(state))
+
+    def properties(self):
+        return dict(
+            applets=self._applets.keys(),
+            position=self.orientation(),
+            state=pickle.dumps(str(self.saveState())),
+            icon=self.icon,
+        )
 
 from openalea.core.path import path as Path
 from openalea.core.service.ipython import interpreter
