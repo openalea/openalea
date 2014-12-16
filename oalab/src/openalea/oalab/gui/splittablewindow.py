@@ -882,22 +882,18 @@ class OALabMainWin(QtGui.QMainWindow):
     def __init__(self, layout=None, **kwds):
         QtGui.QMainWindow.__init__(self)
 
-        layout = self._load_layout(layout, **kwds)
-
         # Classic menu
-        self.menu_classic = {}
         self._registered_applets = []
-        menubar = QtGui.QMenuBar()
 
-        for menu_name in self.DEFAULT_MENU_NAMES:
-            self.menu_classic[menu_name] = menubar.addMenu(menu_name)
-
-        self.setMenuBar(menubar)
+        self._create_menus()
+        self._create_actions()
+        self._fill_menus()
 
         self.splittable = OALabSplittableUi(parent=self)
         self.splittable.appletSet.connect(self.appletSet.emit)
         self.appletSet.connect(self._on_applet_set)
 
+        layout = self._load_layout(layout, **kwds)
         if layout is None:
             container = AppletContainer()
             self.splittable.setContentAt(0, container)
@@ -905,9 +901,25 @@ class OALabMainWin(QtGui.QMainWindow):
             self.splittable.fromJSON(layout)
 
         self.setCentralWidget(self.splittable)
+        self.set_edit_mode(False)
 
         QtGui.QApplication.instance().focusChanged.connect(self._on_focus_changed)
-        self.set_edit_mode(False)
+
+    def _create_menus(self):
+        self.menu_classic = {}
+        menubar = QtGui.QMenuBar()
+        self.setMenuBar(menubar)
+        for menu_name in self.DEFAULT_MENU_NAMES:
+            self.menu_classic[menu_name] = menubar.addMenu(menu_name)
+
+    def _create_actions(self):
+        self.action_edit = QtGui.QAction("Edit Layout", self.menu_classic['Edit'])
+        self.action_edit.setCheckable(True)
+        self.action_edit.toggled.connect(self.set_edit_mode)
+        self.action_edit.setChecked(False)
+
+    def _fill_menus(self):
+        self.menu_classic['Edit'].addAction(self.action_edit)
 
     def _load_layout(self, layout=None, **kwds):
         layout_file = kwds.pop('layout_file', self.DEFAULT_LAYOUT_PATH)
