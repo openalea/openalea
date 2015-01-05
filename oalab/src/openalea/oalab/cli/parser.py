@@ -46,7 +46,7 @@ class CommandLineParser(object):
         self.session = session
 
         self.parser = argparse.ArgumentParser(description='OALab Command Line')
-        self.parser.add_argument('-e', '--extension', metavar='extension', type=str, default="default",
+        self.parser.add_argument('-e', '--extension', metavar='extension', type=str, default="",
                                  help='Lab extension to launch')
         group = self.parser.add_argument_group('Plugin development')
         group.add_argument('--list-plugins', metavar='category', type=str, default='',
@@ -90,7 +90,7 @@ class CommandLineParser(object):
             debug = args.debug_plugins.split(',')
             if 'oalab.lab' not in debug:
                 debug.append('oalab.lab')
-            from openalea.core.plugin.manager import PluginInstanceManager
+            from openalea.core.service.plugin import PluginInstanceManager
             pim = PluginInstanceManager()
             pim.debug = debug
 

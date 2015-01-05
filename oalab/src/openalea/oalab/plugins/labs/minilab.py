@@ -2,6 +2,8 @@
 class MiniLab(object):
 
     name = 'mini'
+    alias = 'IPython'
+    icon = 'oxygen_utilities-terminal.png'
     applets = ['EditorManager']
 
     # NEW LAYOUT API

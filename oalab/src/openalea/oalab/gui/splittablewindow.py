@@ -31,7 +31,7 @@ from openalea.core.service.plugin import (new_plugin_instance, plugin_instances,
 from openalea.oalab.gui.control.qcontainer import QControlContainer
 from openalea.oalab.gui.menu import ContextualMenu
 from openalea.oalab.gui.splitterui import SplittableUI, BinaryTree
-from openalea.oalab.gui.utils import ModalDialog, qicon, Splitter
+from openalea.oalab.gui.utils import ModalDialog, obj_icon, qicon, Splitter
 
 from openalea.vpltk.qt import QtGui, QtCore
 
@@ -81,28 +81,6 @@ def fill_panedmenu(menu, actions):
             pass
         else:
             continue
-
-
-def obj_icon(obj, rotation=0, size=(64, 64), applet=None):
-    if hasattr(applet, 'icon'):
-        applet_icon = applet.icon
-    else:
-        applet_icon = None
-
-    if applet_icon:
-        icon = qicon(applet_icon)
-    elif hasattr(obj, 'icon'):
-        icon = qicon(obj.icon)
-    else:
-        icon = qicon('oxygen_application-x-desktop.png')
-
-    if rotation:
-        pix = icon.pixmap(*size)
-        transform = QtGui.QTransform()
-        transform.rotate(rotation)
-        pix = pix.transformed(transform)
-        icon = QtGui.QIcon(pix)
-    return icon
 
 
 class AppletSelector(QtGui.QWidget):

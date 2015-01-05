@@ -25,6 +25,7 @@ See :meth:`PluginManager.set_proxy` and "plugin_proxy" parameter in :meth:`Plugi
 from warnings import warn
 from openalea.core.singleton import Singleton
 from openalea.core import logger
+from openalea.core.service.introspection import name
 
 __all__ = ['PluginManager']
 
@@ -138,6 +139,16 @@ class PluginManager(object):
             else:
                 return None
 
+    def _sorted_plugins(self, plugins):
+        plugin_dict = {}
+        for plugin_class in plugins:
+            if hasattr(plugin_class, 'name'):
+                plugin_dict[plugin_class.name] = plugin_class
+            else:
+                plugin_dict[str(plugin_class)] = plugin_class
+        sorted_plugins = [plugin_dict[name] for name in sorted(plugin_dict.keys())]
+        return sorted_plugins
+
     def plugins(self, category):
         """
         Return a list of all plugins available for this category.
@@ -147,9 +158,9 @@ class PluginManager(object):
         except KeyError:
             self._plugin.setdefault(category, {})
             self._load_plugins(category)
-            return list(self._plugin[category].values())
+            return self._sorted_plugins(self._plugin[category].values())
         else:
-            return list(plugins)
+            return self._sorted_plugins(plugins)
 
 
 class SimpleClassPluginProxy(object):

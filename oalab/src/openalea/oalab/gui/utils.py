@@ -24,6 +24,7 @@ import openalea.oalab
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core.customexception import CustomException, cast_error
 from openalea.deploy.shared_data import shared_data
+from openalea.core.path import path as Path
 
 
 def get_shared_data(filename):
@@ -31,35 +32,68 @@ def get_shared_data(filename):
 
 
 def qicon(filename):
-    path = get_shared_data('icons/%s' % filename)
     if filename.startswith(':/'):
         return QtGui.QIcon(filename)
-    elif path:
-        return QtGui.QIcon(path)
     else:
-        return QtGui.QIcon(":/images/resources/%s" % filename)
+        path = Path(filename)
+        if not path.isfile():
+            path = get_shared_data(filename)
+            if path is None:
+                path = get_shared_data('icons/%s' % filename)
+
+        if path:
+            return QtGui.QIcon(path)
+        else:
+            return QtGui.QIcon(":/images/resources/%s" % filename)
+
+
+def obj_icon(obj, rotation=0, size=(64, 64), applet=None):
+    if hasattr(applet, 'icon'):
+        applet_icon = applet.icon
+    else:
+        applet_icon = None
+
+    if applet_icon:
+        icon = qicon(applet_icon)
+    elif hasattr(obj, 'icon'):
+        icon = qicon(obj.icon)
+    else:
+        icon = qicon('oxygen_application-x-desktop.png')
+
+    if rotation:
+        pix = icon.pixmap(*size)
+        transform = QtGui.QTransform()
+        transform.rotate(rotation)
+        pix = pix.transformed(transform)
+        icon = QtGui.QIcon(pix)
+    return icon
 
 
 class ModalDialog(QtGui.QDialog):
 
-    def __init__(self, widget, parent=None):
+    def __init__(self, widget, parent=None, buttons=None):
         QtGui.QDialog.__init__(self, parent)
+
+        _bbox = QtGui.QDialogButtonBox
+        if buttons is None:
+            buttons = _bbox.Ok | _bbox.Cancel
+
         self.setContentsMargins(0, 0, 0, 0)
         self.setModal(True)
 
-        _bbox = QtGui.QDialogButtonBox
-        bbox = _bbox(_bbox.Ok | _bbox.Cancel)
-        bbox.accepted.connect(self.accept)
-        bbox.rejected.connect(self.reject)
+        self.bbox = _bbox(buttons)
+        self.bbox.accepted.connect(self.accept)
+        self.bbox.rejected.connect(self.reject)
 
-        ok = bbox.button(_bbox.Ok)
-        ok.setDefault(True)
+        ok = self.bbox.button(_bbox.Ok)
+        if ok:
+            ok.setDefault(True)
 
         layout = QtGui.QVBoxLayout(self)
         layout.setSpacing(0)
         layout.setContentsMargins(0, 5, 0, 5)
         layout.addWidget(widget)
-        layout.addWidget(bbox)
+        layout.addWidget(self.bbox)
 
 
 class Splitter(QtGui.QSplitter):

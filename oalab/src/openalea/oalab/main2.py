@@ -23,6 +23,25 @@ from openalea.oalab.cli.parser import CommandLineParser
 from openalea.core.service.plugin import debug_plugin, plugins
 
 
+def launch_lab(plugin_class):
+    from openalea.oalab.gui.splittablewindow import OALabMainWin
+    from openalea.core.settings import get_openalea_home_dir
+    from openalea.core.path import path as Path
+    from openalea.core.service.introspection import alias
+
+    plugin = plugin_class()
+    lab = plugin()
+    layout_path = Path(get_openalea_home_dir()) / '%s.oaui' % lab.name
+    OALabMainWin.DEFAULT_LAYOUT_PATH = layout_path
+    OALabMainWin.DEFAULT_LAYOUT = lab.layout
+    OALabMainWin.DEFAULT_MENU_NAMES = lab.menu_names
+    win = OALabMainWin()
+    win.setWindowTitle('OpenAleaLab "%s"' % alias(plugin))
+    win.showMaximized()
+    win.raise_()
+    return win
+
+
 def main():
     """
     1. Parse command line arguments.
@@ -39,7 +58,6 @@ def main():
 
     if session.gui:
         from openalea.vpltk.qt import QtGui
-        from openalea.oalab.gui.splittablewindow import OALabMainWin
         from openalea.core.settings import get_openalea_home_dir
         from openalea.core.path import path as Path
 
@@ -61,17 +79,14 @@ def main():
                 available_extensions.append(text)
 
             if session.extension == ext:
-                plugin = plugin_class()
-                lab = plugin()
-                layout_path = Path(get_openalea_home_dir()) / '%s.oaui' % lab.name
-                OALabMainWin.DEFAULT_LAYOUT_PATH = layout_path
-                OALabMainWin.DEFAULT_LAYOUT = lab.layout
-                OALabMainWin.DEFAULT_MENU_NAMES = lab.menu_names
-                win = OALabMainWin()
-                win.setWindowTitle('OpenAleaLab "%s"' % lab.name)
-                win.showMaximized()
-                win.raise_()
+                win = launch_lab(plugin_class)
                 break
+
+        if win is None:
+            from openalea.oalab.gui.pluginselector import select_plugin
+            plugin_class = select_plugin('oalab.lab', size=(400, 10), title='Select a Laboratory')
+            if plugin_class:
+                win = launch_lab(plugin_class)
 
         if win:
             app.exec_()
