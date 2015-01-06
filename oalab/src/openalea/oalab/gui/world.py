@@ -52,7 +52,8 @@ class WorldBrowser(GenericWorldBrowser, AbstractListener):
 
     def initialize(self):
         from openalea.oalab.session.session import Session
-        self.set_world(Session().world)
+        world = Session().world
+        self.set_world(world)
 
     def actions(self):
         return self._actions
@@ -62,8 +63,11 @@ class WorldBrowser(GenericWorldBrowser, AbstractListener):
 
     def notify(self, sender, event=None):
         signal, data = event
-        if signal == 'WorldChanged':
+        print signal
+        if signal == 'world_changed':
             self.set_world(data)
+            self.refresh()
+        elif signal == 'world_sync':
             self.refresh()
 
     def show_world_object(self, index):
@@ -75,10 +79,9 @@ class WorldBrowser(GenericWorldBrowser, AbstractListener):
     def clear(self):
         if self.world:
             self.world.clear()
-            self.refresh()
 
     def refresh(self):
-        if self.world:
+        if self.world is not None:
             self.model.set_world(self.world)
             self.tree.expandAll()
 

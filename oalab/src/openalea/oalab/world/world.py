@@ -24,7 +24,9 @@ from openalea.core.observer import Observed, AbstractListener
 # from openalea.core.observer import Observed
 # class World(OrderedDict, Observed):
 
+
 class World(VPLScene, AbstractListener):
+
     """
     Contain objects of the world.
 
@@ -35,13 +37,14 @@ class World(VPLScene, AbstractListener):
         - WorldObjectRemoved(scene, old_object)
         - WorldObjectIndexChanged(scene, old_idx, new_idx)
 
-    A generic "WorldChanged" event is also notified for all previous changes.
+    A generic "world_changed" event is also notified for all previous changes.
 
     .. warning::
 
-        currently only WorldChanged event is implemented
+        currently only world_changed event is implemented
 
     """
+
     def __init__(self):
         VPLScene.__init__(self)
         AbstractListener.__init__(self)
@@ -71,12 +74,17 @@ class World(VPLScene, AbstractListener):
         self[name] = obj
 
     def notify(self, sender, event=None):
-        self._valueChanged()
+        signal, data = event
+        if event == 'world_object_changed':
+            world, old, new = data
+            self._emit_value_changed(old, new)
 
     def __hash__(self):
         return id(self)
 
+
 class WorldObject(Observed):
+
     """
     Object of the world.
 
@@ -86,6 +94,7 @@ class WorldObject(Observed):
         - visibility in scene
         - date when object has been added to scene
     """
+
     def __init__(self, obj, model_id=None, output_id=None, transform=None):
         """
         :param obj: object to store
@@ -108,4 +117,3 @@ class WorldObject(Observed):
     def obj(self, obj):
         self.notify_listeners(('world_object_changed', (self, self._obj, obj)))
         self._obj = obj
-

@@ -42,14 +42,12 @@ class PluginInstanceManager(object):
     __metaclass__ = Singleton
 
     def __init__(self, plugins=None, proxy_class=None):
-        self._plugin_instance = {}
-        self._plugin_all_instances = {}
+        self._plugin_instances = {}
         self._debug = []
         self.pm = PluginManager()
 
     def clear(self):
-        self._plugin_instance = {}
-        self._plugin_all_instances = {}
+        self._plugin_instances = {}
 
     @property
     def debug(self):
@@ -91,14 +89,14 @@ class PluginInstanceManager(object):
         Add a weakref to instance in dict
         category -> name -> [list of instances]
         """
-        self._plugin_all_instances.setdefault(category, {}).setdefault(name, []).append(weakref.ref(instance))
+        self._plugin_instances.setdefault(category, {}).setdefault(name, []).append(weakref.ref(instance))
 
     def unregister(self, category, name, instance):
         """
         Unregistered instances won't be list by "instances" method
         """
         try:
-            self._plugin_all_instances[category][name].remove(instance)
+            self._plugin_instances[category][name].remove(instance)
         except KeyError:
             # No instances have been registered for this plugin or this category
             pass
@@ -149,26 +147,30 @@ class PluginInstanceManager(object):
                 return None
 
     def has_instance(self, category, name):
-        return name in self._plugin_instance.get(category, {})
+        return name in self._plugin_instances.get(category, {})
 
     def instance(self, category, name, class_args=None, class_kwds=None):
         """
         Use this function if you always want the same instance:
         If plugin has never been called, create a new instance else return first created one.
         """
-        if name in self._plugin_instance.get(category, {}):
-            obj = self._plugin_instance[category][name]()
+        if name in self._plugin_instances.get(category, {}):
+            instances = self._plugin_instances[category][name]
+            if instances:
+                obj = instances[0]()
+            else:
+                obj = None
             if obj:
                 return obj  # return actual value instead of weakref
             else:
                 # Object is no more reachable, remove it and generate new one
-                del self._plugin_instance[category][name]
+                del self._plugin_instances[category][name]
                 return self.instance(category, name, class_args, class_kwds)
         else:
             instance = self.new(category, name, class_args, class_kwds)
             if instance is None:
                 return
-            self._plugin_instance.setdefault(category, {})[name] = weakref.ref(instance)
+            self._plugin_instances.setdefault(category, {})[name] = [weakref.ref(instance)]
             return instance
 
     def instances(self, category, name=None, class_args=None, class_kwds=None):
@@ -177,22 +179,22 @@ class PluginInstanceManager(object):
         """
         valid_instances = []
         if name is None:
-            for plugin_name in self._plugin_all_instances.get(category, []):
-                instances = list(self._plugin_all_instances[category][plugin_name])
+            for plugin_name in self._plugin_instances.get(category, []):
+                instances = list(self._plugin_instances[category][plugin_name])
                 for weakref in instances:
                     obj = weakref()
                     if obj is None:
-                        self._plugin_all_instances[category][plugin_name].remove(weakref)
+                        self._plugin_instances[category][plugin_name].remove(weakref)
                     else:
                         valid_instances.append(obj)
         else:
             try:
                 # return actual value instead of weakref
                 valid_instances = []
-                for weakref in self._plugin_all_instances[category][name]:
+                for weakref in self._plugin_instances[category][name]:
                     obj = weakref()
                     if obj is None:
-                        self._plugin_all_instances[category][name].remove(weakref)
+                        self._plugin_instances[category][name].remove(weakref)
                     else:
                         valid_instances.append(obj)
             except KeyError:

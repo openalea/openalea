@@ -263,7 +263,7 @@ class Model(object):
         del self._code['selection']
         return outputs
 
-    def step(self):
+    def step(self, *args, **kwds):
         return self._exec('step')
 
     def animate(self, *args, **kwds):

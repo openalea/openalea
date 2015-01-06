@@ -133,6 +133,7 @@ class ParadigmController(object):
     def step(self, nstep=1):
         if self.runnable():
             self.apply()
+            print self.model
             return self.model.step(nstep=nstep)
 
     def stop(self):

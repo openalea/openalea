@@ -17,12 +17,13 @@
 ###############################################################################
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core import settings
-from openalea.oalab.service.applet import get_applet
+from openalea.core.service.plugin import plugin_instance_exists, plugin_instance
 from openalea.core.service.data import DataFactory
 import sys
 
 
 class GenericFileBrowser(QtGui.QWidget):
+
     def __init__(self):
         super(GenericFileBrowser, self).__init__()
         layout = QtGui.QGridLayout()
@@ -45,15 +46,22 @@ class GenericFileBrowser(QtGui.QWidget):
 
 
 class FileBrowser(GenericFileBrowser):
+
     def __init__(self):
         super(FileBrowser, self).__init__()
+
+    def _get_paradigm_container(self):
+        if plugin_instance_exists('oalab.applet', 'EditorManager'):
+            return plugin_instance('oalab.applet', 'EditorManager')
+    paradigm_container = property(fget=_get_paradigm_container)
 
     def open_file(self, index):
         # TODO: Use signal
         filename = self.model.filePath(index)
         if filename:
-            paradigm_container = get_applet(identifier='EditorManager')
-            paradigm_container.open_data(DataFactory(filename))
+            paradigm_container = self.paradigm_container
+            if paradigm_container:
+                paradigm_container.open_data(DataFactory(filename))
 
 
 def main():

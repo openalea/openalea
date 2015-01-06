@@ -112,13 +112,6 @@ class LPyModel(PythonModel):
         self.axialtree = AxialTree()
         self.scene_name = self.name + '_scene'
 
-        from openalea.lpy import registerPlotter
-        from openalea.oalab.service.plot import get_plotters
-
-        plotters = get_plotters()
-        if len(plotters):
-            registerPlotter(plotters[0])
-
     def __copy__(self):
         m = PythonModel.__copy__(self)
         m.set_code(self._initial_code)

@@ -33,7 +33,7 @@ from openalea.oalab.gui.utils import ModalDialog
 from openalea.oalab.gui.utils import qicon
 from openalea.oalab.project.creator import CreateProjectWidget
 from openalea.oalab.project.pretty_preview import ProjectSelectorScroll
-from openalea.oalab.service.applet import get_applet
+from openalea.core.service.plugin import plugin_instance_exists, plugin_instance
 from openalea.oalab.session.session import Session
 
 """
@@ -293,7 +293,8 @@ class ProjectManagerView(QtGui.QTreeView):
     #  API
 
     def _get_paradigm_container(self):
-        return get_applet(identifier='EditorManager')
+        if plugin_instance_exists('oalab.applet', 'EditorManager'):
+            return plugin_instance('oalab.applet', 'EditorManager')
     paradigm_container = property(fget=_get_paradigm_container)
 
     def initialize(self):
@@ -499,7 +500,6 @@ class ProjectManagerView(QtGui.QTreeView):
                 from openalea.file.files import start
                 start(project.get(category, name).path)
             else:
-                print project
                 self.paradigm_container.open_data(project.get(category, name))
 
     def _rename(self, project, category, name):

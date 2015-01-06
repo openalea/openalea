@@ -385,6 +385,8 @@ class AppletTabWidget(QtGui.QTabWidget):
 
             applet.setAttribute(QtCore.Qt.WA_DeleteOnClose)
             applet.setContextMenuPolicy(QtCore.Qt.NoContextMenu)
+            if hasattr(applet, 'initialize'):
+                applet.initialize()
             applet.name = name
             if properties:
                 try:

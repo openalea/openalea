@@ -251,9 +251,13 @@ class Viewer(AbstractListener, view3D):
                          #["Viewer", "Informations", actionShowFps, 1]
                          ]
 
+    def initialize(self):
+        from openalea.lpy import registerPlotter
+        registerPlotter(self)
+
     def notify(self, sender, event=None):
         signal, data = event
-        if signal == 'WorldChanged':
+        if signal in ('WorldChanged', 'world_sync'):
             self.setScene(data)
             self.updateGL()
 
