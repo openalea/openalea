@@ -8,6 +8,21 @@ from openalea.core import logger
 
 
 def enhanced_error(error, **kwds):
+    """
+    Add plugin information to given exception.
+    By default, if a plugin fails, for example because a dependency cannot be imported,
+    user get error message "ImportError: No module named mydep". This message is useless because we don't know
+    which plugin has failed. 
+
+    Once enhanced, error message become:
+    "MyLab (mypackage.lab.mylab): ImportError: No module named mydep"
+
+    kwds:
+
+        - plugin: plugin instance
+        - plugin_class: plugin class
+
+    """
     plugin = kwds.pop('plugin', None)
     plugin_class = kwds.pop('plugin_class', None)
     if plugin:
