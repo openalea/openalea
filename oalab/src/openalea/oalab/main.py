@@ -47,6 +47,8 @@ def main():
         # Run all extension matching session.extension
         available_extensions = []
 
+        if session.extension == '':
+            session.extension = 'plant'
         for plugin_class in plugins('oalab.lab'):
             try:
                 ext = plugin_class.name
