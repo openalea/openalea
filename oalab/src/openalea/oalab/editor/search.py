@@ -1,5 +1,5 @@
 # -*- python -*-
-# 
+#
 #       OpenAlea.OALab: Multi-Paradigm GUI
 #
 #       Copyright 2013 INRIA - CIRAD - INRA
@@ -20,12 +20,16 @@ __revision__ = ""
 from openalea.vpltk.qt import QtCore, QtGui
 from openalea.core import logger
 
+
 class SearchWidget(QtGui.QWidget):
+
     def __init__(self, parent=None, session=None):
         super(SearchWidget, self).__init__(parent)
+
+        self._editor = parent
         self.hiden = True
-        
-        self.setMinimumSize(100,100)
+
+        self.setMinimumSize(100, 100)
         self.setWindowTitle("Search")
 
         self.actionSearch = QtGui.QAction("Search Next", self)
@@ -35,62 +39,65 @@ class SearchWidget(QtGui.QWidget):
         self.lineEditReplace = QtGui.QLineEdit()
         self.textSearch = QtGui.QLabel("Search :")
         self.textReplaceBy = QtGui.QLabel("Replace by :")
-        
+
         self.btnNext = QtGui.QToolButton()
         self.btnPrev = QtGui.QToolButton()
         self.btnReplace = QtGui.QToolButton()
-        self.btnReplace.setMinimumSize(100,40)
-        self.btnNext.setMinimumSize(100,40)
-        self.btnPrev.setMinimumSize(100,40)
+        self.btnReplace.setMinimumSize(100, 40)
+        self.btnNext.setMinimumSize(100, 40)
+        self.btnPrev.setMinimumSize(100, 40)
         self.btnReplace.setDefaultAction(self.actionReplace)
         self.btnPrev.setDefaultAction(self.actionBackSearch)
         self.btnNext.setDefaultAction(self.actionSearch)
-        
+
         self.caseBtn = QtGui.QCheckBox("Match Case")
         self.wholeBtn = QtGui.QCheckBox("Whole Word (Disabled if case sensitive)")
 
-        QtCore.QObject.connect(self.actionBackSearch, QtCore.SIGNAL('triggered(bool)'),self.searchBack)
-        QtCore.QObject.connect(self.actionSearch, QtCore.SIGNAL('triggered(bool)'),self.search)
-        QtCore.QObject.connect(self.actionReplace, QtCore.SIGNAL('triggered(bool)'),self.replaceall)
-        QtCore.QObject.connect(self.lineEdit, QtCore.SIGNAL('returnPressed()'),self.search)
+        QtCore.QObject.connect(self.actionBackSearch, QtCore.SIGNAL('triggered(bool)'), self.searchBack)
+        QtCore.QObject.connect(self.actionSearch, QtCore.SIGNAL('triggered(bool)'), self.search)
+        QtCore.QObject.connect(self.actionReplace, QtCore.SIGNAL('triggered(bool)'), self.replaceall)
+        QtCore.QObject.connect(self.lineEdit, QtCore.SIGNAL('returnPressed()'), self.search)
 
         layout = QtGui.QGridLayout()
         layout.setAlignment(QtCore.Qt.AlignLeft)
-        
-        layout.addWidget(self.textSearch,0,0)
-        layout.addWidget(self.lineEdit,0,1,1,2)
-        layout.addWidget(self.textReplaceBy,1,0)
-        layout.addWidget(self.lineEditReplace,1,1,1,2)
-        
-        layout.addWidget(self.caseBtn,2,0)
-        layout.addWidget(self.wholeBtn,2,1)
-        
-        layout.addWidget(self.btnReplace,3,0)
-        layout.addWidget(self.btnPrev,3,1)
-        layout.addWidget(self.btnNext,3,2)
-        
+
+        layout.addWidget(self.textSearch, 0, 0)
+        layout.addWidget(self.lineEdit, 0, 1, 1, 2)
+        layout.addWidget(self.textReplaceBy, 1, 0)
+        layout.addWidget(self.lineEditReplace, 1, 1, 1, 2)
+
+        layout.addWidget(self.caseBtn, 2, 0)
+        layout.addWidget(self.wholeBtn, 2, 1)
+
+        layout.addWidget(self.btnReplace, 3, 0)
+        layout.addWidget(self.btnPrev, 3, 1)
+        layout.addWidget(self.btnNext, 3, 2)
+
         self.setLayout(layout)
+
+    def set_editor(self, editor):
+        self._editor = editor
 
     def search(self):
         options = None
 
         if self.caseBtn.isChecked():
             options = QtGui.QTextDocument.FindCaseSensitively
-     
+
         if self.wholeBtn.isChecked():
             if options is None:
                 options = QtGui.QTextDocument.FindWholeWords
             else:
                 options = options or QtGui.QTextDocument.FindWholeWords
-        
+
         to_search_txt = self.lineEdit.text()
-        
-        if hasattr(self.parent.editor, "find"):
+
+        if hasattr(self._editor, "find"):
             logger.debug("Search text: " + to_search_txt)
             if options is not None:
-                self.parent.editor.find(to_search_txt, options)
+                self._editor.find(to_search_txt, options)
             else:
-                self.parent.editor.find(to_search_txt)
+                self._editor.find(to_search_txt)
         else:
             logger.debug("Can't Search text " + to_search_txt)
 
@@ -99,20 +106,18 @@ class SearchWidget(QtGui.QWidget):
 
         if self.caseBtn.isChecked():
             options = options or QtGui.QTextDocument.FindCaseSensitively
-     
+
         if self.wholeBtn.isChecked():
             options = options or QtGui.QTextDocument.FindWholeWords
-        
+
         to_search_txt = self.lineEdit.text()
-        
+
         if hasattr(self.parent.editor, "find"):
             logger.debug("Search text: " + to_search_txt)
             self.parent.editor.find(to_search_txt, options)
         else:
             logger.debug("Can't Search text " + to_search_txt)
 
-
-     
     def replaceall(self):
         # Replace all occurences without interaction
 
@@ -135,7 +140,7 @@ class SearchWidget(QtGui.QWidget):
         # Replace all we can
         while True:
             # self.editor is the QPlainTextEdit
-            r = self.parent.editor.find(old,flags)
+            r = self.parent.editor.find(old, flags)
             if r:
                 qc = self.parent.editor.textCursor()
                 if qc.hasSelection():
