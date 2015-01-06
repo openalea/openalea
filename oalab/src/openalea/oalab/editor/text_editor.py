@@ -41,12 +41,13 @@ class RichTextEditor(QtGui.QWidget):
         super(RichTextEditor, self).__init__(parent)
 
         self.completer = DictionaryCompleter(parent=self)
+
         self.editor = TextEditor(parent=self)
         self.editor.textChanged.connect(self.textChanged.emit)
-        self.editor.setCompleter(self.completer)
+        # self.editor.setCompleter(self.completer)
 
         self.goto_widget = GoToWidget(parent=self.editor)
-        self.search_widget = SearchWidget(parent=self)
+        self.search_widget = SearchWidget(parent=self.editor)
 
         self.layout = QtGui.QVBoxLayout()
         self.layout.setContentsMargins(0, 0, 0, 0)
@@ -111,6 +112,10 @@ class RichTextEditor(QtGui.QWidget):
 
     def search(self):
         if self.search_widget.hiden:
+            cursor = self.editor.textCursor()
+            cursor.setPosition(0)
+            self.editor.setTextCursor(cursor)
+
             self.search_widget.show()
             # self.search_widget.raise_()
             self.search_widget.lineEdit.setFocus()
@@ -120,10 +125,6 @@ class RichTextEditor(QtGui.QWidget):
         else:
             self.search_widget.hide()
             self.search_widget.hiden = True
-
-    def undo(self):
-        # Unused
-        return self.editor.check_code()
 
 
 def fix_indentation(text, n=4):
