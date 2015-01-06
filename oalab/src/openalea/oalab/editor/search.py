@@ -112,9 +112,9 @@ class SearchWidget(QtGui.QWidget):
 
         to_search_txt = self.lineEdit.text()
 
-        if hasattr(self.parent.editor, "find"):
+        if hasattr(self._editor, "find"):
             logger.debug("Search text: " + to_search_txt)
-            self.parent.editor.find(to_search_txt, options)
+            self._editor.find(to_search_txt, options)
         else:
             logger.debug("Can't Search text " + to_search_txt)
 
@@ -127,7 +127,7 @@ class SearchWidget(QtGui.QWidget):
         new = self.lineEditReplace.text()
 
         # Beginning of undo block
-        cursor = self.parent.editor.textCursor()
+        cursor = self._editor.textCursor()
         cursor.beginEditBlock()
 
         # Use flags for case match
@@ -140,9 +140,9 @@ class SearchWidget(QtGui.QWidget):
         # Replace all we can
         while True:
             # self.editor is the QPlainTextEdit
-            r = self.parent.editor.find(old, flags)
+            r = self._editor.find(old, flags)
             if r:
-                qc = self.parent.editor.textCursor()
+                qc = self._editor.textCursor()
                 if qc.hasSelection():
                     qc.insertText(new)
             else:
