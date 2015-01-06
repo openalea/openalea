@@ -33,6 +33,7 @@ try:
 except ImportError:
     logger.warning("You should install **flake8** (using: pip install flake8)")
 
+
 class RichTextEditor(QtGui.QWidget):
     textChanged = QtCore.Signal()
 
@@ -42,7 +43,7 @@ class RichTextEditor(QtGui.QWidget):
         self.completer = DictionaryCompleter(parent=self)
         self.editor = TextEditor(parent=self)
         self.editor.textChanged.connect(self.textChanged.emit)
-        # self.editor.setCompleter(self.completer)
+        self.editor.setCompleter(self.completer)
 
         self.goto_widget = GoToWidget(parent=self.editor)
         self.search_widget = SearchWidget(parent=self)
@@ -72,7 +73,6 @@ class RichTextEditor(QtGui.QWidget):
         """
         self.editor.set_text(txt)
 
-
     set_script = set_text
 
     def get_selected_text(self):
@@ -90,7 +90,7 @@ class RichTextEditor(QtGui.QWidget):
 
     def get_code(self, start='sof', end='eof'):
         return self.get_text(start=start, end=end)
-        
+
     def replace_tab(self):
         return self.editor.replace_tab()
 
@@ -124,19 +124,22 @@ class RichTextEditor(QtGui.QWidget):
     def undo(self):
         # Unused
         return self.editor.check_code()
-            
+
+
 def fix_indentation(text, n=4):
     """Replace tabs by n spaces"""
-    return text.replace('\t', ' '*n)
-            
+    return text.replace('\t', ' ' * n)
+
+
 class TextEditor(QtGui.QTextEdit):
+
     def __init__(self, parent=None):
         super(TextEditor, self).__init__(parent)
         self.setLineWrapMode(QtGui.QTextEdit.NoWrap)
         self.indentation = "    "
         self.completer = None
         self.name = None
-        
+
         # Line Number Area from LPy
         self.setViewportMargins(50, 0, 0, 0)
         self.sidebar = Margin(self, self)
@@ -144,7 +147,7 @@ class TextEditor(QtGui.QTextEdit):
         self.sidebar.show()
         self.cursorPositionChanged.connect(self.display_line_number)
         # QtCore.QObject.connect(self, QtCore.SIGNAL("cursorPositionChanged()"),self.highlightCurrentLine)
-        
+
         self.read_settings()
 
     def check_code(self):
@@ -157,10 +160,10 @@ class TextEditor(QtGui.QTextEdit):
             return r
         else:
             return
-        
+
     def read_settings(self):
         config = settings.Settings()
-        
+
         font = "Courier"
         try:
             font = config.get("Text Editor", "Font")
@@ -170,7 +173,7 @@ class TextEditor(QtGui.QTextEdit):
         except settings.NoOptionError, e:
             config.add_option("Text Editor", "Font", str(font))
         self.set_font(font)
-        
+
         font_size = 12
         try:
             font_size = config.get("Text Editor", "Font Size")
@@ -181,7 +184,7 @@ class TextEditor(QtGui.QTextEdit):
         except settings.NoOptionError, e:
             config.add_option("Text Editor", "Font Size", str(font_size))
         self.set_font_size(font_size)
-        
+
         display_tab = True
         try:
             display_tab = config.get("Text Editor", "Display Tab and Spaces")
@@ -192,22 +195,22 @@ class TextEditor(QtGui.QTextEdit):
         except settings.NoOptionError, e:
             config.add_option("Text Editor", "Display Tab and Spaces", str(display_tab))
         self.show_tab_and_spaces(display_tab)
-        
+
     def write_settings(self):
         config = settings.Settings()
-        
+
         font = self.font()
         config.set("Text Editor", "Font", font)
-        
+
         font_size = font.pointSize()
         config.get("Text Editor", "Font Size", font_size)
-        
+
         config.write()
-        
+
     def show_tab_and_spaces(self, show=True):
         """
         Display spaces and tabs.
-        
+
         :param show: if true display tabs and spaces, else hide them
         """
         doc = self.document()
@@ -217,31 +220,31 @@ class TextEditor(QtGui.QTextEdit):
         else:
             option.setFlags(QtGui.QTextOption.Flags())
         doc.setDefaultTextOption(option)
-        
+
     def set_font_size(self, size):
         """
         Change the current font size.
-        
+
         Not used for the moment!
         """
         font = self.font()
         font.setPointSize(size)
         self.setFont(font)
         self.set_tab_size()
-        
+
     def set_font(self, font_name):
         """
         Change the current font by name.
-        
+
         :use: self.set_font("Courier")
         """
         size = self.font().pointSize()
         font = QtGui.QFont(font_name)
-        font.setStyleHint(QtGui.QFont.Monospace)  
+        font.setStyleHint(QtGui.QFont.Monospace)
         font.setPointSize(size)
         font.setFixedPitch(True)
         self.setFont(font)
-        
+
     def set_tab_size(self):
         # Set tab size : to fix
         tabStop = len(self.indentation)
@@ -290,11 +293,11 @@ class TextEditor(QtGui.QTextEdit):
         if txt is None:
             txt = ""
         return unicode(txt).replace(u'\u2029', u'\n')  # replace paragraph separators by new lines
-        
+
     def replace_tab(self):
         """
         replace tab by spaces
-        
+
         TODO: test it
         """
         txt = self.get_text(start='sof', end='eof')
@@ -338,31 +341,31 @@ class TextEditor(QtGui.QTextEdit):
 
         elif self.completer and self.completer.popup().isVisible():
             if event.key() in (
-            QtCore.Qt.Key_Enter,
-            QtCore.Qt.Key_Return,
-            QtCore.Qt.Key_Escape,
-            QtCore.Qt.Key_Tab,
-            QtCore.Qt.Key_Backtab):
+                    QtCore.Qt.Key_Enter,
+                    QtCore.Qt.Key_Return,
+                    QtCore.Qt.Key_Escape,
+                    QtCore.Qt.Key_Tab,
+                    QtCore.Qt.Key_Backtab):
                 event.ignore()
                 return
 
-        # # has ctrl-E been pressed??
+        # has ctrl-E been pressed??
         isShortcut = (event.modifiers() == QtCore.Qt.ControlModifier and
                       event.key() == QtCore.Qt.Key_E)
         if (not self.completer or not isShortcut):
             super(TextEditor, self).keyPressEvent(event)
 
-        # # ctrl or shift key on it's own??
-        ctrlOrShift = event.modifiers() in (QtCore.Qt.ControlModifier ,
-                QtCore.Qt.ShiftModifier)
+        # ctrl or shift key on it's own??
+        ctrlOrShift = event.modifiers() in (QtCore.Qt.ControlModifier,
+                                            QtCore.Qt.ShiftModifier)
         if ctrlOrShift and event.text() is str():
             # ctrl or shift key on it's own
             return
 
-        eow = "~!@#$%^&*()_+{}|:\"<>?,./;'[]\\-=" # end of word
+        eow = "~!@#$%^&*()_+{}|:\"<>?,./;'[]\\-="  # end of word
 
         hasModifier = ((event.modifiers() != QtCore.Qt.NoModifier) and
-                        not ctrlOrShift)
+                       not ctrlOrShift)
 
         completionPrefix = self.textUnderCursor()
 
@@ -379,7 +382,7 @@ class TextEditor(QtGui.QTextEdit):
         if self.completer is not None:
 
             if (not isShortcut and (hasModifier or (event.text() is str()) or
-            len(completionPrefix) < 3 or finded)):
+                                    len(completionPrefix) < 3 or finded)):
                 self.completer.popup().hide()
                 return
 
@@ -390,11 +393,11 @@ class TextEditor(QtGui.QTextEdit):
 
             cr = self.cursorRect()
             cr.setWidth(self.completer.popup().sizeHintForColumn(0)
-                + self.completer.popup().verticalScrollBar().sizeHint().width())
-            self.completer.complete(cr) # # popup it up!
+                        + self.completer.popup().verticalScrollBar().sizeHint().width())
+            self.completer.complete(cr)  # popup it up!
 
     ####################################################################
-    #### Auto Indent (cf lpycodeeditor)
+    # Auto Indent (cf lpycodeeditor)
     ####################################################################
     def returnEvent(self):
         cursor = self.textCursor()
@@ -403,12 +406,14 @@ class TextEditor(QtGui.QTextEdit):
         if beg == end:
             pos = cursor.position()
             ok = cursor.movePosition(QtGui.QTextCursor.PreviousBlock, QtGui.QTextCursor.MoveAnchor)
-            if not ok: return
+            if not ok:
+                return
             txtok = True
             txt = ''
             while txtok:
                 ok = cursor.movePosition(QtGui.QTextCursor.NextCharacter, QtGui.QTextCursor.KeepAnchor)
-                if not ok: break
+                if not ok:
+                    break
                 txt2 = str(cursor.selection().toPlainText())
                 txtok = (txt2[-1] in ' \t')
                 if txtok:
@@ -421,7 +426,8 @@ class TextEditor(QtGui.QTextEdit):
                     txtok = True
                     while txtok:
                         ok = cursor.movePosition(QtGui.QTextCursor.PreviousCharacter, QtGui.QTextCursor.KeepAnchor)
-                        if not ok: break
+                        if not ok:
+                            break
                         txt2 = str(cursor.selection().toPlainText())
                         txtok = (txt2[0] in ' \t')
                         if not txtok:
@@ -433,8 +439,8 @@ class TextEditor(QtGui.QTextEdit):
             cursor.endEditBlock()
 
     ####################################################################
-    #### (Un)Tab (cf lpycodeeditor)
-    #### TODO
+    # (Un)Tab (cf lpycodeeditor)
+    # TODO
     ####################################################################
     # def tab(self, initcursor = None):
         # if initcursor == False:
@@ -448,15 +454,15 @@ class TextEditor(QtGui.QTextEdit):
         # cursor.movePosition(QtGui.QTextCursor.StartOfBlock,QtGui.QTextCursor.MoveAnchor)
         # while cursor.position() <= end :
             # if self.replaceTab:
-                # cursor.insertText(self.indentation)
-                # end+=len(self.indentation)
+            # cursor.insertText(self.indentation)
+            # end+=len(self.indentation)
             # else:
-                # cursor.insertText('\t')
-                # end+=1
+            # cursor.insertText('\t')
+            # end+=1
             # oldpos = cursor.position()
             # cursor.movePosition(QtGui.QTextCursor.NextBlock,QtGui.QTextCursor.MoveAnchor)
             # if cursor.position() == oldpos:
-                # break
+            # break
         # if not initcursor : cursor.endEditBlock()
         # cursor.setPosition(pos,QtGui.QTextCursor.MoveAnchor)
     # def untab(self):
@@ -470,13 +476,13 @@ class TextEditor(QtGui.QTextEdit):
         # while cursor.position() <= end:
             # cursor.movePosition(QtGui.QTextCursor.NextCharacter,QtGui.QTextCursor.KeepAnchor)
             # if cursor.selectedText() == '\t':
-                # cursor.deleteChar()
+            # cursor.deleteChar()
             # else:
-                # for i in xrange(len(self.indentation)-1):
-                    # b = cursor.movePosition(QtGui.QTextCursor.NextCharacter,QtGui.QTextCursor.KeepAnchor)
-                    # if not b : break
-                # if cursor.selectedText() == self.indentation:
-                    # cursor.removeSelectedText()
+            # for i in xrange(len(self.indentation)-1):
+            # b = cursor.movePosition(QtGui.QTextCursor.NextCharacter,QtGui.QTextCursor.KeepAnchor)
+            # if not b : break
+            # if cursor.selectedText() == self.indentation:
+            # cursor.removeSelectedText()
             # end-=1
             # cursor.movePosition(QtGui.QTextCursor.Down,QtGui.QTextCursor.MoveAnchor)
             # cursor.movePosition(QtGui.QTextCursor.StartOfBlock,QtGui.QTextCursor.MoveAnchor)
@@ -484,7 +490,7 @@ class TextEditor(QtGui.QTextEdit):
         # cursor.setPosition(pos,QtGui.QTextCursor.MoveAnchor)
 
     ####################################################################
-    #### (Un)Comment (cf lpycodeeditor)
+    # (Un)Comment (cf lpycodeeditor)
     ####################################################################
     def comment(self):
         cursor = self.textCursor()
@@ -521,7 +527,7 @@ class TextEditor(QtGui.QTextEdit):
         cursor.endEditBlock()
 
     ####################################################################
-    #### Completer
+    # Completer
     ####################################################################
     def setCompleter(self, completer):
         logger.debug("set completer " + str(completer))
@@ -540,7 +546,7 @@ class TextEditor(QtGui.QTextEdit):
         logger.debug("insert completion")
         tc = self.textCursor()
         extra = (len(completion) -
-            len(self.completer.completionPrefix()))
+                 len(self.completer.completionPrefix()))
         tc.movePosition(QtGui.QTextCursor.Left)
         tc.movePosition(QtGui.QTextCursor.EndOfWord)
         tc.insertText(completion[-extra:])
@@ -554,11 +560,11 @@ class TextEditor(QtGui.QTextEdit):
 
     def focusInEvent(self, event):
         if self.completer:
-            self.completer.setWidget(self);
+            self.completer.setWidget(self)
         super(TextEditor, self).focusInEvent(event)
 
     ####################################################################
-    #### Line Number Area
+    # Line Number Area
     ####################################################################
     def resizeEvent(self, event):
         self.sidebar.setGeometry(0, 0, 48, self.height())
@@ -573,7 +579,7 @@ class TextEditor(QtGui.QTextEdit):
         self.sidebar.repaint(self.sidebar.rect())
 
     ####################################################################
-    #### Line Number Area
+    # Line Number Area
     ####################################################################
     def go_to_line(self, lineno):
         cursor = self.textCursor()
@@ -582,34 +588,34 @@ class TextEditor(QtGui.QTextEdit):
         self.setTextCursor(cursor)
         self.ensureCursorVisible()
 
-        
+
 def main():
     import sys
     from openalea.oalab.shell import get_shell_class
     from openalea.core.service.ipython import interpreter
     from openalea.oalab.editor.highlight import Highlighter
     app = QtGui.QApplication(sys.argv)
-    
+
     edit = TextEditor()
     Highlighter(edit)
     interp = interpreter()
     shell = get_shell_class()(interp)
-    
+
     win = QtGui.QMainWindow()
     win.setCentralWidget(edit)
-    
+
     dock_widget = QtGui.QDockWidget("IPython", win)
     interp.locals['mainwindow'] = win
     interp.locals['editor'] = edit
     interp.locals['shell'] = shell
     interp.locals['interpreter'] = interp
-    
+
     dock_widget.setWidget(shell)
     win.addDockWidget(QtCore.Qt.BottomDockWidgetArea, dock_widget)
-    
+
     win.show()
     win.raise_()
     app.exec_()
-    
+
 if(__name__ == "__main__"):
     main()
