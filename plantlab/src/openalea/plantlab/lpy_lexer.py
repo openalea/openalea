@@ -17,15 +17,17 @@ from pygments.token import Text, Keyword, Name, Generic
 
 __all__ = ['LPyLexer']
 
+
 class LPyLexer(PythonLexer):
+
     """
     Lexer for LPy language.
     """
     name = 'LPy'
-    aliases = ['lpy','Lpy','LPy','l-py','L-py','L-Py',]
+    aliases = ['lpy', 'Lpy', 'LPy', 'l-py', 'L-py', 'L-Py', ]
     filenames = ['*.lpy']
     mimetypes = ['text/x-python', 'application/x-python']
-    
+
     def module_callback(lexer, match):
         """
         Permit to detect and stock words after special words "axiom" and "module".
@@ -39,12 +41,12 @@ class LPyLexer(PythonLexer):
                 lexer.lpy_modules.append(w)
         # Colourize words after "axiom" and "module" in the same line.
         yield match.start(), Keyword, match.group()
-    
+
     tokens = {
-        'root':[
-          include('lpykeywords'), 
-          inherit
-          ],
+        'root': [
+            include('lpykeywords'),
+            inherit
+        ],
         'lpykeywords': [
             (r'(^Axiom|^module)', Generic.Subheading, 'module'),
             (r'(^derivation length|-->|-static->|decomposition|'
@@ -53,23 +55,23 @@ class LPyLexer(PythonLexer):
              r'makestring|consider|ignore|forward|backward|isForward|'
              r'StartEach|EndEach|Start|End|getGroup|useGroup|getIterationNb|'
              r'module|@static|lpyimport)', Generic.Subheading),
-            ],
-        'module':[
-            (r'(\w*)(\(.*\))',module_callback),
-            (r'( )(\w*)( |$)',module_callback),
-            (r'(:| )',Text),
+        ],
+        'module': [
+            (r'(\w*)(\(.*\))', module_callback),
+            (r'( )(\w*)( |$)', module_callback),
+            (r'(:| )', Text),
         ]
-        }
-        
+    }
+
     def __init__(self, **options):
         super(LPyLexer, self).__init__(**options)
         # Add list to stock "lpy modules"
         self.lpy_modules = list()
-     
+
     def get_tokens_unprocessed(self, text):
         for index, token, value in PythonLexer.get_tokens_unprocessed(self, text):
             if token is Name and value in self.lpy_modules:
-               # Colourize previously detected modules
-               yield index, Keyword, value
+                # Colourize previously detected modules
+                yield index, Keyword, value
             else:
-               yield index, token, value
+                yield index, token, value

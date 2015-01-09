@@ -37,12 +37,20 @@ class PythonModelController(ParadigmController):
     mimetype_data = PythonFile.mimetype
     mimetype_model = PythonModel.mimetype
 
+    def _default_editor(self):
+        try:
+            from openalea.oalab.pyeditor import PyCodeEditor as Editor
+            editor = Editor(parent=self.parent)
+        except ImportError:
+            from openalea.oalab.editor.text_editor import RichTextEditor as Editor
+            from openalea.oalab.editor.highlight import Highlighter
+            editor = Editor(parent=self.parent)
+            Highlighter(editor.editor)
+        return editor
+
     def instantiate_widget(self):
-        from openalea.oalab.editor.text_editor import RichTextEditor as Editor
-        from openalea.oalab.editor.highlight import Highlighter
+        self._widget = self._default_editor()
         from openalea.oalab.service.help import display_help
-        self._widget = Editor(parent=self.parent)
-        Highlighter(self._widget.editor)
 
         # Add method to widget to display help
         def _diplay_help(widget):
