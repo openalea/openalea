@@ -227,6 +227,8 @@ class PackageManager(Observed):
         self.sys_wralea_path = set()
         self.deprecated_pkg = set()
 
+        if DEBUG:
+            res = {}
         # Use setuptools entry_point
         for epoint in iter_entry_points("wralea"):
             # Get Deprecated packages
@@ -242,12 +244,22 @@ class PackageManager(Observed):
 
             # Be careful, this lines will import __init__.py and all its predecessor
             # to find the path.
+            if DEBUG:
+                print(epoint.module_name)
+                t1 = time.clock()
+
             try:
                 m = __import__(epoint.module_name, fromlist=epoint.module_name)
             except ImportError, e:
                 logger.error("Cannot load %s : %s" % (epoint.module_name, e))
                 # self.log.add("Cannot load %s : %s"%(epoint.module_name, e))
                 continue
+
+            if DEBUG:
+                print(epoint.module_name)
+                tn = time.clock() - t1
+                res[tn] = epoint.module_name
+
 
             l = list(m.__path__)
             for p in l:
@@ -266,6 +278,9 @@ class PackageManager(Observed):
         if SEARCH_OUTSIDE_ENTRY_POINTS:
             self.add_wralea_path(os.path.dirname(__file__), self.sys_wralea_path)
             self.add_wralea_path(get_userpkg_dir(), self.sys_wralea_path)
+
+        if DEBUG:
+            return res
 
     def init(self, dirname=None, verbose=True):
         """ Initialize package manager
@@ -640,12 +655,16 @@ class PackageManager(Observed):
             print '-------------------'
             print 'find_wralea_files takes %f seconds' % (t2 - t1)
 
+        if DEBUG:
+            res = {}
         for x in readerlist:
             if DEBUG:
                 tn = time.clock()
             x.register_packages(self)
             if DEBUG:
+                tt = time.clock() - tn
                 print 'register package ', x.get_pkg_name(), 'in ', time.clock() - tn
+                res[x.filename]=tt
         if DEBUG:
             t3 = time.clock()
             print '-------------------'
@@ -653,6 +672,9 @@ class PackageManager(Observed):
 #        self.save_cache()
 
         self.rebuild_category()
+
+        if DEBUG:
+            return res
 
     # Cache functions
     # def get_cache_filename(self):
