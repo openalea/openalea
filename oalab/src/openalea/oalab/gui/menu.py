@@ -426,7 +426,6 @@ class SmallToolButton(ToolButton):
         self.setMinimumSize(big_btn_size)
 
 import weakref
-import sys
 
 
 class ContextualMenu(QtGui.QWidget):
@@ -450,16 +449,18 @@ class ContextualMenu(QtGui.QWidget):
             orientation = QtCore.Qt.Horizontal
         group = Group("name", orientation=orientation)
         group.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        self._group = weakref.ref(group)
         self._layout.addWidget(group)
         group.show()
-        self._group = weakref.ref(group)
 
     def clear(self):
         if self._group:
             group = self._group()
             if group:
                 self._layout.removeWidget(group)
-                group.close()
+                group.hide()
+                group.setParent(None)
+                group.destroy()
                 del group
         self._new_group()
 
