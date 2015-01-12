@@ -58,7 +58,7 @@ def qt_editor_class(iname, shape=None, preferred=None):
 
 
 def widget(iname, value, shape=None, preferred=None):
-    control = Control(iname, iname, value)
+    control = Control(iname.__class__.__name__, iname, value)
     return qt_editor(control, shape, preferred)
 
 
@@ -73,12 +73,14 @@ def qt_dialog(control=None, **kwds):
         - shape: widget shape
         - preferred: preferred widget
     """
+    autoapply = kwds.get('autoapply', False)
     if control is None:
         control = Control(**kwds)
     widget = qt_editor(control, **kwds)
+    widget.autoapply(control, autoapply)
     dialog = ModalDialog(widget)
     if dialog.exec_() == QtGui.QDialog.Accepted:
-        return control.value
+        return widget.value()
     else:
         return None
 

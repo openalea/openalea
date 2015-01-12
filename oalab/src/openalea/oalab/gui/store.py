@@ -2,7 +2,7 @@
 #
 #       Store Class
 #       Use it to install new packages
-# 
+#
 #       OpenAlea.OALab: Multi-Paradigm GUI
 #
 #       Copyright 2013 INRIA - CIRAD - INRA
@@ -21,32 +21,34 @@
 __revision__ = "$Id: $"
 
 from openalea.deploygui.alea_install_gui import MainWindow as MainWindowAleaInstall
-from openalea.deploygui.alea_install_gui import * 
+from openalea.deploygui.alea_install_gui import *
+
+import sys
 
 
 class Store(MainWindowAleaInstall):
+
     """
     This class is used to search, install and upgrade packages.
-    
+
     Warning!!! Will kill OALab!!!
     """
-    
-    def __init__(self, session, controller, parent=None):
+
+    def __init__(self, parent=None):
         # Save stdout and stderr because MainWindowAleaInstall try to redirect it.
         oldstdout = sys.stdout
         oldstderr = sys.stderr
         super(Store, self).__init__()
-        
+
         self.setAccessibleName("Store")
         # Restore stdout and stderr
         sys.stdout = oldstdout
         sys.stderr = oldstderr
         # Hide old logger
         self.logText.hide()
-        self.label_3.hide()        
-        
-        self.show = False
-        self.session = session
+        self.label_3.hide()
+
+        self._show = False
         #self.actionShowHide = QtGui.QAction(QtGui.QIcon(":/images/resources/store.png"),"Show/Hide", self)
         #QtCore.QObject.connect(self.actionShowHide, QtCore.SIGNAL('triggered(bool)'),self.showhide)
         #self._actions = [["Help","Package Store",self.actionShowHide,0]]
@@ -60,16 +62,19 @@ class Store(MainWindowAleaInstall):
         # TODO : do the "setVisible" on the dock widget and not on the widget inside the dock (cf mainwindow._dockwidgets["Store"])
         self.setVisible(self.show)
         self.show = not self.show'''
-            
+
     def actions(self):
         """
         :return: list of actions to set in the menu.
         """
         return self._actions
 
+    def toolbar_actions(self):
+        return self.actions()
+
     def mainMenu(self):
         """
         :return: Name of menu tab to automatically set current when current widget
         begin current.
         """
-        return "Package Store" 
+        return "Package Store"

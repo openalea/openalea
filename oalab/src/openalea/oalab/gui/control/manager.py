@@ -21,16 +21,17 @@ import weakref
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core.observer import AbstractListener
 
+from openalea.oalab.gui.utils import Splitter
 from openalea.oalab.gui.control.model_view import ControlModel, ControlView
 from openalea.core.control.manager import ControlManager
 from openalea.oalab.service.qt_control import qt_editor
 
 
-class ControlManagerWidget(QtGui.QWidget, AbstractListener):
+class ControlManagerWidget(Splitter, AbstractListener):
+
     def __init__(self):
         AbstractListener.__init__(self)
-        QtGui.QWidget.__init__(self)
-        self._layout = QtGui.QVBoxLayout(self)
+        Splitter.__init__(self)
 
         self._manager = ControlManager()
 
@@ -42,20 +43,7 @@ class ControlManagerWidget(QtGui.QWidget, AbstractListener):
 
         self.model.rowsInserted.connect(self.view.onRowsInserted)
 
-        self._layout.setSpacing(0)
-        self._layout.setContentsMargins(0, 0, 0, 0)
-
-        self._layout.addWidget(QtGui.QLabel("Global controls"))
-        self._layout.addWidget(self.view)
-
-        self._l_edit = QtGui.QLabel("Control editor")
-        self._l_no_edit = QtGui.QWidget()
-
-        self._layout.addWidget(self._l_edit)
-        self._layout.addWidget(self._l_no_edit)
-
-        me = QtGui.QSizePolicy.MinimumExpanding
-        self._l_no_edit.setSizePolicy(QtGui.QSizePolicy(me, me))
+        self.addWidget(self.view)
 
         self._i = 1
 
@@ -65,10 +53,8 @@ class ControlManagerWidget(QtGui.QWidget, AbstractListener):
     def on_controls_selected(self, controls):
         if self._widget_edit:
             widget = self._widget_edit()
-            self._layout.removeWidget(widget)
             widget.close()
             self._widget_edit = None
-            self._l_no_edit.show()
             del widget
 
         if not controls:
@@ -76,14 +62,10 @@ class ControlManagerWidget(QtGui.QWidget, AbstractListener):
 
         widget = QtGui.QWidget()
         widget.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        size = self._l_no_edit.size()
-        widget.setMinimumSize(size.width(), size.height())
-        widget.setMaximumSize(size.width(), size.height())
-        self._l_no_edit.hide()
 
         layout = QtGui.QVBoxLayout(widget)
         for control in controls:
             subwidget = qt_editor(control, shape='large', preferred=control.widget)
             layout.addWidget(subwidget)
-        self._layout.addWidget(widget)
+        self.addWidget(widget)
         self._widget_edit = weakref.ref(widget)

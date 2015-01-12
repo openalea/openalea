@@ -40,7 +40,9 @@ package_dir = dict([('', pkg_root_dir)] + [(namespace + "." + pkg, pkg_root_dir 
 
 # dependencies to other eggs
 setup_requires = ['openalea.deploy']
-install_requires = []
+
+# TODO: remove pygments 1.6 constraints when https://github.com/ipython/ipython/issues/6877 is fixed
+install_requires = ['pygments==1.6']
 
 # web sites where to find eggs
 dependency_links = ['http://openalea.gforge.inria.fr/pi']
@@ -87,7 +89,7 @@ setup(
 
         'gui_scripts': [
             'oalab = openalea.oalab.main:main',
-            'openalealab = openalea.oalab.main:main'
+            'openalealab = openalea.oalab.main2:main'
         ],
 
         'oalab.paradigm_applet': [
@@ -115,7 +117,6 @@ setup(
 
         'oalab.applet': [
             'ControlManager = openalea.oalab.plugins.applets.controlmanager:ControlManager',
-            # 'ControlPanel = openalea.oalab.plugins.applets.controlpanel:ControlPanel',
             'EditorManager = openalea.oalab.plugins.applets.editormanager:EditorManager',
             'FileBrowser = openalea.oalab.plugins.applets.filebrowser:FileBrowser',
             'HelpWidget = openalea.oalab.plugins.applets.helpwidget:HelpWidget',
@@ -123,9 +124,13 @@ setup(
             'Logger = openalea.oalab.plugins.applets.logger:Logger',
             'PkgManagerWidget = openalea.oalab.plugins.applets.packagemanager:PkgManagerWidget',
             'ProjectManager = openalea.oalab.plugins.applets.projectwidget:ProjectManager',
-            # 'Store = openalea.oalab.plugins.applets.store:Store',
+            'Store = openalea.oalab.plugins.applets.store:Store',
             'World = openalea.oalab.plugins.applets.worldwidget:World',
-            'Plot2d = openalea.oalab.plugins.applets.plot2d:Plot2dWidget',
+            'MplTabWidget = openalea.oalab.plugins.applets.plot2d:MplTabWidget',
+            'MplFigureWidget = openalea.oalab.plugins.applets.plot2d:MplFigureWidget',
+            'ShellWidget = openalea.oalab.plugins.applets.shellwidget:ShellWidget',
+            'ContextualMenu = openalea.oalab.plugins.applets.contextualmenu:ContextualMenu',
+            'SplitterApplet = openalea.oalab.plugins.applets.splitter:SplitterApplet',
         ],
 
         'oalab.qt_control': [
@@ -134,9 +139,9 @@ setup(
         ],
 
         'oalab.lab': [
-            'FullLab = openalea.oalab.plugins.labs.fulllab:FullLab',
             'MiniLab = openalea.oalab.plugins.labs.minilab:MiniLab',
-            'Default = openalea.oalab.plugins.labs.default:DefaultLab',
+            #'FullLab = openalea.oalab.plugins.labs.fulllab:FullLab',
+            #'Default = openalea.oalab.plugins.labs.default:DefaultLab',
         ],
 
         'oalab.interface': [

@@ -28,9 +28,11 @@ from PyQGLViewer import QGLViewer, Vec, Quaternion
 import sys
 
 from openalea.oalab.service.geometry import to_shape3d
+from openalea.oalab.session.session import Session
 
 
 class view3D(QGLViewer):
+
     """
     This class is used to create and manipulate a 3 dimensions scene.
     This scene is based on QGLViewer.
@@ -45,15 +47,15 @@ class view3D(QGLViewer):
             scene = self.defaultScene()
         self.scene = scene
         # set some parameters
-        self.setAxisIsDrawn(False) # show axis
-        self.setGridIsDrawn(True) # show grid
-        
-        orientation = Quaternion(0.475117,0.472505,0.524479,0.525286)
-        position = Vec(2.91287,-0.0109797,0.659613)
+        self.setAxisIsDrawn(False)  # show axis
+        self.setGridIsDrawn(True)  # show grid
+
+        orientation = Quaternion(0.475117, 0.472505, 0.524479, 0.525286)
+        position = Vec(2.91287, -0.0109797, 0.659613)
         self.camera().setPosition(position)
         self.camera().setOrientation(orientation)
 
-        self.camera().setSceneRadius(1) # Size of vectors x,y,z
+        self.camera().setSceneRadius(1)  # Size of vectors x,y,z
         # connection
         self.connect(self, QtCore.SIGNAL("drawNeeded()"), self.draw)
         self.orientation_initiale = self.camera().orientation()
@@ -65,13 +67,13 @@ class view3D(QGLViewer):
         self.setShortcut(0, QtCore.Qt.Key_Escape)
 
     def set_bg_white(self):
-        color_white = QtGui.QColor(255,255,255)
+        color_white = QtGui.QColor(255, 255, 255)
         self.setBackgroundColor(color_white)
-        
+
     def set_bg_black(self):
-        color_black = QtGui.QColor(0,0,0)
+        color_black = QtGui.QColor(0, 0, 0)
         self.setBackgroundColor(color_black)
-        
+
     # Method for lpy.registerPlotter to "animate"
     def plot(self, scene):
         scenedict = {"new": scene}
@@ -175,12 +177,13 @@ class view3D(QGLViewer):
 
 
 class Viewer(AbstractListener, view3D):
+
     """
     Widget of 3D Viewer to show the scene.
     """
 
-    def __init__(self, session, controller, parent=None):
-#         super(Viewer, self).__init__()
+    def __init__(self, parent=None):
+        #         super(Viewer, self).__init__()
         AbstractListener.__init__(self)
         view3D.__init__(self, parent=parent)
 
@@ -206,7 +209,7 @@ class Viewer(AbstractListener, view3D):
 
         actionBlack = QtGui.QAction(QtGui.QIcon(""), "Bg Black", self)
         actionWhite = QtGui.QAction(QtGui.QIcon(""), "Bg White", self)
-        
+
         actionShowAxis.setShortcut(
             QtGui.QApplication.translate("MainWindow", "Ctrl+A", None, QtGui.QApplication.UnicodeUTF8))
         actionShowGrid.setShortcut(
@@ -229,10 +232,11 @@ class Viewer(AbstractListener, view3D):
         QtCore.QObject.connect(actionRadius, QtCore.SIGNAL('triggered(bool)'), self.update_radius)
 
         QtCore.QObject.connect(actionShowFps, QtCore.SIGNAL('triggered(bool)'), self.show_fps)
-        
+
         QtCore.QObject.connect(actionBlack, QtCore.SIGNAL('triggered(bool)'), self.set_bg_black)
         QtCore.QObject.connect(actionWhite, QtCore.SIGNAL('triggered(bool)'), self.set_bg_white)
 
+        session = Session()
         session.world.register_listener(self)
 
         self._actions = [["Viewer", "Zoom", actionResetZoom, 0],
@@ -247,14 +251,27 @@ class Viewer(AbstractListener, view3D):
                          #["Viewer", "Informations", actionShowFps, 1]
                          ]
 
+    def initialize(self):
+        from openalea.lpy import registerPlotter
+        registerPlotter(self)
+
     def notify(self, sender, event=None):
         signal, data = event
-        if signal == 'WorldChanged':
+        if signal in ('WorldChanged', 'world_sync'):
             self.setScene(data)
             self.updateGL()
 
     def actions(self):
         return self._actions
+
+    def toolbar_actions(self):
+        return self.actions()
+
+    def menus(self):
+        menu = QtGui.QMenu('View', self)
+        actions = [action[2] for action in self.actions()]
+        menu.addActions(actions)
+        return [menu]
 
     def resetzoom(self):
         self.camera().setOrientation(self.orientation_initiale)
@@ -286,18 +303,18 @@ class Viewer(AbstractListener, view3D):
 
     def show_hide_axis(self):
         if self.axis:
-            self.setAxisIsDrawn(False) # hide axis
+            self.setAxisIsDrawn(False)  # hide axis
             self.axis = False
         else:
-            self.setAxisIsDrawn(True) # show axis
+            self.setAxisIsDrawn(True)  # show axis
             self.axis = True
 
     def show_hide_grid(self):
         if self.grid:
-            self.setGridIsDrawn(False) # hide grid
+            self.setGridIsDrawn(False)  # hide grid
             self.grid = False
         else:
-            self.setGridIsDrawn(True) # show grid
+            self.setGridIsDrawn(True)  # show grid
             self.grid = True
 
     def show_entire_scene(self):

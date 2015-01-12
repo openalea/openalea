@@ -18,7 +18,7 @@
 __revision__ = ""
 
 from openalea.vpltk.qt import QtGui, QtCore
-import resources_rc # do not remove this import else icon are not drawn
+import resources_rc  # do not remove this import else icon are not drawn
 import webbrowser
 from openalea.oalab.gui.preferences import PreferenceWidget
 from openalea.oalab.gui.utils import ModalDialog
@@ -54,20 +54,23 @@ Then go into "oalab_examples" repository and select a project.
 </p>
 """
 
-        
+
 class HelpWidget(QtGui.QTextBrowser):
+
     """
     Widget which permit to display informations/help.
     Usefull in visualea or LPy.
     """
+
     def __init__(self, session=None, controller=None, parent=None):
-        super(HelpWidget, self).__init__(parent=parent) 
+        super(HelpWidget, self).__init__(parent=parent)
         self.setAccessibleName("HelpWidget")
 
-        actionHelpOpenAlea = QtGui.QAction(QtGui.QIcon(":/images/resources/openalealogo.png"),"OpenAlea WebSite", self)
-        actionHelpGForge = QtGui.QAction(QtGui.QIcon(":/images/resources/git.png"),"Submit Issues", self)
-        actionHelpTasks = QtGui.QAction(QtGui.QIcon(":/images/resources/gforge.png"),"See Tasks", self)
-        actionEditPref = QtGui.QAction(QtGui.QIcon(":/images/resources/node.png"),"Preferences", self)
+        actionHelpOpenAlea = QtGui.QAction(
+            QtGui.QIcon(":/images/resources/openalealogo.png"), "OpenAlea WebSite", self)
+        actionHelpGForge = QtGui.QAction(QtGui.QIcon(":/images/resources/git.png"), "Submit Issues", self)
+        actionHelpTasks = QtGui.QAction(QtGui.QIcon(":/images/resources/gforge.png"), "See Tasks", self)
+        actionEditPref = QtGui.QAction(QtGui.QIcon(":/images/resources/node.png"), "Preferences", self)
 
         self.connect(actionHelpOpenAlea, QtCore.SIGNAL('triggered(bool)'), self.openWebsiteOpenalea)
         self.connect(actionHelpGForge, QtCore.SIGNAL('triggered(bool)'), self.openOALabIssues)
@@ -84,11 +87,20 @@ class HelpWidget(QtGui.QTextBrowser):
     def actions(self):
         return self._actions
 
+    def toolbar_actions(self):
+        return self.actions()
+
+    def menus(self):
+        menu = QtGui.QMenu('Help', self)
+        actions = [action[2] for action in self.actions()]
+        menu.addActions(actions)
+        return [menu]
+
     def openWebsiteOpenalea(self):
         self.openWeb('http://openalea.github.io')
 
     def openOALabIssues(self):
-        self.openWeb('https://github.com/openalea/openalea/issues/new')    
+        self.openWeb('https://github.com/openalea/openalea/issues/new')
 
     def openOALabTasks(self):
         self.openWeb('https://gforge.inria.fr/pm/task.php?group_project_id=6971&group_id=79&func=browse')
@@ -102,14 +114,13 @@ class HelpWidget(QtGui.QTextBrowser):
         if dialog.exec_():
             preferences.update_config(save=True)
             # preferences.close()
-        
+
     def mainMenu(self):
         """
         :return: Name of menu tab to automatically set current when current widget
         begin current.
         """
-        return "Help"  
+        return "Help"
 
     def set_text(self, text):
         self.setText(text)
-

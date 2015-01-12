@@ -1,16 +1,24 @@
 
 from openalea.oalab.plugins.applets import PluginApplet
 
+
 class HelpWidget(PluginApplet):
 
     name = 'HelpWidget'
     alias = 'Help'
+    icon = 'oxygen_system-help.png'
 
-    def __call__(self, mainwindow):
+    def __call__(self):
         # Load and instantiate graphical component that actually provide feature
         from openalea.oalab.gui.help import HelpWidget
+        return HelpWidget
 
-        self._applet = self.new(self.name, HelpWidget)
-        self._fill_menu(mainwindow, self._applet)
+    def graft(self, **kwds):
+        mainwindow = kwds['oa_mainwin'] if 'oa_mainwin' in kwds else None
+        applet = kwds['applet'] if 'applet' in kwds else None
 
-        mainwindow.add_applet(self._applet, self.alias, area='outputs')
+        if applet is None or mainwindow is None:
+            return
+
+        self._fill_menu(mainwindow, applet)
+        mainwindow.add_applet(applet, self.alias, area='outputs')

@@ -1,4 +1,4 @@
- # -*- python -*-
+# -*- python -*-
 #
 #       OpenAlea.OALab: Multi-Paradigm GUI
 #
@@ -26,6 +26,7 @@ from openalea.vpltk.qt.compat import from_qvariant
 
 
 class IApplet(object):
+
     def __init__(self):
         self.name = "welcome_page"
 
@@ -48,26 +49,38 @@ class IApplet(object):
         raise NotImplementedError
 
 # fake methods, like if we have a real applet
+
+
 class FakeApplet(object):
+
     """
     Empty implementation of IApplet
     """
+
     def __init__(self):
         self.name = "welcome_page"
+
     def focus_change(self):
         pass
+
     def run(self):
         pass
+
     def animate(self):
         pass
+
     def step(self):
         pass
+
     def stop(self):
         pass
+
     def init(self):
         pass
 
+
 class WelcomePage2(QtGui.QWidget):
+
     """
     Create a widget page that display a list of actions as buttons
     """
@@ -75,14 +88,28 @@ class WelcomePage2(QtGui.QWidget):
     icon_size = QtCore.QSize(80, 80)
     stylesheet = "font-size: 12pt;"
 
-    def __init__(self, actions, parent=None):
+    def __init__(self, actions=None, parent=None):
         QtGui.QWidget.__init__(self)
-        layout = QtGui.QGridLayout(self)
-        layout.setAlignment(QtCore.Qt.AlignCenter)
+        self._layout = QtGui.QGridLayout(self)
+        self._layout.setAlignment(QtCore.Qt.AlignCenter)
+        if actions:
+            self.set_actions(actions)
+
+    def set_actions(self, actions):
+        for i in reversed(range(self._layout.count())):
+            widget = self._layout.itemAt(i).widget()
+            widget.setParent(None)
+            self._layout.removeWidget(widget)
+
+        w = self.size().width()
+
+        nx = w / self.button_size.width()
+        if nx == 0:
+            nx = 1
 
         for i, action in enumerate(actions):
             button = QtGui.QToolButton()
-            button.setFixedSize(self.button_size);
+            button.setFixedSize(self.button_size)
             # button.setStyleSheet(self.stylesheet)
             button.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
 
@@ -90,15 +117,18 @@ class WelcomePage2(QtGui.QWidget):
             button.setDefaultAction(action)
             button.setIconSize(qsize)
 
-            layout.addWidget(button, i, 0)
+            self._layout.addWidget(button, i / nx, i % nx)
+
 
 class WelcomePage(QtGui.QWidget):
+
     """
     Welcome page in the applet container.
     Permit to open an existing project,
     or to create a new one,
     or to work on src outside projects.
     """
+
     def __init__(self, session, controller, parent=None):
         super(WelcomePage, self).__init__(parent=parent)
 
@@ -158,13 +188,16 @@ class WelcomePage(QtGui.QWidget):
             self.controller.project_manager.open(name)
             logger.debug("Restore previous session. (project)")
 
+
 class CreateFilePage(QtGui.QWidget):
+
     """
     Welcome page in the applet container.
     Permit to open an existing project,
     or to create a new one,
     or to work on src outside projects.
     """
+
     def __init__(self, session, controller, parent=None):
         super(CreateFilePage, self).__init__(parent=parent)
 
@@ -206,18 +239,25 @@ class CreateFilePage(QtGui.QWidget):
 
         # fake methods, like if we have a real applet
         class FakeApplet(object):
+
             def __init__(self):
                 self.name = "create_file_page"
+
             def focus_change(self):
                 pass
+
             def run(self):
                 pass
+
             def animate(self):
                 pass
+
             def step(self):
                 pass
+
             def stop(self):
                 pass
+
             def init(self):
                 pass
         self.applet = FakeApplet()

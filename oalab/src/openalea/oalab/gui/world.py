@@ -22,6 +22,7 @@ from openalea.core.observer import AbstractListener
 
 
 class GenericWorldBrowser(QtGui.QWidget):
+
     def __init__(self):
         super(GenericWorldBrowser, self).__init__()
         layout = QtGui.QGridLayout()
@@ -37,26 +38,37 @@ class GenericWorldBrowser(QtGui.QWidget):
 
 
 class WorldBrowser(GenericWorldBrowser, AbstractListener):
-    def __init__(self, world):
+
+    def __init__(self):
         AbstractListener.__init__(self)
         super(WorldBrowser, self).__init__()
-        world.register_listener(self)
-        self.world = world
-        self.set_world(self.world)
+        self.world = None
 
         QtCore.QObject.connect(self.tree, QtCore.SIGNAL('doubleClicked(const QModelIndex&)'), self.show_world_object)
 
         actionClearWorld = QtGui.QAction(QtGui.QIcon(":/images/resources/plant.png"), "Clear World", self)
-        actionClearWorld.triggered.connect(self.world.clear)
+        actionClearWorld.triggered.connect(self.clear)
         self._actions = [["Project", "World", actionClearWorld, 0]]
+
+    def initialize(self):
+        from openalea.oalab.session.session import Session
+        world = Session().world
+        self.set_world(world)
 
     def actions(self):
         return self._actions
 
+    def toolbar_actions(self):
+        return self.actions()
+
     def notify(self, sender, event=None):
         signal, data = event
-        if signal == 'WorldChanged':
+        print signal
+        if signal == 'world_changed':
             self.set_world(data)
+            self.refresh()
+        elif signal == 'world_sync':
+            self.refresh()
 
     def show_world_object(self, index):
         item = index.model().itemFromIndex(index)
@@ -64,13 +76,26 @@ class WorldBrowser(GenericWorldBrowser, AbstractListener):
         if world_name in self.world:
             print "World object named ", world_name, " : ", self.world[world_name]
 
+    def clear(self):
+        if self.world:
+            self.world.clear()
+
+    def refresh(self):
+        if self.world is not None:
+            self.model.set_world(self.world)
+            self.tree.expandAll()
+
     def set_world(self, world):
+        if self.world is world:
+            return
+        if self.world:
+            self.world.unregister_listener(self)
         self.world = world
-        self.model.set_world(self.world)
-        self.tree.expandAll()
+        self.world.register_listener(self)
 
 
 class WorldModel(QtGui.QStandardItemModel):
+
     def set_world(self, world={}):
         self.clear()
         parentItem = self.invisibleRootItem()

@@ -1,6 +1,5 @@
 from openalea.core.interface import IInterface
 
-
 class IQTextWidget(IInterface):
     name = 'IQTextWidget'  # Unique identifier
 

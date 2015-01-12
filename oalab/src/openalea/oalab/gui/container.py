@@ -44,7 +44,7 @@ class ParadigmContainer(QtGui.QTabWidget):
     identifier = "WidgetEditorContainer"
     name = "Editor Container"
 
-    def __init__(self, controller, session, parent=None):
+    def __init__(self, parent=None):
         super(ParadigmContainer, self).__init__(parent=parent)
         self.session = Session()
 
@@ -168,6 +168,7 @@ class ParadigmContainer(QtGui.QTabWidget):
             ["Edit", "Text Edit", self.actionUnComment, 0],
             ["Edit", "Text Edit", self.actionRunSelection, 0],
         ]
+
         self.connect_paradigm_container()
         self.extensions = ""
         self.connect(self, QtCore.SIGNAL('tabCloseRequested(int)'), self.autoClose)
@@ -175,6 +176,74 @@ class ParadigmContainer(QtGui.QTabWidget):
         self.currentChanged.connect(self.on_current_tab_changed)
 
         self.addDefaultTab()
+
+    def toolbar_actions(self):
+        return [
+            ["Project", "Manage", self.actionNewFile, 0],
+            ["Project", "Manage", self.actionAddFile, 1],
+            ["Project", "Manage", self.actionOpenFile, 1],
+            ["Project", "Manage", self.actionSave, 1],
+            ["Project", "Manage", self.actionCloseCurrent, 1],
+
+            ["Project", "Play", self.actionRun, 0],
+            ["Project", "Play", self.actionAnimate, 0],
+            ["Project", "Play", self.actionStep, 0],
+            ["Project", "Play", self.actionStop, 0],
+            ["Project", "Play", self.actionInit, 0],
+
+            ["Edit", "Text Edit", self.actionUndo, 0],
+            ["Edit", "Text Edit", self.actionRedo, 0],
+            ["Edit", "Text Edit", self.actionSearch, 0],
+            ["Edit", "Text Edit", self.actionGoto, 0],
+            ["Edit", "Text Edit", self.actionComment, 0],
+            ["Edit", "Text Edit", self.actionUnComment, 0],
+            ["Edit", "Text Edit", self.actionRunSelection, 0],
+        ]
+
+    def menu_actions(self):
+        actions = []
+        for menu in self.menus():
+            actions += menu.actions()
+        return actions
+
+    def menus(self):
+
+        menu_project = QtGui.QMenu("Project", self)
+        menu_edit = QtGui.QMenu("Edit", self)
+
+        menu_play = QtGui.QMenu("Run", menu_project)
+        menu_manage = QtGui.QMenu("Files", menu_project)
+
+        menu_project.addMenu(menu_manage)
+        menu_project.addMenu(menu_play)
+
+        menu_manage.addActions([
+            self.actionNewFile,
+            self.actionAddFile,
+            self.actionOpenFile,
+            self.actionSave,
+            self.actionCloseCurrent,
+        ])
+
+        menu_play.addActions([
+            self.actionRun,
+            self.actionAnimate,
+            self.actionStep,
+            self.actionStop,
+            self.actionInit,
+        ])
+
+        menu_edit.addActions([
+            self.actionUndo,
+            self.actionRedo,
+            self.actionSearch,
+            self.actionGoto,
+            self.actionComment,
+            self.actionUnComment,
+            self.actionRunSelection,
+        ])
+
+        return [menu_project, menu_edit]
 
     def on_current_tab_changed(self):
         controller = self.current_controller()

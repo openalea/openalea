@@ -32,6 +32,14 @@ class ControlContainer(Observed, AbstractListener):
         self._controls = []
 
     def control(self, name=None, uid=None):
+        """
+        Return all control with name "name".
+        If no control found, returns None, if only one found, returns it else return a list
+        of control.
+
+        If uid is passed, returns corresponding control or None if not found. 
+        If uid is passed, it never returns a list as uid is unique.
+        """
         if name is None and uid is None:
             return [control for control in self._controls]
         elif name is None and uid:
@@ -51,6 +59,46 @@ class ControlContainer(Observed, AbstractListener):
                 return controls
         else:
             return self.control(None, uid)
+
+    def add(self, name, **kwds):
+        """
+        Convenience method to create a control and add it to container.
+        See :class:`~openealea.core.control.control.Control`.
+
+        >>> container = ControlContainer()
+        >>> container.add('i', interface='IInt', value=1)
+
+        :param name: Control name
+        :param kwds: Control keywords like interface, value, ...
+        """
+        control = Control(name, **kwds)
+        self.add_control(control)
+
+    def update(self, dic):
+        """
+        Update controls with dict values.
+        If a name is not referenced in ControlContainer, nothing is done.
+
+        .. note::
+            Example:
+
+            Let "container" a Container with one control "a" with value 1::
+
+                container:
+                    - a:IInt = 1
+
+            after container.update({'a':2, 'b':3}) we get
+
+                container:
+                    - a:IInt = 2
+
+        :param dic: :obj:`dict` name -> value
+        """
+        for name, value in dic.items():
+            control = self.control(name=name)
+            if control is None:
+                continue
+            control.value = value
 
     def add_control(self, control):
         """
@@ -93,7 +141,21 @@ class ControlContainer(Observed, AbstractListener):
                     ns[control.name] = copy.deepcopy(control.value)
         return ns
 
+    def changed(self):
+        """
+        Like :meth:`~openealea.core.control.manager.ControlContainer.namespace` but
+        dictionnary contains only controls with value different than default value.
+        """
+        dic = {}
+        for control in self._controls:
+            if control.value != control.default:
+                dic[control.name] = control.value
+        return dic
+
     def controls(self):
+        """
+        Returns a list of :class:`~openealea.core.control.control.Control` objects.
+        """
         return list(self._controls)
 
     def notify(self, sender, event):

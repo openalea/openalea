@@ -4,13 +4,15 @@ from openalea.core.singleton import Singleton
 from openalea.core.observer import Observed
 import warnings
 
+
 class VPLScene(OrderedDict, Observed):
+
     """
     Scene for OALab. Singleton.
 
     This class inherit from ordered dict.
     This scene also inherits from Observed, especially to know when Scene has changed.
-    (Notify listeners with WorldChanged event)
+    (Notify listeners with world_changed event)
     """
 
     __metaclass__ = Singleton
@@ -19,7 +21,7 @@ class VPLScene(OrderedDict, Observed):
         OrderedDict.__init__(self, *args, **kwds)
         Observed.__init__(self)
         self._block = False
-        self._valueChanged()
+        self._emit_world_sync()
 
     def add(self, name="unnamed object", obj="None"):
         """
@@ -104,37 +106,44 @@ class VPLScene(OrderedDict, Observed):
 
     def __setitem__(self, key, value):
         super(VPLScene, self).__setitem__(key, value)
-        self._valueChanged()
+        self._emit_world_sync()
 
     def update(self):
         super(VPLScene, self).update()
-        self._valueChanged()
+        self._emit_world_sync()
 
     def __delitem__(self, key):
         super(VPLScene, self).__delitem__(key)
-        self._valueChanged()
+        self._emit_world_sync()
 
     def popitem(self, last=True):
         super(VPLScene, self).popitem(last)
-        self._valueChanged()
+        self._emit_world_sync()
 
     def clear(self):
         super(VPLScene, self).clear()
-        self._valueChanged()
+        self._emit_world_sync()
 
     def __reversed__(self):
         super(VPLScene, self).__reversed__()
-        self._valueChanged()
+        self._emit_world_sync()
 
     def __reduce__(self):
         super(VPLScene, self).__reduce__()
-        self._valueChanged()
+        self._emit_world_sync()
 
-    def _valueChanged(self):
+    def _emit_value_changed(self, old, new):
         """
-        Notify listeners with WorldChanged event
+        Notify listeners with world_changed event
         """
         if not self._block:
-            self.notify_listeners(('WorldChanged', self))
+            self.notify_listeners(('world_changed', self))
+
+    def _emit_world_sync(self):
+        """
+        Notify listeners with world_changed event
+        """
+        if not self._block:
+            self.notify_listeners(('world_sync', self))
 
 Scene = VPLScene

@@ -1,13 +1,11 @@
 
 
-import openalea.lpy
-from openalea.deploy.shared_data import shared_data
 from openalea.vpltk.qt import QtGui
-from openalea.core.control.manager import ControlManager, ControlContainer
+from openalea.core.control.manager import ControlManager
 from openalea.oalab.gui.control.manager import ControlManagerWidget
 from openalea.oalab.gui.control.panel import ControlPanel
 from openalea.core.service.control import new_control
-from openalea.core.service.interface import new_interface, interface_names, get_interface
+from openalea.core.service.interface import interface_names, get_interface
 from openalea.oalab.service import qt_control
 from openalea.plantlab.lpycontrol import import_lpy_controls
 
@@ -31,13 +29,8 @@ def test_all_interfaces():
             c = new_control(name, iname)
 #             cc1.add_control(c)
 
-if __name__ == '__main__':
-    instance = QtGui.QApplication.instance()
-    if instance is None:
-        app = QtGui.QApplication([])
-    else:
-        app = instance
 
+def sample_controls():
     cm = ControlManager()
 #     cc1 = ControlContainer()
 #     cc2 = ControlContainer()
@@ -54,50 +47,42 @@ if __name__ == '__main__':
     cm.add_control(c)
 
 
-#     from openalea.oalab.editor.text_editor import TextEditor
-#     from openalea.oalab.editor.highlight import Highlighter
-#     text = TextEditor()
-#     Highlighter(text)
-#     text.show()
-#     text.raise_()
-
-    from openalea.core.service.ipython import interpreter
-    from openalea.oalab.shell import get_shell_class
-
-    # Set interpreter
-    interpreter = interpreter()
-    interpreter.locals['interp'] = interpreter
-    interpreter.locals.update(locals())
-    # Set Shell Widget
-
-    widget = QtGui.QWidget()
-    layout = QtGui.QHBoxLayout(widget)
-
-    shellwdgt = get_shell_class()(interpreter)
-
-    layout.addWidget(cmw)
-    layout.addWidget(cp)
-    layout.addWidget(shellwdgt)
-
-    layout.setSpacing(0)
-    layout.setContentsMargins(0, 0, 0, 0)
-    widget.show()
-    widget.raise_()
-
-    if instance is None:
-        app.exec_()
-
+def disp_controls():
+    cm = ControlManager()
     import sys
     for k, v in cm.namespace().items():
         print >> sys.__stdout__, k, v
 
-"""
-from openalea.core.control.manager import ControlManager
-from openalea.core.control import Control
-a = Control('length', 'IInt', value=4)
-b = Control('curve', 'ICurve2D')
-c = Control('colors', 'IColorList')
-cm  = ControlManager()
-for control in (a, b, c):
-    cm.add_control(control)
-"""
+
+if __name__ == '__main__':
+
+    from openalea.oalab.gui.splittablewindow import TestMainWin
+    instance = QtGui.QApplication.instance()
+
+    if instance is None:
+        app = QtGui.QApplication([])
+    else:
+        app = instance
+
+    tests = [
+        test_all_interfaces,
+        test_all_lpy_controls,
+        disp_controls,
+        sample_controls
+    ]
+
+    layout = ({0: [1, 2]},
+              {0: None, 1: 0, 2: 0},
+              {0: {'amount': 0.4619140625, 'splitDirection': 1},
+               1: {'widget': {'position': 0, 'applet': [u'ControlManager']}},
+               2: {'widget': {'position': 0, 'applet': [u'ShellWidget']}}})
+
+    mw = TestMainWin(default_layout=layout, tests=tests, layout_file='.test_control_manager.lay')
+
+    mw.resize(1024, 768)
+    mw.show()
+
+    mw.initialize()
+
+    if instance is None:
+        app.exec_()

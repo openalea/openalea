@@ -33,7 +33,7 @@ from openalea.oalab.gui.utils import ModalDialog
 from openalea.oalab.gui.utils import qicon
 from openalea.oalab.project.creator import CreateProjectWidget
 from openalea.oalab.project.pretty_preview import ProjectSelectorScroll
-from openalea.oalab.service.applet import get_applet
+from openalea.core.service.plugin import plugin_instance_exists, plugin_instance
 from openalea.oalab.session.session import Session
 
 """
@@ -127,6 +127,7 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
     def __init__(self):
         QtGui.QWidget.__init__(self)
         AbstractListener.__init__(self)
+        self.session = Session()
 
         layout = QtGui.QVBoxLayout(self)
         self.view = ProjectManagerView()
@@ -135,7 +136,6 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         layout.setContentsMargins(0, 0, 0, 0)
 
         self.pm = ProjectManager()
-        self.pm.register_listener(self)
 
         self.menu_available_projects = QtGui.QMenu(u'Available Projects')
 
@@ -158,7 +158,8 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         self.menu_available_projects = QtGui.QMenu(u'Available Projects')
         self.menu_available_projects.aboutToShow.connect(self._update_available_project_menu)
         self.action_available_project = {}  # Dict used to know what project corresponds to triggered action
-        self.session = Session()
+
+        self.pm.register_listener(self)
 
     def initialize(self):
         self.view.initialize()
@@ -169,6 +170,24 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
 
     def actions(self):
         return self._actions
+
+    def toolbar_actions(self):
+        return [
+            ["Project", "Manage", self.view.actionNewProj, 0],
+            ["Project", "Manage", self.view.actionOpenProj, 0],
+            ["Project", "Manage", self.view.actionSaveProj, 0],
+            ["Project", "Manage", self.view.actionCloseProj, 0],
+            ["Project", "Manage", self.view.actionSaveProjAs, 1],
+            ["Project", "Manage", self.view.actionEditMeta, 1],
+        ]
+
+    def menus(self):
+        actions = [action[2] for action in self.toolbar_actions()]
+        menu = QtGui.QMenu('Project', self)
+        menu.addActions(actions)
+        menu.addSeparator()
+        menu.addMenu(self.menu_available_projects)
+        return [menu]
 
     def project(self):
         if self.pm:
@@ -225,7 +244,6 @@ class ProjectManagerView(QtGui.QTreeView):
 
     def __init__(self):
         QtGui.QTreeView.__init__(self)
-        self.paradigm_container = None
 
         self._model = ProjectManagerModel()
         self.pm = ProjectManager()
@@ -274,8 +292,13 @@ class ProjectManagerView(QtGui.QTreeView):
 
     #  API
 
+    def _get_paradigm_container(self):
+        if plugin_instance_exists('oalab.applet', 'EditorManager'):
+            return plugin_instance('oalab.applet', 'EditorManager')
+    paradigm_container = property(fget=_get_paradigm_container)
+
     def initialize(self):
-        self.paradigm_container = get_applet(identifier='EditorManager')
+        pass
 
     def set_project(self, project):
         # TODO: Dirty hack to remove asap. Close project selector if widget has been created
