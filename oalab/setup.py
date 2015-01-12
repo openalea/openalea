@@ -88,7 +88,7 @@ setup(
     entry_points={
 
         'gui_scripts': [
-            'oalab = openalea.oalab.main:main',
+            'oalab = openalea.oalab.main2:main',
         ],
 
         'oalab.paradigm_applet': [
