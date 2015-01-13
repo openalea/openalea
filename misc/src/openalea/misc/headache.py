@@ -13,7 +13,7 @@ class MetainfoError(StandardError):
   """Class for exceptions raised during metainfo extraction
   """
 
-def generate(mod, tab='  '):
+def generate_headers(mod, tab='  '):
   """Generate module file headers
   
   :Parameter:
@@ -69,7 +69,7 @@ def generate(mod, tab='  '):
     headerhandler.file.write(tab+'See accompanying file LICENSE.txt')
     if not config['license_url'] == '':
       headerhandler.file.write(' or copy at\n'+tabs+tabs+config['license_url'])
-    headerfile.file.write('\n'+tab+'\n'+tab+'WebSite: ')
+    headerfile.file.write('\n'+tab+'\n'+tab+'OpenAlea WebSite: ')
     headerfile.file.write(config['url'])
   except:
     headerhandle.close()
