@@ -13,12 +13,20 @@ class MetainfoError(StandardError):
   """Class for exceptions raised during metainfo extraction
   """
 
-def generate_headers(mod, tab='  '):
-  """Generate module file headers
+def generate_headers(mod, pattern='*.py|*.h*|*.c*', tab='  '):
+  """Function generating headers in files of an openalea and vplants module
   
-  :Parameter:
-    `mod` (:class:`type.ModuleType`) - The module in which files will be considered
+  Headers are 
+  
+  :Parameters:
+   - `mod` (:class:`type.ModuleType`) - The openalea or vplants module in which files will be considered.
+   - `pattern` (:class:`basetring`) - The pattern for used to limit the header inclusion to files with names that match the pattern..
+   - `tab` (:class:`basestring`) - The tabulation to use in the header.
+   
+  .. seealso:: :func:`openalea.core.path.path.walkfiles` for `pattern` parameter usage.
   """
+  if not isinstance(tab, basestring):
+    raise TypeError('`tab` parameter')
   if not isinstance(mod, ModuleType):
     raise TypeError('`mod` parameter')
   rootpath = mod.__path__
@@ -86,7 +94,7 @@ def generate_headers(mod, tab='  '):
   confighandler.file.write('| \".*\\\\.py\" -> frame open:\"#\" line:\"#\" close:\"#\"')
   confighandler.close()
 
-  os.system('headache -c '+confighandler.name+' -h '+headerhandle.name+' '+' '.join(path(mod.__path__).parent.walkfiles(pattern='*.py|*.h*|*.c*')))
+  os.system('headache -c '+confighandler.name+' -h '+headerhandle.name+' '+' '.join(path(mod.__path__).parent.walkfiles(pattern=pattern)))
 
   os.remove(confighandler.name)
   os.remove(headerhandle.name)
