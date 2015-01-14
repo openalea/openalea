@@ -108,9 +108,11 @@ class MplFigureWidget(QtGui.QFrame):
 
         self.setFrameShape(QtGui.QFrame.Box)
         self.setFrameShadow(QtGui.QFrame.Plain)
+        self.setContentsMargins(1, 1, 1, 1)
 
         self._layout = QtGui.QVBoxLayout(self)
         self._layout.addWidget(self.canvas)
+        self._layout.setContentsMargins(1, 1, 1, 1)
 
     def initialize(self):
         self.activate()
@@ -120,7 +122,7 @@ class MplFigureWidget(QtGui.QFrame):
 
     def show_active(self):
         self.setFrameShape(QtGui.QFrame.Box)
-        self.setStyleSheet("background-color: rgb(255, 0, 0);")
+        self.setStyleSheet("background-color: rgb(0, 150, 0);")
 
     def show_inactive(self):
         self.setStyleSheet("")
