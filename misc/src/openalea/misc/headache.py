@@ -1,7 +1,7 @@
 """Script to automatically generate headers in files of the openalea and vplants modules.
 """
 
-import os
+import os, subprocess
 from types import ModuleType
 from collections import Sequence
 from tempfile import NamedTemporaryFile
@@ -46,7 +46,6 @@ def generate_headers(mod, patterns=['*.py', '*.h', '*.c*'], tab='  '):
   while len(rootpath) > 0 and not str(rootpath.name) == 'src':
     rootpath = rootpath.parent
   rootpath = rootpath.parent
-  from ConfigParser import ConfigParser
   configparser = ConfigParser()
   configparser.read(rootpath/'metainfo.ini')
   config = dict(configparser.items('metainfo'))
@@ -99,7 +98,7 @@ def generate_headers(mod, patterns=['*.py', '*.h', '*.c*'], tab='  '):
   confighandler.file.write('| \".*\\\\.py\" -> frame open:\"#\" line:\"#\" close:\"#\"')
   confighandler.close()
 
-  os.system('headache -c '+confighandler.name+' -h '+headerhandler.name+' '+' '.join([file for file in (rootpath/'src').walkfiles() if any([file.fnmatch(pattern) for pattern in patterns])]))
+  subprocess.call('headache -c '+confighandler.name+' -h '+headerhandler.name+' '+' '.join([file for file in (rootpath/'src').walkfiles() if any([file.fnmatch(pattern) for pattern in patterns])]), shell=True)
 
   os.remove(confighandler.name)
   os.remove(headerhandler.name)
