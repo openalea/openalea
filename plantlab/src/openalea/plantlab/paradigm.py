@@ -19,87 +19,11 @@
 ###############################################################################
 __revision__ = ""
 
-from openalea.plantlab.picklable_curves import geometry_2_piklable_geometry
-from openalea.oalab.session.session import Session
-from openalea.lpy import Lsystem
-from openalea.lpy.__lpy_kernel__ import LpyParsing
-from openalea.lpy.gui.objectmanagers import get_managers
-from openalea.lpy.gui.scalar import ProduceScalar
-from openalea.plantlab.lpy import LPyModel, LPyFile
-from openalea.oalab.service.help import display_help
-import types
 
 from openalea.oalab.gui.paradigm.python import PythonModelController
-
-
-def import_lpy_file(script):
-    """
-    Extract from an "old style" LPy file script part (str) and associated control (dict).
-    Permit compatibility between LPy and OALab.
-
-    :param: script to filter (str)
-    :return: lpy script (str) without end begining with "###### INITIALISATION ######"
-    and a dict which contain the control (dict)
-    """
-    control = dict()
-
-    if script is None:
-        script = ""
-    beginTag = LpyParsing.InitialisationBeginTag
-    if not beginTag in script:
-        return str(script), control
-    else:
-        txts = str(script).split(beginTag)
-        new_script = txts[0]
-        context_to_translate = txts[1]
-        context = Lsystem().context()
-        context.initialiseFrom(beginTag + context_to_translate)
-
-        managers = get_managers()
-        visualparameters = []
-        scalars = []
-        functions = []
-        curves = []
-        geoms = []
-
-        lpy_code_version = 1.0
-        if context.has_key('__lpy_code_version__'):
-            lpy_code_version = context['__lpy_code_version__']
-        if context.has_key('__scalars__'):
-            scalars_ = context['__scalars__']
-            scalars = [ProduceScalar(v) for v in scalars_]
-        if context.has_key('__functions__') and lpy_code_version <= 1.0:
-            functions = context['__functions__']
-            for n, c in functions:
-                c.name = n
-            functions = [c for n, c in functions]
-            funcmanager = managers['Function']
-            geoms += [(funcmanager, func) for func in functions]
-        if context.has_key('__curves__') and lpy_code_version <= 1.0:
-            curves = context['__curves__']
-            for n, c in curves:
-                c.name = n
-            curves = [c for n, c in curves]
-            curvemanager = managers['Curve2D']
-            geoms += [(curvemanager, curve) for curve in curves]
-        if context.has_key('__parameterset__'):
-            for panelinfo, objects in context['__parameterset__']:
-                for typename, obj in objects:
-                    visualparameters.append((managers[typename], obj))
-
-        control["color map"] = context.turtle.getColorList()
-        for scalar in scalars:
-            control[unicode(scalar.name)] = scalar
-        for (manager, geom) in geoms:
-            if geom != list():
-                new_obj, new_name = geometry_2_piklable_geometry(manager, geom)
-                control[new_name] = new_obj
-        for (manager, geom) in visualparameters:
-            if geom != list():
-                new_obj, new_name = geometry_2_piklable_geometry(manager, geom)
-                control[new_name] = new_obj
-
-        return new_script, control
+from openalea.plantlab.lpy_data import LPyFile
+from openalea.oalab.session.session import Session
+from openalea.oalab.service.help import display_help
 
 
 class LPyModelController(PythonModelController):
@@ -109,7 +33,7 @@ class LPyModelController(PythonModelController):
     extension = LPyFile.extension
     icon = LPyFile.icon
     mimetype_data = LPyFile.mimetype
-    mimetype_model = LPyModel.mimetype
+    mimetype_model = 'text/vnd-lpy'
 
     def __init__(self, **kwds):
         PythonModelController.__init__(self, **kwds)
@@ -129,6 +53,9 @@ class LPyModelController(PythonModelController):
         doc = self.model.get_documentation()
         display_help(doc)
 
+    def runnable(self):
+        return self._model.__class__.__name__ == 'LPyModel'
+
     def update_world(self):
         # TODO: remove this hard link!
         # Update world ?
@@ -144,7 +71,7 @@ class LPyModelController(PythonModelController):
         def select_colormap():
             # @GBY must move to plantgl or lpy
             from openalea.core.control.manager import ControlManager
-            from openalea.plantgl.oaplugins.controls import to_material
+            from openalea.plantlab.tools import to_material
             controls = ControlManager().namespace(interface='IColorList')
             for v in controls.values():
                 return to_material(v)

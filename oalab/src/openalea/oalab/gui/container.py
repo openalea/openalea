@@ -18,7 +18,8 @@
 __revision__ = ""
 
 from openalea.vpltk.qt import QtCore, QtGui
-from openalea.core.plugin import iter_plugins
+from openalea.core.service.plugin import debug_plugin, plugins
+
 from openalea.core import logger
 from openalea.oalab.gui.pages import WelcomePage2 as WelcomePage
 from openalea.core import settings
@@ -56,8 +57,11 @@ class ParadigmContainer(QtGui.QTabWidget):
         self.paradigms = {}
         self._new_file_actions = {}
         self.paradigms_actions = []
-        for applet in iter_plugins('oalab.paradigm_applet', debug=self.session.debug_plugins):
-            self.paradigms[applet.name] = applet()()
+        for plugin_class in plugins('oalab.paradigm_applet'):
+            plugin = plugin_class()
+            paradigm_applet = debug_plugin('oalab.paradigm_applet', func=plugin)
+            if paradigm_applet:
+                self.paradigms[plugin_class.name] = paradigm_applet
 
         self._open_objects = {}
 
@@ -143,6 +147,7 @@ class ParadigmContainer(QtGui.QTabWidget):
             self.actionAnimate,
             self.actionInit,
             self.actionRun,
+            self.actionRunSelection,
             self.actionStep,
             self.actionStop,
         ]
@@ -276,7 +281,7 @@ class ParadigmContainer(QtGui.QTabWidget):
     def project(self):
         return self.projectManager.cproject
 
-    def applet(self, obj, dtype):
+    def applet(self, obj, dtype, mimetype=None):
         applet_class = None
         if dtype in self.paradigms:
             # Check in paradigm.default_name
@@ -389,7 +394,8 @@ class ParadigmContainer(QtGui.QTabWidget):
 
     def add(self, project, name, code, dtype=None, category=None):
         if dtype is None:
-            dtypes = [ModelClass.default_name for ModelClass in iter_plugins('oalab.modelclass')]
+
+            dtypes = [ModelClass.default_name for ModelClass in plugins('oalab.modelclass')]
         else:
             dtypes = [dtype]
 
