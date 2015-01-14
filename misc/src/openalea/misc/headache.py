@@ -8,23 +8,28 @@ from tempfile import NamedTemporaryFile
 from ConfigParser import ConfigParser
 from datetime import datetime
 from exceptions import StandardError
+from openalea.core.path import path
 
 class MetainfoError(StandardError):
   """Class for exceptions raised during metainfo extraction
   """
 
-def generate_headers(mod, pattern='*.py|*.h*|*.c*', tab='  '):
+def generate_headers(mod, patterns=['*.py', '*.h', '*.c*'], tab='  '):
   """Function generating headers in files of an openalea and vplants module
-  
-  Headers are 
-  
+
+  Headers are
+
   :Parameters:
    - `mod` (:class:`type.ModuleType`) - The openalea or vplants module in which files will be considered.
-   - `pattern` (:class:`basetring`) - The pattern for used to limit the header inclusion to files with names that match the pattern..
+   - `patterns` ([:class:`basetring`]) - The pattern for used to limit the header inclusion to files with names that match one of the patterns.
    - `tab` (:class:`basestring`) - The tabulation to use in the header.
-   
-  .. seealso:: :func:`openalea.core.path.path.walkfiles` for `pattern` parameter usage.
+
+  .. seealso:: :func:`fnmatch` for elements of `patterns`
   """
+  if not isinstance(patterns, Sequence):
+      raise TypeError('`patterns` parameter')
+  if not all([isinstance(pattern, basestring) for pattern in patterns]):
+      raise ValueError('`patterns` parameter')
   if not isinstance(tab, basestring):
     raise TypeError('`tab` parameter')
   if not isinstance(mod, ModuleType):
@@ -37,7 +42,7 @@ def generate_headers(mod, pattern='*.py|*.h*|*.c*', tab='  '):
   if not isinstance(rootpath, basestring):
     raise ValueError('`mod` parameter')
   rootpath = path(rootpath)
-  
+
   while len(rootpath) > 0 and not str(rootpath.name) == 'src':
     rootpath = rootpath.parent
   rootpath = rootpath.parent
@@ -45,10 +50,10 @@ def generate_headers(mod, pattern='*.py|*.h*|*.c*', tab='  '):
   configparser = ConfigParser()
   configparser.read(rootpath/'metainfo.ini')
   config = dict(configparser.items('metainfo'))
-  
+
   headerhandler = NamedTemporaryFile(delete=False)
   try:
-    headerhandler.file.write(tabs+config['project']+'.'+config['package'])
+    headerhandler.file.write(tab+config['project']+'.'+config['package'])
     if not config['description'] == '':
       headerhandler.file.write(': '+config['description'])
     headerhandler.file.write('\n'+tab+'\n')
@@ -60,7 +65,7 @@ def generate_headers(mod, pattern='*.py|*.h*|*.c*', tab='  '):
       raise MetainfoError('`authors` and `authors_email` fields for `mod` parameter are not compatible')
     if len(config['authors']) > 1:
       headerhandler.file.write(tab+'File authors:\n'+tab*2+'* '+('\n'+tab*2+'* ').join([i+' <'+j+'>' if not j == '' else i for i, j in zip(config['authors'], config['authors_email'])]))
-      else:
+    else:
       headerhandler.file.write(tab+'File author: '+config['authors'].pop()+' <'+config['authors_email'].pop()+'>')
     headerhandler.write('\n'+tab+'\n')
     config['contributors'] = [i for i in config['contributors'].split(', ') if not i == '']
@@ -71,20 +76,20 @@ def generate_headers(mod, pattern='*.py|*.h*|*.c*', tab='  '):
       if len(config['contributors']) > 1:
         headerhandler.file.write(tab+'File contributors:\n'+tab*2+'* '+('\n'+tab*2+'* ').join([i+' <'+j+'>' if not j == '' else i for i, j in zip(config['contributors'], config['contributors_email'])]))
       else:
-        headerhandler.file.write(tabs+'File contributor: '+config['contributors'].pop())
-      headerhandler.write('\n'+tabs+'\n')
+        headerhandler.file.write(tab+'File contributor: '+config['contributors'].pop())
+      headerhandler.write('\n'+tab+'\n')
     headerhandler.file.write(tab+'Distributed under the '+config['license']+'Cecill-C License.\n')
     headerhandler.file.write(tab+'See accompanying file LICENSE.txt')
     if not config['license_url'] == '':
-      headerhandler.file.write(' or copy at\n'+tabs+tabs+config['license_url'])
-    headerfile.file.write('\n'+tab+'\n'+tab+'OpenAlea WebSite: ')
-    headerfile.file.write(config['url'])
+      headerhandler.file.write(' or copy at\n'+tab*2+config['license_url'])
+    headerhandler.file.write('\n'+tab+'\n'+tab+'OpenAlea WebSite: ')
+    headerhandler.file.write(config['url'])
   except:
-    headerhandle.close()
-    os.remove(headerhandle.name)
+    headerhandler.close()
+    os.remove(headerhandler.name)
     raise
   else:
-    headerfile.close()
+    headerhandler.close()
 
   confighandler = NamedTemporaryFile(delete=False)
   confighandler.file.write('| \".*\\\\.h\" -> frame open:\"/*\" line:\"*\" close:\"*/\"')
@@ -94,7 +99,7 @@ def generate_headers(mod, pattern='*.py|*.h*|*.c*', tab='  '):
   confighandler.file.write('| \".*\\\\.py\" -> frame open:\"#\" line:\"#\" close:\"#\"')
   confighandler.close()
 
-  os.system('headache -c '+confighandler.name+' -h '+headerhandle.name+' '+' '.join(path(mod.__path__).parent.walkfiles(pattern=pattern)))
+  os.system('headache -c '+confighandler.name+' -h '+headerhandler.name+' '+' '.join([file for file in (rootpath/'src').walkfiles() if any([file.fnmatch(pattern) for pattern in patterns])]))
 
   os.remove(confighandler.name)
-  os.remove(headerhandle.name)
+  os.remove(headerhandler.name)
