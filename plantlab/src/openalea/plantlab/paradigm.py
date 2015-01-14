@@ -19,9 +19,6 @@
 ###############################################################################
 __revision__ = ""
 
-from openalea.oalab.editor.text_editor import RichTextEditor as Editor
-from openalea.oalab.editor.highlight import Highlighter
-from openalea.plantlab.lpy_lexer import LPyLexer
 from openalea.plantlab.picklable_curves import geometry_2_piklable_geometry
 from openalea.oalab.session.session import Session
 from openalea.lpy import Lsystem
@@ -117,6 +114,13 @@ class LPyModelController(PythonModelController):
     def __init__(self, **kwds):
         PythonModelController.__init__(self, **kwds)
         self.session = Session()
+
+    def _default_editor(self):
+        from openalea.oalab.editor.text_editor import RichTextEditor as Editor
+        from openalea.oalab.editor.highlight import Highlighter
+        editor = Editor(parent=self.parent)
+        Highlighter(editor.editor)
+        return editor
 
     def focus_change(self):
         """

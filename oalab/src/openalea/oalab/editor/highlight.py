@@ -1,5 +1,5 @@
 # -*- python -*-
-# 
+#
 #       OpenAlea.OALab: Multi-Paradigm GUI
 #
 #       Copyright 2013 INRIA - CIRAD - INRA
@@ -19,11 +19,12 @@ __revision__ = ""
 
 from openalea.vpltk.qt import QtGui
 from pygments.formatters.html import HtmlFormatter
-from pygments.lexers import PythonLexer
+from pygments.lexers import guess_lexer_for_filename, PythonLexer
 from pygments.styles import get_style_by_name
 
 
 class Highlighter(QtGui.QSyntaxHighlighter):
+
     def __init__(self, parent, lexer=None):
         super(Highlighter, self).__init__(parent)
         self._document = self.document()
@@ -152,6 +153,7 @@ class Highlighter(QtGui.QSyntaxHighlighter):
 
 
 class PygmentsBlockUserData(QtGui.QTextBlockUserData):
+
     """ Storage for the user data associated with each line.
     """
 
@@ -164,12 +166,13 @@ class PygmentsBlockUserData(QtGui.QTextBlockUserData):
 
     def __repr__(self):
         attrs = ['syntax_stack']
-        kwds = ', '.join([ '%s=%r' % (attr, getattr(self, attr))
-                           for attr in attrs ])
+        kwds = ', '.join(['%s=%r' % (attr, getattr(self, attr))
+                          for attr in attrs])
         return 'PygmentsBlockUserData(%s)' % kwds
 
 
 class GenericHighlighter(Highlighter):
+
     def __init__(self, parent, lexer=None, filename="a.txt"):
         super(GenericHighlighter, self).__init__(parent=parent, lexer=lexer)
         self._document = self.document()
@@ -177,4 +180,3 @@ class GenericHighlighter(Highlighter):
         self._lexer = guess_lexer_for_filename(filename, "")
         print(self._lexer)
         self.set_style('default')
-
