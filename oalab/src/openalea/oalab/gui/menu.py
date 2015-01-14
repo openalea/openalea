@@ -104,9 +104,19 @@ style = """
 def fill_panedmenu(menu, actions):
     for action in actions:
         if isinstance(action, QtGui.QAction):
-            menu.addBtnByAction('', 'Default', action, 0)
+            menu.addBtnByAction('Default', 'Default', action, 0)
         elif isinstance(action, (list, tuple)):
             menu.addBtnByAction(*action)
+        elif isinstance(action, dict):
+            args = [
+                action.get('pane', 'Default'),
+                action.get('group', 'Default'),
+                action['action'],
+                action.get('style', 0)
+            ]
+            menu.addBtnByAction(*args)
+        elif isinstance(action, QtGui.QMenu):
+            pass
         else:
             continue
 
@@ -234,6 +244,7 @@ class Group(QtGui.QWidget):
 
     def __init__(self, name, orientation=QtCore.Qt.Horizontal):
         super(Group, self).__init__()
+
         self.setToolTip(name)
         self.setObjectName('Group')
         self.name = name
@@ -433,45 +444,47 @@ class ContextualMenu(QtGui.QWidget):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent=parent)
         self._layout = QtGui.QHBoxLayout(self)
-        self._group = None
+        self._current_group = None
+        self._group = {}
         self.clear()
         self.setContentsMargins(0, 0, 0, 0)
         self._layout.setContentsMargins(0, 0, 0, 0)
         self.setSizePolicy(size_policy_preferred)
         self.setStyleSheet(style_paned_menu)
 
-    def _new_group(self):
+    def _new_group(self, name):
         width = self.size().width()
         height = self.size().height()
         if height > width:
             orientation = QtCore.Qt.Vertical
         else:
             orientation = QtCore.Qt.Horizontal
-        group = Group("name", orientation=orientation)
-        group.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        self._group = weakref.ref(group)
+        identifier = '%s:%s' % (name, orientation)
+        if identifier in self._group:
+            group = self._group[identifier]
+        else:
+            group = Group(name, orientation=orientation)
+        self._current_group = weakref.ref(group)
         self._layout.addWidget(group)
         group.show()
 
     def clear(self):
-        if self._group:
-            group = self._group()
+        if self._current_group:
+            group = self._current_group()
             if group:
                 self._layout.removeWidget(group)
                 group.hide()
-                group.setParent(None)
-                group.destroy()
-                del group
-        self._new_group()
 
-    def set_actions(self, actions):
+    def set_actions(self, name, actions):
         self.clear()
+        self._new_group(name)
         fill_panedmenu(self, actions)
 
     def addBtnByAction(self, pane_name, group_name, action, btn_type=0):
-        if self._group is None:
-            self._new_group()
-        self._group().addBtnByAction(action, btn_type)
+        if self._current_group is None or self._current_group() is None:
+            return
+
+        self._current_group().addBtnByAction(action, btn_type)
 
     def properties(self):
         return dict(style=0)
