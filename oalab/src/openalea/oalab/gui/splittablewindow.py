@@ -68,7 +68,7 @@ class AppletSelector(QtGui.QWidget):
     """
     Combobox listing all applets available.
     Signals:
-      - appletChanged(name): sent when an applet is selected 
+      - appletChanged(name): sent when an applet is selected
     """
 
     appletChanged = QtCore.Signal(str)
@@ -80,8 +80,8 @@ class AppletSelector(QtGui.QWidget):
         self._layout.setContentsMargins(0, 0, 0, 0)
 
         self._cb_applets = QtGui.QComboBox()
-        self._applet_alias = []  # list of alias sorted by name
-        self._applet_plugins = {}  # alias -> plugin class
+        self._applet_alias = [] # list of alias sorted by name
+        self._applet_plugins = {} # alias -> plugin class
 
         self._cb_applets.addItem('Select applet')
         for plugin_class in plugins('oalab.applet'):
@@ -149,9 +149,7 @@ class AppletFrame(QtGui.QWidget):
 
         self._applet = None
 
-        self.setContentsMargins(0, 0, 0, 0)
         self._layout = QtGui.QVBoxLayout(self)
-        self._layout.setContentsMargins(0, 0, 0, 0)
 
         self._l_title = QtGui.QLabel('No applet selected')
         self._l_title.hide()
@@ -167,6 +165,11 @@ class AppletFrame(QtGui.QWidget):
         self._layout.addWidget(self._menu)
 
         self._create_actions()
+        self.fine_tune()
+
+    def fine_tune(self):
+        self._layout.setContentsMargins(0, 5, 0, 0)
+        self.setContentsMargins(0, 5, 0, 0)
 
     def _on_prop_changed(self, prop, value):
         if prop is self._show_toolbar:
@@ -259,10 +262,6 @@ class AppletTabWidget(QtGui.QTabWidget):
     def __init__(self):
         QtGui.QTabWidget.__init__(self)
 
-        # Display options
-        self.setContentsMargins(0, 0, 0, 0)
-        self.setDocumentMode(True)
-
         # Tab management
         self.setMovable(True)
         self.tabCloseRequested.connect(self.remove_tab)
@@ -278,6 +277,11 @@ class AppletTabWidget(QtGui.QTabWidget):
 
         # Set in edit mode by default
         self.set_edit_mode()
+        self.fine_tune()
+
+    def fine_tune(self):
+        # Display options
+        self.setDocumentMode(True)
 
     def tabInserted(self, index):
         self.tabBar().setVisible(self.count() > 1)
@@ -392,7 +396,7 @@ class AppletTabWidget(QtGui.QTabWidget):
         name = self._name[idx]
         _plugin_class = plugin_class('oalab.applet', name)
         applet = self._applets[idx][name]
-        #self.setTabText(idx, _plugin_class.alias)
+        # self.setTabText(idx, _plugin_class.alias)
         if self.tabPosition() == QtGui.QTabWidget.East:
             rotation = -90
         elif self.tabPosition() == QtGui.QTabWidget.West:
@@ -480,6 +484,10 @@ class AppletContainer(QtGui.QWidget):
         self._fill_menus()
 
         self.set_edit_mode()
+        self.fine_tune()
+
+    def fine_tune(self):
+        self.setContentsMargins(0, 5, 0, 0)
 
     def _create_actions(self):
         self.action_title = QtGui.QAction("Set Title", self)

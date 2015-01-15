@@ -24,7 +24,7 @@ from openalea.core import logger
 from openalea.oalab.gui.pages import WelcomePage2 as WelcomePage
 from openalea.core import settings
 from openalea.core.path import path
-from openalea.oalab.gui import resources_rc  # do not remove this import else icon are not drawn
+from openalea.oalab.gui import resources_rc # do not remove this import else icon are not drawn
 from openalea.oalab.gui.utils import qicon
 from openalea.core.project import ProjectManager, Project
 from openalea.oalab.project.projectwidget import SelectCategory
@@ -50,7 +50,6 @@ class ParadigmContainer(QtGui.QTabWidget):
         self.session = Session()
 
         self.setTabsClosable(True)
-        self.setMinimumSize(100, 100)
 
         self.applets = []
         self._open_tabs = {}
@@ -68,7 +67,7 @@ class ParadigmContainer(QtGui.QTabWidget):
         self.projectManager = ProjectManager()
 
         self.setAccessibleName("Container")
-        self.setElideMode(QtCore.Qt.ElideMiddle)
+        self.setElideMode(QtCore.Qt.ElideLeft)
 
         self.actionNewFile = QtGui.QAction(qicon("new.png"), "New file", self)
         self.actionOpenFile = QtGui.QAction(qicon("open.png"), "Open file", self)
@@ -181,6 +180,12 @@ class ParadigmContainer(QtGui.QTabWidget):
         self.currentChanged.connect(self.on_current_tab_changed)
 
         self.addDefaultTab()
+        self.fine_tune()
+
+
+    def fine_tune(self):
+        self.setDocumentMode(True)
+        # self.setMinimumSize(100, 100)
 
     def toolbar_actions(self):
         return [
