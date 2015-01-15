@@ -42,7 +42,7 @@ class RichTextEditor(QtGui.QWidget):
 
         self.completer = DictionaryCompleter(parent=self)
 
-        self.editor = TextEditor(parent=self)
+        self.editor = self._default_editor(parent=self)
         self.editor.textChanged.connect(self.textChanged.emit)
         # self.editor.setCompleter(self.completer)
 
@@ -56,6 +56,9 @@ class RichTextEditor(QtGui.QWidget):
         self.setLayout(self.layout)
 
         self.search_widget.hide()
+
+    def _default_editor(self, *args, **kwargs):
+        return TextEditor(*args, **kwargs)
 
     def actions(self):
         """
@@ -264,8 +267,6 @@ class TextEditor(QtGui.QTextEdit):
 
     def setText(self, txt):
         self.setPlainText(txt)
-        # TODO: move to EditorContainer
-#         self.editor_container.setTabBlack()
 
     def set_text(self, txt):
         """
@@ -280,7 +281,7 @@ class TextEditor(QtGui.QTextEdit):
     def get_selected_text(self):
         cursor = self.textCursor()
         txt = cursor.selectedText()
-        return unicode(txt).replace(u'\u2029', u'\n')  # replace paragraph separators by new lines
+        return unicode(txt).replace(u'\u2029', u'\n') # replace paragraph separators by new lines
 
     def get_text(self, start='sof', end='eof'):
         """
@@ -293,7 +294,7 @@ class TextEditor(QtGui.QTextEdit):
         txt = self.toPlainText()
         if txt is None:
             txt = ""
-        return unicode(txt).replace(u'\u2029', u'\n')  # replace paragraph separators by new lines
+        return unicode(txt).replace(u'\u2029', u'\n') # replace paragraph separators by new lines
 
     def replace_tab(self):
         """
@@ -363,7 +364,7 @@ class TextEditor(QtGui.QTextEdit):
             # ctrl or shift key on it's own
             return
 
-        eow = "~!@#$%^&*()_+{}|:\"<>?,./;'[]\\-="  # end of word
+        eow = "~!@#$%^&*()_+{}|:\"<>?,./;'[]\\-=" # end of word
 
         hasModifier = ((event.modifiers() != QtCore.Qt.NoModifier) and
                        not ctrlOrShift)
@@ -395,7 +396,7 @@ class TextEditor(QtGui.QTextEdit):
             cr = self.cursorRect()
             cr.setWidth(self.completer.popup().sizeHintForColumn(0)
                         + self.completer.popup().verticalScrollBar().sizeHint().width())
-            self.completer.complete(cr)  # popup it up!
+            self.completer.complete(cr) # popup it up!
 
     ####################################################################
     # Auto Indent (cf lpycodeeditor)

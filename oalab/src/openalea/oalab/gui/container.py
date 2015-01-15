@@ -297,7 +297,7 @@ class ParadigmContainer(QtGui.QTabWidget):
                 if dtype == value.extension:
                     applet_class = value
         if applet_class is None:
-            applet_class = self.paradigms["Python"]
+            applet_class = self.paradigms["Textual"]
 
         return applet_class(data=obj).instantiate_widget()
 
