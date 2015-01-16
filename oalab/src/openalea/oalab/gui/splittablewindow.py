@@ -18,9 +18,9 @@
 #
 ###############################################################################
 
+import sys
 import json
 import weakref
-import pickle
 
 
 from openalea.core.control import Control
@@ -80,8 +80,8 @@ class AppletSelector(QtGui.QWidget):
         self._layout.setContentsMargins(0, 0, 0, 0)
 
         self._cb_applets = QtGui.QComboBox()
-        self._applet_alias = [] # list of alias sorted by name
-        self._applet_plugins = {} # alias -> plugin class
+        self._applet_alias = []  # list of alias sorted by name
+        self._applet_plugins = {}  # alias -> plugin class
 
         self._cb_applets.addItem('Select applet')
         for plugin_class in plugins('oalab.applet'):
@@ -168,8 +168,15 @@ class AppletFrame(QtGui.QWidget):
         self.fine_tune()
 
     def fine_tune(self):
-        self._layout.setContentsMargins(0, 5, 0, 0)
-        self.setContentsMargins(0, 5, 0, 0)
+        if sys.platform == 'darwin':
+            self._layout.setContentsMargins(0, 5, 0, 0)
+            self.setContentsMargins(0, 5, 0, 0)
+        else:
+            # warning: drawin case above segfault on linux platform with Qt 4.8.6
+            # but works with size==2 instead of 5
+            # This is maybe due to default handle/splitters size, see splitterui module
+            self._layout.setContentsMargins(0, 0, 0, 0)
+            self.setContentsMargins(0, 0, 0, 0)
 
     def _on_prop_changed(self, prop, value):
         if prop is self._show_toolbar:
