@@ -148,7 +148,6 @@ class PanedMenu(QtGui.QTabWidget):
         self.setSizePolicy(size_policy_preferred)
         self.setStyleSheet(style_paned_menu)
 
-
     def addSpecialTab(self, label, widget=None):
         widget = Pane()
         self.tab_name.append(label)
@@ -284,7 +283,6 @@ class Group(QtGui.QWidget):
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setSpacing(0)
 
-
     def addBtnByAction(self, action, style=PanedMenu.BigButton):
         if style == PanedMenu.BigButton:
             return self.addBigToolButton(action)
@@ -374,19 +372,19 @@ class SubGroupV(QtGui.QWidget):
     def __init__(self):
         super(SubGroupV, self).__init__()
         self.setObjectName('SubGroupV')
-        self.layout = QtGui.QVBoxLayout(self)
+        self._layout = QtGui.QVBoxLayout(self)
 
         self.fine_tune()
 
     def fine_tune(self):
-        self.layout.setContentsMargins(0, 0, 0, 0)
-        self.layout.setSpacing(0)
-        self.layout.setAlignment(QtCore.Qt.AlignTop)
+        self._layout.setContentsMargins(0, 0, 0, 0)
+        self._layout.setSpacing(0)
+        self._layout.setAlignment(QtCore.Qt.AlignTop)
         self.setSizePolicy(size_policy_ysmall)
         self.setStyleSheet(style)
 
     def addWidget(self, widget):
-        self.layout.addWidget(widget)
+        self._layout.addWidget(widget)
 
 
 class SubGroupGrid(QtGui.QWidget):
