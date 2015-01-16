@@ -359,6 +359,7 @@ class ParadigmContainer(QtGui.QTabWidget):
             obj = self._open_tabs[tab]
             del self._open_objects[obj]
             del self._open_tabs[tab]
+            tab.close()
 
         if self.count() == 0:
             self.addDefaultTab()
