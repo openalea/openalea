@@ -17,9 +17,7 @@
 ###############################################################################
 
 import types
-from copy import copy
 
-from openalea.core.data import Data
 from openalea.lpy import Lsystem, AxialTree
 from openalea.lpy.__lpy_kernel__ import LpyParsing
 from openalea.lpy.gui.objectmanagers import get_managers
@@ -27,6 +25,9 @@ from openalea.lpy.gui.scalar import ProduceScalar
 from openalea.oalab.model.parse import parse_doc, InputObj, OutputObj, get_docstring
 from openalea.plantlab.parse_model import parse_lpy
 from openalea.plantlab.picklable_curves import geometry_2_piklable_geometry
+from openalea.lpy import Lsystem
+from openalea.lpy.__lpy_kernel__ import LpyParsing
+from openalea.plantlab.lpy_data import LPyFile
 
 
 def get_default_text():
@@ -88,15 +89,6 @@ class LsysObj(object):
         return self.lsystem.sceneInterpretation(self.axialtree)
 
 from openalea.core.model import PythonModel
-
-
-class LPyFile(Data):
-    default_name = "LSystem"
-    default_file_name = "script.lpy"
-    pattern = "*.lpy"
-    extension = "lpy"
-    icon = ":/images/resources/logo.png"
-    mimetype = "text/vnd-lpy"
 
 
 class LPyModel(PythonModel):

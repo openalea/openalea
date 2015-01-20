@@ -4,33 +4,7 @@ from openalea.oalab.plugins.controls.painters import PainterInterfaceObject
 from painters import PainterColorList, PainterMaterialList
 from openalea.plantgl.gui.materialeditor import MaterialEditor
 from openalea.plantgl.all import PglTurtle, EditableQuantisedFunction
-
-
-def to_color(material_list):
-    """
-    Material(name='C0', ambient=Color3(65,45,15)) -> ('C0', (65,45,15))
-    """
-    color_list = []
-    for material in material_list:
-        d = material.diffuse
-        a = material.ambient
-        color = (material.name, (a.red, a.green, a.blue), d)
-        color_list.append(color)
-    return color_list
-
-
-def to_material(color_list):
-    """
-    ('C0', (65,45,15)) -> Material(name='C0', ambient=Color3(65,45,15))
-    """
-
-    from openalea.plantgl.all import Material, Color3
-    material_list = []
-    for color in color_list:
-        material = Material(color[0], Color3(*color[1][:3]))
-        material.diffuse = color[2]
-        material_list.append(material)
-    return material_list
+from openalea.plantlab.tools import to_color, to_material
 
 
 class ColorListWidget(MaterialEditor, AbstractQtControlWidget):

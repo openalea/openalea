@@ -36,31 +36,39 @@ class TextualModelController(ParadigmController):
     extension = ""
     icon = ""
 
+    def _default_editor(self):
+        from openalea.oalab.editor.plaintext_editor import PlainTextEditor as Editor
+        editor = Editor(parent=self.parent)
+        return editor
+
     def instantiate_widget(self):
-        """
-        Instanciate the widget managing the current model
-
-        :return: the instanciated widget
-        """
-        self._widget = Editor(parent=self.parent)
-        wid = self._widget
-
-        try:
-            lexer = guess_lexer_for_filename(self.filepath, "")
-        except ClassNotFound:
-            lexer = None
-        Highlighter(wid.editor, lexer=lexer)
-
-        wid.applet = self
+        self._widget = self._default_editor()
+        from openalea.oalab.service.help import display_help
 
         # Add method to widget to display help
         def _diplay_help(widget):
-            doc = widget.applet.model.get_documentation()
-            display_help(doc)
-        wid.display_help = types.MethodType(_diplay_help, wid)
+            if self.model:
+                display_help(self.model.get_documentation())
+            else:
+                display_help(self._obj.get_documentation())
+        self._widget.display_help = types.MethodType(_diplay_help, self._widget)
+        self._widget.applet = self
 
         self.read()
         return self.widget()
+
+    def widget_value(self):
+        if self._widget:
+            return self._widget.get_text()
+        else:
+            return None
+
+    def set_widget_value(self, value):
+        if self._widget:
+            self._widget.set_text(value)
+
+    def runnable(self):
+        return False
 
     def execute(self):
         """

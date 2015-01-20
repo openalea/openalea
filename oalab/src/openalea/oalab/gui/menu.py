@@ -104,9 +104,19 @@ style = """
 def fill_panedmenu(menu, actions):
     for action in actions:
         if isinstance(action, QtGui.QAction):
-            menu.addBtnByAction('', 'Default', action, 0)
+            menu.addBtnByAction('Default', 'Default', action, 0)
         elif isinstance(action, (list, tuple)):
             menu.addBtnByAction(*action)
+        elif isinstance(action, dict):
+            args = [
+                action.get('pane', 'Default'),
+                action.get('group', 'Default'),
+                action['action'],
+                action.get('style', 0)
+            ]
+            menu.addBtnByAction(*args)
+        elif isinstance(action, QtGui.QMenu):
+            pass
         else:
             continue
 
@@ -130,9 +140,13 @@ class PanedMenu(QtGui.QTabWidget):
         super(PanedMenu, self).__init__()
         self.setObjectName('PanedMenu')
         self.setAccessibleName("Menu")
+        self.tab_name = list()
+
+        self.fine_tune()
+
+    def fine_tune(self):
         self.setSizePolicy(size_policy_preferred)
         self.setStyleSheet(style_paned_menu)
-        self.tab_name = list()
 
     def addSpecialTab(self, label, widget=None):
         widget = Pane()
@@ -206,27 +220,28 @@ class Pane(QtGui.QWidget):
     def __init__(self, parent=None):
         # TODO : scroll doesn't work yet
         super(Pane, self).__init__()
-#         self.setWidgetResizable(False)
-#         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.setObjectName('Pane')
+        self.group_name = list()
+        self._layout = QtGui.QGridLayout(self)
+        self.fine_tune()
+
+    def fine_tune(self):
+        # self.setWidgetResizable(False)
+        # self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         # ScrollBarAsNeeded
         # ScrollBarAlwaysOn
         # ScrollBarAlwaysOff
-#         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
-        self.setObjectName('Pane')
-        self.group_name = list()
-        self.layout = QtGui.QGridLayout()
-        self.layout.setContentsMargins(0, 0, 0, 0)
-        self.layout.setSpacing(0)
-
-        self.layout.setAlignment(QtCore.Qt.AlignLeft)
-        self.setLayout(self.layout)
+        # self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
+        self._layout.setContentsMargins(0, 0, 0, 0)
+        self._layout.setSpacing(0)
+        self._layout.setAlignment(QtCore.Qt.AlignLeft)
         self.setSizePolicy(size_policy_preferred)
         self.setStyleSheet(style_pane)
 
     def addGroup(self, name):
         grp = Group(name)
-        column = self.layout.columnCount()
-        self.layout.addWidget(grp, 0, column)
+        column = self._layout.columnCount()
+        self._layout.addWidget(grp, 0, column)
         self.group_name.append(name)
 
 
@@ -234,6 +249,7 @@ class Group(QtGui.QWidget):
 
     def __init__(self, name, orientation=QtCore.Qt.Horizontal):
         super(Group, self).__init__()
+
         self.setToolTip(name)
         self.setObjectName('Group')
         self.name = name
@@ -247,8 +263,6 @@ class Group(QtGui.QWidget):
         else:
             self.layout = QtGui.QVBoxLayout()
             self.layout.setAlignment(QtCore.Qt.AlignTop)
-        self.layout.setContentsMargins(0, 0, 0, 0)
-        self.layout.setSpacing(0)
         self.setLayout(self.layout)
 
         if orientation == QtCore.Qt.Horizontal:
@@ -260,10 +274,14 @@ class Group(QtGui.QWidget):
 
         self.layout.addWidget(self._group_big)
         self.layout.addWidget(self._group_small)
+        self.fine_tune()
 
+    def fine_tune(self):
         self.setSizePolicy(size_policy_preferred)
-
         self.setStyleSheet(style_group)
+        self.setContentsMargins(0, 0, 0, 0)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.setSpacing(0)
 
     def addBtnByAction(self, action, style=PanedMenu.BigButton):
         if style == PanedMenu.BigButton:
@@ -345,6 +363,7 @@ class SubGroupH(QtGui.QWidget):
         self.setStyleSheet(style)
 
     def addWidget(self, widget):
+        widget.setSizePolicy(Policy(Policy.Preferred, Policy.Minimum))
         self.layout.addWidget(widget)
 
 
@@ -353,33 +372,38 @@ class SubGroupV(QtGui.QWidget):
     def __init__(self):
         super(SubGroupV, self).__init__()
         self.setObjectName('SubGroupV')
-        self.layout = QtGui.QVBoxLayout()
-        self.layout.setContentsMargins(0, 0, 0, 0)
-        self.layout.setSpacing(0)
-        self.layout.setAlignment(QtCore.Qt.AlignTop)
-        self.setLayout(self.layout)
+        self._layout = QtGui.QVBoxLayout(self)
+
+        self.fine_tune()
+
+    def fine_tune(self):
+        self._layout.setContentsMargins(0, 0, 0, 0)
+        self._layout.setSpacing(0)
+        self._layout.setAlignment(QtCore.Qt.AlignTop)
         self.setSizePolicy(size_policy_ysmall)
         self.setStyleSheet(style)
 
     def addWidget(self, widget):
-        self.layout.addWidget(widget)
+        self._layout.addWidget(widget)
 
 
 class SubGroupGrid(QtGui.QWidget):
 
     def __init__(self, row_number=2):
         super(SubGroupGrid, self).__init__()
+        self._count = 0
         self.row_number = row_number
         self.setObjectName('SubGroupGrid')
-        self.layout = QtGui.QGridLayout()
+        self.layout = QtGui.QGridLayout(self)
+
+        self.fine_tune()
+
+    def fine_tune(self):
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setSpacing(0)
         self.layout.setAlignment(QtCore.Qt.AlignLeft)
-        self.setLayout(self.layout)
         self.setSizePolicy(size_policy_preferred)
         self.setStyleSheet(style)
-
-        self._count = 0
 
     def addWidget(self, widget):
         row = self._count % self.row_number
@@ -433,45 +457,51 @@ class ContextualMenu(QtGui.QWidget):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent=parent)
         self._layout = QtGui.QHBoxLayout(self)
-        self._group = None
+        self._current_group = None
+        self._group = {}
         self.clear()
+
+        self.fine_tune()
+
+    def fine_tune(self):
         self.setContentsMargins(0, 0, 0, 0)
         self._layout.setContentsMargins(0, 0, 0, 0)
         self.setSizePolicy(size_policy_preferred)
         self.setStyleSheet(style_paned_menu)
 
-    def _new_group(self):
+    def _new_group(self, name):
         width = self.size().width()
         height = self.size().height()
         if height > width:
             orientation = QtCore.Qt.Vertical
         else:
             orientation = QtCore.Qt.Horizontal
-        group = Group("name", orientation=orientation)
-        group.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        self._group = weakref.ref(group)
+        identifier = '%s:%s' % (name, orientation)
+        if identifier in self._group:
+            group = self._group[identifier]
+        else:
+            group = Group(name, orientation=orientation)
+        self._current_group = weakref.ref(group)
         self._layout.addWidget(group)
         group.show()
 
     def clear(self):
-        if self._group:
-            group = self._group()
+        if self._current_group:
+            group = self._current_group()
             if group:
                 self._layout.removeWidget(group)
                 group.hide()
-                group.setParent(None)
-                group.destroy()
-                del group
-        self._new_group()
 
-    def set_actions(self, actions):
+    def set_actions(self, name, actions):
         self.clear()
+        self._new_group(name)
         fill_panedmenu(self, actions)
 
     def addBtnByAction(self, pane_name, group_name, action, btn_type=0):
-        if self._group is None:
-            self._new_group()
-        self._group().addBtnByAction(action, btn_type)
+        if self._current_group is None or self._current_group() is None:
+            return
+
+        self._current_group().addBtnByAction(action, btn_type)
 
     def properties(self):
         return dict(style=0)

@@ -54,5 +54,8 @@ def to_model(data, mimetype=None):
     kwds['code'] = data.read()
     kwds['name'] = data.filename
     dtype = data.dtype
-    klass = ModelClass(mimetype=mimetype, dtype=dtype)
-    return klass(**kwds)
+    if mimetype is None and dtype is None:
+        return None
+    else:
+        klass = ModelClass(mimetype=mimetype, dtype=dtype)
+        return klass(**kwds)

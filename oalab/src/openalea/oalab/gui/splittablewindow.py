@@ -18,9 +18,9 @@
 #
 ###############################################################################
 
+import sys
 import json
 import weakref
-import pickle
 
 
 from openalea.core.control import Control
@@ -63,32 +63,12 @@ def fill_menu(menu, actions):
             continue
 
 
-def fill_panedmenu(menu, actions):
-    for action in actions:
-        if isinstance(action, QtGui.QAction):
-            menu.addBtnByAction('Default', 'Default', action, 0)
-        elif isinstance(action, (list, tuple)):
-            menu.addBtnByAction(*action)
-        elif isinstance(action, dict):
-            args = [
-                action.get('pane', 'Default'),
-                action.get('group', 'Default'),
-                action['action'],
-                action.get('style', 0)
-            ]
-            menu.addBtnByAction(*args)
-        elif isinstance(action, QtGui.QMenu):
-            pass
-        else:
-            continue
-
-
 class AppletSelector(QtGui.QWidget):
 
     """
     Combobox listing all applets available.
     Signals:
-      - appletChanged(name): sent when an applet is selected 
+      - appletChanged(name): sent when an applet is selected
     """
 
     appletChanged = QtCore.Signal(str)
@@ -169,9 +149,7 @@ class AppletFrame(QtGui.QWidget):
 
         self._applet = None
 
-        self.setContentsMargins(0, 0, 0, 0)
         self._layout = QtGui.QVBoxLayout(self)
-        self._layout.setContentsMargins(0, 0, 0, 0)
 
         self._l_title = QtGui.QLabel('No applet selected')
         self._l_title.hide()
@@ -187,6 +165,18 @@ class AppletFrame(QtGui.QWidget):
         self._layout.addWidget(self._menu)
 
         self._create_actions()
+        self.fine_tune()
+
+    def fine_tune(self):
+        if sys.platform == 'darwin':
+            self._layout.setContentsMargins(0, 5, 0, 0)
+            self.setContentsMargins(0, 5, 0, 0)
+        else:
+            # warning: drawin case above segfault on linux platform with Qt 4.8.6
+            # but works with size==2 instead of 5
+            # This is maybe due to default handle/splitters size, see splitterui module
+            self._layout.setContentsMargins(0, 0, 0, 0)
+            self.setContentsMargins(0, 0, 0, 0)
 
     def _on_prop_changed(self, prop, value):
         if prop is self._show_toolbar:
@@ -258,7 +248,7 @@ class AppletFrame(QtGui.QWidget):
         except AttributeError:
             pass
         else:
-            fill_panedmenu(self._menu, actions)
+            self._menu.set_actions('n', actions)
 
     def clear_toolbar(self):
         if self._show_toolbar.value:
@@ -279,10 +269,6 @@ class AppletTabWidget(QtGui.QTabWidget):
     def __init__(self):
         QtGui.QTabWidget.__init__(self)
 
-        # Display options
-        self.setContentsMargins(0, 0, 0, 0)
-        self.setDocumentMode(True)
-
         # Tab management
         self.setMovable(True)
         self.tabCloseRequested.connect(self.remove_tab)
@@ -298,6 +284,11 @@ class AppletTabWidget(QtGui.QTabWidget):
 
         # Set in edit mode by default
         self.set_edit_mode()
+        self.fine_tune()
+
+    def fine_tune(self):
+        # Display options
+        self.setDocumentMode(True)
 
     def tabInserted(self, index):
         self.tabBar().setVisible(self.count() > 1)
@@ -412,7 +403,7 @@ class AppletTabWidget(QtGui.QTabWidget):
         name = self._name[idx]
         _plugin_class = plugin_class('oalab.applet', name)
         applet = self._applets[idx][name]
-        #self.setTabText(idx, _plugin_class.alias)
+        # self.setTabText(idx, _plugin_class.alias)
         if self.tabPosition() == QtGui.QTabWidget.East:
             rotation = -90
         elif self.tabPosition() == QtGui.QTabWidget.West:
@@ -500,6 +491,10 @@ class AppletContainer(QtGui.QWidget):
         self._fill_menus()
 
         self.set_edit_mode()
+        self.fine_tune()
+
+    def fine_tune(self):
+        self.setContentsMargins(0, 5, 0, 0)
 
     def _create_actions(self):
         self.action_title = QtGui.QAction("Set Title", self)
@@ -602,6 +597,7 @@ class AppletContainer(QtGui.QWidget):
     def _on_tab_changed(self, idx):
         applet_name = self._tabwidget.currentAppletName()
         if applet_name:
+            applet = self._tabwidget.currentApplet()
             self._applet_selector.setCurrentApplet(applet_name)
 
     def _on_applet_changed(self, old, new):
@@ -936,7 +932,7 @@ class OALabMainWin(QtGui.QMainWindow):
             if hasattr(instance, 'initialize'):
                 instance.initialize()
 
-    def _actions(self, obj):
+    def _widget_actions(self, obj):
         actions = None
         if hasattr(obj, 'toolbar_actions'):
             if isinstance(obj.toolbar_actions, list):
@@ -949,11 +945,12 @@ class OALabMainWin(QtGui.QMainWindow):
         else:
             return actions
 
-    def _on_focus_changed(self, old, new):
-        if new is None:
-            self.clear_toolbar()
-            return
+    def _widget_name(self, obj):
+        if hasattr(obj, 'name'):
+            return obj.name
 
+    def _on_focus_changed(self, old, new):
+        self.clear_toolbar()
         if old is new:
             return
 
@@ -963,7 +960,8 @@ class OALabMainWin(QtGui.QMainWindow):
         # Widget with focus is QTextEdit but widget that define actions is MyEditor
         # Search stops if widget has no more parents or if widget is AppletContainer
         parent = new
-        actions = self._actions(parent)
+        actions = self._widget_actions(parent)
+        name = self._widget_name(parent)
         while parent is not None:
             try:
                 parent = parent.parent()
@@ -972,20 +970,20 @@ class OALabMainWin(QtGui.QMainWindow):
             else:
                 if isinstance(parent, AppletContainer):
                     break
-                actions += self._actions(parent)
+                name = name or self._widget_name(parent)
+                actions += self._widget_actions(parent)
 
         if actions:
-            self.fill_toolbar(actions)
-        else:
-            self.clear_toolbar()
-        # toolbar creation/destruction set focus to toolbar so we reset it to widget
-        new.setFocus(QtCore.Qt.OtherFocusReason)
+            self.fill_toolbar(name, actions)
 
-    def fill_toolbar(self, actions):
+        # toolbar creation/destruction set focus to toolbar so we reset it to widget
+        if isinstance(new, QtGui.QWidget):
+            new.setFocus(QtCore.Qt.OtherFocusReason)
+
+    def fill_toolbar(self, name, actions):
         menus = plugin_instances('oalab.applet', 'ContextualMenu')
         for menu in menus:
-            menu.clear()
-            fill_panedmenu(menu, actions)
+            menu.set_actions(name, actions)
 
     def clear_toolbar(self):
         menus = plugin_instances('oalab.applet', 'ContextualMenu')

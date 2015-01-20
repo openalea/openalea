@@ -2,11 +2,12 @@
 __all__ = ["PreferenceWidget"]
 
 import ast
-from openalea.vpltk.qt import QtGui, QtCore
+from openalea.vpltk.qt import QtGui
 from openalea.core import settings
 from openalea.oalab.service.qt_control import qt_editor
 from openalea.core.service.interface import guess_interface, new_interface
 from openalea.core.control import Control
+
 
 def Widget(option_name, value):
     """
@@ -20,13 +21,13 @@ def Widget(option_name, value):
         eval_value = ast.literal_eval(value)
     except (ValueError, SyntaxError):
         eval_value = value
-    
+
     inames = guess_interface(eval_value)
     if len(inames):
         iname = inames[0]
     else:
         iname = 'IStr'
-        
+
     # Dirty hack to handle int constraints on font size.
     if 'font' in option_name and iname == 'IInt':
         iname = new_interface(iname, min=5, max=200)
@@ -35,7 +36,7 @@ def Widget(option_name, value):
     editor = qt_editor(control)
     return control, editor
 
-        
+
 class PreferenceWidget(QtGui.QWidget):
     hidden_sections = ["AutoAddedConfItems", "MainWindow", "TreeView"]
 
@@ -47,27 +48,27 @@ class PreferenceWidget(QtGui.QWidget):
         super(PreferenceWidget, self).__init__(parent)
         self.setWindowTitle("OpenAleaLab Preferences")
         self.resize(600, 300)
-        
+
         mainlayout = QtGui.QVBoxLayout(self)
-        
+
         self.tabwidget = QtGui.QTabWidget(self)
         mainlayout.addWidget(self.tabwidget)
         config = settings.Settings()
-        
+
         self._config = None
         self._option_values = {}
         self._set_config(config)
 
     def _set_config(self, config):
-        #TODO
+        # TODO
         # Manage memory (are children widgets destroyed when tabwidget.clear ?)
-        # Once it is sure all widget are totally cleaned and destroyed, 
+        # Once it is sure all widget are totally cleaned and destroyed,
         # we can move it to public method to allow to change config dynamically
         self._config = config
-        sections = config.sections()    
+        sections = config.sections()
 
         self.tabwidget.clear()
-        
+
         for section in sections:
             if section not in self.hidden_sections:
                 self._option_values[section] = []
@@ -81,7 +82,7 @@ class PreferenceWidget(QtGui.QWidget):
                     self._option_values[section].append(control)
                     layout.addRow(option_name, widget)
                 # layout.addStretch()
-               
+
     def update_config(self, config=None, save=False):
         if not config:
             config = self._config
@@ -91,8 +92,8 @@ class PreferenceWidget(QtGui.QWidget):
                     config.set(section, option.name, str(option.value))
             if save:
                 config.write()
-        
-        
+
+
 def main():
     import sys
     app = QtGui.QApplication(sys.argv)
@@ -105,6 +106,6 @@ def main():
 
     win.raise_()
     app.exec_()
-    
+
 if(__name__ == "__main__"):
     main()

@@ -124,7 +124,7 @@ setup(
         ],
 
         'oalab.dataclass': [
-            'LPyData = openalea.plantlab.lpy:LPyFile',
+            'LPyData = openalea.plantlab.lpy_data:LPyFile',
         ],
 
         'oalab.paradigm_applet': [
