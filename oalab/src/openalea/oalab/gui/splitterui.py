@@ -1103,9 +1103,9 @@ class SplittableUI(QtGui.QWidget):
             adj = painter.pen().width()
             rect = self.contentsRect().adjusted(adj, adj, -adj, -adj)
             if self._bottom:
-                painter.drawConvexPolygon(rect.bottomRight(), rect.bottomLeft(), rect.topLeft())
+                painter.drawConvexPolygon([rect.bottomRight(), rect.bottomLeft(), rect.topLeft()])
             else:
-                painter.drawConvexPolygon(rect.topRight(), rect.bottomRight(), rect.topLeft())
+                painter.drawConvexPolygon([rect.topRight(), rect.bottomRight(), rect.topLeft()])
 
     class SplitterHandle(QtGui.QWidget, DraggableWidget):
 
@@ -1188,7 +1188,7 @@ class SplittableUI(QtGui.QWidget):
             # http://doc.qt.nokia.com/latest/stylesheet-reference.html --
             QStyle = QtGui.QStyle
             opt = QtGui.QStyleOption()
-            opt.init(self)
+            opt.initFrom(self)
             painter = QtGui.QPainter(self)
             self.style().drawPrimitive(QStyle.PE_Widget, opt, painter, self)
 

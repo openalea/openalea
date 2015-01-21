@@ -296,8 +296,9 @@ class AppletTabWidget(QtGui.QTabWidget):
     def tabRemoved(self, index):
         self.tabBar().setVisible(self.count() > 1)
 
-    def setTabPosition(self, *args, **kwargs):
-        rvalue = QtGui.QTabWidget.setTabPosition(self, *args, **kwargs)
+    def setTabPosition(self, position):
+        #TODO: int position is not compatible with PySide, fix it.
+        rvalue = QtGui.QTabWidget.setTabPosition(self, position)
         for idx in range(self.count()):
             self._redraw_tab(idx)
         return rvalue
