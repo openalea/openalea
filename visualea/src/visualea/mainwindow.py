@@ -22,7 +22,13 @@ __revision__ = " $Id$ "
 from openalea.vpltk.qt import qt
 
 import ui_mainwindow
-from openalea.vpltk.shell.shell import get_shell_class, get_interpreter_class
+try:
+    from openalea.oalab.shell import get_shell_class
+    from openalea.core.interpreter import get_interpreter_class
+except ImportError:
+    from openalea.vpltk.shell.shell import get_shell_class, get_interpreter_class
+
+
 
 from openalea.core.algo.dataflow_evaluation import AbstractEvaluation
 from openalea.core import cli, logger

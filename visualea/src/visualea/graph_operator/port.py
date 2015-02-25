@@ -103,7 +103,6 @@ class PortOperators(Base):
                 # this is only to make obvious the availability of the instance in the
                 try: interpreter.runsource(result, hidden=False, interactive=True)
                 except:
-                    interpreter.runsource("print '%s'\n" % result)
                     interpreter.runsource("%s\n" % result)
 
             #setFocus()
