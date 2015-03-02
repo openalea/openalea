@@ -1,0 +1,12 @@
+Source: openalea-deploygui
+Maintainer: Christophe Pradal, Samuel Dufour-Kowalski <christophe.pradal@cirad.fr>
+Section: python
+Priority: optional
+Build-Depends: python-all (>= 2.6.6-3~), python-setuptools, debhelper (>= 7), python-openalea.deploy
+
+Package: python-openalea.deploygui
+Architecture: all
+Depends: ${misc:Depends}, ${python:Depends}, python-openalea.deploy, python-qt4
+Provides: ${python:Provides}
+Description: OpenAlea graphical installer
+
