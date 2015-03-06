@@ -21,7 +21,7 @@ from openalea.vpltk.qt import QtCore, QtGui
 from openalea.core.service.plugin import debug_plugin, plugins
 
 from openalea.core import logger
-from openalea.oalab.gui.pages import WelcomePage2 as WelcomePage
+from openalea.oalab.gui.pages import WelcomePage
 from openalea.core import settings
 from openalea.core.path import path
 from openalea.oalab.gui import resources_rc # do not remove this import else icon are not drawn

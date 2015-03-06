@@ -19,17 +19,17 @@
 ###############################################################################
 
 from openalea.vpltk.qt import QtGui, QtCore
-from openalea.oalab.gui.pages import WelcomePage2
+from openalea.oalab.gui.pages import WelcomePage
 from openalea.core.service.plugin import plugins
 from openalea.core.service.introspection import alias
 from openalea.oalab.gui.utils import obj_icon, ModalDialog
 
 
-class PluginSelector(WelcomePage2):
+class PluginSelector(WelcomePage):
     pluginSelected = QtCore.Signal(object)
 
     def __init__(self, category, parent=None):
-        WelcomePage2.__init__(self, parent=parent)
+        WelcomePage.__init__(self, parent=parent)
 
         self._actions = {}
         self._sorted_actions = []
@@ -47,7 +47,7 @@ class PluginSelector(WelcomePage2):
         self.pluginSelected.emit(plugin_class)
 
     def resize(self, *args, **kwargs):
-        WelcomePage2.resize(self, *args, **kwargs)
+        WelcomePage.resize(self, *args, **kwargs)
         self.set_actions(self._sorted_actions)
 
 
