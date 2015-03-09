@@ -6,6 +6,8 @@ from openalea.vpltk.qt import QtGui
 from openalea.oalab.gui.utils import ModalDialog
 from openalea.oalab.session.session import Session
 
+import weakref
+
 """
 **preferred**: specify explicitly the name of the Qt control widget you want to use
 
@@ -106,10 +108,12 @@ def qt_editor(control, shape=None, preferred=None, **kwds):
 def qt_container(container, **kwargs):
     widget = QtGui.QWidget()
     layout = QtGui.QFormLayout(widget)
+    widget.editor = {}
     for control in container.controls():
         editor = qt_editor(control, 'hline')
         if editor:
-            layout.addRow(control.name, editor)
+            widget.editor[control] = weakref.ref(editor)
+            layout.addRow(control.alias, editor)
     return widget
 
 

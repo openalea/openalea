@@ -20,17 +20,22 @@
 from openalea.vpltk.qt import QtCore
 from openalea.core.observer import AbstractListener
 
+
 class AbstractControlWidget(AbstractListener):
+
     """
     Use this class to create a new user control.
     For Qt control, you may prefer AbstractQtControlWidget or OpenAleaControlWidget
     """
+
     def __init__(self):
         AbstractListener.__init__(self)
         self._control_in = None
         self._control_out = None
 
     def set(self, control, autoread=True, autoapply=True):
+        # TODO: order is important due to auto synchronization! Fix it
+        self._control_out = control
         self.autoread(control, autoread)
         self.autoapply(control, autoapply)
 
@@ -73,8 +78,8 @@ class AbstractControlWidget(AbstractListener):
         raise NotImplementedError
 
 
-
 class AbstractQtControlWidget(AbstractControlWidget):
+
     """
     Use this class if you want to create a Qt control widget from
     a classic Qt widget.
@@ -153,10 +158,12 @@ class AbstractQtControlWidget(AbstractControlWidget):
 
 
 class OpenAleaControlWidget(AbstractControlWidget):
+
     """
     Use this class if you want to create a Qt control widget from
     a visualea Node/Interface widget.
     """
+
     def __init__(self):
         self._control_out = None
         self._control_in = None
@@ -168,7 +175,12 @@ class OpenAleaControlWidget(AbstractControlWidget):
         else:
             self._control_out = None
 
-    def reset(self, value=None, *kargs):
+    def read(self, control):
+        self.reset(control.value, interface=control.interface)
+
+    def reset(self, value=None, *kargs, **kwds):
+        if hasattr(self, 'set_interface'):
+            self.set_interface(kwds.get('interface'))
         if value is None:
             if self.__interface__:
                 value = self.__interface__.default()
@@ -207,4 +219,3 @@ class OpenAleaControlWidget(AbstractControlWidget):
         """
         if self._control_out:
             self.apply(self._control_out)
-

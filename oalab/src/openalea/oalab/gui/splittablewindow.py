@@ -746,6 +746,10 @@ class OALabSplittableUi(SplittableUI):
                 container.appletSet.connect(self.appletSet.emit)
                 self._containers[container] = container
 
+    def emit_applet_set(self):
+        for container in self._containers:
+            container.emit_applet_set()
+
     def getPlaceHolder(self):
         container = AppletContainer()
         self._connect_container(container)
@@ -841,6 +845,8 @@ class OALabSplittableUi(SplittableUI):
 
 class OALabMainWin(QtGui.QMainWindow):
     appletSet = QtCore.Signal(object, object)
+    closed = QtCore.Signal(object)
+    aboutToClose = QtCore.Signal(object)
     DEFAULT_MENU_NAMES = ('Project', 'Edit', 'View', 'Help')
 
     DEFAULT_LAYOUT = dict(
@@ -855,6 +861,7 @@ class OALabMainWin(QtGui.QMainWindow):
             }}
     )
     DEFAULT_LAYOUT_PATH = 'layout.oaui'
+    LAB = None
 
     def __init__(self, layout=None, **kwds):
         QtGui.QMainWindow.__init__(self)
@@ -881,6 +888,9 @@ class OALabMainWin(QtGui.QMainWindow):
         self.set_edit_mode(False)
 
         QtGui.QApplication.instance().focusChanged.connect(self._on_focus_changed)
+
+    def emit_applet_set(self):
+        self.splittable.emit_applet_set()
 
     def _create_menus(self):
         self.menu_classic = {}
@@ -918,13 +928,18 @@ class OALabMainWin(QtGui.QMainWindow):
         return layout
 
     def closeEvent(self, event):
+        self.aboutToClose.emit(self)
         with open(self.layout_filepath, 'w') as layout_file:
             json.dump(self.layout(), layout_file, sort_keys=True, indent=2)
+        super(QtGui.QMainWindow, self).closeEvent(event)
+        self.closed.emit(self)
 
     def set_edit_mode(self, mode=True):
         for widget in self.splittable.getAllContents():
             if hasattr(widget, 'set_edit_mode'):
                 widget.set_edit_mode(mode)
+        if mode is True and self.LAB:
+            print self.LAB.connections
         self.splittable.set_edit_mode(mode)
 
     def initialize(self):
@@ -1120,8 +1135,6 @@ class TestMainWin(OALabMainWin):
 
         for f in kwds.pop('tests', []):
             self.interp.user_ns['run_%s' % f.__name__] = f
-
-        self.set_edit_mode()
 
     def debug(self):
         from openalea.oalab.session.session import Session

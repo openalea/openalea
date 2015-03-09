@@ -100,8 +100,8 @@ class Splitter(QtGui.QSplitter):
 
     ORIENTATION = QtCore.Qt.Vertical
 
-    def __init__(self):
-        QtGui.QSplitter.__init__(self)
+    def __init__(self, parent=None):
+        QtGui.QSplitter.__init__(self, parent=parent)
         self._applets = []
 
         self._action_clear = QtGui.QAction('Clear', self)
@@ -133,6 +133,20 @@ class Splitter(QtGui.QSplitter):
             state=pickle.dumps(str(self.saveState())),
             icon=self.icon,
         )
+
+
+def password():
+    _widget = QtGui.QWidget()
+    _layout = QtGui.QVBoxLayout(_widget)
+    _password = QtGui.QLineEdit()
+    _password.setEchoMode(QtGui.QLineEdit.Password)
+
+    _layout.addWidget(QtGui.QLabel("Password ?"))
+    _layout.addWidget(_password)
+
+    dialog = ModalDialog(_widget)
+    if dialog.exec_():
+        return _password.text()
 
 
 def make_error_dialog(e, parent=None, icon=QtGui.QMessageBox.Critical):

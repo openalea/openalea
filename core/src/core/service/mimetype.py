@@ -21,6 +21,8 @@ def decode(mimetype, mimedata):
         from openalea.core.path import path
         pm = ProjectManager()
         return pm.get('data', path(mimedata).name)
+    else:
+        return str(mimedata)
 
 
 def encode(data, mimetype=None):
@@ -34,3 +36,5 @@ def encode(data, mimetype=None):
         return ('openalealab/control', '%s;%s' % (data.identifier, data.name))
     elif mimetype == 'openalealab/data':
         return ('openalealab/data', str(data.path))
+    else:
+        return (mimetype, str(data))

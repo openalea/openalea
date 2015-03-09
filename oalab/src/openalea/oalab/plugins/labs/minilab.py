@@ -1,5 +1,44 @@
 
+def connect(old, new, sender_str, receiver_str, existing_connections):
+    sender_name, signal_name = sender_str.split(':')
+    receiver_name, slot_name = receiver_str.split(':')
+
+    if old == new:
+        return
+    if new not in (sender_name, receiver_name):
+        return
+
+    signals = []
+    slots = []
+
+    from openalea.core.service.plugin import plugin_instance_exists, plugin_instances
+
+    if plugin_instance_exists('oalab.applet', sender_name):
+        for sender in plugin_instances('oalab.applet', sender_name):
+            if hasattr(sender, signal_name):
+                signals.append(getattr(sender, signal_name))
+
+    if plugin_instance_exists('oalab.applet', receiver_name):
+        for receiver in plugin_instances('oalab.applet', receiver_name):
+            if hasattr(receiver, slot_name):
+                slots.append(getattr(receiver, slot_name))
+
+    if signals and slots:
+        for i, signal in enumerate(signals):
+            for j, slot in enumerate(slots):
+                connection = '%s_%d -> %s_%d' % (sender_str, i, receiver_str, j)
+                if connection not in existing_connections:
+                    print connection
+                    signal.connect(slot)
+                    existing_connections.append(connection)
+                else:
+                    pass
+
+
 class MiniLab(object):
+
+    existing_connections = []  # list to store all created connections
+    connections = []
 
     name = 'mini'
     alias = 'IPython'
@@ -7,7 +46,7 @@ class MiniLab(object):
     applets = ['EditorManager']
 
     # NEW LAYOUT API
-    menu_names = ('File', 'Edit', 'Help')
+    menu_names = ('Project', 'Edit', 'Help')
 
     layout = {
         "children": {
@@ -135,3 +174,28 @@ class MiniLab(object):
             mainwin.add_plugin(name=name)
         # Initialize all applets
         mainwin.initialize()
+
+    @classmethod
+    def _connect(cls, old, new, sender, receiver):
+        connect(old, new, sender, receiver, cls.existing_connections)
+
+    @classmethod
+    def connect_applet(cls, old, new):
+        for connection in cls.connections:
+            cls._connect(old, new, *connection)
+
+    @classmethod
+    def start(cls, *args, **kwds):
+        pass
+
+    @classmethod
+    def initialize(cls, *args, **kwds):
+        pass
+
+    @classmethod
+    def finalize(cls, *args, **kwds):
+        pass
+
+    @classmethod
+    def stop(cls, *args, **kwds):
+        pass

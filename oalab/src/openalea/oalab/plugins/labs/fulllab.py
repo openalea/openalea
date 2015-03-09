@@ -16,3 +16,20 @@ class FullLab(MiniLab):
             mainwin.add_plugin(name=plugin_class.name)
         # Initialize all applets
         mainwin.initialize()
+
+    @classmethod
+    def start(cls, *args, **kwds):
+        pass
+
+    @classmethod
+    def initialize(cls, *args, **kwds):
+        from openalea.core.project.manager import ProjectManager
+        pm = ProjectManager()
+
+    @classmethod
+    def finalize(cls, *args, **kwds):
+        pass
+
+    @classmethod
+    def stop(cls, *args, **kwds):
+        pass

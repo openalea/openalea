@@ -51,8 +51,10 @@ class WorldBrowser(GenericWorldBrowser, AbstractListener):
         self._actions = [["Project", "World", actionClearWorld, 0]]
 
     def initialize(self):
-        from openalea.oalab.session.session import Session
-        world = Session().world
+        from openalea.oalab.world.world import World
+        from openalea.core.service.ipython import interpreter
+        world = World()
+        world.update_namespace(interpreter())
         self.set_world(world)
 
     def actions(self):

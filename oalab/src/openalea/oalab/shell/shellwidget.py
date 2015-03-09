@@ -99,23 +99,44 @@ class ShellWidget(RichIPythonWidget, GraphicalStreamRedirection):
             for v in var:
                 self.interpreter.locals += v
 
+    def initialize(self):
+        if not hasattr(self.interpreter, "shell"):
+            self.interpreter.shell = self.interpreter
+        if hasattr(self.interpreter.shell, "events"):
+            self.interpreter.shell.events.register("post_execute", self.add_to_history)
+        else:
+            print("You need ipython >= 2.0 to use history.")
+
+    def add_to_history(self, *args, **kwargs):
+        """
+        Send the last sent of history to the components that display history
+        """
+        from openalea.oalab.service.history import display_history
+        records = self.interpreter.shell.history_manager.get_range()
+
+        input_ = ''
+        # loop all elements in iterator to get last one.
+        # TODO: search method returning directly last input
+        for session, line, input_ in records:
+            pass
+        display_history(input_)
+
 
 def main():
-    from openalea.vpltk.qt import qt as qt_
-    from ipythoninterpreter import Interpreter
+    from openalea.vpltk.qt import QtGui
     import sys
 
-    app = qt_.QtGui.QApplication(sys.argv)
+    app = QtGui.QApplication(sys.argv)
 
-    # Set interpreter
-    interpreter = Interpreter()
+    from openalea.core.service.ipython import interpreter
+    interpreter = interpreter()
 
     interpreter.locals['interp'] = interpreter
     # Set Shell Widget
     shellwdgt = ShellWidget(interpreter)
     interpreter.locals['shell'] = shellwdgt
 
-    mainWindow = qt_.QtGui.QMainWindow()
+    mainWindow = QtGui.QMainWindow()
     mainWindow.setCentralWidget(shellwdgt)
     mainWindow.show()
 

@@ -7,6 +7,11 @@
 
 from openalea.core.plugin import iter_plugins
 from openalea.core.interface import IInterface, TypeInterfaceMap
+try:
+    # Dirty hack to import IImage interface
+    from openalea.image_wralea.image_interface import IImage
+except ImportError:
+    pass
 
 __all__ = [
     'get_interface',
