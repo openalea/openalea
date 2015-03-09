@@ -27,14 +27,10 @@ class PyCodeEditor(PyCodeEditBase):
                  interpreter=sys.executable, args=None,
                  create_default_actions=True, color_scheme='default'):
         super(PyCodeEditor, self).__init__(
-            parent=parent, create_default_actions=create_default_actions,
-            color_scheme=color_scheme)
+            parent=parent, create_default_actions=create_default_actions)
         self.backend.start(server_script, interpreter, args)
         self.setLineWrapMode(self.NoWrap)
         self.setWindowTitle("pyQode for LPy")
-
-        # install those modes first as they are required by other modes/panels
-        self.modes.append(pymodes.DocumentAnalyserMode())
 
         # panels
         self.panels.append(panels.FoldingPanel())
