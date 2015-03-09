@@ -34,7 +34,6 @@ from openalea.oalab.gui.utils import qicon
 from openalea.oalab.project.creator import CreateProjectWidget
 from openalea.oalab.project.pretty_preview import ProjectSelectorScroll
 from openalea.core.service.plugin import plugin_instance_exists, plugin_instance
-from openalea.oalab.session.session import Session
 
 """
 TODO:
@@ -127,7 +126,6 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
     def __init__(self):
         QtGui.QWidget.__init__(self)
         AbstractListener.__init__(self)
-        self.session = Session()
 
         layout = QtGui.QVBoxLayout(self)
         self.view = ProjectManagerView()
@@ -230,11 +228,8 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         if signal == 'project_changed':
             project = self.pm.cproject
             self.view.set_project(project=project)
-            self.session.world.clear()
         elif signal == 'project_updated':
             self.view.refresh()
-
-        self.session.update_namespace()
 
     def set_project(self, project):
         self.view.set_project(project)

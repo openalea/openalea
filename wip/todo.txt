@@ -87,3 +87,54 @@ Traceback (most recent call last):
 TypeError: step() got an unexpected keyword argument 'nstep'
 
 
+
+TO SORT ...
+
+
+**** Appears if save all (Project/save) and Welcomepage open
+
+Traceback (most recent call last):
+  File "/usr/lib/python2.7/dist-packages/IPython/core/interactiveshell.py", line 2883, in run_code
+    exec(code_obj, self.user_global_ns, self.user_ns)
+  File "<string>", line 6, in <module>
+NameError: name 'i' is not defined
+Traceback (most recent call last):
+  File "/home/gbaty/prog/openalea/openalea-git/oalab/src/openalea/oalab/project/projectwidget.py", line 543, in save
+    self.paradigm_container.save_all()
+  File "/home/gbaty/prog/openalea/openalea-git/oalab/src/openalea/oalab/gui/container.py", line 418, in save_all
+    self.save()
+  File "/home/gbaty/prog/openalea/openalea-git/oalab/src/openalea/oalab/gui/container.py", line 257, in save
+    obj = self._open_tabs[tab]
+KeyError: <openalea.oalab.gui.pages.WelcomePage2 object at 0x7f88918c62b0>
+
+
+
+**** Controls non passés à LPY
+Traceback (most recent call last):
+  File "/home/gbaty/prog/openalea/openalea-git/oalab/src/openalea/oalab/gui/container.py", line 425, in run
+    self.currentWidget().applet.run()
+  File "/home/gbaty/prog/openalea/openalea-git/oalab/src/openalea/oalab/gui/paradigm/lpy.py", line 177, in run
+    ret = self.model(*args, **kwargs)
+  File "/home/gbaty/prog/openalea/openalea-git/vpltk/src/openalea/vpltk/datamodel/model.py", line 87, in __call__
+    return self.run(*args, **kwargs)
+  File "/home/gbaty/prog/openalea/openalea-git/oalab/src/openalea/oalab/model/lpy.py", line 145, in run
+    self.lsystem.setCode(str(self.code), self.context)
+  File "<string>", line 5, in <module>
+NameError: name 'curve' is not defined
+
+
+**** Drag and drop control in shell fails
+
+Traceback (most recent call last):
+  File "/home/gbaty/prog/openalea/openalea-git/oalab/src/openalea/oalab/editor/text_editor.py", line 317, in insertFromMimeData
+    varname = '_'.join(data.name.split())
+AttributeError: 'NoneType' object has no attribute 'name'
+
+
+**** get_control not defined
+
+
+**** Controls not clear when project closed
+
+
+

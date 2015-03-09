@@ -24,11 +24,42 @@ from openalea.core.singleton import Singleton
 from .control import Control
 
 
+class Follower(AbstractListener):
+
+    def __init__(self, name, func):
+        AbstractListener.__init__(self)
+        self._old_value = None
+        self.name = name
+        self.callback = func
+        self._listen = True
+
+    def ignore_events(self):
+        self._listen = False
+
+    def follow_events(self):
+        self._listen = True
+
+    @lock_notify
+    def notify(self, sender, event):
+        if self._listen is False:
+            return
+
+        if event:
+            signal, data = event
+            if signal == 'control_value_changed':
+                control, value = data
+                if control.name == self.name and value != self._old_value:
+                    old_value = self._old_value
+                    self._old_value = value
+                    self.callback(old_value, value)
+
+
 class ControlContainer(Observed, AbstractListener):
 
     def __init__(self):
         Observed.__init__(self)
         AbstractListener.__init__(self)
+        self.follower = {}
         self._controls = []
 
     def control(self, name=None, uid=None):
@@ -73,6 +104,7 @@ class ControlContainer(Observed, AbstractListener):
         """
         control = Control(name, **kwds)
         self.add_control(control)
+        return control
 
     def update(self, dic):
         """
@@ -173,31 +205,13 @@ class ControlContainer(Observed, AbstractListener):
                 return True
         return False
 
+    def disable_followers(self):
+        for follower in self.follower.values():
+            follower.ignore_events()
 
-class Follower(AbstractListener):
-
-    def __init__(self, name, func):
-        AbstractListener.__init__(self)
-        self._old_value = None
-        self.name = name
-        self.callback = func
-
-    @lock_notify
-    def notify(self, sender, event):
-        if event:
-            signal, data = event
-            if signal == 'control_value_changed':
-                control, value = data
-                if control.name == self.name and value != self._old_value:
-                    old_value = self._old_value
-                    self._old_value = value
-                    self.callback(old_value, value)
-
-
-class ControlManager(ControlContainer):
-    __metaclass__ = Singleton
-
-    follower = {}
+    def enable_followers(self):
+        for follower in self.follower.values():
+            follower.follow_events()
 
     def register_follower(self, name, func):
         if name in self.follower:
@@ -211,6 +225,10 @@ class ControlManager(ControlContainer):
         if name in self.follower:
             self.unregister_listener(self.follower[name])
             del self.follower[name]
+
+
+class ControlManager(ControlContainer):
+    __metaclass__ = Singleton
 
 
 def control_dict():

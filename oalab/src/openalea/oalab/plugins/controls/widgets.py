@@ -7,6 +7,7 @@ from openalea.oalab.gui.control.widget import AbstractQtControlWidget
 For documentation, see :class:`~openalea.oalab.plugins.control`
 """
 
+
 class BoolCheckBox(QtGui.QCheckBox, AbstractQtControlWidget):
 
     def __init__(self):
@@ -25,11 +26,13 @@ class BoolCheckBox(QtGui.QCheckBox, AbstractQtControlWidget):
     def value(self, interface=None):
         return self.isChecked()
 
+
 class StrLineEdit(QtGui.QLineEdit, AbstractQtControlWidget):
 
     def __init__(self):
         QtGui.QLineEdit.__init__(self)
         AbstractQtControlWidget.__init__(self)
+        self.setMinimumHeight(20)
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.setAutoFillBackground(True)
         self.value_changed_signal = self.editingFinished
@@ -43,7 +46,9 @@ class StrLineEdit(QtGui.QLineEdit, AbstractQtControlWidget):
     def value(self, interface=None):
         return self.text()
 
+
 class AbstractIntWidget(AbstractQtControlWidget):
+
     def __init__(self):
         AbstractQtControlWidget.__init__(self)
 
@@ -66,6 +71,7 @@ class AbstractIntWidget(AbstractQtControlWidget):
 
 
 class IntSpinBox(QtGui.QSpinBox, AbstractIntWidget):
+
     def __init__(self):
         QtGui.QSpinBox.__init__(self)
         AbstractIntWidget.__init__(self)
@@ -73,6 +79,7 @@ class IntSpinBox(QtGui.QSpinBox, AbstractIntWidget):
 
 
 class IntSimpleSlider(QtGui.QSlider, AbstractIntWidget):
+
     def __init__(self):
         QtGui.QSlider.__init__(self)
         AbstractIntWidget.__init__(self)
@@ -93,13 +100,11 @@ class IntSlider(QtGui.QWidget, AbstractIntWidget):
 
         AbstractIntWidget.__init__(self)
 
-
         # To be compatible with tree or table views, slider must keep focus
         self.slider.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.setMinimumHeight(20)
         self.spinbox.setMinimumHeight(18)
         self.slider.setMinimumHeight(18)
-
 
         self.slider.valueChanged.connect(self.spinbox.setValue)
         self.spinbox.valueChanged.connect(self.slider.setValue)
@@ -137,9 +142,9 @@ class IntSlider(QtGui.QWidget, AbstractIntWidget):
 
 
 class IntDial(QtGui.QDial, AbstractIntWidget):
+
     def __init__(self):
         QtGui.QDial.__init__(self)
         self.setNotchesVisible(True)
         AbstractIntWidget.__init__(self)
         self.value_changed_signal = self.valueChanged
-

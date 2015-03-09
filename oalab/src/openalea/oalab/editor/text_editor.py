@@ -281,7 +281,7 @@ class TextEditor(QtGui.QTextEdit):
     def get_selected_text(self):
         cursor = self.textCursor()
         txt = cursor.selectedText()
-        return unicode(txt).replace(u'\u2029', u'\n') # replace paragraph separators by new lines
+        return unicode(txt).replace(u'\u2029', u'\n')  # replace paragraph separators by new lines
 
     def get_text(self, start='sof', end='eof'):
         """
@@ -294,7 +294,7 @@ class TextEditor(QtGui.QTextEdit):
         txt = self.toPlainText()
         if txt is None:
             txt = ""
-        return unicode(txt).replace(u'\u2029', u'\n') # replace paragraph separators by new lines
+        return unicode(txt).replace(u'\u2029', u'\n')  # replace paragraph separators by new lines
 
     def replace_tab(self):
         """
@@ -306,23 +306,36 @@ class TextEditor(QtGui.QTextEdit):
         txt = fix_indentation(txt, len(self.indentation))
         self.set_text(txt)
 
+    # TODO: use drag and drop handler instead of copying in each editor!
     def canInsertFromMimeData(self, source):
         if source.hasFormat('openalealab/control'):
             return True
         elif source.hasFormat('openalealab/data'):
             return True
+        elif source.hasFormat('openalealab/omero'):
+            return True
         else:
             return QtGui.QTextEdit.canInsertFromMimeData(self, source)
 
     def insertFromMimeData(self, source):
+        from openalea.core.service.mimetype import decode
         if source.hasFormat('openalealab/control'):
             # TODO: move outside TextEditor
-            from openalea.core.service.mimetype import decode
             data = decode('openalealab/control', source.data('openalealab/control'))
             if data is None:
                 return
             varname = '_'.join(data.name.split())
             pycode = '%s = get_control(%r) #%s' % (varname, data.name, data.interface)
+            cursor = self.textCursor()
+            cursor.insertText(pycode)
+        elif source.hasFormat('openalealab/omero'):
+            data = decode('openalealab/omero', source.data('openalealab/omero'))
+            if data is None:
+                return
+            name = data.split('=')[0]
+            uri = '='.join(data.split('=')[1:])
+            pycode = 'from openalea.core.service import db'
+            pycode += '\n%s = db.get(%r)' % (name.strip().replace('.', '_'), uri.strip())
             cursor = self.textCursor()
             cursor.insertText(pycode)
         else:
@@ -364,7 +377,7 @@ class TextEditor(QtGui.QTextEdit):
             # ctrl or shift key on it's own
             return
 
-        eow = "~!@#$%^&*()_+{}|:\"<>?,./;'[]\\-=" # end of word
+        eow = "~!@#$%^&*()_+{}|:\"<>?,./;'[]\\-="  # end of word
 
         hasModifier = ((event.modifiers() != QtCore.Qt.NoModifier) and
                        not ctrlOrShift)
@@ -396,7 +409,7 @@ class TextEditor(QtGui.QTextEdit):
             cr = self.cursorRect()
             cr.setWidth(self.completer.popup().sizeHintForColumn(0)
                         + self.completer.popup().verticalScrollBar().sizeHint().width())
-            self.completer.complete(cr) # popup it up!
+            self.completer.complete(cr)  # popup it up!
 
     ####################################################################
     # Auto Indent (cf lpycodeeditor)

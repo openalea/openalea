@@ -17,7 +17,7 @@ class HistoryWidget(PluginApplet):
         if applet is None or mainwindow is None:
             return
 
-        from openalea.oalab.service.history import register_history_diplayer
-        register_history_diplayer(applet)
+        from openalea.oalab.service.history import register_history_displayer
+        register_history_displayer(applet)
         self._fill_menu(mainwindow, applet)
         mainwindow.add_applet(applet, self.alias, area='shell')

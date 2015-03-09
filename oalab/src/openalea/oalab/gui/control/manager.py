@@ -29,11 +29,14 @@ from openalea.oalab.service.qt_control import qt_editor
 
 class ControlManagerWidget(Splitter, AbstractListener):
 
-    def __init__(self):
+    def __init__(self, manager=None, parent=None):
         AbstractListener.__init__(self)
-        Splitter.__init__(self)
+        Splitter.__init__(self, parent=parent)
 
-        self._manager = ControlManager()
+        if manager is None:
+            self._manager = ControlManager()
+        else:
+            self._manager = manager
 
         self.model = ControlModel(self._manager)
 

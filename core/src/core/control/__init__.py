@@ -18,4 +18,4 @@
 ###############################################################################
 __revision__ = ""
 
-from .control import Control
+from openalea.core.control.control import Control

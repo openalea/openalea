@@ -34,8 +34,6 @@ from openalea.core.model import Model
 from openalea.oalab.service.applet import get_applet
 from openalea.core.service.data import DataFactory, DataClass, DataType, MimeType
 
-from openalea.oalab.session.session import Session
-
 
 class ParadigmContainer(QtGui.QTabWidget):
 
@@ -47,7 +45,6 @@ class ParadigmContainer(QtGui.QTabWidget):
 
     def __init__(self, parent=None):
         super(ParadigmContainer, self).__init__(parent=parent)
-        self.session = Session()
 
         self.setTabsClosable(True)
 

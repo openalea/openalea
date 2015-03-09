@@ -64,7 +64,7 @@ class Control(Observed):
         if value is None:
             self._value = interface_default_value(self._interface)
 
-        self._alias = kwds.get('alias', name.capitalize())
+        self._alias = kwds.get('alias', None)
         self._default_value = kwds.get('default', self._value)
 
     def __eq__(self, other):
@@ -114,7 +114,10 @@ class Control(Observed):
 
     @property
     def alias(self):
-        return self._alias
+        if self._alias is None:
+            return self._name
+        else:
+            return self._alias
 
     @property
     def default(self):

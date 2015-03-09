@@ -62,8 +62,7 @@ class IFloatWidget(IInterfaceWidget, qt.QtGui.QWidget):
         hboxlayout.addWidget(self.label)
 
         self.spin = qt.QtGui.QDoubleSpinBox(self)
-        self.spin.setRange(interface.min, interface.max)
-        self.spin.setSingleStep(interface.step)
+        self.set_interface(interface)
 
         hboxlayout.addWidget(self.spin)
 
@@ -88,6 +87,10 @@ class IFloatWidget(IInterfaceWidget, qt.QtGui.QWidget):
             #    self.node.get_input(self.param_str)
 
         self.set_widget_value(v)
+
+    def set_interface(self, interface):
+        self.spin.setRange(interface.min, interface.max)
+        self.spin.setSingleStep(interface.step)
 
     def set_widget_value(self, newval):
         self.spin.setValue(newval)
@@ -851,10 +854,7 @@ class IEnumStrWidget(IInterfaceWidget, qt.QtGui.QWidget):
         self.subwidget = qt.QtGui.QComboBox(self)
 
         # map between string and combobox index
-        self.map_index = {}
-        for s in interface.enum:
-            self.subwidget.addItem(s)
-            self.map_index[s] = self.subwidget.count() - 1
+        self.set_interface(interface)
 
         self.hboxlayout.addWidget(self.subwidget)
         self.notify(None, None)
@@ -865,7 +865,6 @@ class IEnumStrWidget(IInterfaceWidget, qt.QtGui.QWidget):
 
     @lock_notify
     def valueChanged(self, newval):
-        print 'newval ', newval
         self.set_value(str(newval))
 
     def notify(self, sender, event):
@@ -878,6 +877,22 @@ class IEnumStrWidget(IInterfaceWidget, qt.QtGui.QWidget):
             index = -1
 
         self.subwidget.setCurrentIndex(index)
+
+    def set_interface(self, interface):
+        self.map_index = {}
+        self.subwidget.clear()
+        for s in interface.enum:
+            self.subwidget.addItem(s)
+            self.map_index[s] = self.subwidget.count() - 1
+
+    def set_widget_value(self, newval):
+        if newval in self.map_index:
+            self.subwidget.setCurrentIndex(self.map_index[newval])
+        else:
+            self.subwidget.setCurrentIndex(0)
+
+    def get_widget_value(self):
+        return self.subwidget.currentText()
 
 
 class IRGBColorWidget(IInterfaceWidget, qt.QtGui.QWidget):

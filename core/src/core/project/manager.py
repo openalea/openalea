@@ -17,6 +17,7 @@
 ###############################################################################
 
 import os
+import sys
 
 from openalea.core.path import path as Path
 from openalea.core import settings
@@ -26,6 +27,7 @@ from openalea.core.observer import Observed, AbstractListener
 from ConfigParser import NoSectionError, NoOptionError
 from openalea.core.plugin import iter_plugins
 from openalea.core.control.manager import ControlManager
+from openalea.core.service.ipython import interpreter
 
 
 class ProjectManager(Observed, AbstractListener):
@@ -47,6 +49,7 @@ class ProjectManager(Observed, AbstractListener):
 
         self._cproject = None
         self._cwd = Path('.').abspath()
+        self.old_syspath = sys.path
 
         self.cm = ControlManager()
 
@@ -54,9 +57,10 @@ class ProjectManager(Observed, AbstractListener):
         self.repositories = self.search_path()
         self.previous_project = "temp"
 
-        self.shell = None
+        self.shell = interpreter()
         # TODO Search in preference file if user has path to append in self.repositories
-        self._cproject = self.default()
+        self.cproject = self.default()
+
 
     @staticmethod
     def search_path():
@@ -329,14 +333,34 @@ You can rename/move this project thanks to the button "Save As" in menu.
             if not project.started:
                 project.start(shell=self.shell)
             project.register_listener(self)
+
+        self.update_namespace(self.shell)
         self.notify_listeners(('project_changed', self))
+
+    def update_namespace(self, interpreter):
+        """
+        Definition: Update namespace
+        """
+        if self._cproject:
+            if self._cproject.path.exists():
+                os.chdir(self._cproject.path)
+                sys.path.insert(0, str(self._cproject.path / 'lib'))
+            else:
+                os.chdir(self.tmpdir)
+                sys.path.insert(0, str(self.tmpdir / 'lib'))
+            interpreter.user_ns.update(self._cproject.ns)
+            interpreter.user_ns['project'] = self._cproject
+            interpreter.user_ns['data'] = self._cproject.path / 'data'
+        else:
+            # close
+            sys.path = self.old_syspath
 
 
 def main():
+    import sys
     from openalea.vpltk.qt import QtGui
     from openalea.core.service.ipython import interpreter
     from openalea.oalab.shell import ShellWidget
-    import sys
 
     # Create Window with IPython shell
     app = QtGui.QApplication(sys.argv)

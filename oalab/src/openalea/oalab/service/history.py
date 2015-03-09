@@ -4,7 +4,7 @@
 Service to display history.
 """
 
-__all__ = ['display_history', 'register_history_diplayer']
+__all__ = ['display_history', 'register_history_displayer']
 
 __registry = []
 
@@ -23,7 +23,7 @@ class IHistoryDisplayer(object):
         """
 
 
-def register_history_diplayer(history_displayer):
+def register_history_displayer(history_displayer):
     """
     An history_displayer is an object with a method "clear" and a method append (see IHistoryDisplayer interface) that display the history
     """

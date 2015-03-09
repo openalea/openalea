@@ -1103,9 +1103,9 @@ class SplittableUI(QtGui.QWidget):
             adj = painter.pen().width()
             rect = self.contentsRect().adjusted(adj, adj, -adj, -adj)
             if self._bottom:
-                painter.drawConvexPolygon([rect.bottomRight(), rect.bottomLeft(), rect.topLeft()])
+                painter.drawConvexPolygon(QtGui.QPolygon([rect.bottomRight(), rect.bottomLeft(), rect.topLeft()]))
             else:
-                painter.drawConvexPolygon([rect.topRight(), rect.bottomRight(), rect.topLeft()])
+                painter.drawConvexPolygon(QtGui.QPolygon([rect.topRight(), rect.bottomRight(), rect.topLeft()]))
 
     class SplitterHandle(QtGui.QWidget, DraggableWidget):
 

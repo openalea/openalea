@@ -60,11 +60,18 @@ class HistoryWidget(QtGui.QTextBrowser):
         if previous_txt:
             # Check if previous line is not the same as the new one
             if previous_txt.splitlines()[-1] != txt:
-                txt = previous_txt + """
-""" + txt
+                txt = previous_txt + "\n" + txt
             else:
                 txt = previous_txt
         self.setText(txt)
+
+    def initialize(self):
+        from openalea.oalab.service.history import register_history_displayer
+        register_history_displayer(self)
+
+    def finalize(self):
+        # TODO: unregister history
+        pass
 
 
 def main():
