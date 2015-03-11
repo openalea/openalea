@@ -1,18 +1,15 @@
 
-from openalea.oalab.service import interface as s_interface
-from openalea.vpltk.plugin import iter_plugins
-from openalea.oalab.control.control import Control
+from openalea.core.service.interface import interface_class, interface_name
+from openalea.core.plugin import iter_plugins
+from openalea.core.control.control import Control
 
-from openalea.oalab.session.session import Session
-
-
-from openalea.vpltk.qt import QtCore
 from openalea.core.observer import AbstractListener
-from openalea.oalab.service.interface import get_class
 
 from openalea.oalab.gui.control.widget import AbstractControlWidget
 
+
 class NotebookControlWidget(AbstractControlWidget):
+
     def __init__(self, notebookclass=None, **kwargs):
         AbstractControlWidget.__init__(self)
         self._w = notebookclass(**kwargs)
@@ -65,34 +62,35 @@ class NotebookControlWidget(AbstractControlWidget):
     def _ipython_display_(self):
         return self._w._ipython_display_()
 
-from IPython.html.widgets import *
+from IPython.html import widgets
 available_widgets = {
-    'IInt':[IntSliderWidget],
-    'IStr':[HTMLWidget],
-    'IBool':[CheckboxWidget],
-    }
+    'IInt': [widgets.IntSliderWidget],
+    'IStr': [widgets.HTMLWidget],
+    'IBool': [widgets.CheckboxWidget],
+}
 
 preferred_widgets = {
-    'IInt':{
-        'slider':IntSliderWidget,
-        'progress':IntProgressWidget
-        },
+    'IInt': {
+        'slider': widgets.IntSliderWidget,
+        'progress': widgets.IntProgressWidget
+    },
 
-    'IStr':{
-        'html':HTMLWidget,
-        'latex':LatexWidget,
-        'text':TextWidget,
-        'text area':TextareaWidget
-             },
+    'IStr': {
+        'html': widgets.HTMLWidget,
+        'latex': widgets.LatexWidget,
+        'text': widgets.TextWidget,
+        'text area': widgets.TextareaWidget
+    },
 
-    'IBool':{
-        'checkbox':CheckboxWidget
-        },
+    'IBool': {
+        'checkbox': widgets.CheckboxWidget
+    },
 
-    }
+}
+
 
 def notebook_editor(control, shape=None, preferred=None, preferences=None):
-    iname = s_interface.get_name(control.interface)
+    iname = interface_name(control.interface)
     notebookclass = None
     if preferred:
         notebookclass = preferred
@@ -106,16 +104,17 @@ def notebook_editor(control, shape=None, preferred=None, preferences=None):
         widget.set(control)
         return widget
 
+
 def select_default_widgets():
     from IPython.display import display
-    box = ContainerWidget(description="Select default widgets")
+    box = widgets.ContainerWidget(description="Select default widgets")
     dic = {}
     children = []
     for iname, widget_dict in preferred_widgets.iteritems():
-        iclass = s_interface.get_class(iname)
+        iclass = interface_class(iname)
 #         for name, notebookclass in widgets.iteritems():
         values = widget_dict
-        widget = SelectWidget(description=iclass.__alias__, values=values)
+        widget = widgets.SelectWidget(description=iclass.__alias__, values=values)
         children.append(widget)
         dic[iname] = widget
     box.children = children
