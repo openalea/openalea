@@ -28,6 +28,7 @@ from ConfigParser import NoSectionError, NoOptionError
 from openalea.core.plugin import iter_plugins
 from openalea.core.control.manager import ControlManager
 from openalea.core.service.ipython import interpreter
+from openalea.core.settings import get_openalea_tmp_dir
 
 
 class ProjectManager(Observed, AbstractListener):
@@ -47,6 +48,7 @@ class ProjectManager(Observed, AbstractListener):
         Observed.__init__(self)
         AbstractListener.__init__(self)
 
+        self.tmpdir = Path(get_openalea_tmp_dir())
         self._cproject = None
         self._cwd = Path('.').abspath()
         self.old_syspath = sys.path
@@ -60,7 +62,6 @@ class ProjectManager(Observed, AbstractListener):
         self.shell = interpreter()
         # TODO Search in preference file if user has path to append in self.repositories
         self.cproject = self.default()
-
 
     @staticmethod
     def search_path():
