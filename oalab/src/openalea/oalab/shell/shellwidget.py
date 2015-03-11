@@ -1,8 +1,9 @@
 from streamredirection import GraphicalStreamRedirection
-from openalea.vpltk.check.ipython import has_new_ipython
-if has_new_ipython():
+
+
+try:
     from IPython.qt.console.rich_ipython_widget import RichIPythonWidget
-else:
+except ImportError:
     from IPython.frontend.qt.console.rich_ipython_widget import RichIPythonWidget
 
 
@@ -39,7 +40,7 @@ class ShellWidget(RichIPythonWidget, GraphicalStreamRedirection):
         GraphicalStreamRedirection.__init__(self)
 
         # Compatibility with visualea
-        self.runsource = self.interpreter.runsource
+        self.runsource = self.interpreter.run_cell
         self.runcode = self.interpreter.runcode
         self.loadcode = self.interpreter.loadcode
 
@@ -131,10 +132,10 @@ def main():
     from openalea.core.service.ipython import interpreter
     interpreter = interpreter()
 
-    interpreter.locals['interp'] = interpreter
+    interpreter.user_ns['interp'] = interpreter
     # Set Shell Widget
     shellwdgt = ShellWidget(interpreter)
-    interpreter.locals['shell'] = shellwdgt
+    interpreter.user_ns['shell'] = shellwdgt
 
     mainWindow = QtGui.QMainWindow()
     mainWindow.setCentralWidget(shellwdgt)
