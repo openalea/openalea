@@ -27,10 +27,10 @@ if __name__ == '__main__':
 
     # Set interpreter
     interpreter = interpreter_()
-    interpreter.locals['interp'] = interpreter
-    interpreter.locals.update(locals())
-    interpreter.locals['pmw'] = pmw
-    interpreter.locals['data'] = DataFactory
+    interpreter.user_ns['interp'] = interpreter
+    interpreter.user_ns.update(locals())
+    interpreter.user_ns['pmw'] = pmw
+    interpreter.user_ns['data'] = DataFactory
 
     # Set Shell Widget
     widget = QtGui.QWidget()
