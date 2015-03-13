@@ -36,7 +36,7 @@ from openalea.core.settings import Settings
 from openalea.core.metadatadict import MetaDataDict
 import logger
 
-quantify = True
+quantify = False
 
 class IncompatibleNodeError(Exception):
     """todo"""
