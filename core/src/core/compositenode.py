@@ -1177,7 +1177,9 @@ $NAME = CompositeNodeFactory(name=$PNAME,
         f = self.factory
         fstr = string.Template(self.sgfactory_template)
 
-        result = fstr.safe_substitute(NAME=f.get_python_name(),
+        name = f.get_python_name()
+        name = name.replace('.', '_')
+        result = fstr.safe_substitute(NAME=name,
                                       PNAME=self.pprint_repr(f.name),
                                       DESCRIPTION=self.pprint_repr(f.description),
                                       CATEGORY=self.pprint_repr(f.category),

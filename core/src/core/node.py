@@ -1391,8 +1391,10 @@ $NAME = Factory(name=$PNAME,
         """ Return the python string representation """
         f = self.factory
         fstr = string.Template(self.nodefactory_template)
-
-        result = fstr.safe_substitute(NAME=f.get_python_name(),
+        
+        name = f.get_python_name()
+        name = name.replace('.', '_')
+        result = fstr.safe_substitute(NAME=name,
                                       AUTHORS=repr(f.get_authors()),
                                       PNAME=repr(f.name),
                                       DESCRIPTION=repr(f.description),
