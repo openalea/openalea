@@ -7,10 +7,10 @@ from openalea.oalab.gui.control.panel import ControlPanel
 from openalea.core.service.control import new_control
 from openalea.core.service.interface import interface_names, get_interface
 from openalea.oalab.service import qt_control
-from openalea.plantlab.lpycontrol import import_lpy_controls
 
 
 def test_all_lpy_controls():
+    from openalea.plantlab.lpycontrol import import_lpy_controls
     from openalea.deploy.shared_data import shared_data
     import openalea.lpy
     lpydir = shared_data(openalea.lpy.__path__, share_path='share/tutorial')
