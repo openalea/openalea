@@ -19,13 +19,16 @@ world['obj1'] = pgl_scene
 
 ################################################################################
 # 2. Object is not directly compatible but provides
-# a method (_repr_geom_) to convert himself to a compatible type 
+# a method (_repr_geom_) to convert himself to a compatible type
 # (Currently PlantGL geometry, shape or scene)
 ################################################################################
 
 # object type (generally defined in a separated module)
 from openalea.plantgl.all import Box
+
+
 class MyBox(object):
+
     def __init__(self, lx, ly, lz):
         self.lx = lx
         self.ly = ly
@@ -52,6 +55,8 @@ world['obj2'] = b
 
 # Define and register adapter. (generally defined in a separated plugin)
 from openalea.oalab.service.geometry import register_shape3d
+
+
 def to_shape3d(obj):
     if isinstance(obj, PlantFrame):
         return pf.plot(gc=True, display=False)
@@ -69,5 +74,6 @@ world['obj3'].repr = 'geom'
 
 world['i1'] = 1
 
+
 def init():
-  del world['i1'], world['obj1'], world['obj2'], world['obj3']
+    del world['i1'], world['obj1'], world['obj2'], world['obj3']
