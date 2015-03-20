@@ -36,7 +36,7 @@ def connect(old, new, sender_str, receiver_str, existing_connections):
 
 
 class MiniLab(object):
-
+    state = 'stopped'
     existing_connections = []  # list to store all created connections
     connections = []
 
@@ -186,16 +186,20 @@ class MiniLab(object):
 
     @classmethod
     def start(cls, *args, **kwds):
-        pass
+        cls.state = "started"
 
     @classmethod
     def initialize(cls, *args, **kwds):
-        pass
+        cls.state = "initialized"
+
+    @classmethod
+    def readytoclose(cls, *args, **kwds):
+        return True
 
     @classmethod
     def finalize(cls, *args, **kwds):
-        pass
+        cls.state = "finalized"
 
     @classmethod
     def stop(cls, *args, **kwds):
-        pass
+        cls.state = "stopped"
