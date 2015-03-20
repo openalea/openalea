@@ -163,8 +163,9 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         self.view.initialize()
         self.set_project(self.pm.cproject)
 
-    def close(self):
-        pass
+    def closeEvent(self, event):
+        self.writeSettings()
+        event.accept()
 
     def actions(self):
         return self._actions
@@ -233,6 +234,21 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
 
     def set_project(self, project):
         self.view.set_project(project)
+
+    ####################################################################
+    # Settings
+    ####################################################################
+    def writeSettings(self):
+        """
+        Register current settings (geometry and window state)
+        in a setting file
+        """
+        if self.pm.cproject:
+            from openalea.core.settings import Settings
+            last_proj = self.pm.cproject.name
+            config = Settings()
+            config.set("ProjectManager", "Last Project", last_proj)
+            config.write()
 
 
 class ProjectManagerView(QtGui.QTreeView):

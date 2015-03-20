@@ -286,6 +286,15 @@ class AppletTabWidget(QtGui.QTabWidget):
         self.set_edit_mode()
         self.fine_tune()
 
+    def closeEvent(self, event):
+        for idx in self._applets:
+            name = self._name[idx]
+            applet = self._applets[idx][name]
+            if applet.close() is False:
+                event.ignore()
+                return
+        event.accept()
+
     def fine_tune(self):
         # Display options
         self.setDocumentMode(True)
@@ -297,7 +306,7 @@ class AppletTabWidget(QtGui.QTabWidget):
         self.tabBar().setVisible(self.count() > 1)
 
     def setTabPosition(self, position):
-        #TODO: int position is not compatible with PySide, fix it.
+        # TODO: int position is not compatible with PySide, fix it.
         rvalue = QtGui.QTabWidget.setTabPosition(self, position)
         for idx in range(self.count()):
             self._redraw_tab(idx)
@@ -574,6 +583,12 @@ class AppletContainer(QtGui.QWidget):
         for applet in self._applets:
             self.appletSet.emit(None, applet)
 
+    def closeEvent(self, event):
+        if self._tabwidget.close():
+            event.accept()
+        else:
+            event.ignore()
+
     def add_applets(self, applets, **kwds):
         """
         applets: list of dict defining applets.
@@ -842,11 +857,18 @@ class OALabSplittableUi(SplittableUI):
                 if widget:
                     widget.set_edit_mode(mode)
 
+    def closeEvent(self, event):
+        close = True
+        for container in self._containers:
+            close = container.close()
+            if close is False:
+                event.ignore()
+                return
+        event.accept()
+
 
 class OALabMainWin(QtGui.QMainWindow):
     appletSet = QtCore.Signal(object, object)
-    closed = QtCore.Signal(object)
-    aboutToClose = QtCore.Signal(object)
     DEFAULT_MENU_NAMES = ('Project', 'Edit', 'View', 'Help')
 
     DEFAULT_LAYOUT = dict(
@@ -865,6 +887,8 @@ class OALabMainWin(QtGui.QMainWindow):
 
     def __init__(self, layout=None, **kwds):
         QtGui.QMainWindow.__init__(self)
+        self._lab = kwds.get('lab', None)
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         # Classic menu
         self._registered_applets = []
@@ -874,6 +898,7 @@ class OALabMainWin(QtGui.QMainWindow):
         self._fill_menus()
 
         self.splittable = OALabSplittableUi(parent=self)
+        self.splittable.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.splittable.appletSet.connect(self.appletSet.emit)
         self.appletSet.connect(self._on_applet_set)
 
@@ -927,12 +952,32 @@ class OALabMainWin(QtGui.QMainWindow):
             layout = default_layout
         return layout
 
-    def closeEvent(self, event):
-        self.aboutToClose.emit(self)
+    def _save_layout(self):
         with open(self.layout_filepath, 'w') as layout_file:
             json.dump(self.layout(), layout_file, sort_keys=True, indent=2)
-        super(QtGui.QMainWindow, self).closeEvent(event)
-        self.closed.emit(self)
+
+    def closeEvent(self, event):
+        close = True
+
+        # If a lab is used, check if it can be close
+        if hasattr(self._lab, 'readytoclose'):
+            close = self._lab.readytoclose()
+
+        # If lab is not ready, stop closing
+        if close is False:
+            event.ignore()
+            return
+
+        # If lab is ready to close, or no lab is used, close widget
+        if self.splittable.close():
+            if hasattr(self._lab, 'finalize'):
+                self._lab.finalize()
+            self._save_layout()
+            if hasattr(self._lab, 'stop'):
+                self._lab.stop()
+            event.accept()
+        else:
+            event.ignore()
 
     def set_edit_mode(self, mode=True):
         for widget in self.splittable.getAllContents():
