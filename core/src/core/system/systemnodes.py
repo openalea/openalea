@@ -22,6 +22,8 @@ __revision__ = " $Id$ "
 from openalea.core.node import AbstractNode, Node, Annotation
 from openalea.core.dataflow import SubDataflow
 
+DEBUG = False
+
 
 class AnnotationNode(Annotation):
     """ A DummyNode is a fake node."""
@@ -52,7 +54,7 @@ class IterNode(Node):
     def reset(self):
         """ Reset to the intial state """
         self.iterable = "Empty"
-        if hasattr(self,'nextval'):
+        if hasattr(self, 'nextval'):
             del self.nextval
 
     def eval(self):
@@ -80,6 +82,7 @@ class IterNode(Node):
             if(hasattr(self, "nextval")):
                 del self.nextval
             return False
+
 
 class IterWithDelayNode(IterNode):
     """ Iteration Node """
@@ -110,6 +113,7 @@ class IterWithDelayNode(IterNode):
                 del self.nextval
             return False
 
+
 class StopSimulation(Node):
     """ Iteration Node """
 
@@ -134,6 +138,7 @@ class StopSimulation(Node):
         else:
             return False
 
+
 class Counter(Node):
     """ Loop a number of cycle, then stop """
 
@@ -157,12 +162,13 @@ class Counter(Node):
             self.outputs[0] = self._current_cycle
             return delay
 
-        if self._current_cycle+step < stop:
-            self._current_cycle+= step
+        if self._current_cycle + step < stop:
+            self._current_cycle += step
             self.outputs[0] = self._current_cycle
             return delay
-        
+
         return False
+
 
 class RDVNode(Node):
     """
@@ -197,7 +203,7 @@ class PoolReader(Node):
         key = inputs[0]
         obj = self.pool.get(key)
         if key in self.pool:
-            self.set_caption("%s"%(key, ))
+            self.set_caption("%s" % (key, ))
         return (obj, )
 
 
@@ -216,9 +222,10 @@ class PoolWriter(Node):
 
         key = inputs[0]
         obj = inputs[1]
-        self.set_caption("%s = %s"%(key, obj))
+        self.set_caption("%s = %s" % (key, obj))
         self.pool[key] = obj
         return (obj, )
+
 
 class PoolDefault(Node):
     """
@@ -232,7 +239,7 @@ class PoolDefault(Node):
         self.pool = DataPool()
 
     def reset(self):
-        if hasattr(self,'key'):
+        if hasattr(self, 'key'):
             del self.pool[self.key]
 
     def __call__(self, inputs):
@@ -244,10 +251,11 @@ class PoolDefault(Node):
         self.key = key
         obj = self.pool.setdefault(key, default_value)
         if key in self.pool:
-            self.set_caption("%s"%(key,))
+            self.set_caption("%s" % (key,))
         else:
-            self.set_caption("%s = %s"%(key,default_value))
+            self.set_caption("%s = %s" % (key, default_value))
         return (obj, )
+
 
 class InitNode(Node):
     """
@@ -266,7 +274,6 @@ class InitNode(Node):
     def __call__(self, inputs):
         """ inputs is the list of input values """
 
-
         if(self.state):
             ret = inputs[0]
         else:
@@ -282,12 +289,12 @@ class InitNode(Node):
 
 class AccuList(Node):
     """ List Accumulator
-    
+
     Add to a list (in datapool) the receive value
-    
-    :param inputs: a list containing the value to append and 
+
+    :param inputs: a list containing the value to append and
         the name of the datapool variable
-    
+
     """
 
     def __init__(self, inputs, outputs):
@@ -300,7 +307,7 @@ class AccuList(Node):
         varname = inputs[1]
         value = inputs[0]
         if(not varname):
-            varname = "AccuList_%i"%(id(self))
+            varname = "AccuList_%i" % (id(self))
 
         # Create datapool variable if necessary
         if(not self.pool.has_key(varname) or
@@ -310,7 +317,7 @@ class AccuList(Node):
         else:
             l = self.pool[varname]
 
-        self.set_caption("list accumulator : %s"%(repr(str(varname))))
+        self.set_caption("list accumulator : %s" % (repr(str(varname))))
         l.append(value)
 
         return (l, )
@@ -321,7 +328,7 @@ class AccuFloat(Node):
 
     Add to a Float (in datapool) the receive value
 
-    :param inputs: a list containing the value to append and 
+    :param inputs: a list containing the value to append and
         the name of the datapool variable
 
     """
@@ -336,28 +343,27 @@ class AccuFloat(Node):
         varname = inputs[1]
         value = inputs[0]
         if(not varname):
-            varname = "AccuFloat_%i"%(id(self))
+            varname = "AccuFloat_%i" % (id(self))
 
         # Create datapool variable if necessary
         if(not self.pool.has_key(varname) or
            not isinstance(self.pool[varname], float)):
             self.pool[varname] = 0.
 
-        self.set_caption("float accumulator : %s"%(repr(str(varname))))
+        self.set_caption("float accumulator : %s" % (repr(str(varname))))
         self.pool[varname] += float(value)
         return (self.pool[varname], )
 
 
 class LambdaVar(Node):
     """ Return a lambda variable """
-    #cpt = 0
-    
+    # cpt = 0
+
     def __init__(self, *args):
         Node.__init__(self, *args)
-        print 'args ', args
         self.set_caption("X")
-        #self.set_caption("X" + str(LambdaVar.cpt))
-        #LambdaVar.cpt = 1
+        # self.set_caption("X" + str(LambdaVar.cpt))
+        # LambdaVar.cpt = 1
 
     def __call__(self, inputs):
         return SubDataflow(None, None, 0, 0)
@@ -374,7 +380,7 @@ class Delay(Node):
         init, x = inputs[:2]
 
         if self.previous is None:
-            res = self.previous = init 
+            res = self.previous = init
         else:
             res = self.previous
             self.previous = x
@@ -384,6 +390,7 @@ class Delay(Node):
     def reset(self):
         """ Reset to the intial state """
         self.previous = None
+
 
 class WhileUniVar(Node):
     """ While Loop Univariate
@@ -407,12 +414,13 @@ class WhileUniVar(Node):
 
             # Test for infinite loop
             if(value == newvalue):
-                cpt +=1
+                cpt += 1
                 if(cpt > 1000):
                     raise RuntimeError("Infinite Loop")
             else:
                 value = newvalue
-            print value
+            if DEBUG:
+                print value
 
         return (value, )
 
@@ -436,22 +444,23 @@ class WhileMultiVar(Node):
         while(test(*values)):
             newvals = []
 
-
             for f in funcs:
                 res = f(*values)
                 newvals.append(res)
 
             # Test for infinite loop
             if(values == newvals):
-                cpt +=1
+                cpt += 1
                 if(cpt > 1000):
                     raise RuntimeError("Infinite Loop")
             else:
                 values = newvals
 
-            print values
+            if DEBUG:
+                print values
 
         return values
+
 
 def while_multi2(values, test, function):
         cpt = 0
@@ -460,7 +469,7 @@ def while_multi2(values, test, function):
 
             # Test for infinite loop
             if(values == newvals):
-                cpt +=1
+                cpt += 1
                 if(cpt > 1000):
                     raise RuntimeError("Infinite Loop")
             else:
@@ -469,6 +478,7 @@ def while_multi2(values, test, function):
             print values
 
         return values
+
 
 def system_cmd(str_list):
     """ Execute a system command
@@ -480,18 +490,20 @@ def system_cmd(str_list):
 
     return subprocess.Popen(str_list, stdout=subprocess.PIPE).communicate()
 
+
 def shell_command(cmd, directory):
     """ Execute a command in a shell
     cmd : the command as a string
     dir : the directory where the cmd is executed
     Output : status
     """
-    from subprocess import Popen,STDOUT, PIPE
+    from subprocess import Popen, STDOUT, PIPE
 
     p = Popen(cmd, shell=True, cwd=directory,
-        stdin=PIPE, stdout=STDOUT, stderr=STDOUT)
+              stdin=PIPE, stdout=STDOUT, stderr=STDOUT)
     status = p.wait()
     return status,
+
 
 class For(Node):
     """ While Loop Univariate
@@ -521,7 +533,7 @@ def get_data(pattern='*.*', pkg_name=None, as_paths=False):
     result = pm.get_data(pattern, pkg_name, as_paths)
     nodes = [x.instantiate() for x in result]
     for node in nodes:
-        node.eval() 
+        node.eval()
     names = [x.name for x in result]
     filenames = [node.get_output(0) for node in nodes]
-    return dict(zip(names,filenames))
+    return dict(zip(names, filenames))
