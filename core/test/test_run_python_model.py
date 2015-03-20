@@ -160,11 +160,11 @@ model_src = '''
 """
 output = a
 """
-a = a + 1
+N = 10
+a = 0
 
-def init():
-    N=10
-    a = 0
+def step():
+  a = a + 1
 
 def animate():
     for i in range(10):
@@ -218,10 +218,11 @@ def test_step_animate():
 def test_step_without_run():
     model_src = '''"""
 output = a"""
-def init():
-    a = 0
 
-a = a + 1
+a = 0
+
+def step():
+    a = a + 1
 '''
     model = PythonModel(code=model_src)
 
