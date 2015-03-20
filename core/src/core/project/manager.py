@@ -306,6 +306,16 @@ You can rename/move this project thanks to the button "Save As" in menu.
         if signal == 'project_changed':
             self.notify_listeners(('project_updated', self))
 
+    def _close_project(self):
+        os.chdir(self._cwd)
+        if self._cproject:
+            self.notify_listeners(('close_project', self))
+            self._cproject.unregister_listener(self)
+            self._cproject.stop()
+            del self._cproject
+        self._cproject = None
+        self.notify_listeners(('project_closed', self))
+
     @property
     def cproject(self):
         return self._cproject
@@ -319,15 +329,9 @@ You can rename/move this project thanks to the button "Save As" in menu.
                 self.notify_listeners(('project_started', self))
             return
         if project is None:
-            os.chdir(self._cwd)
-            if self._cproject:
-                self.notify_listeners(('close_project', self))
-                self._cproject.unregister_listener(self)
-                self._cproject.stop()
-                del self._cproject
-            self._cproject = None
-            self.notify_listeners(('project_closed', self))
+            self._close_project()
         else:
+            self._close_project()
             if project.path.isdir():
                 os.chdir(project.path)
             self._cproject = project
