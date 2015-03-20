@@ -162,7 +162,10 @@ class Model(object):
         return m
 
     def _run_code(self, code):
-        self.interp.run_cell(code)
+        if isinstance(code, basestring):
+            self.interp.run_cell(code)
+        else:
+            self.interp.run_code(code)
 
     def set_code(self, code):
         self.set_step_code(code)
