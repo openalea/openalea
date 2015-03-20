@@ -24,7 +24,7 @@ from openalea.core import logger
 from openalea.oalab.gui.pages import WelcomePage
 from openalea.core import settings
 from openalea.core.path import path
-from openalea.oalab.gui import resources_rc # do not remove this import else icon are not drawn
+from openalea.oalab.gui import resources_rc  # do not remove this import else icon are not drawn
 from openalea.oalab.gui.utils import qicon
 from openalea.core.project import ProjectManager, Project
 from openalea.oalab.project.projectwidget import SelectCategory
@@ -179,7 +179,6 @@ class ParadigmContainer(QtGui.QTabWidget):
         self.addDefaultTab()
         self.fine_tune()
 
-
     def fine_tune(self):
         self.setDocumentMode(True)
         # self.setMinimumSize(100, 100)
@@ -215,7 +214,7 @@ class ParadigmContainer(QtGui.QTabWidget):
 
     def menus(self):
 
-        menu_project = QtGui.QMenu("Project", self)
+        menu_project = QtGui.QMenu("File", self)
         menu_edit = QtGui.QMenu("Edit", self)
 
         menu_play = QtGui.QMenu("Run", menu_project)

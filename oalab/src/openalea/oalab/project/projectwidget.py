@@ -182,7 +182,7 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
 
     def menus(self):
         actions = [action[2] for action in self.toolbar_actions()]
-        menu = QtGui.QMenu('Project', self)
+        menu = QtGui.QMenu('File', self)
         menu.addActions(actions)
         menu.addSeparator()
         menu.addMenu(self.menu_available_projects)
