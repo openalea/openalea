@@ -238,3 +238,52 @@ def step():
 
     result = model.init()
     assert result == 0
+
+
+def test_nested_functions_in_init():
+    model_src = '''
+"""
+output = a
+"""
+
+def f0():
+    def f1():
+      return 10
+    return f1()
+
+a = f0()
+
+'''
+    model = PythonModel(code=model_src)
+
+    result = model.init()
+    assert result == 10
+
+
+def test_nested_functions_special_functions():
+    model_src = '''
+"""
+output = a
+"""
+
+def step():
+    def f0():
+        def f1():
+          return 10
+        return f1()
+    a = a+f0()
+
+a = 0
+
+'''
+    model = PythonModel(code=model_src)
+
+    result = model.init()
+    assert result == 0
+
+    result = model.init()
+    result = model.step()
+    assert result == 10
+
+    result = model.run(nstep=10)
+    assert result == 100
