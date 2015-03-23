@@ -28,7 +28,6 @@ def connect(old, new, sender_str, receiver_str, existing_connections):
             for j, slot in enumerate(slots):
                 connection = '%s_%d -> %s_%d' % (sender_str, i, receiver_str, j)
                 if connection not in existing_connections:
-                    print connection
                     signal.connect(slot)
                     existing_connections.append(connection)
                 else:
