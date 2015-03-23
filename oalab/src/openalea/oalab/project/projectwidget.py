@@ -182,7 +182,7 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
 
     def menus(self):
         actions = [action[2] for action in self.toolbar_actions()]
-        menu = QtGui.QMenu('Project', self)
+        menu = QtGui.QMenu('File', self)
         menu.addActions(actions)
         menu.addSeparator()
         menu.addMenu(self.menu_available_projects)
@@ -324,8 +324,6 @@ class ProjectManagerView(QtGui.QTreeView):
             self.expandAll()
         else:
             self.close_all_scripts()
-
-        self.load_controls()
 
     def refresh(self):
         self._model.refresh()
@@ -553,32 +551,8 @@ class ProjectManagerView(QtGui.QTreeView):
         project = self.project()
         if project:
             project.save()
-            self.save_controls()
             if self.paradigm_container:
                 self.paradigm_container.save_all()
-
-    def save_controls(self):
-        # Hack to save controls!!!
-        # TODO: save controls inside project
-        project = self.project()
-        filename = project.path / "control.py"
-        from openalea.oalab.service.applet import get_applet
-        ctrl_manager_wid = get_applet(identifier="ControlManager")
-        if ctrl_manager_wid:
-            ctrl_view = ctrl_manager_wid.view
-            ctrl_view.save_controls(filename)
-
-    def load_controls(self):
-        # Hack to load controls!!!
-        # TODO: load controls inside project
-        project = self.project()
-        if project:
-            filename = project.path / "control.py"
-            from openalea.oalab.service.applet import get_applet
-#             ctrl_manager_wid = get_applet(identifier="ControlManager")
-#             if ctrl_manager_wid:
-#                 ctrl_view = ctrl_manager_wid.view
-#                 ctrl_view.load_controls(filename)
 
     def save_as(self):
         project = self.project()

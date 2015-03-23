@@ -19,7 +19,7 @@ class DefaultLab(MiniLab):
     ]
 
     # NEW LAYOUT API
-    menu_names = ('Project', 'Edit', 'View', 'Help')
+    menu_names = ('File', 'Edit', 'View', 'Help')
 
     layout = {
         'children': {0: [1, 2], 2: [3, 4], 3: [5, 6], 4: [7, 8], 7: [11, 12], 8: [9, 10]},

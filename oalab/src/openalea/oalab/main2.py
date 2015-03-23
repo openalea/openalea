@@ -28,6 +28,7 @@ def launch_lab(plugin_class):
     from openalea.core.settings import get_openalea_home_dir
     from openalea.core.path import path as Path
     from openalea.core.service.introspection import alias
+    from openalea.oalab.gui.utils import qicon
 
     plugin = plugin_class()
     lab_class = plugin()
@@ -39,6 +40,7 @@ def launch_lab(plugin_class):
     if hasattr(lab_class, "start"):
         lab_class.start()
     win = OALabMainWin(lab=lab_class)
+    win.setWindowIcon(qicon(lab_class.icon))
     if hasattr(lab_class, 'connect_applet'):
         win.appletSet.connect(lab_class.connect_applet)
     win.emit_applet_set()

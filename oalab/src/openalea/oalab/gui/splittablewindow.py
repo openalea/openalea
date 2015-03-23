@@ -869,7 +869,7 @@ class OALabSplittableUi(SplittableUI):
 
 class OALabMainWin(QtGui.QMainWindow):
     appletSet = QtCore.Signal(object, object)
-    DEFAULT_MENU_NAMES = ('Project', 'Edit', 'View', 'Help')
+    DEFAULT_MENU_NAMES = ('File', 'Edit', 'View', 'Help')
 
     DEFAULT_LAYOUT = dict(
         children={},
@@ -890,12 +890,20 @@ class OALabMainWin(QtGui.QMainWindow):
         self._lab = kwds.get('lab', None)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
+        self.DEFAULT_MENU_NAMES = list(self.DEFAULT_MENU_NAMES)
+        if 'Edit' not in self.DEFAULT_MENU_NAMES:
+            self.DEFAULT_MENU_NAMES.insert(0, 'Edit')
+        if 'File' not in self.DEFAULT_MENU_NAMES:
+            self.DEFAULT_MENU_NAMES.insert(0, 'File')
+        if 'Help' not in self.DEFAULT_MENU_NAMES:
+            self.DEFAULT_MENU_NAMES.append('Help')
+
         # Classic menu
         self._registered_applets = []
 
         self._create_menus()
         self._create_actions()
-        self._fill_menus()
+        self._pre_fill_menus()
 
         self.splittable = OALabSplittableUi(parent=self)
         self.splittable.setAttribute(QtCore.Qt.WA_DeleteOnClose)
@@ -910,6 +918,7 @@ class OALabMainWin(QtGui.QMainWindow):
             self.splittable.fromJSON(layout)
 
         self.setCentralWidget(self.splittable)
+        self._post_fill_menus()
         self.set_edit_mode(False)
 
         QtGui.QApplication.instance().focusChanged.connect(self._on_focus_changed)
@@ -930,8 +939,17 @@ class OALabMainWin(QtGui.QMainWindow):
         self.action_edit.toggled.connect(self.set_edit_mode)
         self.action_edit.setChecked(False)
 
-    def _fill_menus(self):
+        icon = QtGui.QApplication.style().standardIcon(QtGui.QStyle.SP_TitleBarCloseButton)
+        self.action_quit = QtGui.QAction(icon, "Quit application", self.menu_classic['File'])
+        self.action_quit.triggered.connect(self.close)
+        self.action_quit.setChecked(False)
+
+    def _pre_fill_menus(self):
         self.menu_classic['Edit'].addAction(self.action_edit)
+
+    def _post_fill_menus(self):
+        self.menu_classic['File'].addSeparator()
+        self.menu_classic['File'].addAction(self.action_quit)
 
     def _load_layout(self, layout=None, **kwds):
         layout_file = kwds.pop('layout_file', self.DEFAULT_LAYOUT_PATH)

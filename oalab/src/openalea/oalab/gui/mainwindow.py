@@ -30,6 +30,7 @@ from openalea.core.service.ipython import interpreter
 
 from openalea.core.service.plugin import plugin_class, plugin_instance, debug_plugin
 
+
 class MainWindow(QtGui.QMainWindow):
 
     """

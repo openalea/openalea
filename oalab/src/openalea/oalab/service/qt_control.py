@@ -90,6 +90,8 @@ def qt_dialog(control=None, **kwds):
 
 
 def qt_editor(control, shape=None, preferred=None, **kwds):
+    if preferred is None and control.widget:
+        preferred = control.widget
     widget_class = qt_editor_class(control.interface, shape, preferred)
     # TODO: FIX THIS HACK
     if hasattr(widget_class, 'shape'):

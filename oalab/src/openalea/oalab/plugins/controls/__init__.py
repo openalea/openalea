@@ -81,7 +81,7 @@ class PluginBoolWidgetSelector(ControlWidgetSelectorPlugin):
 class PluginStringWidgetSelector(ControlWidgetSelectorPlugin):
 
     controls = ['IStr']
-    name = 'BoolWidgetSelector'
+    name = 'StrWidgetSelector'
     edit_shape = ['hline', 'large', 'small']
 
     @classmethod
