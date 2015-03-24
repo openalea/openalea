@@ -47,28 +47,27 @@ class StrLineEdit(QtGui.QLineEdit, AbstractQtControlWidget):
         return self.text()
 
 
-
 class QFloatSlider(QtGui.QSlider):
 
     floatValueChanged = QtCore.Signal(float)
 
-    def __init__(self,orientation=QtCore.Qt.Horizontal):
-        QtGui.QSlider.__init__(self,orientation)
-        self.connect(self,QtCore.SIGNAL('valueChanged(int)'),self.notifyValueChanged)
+    def __init__(self, orientation=QtCore.Qt.Horizontal):
+        QtGui.QSlider.__init__(self, orientation)
+        self.connect(self, QtCore.SIGNAL('valueChanged(int)'), self.notifyValueChanged)
         self.slider_step = 0.1
         self.floatValue = 0.0
 
-    def notifyValueChanged(self,value):
-        self.floatValue = value*self.slider_step
+    def notifyValueChanged(self, value):
+        self.floatValue = value * self.slider_step
         self.floatValueChanged.emit(self.floatValue)
 
-    def setFloatValue(self,value):
-        self.setValue(int(value/self.slider_step))
+    def setFloatValue(self, value):
+        self.setValue(int(value / self.slider_step))
 
     def value(self):
         return self.floatValue
 
-    def setStep(self,step):
+    def setStep(self, step):
         self.slider_step = step
 
 
@@ -88,8 +87,7 @@ class AbstractFloatWidget(AbstractQtControlWidget):
         mini = control.interface.min
         maxi = control.interface.max
         step = control.interface.step
-        # self.reset(control.value, minimum=mini, maximum=maxi, step=step)
-        self.reset(control.value)
+        self.reset(control.value, minimum=mini, maximum=maxi, step=step)
 
     def apply(self, control):
         AbstractQtControlWidget.apply(self, control)
@@ -120,7 +118,8 @@ class FloatSlider(QtGui.QWidget, AbstractFloatWidget):
 
         self.slider.floatValueChanged.connect(self.spinbox.setValue)
         self.spinbox.valueChanged.connect(self.slider.setFloatValue)
-        self.slider.floatValueChanged.connect(self.valueChanged)
+        # self.slider.floatValueChanged.connect(self.valueChanged)
+        self.spinbox.valueChanged.connect(self.valueChanged)
 
         layout = QtGui.QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -132,12 +131,16 @@ class FloatSlider(QtGui.QWidget, AbstractFloatWidget):
 
     def reset(self, value=1.0, minimum=0.0, maximum=1.0, step=0.01, **kwargs):
         if minimum is not None:
-            self.slider.setMinimum(minimum/step)
+            self.slider.setMinimum(minimum / step)
             self.spinbox.setMinimum(minimum)
         if maximum is not None:
-            self.slider.setMaximum(maximum/step)
+            self.slider.setMaximum(maximum / step)
             self.spinbox.setMaximum(maximum)
         self.spinbox.setSingleStep(step)
+        if step < 0.01:
+            self.spinbox.setDecimals(3)
+        else:
+            self.spinbox.setDecimals(2)
         self.slider.setStep(step)
 
         self.setValue(value)
@@ -165,6 +168,8 @@ class FloatSpinBox(QtGui.QDoubleSpinBox, AbstractFloatWidget):
         QtGui.QSpinBox.__init__(self)
         AbstractFloatWidget.__init__(self)
         self.value_changed_signal = self.valueChanged
+        self.setMinimumHeight(18)
+        self.setMinimumWidth(48)
 
     def reset(self, value=1.0, minimum=0.0, maximum=1.0, step=0.01, **kwargs):
         if minimum is not None:
@@ -176,7 +181,7 @@ class FloatSpinBox(QtGui.QDoubleSpinBox, AbstractFloatWidget):
 
     def step(self):
         return self.singleStep()
- 
+
 
 class FloatSimpleSlider(QFloatSlider, AbstractFloatWidget):
 
@@ -184,12 +189,13 @@ class FloatSimpleSlider(QFloatSlider, AbstractFloatWidget):
         QFloatSlider.__init__(self)
         AbstractFloatWidget.__init__(self)
         self.value_changed_signal = self.floatValueChanged
+        self.setMinimumWidth(18)
 
     def reset(self, value=1.0, minimum=0.0, maximum=1.0, step=0.01, **kwargs):
         if minimum is not None:
-            self.setMinimum(minimum/step)
+            self.setMinimum(minimum / step)
         if maximum is not None:
-            self.setMaximum(maximum/step)
+            self.setMaximum(maximum / step)
         self.setStep(step)
         self.setFloatValue(value)
 
@@ -199,12 +205,9 @@ class FloatSimpleSlider(QFloatSlider, AbstractFloatWidget):
     def apply(self, control):
         AbstractQtControlWidget.apply(self, control)
         control.interface.step = self.step()
-        control.interface.min = self.minimum()*self.step()
-        control.interface.max = self.maximum()*self.step()
+        control.interface.min = self.minimum() * self.step()
+        control.interface.max = self.maximum() * self.step()
         control.value = self.value()
-
-    
-
 
 
 class AbstractIntWidget(AbstractQtControlWidget):

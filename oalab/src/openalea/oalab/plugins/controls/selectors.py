@@ -25,6 +25,7 @@ from openalea.oalab.plugins.controls.widgets import IntSimpleSlider, IntSpinBox,
 
 
 class IntWidgetSelector(object):
+
     @classmethod
     def edit(cls, control, shape=None):
         if shape is None:
@@ -48,6 +49,7 @@ class IntWidgetSelector(object):
 
 
 class FloatWidgetSelector(object):
+
     @classmethod
     def edit(cls, control, shape=None):
         if shape is None:
@@ -58,7 +60,7 @@ class FloatWidgetSelector(object):
         elif shape == 'vline':
             widget = FloatSimpleSlider()
             widget.setOrientation(QtCore.Qt.Vertical)
-        elif shape in ('vline','large', 'small', 'responsive'):
+        elif shape in ('large', 'small', 'responsive'):
             widget = FloatSpinBox()
         else:
             widget = None
