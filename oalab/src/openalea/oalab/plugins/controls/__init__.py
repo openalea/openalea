@@ -66,6 +66,21 @@ class PluginIntWidgetSelector(ControlWidgetSelectorPlugin):
         return IntWidgetSelector
 
 
+class PluginFloatWidgetSelector(ControlWidgetSelectorPlugin):
+
+    controls = ['IFloat']
+    name = 'FloatWidgetSelector'
+    alias = 'Float editor'
+    required = ['IFloat.min', 'IFloat.max', 'IFloat.step']
+    edit_shape = ['responsive']
+    icon_path = shared_data(openalea.oalab, 'icons/IntWidgetSelector_hline.png')
+
+    @classmethod
+    def load(cls):
+        from openalea.oalab.plugins.controls.selectors import FloatWidgetSelector
+        return FloatWidgetSelector
+
+
 class PluginBoolWidgetSelector(ControlWidgetSelectorPlugin):
 
     controls = ['IBool']

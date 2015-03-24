@@ -135,6 +135,7 @@ setup(
         'oalab.qt_control': [
             'PluginOpenAleaLabWidgetSelectors = openalea.oalab.plugins.controls:PluginOpenAleaLabWidgetSelectors',
             'PluginVisualeaWidgetSelectors = openalea.oalab.plugins.controls:PluginVisualeaWidgetSelectors',
+            'PluginFloatWidgetSelector = openalea.oalab.plugins.controls:PluginFloatWidgetSelector',
         ],
 
         'oalab.lab': [

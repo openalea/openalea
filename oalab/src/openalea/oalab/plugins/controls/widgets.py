@@ -47,6 +47,166 @@ class StrLineEdit(QtGui.QLineEdit, AbstractQtControlWidget):
         return self.text()
 
 
+
+class QFloatSlider(QtGui.QSlider):
+
+    floatValueChanged = QtCore.Signal(float)
+
+    def __init__(self,orientation=QtCore.Qt.Horizontal):
+        QtGui.QSlider.__init__(self,orientation)
+        self.connect(self,QtCore.SIGNAL('valueChanged(int)'),self.notifyValueChanged)
+        self.slider_step = 0.1
+        self.floatValue = 0.0
+
+    def notifyValueChanged(self,value):
+        self.floatValue = value*self.slider_step
+        self.floatValueChanged.emit(self.floatValue)
+
+    def setFloatValue(self,value):
+        self.setValue(int(value/self.slider_step))
+
+    def value(self):
+        return self.floatValue
+
+    def setStep(self,step):
+        self.slider_step = step
+
+
+class AbstractFloatWidget(AbstractQtControlWidget):
+
+    def __init__(self):
+        AbstractQtControlWidget.__init__(self)
+
+    def reset(self, value=1.0, minimum=0.0, maximum=1.0, step=0.01, **kwargs):
+        if minimum is not None:
+            self.setMinimum(minimum)
+        if maximum is not None:
+            self.setMaximum(maximum)
+        self.setValue(value)
+
+    def read(self, control):
+        mini = control.interface.min
+        maxi = control.interface.max
+        step = control.interface.step
+        # self.reset(control.value, minimum=mini, maximum=maxi, step=step)
+        self.reset(control.value)
+
+    def apply(self, control):
+        AbstractQtControlWidget.apply(self, control)
+        control.interface.min = self.minimum()
+        control.interface.max = self.maximum()
+        control.interface.step = self.step()
+
+
+class FloatSlider(QtGui.QWidget, AbstractFloatWidget):
+    valueChanged = QtCore.Signal(float)
+
+    def __init__(self):
+        QtGui.QWidget.__init__(self)
+
+        self.slider = QFloatSlider(QtCore.Qt.Horizontal)
+        self.spinbox = QtGui.QDoubleSpinBox()
+
+        # Fill background to avoid to see text or widget behind
+        self.setAutoFillBackground(True)
+
+        AbstractFloatWidget.__init__(self)
+
+        # To be compatible with tree or table views, slider must keep focus
+        self.slider.setFocusPolicy(QtCore.Qt.StrongFocus)
+        self.setMinimumHeight(22)
+        self.spinbox.setMinimumHeight(18)
+        self.slider.setMinimumHeight(18)
+
+        self.slider.floatValueChanged.connect(self.spinbox.setValue)
+        self.spinbox.valueChanged.connect(self.slider.setFloatValue)
+        self.slider.floatValueChanged.connect(self.valueChanged)
+
+        layout = QtGui.QHBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+
+        layout.addWidget(self.spinbox)
+        layout.addWidget(self.slider)
+
+        self.value_changed_signal = self.valueChanged
+
+    def reset(self, value=1.0, minimum=0.0, maximum=1.0, step=0.01, **kwargs):
+        if minimum is not None:
+            self.slider.setMinimum(minimum/step)
+            self.spinbox.setMinimum(minimum)
+        if maximum is not None:
+            self.slider.setMaximum(maximum/step)
+            self.spinbox.setMaximum(maximum)
+        self.spinbox.setSingleStep(step)
+        self.slider.setStep(step)
+
+        self.setValue(value)
+
+    def apply(self, control):
+        AbstractQtControlWidget.apply(self, control)
+        control.interface.min = self.spinbox.minimum()
+        control.interface.max = self.spinbox.maximum()
+        control.interface.step = self.slider.slider_step
+
+    def value(self, interface=None):
+        return self.spinbox.value()
+
+    def step():
+        return self.slider.slider_step
+
+    def setValue(self, value):
+        self.slider.setFloatValue(value)
+        self.spinbox.setValue(value)
+
+
+class FloatSpinBox(QtGui.QDoubleSpinBox, AbstractFloatWidget):
+
+    def __init__(self):
+        QtGui.QSpinBox.__init__(self)
+        AbstractFloatWidget.__init__(self)
+        self.value_changed_signal = self.valueChanged
+
+    def reset(self, value=1.0, minimum=0.0, maximum=1.0, step=0.01, **kwargs):
+        if minimum is not None:
+            self.setMinimum(minimum)
+        if maximum is not None:
+            self.setMaximum(maximum)
+        self.setSingleStep(step)
+        self.setValue(value)
+
+    def step(self):
+        return self.singleStep()
+ 
+
+class FloatSimpleSlider(QFloatSlider, AbstractFloatWidget):
+
+    def __init__(self):
+        QFloatSlider.__init__(self)
+        AbstractFloatWidget.__init__(self)
+        self.value_changed_signal = self.floatValueChanged
+
+    def reset(self, value=1.0, minimum=0.0, maximum=1.0, step=0.01, **kwargs):
+        if minimum is not None:
+            self.setMinimum(minimum/step)
+        if maximum is not None:
+            self.setMaximum(maximum/step)
+        self.setStep(step)
+        self.setFloatValue(value)
+
+    def step(self):
+        return self.slider_step
+
+    def apply(self, control):
+        AbstractQtControlWidget.apply(self, control)
+        control.interface.step = self.step()
+        control.interface.min = self.minimum()*self.step()
+        control.interface.max = self.maximum()*self.step()
+        control.value = self.value()
+
+    
+
+
+
 class AbstractIntWidget(AbstractQtControlWidget):
 
     def __init__(self):
@@ -102,7 +262,7 @@ class IntSlider(QtGui.QWidget, AbstractIntWidget):
 
         # To be compatible with tree or table views, slider must keep focus
         self.slider.setFocusPolicy(QtCore.Qt.StrongFocus)
-        self.setMinimumHeight(20)
+        self.setMinimumHeight(22)
         self.spinbox.setMinimumHeight(18)
         self.slider.setMinimumHeight(18)
 
