@@ -56,9 +56,9 @@ class RModel(PythonModel):
                 code += '# input = %s\n' % (', '.join([inp.repr_code() for inp in self.inputs_info]))
             if self.outputs_info:
                 code += '# output = %s\n' % (', '.join([out.repr_code() for out in self.outputs_info]))
-            if 'step' in self._code:
-                code += self._code['step'] + '\n'
-            for fname in ['init', 'run', 'animate', 'stop']:
+            if 'init' in self._code:
+                code += self._code['init'] + '\n'
+            for fname in ['step', 'run', 'animate', 'stop']:
                 if fname in self._code:
                     code += '%s <- function(){\n' % fname
                     for l in self._code[fname].split('\n'):

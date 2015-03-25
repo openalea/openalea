@@ -1,9 +1,9 @@
 def has_ipython():
     """
     Check if User can use IPython shell embeded in OpenAlea.
-    
+
     Check only IPython without is dependencies(zmq, pygments)
-    
+
     :return: True if user can use IPython. Else False.
     """
     if has_new_ipython():
@@ -11,10 +11,21 @@ def has_ipython():
     else:
         return has_deprecated_ipython()
 
+
+def ipython_version():
+    try:
+        from IPython import version_info
+    except ImportError:
+        from IPython import __version__ as version
+        from distutils.version import LooseVersion
+        version_info = tuple(LooseVersion(version).version)
+    return version_info
+
+
 def has_deprecated_ipython():
     """
     Check if User can has IPython 1.0dev deprecated.
-    
+
     :return: True if user can use IPython. Else False.
     """
     try:
@@ -24,11 +35,12 @@ def has_deprecated_ipython():
         return True
     except ImportError:
         return False
-        
+
+
 def has_new_ipython():
     """
     Check if User can has IPython 1.0dev not deprecated.
-    
+
     :return: True if user can use IPython. Else False.
     """
     try:
@@ -37,12 +49,13 @@ def has_new_ipython():
         from IPython.qt.inprocess import QtInProcessKernelManager
         return True
     except ImportError:
-        return False   
-        
+        return False
+
+
 def has_ipython_config():
     """
     Check if User can has IPython 1.0dev not deprecated.
-    
+
     :return: True if user can use IPython. Else False.
     """
     try:
@@ -59,5 +72,18 @@ def has_ipython_config():
             return True
         except ImportError:
             return False
-        
-has_ipython()
+
+
+def check_ipython():
+    from openalea.vpltk.check.ipython_deps import has_zmq
+    try:
+        import IPython
+    except ImportError:
+        import warnings
+        warnings.warn('IPython is not installed, some features will not be available')
+    else:
+        if has_zmq():
+            pass
+        else:
+            import warnings
+            warnings.warn('IPython is not operational, please install zmq')

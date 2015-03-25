@@ -137,4 +137,48 @@ AttributeError: 'NoneType' object has no attribute 'name'
 **** Controls not clear when project closed
 
 
+**** The top-level `frontend` package has been deprecated. ****
 
+  File "/home/gbaty/prog/openalea/VENV/ipython2/bin/oalab", line 9, in <module>
+    load_entry_point('OpenAlea.OALab==0.0.2', 'gui_scripts', 'oalab')()
+  File "/home/gbaty/prog/openalea/openalea-git/oalab/src/openalea/oalab/main2.py", line 97, in main
+    win = launch_lab(plugin_class)
+  File "/home/gbaty/prog/openalea/openalea-git/oalab/src/openalea/oalab/main2.py", line 41, in launch_lab
+    win = OALabMainWin()
+  File "/home/gbaty/prog/openalea/openalea-git/oalab/src/openalea/oalab/gui/splittablewindow.py", line 885, in __init__
+    self.splittable.fromJSON(layout)
+  File "/home/gbaty/prog/openalea/openalea-git/oalab/src/openalea/oalab/gui/splittablewindow.py", line 811, in fromJSON
+    g.visit_i_breadth_first(visitor)
+  File "/home/gbaty/prog/openalea/openalea-git/oalab/src/openalea/oalab/gui/splitterui.py", line 337, in visit_i_breadth_first
+    ignoreFirst, ignoreSecond = visitor.visit(currNode)
+  File "/home/gbaty/prog/openalea/openalea-git/oalab/src/openalea/oalab/gui/splittablewindow.py", line 701, in visit
+    widget = self._to_qwidget(widget)
+  File "/home/gbaty/prog/openalea/openalea-git/oalab/src/openalea/oalab/gui/splittablewindow.py", line 691, in _to_qwidget
+    container.add_applets(applets)
+  File "/home/gbaty/prog/openalea/openalea-git/oalab/src/openalea/oalab/gui/splittablewindow.py", line 590, in add_applets
+    self._tabwidget.set_applet(name, properties=properties)
+  File "/home/gbaty/prog/openalea/openalea-git/oalab/src/openalea/oalab/gui/splittablewindow.py", line 373, in set_applet
+    applet = plugin_instance('oalab.applet', name)
+  File "/home/gbaty/prog/openalea/openalea-git/core/src/core/service/plugin.py", line 170, in instance
+    instance = self.new(category, name, class_args, class_kwds)
+  File "/home/gbaty/prog/openalea/openalea-git/core/src/core/service/plugin.py", line 145, in new
+    return self._new(category, name, class_args, class_kwds)
+  File "/home/gbaty/prog/openalea/openalea-git/core/src/core/service/plugin.py", line 126, in _new
+    klass = plugin()
+  File "/home/gbaty/prog/openalea/openalea-git/oalab/src/openalea/oalab/plugins/applets/shellwidget.py", line 10, in __call__
+    from openalea.oalab.shell.shell import get_shell_class
+  File "/home/gbaty/prog/openalea/openalea-git/oalab/src/openalea/oalab/shell/__init__.py", line 2, in <module>
+    from .shellwidget import ShellWidget
+  File "/home/gbaty/prog/openalea/openalea-git/oalab/src/openalea/oalab/shell/shellwidget.py", line 6, in <module>
+    from IPython.frontend.qt.console.rich_ipython_widget import RichIPythonWidget
+  File "/home/gbaty/prog/openalea/VENV/ipython2/local/lib/python2.7/site-packages/IPython/frontend.py", line 31, in <module>
+    traceback.print_stack(file=sys.__stdout__)
+/home/gbaty/prog/openalea/VENV/ipython2/local/lib/python2.7/site-packages/IPython/frontend.py:32: UserWarning: The top-level `frontend` package has been deprecated. All its subpackages have been moved to the top `IPython` level.
+  warn("The top-level `frontend` package has been deprecated. "
+
+  
+from IPython.frontend.qt.console.rich_ipython_widget import RichIPythonWidget
+-> from IPython.qt.console.rich_ipython_widget import RichIPythonWidget
+  
+  
+  

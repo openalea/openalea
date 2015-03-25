@@ -24,10 +24,9 @@ from openalea.vpltk.qt import qt
 import ui_mainwindow
 try:
     from openalea.oalab.shell import get_shell_class
-    from openalea.core.interpreter import get_interpreter_class
+    from openalea.core.service.ipython import interpreter as get_interpreter
 except ImportError:
     from openalea.vpltk.shell.shell import get_shell_class, get_interpreter_class
-
 
 
 from openalea.core.algo.dataflow_evaluation import AbstractEvaluation
@@ -94,8 +93,11 @@ class MainWindow(qt.QtGui.QMainWindow,
         self.splitter.addWidget(self.lowerpane)
 
         # python interpreter
-        InterpreterClass = get_interpreter_class()
-        interpreter = InterpreterClass()
+        try:
+            interpreter = get_interpreter()
+        except NameError:
+            InterpreterClass = get_interpreter_class()
+            interpreter = InterpreterClass()
                     
         # interpreter init defered after session init
         shellclass = get_shell_class()
@@ -132,7 +134,6 @@ class MainWindow(qt.QtGui.QMainWindow,
         self.tabWorkspace.currentChanged.connect( self.ws_changed)
         self.search_lineEdit.editingFinished.connect( self.search_node)
         self.tabWorkspace.tabCloseRequested.connect( self.close_tab_workspace)
-
 
         # Help Menu
         self.action_About.triggered.connect( self.about)
@@ -283,7 +284,6 @@ class MainWindow(qt.QtGui.QMainWindow,
         cli.init_interpreter(self.interpreterWidget.interpreter,
                              session,
                              {"tabs":self.tabWorkspace})
-
 
         # -- now, many package manager related views --
         self.pkgmanager = session.pkgmanager
@@ -483,7 +483,6 @@ class MainWindow(qt.QtGui.QMainWindow,
 
         self.add_last_open(factory.__pkg_id__,factory.name)
 
-
     def about(self):
         """ Display About Dialog """
 
@@ -503,7 +502,6 @@ class MainWindow(qt.QtGui.QMainWindow,
         """ Open OpenAlea website """
         qt.QtGui.QDesktopServices.openUrl(qt.QtCore.QUrl(metainfo.url))
 
-
     def quit(self):
         """ Quit Application """
         if( qt.QtGui.QMessageBox.question(self, "Quit?", "Are you sure you want to quit?",
@@ -519,7 +517,8 @@ class MainWindow(qt.QtGui.QMainWindow,
                 wid = self.tabWorkspace.widget(i)
                 if isinstance(wid, dataflowview.DataflowView) and wid.scene() == event[1]:
                     index = i
-            if index <= -1: return
+            if index <= -1:
+                return
             if(event[0] == "graphoperator_graphsaved"):
                 self.reinit_treeview()
                 caption = "Workspace %i - %s"%(index, event[2].name)
@@ -550,14 +549,12 @@ class MainWindow(qt.QtGui.QMainWindow,
 
         event.accept()
 
-
     def reinit_treeview(self):
         """ Reinitialise package and category views """
         self.cat_model.reset()
         self.pkg_model.reset()
         self.datapool_model.reset()
         self.search_model.reset()
-
 
     def close_tab_workspace(self, cindex):
         """ Close workspace indexed by cindex cindex is Node"""
@@ -628,13 +625,11 @@ class MainWindow(qt.QtGui.QMainWindow,
             gwidget.show_entire_scene()
         return index
 
-
     def add_pkgdir(self):
         dirname = qt.QtGui.QFileDialog.getExistingDirectory(self, "Select Package/Directory")
         if(dirname):
             self.pkgmanager.load_directory(str(dirname))
             self.reinit_treeview()
-
 
     def reload_all(self):
 
@@ -650,7 +645,6 @@ class MainWindow(qt.QtGui.QMainWindow,
     def ws_changed(self, index):
         """ Current workspace has changed """
         self.session.cworkspace = index
-
 
     def contextMenuEvent(self, event):
         """ Context menu event : Display the menu"""
@@ -744,9 +738,8 @@ class MainWindow(qt.QtGui.QMainWindow,
             self, "Python Script", "Python script (*.py)")
             
         filename = str(filename)
-        if(not filename) : return
-
-        
+        if(not filename):
+            return
 
         # Try if IPython    
         try:
@@ -792,7 +785,8 @@ class MainWindow(qt.QtGui.QMainWindow,
             self, "OpenAlea Session", qt.QtCore.QDir.homePath(), "Session file (*.oas)")
 
         filename = str(filename)
-        if(not filename) : return
+        if(not filename):
+            return
 
         self.session.load(filename)
 
@@ -811,7 +805,8 @@ class MainWindow(qt.QtGui.QMainWindow,
             self, "OpenAlea Session",  qt.QtCore.QDir.homePath(), "Session file (*.oas)")
 
         filename = str(filename)
-        if(not filename) : return
+        if(not filename):
+            return
 
         self.session.save(filename)
 
@@ -863,7 +858,6 @@ class MainWindow(qt.QtGui.QMainWindow,
             print e
             event.ignore()
 
-
     ############################
     # Handling the Help widget #
     ############################
@@ -885,7 +879,6 @@ class MainWindow(qt.QtGui.QMainWindow,
     # Window support
     def display_leftpanel(self, toggled):
         self.splitter_2.setVisible(toggled)
-
 
     def display_rightpanel(self, toggled):
         self.splitter.setVisible(toggled)
@@ -958,4 +951,3 @@ class MainWindow(qt.QtGui.QMainWindow,
         painter.setRenderHint(qt.QtGui.QPainter.Antialiasing)
         view.scene().render(painter, )
         painter.end()
-

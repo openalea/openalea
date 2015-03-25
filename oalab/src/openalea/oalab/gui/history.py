@@ -86,8 +86,8 @@ def main():
     # Set interpreter
     interpreter = interpreter_()
 
-    interpreter.locals['interp'] = interpreter
-    interpreter.locals['hist'] = history
+    interpreter.user_ns['interp'] = interpreter
+    interpreter.user_ns['hist'] = history
     # Set Shell Widget
     shellwdgt = ShellWidget(interpreter)
 

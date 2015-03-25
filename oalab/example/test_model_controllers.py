@@ -22,7 +22,7 @@ from openalea.vpltk.qt import QtGui
 
 from openalea.core.service.ipython import interpreter
 interp = interpreter()
-interp.locals['interp'] = interp
+interp.user_ns['interp'] = interp
 
 
 pm = PackageManager()
@@ -53,8 +53,8 @@ def test_load_project():
     project = project_manager.load('test_project', '.')
     if not project.started:
         project.start()
-    interp.locals['project_manager'] = project_manager
-    interp.locals['project'] = project
+    interp.user_ns['project_manager'] = project_manager
+    interp.user_ns['project'] = project
     return True
 
 
@@ -75,7 +75,7 @@ def test_create_controllers():
 def test_instantiate_widgets(controllers):
     layout = interp.locals['layout']
     tabwidget = interp.locals.get('tabwidget', QtGui.QTabWidget())
-    interp.locals['tabwidget'] = tabwidget
+    interp.user_ns['tabwidget'] = tabwidget
     layout.addWidget(tabwidget)
     for controller in controllers:
         widget = controller.instantiate_widget()
