@@ -136,6 +136,8 @@ setup(
             'PluginOpenAleaLabWidgetSelectors = openalea.oalab.plugins.controls:PluginOpenAleaLabWidgetSelectors',
             'PluginVisualeaWidgetSelectors = openalea.oalab.plugins.controls:PluginVisualeaWidgetSelectors',
             'PluginFloatWidgetSelector = openalea.oalab.plugins.controls:PluginFloatWidgetSelector',
+            'PluginIntRangeWidgetSelector = openalea.oalab.plugins.controls:PluginIntRangeWidgetSelector',
+            'PluginColormapWidgetSelector = openalea.oalab.plugins.controls:PluginColormapWidgetSelector',
         ],
 
         'oalab.lab': [
@@ -145,7 +147,8 @@ setup(
         ],
 
         'oalab.interface': [
-            'OpenAleaLabInterfacePlugin = openalea.oalab.plugins.interfaces:OpenAleaLabInterfacePlugin',
+            'OpenAleaLabInterfacePlugin = openalea.oalab.plugins.interfaces:OpenAleaLabInterfacePlugin', 
+            'ColormapInterfacePlugin = openalea.oalab.plugins.interfaces:ColormapInterfacePlugin',
         ],
 
         'oalab.project_repository': [

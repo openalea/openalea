@@ -81,6 +81,35 @@ class PluginFloatWidgetSelector(ControlWidgetSelectorPlugin):
         return FloatWidgetSelector
 
 
+class PluginIntRangeWidgetSelector(ControlWidgetSelectorPlugin):
+
+    controls = ['IIntRange']
+    name = 'IntRangeWidgetSelector'
+    alias = 'Int Range editor'
+    required = ['IIntRange.min', 'IIntRange.max']
+    edit_shape = ['responsive']
+
+    @classmethod
+    def load(cls):
+        from openalea.oalab.plugins.controls.selectors import IntRangeWidgetSelector
+        return IntRangeWidgetSelector
+
+
+class PluginColormapWidgetSelector(ControlWidgetSelectorPlugin):
+
+    controls = ['IColormap']
+    name = 'IntColormapWidgetSelector'
+    alias = 'Colormap editor'
+    required = []
+    edit_shape = ['responsive']
+    paint = True
+
+    @classmethod
+    def load(cls):
+        from openalea.oalab.plugins.controls.selectors import ColormapWidgetSelector
+        return ColormapWidgetSelector
+
+
 class PluginBoolWidgetSelector(ControlWidgetSelectorPlugin):
 
     controls = ['IBool']
@@ -177,7 +206,7 @@ shapes = {
 }
 
 # Exclude interfaces that have widgets designed for controls
-rejected = ['IInt', 'IStr']
+rejected = ['IInt', 'IStr', 'IFloat']
 
 for interface, widget_class in InterfaceWidgetMap().items():
     iname = interface.__name__

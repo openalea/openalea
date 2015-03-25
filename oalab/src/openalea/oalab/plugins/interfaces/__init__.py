@@ -10,3 +10,13 @@ class OpenAleaLabInterfacePlugin(object):
         all = [IApplet]
         return all
 
+
+class ColormapInterfacePlugin(object):
+    name = 'ColormapInterfacePlugin'
+
+    def __call__(self):
+
+        from openalea.oalab.plugins.interface import IColormap, IIntRange
+
+        all = [IColormap, IIntRange]
+        return all
