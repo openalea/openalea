@@ -1,6 +1,7 @@
 # -*- coding: utf8 -*-
 
 from openalea.vpltk.qt import QtCore, QtGui
+from openalea.core.path import path as Path
 
 import sys
 
@@ -17,9 +18,10 @@ from openalea.core.service.interface import interface_names
 from openalea.core.control import Control
 
 SAMPLE_VALUES = {
-    'ISequence': ['Item %02d' % i for i in range(15)],
-    'IStr': u'Bonjour = Καλημέρα',
-    'ITextStr':u"""Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+    'IIntRange': dict(value=(10, 150), constraints={'min': 0, 'max': 255}),
+    'ISequence': dict(value=['Item %02d' % i for i in range(15)]),
+    'IStr': dict(value=u'Bonjour = Καλημέρα'),
+    'ITextStr': dict(value=u"""Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
 Nunc turpis orci, porta at facilisis sed, dignissim sed magna. 
 Aenean rutrum mi vitae nibh fermentum, ut tempus justo pulvinar. 
 Donec ac nunc molestie, interdum lectus vel, malesuada metus. 
@@ -28,7 +30,7 @@ Vivamus id mauris vitae metus porta accumsan. Proin ut mi nibh.
 Curabitur condimentum faucibus tortor, vel tincidunt mauris maximus quis. 
 Phasellus eleifend feugiat nisl et dapibus. Pellentesque tempus nunc leo, ac bibendum nunc ullamcorper vitae. 
 Sed hendrerit nisi mauris, id mattis ligula lacinia vel. Nullam at ultrices justo. 
-Aenean eget risus vitae arcu convallis egestas."""
+Aenean eget risus vitae arcu convallis egestas.""")
 }
 
 
@@ -48,10 +50,10 @@ for iname in interface_names():
                 continue
 
             if iname in SAMPLE_VALUES:
-                value = SAMPLE_VALUES[iname]
+                kwargs = SAMPLE_VALUES[iname]
             else:
-                value = None
-            control = Control('c', iname, widget=plugin.name, value=value)
+                kwargs = {}
+            control = Control('c', iname, widget=plugin.name, **kwargs)
             w_editor_class = plugin.load()
             if issubclass(w_editor_class, QtGui.QWidget):
                 w_editor = w_editor_class()
@@ -73,8 +75,8 @@ for iname in interface_names():
 #                 layout.addStretch()
                 widget.show()
                 widget.raise_()
-                if value:
-                    print 'use sample for %s'%iname
+                if kwargs.get('value', None):
+                    print 'use sample for %s' % iname
 
                 x = widget.pos().x()
                 y = widget.pos().y()
@@ -87,13 +89,13 @@ for iname in interface_names():
                 else:
                     pixmap = QtGui.QPixmap.grabWindow(widget.winId(), 0, 0, w, h)
 
-                filename = '%s/%s_%s_%s.png' % (workdir, iname, plugin.name, shape)
+                filename = Path('%s/%s_%s_%s.png' % (workdir, iname, plugin.name, shape)).abspath()
+                # print 'save', filename
                 pixmap.save(filename)
 
                 if shape == 'large':
-                    filename = '%s/preview_%s.png' % (workdir, iname)
+                    filename = Path('%s/preview_%s.png' % (workdir, iname)).abspath()
+                    # print 'save', filename
                     pixmap.save(filename)
 
                 widget.close()
-
-# app.exec_()
