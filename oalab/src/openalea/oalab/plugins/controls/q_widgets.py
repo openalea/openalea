@@ -11,11 +11,14 @@ class QFloatSlider(QtGui.QSlider):
         self.floatValue = 0.0
 
     def notifyValueChanged(self, value):
-        self.floatValue = value * self.slider_step
+        self.floatValue = value*self.slider_step
         self.floatValueChanged.emit(self.floatValue)
 
     def setFloatValue(self, value):
-        self.setValue(int(float(value)/self.slider_step))
+        self.floatValue = value
+        self.setValue(round(value/self.slider_step))
+        # self.floatValueChanged.emit(self.floatValue)
+        # self.setValue(int(float(value)/self.slider_step))
 
     def value(self):
         return self.floatValue

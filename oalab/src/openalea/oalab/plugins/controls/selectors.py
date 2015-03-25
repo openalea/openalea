@@ -62,10 +62,13 @@ class FloatWidgetSelector(object):
             shape = 'hline'
 
         elif shape in ('large', 'hline'):
+            # widget = FloatSimpleSlider()
             widget = FloatSlider()
+            # widget = FloatSpinBox()
         elif shape == 'vline':
             widget = FloatSimpleSlider()
             widget.setOrientation(QtCore.Qt.Vertical)
+            # widget = FloatSpinBox()
         elif shape in ('small', 'responsive'):
             widget = FloatSpinBox()
         else:

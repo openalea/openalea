@@ -126,13 +126,14 @@ class FloatSlider(QtGui.QWidget, AbstractFloatWidget):
         AbstractQtControlWidget.apply(self, control)
         control.interface.min = self.spinbox.minimum()
         control.interface.max = self.spinbox.maximum()
-        control.interface.step = self.slider.slider_step
+        control.interface.step = self.spinbox.singleStep()
 
     def value(self, interface=None):
         return self.spinbox.value()
 
-    def step():
-        return self.slider.slider_step
+    def step(self):
+        # return self.slider.slider_step
+        return self.spinbox.singleStep()
 
     def setValue(self, value):
         self.slider.setFloatValue(value)
