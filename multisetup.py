@@ -52,6 +52,7 @@ misc
 grapheditor
 visualea
 oalab
+deploygui
 """.split()
 #plantlab
 #openalea_meta
