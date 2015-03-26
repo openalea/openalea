@@ -36,8 +36,11 @@ def install_package():
     pythonpath.mkdir()
 
     sys.path.insert(0, pythonpath / 'tstpkg1-0.1-py2.7.egg')
-    PYTHONPATH = os.environ['PYTHONPATH']
-    PYTHONPATH = os.pathsep.join([pythonpath, PYTHONPATH])
+    PYTHONPATH = os.environ.get('PYTHONPATH', None)
+    if PYTHONPATH:
+        PYTHONPATH = os.pathsep.join([pythonpath, PYTHONPATH])
+    else:
+        PYTHONPATH = pythonpath
     os.environ['PYTHONPATH'] = PYTHONPATH
 
     oldcwd = os.getcwd()
