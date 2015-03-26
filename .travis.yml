@@ -16,5 +16,4 @@ before_install:
 
 install: python multisetup.py develop
 
-script: nosetests -w core ../misc ../oalab ../vpltk   
-
+script: ./travis-tests.sh
