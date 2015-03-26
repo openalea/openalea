@@ -5,7 +5,6 @@ notifications:
 
 env:
     - ENV="python=2.7"
-    - ENV="python=2.6"
 
 before_install:
     - pip install ipython[all]
@@ -16,5 +15,4 @@ before_install:
 
 install: python multisetup.py develop
 
-script: nosetests -w core ../misc ../oalab ../vpltk   
-
+script: cd core/test && nosetests --exclude="(test_package.py|test_wralea.py|test_eval.py|test_session.py|test_packagemanager.py|test_persistence.py)"
