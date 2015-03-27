@@ -11,6 +11,7 @@ ev = EventTracker()
 # ev.debug = True
 pm.register_listener(ev)
 
+
 def get_data(filename):
     return Path(__file__).parent.abspath() / 'data' / filename
 
@@ -24,7 +25,7 @@ class TestProjectManager(TestCase):
         pm.clear()
         # Force to ignore default repositories
         pm.repositories = [self.tmpdir]
-        ev.events # clear events
+        ev.events  # clear events
 
     def tearDown(self):
         self.tmpdir.rmtree()
@@ -132,6 +133,43 @@ class TestProjectManager(TestCase):
         project = pm.create('TestProject', self.tmpdir)
         project.save()
         pm.cproject = project
-        ev.events # clear
+        ev.events  # clear
         project.add('model', filename='newfile.py')
         self.check_events(ev.events, ['project_updated'])
+
+    def test_namespace(self):
+        proj = pm.create('new_temp_project', projectdir=self.tmpdir)
+        pm.cproject = proj
+        user_ns = pm.shell.user_ns
+
+        assert 'project' in user_ns
+        assert user_ns['project'].path == proj.path
+        assert user_ns['data'] == proj.path / 'data'
+
+        pm.cproject = None
+        assert 'project' not in user_ns
+        assert 'data' not in user_ns
+
+    def test_world_namespace(self):
+        from openalea.core.service.run import namespace
+        from openalea.core.model import Model
+
+        proj = pm.create('new_temp_project', projectdir=self.tmpdir)
+        user_ns = pm.shell.user_ns
+
+        assert 'world' in user_ns
+        w = user_ns['world']
+        assert w.keys() == []
+
+        code = "world.add(1, name='i');a=1"
+        model = Model()
+        proj.add('model', model)
+        model.set_code(code)
+        model.run(**namespace())
+
+        assert w.keys() == ['i']
+        assert w['i'].obj == 1
+
+        pm.cproject = None
+        assert 'world' not in user_ns
+        assert w.keys() == []
