@@ -312,6 +312,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
             self.notify_listeners(('close_project', self))
             self._cproject.unregister_listener(self)
             self._cproject.stop()
+            self.clear_namespace(self.shell, self._cproject)
             del self._cproject
         self._cproject = None
         self.notify_listeners(('project_closed', self))
@@ -327,6 +328,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
                 self.notify_listeners(('start_project', self))
                 project.start(shell=self.shell)
                 self.notify_listeners(('project_started', self))
+            self.update_namespace(self.shell)
             return
         if project is None:
             self._close_project()
@@ -342,6 +344,17 @@ You can rename/move this project thanks to the button "Save As" in menu.
         self.update_namespace(self.shell)
         self.notify_listeners(('project_changed', self))
 
+    def clear_namespace(self, interpreter, project):
+        if project is None:
+            return
+        sys.path = self.old_syspath
+        for k in project.ns.keys() + ['world', 'data', 'project']:
+            if k in interpreter.user_ns:
+                del interpreter.user_ns[k]
+        from openalea.oalab.world import World
+        world = World()
+        world.clear()
+
     def update_namespace(self, interpreter):
         """
         Definition: Update namespace
@@ -356,9 +369,9 @@ You can rename/move this project thanks to the button "Save As" in menu.
             interpreter.user_ns.update(self._cproject.ns)
             interpreter.user_ns['project'] = self._cproject
             interpreter.user_ns['data'] = self._cproject.path / 'data'
-        else:
-            # close
-            sys.path = self.old_syspath
+            from openalea.oalab.world import World
+            world = World()
+            world.update_namespace(interpreter)
 
 
 def main():

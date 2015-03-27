@@ -54,6 +54,9 @@ class Session(object):
     instantiated = False
 
     def __init__(self):
+        import traceback
+        traceback.print_stack(file=sys.__stdout__)
+
         self._project = None
         self._is_proj = False
         self._debug = False
