@@ -202,3 +202,5 @@ class MiniLab(object):
     @classmethod
     def stop(cls, *args, **kwds):
         cls.state = "stopped"
+
+
