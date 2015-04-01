@@ -32,6 +32,8 @@ def get_shared_data(filename):
 
 
 def qicon(filename):
+    if filename is None:
+        return QtGui.QIcon(get_shared_data('icons/oxygen_application-x-desktop.png'))
     if filename.startswith(':/'):
         return QtGui.QIcon(filename)
     else:
