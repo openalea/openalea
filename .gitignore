@@ -1,9 +1,60 @@
-*.pyc
+# Python files
+*.py[cod]
+
+# C extensions
+*.so
+*.dll
+*.dylib
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+
+# Compiled Object files
+*.os
+
+# Packages
+*.egg
 *.egg-info
+dist
+build
+build-scons
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+__pycache__
+*.pth
+
+# Installer logs
+pip-log.txt
+.amlog
+.sconsign.dblite
+
+# Unit test / coverage reports
+.coverage
+.tox
+nosetests.xml
+
+# Translations
+*.mo
+
+# Vim files
+*.swp
 *.*~
-.svn
-.idea
+
+# Mr Developer
+.mr.developer.cfg
 .project
 .pydevproject
 .settings
+.idea
 
+# svn
+.svn
