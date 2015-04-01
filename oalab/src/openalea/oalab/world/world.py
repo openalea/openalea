@@ -25,17 +25,28 @@ from openalea.core.observer import Observed, AbstractListener
 # class World(OrderedDict, Observed):
 
 
+class Transform(object):
+
+    def __init__(self, function, data):
+        self._function = function
+        self._data = data
+
+    def __call__(self, data=None):
+        if data is None:
+            data = self._data
+        return self._function(data)
+
+
 class World(VPLScene, AbstractListener):
 
     """
     Contain objects of the world.
 
     When world changes, it notifies all listeners with these events:
-        - WorldObjectChanged(scene, changes)
-        - WorldObjectReplaced(scene, key, old_object, new_object)
-        - WorldObjectAdded(scene, key, new_object)
-        - WorldObjectRemoved(scene, old_object)
-        - WorldObjectIndexChanged(scene, old_idx, new_idx)
+        - world_object_changed(scene, changes)
+        - world_object_replaced(scene, key, old_object, new_object)
+        - world_object_added(scene, key, new_object)
+        - world_object_removed(scene, old_object)
 
     A generic "world_changed" event is also notified for all previous changes.
 
@@ -62,15 +73,25 @@ class World(VPLScene, AbstractListener):
         if not self._block:
             self.notify_listeners(('world_sync', self))
 
-    def add(self, data, transform=None, name=None, **kwargs):
+    def add(self, data, name=None, **kwargs):
+        """
+        arguments:
+
+          - transform: method used to convert object before representing it
+          - _repr_*: define method used to convert object to a specific format (html, vtk, ...)
+        """
         if name is None:
             name = 'data_%03d' % self.count
             self.count += 1
         obj = WorldObject(data, **kwargs)
-        if transform:
-            def f():
-                return transform(data)
-            obj._repr_geom_ = f
+
+        # Parse world.add arguments to find transformation functions
+        for key in kwargs:
+            if key.startswith('_repr_') or key == 'transform':
+                transform = kwargs.get(key, None)
+                if transform:
+                    t = Transform(transform, data)
+                    setattr(obj, key, t)
         self[name] = obj
 
     def notify(self, sender, event=None):

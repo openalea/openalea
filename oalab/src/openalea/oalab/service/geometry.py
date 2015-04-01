@@ -9,6 +9,7 @@ from openalea.oalab.world.world import WorldObject
 
 __all__ = ['to_shape3d', 'register_shape3d']
 
+
 def find_plugins(plugin_name='oalab.service.to_shape3d', debug=False):
     """ Find plugins defined as entry points.
 
@@ -24,8 +25,10 @@ def find_plugins(plugin_name='oalab.service.to_shape3d', debug=False):
 
 __registry = find_plugins()
 
+
 def register_shape3d(type_or_types, functor):
     __registry[type_or_types] = functor
+
 
 def to_shape3d(obj):
     import openalea.plantgl.all as pgl
