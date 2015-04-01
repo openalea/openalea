@@ -161,6 +161,12 @@ class Model(object):
             m.set_func_code(fname, code)
         return m
 
+    def _run_code(self, code):
+        if isinstance(code, basestring):
+            self.interp.run_cell(code)
+        else:
+            self.interp.run_code(code)
+
     def set_code(self, code):
         self.set_step_code(code)
 
@@ -213,7 +219,7 @@ class Model(object):
 
         # Run init code
         if 'init' in self._code:
-            self.interp.shell.run_code(self._code['init'])
+            self._run_code(self._code['init'])
 
         self._populate_ns()
         self._pop_ns()
@@ -232,7 +238,7 @@ class Model(object):
 
         # Run code
         if fname in self._code:
-            self.interp.shell.run_code(self._code[fname])
+            self._run_code(self._code[fname])
         outputs = self.output_from_ns(self.interp.user_ns)
 
         self.interp.user_ns.clear()
@@ -382,9 +388,9 @@ class PythonModel(Model):
             if self.outputs_info:
                 code += 'output = %s\n' % (', '.join([out.repr_code() for out in self.outputs_info]))
             code += '"""\n'
-            if 'step' in self._code:
-                code += self._code['step'] + '\n'
-            for fname in ['init', 'run', 'animate', 'stop']:
+            if 'init' in self._code:
+                code += self._code['init'] + '\n'
+            for fname in ['step', 'run', 'animate', 'stop']:
                 if fname in self._code:
                     code += 'def %s():\n' % fname
                     for l in self._code[fname].split('\n'):
@@ -397,9 +403,9 @@ class PythonModel(Model):
         self._initial_code = code
         model, self.inputs_info, self.outputs_info = parse_docstring(code)
         funcs = extract_functions(code)
-        self.set_step_code(code)
+        self.set_func_code('init', code)
 
-        for fname in ['init', 'run', 'animate']:
+        for fname in ['step', 'run', 'animate']:
             if fname in funcs:
                 self.set_func_code(fname, funcs[fname])
 

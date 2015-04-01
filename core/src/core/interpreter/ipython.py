@@ -20,10 +20,11 @@
 
 import types
 from IPython.kernel.inprocess.ipkernel import InProcessKernel
+from IPython.kernel.zmq.ipkernel import Kernel as ZMQKernel
 from IPython.core.error import UsageError
 
 
-class Interpreter(InProcessKernel):
+class IPythonInProcessInterpreter(InProcessKernel):
 
     """
     Interpreter is an IPython kernel adapted for OpenAlea.
@@ -33,50 +34,36 @@ class Interpreter(InProcessKernel):
     """
 
     def __init__(self, gui="qt4", locals=None):
-        super(Interpreter, self).__init__(gui=gui)
-        # cf. get_ipython for ipython singleton problem
-        self.locals = self.shell.user_ns
-
-        if locals is not None:
-            for l in locals:
-                self.locals += l
-        self.shell.locals = self.locals
+        super(IPythonInProcessInterpreter, self).__init__(gui=gui)
         self.user_ns = self.shell.user_ns
         self.shell.showtraceback = types.MethodType(showtraceback, self.shell)
 
     def run_cell(self, *args, **kwargs):
         return self.shell.run_cell(*args, **kwargs)
 
-    def runcode(self, source=None):
-        """
-        TODO
-        """
-        return self.shell.runcode(source)
+    def run_code(self, code_obj):
+        return self.shell.runcode(code_obj)
 
-    def runsource(self, source=None, filename="<input>", symbol="single"):
-        """
-        TODO
-        """
-        try:
-            return self.runcode(source)
-        except:
-            code = compile(source, filename, symbol)
-            if code is not None:
-                return self.runcode(code)
+    def reset(self, namespace=None, **kwargs):
+        self.user_ns.clear()
+        if namespace:
+            self.user_ns.update(namespace)
 
-    def loadcode(self, source=None, namespace=None):
-        """
-        Load 'source' and use 'namespace' if it is in parameter.
-        Else use locals.
+    def update(self, namespace, **kwargs):
+        namespace.update(self.user_ns)
 
-        :param source: text (string) to load
-        :param namespace: dict to use to execute the source
-        """
-        # Not multiligne
-        if namespace is not None:
-            exec(source, namespace)
-        else:
-            exec(source, self.locals, self.locals)
+    def push(self, variables, **kwargs):
+        self.user_ns.update(variables)
+
+    def get(self, varnames, **kwargs):
+        dic = {}
+        for name in varnames:
+            dic[name] = self.user_ns[name]
+        return dic
+
+    def delete(self, varnames, **kwargs):
+        for name in varnames:
+            del self.user_ns[name]
 
 
 def showtraceback(self, exc_tuple=None, filename=None, tb_offset=None,
@@ -134,3 +121,6 @@ def showtraceback(self, exc_tuple=None, filename=None, tb_offset=None,
 
     except KeyboardInterrupt:
         self.write_err("\nKeyboardInterrupt\n")
+
+
+Interpreter = IPythonInProcessInterpreter
