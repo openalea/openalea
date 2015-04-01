@@ -2,7 +2,7 @@
 
 from openalea.vpltk.qt import QtCore, QtGui
 from openalea.oalab.gui.control.widget import AbstractQtControlWidget
-from q_widgets import QFloatSlider, QSpanSlider
+from q_widgets import QFloatSlider, QSpanSlider, QColormapBar
 
 """
 For documentation, see :class:`~openalea.oalab.plugins.control`
@@ -491,23 +491,20 @@ class IntRangeSlider(QtGui.QWidget, AbstractIntRangeWidget):
         self.valueChanged.emit((self.start_spinbox.value(), value))
 
 
-from openalea.oalab.plugins.controls.painters import PainterColormap
-
-
-class ColormapRectangle(QtGui.QWidget, AbstractQtControlWidget):
+class ColormapRectangle(QColormapBar, AbstractQtControlWidget):
     valueChanged = QtCore.Signal(dict)
 
     def __init__(self):
-        QtGui.QWidget.__init__(self)
+        QColormapBar.__init__(self)
+
+        self.setAutoFillBackground(True)
 
         AbstractQtControlWidget.__init__(self)
-        self.color_points = {}
         self.setMinimumHeight(40)
-        self.colormap_painter = PainterColormap()
 
         self.value_changed_signal = self.valueChanged
 
-    def reset(self, value=dict([(0, (0, 0, 0)), (1, (1, 1, 1))]), **kwargs):
+    def reset(self, value=dict(name='grey',color_points=dict([(0.0, (0.0, 0.0, 0.0)),(1.0, (1.0, 1.0, 1.0))])), **kwargs):
         self.setValue(value)
 
     def read(self, control):
@@ -516,36 +513,89 @@ class ColormapRectangle(QtGui.QWidget, AbstractQtControlWidget):
     def apply(self, control):
         AbstractQtControlWidget.apply(self, control)
 
+
+from openalea.deploy.shared_data import shared_data
+import tissuelab
+
+class ColormapSwitcher(QtGui.QWidget, AbstractQtControlWidget):
+    valueChanged = QtCore.Signal(dict)
+
+    def __init__(self):
+        QtGui.QWidget.__init__(self)
+
+        self.colormap_bar = QColormapBar()
+        self.colormap_bar.setMinimumHeight(20)
+        self.colormap_bar.setMinimumWidth(120)
+
+        self.colormap_name = "grey"
+
+        # self.label = QtGui.QLabel(self)
+        # self.label.setText("Colormap")
+
+        self.combobox = QtGui.QComboBox(self)
+
+        # self.setMinimumHeight(50)
+
+        colormap_names = []
+        # colormaps_path = Path(shared_data(tissuelab, 'colormaps/grey.lut')).parent
+        colormaps_path = shared_data(tissuelab)/'colormaps'
+        for colormap_file in colormaps_path.walkfiles('*.lut'):
+            colormap_name = str(colormap_file.name[:-4])
+            colormap_names.append(colormap_name)
+        colormap_names.sort()
+
+        # map between string and combobox index
+        self.map_index = {}
+        for s in  colormap_names:
+            self.combobox.addItem(s)
+            self.map_index[s] = self.combobox.count() - 1
+        self.combobox.setCurrentIndex(self.map_index[self.colormap_name])
+
+        # Fill background to avoid to see text or widget behind
+        self.setAutoFillBackground(True)
+
+        AbstractQtControlWidget.__init__(self)
+
+        self.combobox.currentIndexChanged.connect(self.updateColormap)
+        self.colormap_bar.valueChanged.connect(self.valueChanged)
+
+        layout = QtGui.QHBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+
+        # line = QtGui.QHBoxLayout(self)
+        # line.setContentsMargins(0, 0, 0, 0)
+
+        # line.addWidget(self.label)
+        # line.addWidget(self.combobox)
+        # layout.addLayout(line)
+        layout.addWidget(self.combobox)
+        layout.addWidget(self.colormap_bar)
+
+        self.value_changed_signal = self.valueChanged
+
+    def reset(self, value=dict(name='grey',color_points=dict([(0.0, (0.0, 0.0, 0.0)),(1.0, (1.0, 1.0, 1.0))])), **kwargs):
+        self.setValue(value)
+
+    def read(self, control):
+        self.reset(control.value)
+
+    def apply(self, control):
+        AbstractQtControlWidget.apply(self, control)
+
+    def value(self, interface=None):
+        return self.colormap_bar.value()
+
     def setValue(self, value):
-        self.color_points = value
+        self.colormap_bar.setValue(value)
+        self.colormap_name = value['name']
+        self.combobox.setCurrentIndex(self.map_index[self.colormap_name])
 
-    def value(self):
-        return self.color_points
+    def updateColormap(self,colormap_index):
+        self.colormap_name = self.combobox.itemText(colormap_index)
 
-    def paintEvent(self, event):
-        painter = QtGui.QPainter(self)
-        rectangle = event.rect()
+        from tissuelab.gui.vtkviewer.colormap_utils import Colormap, colormap_from_file
+        colormap_path = shared_data(tissuelab,'colormaps/'+self.colormap_name+'.lut')
 
-        self.colormap_painter.paint_data(self.color_points, painter, rectangle, option=None)
+        colormap = colormap_from_file(colormap_path,name=self.colormap_name)
+        self.setValue(dict(name=self.colormap_name,color_points=colormap._color_points))
 
-        # x = r.bottomLeft().x()
-        # y = r.topRight().y()
-        # lx = r.width() / 101
-
-        # cmap = self.color_points
-
-        # points = cmap.keys()
-
-        # if len(points)>1:
-        #     points.sort()
-        #     prev_point = points[0]
-        #     prev_color = tuple([255*cmap[prev_point][c] for c in [0,1,2]])
-
-        #     for point in points[1:]:
-        #         gradient = QtGui.QLinearGradient(x + prev_point*100*lx, y, x + point*100*lx, y)
-        #         gradient.setColorAt(0, QtGui.QColor(*prev_color))
-        #         color = tuple([255*cmap[point][c] for c in [0,1,2]])
-        #         gradient.setColorAt(1, QtGui.QColor(*color))
-        #         painter.fillRect(x + prev_point*100*lx, y, (point-prev_point)*100*lx, r.height(), gradient)
-        #         prev_point = point
-        #         prev_color = color

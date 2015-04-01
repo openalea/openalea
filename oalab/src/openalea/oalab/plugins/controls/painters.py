@@ -47,26 +47,35 @@ class PainterInterfaceObject(AbstractPainter):
 
 class PainterColormap(AbstractPainter):
 
-    def paint_data(self, data, painter, rectangle, option=None):
+    def paint_data(self, data, painter, rectangle, option=None,**kwargs):
         painter.save()
         r = rectangle
         x = r.bottomLeft().x()
         y = r.topRight().y()
         lx = r.width() / 101.
+        ly = r.height() / 101.
 
-        points = data.keys()
+        points = data['color_points'].keys()
+
+        orientation = kwargs.get('orientation',QtCore.Qt.Horizontal)
 
         if len(points) > 1:
             points.sort()
             prev_point = points[0]
-            prev_color = tuple([255 * data[prev_point][c] for c in [0, 1, 2]])
+            prev_color = tuple([255 * data['color_points'][prev_point][c] for c in [0, 1, 2]])
 
             for point in points[1:]:
-                gradient = QtGui.QLinearGradient(x + prev_point * 100 * lx, y, x + point * 100 * lx, y)
+                if orientation == QtCore.Qt.Horizontal:
+                    gradient = QtGui.QLinearGradient(x + prev_point * 100 * lx, y, x + point * 100 * lx + 1, y)
+                elif orientation == QtCore.Qt.Vertical:
+                    gradient = QtGui.QLinearGradient(x, y + r.height() - prev_point * 100 * ly, x, y + r.height() - point * 100 * ly - 1)
                 gradient.setColorAt(0, QtGui.QColor(*prev_color))
-                color = tuple([255 * data[point][c] for c in [0, 1, 2]])
+                color = tuple([255 * data['color_points'][point][c] for c in [0, 1, 2]])
                 gradient.setColorAt(1, QtGui.QColor(*color))
-                painter.fillRect(x + prev_point * 100 * lx, y, (point - prev_point) * 100 * lx, r.height(), gradient)
+                if orientation == QtCore.Qt.Horizontal:
+                    painter.fillRect(x + prev_point * 100 * lx, y, (point - prev_point) * 100 * lx + 1, r.height(), gradient)
+                elif orientation == QtCore.Qt.Vertical:
+                    painter.fillRect(x, y + r.height() - prev_point * 100 * ly, r.width(), -(point - prev_point) * 100 * ly - 1, gradient)
                 prev_point = point
                 prev_color = color
 

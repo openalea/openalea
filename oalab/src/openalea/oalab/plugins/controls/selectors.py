@@ -25,7 +25,7 @@ from openalea.oalab.plugins.controls.widgets import IntSimpleSlider, IntSpinBox,
 from openalea.oalab.plugins.controls.widgets import FloatSlider, FloatSpinBox, FloatSimpleSlider
 from openalea.oalab.plugins.controls.widgets import BoolCheckBox
 from openalea.oalab.plugins.controls.widgets import IntRangeSpinBoxes, IntRangeSimpleSlider, IntRangeSlider
-from openalea.oalab.plugins.controls.widgets import ColormapRectangle
+from openalea.oalab.plugins.controls.widgets import ColormapRectangle, ColormapSwitcher
 
 from openalea.oalab.plugins.controls.painters import PainterColormap
 
@@ -112,12 +112,12 @@ class ColormapWidgetSelector(object):
         if shape is None:
             shape = 'hline'
 
-        elif shape in ('hline', 'large'):
-            widget = ColormapRectangle()
+        elif shape in ('hline', 'responsive', 'large'):
+            widget = ColormapSwitcher()
         elif shape == 'vline':
             widget = ColormapRectangle()
-            # widget.setOrientation(QtCore.Qt.Vertical)
-        elif shape in ('small', 'responsive'):
+            widget.setOrientation(QtCore.Qt.Vertical)
+        elif shape in ('small'):
             widget = ColormapRectangle()
         else:
             widget = None

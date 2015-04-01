@@ -26,6 +26,38 @@ class QFloatSlider(QtGui.QSlider):
     def setStep(self, step):
         self.slider_step = step
 
+from openalea.oalab.plugins.controls.painters import PainterColormap
+
+class QColormapBar(QtGui.QWidget):
+    valueChanged = QtCore.Signal(dict)
+
+    def __init__(self, orientation=QtCore.Qt.Horizontal):
+        QtGui.QWidget.__init__(self)
+
+        self.color_points = {}
+        self.colormap_name = ""
+        self.colormap_painter = PainterColormap()
+        self.orientation = orientation
+
+    def setValue(self, value):
+        self.color_points = value['color_points']
+        self.colormap_name = value['name']
+        self.valueChanged.emit(dict(color_points=self.color_points,name=self.colormap_name))
+        self.update()
+
+    def value(self):
+        return dict(color_points=self.color_points,name=self.colormap_name)
+
+    def setOrientation(self,orientation):
+        self.orientation = orientation
+
+    def paintEvent(self, event):
+        painter = QtGui.QPainter(self)
+        rectangle = event.rect()
+
+        self.colormap_painter.paint_data(self.value(), painter, rectangle, orientation=self.orientation)
+
+
 
 class QSpanSlider(QtGui.QSlider):
     # Based on QxtSpanSlider.py

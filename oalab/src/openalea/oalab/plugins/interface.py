@@ -24,8 +24,9 @@ class IColormap(IInterface):
     Dict of rgb colors with 0-1 positions as keys.
     Example:
 
-    dict([(0.0, (0.0, 0.0, 0.0)),
-          (1.0, (1.0, 1.0, 1.0))])
+    dict(name='grey',
+         color_points=dict([(0.0, (0.0, 0.0, 0.0)),
+                            (1.0, (1.0, 1.0, 1.0))])
 
     """
     __alias__ = u'Colormap'
@@ -39,7 +40,7 @@ class IColormap(IInterface):
         """
         Reinitialize control to default grey colormap
         """
-        value = dict([(0.0, (0.0, 0.0, 0.0)), (1.0, (1.0, 1.0, 1.0))])
+        value = dict(name='grey',color_points=dict([(0.0, (0.0, 0.0, 0.0)),(1.0, (1.0, 1.0, 1.0))]))
         return value
 
     def __repr__(self):
