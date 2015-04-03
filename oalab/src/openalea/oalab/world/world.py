@@ -18,6 +18,11 @@
 ###############################################################################
 __revision__ = ""
 
+__all__ = [
+    'World',
+    'WorldObject'
+]
+
 from openalea.oalab.scene.vplscene import VPLScene
 from openalea.core.observer import Observed, AbstractListener
 
