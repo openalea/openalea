@@ -33,6 +33,7 @@ class QControlContainer(QtCore.QObject, ControlContainer):
         self._control = {}
 
     def notify(self, sender, event):
+        ControlContainer.notify(self, sender, event)
         if isinstance(sender, Control):
             signal, data = event
             if signal == 'value_changed':
