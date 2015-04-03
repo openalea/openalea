@@ -67,13 +67,25 @@ class World(VPLScene, AbstractListener):
         AbstractListener.__init__(self)
         self.count = 0
 
+    def _emit_world_object_changed(self, old, new):
+        """
+        Notify listeners with world_changed event
+        """
+        if not self._block:
+            self.notify_listeners(('world_object_changed', self, old, new))
+
     def __setitem__(self, key, value):
+        if key in self:
+            old = self[key]
+            old.unregister_listener(self)
+        else:
+            old = None
         if not isinstance(value, WorldObject):
             world_obj = WorldObject(key, value)
         else:
             world_obj = value
         world_obj.register_listener(self)
-        #VPLScene.__setitem__(self, key, world_obj)
+        self._emit_world_object_changed(old, world_obj)
 
     def sync(self):
         if not self._block:
@@ -99,6 +111,7 @@ class World(VPLScene, AbstractListener):
                     t = Transform(transform, data)
                     setattr(obj, key, t)
         self[name] = obj
+        return obj
 
     def notify(self, sender, event=None):
         signal, data = event

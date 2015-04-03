@@ -1,5 +1,4 @@
 
-import unittest
 from openalea.core.unittest_tools import TestCase, EventTracker
 from openalea.core.path import tempdir
 from openalea.core.path import path as Path
