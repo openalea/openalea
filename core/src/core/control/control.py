@@ -142,9 +142,15 @@ class Control(Observed):
         Currently, standard python behaviour:
         copy for non mutable else reference
         """
-        if value != self._value:
-            self._value = value
-            self.notify_change()
+        try:
+            if value != self._value:
+                self._value = value
+                self.notify_change()
+        except ValueError:
+            # Case of equality comparison is not defined
+            if value is not self._value:
+                self._value = value
+                self.notify_change()
 
     @property
     def interface(self):
