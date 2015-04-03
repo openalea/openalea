@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'example/control_sizes.ui'
+# Form implementation generated from reading ui file 'oalab/example/control_sizes.ui'
 #
-# Created: Wed Jun 18 15:32:00 2014
-#      by: PyQt4 UI code generator 4.10.4
+# Created: Fri Apr  3 12:26:18 2015
+#      by: PyQt4 UI code generator 4.11.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName(_fromUtf8("Form"))
-        Form.resize(585, 573)
+        Form.resize(747, 667)
         self.gridLayout = QtGui.QGridLayout(Form)
         self.gridLayout.setMargin(5)
         self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
@@ -47,16 +47,15 @@ class Ui_Form(object):
         self.widget.setSizePolicy(sizePolicy)
         self.widget.setObjectName(_fromUtf8("widget"))
         self.gridLayout_2 = QtGui.QGridLayout(self.widget)
-        self.gridLayout_2.setMargin(0)
         self.gridLayout_2.setSpacing(5)
+        self.gridLayout_2.setMargin(0)
         self.gridLayout_2.setObjectName(_fromUtf8("gridLayout_2"))
         self.large = QtGui.QWidget(self.widget)
         self.large.setMinimumSize(QtCore.QSize(200, 200))
-        self.large.setMaximumSize(QtCore.QSize(300, 300))
         self.large.setObjectName(_fromUtf8("large"))
-        self.l_large = QtGui.QVBoxLayout(self.large)
-        self.l_large.setMargin(0)
-        self.l_large.setObjectName(_fromUtf8("l_large"))
+        self.l_large_box = QtGui.QGridLayout(self.large)
+        self.l_large_box.setMargin(0)
+        self.l_large_box.setObjectName(_fromUtf8("l_large_box"))
         self.label_7 = QtGui.QLabel(self.large)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
@@ -64,7 +63,19 @@ class Ui_Form(object):
         sizePolicy.setHeightForWidth(self.label_7.sizePolicy().hasHeightForWidth())
         self.label_7.setSizePolicy(sizePolicy)
         self.label_7.setObjectName(_fromUtf8("label_7"))
-        self.l_large.addWidget(self.label_7)
+        self.l_large_box.addWidget(self.label_7, 0, 0, 1, 1)
+        self.large_2 = QtGui.QFrame(self.large)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.large_2.sizePolicy().hasHeightForWidth())
+        self.large_2.setSizePolicy(sizePolicy)
+        self.large_2.setMinimumSize(QtCore.QSize(300, 300))
+        self.large_2.setFrameShape(QtGui.QFrame.Box)
+        self.large_2.setObjectName(_fromUtf8("large_2"))
+        self.l_large = QtGui.QVBoxLayout(self.large_2)
+        self.l_large.setObjectName(_fromUtf8("l_large"))
+        self.l_large_box.addWidget(self.large_2, 1, 0, 1, 1)
         self.gridLayout_2.addWidget(self.large, 5, 0, 1, 1)
         self.gridLayout.addWidget(self.widget, 7, 0, 4, 2)
         self.small = QtGui.QWidget(Form)
@@ -88,18 +99,18 @@ class Ui_Form(object):
         self.l_responsive.setMargin(0)
         self.l_responsive.setObjectName(_fromUtf8("l_responsive"))
         self.gridLayout.addWidget(self.responsive, 12, 4, 1, 1)
+        self.label_4 = QtGui.QLabel(Form)
+        self.label_4.setObjectName(_fromUtf8("label_4"))
+        self.gridLayout.addWidget(self.label_4, 4, 0, 1, 1)
+        self.l_title = QtGui.QLabel(Form)
+        self.l_title.setObjectName(_fromUtf8("l_title"))
+        self.gridLayout.addWidget(self.l_title, 2, 0, 1, 1)
         self.line_6 = QtGui.QFrame(Form)
         self.line_6.setFrameShadow(QtGui.QFrame.Plain)
         self.line_6.setFrameShape(QtGui.QFrame.HLine)
         self.line_6.setFrameShadow(QtGui.QFrame.Sunken)
         self.line_6.setObjectName(_fromUtf8("line_6"))
         self.gridLayout.addWidget(self.line_6, 6, 0, 1, 3)
-        self.l_title = QtGui.QLabel(Form)
-        self.l_title.setObjectName(_fromUtf8("l_title"))
-        self.gridLayout.addWidget(self.l_title, 2, 0, 1, 1)
-        self.label_4 = QtGui.QLabel(Form)
-        self.label_4.setObjectName(_fromUtf8("label_4"))
-        self.gridLayout.addWidget(self.label_4, 4, 0, 1, 1)
         self.hline = QtGui.QWidget(Form)
         self.hline.setMinimumSize(QtCore.QSize(200, 30))
         self.hline.setMaximumSize(QtCore.QSize(16777215, 30))
@@ -197,9 +208,9 @@ class Ui_Form(object):
     def retranslateUi(self, Form):
         Form.setWindowTitle(_translate("Form", "Form", None))
         self.label_6.setText(_translate("Form", "shape=small, vline", None))
-        self.label_7.setText(_translate("Form", "shape=large", None))
-        self.l_title.setText(_translate("Form", "TextLabel", None))
+        self.label_7.setText(_translate("Form", "shape=large (300x300)", None))
         self.label_4.setText(_translate("Form", "shape=hline", None))
+        self.l_title.setText(_translate("Form", "TextLabel", None))
         self.label.setText(_translate("Form", "<html><head/><body><p><span style=\" font-size:16pt; font-weight:600;\">Check shapes and read/apply modes ...</span></p></body></html>", None))
         self.label_8.setText(_translate("Form", "<html><head/><body><p><span style=\" font-size:12pt; font-weight:600;\">Test read/apply modes</span></p></body></html>", None))
         self.label_2.setText(_translate("Form", "Check \"auto-read\" and \"auto-apply\"", None))
@@ -210,4 +221,14 @@ class Ui_Form(object):
         self.label_3.setToolTip(_translate("Form", "Widget in this frame has mode auto-read ON, auto-apply ON", None))
         self.label_3.setText(_translate("Form", "Test Control", None))
         self.label_5.setText(_translate("Form", "shape=responsive ->", None))
+
+
+if __name__ == "__main__":
+    import sys
+    app = QtGui.QApplication(sys.argv)
+    Form = QtGui.QWidget()
+    ui = Ui_Form()
+    ui.setupUi(Form)
+    Form.show()
+    sys.exit(app.exec_())
 
