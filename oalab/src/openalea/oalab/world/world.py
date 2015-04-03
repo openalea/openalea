@@ -69,17 +69,15 @@ class World(VPLScene, AbstractListener):
 
     def __setitem__(self, key, value):
         if not isinstance(value, WorldObject):
-            world_obj = WorldObject(value)
+            world_obj = WorldObject(key, value)
         else:
             world_obj = value
         world_obj.register_listener(self)
-        VPLScene.__setitem__(self, key, world_obj)
+        #VPLScene.__setitem__(self, key, world_obj)
 
     def sync(self):
         if not self._block:
             self.notify_listeners(('world_sync', self))
-
-
 
     def add(self, data, name=None, **kwargs):
         """
@@ -91,7 +89,7 @@ class World(VPLScene, AbstractListener):
         if name is None:
             name = 'data_%03d' % self.count
             self.count += 1
-        obj = WorldObject(data, **kwargs)
+        obj = WorldObject(name, data, **kwargs)
 
         # Parse world.add arguments to find transformation functions
         for key in kwargs:
@@ -104,7 +102,7 @@ class World(VPLScene, AbstractListener):
 
     def notify(self, sender, event=None):
         signal, data = event
-        if event == 'world_object_changed':
+        if event == 'world_object_data_changed':
             world, old, new = data
             self._emit_value_changed(old, new)
 
@@ -145,9 +143,9 @@ class WorldObject(Observed):
         self._data = data
         self._attributes = []
 
-        self.model_id = kwargs.pop('model_id',None)
-        self.output_id = kwargs.pop('output_id',None)
-        self.in_scene = kwargs.pop('in_scene',True) or True
+        self.model_id = kwargs.pop('model_id', None)
+        self.output_id = kwargs.pop('output_id', None)
+        self.in_scene = kwargs.pop('in_scene', True) or True
         self.kwargs = kwargs
 
     @property
@@ -168,5 +166,25 @@ class WorldObject(Observed):
 
     @data.setter
     def data(self, data):
-        self.notify_listeners(('world_object_changed', (self, self._data, data)))
+        self.notify_listeners(('world_object_data_changed', (self, self._data, data)))
         self._data = data
+
+    def set_attribute(self, name, value, interface=None):
+        attribute_names = [a['name'] for a in self._attributes]
+        try:
+            attribute = self._attributes[attribute_names.index(name)]
+        except ValueError:
+            if interface is None:
+                from openalea.core.service.interface import guess_interface
+                interfaces = guess_interface(value)
+                if len(interfaces):
+                    interface = interfaces[0]
+            self._attributes.append(dict(name=name, value=value, interface=interface))
+            self.notify_listeners(('world_object_attribute_changed', (self, None, self._attributes[-1])))
+        else:
+            from copy import copy
+            old_attribute = copy(attribute)
+            if interface is not None:
+                attribute['interface'] = interface
+            attribute['value'] = value
+            self.notify_listeners(('world_object_attribute_changed', (self, old_attribute, attribute)))
