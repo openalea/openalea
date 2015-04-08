@@ -125,6 +125,7 @@ setup(
             'ProjectManager = openalea.oalab.plugins.applets.projectwidget:ProjectManager',
             'Store = openalea.oalab.plugins.applets.store:Store',
             'World = openalea.oalab.plugins.applets.worldwidget:World',
+            'WorldControl = openalea.oalab.plugins.applets.worldwidget:WorldControl',
             'MplTabWidget = openalea.oalab.plugins.applets.plot2d:MplTabWidget',
             'MplFigureWidget = openalea.oalab.plugins.applets.plot2d:MplFigureWidget',
             'ShellWidget = openalea.oalab.plugins.applets.shellwidget:ShellWidget',

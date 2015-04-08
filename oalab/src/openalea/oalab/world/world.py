@@ -69,10 +69,17 @@ class World(VPLScene, AbstractListener):
 
     def _emit_world_object_changed(self, old, new):
         """
-        Notify listeners with world_changed event
+        Notify listeners with world_object_changed event
         """
         if not self._block:
-            self.notify_listeners(('world_object_changed', self, old, new))
+            self.notify_listeners(('world_object_changed', (self, old, new)))
+
+    def _emit_world_object_item_changed(self, obj, item, old, new):
+        """
+        Notify listeners with world_object_item_changed event
+        """
+        if not self._block:
+            self.notify_listeners(('world_object_item_changed', (self, obj, item, old, new)))
 
     def __setitem__(self, key, value):
         if key in self:
@@ -85,6 +92,8 @@ class World(VPLScene, AbstractListener):
         else:
             world_obj = value
         world_obj.register_listener(self)
+        # VPLScene.__setitem__(self, key, world_obj)
+        super(VPLScene, self).__setitem__(key, world_obj)
         self._emit_world_object_changed(old, world_obj)
 
     def sync(self):
@@ -113,11 +122,23 @@ class World(VPLScene, AbstractListener):
         self[name] = obj
         return obj
 
+    def change_object_attribute(self, name, attribute):
+        print "World < received attributeChanged!"
+        attribute_name = attribute['name']
+        attribute_value = attribute['value']
+        self[name].set_attribute(attribute_name, attribute_value)
+
     def notify(self, sender, event=None):
         signal, data = event
+        print event
         if event == 'world_object_data_changed':
-            world, old, new = data
-            self._emit_value_changed(old, new)
+            world_obj, old, new = data
+            #self._emit_value_changed(old, new)
+            self._emit_world_object_changed(old, world_obj)
+        elif signal == 'world_object_attribute_changed':
+            print "World < world_object_attribute_changed!"
+            world_obj, old, new = data
+            self._emit_world_object_item_changed(world_obj, 'attribute', old, new)
 
     def update_namespace(self, interpreter):
         interpreter.user_ns['world'] = self
@@ -173,6 +194,10 @@ class WorldObject(Observed):
     def data(self):
         return self._data
 
+    @property
+    def attributes(self):
+        return self._attributes
+
     @obj.setter
     def obj(self, data):
         self.data = data
@@ -194,10 +219,22 @@ class WorldObject(Observed):
                     interface = interfaces[0]
             self._attributes.append(dict(name=name, value=value, interface=interface))
             self.notify_listeners(('world_object_attribute_changed', (self, None, self._attributes[-1])))
+            print "WorldObject > world_object_attribute_changed!"
         else:
             from copy import copy
             old_attribute = copy(attribute)
             if interface is not None:
                 attribute['interface'] = interface
             attribute['value'] = value
-            self.notify_listeners(('world_object_attribute_changed', (self, old_attribute, attribute)))
+            if attribute['value'] != old_attribute['value']:
+                self.notify_listeners(('world_object_attribute_changed', (self, old_attribute, attribute)))
+                print "WorldObject > world_object_attribute_changed!"
+
+    def get_attribute(self, name, default_value):
+        attribute_names = [a['name'] for a in self._attributes]
+        try:
+            attribute = self._attributes[attribute_names.index(name)]
+        except ValueError:
+            return default_value
+        else:
+            return attribute['value']
