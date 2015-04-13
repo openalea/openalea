@@ -217,8 +217,6 @@ class WorldObject(Observed):
                 interfaces = guess_interface(value)
                 if len(interfaces):
                     interface = interfaces[0]
-            if alias is None:
-                alias = name
             self._attributes.append(dict(name=name, value=value, interface=interface, alias=alias))
             self.notify_listeners(('world_object_attribute_changed', (self, None, self._attributes[-1])))
             print "WorldObject > world_object_attribute_changed!"
@@ -227,8 +225,8 @@ class WorldObject(Observed):
             old_attribute = copy(attribute)
             if interface is not None:
                 attribute['interface'] = interface
-            if alias is not None:
-                attribute['alias'] = alias
+
+            attribute['alias'] = alias
             attribute['value'] = value
             if attribute['value'] != old_attribute['value']:
                 self.notify_listeners(('world_object_attribute_changed', (self, old_attribute, attribute)))

@@ -17,6 +17,7 @@
 ###############################################################################
 __revision__ = ""
 
+import weakref
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core.observer import AbstractListener
 from openalea.oalab.gui.control.manager import ControlManagerWidget
@@ -119,7 +120,7 @@ class WorldModel(QtGui.QStandardItemModel):
 class WorldControlPanel(QtGui.QWidget, AbstractListener):
     StyleTableView = 0
     StylePanel = 1
-    DEFAULT_STYLE = StyleTableView
+    DEFAULT_STYLE = StylePanel
 
     attributeChanged = QtCore.Signal(str, dict)
 
@@ -151,19 +152,17 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
         actionClearWorld.triggered.connect(self.clear)
         self._actions = [["Project", "World", actionClearWorld, 0]]
 
-        if self.style == self.StylePanel:
-            from openalea.oalab.service.qt_control import edit
-            self._view = edit(self._default_manager)
-            self._qt_control = {}
-            for control, editor in self._view.editor.items():
-                self._qt_control[control.name] = editor
-        else:
-            self._view = ControlManagerWidget(manager=self._default_manager)
-
         self._layout = QtGui.QVBoxLayout(self)
         self._layout.addWidget(self._cb_world_object)
-        self._layout.addWidget(self._view)
-        # self.setLayout(self._layout)
+
+        if self.style == self.StyleTableView:
+            self._view = ControlManagerWidget(manager=self._default_manager)
+            self._layout.addWidget(self._view)
+        elif self.style == self.StylePanel:
+            self._view = None
+            self._set_manager(self._default_manager)
+        else:
+            raise NotImplementedError('style %s' % self.style)
 
     def set_properties(self, properties):
         self._view.set_properties(properties)
@@ -201,8 +200,9 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
         elif signal == 'world_object_item_changed':
             print "WorldControlPanel < ", signal
             world, world_object, item, old, new = data
+            if world_object.name not in self._manager:
+                self._manager[world_object.name] = self._create_manager(world_object)
             self.refresh_manager(world_object)
-            self.refresh()
         elif signal == 'world_sync':
             print "WorldControlPanel < ", signal, data
             self.clear()
@@ -217,11 +217,7 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
         self._current = None
 
         if self.style == self.StylePanel:
-            from openalea.oalab.service.qt_control import edit
-            self._view = edit(self._default_manager)
-            self._qt_control = {}
-            for control, editor in self._view.editor.items():
-                self._qt_control[control.name] = editor
+            self._set_manager(self._default_manager)
         else:
             self._view.model.set_manager(self._default_manager)
         self.refresh()
@@ -232,7 +228,10 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
             self.world.unregister_listener(self)
         self.world = world
         self.world.register_listener(self)
-        self.model.set_world(world)
+
+        if self.style == self.StyleTableView:
+            self.model.set_world(world)
+
         for object_name in world.keys():
             if object_name not in self._manager:
                 manager = self._create_manager(world[object_name])
@@ -246,10 +245,7 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
         #     self._set_manager(object_manager)
         #     object_manager.enable_followers()
 
-    def _create_manager(self, world_object=None):
-        from openalea.core.control.manager import ControlContainer
-        manager = ControlContainer()
-
+    def _fill_manager(self, manager, world_object):
         if world_object:
             for attribute in world_object.attributes:
                 attribute_manager = manager.add(
@@ -276,6 +272,10 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
 
                 manager.register_follower(attribute['name'], self._attribute_changed(attribute['name']))
 
+    def _create_manager(self, world_object=None):
+        from openalea.core.control.manager import ControlContainer
+        manager = ControlContainer()
+        self._fill_manager(manager, world_object)
         return manager
 
     def _selected_object_changed(self, idx):
@@ -284,19 +284,22 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
 
     def _set_manager(self, manager):
         if self.style == self.StylePanel:
+            view = self._view
+            if self._view is not None:
+                view = self._view()
+            if view:
+                self._layout.removeWidget(view)
+                view.close()
+                del view
             from openalea.oalab.service.qt_control import edit
-            self._view = edit(manager)
-            # self._qt_control = {}
-            # for control, editor in self._view.editor.items():
-            #     self._qt_control[control.name] = editor
-            #     # editor.set(control)
-            # for c_id, weakref in self._qt_control.items():
-            #     control = manager.control(name=c_id)
-            #     editor = weakref()
-            #     if editor and control:
-            #         editor.set(control)
-        else:
+            view = edit(manager)
+            view.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+            self._view = weakref.ref(view)
+            self._layout.addWidget(view)
+        elif self.style == self.StyleTableView:
             self._view.model.set_manager(manager)
+        else:
+            raise NotImplementedError('style %s' % self.style)
 
     def select_world_object(self, object_name):
         if object_name != self._current:
@@ -309,15 +312,18 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
     def refresh_manager(self, world_object):
         object_name = world_object.name
         print "WorldControlPanel < refresh_manager ", object_name
-        if [c.name for c in self._manager[object_name].controls()] != [a['name'] for a in world_object.attributes]:
+
+        manager_attr_names = [c.name for c in self._manager[object_name].controls()]
+        object_attr_names = [a['name'] for a in world_object.attributes]
+        if manager_attr_names != object_attr_names:
             object_manager = self._manager[object_name]
-            object_manager.disable_followers()
-            object_manager = self._create_manager(world_object)
+            object_manager.clear_followers()
+            object_manager.clear()
+            self._fill_manager(object_manager, world_object)
             if self._current == object_name:
                 print "WorldControlPanel > set_manager ", object_name
                 self._set_manager(object_manager)
                 object_manager.enable_followers()
-            self._manager[object_name] = object_manager
         else:
             for a in world_object.attributes:
                 if a['value'] != self._manager[object_name].control(a['name']).value:
@@ -325,14 +331,14 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
 
     def refresh(self):
         if self.world is not None:
-            self.model.set_world(self.world)
+            self.set_world(self.world)
 
     def _attribute_changed(self, attribute_name):
         def _changed(old, new):
-            self._obejct_attribute_changed(attribute_name, old, new)
+            self._object_attribute_changed(attribute_name, old, new)
         return _changed
 
-    def _obejct_attribute_changed(self, attribute_name, old, new):
+    def _object_attribute_changed(self, attribute_name, old, new):
         print attribute_name, " : ", old, " --> ", new
         self.world[self._current].set_attribute(attribute_name, new)
 
@@ -340,15 +346,29 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
 def main():
     import sys
     app = QtGui.QApplication(sys.argv)
-    world = dict()
+
+    from openalea.oalab.world import World
+
+    world = World()
     world["obj1"] = "plop"
     world["obj2"] = "plop2"
-    world["obj3"] = "plop3"
-    world["obj4"] = "plop4"
-    world["obj5"] = "plop5"
-    wid = GenericWorldBrowser()
-    wid.set_world(world)
-    wid.show()
+
+    obj1 = world["obj1"]
+    obj2 = world["obj2"]
+
+    obj1.set_attribute('a1', 1, 'IInt')
+    obj1.set_attribute('a2', True, 'IBool')
+
+    obj2.set_attribute('b1', 2.34, 'IFloat')
+
+    wid1 = WorldControlPanel(style=WorldControlPanel.StylePanel)
+    wid1.set_world(world)
+    wid1.show()
+
+    wid2 = WorldControlPanel(style=WorldControlPanel.StyleTableView)
+    wid2.set_world(world)
+    wid2.show()
+
     app.exec_()
 
 
