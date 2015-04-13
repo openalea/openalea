@@ -256,7 +256,7 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
                     attribute['name'],
                     interface=attribute['interface'],
                     value=attribute['value'],
-                    alias=attribute['name'])
+                    alias=attribute['alias'])
                 if '_alpha' in attribute['name']:
                     attribute_manager.interface.step = 0.1
                     attribute_manager.interface.min = 0
