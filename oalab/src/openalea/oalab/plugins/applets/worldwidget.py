@@ -62,4 +62,3 @@ class WorldControl(PluginApplet):
 
         self._fill_menu(mainwindow, applet)
         mainwindow.add_applet(applet, self.alias, area='inputs')
-

@@ -122,11 +122,11 @@ class World(VPLScene, AbstractListener):
         self[name] = obj
         return obj
 
-    def change_object_attribute(self,name,attribute):
+    def change_object_attribute(self, name, attribute):
         print "World < received attributeChanged!"
         attribute_name = attribute['name']
         attribute_value = attribute['value']
-        self[name].set_attribute(attribute_name,attribute_value)
+        self[name].set_attribute(attribute_name, attribute_value)
 
     def notify(self, sender, event=None):
         signal, data = event
@@ -138,7 +138,7 @@ class World(VPLScene, AbstractListener):
         elif signal == 'world_object_attribute_changed':
             print "World < world_object_attribute_changed!"
             world_obj, old, new = data
-            self._emit_world_object_item_changed(world_obj,'attribute',old,new)
+            self._emit_world_object_item_changed(world_obj, 'attribute', old, new)
 
     def update_namespace(self, interpreter):
         interpreter.user_ns['world'] = self
@@ -238,4 +238,3 @@ class WorldObject(Observed):
             return default_value
         else:
             return attribute['value']
-

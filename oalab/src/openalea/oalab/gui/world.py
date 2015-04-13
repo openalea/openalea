@@ -22,6 +22,7 @@ from openalea.core.observer import AbstractListener
 from openalea.oalab.gui.control.manager import ControlManagerWidget
 from openalea.core.service.ipython import interpreter as get_interpreter
 
+
 class GenericWorldBrowser(QtGui.QWidget):
 
     def __init__(self):
@@ -100,6 +101,7 @@ class WorldBrowser(GenericWorldBrowser, AbstractListener):
         self.world = world
         self.world.register_listener(self)
 
+
 class WorldModel(QtGui.QStandardItemModel):
 
     def set_world(self, world={}):
@@ -119,7 +121,7 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
     StylePanel = 1
     DEFAULT_STYLE = StyleTableView
 
-    attributeChanged = QtCore.Signal(str,dict)
+    attributeChanged = QtCore.Signal(str, dict)
 
     def __init__(self, parent=None, style=None):
         AbstractListener.__init__(self)
@@ -182,21 +184,21 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
     def notify(self, sender, event=None):
         signal, data = event
         if signal == 'world_changed':
-            print "WorldControlPanel < ",signal
+            print "WorldControlPanel < ", signal
             self.set_world(data)
             self.refresh()
         elif signal == 'world_object_changed':
-            print "WorldControlPanel < ",signal
-            world,old_object,world_object = data
+            print "WorldControlPanel < ", signal
+            world, old_object, world_object = data
             self.set_world(world)
             self.refresh()
         elif signal == 'world_object_item_changed':
-            print "WorldControlPanel < ",signal
-            world,world_object,item,old,new = data
+            print "WorldControlPanel < ", signal
+            world, world_object, item, old, new = data
             self.refresh_manager(world_object)
             self.refresh()
         elif signal == 'world_sync':
-            print "WorldControlPanel < ",signal,data
+            print "WorldControlPanel < ", signal, data
             self.clear()
             self.set_world(data)
             self.refresh()
@@ -217,7 +219,6 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
         else:
             self._view.model.set_manager(self._default_manager)
         self.refresh()
-
 
     def set_world(self, world):
         print "WorldControlPanel < set_world"
@@ -245,7 +246,11 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
 
         if world_object:
             for attribute in world_object.attributes:
-                attribute_manager = manager.add(attribute['name'], interface=attribute['interface'], value=attribute['value'],alias=attribute['name'])
+                attribute_manager = manager.add(
+                    attribute['name'],
+                    interface=attribute['interface'],
+                    value=attribute['value'],
+                    alias=attribute['name'])
                 if '_alpha' in attribute['name']:
                     attribute_manager.interface.step = 0.1
                     attribute_manager.interface.min = 0
@@ -253,13 +258,13 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
                 elif 'alphamap' in attribute['name']:
                     attribute_manager.interface.enum = ['constant', 'linear']
                 elif 'plane_position' in attribute['name']:
-                    for i,axis in enumerate(['x','y','z']):
+                    for i, axis in enumerate(['x', 'y', 'z']):
                         if axis in attribute['name']:
                             attribute_manager.interface.min = 0
-                            attribute_manager.interface.max = world_object.data.shape[i]-1
+                            attribute_manager.interface.max = world_object.data.shape[i] - 1
                 elif 'intensity' in attribute['name']:
                     import numpy as np
-                    if isinstance(world_object.data,np.ndarray):
+                    if isinstance(world_object.data, np.ndarray):
                         attribute_manager.interface.min = int(np.min(world_object.data))
                         attribute_manager.interface.max = int(np.max(world_object.data))
 
@@ -294,36 +299,37 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
             object_manager.disable_followers()
             self._set_manager(object_manager)
             object_manager.enable_followers()
-        
+
     def refresh_manager(self, world_object):
         object_name = world_object.name
-        print  "WorldControlPanel < refresh_manager ",object_name 
+        print "WorldControlPanel < refresh_manager ", object_name
         if [c.name for c in self._manager[object_name].controls()] != [a['name'] for a in world_object.attributes]:
             object_manager = self._manager[object_name]
             object_manager.disable_followers()
             object_manager = self._create_manager(world_object)
             if self._current == object_name:
-                print  "WorldControlPanel > set_manager ",object_name 
+                print "WorldControlPanel > set_manager ", object_name
                 self._set_manager(object_manager)
                 object_manager.enable_followers()
             self._manager[object_name] = object_manager
         else:
             for a in world_object.attributes:
-                if a['value'] !=  self._manager[object_name].control(a['name']).value:
+                if a['value'] != self._manager[object_name].control(a['name']).value:
                     self._manager[object_name].control(a['name']).set_value(a['value'])
 
     def refresh(self):
         if self.world is not None:
             self.model.set_world(self.world)
 
-    def _attribute_changed(self,attribute_name):
+    def _attribute_changed(self, attribute_name):
         def _changed(old, new):
             self._obejct_attribute_changed(attribute_name, old, new)
         return _changed
 
     def _obejct_attribute_changed(self, attribute_name, old, new):
-        print attribute_name," : ",old," --> ",new
-        self.world[self._current].set_attribute(attribute_name,new)
+        print attribute_name, " : ", old, " --> ", new
+        self.world[self._current].set_attribute(attribute_name, new)
+
 
 def main():
     import sys
