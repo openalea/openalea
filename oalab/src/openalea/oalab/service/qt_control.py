@@ -113,10 +113,12 @@ def qt_container(container, **kwargs):
     widget = QtGui.QWidget()
     layout = QtGui.QFormLayout(widget)
     widget.editor = {}
+    widget.control = {}
     for control in container.controls():
         editor = qt_editor(control, 'hline')
         if editor:
             widget.editor[control] = weakref.ref(editor)
+            widget.control[control.name] = control
             layout.addRow(control.alias, editor)
     return widget
 

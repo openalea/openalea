@@ -1249,8 +1249,12 @@ class TestMainWin(OALabMainWin):
         self.interp.user_ns['applet'] = applet
         self.interp.user_ns['applets'] = applets
 
+        print 'functions:'
         for f in kwds.pop('tests', []):
             self.interp.user_ns['run_%s' % f.__name__] = f
+            print 'run_%s' % f.__name__
+
+        self.resize(QtCore.QSize(800, 600))
 
     def debug(self):
         from openalea.oalab.session.session import Session
