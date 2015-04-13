@@ -165,6 +165,12 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
         self._layout.addWidget(self._view)
         # self.setLayout(self._layout)
 
+    def set_properties(self, properties):
+        self._view.set_properties(properties)
+
+    def properties(self):
+        return self._view.properties()
+
     def __getitem__(self, key):
         return self._manager[self._current].control(name=key)
 
