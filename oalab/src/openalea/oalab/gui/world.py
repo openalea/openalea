@@ -165,10 +165,42 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
             raise NotImplementedError('style %s' % self.style)
 
     def set_properties(self, properties):
-        self._view.set_properties(properties)
+        if self.style == self.StyleTableView:
+            self._view.set_properties(properties)
 
     def properties(self):
-        return self._view.properties()
+        if self.style == self.StyleTableView:
+            return self._view.properties()
+        else:
+            return []
+
+    def set_style(self, style):
+        if style == self.style:
+            return
+
+        world = self.world
+        self.clear()
+        if self.style == self.StyleTableView:
+            view = self._view
+        elif self.style == self.StylePanel:
+            if self._view and self._view():
+                view = self._view()
+            else:
+                return
+
+        # Remove old view
+        view.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        self._layout.removeWidget(view)
+        view.close()
+        del view
+        self._view = None
+
+        self.style = style
+        if style == self.StyleTableView:
+            self._view = ControlManagerWidget(manager=self._default_manager)
+            self._layout.addWidget(self._view)
+
+        self.set_world(world)
 
     def __getitem__(self, key):
         return self._manager[self._current].control(name=key)
@@ -190,42 +222,38 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
         signal, data = event
         if signal == 'world_changed':
             print "WorldControlPanel < ", signal
-            self.set_world(data)
             self.refresh()
         elif signal == 'world_object_changed':
             print "WorldControlPanel < ", signal
             world, old_object, world_object = data
-            self.set_world(world)
-            self.refresh()
+            self.refresh_manager(world_object)
         elif signal == 'world_object_item_changed':
             print "WorldControlPanel < ", signal
             world, world_object, item, old, new = data
-            if world_object.name not in self._manager:
-                self._manager[world_object.name] = self._create_manager(world_object)
             self.refresh_manager(world_object)
+            #self.refresh_item(world_object, item, old, new)
         elif signal == 'world_sync':
             print "WorldControlPanel < ", signal, data
-            self.clear()
-            self.set_world(data)
             self.refresh()
 
-    def clear(self):
-        if self.world:
-            self.world.clear()
-        self._cb_world_object.clear()
-        self._manager.clear()
+    def clear_managers(self):
         self._current = None
+        self._cb_world_object.clear()
+        for name, manager in self._manager.items():
+            manager.clear_followers()
+            del self._manager[name]
+        self._set_manager(self._default_manager)
 
-        if self.style == self.StylePanel:
-            self._set_manager(self._default_manager)
-        else:
-            self._view.model.set_manager(self._default_manager)
-        self.refresh()
+    def clear(self):
+        self.clear_managers()
+        if self.world:
+            self.world.unregister_listener(self)
+            self.world = None
 
     def set_world(self, world):
         print "WorldControlPanel < set_world"
-        if self.world:
-            self.world.unregister_listener(self)
+        self.clear()
+
         self.world = world
         self.world.register_listener(self)
 
@@ -233,10 +261,6 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
             self.model.set_world(world)
 
         for object_name in world.keys():
-            if object_name not in self._manager:
-                manager = self._create_manager(world[object_name])
-                self._manager[object_name] = manager
-                self._cb_world_object.addItem(object_name)
             self.refresh_manager(world[object_name])
         # if self._current:
         #     print "WorldControlPanel > set_manager",self._current
@@ -270,7 +294,15 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
                         attribute_manager.interface.min = int(np.min(world_object.data))
                         attribute_manager.interface.max = int(np.max(world_object.data))
 
-                manager.register_follower(attribute['name'], self._attribute_changed(attribute['name']))
+                manager.register_follower(attribute['name'], self._attribute_changed(world_object, attribute['name']))
+
+    def _get_manager(self, world_object):
+        object_name = world_object.name
+        if object_name not in self._manager:
+            manager = self._create_manager(world_object)
+            self._manager[object_name] = manager
+            self._cb_world_object.addItem(object_name)
+        return self._manager[object_name]
 
     def _create_manager(self, world_object=None):
         from openalea.core.control.manager import ControlContainer
@@ -309,14 +341,27 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
             self._set_manager(object_manager)
             object_manager.enable_followers()
 
+    def refresh_item(self, world_object, item, old, new):
+        object_name = world_object.name
+        if item == 'attribute':
+            manager = self._get_manager(world_object)
+            attr_name = new['name']
+            attr_value = new['value']
+            control = manager.control(name=attr_name)
+            if control:
+                control.value = attr_value
+        else:
+            self.refresh_manager(world_object)
+
     def refresh_manager(self, world_object):
         object_name = world_object.name
+        object_manager = self._get_manager(world_object)
+
         print "WorldControlPanel < refresh_manager ", object_name
 
         manager_attr_names = [c.name for c in self._manager[object_name].controls()]
         object_attr_names = [a['name'] for a in world_object.attributes]
         if manager_attr_names != object_attr_names:
-            object_manager = self._manager[object_name]
             object_manager.clear_followers()
             object_manager.clear()
             self._fill_manager(object_manager, world_object)
@@ -333,14 +378,14 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
         if self.world is not None:
             self.set_world(self.world)
 
-    def _attribute_changed(self, attribute_name):
+    def _attribute_changed(self, world_object, attribute_name):
         def _changed(old, new):
-            self._object_attribute_changed(attribute_name, old, new)
+            self._object_attribute_changed(world_object.name, attribute_name, old, new)
         return _changed
 
-    def _object_attribute_changed(self, attribute_name, old, new):
-        print attribute_name, " : ", old, " --> ", new
-        self.world[self._current].set_attribute(attribute_name, new)
+    def _object_attribute_changed(self, object_name, attribute_name, old, new):
+        print '_object_attribute_changed', object_name, attribute_name, " : ", old, " --> ", new
+        self.world[object_name].set_attribute(attribute_name, new)
 
 
 def main():
