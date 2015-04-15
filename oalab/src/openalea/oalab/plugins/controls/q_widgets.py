@@ -1,3 +1,22 @@
+# -*- python -*-
+#
+#       OpenAlea.OALab: Multi-Paradigm GUI
+#
+#       Copyright 2015 INRIA
+#
+#       File author(s): Guillaume Cerutti <guillaume.cerutti@inria.fr>
+#
+#       File contributor(s): Guillaume Cerutti <guillaume.cerutti@inria.fr>,
+#                            Marvin Killing <marvinkilling@gmail.com> (QSpanSlider)
+#
+#       Distributed under the Cecill-C License.
+#       See accompanying file LICENSE.txt or copy at
+#           http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html
+#
+#       OpenAlea WebSite : http://openalea.gforge.inria.fr
+#
+###############################################################################
+
 from openalea.vpltk.qt import QtCore, QtGui
 
 class QFloatSlider(QtGui.QSlider):
@@ -25,6 +44,7 @@ class QFloatSlider(QtGui.QSlider):
 
     def setStep(self, step):
         self.slider_step = step
+
 
 from openalea.oalab.plugins.controls.painters import PainterColormap
 
@@ -60,7 +80,7 @@ class QColormapBar(QtGui.QWidget):
 
 
 class QSpanSlider(QtGui.QSlider):
-    # Based on QxtSpanSlider.py
+    # Based on QxtSpanSlider.py (https://github.com/mkilling/QxtSpanSlider.py)
 
     # The MIT License (MIT)
 

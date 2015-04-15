@@ -182,6 +182,18 @@ class WorldObject(Observed):
         self.in_scene = kwargs.pop('in_scene', True) or True
         self.kwargs = kwargs
 
+    def __setitem__(self, key, value):
+        self.set_attribute(key, value)
+
+    def __getitem__(self, key):
+        attribute_names = [a['name'] for a in self._attributes]
+        try:
+            attribute = self._attributes[attribute_names.index(key)]
+        except ValueError:
+            raise KeyError(str(key))
+        else:
+            return attribute['value']
+
     @property
     def obj(self):
         return self.data
@@ -206,6 +218,15 @@ class WorldObject(Observed):
     def data(self, data):
         self.notify_listeners(('world_object_data_changed', (self, self._data, data)))
         self._data = data
+
+    def attribute(self, key):
+        attribute_names = [a['name'] for a in self._attributes]
+        try:
+            attribute = self._attributes[attribute_names.index(key)]
+        except ValueError:
+            raise KeyError(str(key))
+        else:
+            return attribute
 
     def set_attribute(self, name, value, interface=None, alias=None):
         attribute_names = [a['name'] for a in self._attributes]
@@ -232,7 +253,7 @@ class WorldObject(Observed):
                 self.notify_listeners(('world_object_attribute_changed', (self, old_attribute, attribute)))
                 print "WorldObject > world_object_attribute_changed!"
 
-    def get_attribute(self, name, default_value):
+    def get(self, name, default_value=None):
         attribute_names = [a['name'] for a in self._attributes]
         try:
             attribute = self._attributes[attribute_names.index(name)]
