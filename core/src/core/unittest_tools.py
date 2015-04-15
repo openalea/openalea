@@ -30,7 +30,7 @@ class TestCase(unittest.TestCase):
         dict {idx:[val, val2]}
         """
         ev_names = [event[1][0] for event in events]
-        ev_args = [event[1] for event in events]
+        ev_args = [event[1][1] for event in events]
         self.assertListEqual(ev_names, names)
         if values:
             for event_idx, event in values.items():

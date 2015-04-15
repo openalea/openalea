@@ -328,6 +328,8 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
             view.setAttribute(QtCore.Qt.WA_DeleteOnClose)
             self._view = weakref.ref(view)
             self._layout.addWidget(view)
+            view.show()
+            self.repaint()
         elif self.style == self.StyleTableView:
             self._view.model.set_manager(manager)
         else:
