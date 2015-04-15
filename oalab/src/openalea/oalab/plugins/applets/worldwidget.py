@@ -40,3 +40,15 @@ class World(PluginApplet):
 
         self._fill_menu(mainwindow, applet)
         mainwindow.add_applet(applet, self.alias, area='inputs')
+
+
+class WorldControl(PluginApplet):
+
+    name = 'WorldControl'
+    alias = 'WorldControl'
+    icon = 'oxygen_world_control.png'
+
+    def __call__(self):
+        # Load and instantiate graphical component that actually provide feature
+        from openalea.oalab.gui.world import WorldControlPanel
+        return WorldControlPanel
