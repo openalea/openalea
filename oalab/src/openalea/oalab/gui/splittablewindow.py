@@ -129,6 +129,40 @@ class AppletSelector(QtGui.QWidget):
                 break
 
 
+class LayoutSelector(QtGui.QWidget):
+
+    def __init__(self, parent=None):
+        QtGui.QWidget.__init__(self)
+        self._layout = QtGui.QVBoxLayout(self)
+
+        p = QtGui.QSizePolicy
+
+        self._cb_layout = QtGui.QComboBox()
+        self._cb_layout.setSizePolicy(p(p.MinimumExpanding, p.Maximum))
+        self._stack = QtGui.QStackedWidget()
+
+        self._cb_layout.activated.connect(self._stack.setCurrentIndex)
+
+        self._layout.addWidget(self._cb_layout)
+        self._layout.addWidget(self._stack)
+
+        self._cb_layout.hide()
+
+    def add_widget(self, widget, title=None):
+        if title is None:
+            title = 'Layout %d' % (self._cb_layout.count() + 1)
+        self._cb_layout.addItem(title)
+        self._stack.addWidget(widget)
+        if self._cb_layout.count() > 1:
+            self._cb_layout.show()
+
+    def set_widget(self, idx):
+        self._cb_layout.setCurrentIndex(idx)
+
+    def widget(self):
+        return self._stack.currentWidget()
+
+
 class AppletFrame(QtGui.QWidget):
 
     """
@@ -872,6 +906,8 @@ class OALabMainWin(QtGui.QMainWindow):
     DEFAULT_MENU_NAMES = ('File', 'Edit', 'View', 'Help')
 
     DEFAULT_LAYOUT = dict(
+        name='default',
+        alias='Default Layout',
         children={},
         parents={0: None},
         properties={
@@ -905,19 +941,32 @@ class OALabMainWin(QtGui.QMainWindow):
         self._create_actions()
         self._pre_fill_menus()
 
-        self.splittable = OALabSplittableUi(parent=self)
-        self.splittable.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        self.splittable.appletSet.connect(self.appletSet.emit)
-        self.appletSet.connect(self._on_applet_set)
+        self._splittable_list = []
 
+        self.layout_selector = LayoutSelector(parent=self)
         layout = self._load_layout(layout, **kwds)
-        if layout is None:
-            container = AppletContainer()
-            self.splittable.setContentAt(0, container)
+        if isinstance(layout, (list, tuple)):
+            layouts = layout
         else:
-            self.splittable.fromJSON(layout)
+            layouts = [layout]
 
-        self.setCentralWidget(self.splittable)
+        for layout in layouts:
+            title = layout.get('title', None)
+            if 'children' not in layout:
+                layout = None
+            splittable = OALabSplittableUi(parent=self)
+            splittable.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+            splittable.appletSet.connect(self.appletSet.emit)
+            self.appletSet.connect(self._on_applet_set)
+            if layout is None:
+                container = AppletContainer()
+                splittable.setContentAt(0, container)
+            else:
+                splittable.fromJSON(layout)
+            self._splittable_list.append(splittable)
+            self.layout_selector.add_widget(splittable, title=title)
+
+        self.setCentralWidget(self.layout_selector)
         self._post_fill_menus()
         self.set_edit_mode(False)
 
@@ -925,6 +974,10 @@ class OALabMainWin(QtGui.QMainWindow):
 
     def emit_applet_set(self):
         self.splittable.emit_applet_set()
+
+    @property
+    def splittable(self):
+        return self.layout_selector.widget()
 
     def _create_menus(self):
         self.menu_classic = {}

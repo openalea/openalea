@@ -72,7 +72,12 @@ def _normpath(path):
         for p in parts:
             _path = _path / p
             if _path.islink():
-                _path = _path.readlink()
+                # readlink return an absolute path or relative path depending on symlink.
+                # If symlink is a relative link, parent path is used to generate an absolute path
+                # Default path behaviour when concatenating two absolute paths is to keep only second one:
+                # path('/a/1')/path('/b/2') -> path('/b/2')
+                # So, if symlink is absolute, all is ok
+                _path = _path.parent / _path.readlink()
         return _path.abspath()
     else:
         return path.abspath()

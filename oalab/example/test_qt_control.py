@@ -1,11 +1,13 @@
 
-from openalea.vpltk.qt import QtGui
+from openalea.vpltk.qt import QtGui, QtCore
 from control_sizes import Ui_Form
 
 import openalea.oalab.service.qt_control as scontrol
 from openalea.core.service.interface import new_interface, interfaces, load_interfaces
 from openalea.core.control import Control
+from openalea.core.control.manager import ControlManager
 from openalea.oalab.gui.control.qcontainer import QControlContainer
+from openalea.oalab.gui.control.model_view import ControlView, ControlModel
 
 
 class CheckSizes(Ui_Form, QtGui.QWidget):
@@ -18,6 +20,7 @@ class CheckSizes(Ui_Form, QtGui.QWidget):
         self.l_title.setText(text)
 
         self._control = control
+
         self._qcontainer = QControlContainer()
         self._qcontainer.add_control(self._control)
         self._qcontainer.create_actions(self)
@@ -43,6 +46,12 @@ class CheckSizes(Ui_Form, QtGui.QWidget):
             self.layout_sample.addWidget(self._test_widget)
             self.cb_read.toggled.connect(self.on_mode_changed)
             self.cb_apply.toggled.connect(self.on_mode_changed)
+
+        self._model = ControlModel(manager=self._qcontainer)
+        self._view = ControlView()
+        self._view.setModel(self._model)
+        self._view.hideColumn(0)
+        self.l_large_box.addWidget(self._view, 1, 1, 2, 1)
 
     def contextMenuEvent(self, event):
         menu = QtGui.QMenu(self)

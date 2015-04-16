@@ -1,5 +1,6 @@
 from openalea.oalab.plugins.labs.minilab import MiniLab
 
+EmptyLab = MiniLab
 
 class DefaultLab(MiniLab):
     name = 'default'

@@ -1,5 +1,7 @@
 
 import unittest
+import subprocess
+import platform
 from openalea.core.unittest_tools import TestCase, EventTracker
 
 from openalea.core.observer import AbstractListener
@@ -309,3 +311,21 @@ class TestProject(TestCase):
 
         assert len(self.project.model) == 0
         assert (self.project.path / "model" / "1.py").exists()
+
+    def test_normpath(self):
+        import os
+        from openalea.core.project.project import _normpath
+        old_path = Path('.').abspath()
+
+        if platform.system() in ('Linux', 'Darwin'):
+
+            # force to create a relative symlink
+            os.chdir(self.tmpdir)
+            p = self.tmpdir / 'f1.txt'
+            link_abs = self.tmpdir / 'f2.txt'
+            p.touch()
+            subprocess.call('ln -s f1.txt f2.txt', shell=True)
+            os.chdir(old_path)
+
+            self.assertNotEqual(p, link_abs)
+            self.assertEqual(p, _normpath(link_abs))
