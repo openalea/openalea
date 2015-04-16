@@ -161,6 +161,7 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
 
     def initialize(self):
         self.view.initialize()
+        self.pm.load_default()
         self.set_project(self.pm.cproject)
 
     def closeEvent(self, event):
