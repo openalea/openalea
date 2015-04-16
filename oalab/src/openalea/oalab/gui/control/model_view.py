@@ -43,6 +43,7 @@ class ControlView(QtGui.QTreeView):
         self.delegate0 = NameControlDelegate()
         self.setItemDelegateForColumn(0, self.delegate0)
         self.setItemDelegateForColumn(1, self.delegate)
+        self.setUniformRowHeights(True)
         self.setHeaderHidden(False)
         self._selected_indexes = None
 
