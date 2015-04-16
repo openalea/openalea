@@ -1,5 +1,6 @@
 
 from openalea.vpltk.check.ipython import has_ipython
+import sys
 
 
 def get_interpreter_class():
@@ -52,11 +53,10 @@ def adapt_interpreter(ip):
         :param source: text (string) to load
         :param namespace: dict to use to execute the source
         """
-        # Not multiligne
         if namespace is not None:
-            exec(source, namespace)
+            exec source in namespace
         else:
-            exec(source, self.locals, self.locals)
+            exec source in self.locals, self.locals
 
     def runsource(self, source=None, filename="<input>", symbol="single"):
         try:
