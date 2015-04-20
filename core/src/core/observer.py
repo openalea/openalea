@@ -44,6 +44,7 @@ else:
            self.__isNotifying = False
            self.__postNotifs = [] #calls to execute after a notication is done
            self.__exclusive = None
+           self.__blockNotifs = False
 
        def register_listener(self, listener):
            """ Add listener to list of listeners.
@@ -113,15 +114,15 @@ else:
            else:
                toDelete = []
                for ref in self.listeners:
-                   obs = ref()
-                   if(obs is None):
+                   listener = ref()
+                   if(listener is None):
                        toDelete.append(ref)
                        continue
-                   if(not obs.is_notification_locked()):
+                   if(not listener.is_notification_locked()):
                        try:
-                           obs.call_notify(self, event)
+                           listener.call_notify(self, event)
                        except Exception, e:
-                           print "Warning :", str(self), "notification of", str(obs), "failed", e
+                           print "Warning :", str(self), "notification of", str(listener), "failed", e
 
                for dead in toDelete:
                    self.listeners.discard(dead)

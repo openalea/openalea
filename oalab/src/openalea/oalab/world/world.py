@@ -177,6 +177,8 @@ class WorldObject(Observed):
         self._data = data
         self._attributes = []
 
+        self._silent = False
+
         self.model_id = kwargs.pop('model_id', None)
         self.output_id = kwargs.pop('output_id', None)
         self.in_scene = kwargs.pop('in_scene', True) or True
@@ -210,6 +212,10 @@ class WorldObject(Observed):
     def attributes(self):
         return self._attributes
 
+    @property
+    def silent(self):
+        return self._silent
+
     @obj.setter
     def obj(self, data):
         self.data = data
@@ -218,6 +224,10 @@ class WorldObject(Observed):
     def data(self, data):
         self.notify_listeners(('world_object_data_changed', (self, self._data, data)))
         self._data = data
+
+    @silent.setter
+    def silent(self, value):
+        self._silent = value
 
     def attribute(self, key):
         attribute_names = [a['name'] for a in self._attributes]
@@ -240,7 +250,6 @@ class WorldObject(Observed):
                     interface = interfaces[0]
             self._attributes.append(dict(name=name, value=value, interface=interface, alias=alias))
             self.notify_listeners(('world_object_attribute_changed', (self, None, self._attributes[-1])))
-            print "WorldObject > world_object_attribute_changed!"
         else:
             from copy import copy
             old_attribute = copy(attribute)
@@ -251,7 +260,6 @@ class WorldObject(Observed):
             attribute['value'] = value
             if attribute['value'] != old_attribute['value']:
                 self.notify_listeners(('world_object_attribute_changed', (self, old_attribute, attribute)))
-                print "WorldObject > world_object_attribute_changed!"
 
     def get(self, name, default_value=None):
         attribute_names = [a['name'] for a in self._attributes]
@@ -261,3 +269,7 @@ class WorldObject(Observed):
             return default_value
         else:
             return attribute['value']
+
+    def notify_listeners(self, event=None):
+        if not self._silent:
+            super(WorldObject,self).notify_listeners(event)
