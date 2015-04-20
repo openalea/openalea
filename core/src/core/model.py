@@ -253,7 +253,7 @@ class Model(object):
         ns.update(namespace)
         old_ns = self.interp.user_ns
         self.interp.user_ns = ns
-        self.interp.run_cell(code)
+        self._run_code(code)
         self.interp.user_ns = old_ns
 
         final_ns = {}
