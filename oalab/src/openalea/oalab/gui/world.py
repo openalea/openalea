@@ -288,7 +288,7 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
                         if axis in attribute['name']:
                             attribute_manager.interface.min = 0
                             attribute_manager.interface.max = world_object.data.shape[i] - 1
-                elif 'intensity' in attribute['name']:
+                elif ('intensity' in attribute['name']) or ('id' in attribute['name']):
                     import numpy as np
                     if isinstance(world_object.data, np.ndarray):
                         attribute_manager.interface.min = int(np.min(world_object.data))
