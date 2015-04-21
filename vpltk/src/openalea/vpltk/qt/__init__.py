@@ -42,7 +42,14 @@ PYQT4_API = [
 #: names of the expected PySide api
 PYSIDE_API = ['pyside']
 
-QT_API_ORDER = ['pyside', 'pyqt4', 'pyqt5']
+
+# If IPython is installed, use its order to avoid multiple python-qt loads
+try:
+    from IPython.external.qt import api_opts
+except ImportError:
+    QT_API_ORDER = ['pyside', 'pyqt', 'pyqt5']
+else:
+    QT_API_ORDER = api_opts
 _api_version = int(os.environ.setdefault('QT_API_VERSION', '0'))
 
 
