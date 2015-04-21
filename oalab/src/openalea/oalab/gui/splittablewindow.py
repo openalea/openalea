@@ -340,8 +340,8 @@ class AppletTabWidget(QtGui.QTabWidget):
         self.tabBar().setVisible(self.count() > 1)
 
     def setTabPosition(self, position):
-        # TODO: int position is not compatible with PySide, fix it.
-        rvalue = QtGui.QTabWidget.setTabPosition(self, position)
+        from openalea.vpltk.qt.compat import tabposition
+        rvalue = QtGui.QTabWidget.setTabPosition(self, tabposition(position))
         for idx in range(self.count()):
             self._redraw_tab(idx)
         return rvalue
@@ -473,7 +473,9 @@ class AppletTabWidget(QtGui.QTabWidget):
             return None
 
     def properties(self):
-        return dict(position=self.tabPosition())
+        from openalea.vpltk.qt.compat import tabposition
+        position = tabposition(self.tabPosition())
+        return dict(position=position)
 
     def set_properties(self, properties):
         get = properties.get
