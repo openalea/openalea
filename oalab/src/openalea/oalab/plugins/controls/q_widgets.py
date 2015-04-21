@@ -316,14 +316,14 @@ class QSpanSlider(QtGui.QSlider):
     def setupPainter(self, painter, orientation, x1, y1, x2, y2):
         highlight = self.palette().color(QtGui.QPalette.Highlight)
         gradient = QtGui.QLinearGradient(x1, y1, x2, y2)
-        gradient.setColorAt(0, highlight.light(108))
-        gradient.setColorAt(1, highlight.light(108))
+        gradient.setColorAt(0, highlight.lighter(108))
+        gradient.setColorAt(1, highlight.lighter(108))
         painter.setBrush(gradient)
 
         if orientation == QtCore.Qt.Horizontal:
-            painter.setPen(QtGui.QPen(highlight.dark(130), 0))
+            painter.setPen(QtGui.QPen(highlight.darker(130), 0))
         else:
-            painter.setPen(QtGui.QPen(highlight.dark(150), 0))
+            painter.setPen(QtGui.QPen(highlight.darker(150), 0))
 
     def drawSpan(self, painter, rect):
         opt = QtGui.QStyleOptionSlider()
