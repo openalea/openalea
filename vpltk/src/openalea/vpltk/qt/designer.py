@@ -16,39 +16,64 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with pyLot.  If not, see <http://www.gnu.org/licenses/>.
 
-__author__ = u'Pierre Puiseux, Guillaume Baty'
-__copyright__ = u"Copyright 2011-2012 (C) andheo, Université de Pau et des Pays de l'Adour"
-__credits__ = [u'Pierre Puiseux', u'Guillaume Baty']
+__author__ = 'Pierre Puiseux, Guillaume Baty'
+__copyright__ = "Copyright 2011-2012 (C) andheo, Université de Pau et des Pays de l'Adour"
+__credits__ = ['Pierre Puiseux', 'Guillaume Baty']
 __license__ = "GNU Lesser General Public License"
 
 __all__ = [
-  'generate_pyfile_from_uifile',
-  'compile_ui_files'
-  ]
+    'generate_pyfile_from_uifile',
+    'compile_ui_files'
+]
 
-import logging
+import datetime
+import pkg_resources
 import sys
 import os
 
-from pyLot.application import APPLICATION
-from pyLot.core import Path, get_data, unicode2
+from openalea.core.path import path as Path
 
-LOGGER = logging.getLogger('pyLot.qtgui')
+FORCE_UI_GENERATION = True
 
-try :
-    if os.environ['QT_API'] == 'pyqt' :
+
+def get_data(name, path):
+    """
+    Eases access to module packed data.
+
+    This function return an absolute path using
+    :obj:`pkg_resources.resource_filename` function.
+
+    :param name: __name__
+    :param path: path relative to module "name"
+    """
+    path = pkg_resources.resource_filename(name, path)
+    path = Path(path).abspath()
+    return path
+
+
+def mtime(path):
+    u"""Last-modified time of the file."""
+    return os.path.getmtime(path)
+
+
+def mtime_datetime(path):
+    return datetime.datetime.fromtimestamp(mtime(path))
+
+try:
+    if os.environ['QT_API'] == 'pyqt':
         from PyQt4.uic import compileUi
         compile_args = dict(execute=False, indent=4)
-    elif os.environ['QT_API'] == 'pyside' :
+    elif os.environ['QT_API'] == 'pyside':
         from pysideuic import compileUi
         compile_args = dict(execute=False, indent=4, from_imports=False)
-    else :
+    else:
         raise NotImplementedError
-except ImportError :
-    LOGGER.critical('You must install %s-tools' % os.environ['QT_API'])
+except ImportError:
+    print 'You must install %s-tools' % os.environ['QT_API']
 
-def generate_pyfile_from_uifile (name, src=None, dest=None) :
-    u"""
+
+def generate_pyfile_from_uifile(name, src=None, dest=None):
+    """
     Function searches ...
 
     if src is None :
@@ -76,53 +101,50 @@ def generate_pyfile_from_uifile (name, src=None, dest=None) :
     :return: Qt class (corresponding to filename), Qt type class (type of first value)
     :rtype: couple
     """
-    if name == '__main__' :
+    if name == '__main__':
         return
     paths = []
-    if src :
+    if src:
         filepath = Path(src)
         paths.append(filepath)
-    else :
-        path = u'designer/%s.ui' % name.split(u'.')[-1]
+    else:
+        path = 'designer/%s.ui' % name.split('.')[-1]
         filepath = Path(get_data(name, path))
         paths.append(filepath)
 
-        path = u'%s.ui' % name.split(u'.')[-1]
+        path = '%s.ui' % name.split('.')[-1]
         filepath = Path(get_data(name, path))
         paths.append(filepath)
 
-    for path in paths :
-        if path.isfile() :
+    for path in paths:
+        if path.isfile():
             break
 
 #  tmpdir = mkdtempu()
     if dest is None:
-        pyfilename = Path(path.parent, '_' + path.name.replace('.ui', '.py'))
-    else :
+        pyfilename = path.parent / '_' + path.name.replace('.ui', '.py')
+    else:
         pyfilename = Path(dest)
 
-    if not pyfilename.exists() :
+    if not pyfilename.exists():
         generate = True
-    else :
-        mtime_py = pyfilename.mtime_datetime()
-        mtime_ui = path.mtime_datetime()
-        if mtime_py > mtime_ui :
+    else:
+        mtime_py = mtime_datetime(pyfilename)
+        mtime_ui = mtime_datetime(path)
+        if mtime_py > mtime_ui:
             generate = False
-        else :
+        else:
             generate = True
 
-    if generate or APPLICATION.FORCE_UI_GENERATION :
-        module_dir = unicode(path.parent)
-        if module_dir not in sys.path :
+    if generate or FORCE_UI_GENERATION:
+        module_dir = str(path.parent)
+        if module_dir not in sys.path:
             sys.path.append(module_dir)
 
-        if APPLICATION.FORCE_UI_GENERATION :
-            LOGGER.info(u'construction forcée de %s à partir de %s\n' % (pyfilename, path))
-#      uprint(u'pour désactiver la génération forcée:\n')
-#      uprint(u' from pyLot.application import APPLICATION\n')
-#      uprint(u' APPLICATION.FORCE_UI_GENERATION = False\n')
-        else :
-            LOGGER.info(u'%s a changé, reconstruction de %s\n' % (path, pyfilename))
+        if FORCE_UI_GENERATION:
+            print 'force building of %s from %s\n' % (pyfilename, path)
+        else:
+            print '%s has changed, build %s\n' % (path, pyfilename)
 
         pyfile = open(pyfilename, 'w')
         compileUi(path, pyfile, **compile_args)
@@ -130,7 +152,7 @@ def generate_pyfile_from_uifile (name, src=None, dest=None) :
 
 
 def compile_ui_files(module, import_instructions=None):
-    u"""
+    """
     Reads recursively all *.py files in root directory looking for
     "generate_pyfile_from_uifile" calls.
     If this call is found, execute it in order to compile ui file.
@@ -138,51 +160,48 @@ def compile_ui_files(module, import_instructions=None):
     import_instructions : python code containing required imports.
     example :
 
-    >>> import_instructions = 'from pyLot.qtgui import generate_pyfile_from_uifile\n'
+    >>> import_instructions = 'from openalea.vpltk.qt.designer import generate_pyfile_from_uifile\n'
 
     if None, uses default imports : generate_pyfile_from_uifile, Path, hardbook and get_data
     """
     import ast
-    from pyLot_external import codegen
+    from openalea.core import codegen
 
-    if import_instructions is None :
+    if import_instructions is None:
         import_instructions = """
-    from pyLot.qtgui import generate_pyfile_from_uifile
-    from pyLot.core import hardbook, get_data, Path
+    from openalea.vpltk.qt.designer import generate_pyfile_from_uifile
 
     """
-    if module == 'pyLot' :
-        module = '_pylot'
-    root = Path(unicode2(__import__(module).__file__)).parent
-    for py in root.walkfiles(u'*.py'):
+    root = Path(__import__(module).__file__).parent
+    for py in root.walkfiles('*.py'):
         f = open(py)
         lines = f.readlines()
         f.close()
 
         code = ''.join(lines)
-        try :
+        try:
             r = ast.parse(code)
-        except SyntaxError :
+        except SyntaxError:
             print 'SYNTAX ERROR: cannot read ...', py
-        else :
-            for instr in r.body :
-                if isinstance(instr, ast.Expr) :
+        else:
+            for instr in r.body:
+                if isinstance(instr, ast.Expr):
                     value = instr.value
                     if isinstance(value, ast.Call):
-                        try :
+                        try:
                             func_name = value.func.id
-                        except AttributeError :
+                        except AttributeError:
                             pass
-                        else :
-                            if func_name == u'generate_pyfile_from_uifile' :
+                        else:
+                            if func_name == 'generate_pyfile_from_uifile':
                                 src = codegen.to_source(instr)
-                                if py.startswith(u'./') or py.startswith(u'.\\'):
+                                if py.startswith('./') or py.startswith('.\\'):
                                     py = Path(py[2:])
-                                name = root.parent.relpathto(py).replaceext(u'').replace(os.sep, u'.')
+                                name = root.parent.relpathto(py).replaceext('').replace(os.sep, '.')
                                 src = src.replace('__name__', repr(name))
-                                try :
+                                try:
                                     code = compile(import_instructions + src, "<string>", "exec")
                                     exec code
-                                except :
+                                except:
                                     print 'COMPILATION ERROR: cannot compile', py
                                     print
