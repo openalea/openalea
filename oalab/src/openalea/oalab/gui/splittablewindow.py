@@ -34,6 +34,7 @@ from openalea.oalab.gui.splitterui import SplittableUI, BinaryTree
 from openalea.oalab.gui.utils import ModalDialog, obj_icon, qicon, Splitter
 
 from openalea.vpltk.qt import QtGui, QtCore
+from openalea.vpltk.qt.compat import tabposition_int, tabposition_qt
 
 import openalea.core
 
@@ -342,8 +343,7 @@ class AppletTabWidget(QtGui.QTabWidget):
         self.tabBar().setVisible(self.count() > 1)
 
     def setTabPosition(self, position):
-        # TODO: int position is not compatible with PySide, fix it.
-        rvalue = QtGui.QTabWidget.setTabPosition(self, position)
+        rvalue = QtGui.QTabWidget.setTabPosition(self, tabposition_qt(position))
         for idx in range(self.count()):
             self._redraw_tab(idx)
         return rvalue
@@ -449,10 +449,11 @@ class AppletTabWidget(QtGui.QTabWidget):
         name = self._name[idx]
         _plugin_class = plugin_class('oalab.applet', name)
         applet = self._applets[idx][name]
+
         # self.setTabText(idx, _plugin_class.alias)
-        if self.tabPosition() == QtGui.QTabWidget.East:
+        if tabposition_int(self.tabPosition()) == 3:
             rotation = -90
-        elif self.tabPosition() == QtGui.QTabWidget.West:
+        elif tabposition_int(self.tabPosition()) == 2:
             rotation = 90
         else:
             rotation = 0
@@ -475,7 +476,8 @@ class AppletTabWidget(QtGui.QTabWidget):
             return None
 
     def properties(self):
-        return dict(position=self.tabPosition())
+        position = tabposition_int(self.tabPosition())
+        return dict(position=position)
 
     def set_properties(self, properties):
         get = properties.get

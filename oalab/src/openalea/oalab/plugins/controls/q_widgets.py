@@ -19,6 +19,7 @@
 
 from openalea.vpltk.qt import QtCore, QtGui
 
+
 class QFloatSlider(QtGui.QSlider):
 
     floatValueChanged = QtCore.Signal(float)
@@ -30,12 +31,12 @@ class QFloatSlider(QtGui.QSlider):
         self.floatValue = 0.0
 
     def notifyValueChanged(self, value):
-        self.floatValue = value*self.slider_step
+        self.floatValue = value * self.slider_step
         self.floatValueChanged.emit(self.floatValue)
 
     def setFloatValue(self, value):
         self.floatValue = value
-        self.setValue(round(value/self.slider_step))
+        self.setValue(round(value / self.slider_step))
         # self.floatValueChanged.emit(self.floatValue)
         # self.setValue(int(float(value)/self.slider_step))
 
@@ -47,6 +48,7 @@ class QFloatSlider(QtGui.QSlider):
 
 
 from openalea.oalab.plugins.controls.painters import PainterColormap
+
 
 class QColormapBar(QtGui.QWidget):
     valueChanged = QtCore.Signal(dict)
@@ -62,13 +64,13 @@ class QColormapBar(QtGui.QWidget):
     def setValue(self, value):
         self.color_points = value['color_points']
         self.colormap_name = value['name']
-        self.valueChanged.emit(dict(color_points=self.color_points,name=self.colormap_name))
+        self.valueChanged.emit(dict(color_points=self.color_points, name=self.colormap_name))
         self.update()
 
     def value(self):
-        return dict(color_points=self.color_points,name=self.colormap_name)
+        return dict(color_points=self.color_points, name=self.colormap_name)
 
-    def setOrientation(self,orientation):
+    def setOrientation(self, orientation):
         self.orientation = orientation
 
     def paintEvent(self, event):
@@ -76,7 +78,6 @@ class QColormapBar(QtGui.QWidget):
         rectangle = event.rect()
 
         self.colormap_painter.paint_data(self.value(), painter, rectangle, orientation=self.orientation)
-
 
 
 class QSpanSlider(QtGui.QSlider):
@@ -104,7 +105,7 @@ class QSpanSlider(QtGui.QSlider):
     # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     # THE SOFTWARE.
 
-    spanChanged = QtCore.Signal(int,int)
+    spanChanged = QtCore.Signal(int, int)
     upperPositionChanged = QtCore.Signal(int)
     lowerPositionChanged = QtCore.Signal(int)
     sliderPressed = QtCore.Signal(int)
@@ -113,7 +114,7 @@ class QSpanSlider(QtGui.QSlider):
     LowerHandle = 1
     UpperHandle = 2
 
-    def __init__(self, orientation = QtCore.Qt.Horizontal,  parent = None):
+    def __init__(self, orientation=QtCore.Qt.Horizontal, parent=None):
         QtGui.QSlider.__init__(self, orientation, parent)
 
         # self.connect(self, SIGNAL("rangeChanged(int, int)"), self.updateRange)
@@ -133,18 +134,18 @@ class QSpanSlider(QtGui.QSlider):
         self.mainControl = QSpanSlider.LowerHandle
         self.firstMovement = False
         self.blockTracking = False
-        self.gradientLeft = self.palette().color(QtGui.QPalette.Dark).light(110)
-        self.gradientRight = self.palette().color(QtGui.QPalette.Dark).light(110)
+        self.gradientLeft = self.palette().color(QtGui.QPalette.Dark).lighter(110)
+        self.gradientRight = self.palette().color(QtGui.QPalette.Dark).lighter(110)
 
     def lowerValue(self):
         return min(self.lower, self.upper)
-        
+
     def setLowerValue(self, lower):
         self.setSpan(lower, self.upper)
-        
+
     def upperValue(self):
         return max(self.lower, self.upper)
-        
+
     def setUpperValue(self, upper):
         self.setSpan(self.lower, upper)
 
@@ -194,14 +195,14 @@ class QSpanSlider(QtGui.QSlider):
 
     def gradientLeftColor(self):
         return self.gradientLeft
-    
+
     def setGradientLeftColor(self, color):
         self.gradientLeft = color
         self.update()
-    
+
     def gradientRightColor(self):
         return self.gradientRight
-    
+
     def setGradientRightColor(self, color):
         self.gradientRight = color
         self.update()
@@ -221,7 +222,7 @@ class QSpanSlider(QtGui.QSlider):
             return p.x()
         else:
             return p.y()
-    
+
     def triggerAction(self, action, main):
         value = 0
         no = False
@@ -233,9 +234,9 @@ class QSpanSlider(QtGui.QSlider):
             altControl = QSpanSlider.UpperHandle
 
         self.blockTracking = True
-        
+
         isUpperHandle = (main and self.mainControl == QSpanSlider.UpperHandle) or (not main and altControl == QSpanSlider.UpperHandle)
-        
+
         if action == QtGui.QAbstractSlider.SliderSingleStepAdd:
             if isUpperHandle:
                 value = min(my_max, max(my_min, self.upper + self.singleStep()))
@@ -294,7 +295,7 @@ class QSpanSlider(QtGui.QSlider):
 
     def paintEvent(self, event):
         painter = QtGui.QStylePainter(self)
-        
+
         # ticks
         opt = QtGui.QStyleOptionSlider()
         self.initStyleOption(opt)
@@ -310,10 +311,10 @@ class QSpanSlider(QtGui.QSlider):
         # handle rects
         opt.sliderPosition = self.lowerPos
         lr = self.style().subControlRect(QtGui.QStyle.CC_Slider, opt, QtGui.QStyle.SC_SliderHandle, self)
-        lrv  = self.pick(lr.center())
+        lrv = self.pick(lr.center())
         opt.sliderPosition = self.upperPos
         ur = self.style().subControlRect(QtGui.QStyle.CC_Slider, opt, QtGui.QStyle.SC_SliderHandle, self)
-        urv  = self.pick(ur.center())
+        urv = self.pick(ur.center())
 
         # span
         minv = min(lrv, urv)
@@ -331,18 +332,18 @@ class QSpanSlider(QtGui.QSlider):
         else:
             self.drawHandle(painter, QSpanSlider.LowerHandle)
             self.drawHandle(painter, QSpanSlider.UpperHandle)
-    
+
     def setupPainter(self, painter, orientation, x1, y1, x2, y2):
         highlight = self.palette().color(QtGui.QPalette.Highlight)
         gradient = QtGui.QLinearGradient(x1, y1, x2, y2)
-        gradient.setColorAt(0, highlight.light(108))
-        gradient.setColorAt(1, highlight.light(108))
+        gradient.setColorAt(0, highlight.lighter(108))
+        gradient.setColorAt(1, highlight.lighter(108))
         painter.setBrush(gradient)
 
         if orientation == QtCore.Qt.Horizontal:
-            painter.setPen(QtGui.QPen(highlight.dark(130), 0))
+            painter.setPen(QtGui.QPen(highlight.darker(130), 0))
         else:
-            painter.setPen(QtGui.QPen(highlight.dark(150), 0))
+            painter.setPen(QtGui.QPen(highlight.darker(150), 0))
 
     def drawSpan(self, painter, rect):
         opt = QtGui.QStyleOptionSlider()
@@ -351,9 +352,9 @@ class QSpanSlider(QtGui.QSlider):
         # area
         groove = self.style().subControlRect(QtGui.QStyle.CC_Slider, opt, QtGui.QStyle.SC_SliderGroove, self)
         if opt.orientation == QtCore.Qt.Horizontal:
-            groove.adjust(0, 0, -1, 0);
+            groove.adjust(0, 0, -1, 0)
         else:
-            groove.adjust(0, 0, 0, -1);
+            groove.adjust(0, 0, 0, -1)
 
         # pen & brush
         painter.setPen(QtGui.QPen(self.gradientLeft, 0))
@@ -368,7 +369,7 @@ class QSpanSlider(QtGui.QSlider):
         gradient.setColorAt(0, self.gradientLeft)
         gradient.setColorAt(1, self.gradientRight)
         painter.fillRect(intersected, gradient)
-    
+
     def drawHandle(self, painter, handle):
         opt = QtGui.QStyleOptionSlider()
         self._initStyleOption(opt, handle)
@@ -384,12 +385,12 @@ class QSpanSlider(QtGui.QSlider):
         pressed = self.upperPressed
         if handle == QSpanSlider.LowerHandle:
             pressed = self.lowerPressed
-        
+
         if pressed == QtGui.QStyle.SC_SliderHandle:
             opt.activeSubControls = pressed
             opt.state |= QtGui.QStyle.State_Sunken
         painter.drawComplexControl(QtGui.QStyle.CC_Slider, opt)
-    
+
     def _initStyleOption(self, option, handle):
         self.initStyleOption(option)
 
@@ -400,7 +401,7 @@ class QSpanSlider(QtGui.QSlider):
         option.sliderValue = self.lower
         if handle == QSpanSlider.UpperHandle:
             option.sliderValue = self.upper
-    
+
     def handleMousePress(self, pos, control, value, handle):
         opt = QtGui.QStyleOptionSlider()
 
@@ -418,7 +419,7 @@ class QSpanSlider(QtGui.QSlider):
         if control != oldControl:
             self.update(sr)
         return control
-    
+
     def mousePressEvent(self, event):
         if self.minimum() == self.maximum() or event.buttons() ^ event.button():
             event.ignore()
@@ -429,7 +430,7 @@ class QSpanSlider(QtGui.QSlider):
 
         self.firstMovement = True
         event.accept()
-    
+
     def mouseMoveEvent(self, event):
         if self.lowerPressed != QtGui.QStyle.SC_SliderHandle and self.upperPressed != QtGui.QStyle.SC_SliderHandle:
             event.ignore()
@@ -457,17 +458,17 @@ class QSpanSlider(QtGui.QSlider):
             newPosition = min(newPosition, self.upper)
             self.setLowerPosition(newPosition)
         elif self.upperPressed == QtGui.QStyle.SC_SliderHandle:
-            newPosition = max(newPosition, self.lower);
+            newPosition = max(newPosition, self.lower)
             self.setUpperPosition(newPosition)
         event.accept()
-    
+
     def mouseReleaseEvent(self, event):
         QtGui.QSlider.mouseReleaseEvent(self, event)
         self.setSliderDown(False)
         self.lowerPressed = QtGui.QStyle.SC_None
         self.upperPressed = QtGui.QStyle.SC_None
         self.update()
-    
+
     def pixelPosToRangeValue(self, pos):
         opt = QtGui.QStyleOptionSlider()
         self.initStyleOption(opt)
@@ -485,10 +486,10 @@ class QSpanSlider(QtGui.QSlider):
             sliderLength = sr.height()
             sliderMin = gr.y()
             sliderMax = gr.bottom() - sliderLength + 1
-        
+
         return QtGui.QStyle.sliderValueFromPosition(self.minimum(), self.maximum(), pos - sliderMin, sliderMax - sliderMin, opt.upsideDown)
 
     # lowerValue = QtCore.pyqtProperty("int", lowerValue, setLowerValue)
     # upperValue = QtCore.pyqtProperty("int", upperValue, setUpperValue)
-    upperPosition = QtCore.pyqtProperty("int", upperPosition, setUpperPosition)
-    lowerPosition = QtCore.pyqtProperty("int", lowerPosition, setLowerPosition)
+    upperPosition = QtCore.Property("int", upperPosition, setUpperPosition)
+    lowerPosition = QtCore.Property("int", lowerPosition, setLowerPosition)

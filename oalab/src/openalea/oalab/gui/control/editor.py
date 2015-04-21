@@ -8,7 +8,9 @@ from openalea.core.control import Control
 from openalea.deploy.shared_data import shared_data
 import openalea.oalab
 
+
 class QtControlEditor(QtGui.QWidget):
+
     def __init__(self, control=None):
         QtGui.QWidget.__init__(self)
         self.set_control(control)
@@ -19,6 +21,7 @@ class QtControlEditor(QtGui.QWidget):
     def set_control(self, control=None):
         self._control = control
 
+
 def widget_alias(widget):
     if hasattr(widget, 'alias'):
         return widget.alias
@@ -27,8 +30,12 @@ def widget_alias(widget):
     else:
         return str(widget)
 
+from openalea.vpltk.qt.designer import generate_pyfile_from_uifile
 
-from openalea.oalab.gui.control.ui_editor import Ui_ControlEditor
+generate_pyfile_from_uifile(__name__)
+
+from openalea.oalab.gui.control.designer._editor import Ui_ControlEditor
+
 
 class ControlEditor(QtGui.QWidget, Ui_ControlEditor):
     counters = {}
@@ -56,12 +63,12 @@ class ControlEditor(QtGui.QWidget, Ui_ControlEditor):
         self.widget_to_alias = {}
 
         plugins = qt_widget_plugins()
-        for iname in plugins :
+        for iname in plugins:
             alias = interface_alias(iname)
             self.alias_to_iname[alias] = iname
             self.tooltips[iname] = '<b>%s</b><br />Interface name:%s' % (alias, iname)
 
-        for alias in sorted(self.alias_to_iname) :
+        for alias in sorted(self.alias_to_iname):
             iname = self.alias_to_iname[alias]
             self._interfaces.append(iname)
             tooltip = self.tooltips[iname]
@@ -149,8 +156,8 @@ class ControlEditor(QtGui.QWidget, Ui_ControlEditor):
     def control(self):
         iname = self._interfaces[self.cb_interface.currentIndex()]
         control = Control(self.e_name.text(), iname,
-                       widget=self.alias_to_wname[self.cb_widget.currentText()],
-                       constraints=self.constraints())
+                          widget=self.alias_to_wname[self.cb_widget.currentText()],
+                          constraints=self.constraints())
         self.__class__.counters[iname] = self.__class__.counters.setdefault(iname, 0) + 1
         return control
 
@@ -159,4 +166,3 @@ class ControlEditor(QtGui.QWidget, Ui_ControlEditor):
             return self._constraints().constraints()
         else:
             return {}
-

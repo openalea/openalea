@@ -24,6 +24,7 @@ __revision__ = "$Id$"
 
 import sys
 from openalea.vpltk import qt
+from openalea.vpltk.qt.QtCore import __version__
 from openalea.core import logger
 from openalea.visualea.mainwindow import MainWindow
 from openalea.core.session import Session
@@ -74,9 +75,8 @@ class Openalea(qt.QtGui.QApplication):
     @staticmethod
     def check_qt_version():
         """Ensure we are running a minimal version of Qt"""
-        version = qt.QtCore.QT_VERSION_STR
         # QT_VERSION_STR implement __le__ operator
-        if(version < '4.5.2'):
+        if(__version__ < '4.5.2'):
             mess = qt.QtGui.QMessageBox.warning(None,
                                              "Error",
                                              "Visualea needs Qt library >= 4.5.2")

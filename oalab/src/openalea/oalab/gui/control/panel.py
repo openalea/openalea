@@ -3,13 +3,18 @@ from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core.observer import AbstractListener
 from openalea.oalab.service.qt_control import qt_editor
 
-from openalea.oalab.gui.control.ui_widget_container import Ui_WidgetContainer
 
 MODE_VIEW = 0
 # MODE_EDIT = 1
 MODE_DESIGN = 1
+from openalea.vpltk.qt.designer import generate_pyfile_from_uifile
+
+generate_pyfile_from_uifile(__name__)
+from openalea.oalab.gui.control.designer._panel import Ui_WidgetContainer
+
 
 class WidgetContainer2(QtGui.QWidget, Ui_WidgetContainer):
+
     def __init__(self, title):
         QtGui.QWidget.__init__(self)
         self.setupUi(self)
@@ -22,7 +27,9 @@ class WidgetContainer2(QtGui.QWidget, Ui_WidgetContainer):
         for deco in self._decorations:
             deco.setVisible(state)
 
+
 class WidgetContainer(QtGui.QWidget):
+
     def __init__(self, widget, title):
         QtGui.QWidget.__init__(self)
         self.widget = widget
@@ -43,10 +50,12 @@ class WidgetContainer(QtGui.QWidget):
             self.setStyleSheet("background-color:rgba(%d, %d, %d, %d);" % (r, g, b, a))
 
 cls = QtGui.QGraphicsProxyWidget
+
+
 class WidgetItem(cls):
+
     def __init__(self, widget, pos, title=''):
         cls.__init__(self)
-
 
         self.container = WidgetContainer(widget, title=title)
 #         self.resize(100, 100)
@@ -118,6 +127,7 @@ class WidgetItem(cls):
 
 
 class ControlPanelScene(QtGui.QGraphicsScene):
+
     def __init__(self):
         QtGui.QGraphicsScene.__init__(self, parent=None)
         self._pos = None
@@ -138,12 +148,10 @@ class ControlPanelScene(QtGui.QGraphicsScene):
             self.witems.append(item)
             self.addItem(item)
 
-
     def set_mode(self, mode):
         self._mode = mode
         for witem in self.witems:
             witem.set_mode(mode)
-
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasFormat('openalealab/control'):
@@ -189,6 +197,7 @@ class ControlGraphicsView(QtGui.QGraphicsView):
 
 
 class ControlPanel(QtGui.QWidget):
+
     def __init__(self):
         QtGui.QWidget.__init__(self)
         self.layout = QtGui.QVBoxLayout(self)
@@ -205,5 +214,3 @@ class ControlPanel(QtGui.QWidget):
 
     def add_control(self, control):
         self.view.scene.add_control(control)
-
-

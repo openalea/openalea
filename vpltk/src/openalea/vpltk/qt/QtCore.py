@@ -1,12 +1,33 @@
-from qt_loaders import loaded_api as _loaded_api
-from qt_loaders import QT_API_PYQT, QT_API_PYQTv1, QT_API_PYSIDE
+"""
+Provides QtCore classes and functions.
+"""
+import os
+from openalea.vpltk.qt import QT_API
+from openalea.vpltk.qt import PYQT5_API
+from openalea.vpltk.qt import PYQT4_API
+from openalea.vpltk.qt import PYSIDE_API
 
-_qt_api = _loaded_api()
-if _qt_api in [QT_API_PYQT, QT_API_PYQTv1]:
-	from PyQt4.QtCore import *
-elif _qt_api == QT_API_PYSIDE:
-	from PySide.QtCore import *
-else: # None loaded
-	raise ImportError()
 
-del QT_API_PYQT, QT_API_PYQTv1, QT_API_PYSIDE
+if os.environ[QT_API] in PYQT5_API:
+    from PyQt5.QtCore import *
+    # compatibility with pyside
+    from PyQt5.QtCore import pyqtSignal as Signal
+    from PyQt5.QtCore import pyqtSlot as Slot
+    from PyQt5.QtCore import pyqtProperty as Property
+    # use a common __version__
+    from PyQt5.QtCore import QT_VERSION_STR as __version__
+elif os.environ[QT_API] in PYQT4_API:
+    from PyQt4.QtCore import *
+    # compatibility with pyside
+    from PyQt4.QtCore import pyqtSignal as Signal
+    from PyQt4.QtCore import pyqtSlot as Slot
+    from PyQt4.QtCore import pyqtProperty as Property
+    from PyQt4.QtGui import QSortFilterProxyModel
+    # use a common __version__
+    from PyQt4.QtCore import QT_VERSION_STR as __version__
+elif os.environ[QT_API] in PYSIDE_API:
+    from PySide.QtCore import *
+    from PySide.QtGui import QSortFilterProxyModel
+    # use a common __version__
+    import PySide.QtCore
+    __version__ = PySide.QtCore.__version__
