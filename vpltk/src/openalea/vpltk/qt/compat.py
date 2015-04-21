@@ -31,7 +31,7 @@ This module should be fully compatible with:
 import os
 import sys
 from openalea.vpltk.qt import QT_API, PYQT4_API, PYQT5_API, PYSIDE_API
-
+from openalea.vpltk.qt import QtCore
 
 try:
     from openalea.core.path import path as Path
@@ -58,7 +58,7 @@ elif os.environ[QT_API] in PYQT4_API:
         3: QTabWidget.East,
     }
 elif os.environ[QT_API] in PYSIDE_API:
-    from PySide.QtGui import *
+    from PySide.QtGui import QFileDialog, QTabWidget
     _tab_position = {
         0: QTabWidget.TabPosition.North,
         1: QTabWidget.TabPosition.South,
@@ -275,10 +275,38 @@ def getsavefilename(parent=None, caption=u'', basedir=u'', filters=u'',
                                 options=options, path_class=FilePath)
 
 
-def tabposition(idx):
-    if isinstance(idx, int):
-        return _tab_position[idx]
+def tabposition_qt(value):
+    if isinstance(value, int):
+        return _tab_position[value]
     else:
-        for _idx, pos in _tab_position.items():
-            if pos == idx:
-                return _idx
+        return value
+
+
+def tabposition_int(value):
+    if isinstance(value, int):
+        return value
+    else:
+        for idx, pos in _tab_position.items():
+            if pos == value:
+                return idx
+
+
+def orientation_qt(value):
+    if value == 1:
+        return QtCore.Qt.Horizontal
+    elif value == 2:
+        return QtCore.Qt.Vertical
+    else:
+        return value
+
+
+def orientation_int(value):
+    if isinstance(value, int):
+        return value
+    else:
+        if value == QtCore.Qt.Horizontal:
+            return 1
+        elif value == QtCore.Qt.Vertical:
+            return 2
+        else:
+            return 0

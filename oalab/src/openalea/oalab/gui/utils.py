@@ -22,6 +22,7 @@ __all__ = ['qicon']
 import pickle
 import openalea.oalab
 from openalea.vpltk.qt import QtGui, QtCore
+from openalea.vpltk.qt.compat import orientation_qt, orientation_int
 from openalea.core.customexception import CustomException, cast_error
 from openalea.deploy.shared_data import shared_data
 from openalea.core.path import path as Path
@@ -123,15 +124,17 @@ class Splitter(QtGui.QSplitter):
             widget.close()
 
     def set_properties(self, properties):
-        self.setOrientation(properties.get('position', self.ORIENTATION))
+        orientation = orientation_qt(properties.get('orientation', self.ORIENTATION))
+        self.setOrientation(orientation)
         self.icon = properties.get('icon', None)
         state = properties.get('state', None)
         if state:
             self.restoreState(pickle.loads(state))
 
     def properties(self):
+        orientation = orientation_int(self.orientation())
         return dict(
-            position=self.orientation(),
+            orientation=orientation,
             state=pickle.dumps(str(self.saveState())),
             icon=self.icon,
         )
