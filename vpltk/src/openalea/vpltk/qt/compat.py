@@ -30,7 +30,8 @@ This module should be fully compatible with:
 
 import os
 import sys
-from openalea.vpltk.qt.QtGui import QFileDialog
+from openalea.vpltk.qt import QT_API, PYQT4_API, PYQT5_API, PYSIDE_API
+
 
 try:
     from openalea.core.path import path as Path
@@ -38,6 +39,34 @@ except ImportError:
     FilePath = DirPath = Path = str
 else:
     FilePath = DirPath = Path
+
+
+if os.environ[QT_API] in PYQT5_API:
+    from openalea.vpltk.qt.QtWidgets import QFileDialog, QTabWidget
+    _tab_position = {
+        0: QTabWidget.North,
+        1: QTabWidget.South,
+        2: QTabWidget.West,
+        3: QTabWidget.East,
+    }
+elif os.environ[QT_API] in PYQT4_API:
+    from openalea.vpltk.qt.QtGui import QFileDialog, QTabWidget
+    _tab_position = {
+        0: QTabWidget.North,
+        1: QTabWidget.South,
+        2: QTabWidget.West,
+        3: QTabWidget.East,
+    }
+elif os.environ[QT_API] in PYSIDE_API:
+    from PySide.QtGui import *
+    _tab_position = {
+        0: QTabWidget.TabPosition.North,
+        1: QTabWidget.TabPosition.South,
+        2: QTabWidget.TabPosition.West,
+        3: QTabWidget.TabPosition.East,
+    }
+    for idx, position in _tab_position.items():
+        setattr(QTabWidget, position.name, position)
 
 
 def arrange_path(path, path_class=Path):
@@ -64,7 +93,7 @@ def arrange_path(path, path_class=Path):
 #===============================================================================
 
 PYQT_API_1 = False
-if os.environ['QT_API'] == 'pyqt':
+if os.environ[QT_API] in PYQT4_API:
     import sip
     try:
         PYQT_API_1 = sip.getapi('QVariant') == 1 # PyQt API #1
@@ -119,9 +148,12 @@ else:
 
 
 def getexistingdirectory(parent=None, caption='', basedir='',
-                         options=QFileDialog.ShowDirsOnly):
+                         options=None):
     """Wrapper around QtGui.QFileDialog.getExistingDirectory static method
     Compatible with PyQt >=v4.4 (API #1 and #2) and PySide >=v1.0"""
+    if options is None:
+        options = QFileDialog.ShowDirsOnly
+
     # Calling QFileDialog static method
     if sys.platform == "win32":
         # On Windows platforms: redirect standard outputs
@@ -241,3 +273,12 @@ def getsavefilename(parent=None, caption=u'', basedir=u'', filters=u'',
                                 caption=caption, basedir=basedir,
                                 filters=filters, selectedfilter=selectedfilter,
                                 options=options, path_class=FilePath)
+
+
+def tabposition(idx):
+    if isinstance(idx, int):
+        return _tab_position[idx]
+    else:
+        for _idx, pos in _tab_position.items():
+            if pos == idx:
+                return _idx
