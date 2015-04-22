@@ -70,7 +70,7 @@ class Store(MainWindowAleaInstall):
         return self._actions
 
     def toolbar_actions(self):
-        return self.actions()
+        return []
 
     def mainMenu(self):
         """
