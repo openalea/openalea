@@ -42,6 +42,9 @@ pip-log.txt
 .tox
 nosetests.xml
 
+# Designer files
+*visualea/src/visualea/ui_*
+
 # Translations
 *.mo
 

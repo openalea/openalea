@@ -42,7 +42,7 @@ from openalea.visualea.node_widget import SignalSlotListener
 from openalea.visualea.code_editor import get_editor
 from openalea.visualea.util import grab_icon
 
-from . import images_rc
+from openalea.visualea import images_rc
 
 from openalea.vpltk.qt.compat import to_qvariant
 
@@ -887,7 +887,7 @@ Do you want to continue?""",
             self.main_win().reinit_treeview()
 
 
-class NodeFactoryTreeView(NodeFactoryView, qt.QtGui.QTreeView):
+class NodeFactoryTreeView(qt.QtGui.QTreeView, NodeFactoryView):
 
     """ Specialized TreeView to display node factory in a tree with Drag and Drop support  """
 
@@ -926,7 +926,7 @@ class NodeFactoryTreeView(NodeFactoryView, qt.QtGui.QTreeView):
             self.setExpanded(i, True)
 
 
-class SearchListView(NodeFactoryView, qt.QtGui.QTreeView):
+class SearchListView(qt.QtGui.QTreeView, NodeFactoryView):
 
     """ Specialized QListView to display search results with Drag and Drop support """
 
@@ -936,7 +936,7 @@ class SearchListView(NodeFactoryView, qt.QtGui.QTreeView):
         @param parent : parent widget
         """
 
-        qt.QtGui.QListView.__init__(self, parent)
+        qt.QtGui.QTreeView.__init__(self, parent)
         NodeFactoryView.__init__(self, main_win, parent)
         self.setRootIsDecorated(False)
 
@@ -1043,3 +1043,21 @@ class DataPoolListView(qt.QtGui.QListView, SignalSlotListener):
         name = l[item.row()]
 
         del(datapool[name])
+
+if __name__ == '__main__':
+
+    import sys
+    from openalea.vpltk.qt import QtGui
+
+    instance = QtGui.QApplication.instance()
+    if instance is None:
+        qapp = QtGui.QApplication(sys.argv)
+    else:
+        qapp = instance
+
+    widget = NodeFactoryTreeView(main_win=None)
+    widget.show()
+    widget.raise_()
+
+    if instance is None:
+        qapp.exec_()
