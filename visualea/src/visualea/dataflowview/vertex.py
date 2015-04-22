@@ -17,8 +17,6 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-import weakref
-import sip
 from openalea.vpltk.qt import qt
 from openalea.visualea.graph_operator import GraphOperator
 from openalea.core import observer, compositenode
