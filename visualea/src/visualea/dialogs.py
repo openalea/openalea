@@ -20,15 +20,32 @@ __license__ = "CeCILL v2"
 __revision__ = " $Id$ "
 
 import os
-from subprocess import Popen
+
 
 from openalea.vpltk.qt import qt
+from openalea.vpltk.qt.designer import generate_pyfile_from_uifile, get_data
 from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.pkgmanager import PackageManager
 from openalea.core.settings import Settings, get_userpkg_dir
 from openalea.core.interface import *
 from openalea.core.session import Session
 from openalea.core.node import Factory, Node
+
+
+for name in [
+    "ioconfig",
+    "listedit",
+    "newdata",
+    "newgraph",
+    "newpackage",
+    "nodechooser",
+    "preferences",
+    "tableedit",
+    "tofactory",
+]:
+    src = get_data("openalea.visualea.dialogs", "resources") / name + '.ui'
+    dest = get_data("openalea.visualea.dialogs", "ui_%s.py" % name)
+    generate_pyfile_from_uifile(__name__, src=src, dest=dest)
 
 import ui_newgraph
 import ui_tofactory
@@ -41,7 +58,8 @@ import ui_nodechooser
 import ui_newdata
 
 
-class NewGraph(qt.QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
+class NewGraph(qt.QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog):
+
     """ New composite node dialog """
 
     def __init__(self, title, pmanager, parent=None,
@@ -106,7 +124,6 @@ class NewGraph(qt.QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
         self.ioButton.setVisible(io)
         self.connect(self.ioButton, qt.QtCore.SIGNAL("clicked()"), self.edit_io)
 
-
     def accept(self):
         """ Accept Dialog result """
 
@@ -117,12 +134,10 @@ class NewGraph(qt.QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
            (self.factory and self.factory.name != name and
             self.get_package().has_key(name))
            ):
-            mess = qt.QtGui.QMessageBox.warning(self, "Error",
-                                            "The Name is already use")
+            mess = qt.QtGui.QMessageBox.warning(self, "Error", "The Name is already used")
             return
 
         qt.QtGui.QDialog.accept(self)
-
 
     def edit_io(self):
         """ Open IO Config Dialog """
@@ -134,7 +149,6 @@ class NewGraph(qt.QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
             self.inputs = dialog.inputs
             self.outputs = dialog.outputs
 
-
     def get_package(self):
         """ Return the selected package """
         try:
@@ -142,7 +156,6 @@ class NewGraph(qt.QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
         except AttributeError:
             pkgstr = str(unicode(self.packageBox.currentText()).encode('latin1'))  # Qt api 2
         return self.pkgmap[pkgstr]
-
 
     def get_data(self):
         """
@@ -165,24 +178,21 @@ class NewGraph(qt.QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
 
         return (name, self.get_package(), category, description)
 
-
-
     def create_cnfactory(self, pkgmanager):
         """ Create, register and return a new CompositeNodeFactory """
 
         (name, pkg, cat, desc) = self.get_data()
 
-        newfactory = pkg.create_user_compositenode( name=name,
-                                                    description= desc,
-                                                    category = cat,
-                                                    inputs=self.inputs,
-                                                    outputs=self.outputs,
-                                                    )
+        newfactory = pkg.create_user_compositenode(name=name,
+                                                   description=desc,
+                                                   category=cat,
+                                                   inputs=self.inputs,
+                                                   outputs=self.outputs,
+                                                   )
 
         pkgmanager.add_package(pkg)
 
         return newfactory
-
 
     def create_nodefactory(self, pkgmanager):
         """ Create, register and return a NodeFactory """
@@ -200,13 +210,13 @@ class NewGraph(qt.QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
 
         return ret
 
-
     def update_factory(self):
         """ Update factory with value """
         (name, pkg, cat, desc) = self.get_data()
 
         factory = self.factory
-        if(not factory) : return
+        if(not factory):
+            return
 
         oldname = factory.name
         factory.name = name
@@ -226,8 +236,8 @@ class NewGraph(qt.QtGui.QDialog, ui_newgraph.Ui_NewGraphDialog) :
             self.pmanager.update_category(factory.package)
 
 
+class NewData(qt.QtGui.QDialog, ui_newdata.Ui_NewDataDialog):
 
-class NewData(qt.QtGui.QDialog, ui_newdata.Ui_NewDataDialog) :
     """ import data dialog """
 
     def __init__(self, title, pmanager, parent=None,
@@ -263,7 +273,6 @@ class NewData(qt.QtGui.QDialog, ui_newdata.Ui_NewDataDialog) :
 
         self.connect(self.browseButton, qt.QtCore.SIGNAL("clicked()"), self.browse_file)
 
-
     def accept(self):
         """ Accept Dialog result """
 
@@ -271,12 +280,10 @@ class NewData(qt.QtGui.QDialog, ui_newdata.Ui_NewDataDialog) :
         name = str(self.nameEdit.text())
         name = os.path.basename(name)
         if(not name or self.get_package().has_key(name)):
-            mess = qt.QtGui.QMessageBox.warning(self, "Error",
-                                            "The Name is already use")
+            mess = qt.QtGui.QMessageBox.warning(self, "Error", "The Name is already used")
             return
 
         qt.QtGui.QDialog.accept(self)
-
 
     def browse_file(self):
         """ Open File browser """
@@ -285,10 +292,10 @@ class NewData(qt.QtGui.QDialog, ui_newdata.Ui_NewDataDialog) :
             self, "Import file")
 
         filename = str(filename)
-        if(not filename) : return
+        if(not filename):
+            return
 
         self.nameEdit.setText(os.path.abspath(filename))
-
 
     def get_package(self):
         """ Return the selected package """
@@ -298,7 +305,6 @@ class NewData(qt.QtGui.QDialog, ui_newdata.Ui_NewDataDialog) :
         except AttributeError:
             pkgstr = str(unicode(self.packageBox.currentText()).encode('latin1'))  # Qt api 2
         return self.pkgmap[pkgstr]
-
 
     def get_data(self):
         """
@@ -314,7 +320,6 @@ class NewData(qt.QtGui.QDialog, ui_newdata.Ui_NewDataDialog) :
 
         return (name, self.get_package(), description)
 
-
     def create_datafactory(self, pkgmanager):
         """ Create, register and return a new CompositeNodeFactory """
 
@@ -325,8 +330,8 @@ class NewData(qt.QtGui.QDialog, ui_newdata.Ui_NewDataDialog) :
         return newfactory
 
 
+class NewPackage(qt.QtGui.QDialog, ui_newpackage.Ui_NewPackageDialog):
 
-class NewPackage(qt.QtGui.QDialog, ui_newpackage.Ui_NewPackageDialog) :
     """ New package dialog """
 
     def __init__(self, pkgs, name="", parent=None, metainfo=None):
@@ -345,10 +350,10 @@ class NewPackage(qt.QtGui.QDialog, ui_newpackage.Ui_NewPackageDialog) :
         self.connect(self.pathButton, qt.QtCore.SIGNAL("clicked()"), self.path_clicked)
 
         #self.pathEdit.setText(get_userpkg_dir())
-        if(metainfo) : self.set_data(name, "", metainfo)
+        if(metainfo):
+            self.set_data(name, "", metainfo)
 
         self.pathEdit.setText(get_userpkg_dir())
-
 
     def path_clicked(self):
 
@@ -359,25 +364,21 @@ class NewPackage(qt.QtGui.QDialog, ui_newpackage.Ui_NewPackageDialog) :
         if(result):
             self.pathEdit.setText(result)
 
-
     def accept(self):
         """ Accept dialog result """
         # Test if name is correct
         name = str(self.nameEdit.text())
         if(not name or name in self.pkgs):
-            mess = qt.QtGui.QMessageBox.warning(self, "Error",
-                                            "The Name is already use")
+            mess = qt.QtGui.QMessageBox.warning(self, "Error", "The Name is already used")
             return
 
         # Test Path
         path = str(self.pathEdit.text())
         if(path and not os.path.isdir(path)):
-            mess = qt.QtGui.QMessageBox.warning(self, "Error",
-                                             "Invalid Path")
+            mess = qt.QtGui.QMessageBox.warning(self, "Error", "Invalid Path")
             return
 
         qt.QtGui.QDialog.accept(self)
-
 
     def set_data(self, name, path, metainfo):
         """ Set the dialog data """
@@ -397,8 +398,6 @@ class NewPackage(qt.QtGui.QDialog, ui_newpackage.Ui_NewPackageDialog) :
         self.institutesEdit.setText(value('institutes'))
         self.urlEdit.setText(value('url'))
 
-
-
     def get_data(self):
         """
         Return a tuple (name, metainfo, path)
@@ -413,13 +412,13 @@ class NewPackage(qt.QtGui.QDialog, ui_newpackage.Ui_NewPackageDialog) :
             authors=str(self.authorsEdit.text()),
             institutes=str(self.institutesEdit.text()),
             url=str(self.urlEdit.text()),
-            )
+        )
 
         return (name, metainfo, path)
 
 
+class EditPackage(NewPackage):
 
-class EditPackage(NewPackage) :
     """ Edit package dialog """
 
     def __init__(self, package, parent=None):
@@ -431,7 +430,7 @@ class EditPackage(NewPackage) :
 
         path = None
         if(hasattr(package, "path")):
-           path = package.path
+            path = package.path
 
         self.pathButton.setVisible(False)
         self.nameEdit.setEnabled(False)
@@ -439,7 +438,6 @@ class EditPackage(NewPackage) :
 
         self.set_data(package.name, path, package.metainfo)
         self.package = package
-
 
     def accept(self):
         """ Accept dialog result """
@@ -451,19 +449,18 @@ class EditPackage(NewPackage) :
             authors=str(self.authorsEdit.text()),
             institutes=str(self.institutesEdit.text()),
             url=str(self.urlEdit.text()),
-            )
+        )
 
         self.package.metainfo.update(metainfo)
         if(hasattr(self.package, 'write')):
-           self.package.write()
+            self.package.write()
 
         qt.QtGui.QDialog.accept(self)
 
 
+class FactorySelector(qt.QtGui.QDialog, ui_tofactory.Ui_FactorySelector):
 
-class FactorySelector(qt.QtGui.QDialog, ui_tofactory.Ui_FactorySelector) :
     """ Dialog to select a particular CompositeNode factory """
-
 
     def __init__(self, default_factory=None, parent=None):
         """
@@ -486,7 +483,7 @@ class FactorySelector(qt.QtGui.QDialog, ui_tofactory.Ui_FactorySelector) :
 
             for f in pkg.itervalues():
                 if(isinstance(f, CompositeNodeFactory)):
-                    name = "%s.%s"%(pname, f.name)
+                    name = "%s.%s" % (pname, f.name)
                     cfactories.append(name)
                     self.factorymap[name] = f
 
@@ -495,45 +492,41 @@ class FactorySelector(qt.QtGui.QDialog, ui_tofactory.Ui_FactorySelector) :
 
         i = -1
         if(default_factory and default_factory.package):
-            name = "%s.%s"%(default_factory.package.name, default_factory.name)
+            name = "%s.%s" % (default_factory.package.name, default_factory.name)
             i = self.comboBox.findText(name)
 
         self.comboBox.setCurrentIndex(i)
 
         self.connect(self.newFactoryButton, qt.QtCore.SIGNAL("clicked()"), self.new_factory)
 
-
     def accept(self):
         """ Accept dialog result """
         # Test if name is correct
         text = self.comboBox.currentText()
         if(not text):
-            mess = qt.QtGui.QMessageBox.warning(self, "Error",
-                                            "Invalid Choice.")
+            mess = qt.QtGui.QMessageBox.warning(self, "Error", "Invalid Choice.")
             return
 
         qt.QtGui.QDialog.accept(self)
-
 
     def new_factory(self):
         """ Create a new composite node """
 
         if(self.default_factory and self.default_factory.package):
             pkg_id = self.default_factory.package.name
-        else :
+        else:
             pkg_id = None
         dialog = NewGraph("New Composite Node", self.pkgmanager, self, io=False, pkg_id=pkg_id)
         ret = dialog.exec_()
 
-        if(ret>0):
+        if(ret > 0):
             newfactory = dialog.create_cnfactory(self.pkgmanager)
-            name = "%s.%s"%(newfactory.package.name, newfactory.name)
+            name = "%s.%s" % (newfactory.package.name, newfactory.name)
             self.comboBox.addItem(name)
             self.factorymap[name] = newfactory
             i = self.comboBox.findText(name)
             self.comboBox.setCurrentIndex(i)
             self.accept()
-
 
     def get_factory(self):
         """ Return the selected factory """
@@ -542,10 +535,8 @@ class FactorySelector(qt.QtGui.QDialog, ui_tofactory.Ui_FactorySelector) :
         return self.factorymap[str(text)]
 
 
+class PreferencesDialog(qt.QtGui.QDialog, ui_preferences.Ui_Preferences):
 
-
-
-class PreferencesDialog(qt.QtGui.QDialog, ui_preferences.Ui_Preferences) :
     """ Preferences dialog """
 
     def __init__(self, parent):
@@ -598,7 +589,6 @@ class PreferencesDialog(qt.QtGui.QDialog, ui_preferences.Ui_Preferences) :
 
         self.connect(self.commandPath, qt.QtCore.SIGNAL("clicked()"), self.select_editor)
 
-
         # UI
         try:
             str = config.get("UI", "DoubleClick")
@@ -626,7 +616,7 @@ class PreferencesDialog(qt.QtGui.QDialog, ui_preferences.Ui_Preferences) :
         try:
             showCue = eval(config.get("UI", "EvalCue"))
             self.evalCue.setCheckState(qt.QtCore.Qt.Checked if showCue
-                                            else qt.QtCore.Qt.Unchecked)
+                                       else qt.QtCore.Qt.Unchecked)
         except:
             self.evalCue.setCheckState(qt.QtCore.Qt.Unchecked)
 
@@ -648,7 +638,8 @@ class PreferencesDialog(qt.QtGui.QDialog, ui_preferences.Ui_Preferences) :
             self, "Select python editor")
 
         filename = str(filename)
-        if(not filename) : return
+        if(not filename):
+            return
 
         if(filename):
             self.commandStr.setText(filename)
@@ -658,7 +649,6 @@ class PreferencesDialog(qt.QtGui.QDialog, ui_preferences.Ui_Preferences) :
 
         row = self.pathList.currentRow()
         self.pathList.takeItem(row)
-
 
     def valid_search_path(self):
         """ Set the search path in the package manager """
@@ -673,11 +663,10 @@ class PreferencesDialog(qt.QtGui.QDialog, ui_preferences.Ui_Preferences) :
 
         pkgmanager.write_config()
 
-
     def valid_ui(self):
         """ Valid UI Parameters """
 
-        d = [["run", "open"], ["run"], ["open"],]
+        d = [["run", "open"], ["run"], ["open"], ]
         index = self.dbclickBox.currentIndex()
 
         styles = ["Spline", "Polyline", "Line"]
@@ -687,7 +676,7 @@ class PreferencesDialog(qt.QtGui.QDialog, ui_preferences.Ui_Preferences) :
         config = Settings()
         config.set("UI", "DoubleClick", repr(d[index]))
         config.set("UI", "EdgeStyle", edge_style)
-        config.set("UI", "EvalCue", str(self.evalCue.checkState()==qt.QtCore.Qt.Checked))
+        config.set("UI", "EvalCue", str(self.evalCue.checkState() == qt.QtCore.Qt.Checked))
         config.write()
 
         if edge_style != self.edge_style:
@@ -708,7 +697,6 @@ class PreferencesDialog(qt.QtGui.QDialog, ui_preferences.Ui_Preferences) :
         config.set("editor", "command", command)
         config.write()
 
-
     def accept(self):
         """ Validate dialog results """
 
@@ -720,17 +708,17 @@ class PreferencesDialog(qt.QtGui.QDialog, ui_preferences.Ui_Preferences) :
 
     def build_gui_for_component(self, componentName, conf):
         top = qt.QtGui.QGroupBox(self)
-        inputs  = tuple([dict(name=k, interface=i, value=v) \
-                        for k,(i,v) in conf.iteritems()])
-        outputs = tuple([dict(name=k, interface=i, value=v) \
-                        for k,(i,v) in conf.iteritems()])
+        inputs = tuple([dict(name=k, interface=i, value=v)
+                        for k, (i, v) in conf.iteritems()])
+        outputs = tuple([dict(name=k, interface=i, value=v)
+                         for k, (i, v) in conf.iteritems()])
         print inputs, outputs
 
         f = Factory(name=componentName,
-                    nodemodule = "openalea.visualea.dialogs",
-                    nodeclass  = "PreferenceNode",
-                    inputs  = inputs,
-                    outputs = outputs
+                    nodemodule="openalea.visualea.dialogs",
+                    nodeclass="PreferenceNode",
+                    inputs=inputs,
+                    outputs=outputs
                     )
         w = f.instantiate_widget(parent=top)
         layout = qt.QtGui.QVBoxLayout()
@@ -739,11 +727,15 @@ class PreferencesDialog(qt.QtGui.QDialog, ui_preferences.Ui_Preferences) :
         self.tabWidget.addTab(top, componentName)
         top.show()
 
+
 class PreferenceNode(Node):
+
     def __call__(self, inputs=()):
         return inputs
 
+
 class ComboDelegate(qt.QtGui.QItemDelegate):
+
     """
     Tool class used in IO editor
     It allows to choose an interface from a combobox in a QTable
@@ -752,11 +744,10 @@ class ComboDelegate(qt.QtGui.QItemDelegate):
     def get_interfaces(self):
         """ Return the list of availble interfaces """
 
-        x =  [k.__name__ for k in IInterfaceMetaClass.all]
+        x = [k.__name__ for k in IInterfaceMetaClass.all]
         x.sort()
         x.append('None')
         return x
-
 
     def createEditor(self, parent, option, index):
         """ Create the editor """
@@ -767,17 +758,15 @@ class ComboDelegate(qt.QtGui.QItemDelegate):
 
         return qt.QtGui.QItemDelegate.createEditor(self, parent, option, index)
 
-
     def setEditorData(self, editor, index):
         """ Accessor """
 
         if index.column() == 1:
             value = str(index.data())
             i = editor.findText(value)
-            editor.setCurrentIndex (i)
+            editor.setCurrentIndex(i)
         else:
             qt.QtGui.QItemDelegate.setEditorData(self, editor, index)
-
 
     def setModelData(self, editor, model, index):
         """ Accessor """
@@ -789,7 +778,8 @@ class ComboDelegate(qt.QtGui.QItemDelegate):
             qt.QtGui.QItemDelegate.setModelData(self, editor, model, index)
 
 
-class IOConfigDialog(qt.QtGui.QDialog, ui_ioconfig.Ui_IOConfig) :
+class IOConfigDialog(qt.QtGui.QDialog, ui_ioconfig.Ui_IOConfig):
+
     """ IO Configuration dialog """
 
     def __init__(self, inputs=(), outputs=(), parent=None):
@@ -807,13 +797,13 @@ class IOConfigDialog(qt.QtGui.QDialog, ui_ioconfig.Ui_IOConfig) :
         self.inModel = qt.QtGui.QStandardItemModel(len(inputs), 4)
         self.inModel.setHorizontalHeaderLabels(["Name", "Interface", "Value", "Description"])
         self.inTable.setModel(self.inModel)
-        self.inTable.setEditTriggers (qt.QtGui.QAbstractItemView.AllEditTriggers)
+        self.inTable.setEditTriggers(qt.QtGui.QAbstractItemView.AllEditTriggers)
         self.inTable.setItemDelegate(delegate)
 
         self.outModel = qt.QtGui.QStandardItemModel(len(outputs), 3)
         self.outModel.setHorizontalHeaderLabels(["Name", "Interface", "Description"])
         self.outTable.setModel(self.outModel)
-        self.outTable.setEditTriggers (qt.QtGui.QAbstractItemView.AllEditTriggers)
+        self.outTable.setEditTriggers(qt.QtGui.QAbstractItemView.AllEditTriggers)
         self.outTable.setItemDelegate(delegate)
 
         #self.inTable.setItemDelegateForColumn(1, ComboBoxDeletegate())
@@ -829,12 +819,10 @@ class IOConfigDialog(qt.QtGui.QDialog, ui_ioconfig.Ui_IOConfig) :
             self.outModel.setItem(i, 1, qt.QtGui.QStandardItem(str(d['interface'])))
             self.outModel.setItem(i, 2, qt.QtGui.QStandardItem(str(d.get('desc', ''))))
 
-
         self.connect(self.addInput, qt.QtCore.SIGNAL("clicked()"), self.add_input)
         self.connect(self.delInput, qt.QtCore.SIGNAL("clicked()"), self.del_input)
         self.connect(self.addOutput, qt.QtCore.SIGNAL("clicked()"), self.add_output)
         self.connect(self.delOutput, qt.QtCore.SIGNAL("clicked()"), self.del_output)
-
 
     def accept(self):
         """ Valid IO """
@@ -843,10 +831,10 @@ class IOConfigDialog(qt.QtGui.QDialog, ui_ioconfig.Ui_IOConfig) :
         self.inputs = []
         c = self.inModel.rowCount()
         for i in xrange(c):
-            name = str(self.inModel.item(i,0).text())
-            interface_str = str(self.inModel.item(i,1).text())
-            val_str = str(self.inModel.item(i,2).text())
-            desc_str = str(self.inModel.item(i,3).text())
+            name = str(self.inModel.item(i, 0).text())
+            interface_str = str(self.inModel.item(i, 1).text())
+            val_str = str(self.inModel.item(i, 2).text())
+            desc_str = str(self.inModel.item(i, 3).text())
 
             try:
                 interface = eval(interface_str)
@@ -858,17 +846,15 @@ class IOConfigDialog(qt.QtGui.QDialog, ui_ioconfig.Ui_IOConfig) :
             except:
                 val = None
 
-
             self.inputs.append(dict(name=name, interface=interface, value=val, desc=desc_str))
-
 
         # build output dict
         self.outputs = []
         c = self.outModel.rowCount()
         for i in xrange(c):
-            name = str(self.outModel.item(i,0).text())
-            interface_str = str(self.outModel.item(i,1).text())
-            desc_str = str(self.outModel.item(i,2).text())
+            name = str(self.outModel.item(i, 0).text())
+            interface_str = str(self.outModel.item(i, 1).text())
+            desc_str = str(self.outModel.item(i, 2).text())
 
             try:
                 interface = eval(interface_str)
@@ -879,34 +865,30 @@ class IOConfigDialog(qt.QtGui.QDialog, ui_ioconfig.Ui_IOConfig) :
 
         qt.QtGui.QDialog.accept(self)
 
-
     def add_input(self):
         c = self.inModel.rowCount()
-        self.inModel.appendRow([qt.QtGui.QStandardItem('IN%i'%(c+1,)),
+        self.inModel.appendRow([qt.QtGui.QStandardItem('IN%i' % (c + 1,)),
                                 qt.QtGui.QStandardItem('None'),
                                 qt.QtGui.QStandardItem('None'),
                                 qt.QtGui.QStandardItem('')])
 
-
     def add_output(self):
         c = self.outModel.rowCount()
-        self.outModel.appendRow([qt.QtGui.QStandardItem('OUT%i'%(c+1,)),
-                                qt.QtGui.QStandardItem('None'),
+        self.outModel.appendRow([qt.QtGui.QStandardItem('OUT%i' % (c + 1,)),
+                                 qt.QtGui.QStandardItem('None'),
                                  qt.QtGui.QStandardItem('')])
-
 
     def del_input(self):
         c = self.inModel.rowCount()
-        self.inModel.takeRow(c-1)
-
+        self.inModel.takeRow(c - 1)
 
     def del_output(self):
         c = self.outModel.rowCount()
-        self.outModel.takeRow(c-1)
-
+        self.outModel.takeRow(c - 1)
 
 
 class DictEditor(qt.QtGui.QDialog, ui_tableedit.Ui_TableEditor):
+
     """Dictionnary editor (used for node internals)
 
     If accepted :
@@ -928,13 +910,12 @@ class DictEditor(qt.QtGui.QDialog, ui_tableedit.Ui_TableEditor):
         self.tableWidget.setRowCount(len(pdict.keys()))
         items = pdict.items()
         items.sort()
-        for (i, (k,v)) in enumerate(items):
+        for (i, (k, v)) in enumerate(items):
 
             item = qt.QtGui.QTableWidgetItem(str(k))
             item.setFlags(qt.QtCore.Qt.ItemIsEnabled)
             self.tableWidget.setItem(i, 0, item)
             self.tableWidget.setItem(i, 1, qt.QtGui.QTableWidgetItem(str(v)))
-
 
     def accept(self):
 
@@ -956,6 +937,7 @@ class DictEditor(qt.QtGui.QDialog, ui_tableedit.Ui_TableEditor):
 
 
 class ShowPortDialog(qt.QtGui.QDialog, ui_listedit.Ui_ListEdit):
+
     """
     Port show status configuration dialog
     """
@@ -977,12 +959,11 @@ class ShowPortDialog(qt.QtGui.QDialog, ui_listedit.Ui_ListEdit):
             except:
                 interface = ""
 
-
-            txt = "%s %s"%(desc['name'], interface)
+            txt = "%s %s" % (desc['name'], interface)
             listitem = qt.QtGui.QListWidgetItem(txt, self.listWidget)
 
             if(node.input_states[i] is not "connected"):
-                listitem.setFlags(qt.QtCore.Qt.ItemIsEnabled|qt.QtCore.Qt.ItemIsUserCheckable)
+                listitem.setFlags(qt.QtCore.Qt.ItemIsEnabled | qt.QtCore.Qt.ItemIsUserCheckable)
             else:
                 listitem.setFlags(qt.QtCore.Qt.ItemIsUserCheckable)
 
@@ -993,8 +974,6 @@ class ShowPortDialog(qt.QtGui.QDialog, ui_listedit.Ui_ListEdit):
                 listitem.setCheckState(qt.QtCore.Qt.Checked)
             else:
                 listitem.setCheckState(qt.QtCore.Qt.Unchecked)
-
-
 
     def accept(self):
         """ Set port status in the node """
@@ -1012,17 +991,13 @@ class ShowPortDialog(qt.QtGui.QDialog, ui_listedit.Ui_ListEdit):
                 else:
                     self.node.set_port_hidden(i, True)
 
-        self.node.notify_listeners( ("port_modified", ) )
-
+        self.node.notify_listeners(("port_modified", ))
 
         qt.QtGui.QDialog.accept(self)
 
 
-
-
-
-
 class NodeChooser(qt.QtGui.QDialog, ui_nodechooser.Ui_NodeChooser):
+
     """ Dialog allowing to choose a node (package view) """
 
     def __init__(self, parent):
@@ -1035,7 +1010,6 @@ class NodeChooser(qt.QtGui.QDialog, ui_nodechooser.Ui_NodeChooser):
         self.pman = PackageManager()
         self.map = {}
 
-
     def search(self, name='', nb_inputs=-1, nb_outputs=-1):
         """ Add node to combo box selector corresponding to request
         @param name
@@ -1047,13 +1021,12 @@ class NodeChooser(qt.QtGui.QDialog, ui_nodechooser.Ui_NodeChooser):
         strs = []
 
         for f in res:
-            key = "%s.%s"%(f.package.get_id().lower(), f.name)
+            key = "%s.%s" % (f.package.get_id().lower(), f.name)
             self.map[key] = f
             strs.append(key)
 
         strs.sort()
         self.comboBox.addItems(strs)
-
 
     def get_selection(self):
         """ Return selected factory """
@@ -1065,7 +1038,6 @@ class NodeChooser(qt.QtGui.QDialog, ui_nodechooser.Ui_NodeChooser):
 
         return None
 
-
     def accept(self):
         """ Validate result """
 
@@ -1076,7 +1048,3 @@ class NodeChooser(qt.QtGui.QDialog, ui_nodechooser.Ui_NodeChooser):
 
         else:
             qt.QtGui.QMessageBox.warning(self, "Error", "Unknown component name")
-
-
-
-

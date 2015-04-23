@@ -76,9 +76,10 @@ def generate_pyfile_from_uifile(name, src=None, dest=None):
     """
     Function searches ...
 
-    if src is None :
+    if src is None, search in this order :
       - <moduledir>/designer/<modulename>.ui
-      - OR <moduledir>/<modulename>.ui
+      - <moduledir>/resources/<modulename>.ui
+      - <moduledir>/<modulename>.ui
     else :
       - src
 
@@ -109,6 +110,10 @@ def generate_pyfile_from_uifile(name, src=None, dest=None):
         paths.append(filepath)
     else:
         path = 'designer/%s.ui' % name.split('.')[-1]
+        filepath = Path(get_data(name, path))
+        paths.append(filepath)
+
+        path = 'resources/%s.ui' % name.split('.')[-1]
         filepath = Path(get_data(name, path))
         paths.append(filepath)
 

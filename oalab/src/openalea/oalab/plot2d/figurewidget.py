@@ -90,7 +90,7 @@ class MplFigureWidget(QtGui.QFrame):
     count = 0
 
     def __init__(self):
-        QtGui.QWidget.__init__(self)
+        QtGui.QFrame.__init__(self)
 
         c = self.palette().color(self.backgroundRole())
         self._default_color = str((c.red(), c.green(), c.blue()))
