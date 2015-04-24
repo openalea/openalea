@@ -28,13 +28,14 @@ class WorldTest(TestCase):
         events = ev.events
         self.check_events(events,
                           names=['world_object_changed'],
-                          values={0:  {0: self.world, 1: None, 2: obj}}
+                          values={0: {0: self.world, 1: None, 2: obj}}
                           )
-        attribute_dict = dict(name='attr1',value=1,interface='IInt',alias="Attribute 1")
+        attribute_dict = dict(name='attr1', value=1, interface='IInt', alias="Attribute 1")
+        final_dict = dict(name='attr1', value=1, interface='IInt', alias="Attribute 1", constraints=None)
         obj.set_attribute(**attribute_dict)
         events = ev.events
         self.check_events(events,
                           names=['world_object_item_changed'],
-                          values={0:  {0: self.world, 1: obj, 2: "attribute", 3: None, 4:attribute_dict}}
+                          values={0: {0: self.world, 1: obj, 2: "attribute", 3: None, 4: final_dict}}
                           )
         assert obj['attr1'] == attribute_dict['value']
