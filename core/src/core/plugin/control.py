@@ -233,6 +233,7 @@ from openalea.core.interface import IInterface
 
 
 class ControlWidgetSelectorPlugin(object):
+
     """
 
     """
@@ -251,9 +252,8 @@ class ControlWidgetSelectorPlugin(object):
         raise NotImplementedError
 
 
-
-
 class IControlWidget(IInterface):
+
     """
     An IControlWidget is a
     """
@@ -326,9 +326,8 @@ class IControlWidget(IInterface):
         """
 
 
-
-
 class IWidgetSelector(IInterface):
+
     def __init__(self):
         pass
 
@@ -375,10 +374,10 @@ class IWidgetSelector(IInterface):
         """
         return None
 
+
 class IConstraintWidget(IInterface):
+
     def constraints(self, interface=None):
         """
         Returns a dict "constraint name" -> "value"
         """
-
-
