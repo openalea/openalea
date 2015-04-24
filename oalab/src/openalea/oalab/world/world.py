@@ -238,7 +238,7 @@ class WorldObject(Observed):
         else:
             return attribute
 
-    def set_attribute(self, name, value, interface=None, alias=None):
+    def set_attribute(self, name, value, interface=None, alias=None, constraints=None):
         attribute_names = [a['name'] for a in self._attributes]
         try:
             attribute = self._attributes[attribute_names.index(name)]
@@ -248,15 +248,17 @@ class WorldObject(Observed):
                 interfaces = guess_interface(value)
                 if len(interfaces):
                     interface = interfaces[0]
-            self._attributes.append(dict(name=name, value=value, interface=interface, alias=alias))
+            self._attributes.append(dict(name=name, value=value, interface=interface, alias=alias, constraints=constraints))
             self.notify_listeners(('world_object_attribute_changed', (self, None, self._attributes[-1])))
         else:
             from copy import copy
             old_attribute = copy(attribute)
             if interface is not None:
                 attribute['interface'] = interface
-
-            attribute['alias'] = alias
+            if alias is not None:
+                attribute['alias'] = alias
+            if constraints:
+                attribute['constraints'] = constraints
             attribute['value'] = value
             if attribute['value'] != old_attribute['value']:
                 self.notify_listeners(('world_object_attribute_changed', (self, old_attribute, attribute)))
