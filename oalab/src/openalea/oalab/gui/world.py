@@ -2,11 +2,13 @@
 #
 #       OpenAlea.OALab: Multi-Paradigm GUI
 #
-#       Copyright 2014 INRIA - CIRAD - INRA
+#       Copyright 2014-2015 INRIA - CIRAD - INRA
 #
 #       File author(s): Julien Coste <julien.coste@inria.fr>
 #
-#       File contributor(s):
+#       File contributor(s): Julien Coste <julien.coste@inria.fr>
+#                            Guillaume Cerutti <guillaume.cerutti@inria.fr>
+#                            Guillaume Baty <guillaume.baty@inria.fr>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
@@ -221,19 +223,15 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
     def notify(self, sender, event=None):
         signal, data = event
         if signal == 'world_changed':
-            print "WorldControlPanel < ", signal
             self.refresh()
         elif signal == 'world_object_changed':
-            print "WorldControlPanel < ", signal
             world, old_object, world_object = data
             self.refresh_manager(world_object)
         elif signal == 'world_object_item_changed':
-            print "WorldControlPanel < ", signal
             world, world_object, item, old, new = data
             self.refresh_manager(world_object)
             #self.refresh_item(world_object, item, old, new)
         elif signal == 'world_sync':
-            print "WorldControlPanel < ", signal, data
             self.refresh()
 
     def clear_managers(self):
@@ -251,7 +249,6 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
             self.world = None
 
     def set_world(self, world):
-        print "WorldControlPanel < set_world"
         self.clear()
 
         self.world = world
@@ -262,39 +259,17 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
 
         for object_name in world.keys():
             self.refresh_manager(world[object_name])
-        # if self._current:
-        #     print "WorldControlPanel > set_manager",self._current
-        #     object_manager = self._manager[self._current]
-        #     object_manager.disable_followers()
-        #     self._set_manager(object_manager)
-        #     object_manager.enable_followers()
 
     def _fill_manager(self, manager, world_object):
         if world_object:
             for attribute in world_object.attributes:
-                attribute_manager = manager.add(
+                manager.add(
                     attribute['name'],
                     interface=attribute['interface'],
                     value=attribute['value'],
-                    alias=attribute['alias'])
-                
-                if '_alpha' in attribute['name']:
-                    attribute_manager.interface.step = 0.1
-                    attribute_manager.interface.min = 0
-                    attribute_manager.interface.max = 1
-                elif 'alphamap' in attribute['name']:
-                    attribute_manager.interface.enum = ['constant', 'linear']
-                elif 'plane_position' in attribute['name']:
-                    for i, axis in enumerate(['x', 'y', 'z']):
-                        if axis in attribute['name']:
-                            attribute_manager.interface.min = 0
-                            attribute_manager.interface.max = world_object.data.shape[i] - 1
-                elif ('intensity' in attribute['name']) or ('id' in attribute['name']):
-                    import numpy as np
-                    if isinstance(world_object.data, np.ndarray):
-                        attribute_manager.interface.min = int(np.min(world_object.data))
-                        attribute_manager.interface.max = int(np.max(world_object.data))
-
+                    alias=attribute['alias'],
+                    constraints=attribute['constraints']
+                )
                 manager.register_follower(attribute['name'], self._attribute_changed(world_object, attribute['name']))
 
     def _get_manager(self, world_object):
@@ -360,8 +335,6 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
         object_name = world_object.name
         object_manager = self._get_manager(world_object)
 
-        print "WorldControlPanel < refresh_manager ", object_name
-
         manager_attr_names = [c.name for c in self._manager[object_name].controls()]
         object_attr_names = [a['name'] for a in world_object.attributes]
         if manager_attr_names != object_attr_names:
@@ -369,7 +342,6 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
             object_manager.clear()
             self._fill_manager(object_manager, world_object)
             if self._current == object_name:
-                print "WorldControlPanel > set_manager ", object_name
                 self._set_manager(object_manager)
                 object_manager.enable_followers()
         else:
@@ -387,7 +359,6 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
         return _changed
 
     def _object_attribute_changed(self, object_name, attribute_name, old, new):
-        print '_object_attribute_changed', object_name, attribute_name, " : ", old, " --> ", new
         self.world[object_name].set_attribute(attribute_name, new)
 
 
