@@ -249,7 +249,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
         :use:
             >>> project1 = project_manager.load('project1')
-            >>> project2 = project_manager.load('project2', '/path/to/project')
+            >>> project2 = project_manager.load('project2', '/path/to/project') # doctest: +SKIP
 
         :param name: name of project to load. Must be a string.
         :param projectdir: path of project to load. Must be a path (see module path.py).

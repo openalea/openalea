@@ -22,8 +22,9 @@ Working with Project class
 You can work directly on project:
 
     >>> from openalea.core.project import Project, get_project_dir
+    >>> from openalea.core.path import path
     >>> # Real work on project:
-    >>> project_path = get_project_dir() / 'project1'
+    >>> project_path = path(get_project_dir()) / 'project1'
     >>> project1 = Project(project_path)
     >>> project1.start()
 
@@ -41,7 +42,10 @@ Change metadata:
     >>> project1.description = "This project is used to said hello to everyone"
     >>> startup_obj = project1.add(category="startup", filename="begin_numpy.py", content="import numpy as np")
     >>> model_obj = project1.add(category="model", filename="eye.py", content="print np.eye(2)")
-    >>> project1.rename_data("model", "eye.py", "eye_numpy.py")
+    >>> project1.rename_item("model", "eye.py", "eye_numpy.py")
+
+At this time, project is only in memory. To write it on disk, just call "project1.save()"
+
 
 
 Creation and Manipulation with Project Manager
@@ -63,8 +67,10 @@ Load project from default directory
     >>> p3 = project_manager.load('sum')
 
 Load project from a specific directory
-    >>> oalab_dir = shared_data(oalab)
-    >>> p4 = project_manager.load('sum', oalab_dir)
+    >>> import openalea.oalab
+    >>> from openalea.deploy.shared_data import shared_data
+    >>> project_dir = shared_data(openalea.oalab)
+    >>> p4 = project_manager.load('sum', project_dir)
 
 Load
     >>> project2 = project_manager.load("sum")
@@ -73,15 +79,15 @@ Run startup
     >>> project2.start()
 
 Get model
-    >>> model = project2.model("sum_int")
+    >>> model = project2.get_model("sum_int")
 
 Search other projects
 ---------------------
 
 To search projects that are not located inside default directories:
-    >>> project_manager.repositories.append('/path/to/search/projects')
-    >>> project_manager.discover()
-    >>> list_of_projects = project_manager.projects
+    >>> project_manager.repositories.append('/path/to/search/projects') # doctest: +SKIP
+    >>> project_manager.discover() # doctest: +SKIP
+    >>> list_of_projects = project_manager.projects # doctest: +SKIP
 
 """
 from openalea.core.settings import get_project_dir

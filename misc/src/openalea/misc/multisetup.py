@@ -6,15 +6,20 @@ there are a few commands dedicated to multisetup (see --help).
 
 :Example:
 
->>> python multisetup install
->>> python multisetup install sdist --dist-dir ../dist
->>> python multisetup --quiet --keep-going install sdist --dist-dir ../dist
+
+.. code-block:: bash
+
+    python multisetup.py install
+    python multisetup.py install sdist --dist-dir ../dist
+    python multisetup.py --quiet --keep-going install sdist --dist-dir ../dist
 """
 
 __license__ = "Cecill-C"
 __revision__ = " $Id: multisetup.py 3618 2012-06-18 15:58:17Z pradal $"
 
-import sys, os, re
+import sys
+import os
+import re
 from optparse import OptionParser
 from subprocess import call, PIPE, Popen
 
@@ -23,7 +28,7 @@ try:
     from path import path
 except:
     pj = os.path.join
-    sys.path.insert( 0, pj('..', 'openalea', 'core', 'src', 'core'))
+    sys.path.insert(0, pj('..', 'openalea', 'core', 'src', 'core'))
     try:
         from path import path
     except:
@@ -49,7 +54,6 @@ except:
 """
 
 
-
 """
         #
         if self.command == 'sphinx_upload':
@@ -60,8 +64,6 @@ except:
             if self.options.project:
                 cmd += ' --project %s' % self.project
 """
-
-
 
 
 class Multisetup(object):
@@ -102,7 +104,6 @@ class Multisetup(object):
         self.parse_packages()
         #self.parse_intern_commands()
         self.parse_commands()
-
 
     @classmethod
     def help(cls):
@@ -176,17 +177,16 @@ class Multisetup(object):
                     self.commands.remove(package_to_remove)
                     # until we found another package
                     continue
-                # otherwise, it is an argument that 
+                # otherwise, it is an argument that
                 else:
                     #starts with a - sign
                     if package_to_remove.startswith('-'):
                         break
                     # or is invalid
-                    raise ValueError('--exclude-packages error: package %s not found in package list' \
+                    raise ValueError('--exclude-packages error: package %s not found in package list'
                         % self.commands[index])
 
             #self.commands.pop(index)
-
 
     def parse_commands(self):
         """Search and remove multisetup options
@@ -195,31 +195,31 @@ class Multisetup(object):
         to multisetup such as --help, --quiet, --keep-going so that the
         remaining commands are fully comptatible with setuptools.
         """
-        if self.commands[0]=='--update-version':
+        if self.commands[0] == '--update-version':
             old_version = self.commands[1]
-            new_version = self.commands[2]            
-            ver_regexp = re.compile(r"version\s*=\s*%s"%old_version.replace(".",r"\."))
-            rel_regexp = re.compile(r"release\s*=\s*%s"%old_version[:old_version.rindex(".")].replace(".",r"\."))
+            new_version = self.commands[2]
+            ver_regexp = re.compile(r"version\s*=\s*%s" % old_version.replace(".", r"\."))
+            rel_regexp = re.compile(r"release\s*=\s*%s" % old_version[:old_version.rindex(".")].replace(".", r"\."))
             for dir in self.packages:
                 txt = ""
                 try:
-                    with open( dir+os.sep+"metainfo.ini" ) as f:
+                    with open(dir + os.sep + "metainfo.ini") as f:
                         txt = f.read()
                 except IOError, e:
-                    print "Couldn't read "+dir+os.sep+"metainfo.ini", e 
+                    print "Couldn't read " + dir + os.sep + "metainfo.ini", e
                     continue
-                    
-                txt, n = ver_regexp.subn("version = %s"%new_version, txt)
-                txt, n = rel_regexp.subn("release = %s"%new_version[:new_version.rindex(".")], txt)
-                if n :
-                    print "updating "+dir+os.sep+"metainfo.ini"
+
+                txt, n = ver_regexp.subn("version = %s" % new_version, txt)
+                txt, n = rel_regexp.subn("release = %s" % new_version[:new_version.rindex(".")], txt)
+                if n:
+                    print "updating " + dir + os.sep + "metainfo.ini"
                     try:
-                        with open( dir+os.sep+"metainfo.ini", "w" ) as f:
+                        with open(dir + os.sep + "metainfo.ini", "w") as f:
                             f.write(txt)
                     except Exception, e:
-                        print "Couldn't update "+dir+os.sep+"metainfo.ini", e                        
+                        print "Couldn't update " + dir + os.sep + "metainfo.ini", e
                 else:
-                    print "Couldn't update "+dir+os.sep+"metainfo.ini"
+                    print "Couldn't update " + dir + os.sep + "metainfo.ini"
             sys.exit(0)
         if '--quiet' in self.commands:
             self.verbose = False
@@ -237,16 +237,15 @@ class Multisetup(object):
         while (i < L):
             if self.commands[i].startswith('-'):
                 try:
-                    self.commands[i-1] = self.commands[i-1] + ' ' + self.commands[i] + ' ' + self.commands[i+1]
+                    self.commands[i - 1] = self.commands[i - 1] + ' ' + self.commands[i] + ' ' + self.commands[i + 1]
                     self.commands.pop(i)
                     self.commands.pop(i)
                 except:
-                    self.commands[i-1] = self.commands[i-1] + ' ' + self.commands[i]
+                    self.commands[i - 1] = self.commands[i - 1] + ' ' + self.commands[i]
                     self.commands.pop(i)
             else:
                 i += 1
             L = len(self.commands)
-
 
     def run(self, color=True):
         """Enter in all package defined and Executing 'python setup.py' with
@@ -254,7 +253,7 @@ class Multisetup(object):
 
         """
         import sys
-        import os		
+        import os
         if color:
             try:
                 from openalea.deploy.console import bold, red, green, \
@@ -277,12 +276,10 @@ class Multisetup(object):
         project_dir = self.curdir.basename()
         directories = [self.curdir.joinpath(package) for package in self.packages]
 
-
         print 'Will process the following directories: ',
         for directory in directories:
             print bold(directory.basename()),
         print ''
-
 
         try:
             for directory in directories:
@@ -296,14 +293,13 @@ class Multisetup(object):
                     print red("cannot find this directory (%s)"
                               % directory.basename())
                     print e
-                    
-                print 'Python exec : ' , sys.executable
+
+                print 'Python exec : ', sys.executable
 
                 #print underline('Entering %s package' % directory.basename())
                 for cmd in self.commands:
-                    setup_command = '%s setup.py %s ' % (sys.executable,cmd)
+                    setup_command = '%s setup.py %s ' % (sys.executable, cmd)
                     print "\tExecuting " + setup_command + '...processing',
-
 
                     #Run setup.py with user commands
                     outputs = None
@@ -338,15 +334,12 @@ class Multisetup(object):
                             for x in errors.split('\n'):
                                 if x.startswith('TOTAL'):
                                     res = x.replace('TOTAL', 'Total coverage')
-                                    res = " ".join (res.split())
+                                    res = " ".join(res.split())
                                     print purple('\t%s' % res)
                                 if x.startswith('Ran'):
                                     print purple('\t%s' % x)
                                 if x.startswith('FAILED'):
                                     print purple('\t%s' % x)
-
-
-
 
         except RuntimeError:
             sys.exit()
@@ -354,9 +347,5 @@ class Multisetup(object):
         os.chdir(self.curdir)
 
 
-
-
 #if __name__ == "__main__":
 #    mysetup = Multisetup()
-
-

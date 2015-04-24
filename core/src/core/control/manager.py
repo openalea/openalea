@@ -16,7 +16,8 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-
+"""
+"""
 import copy
 
 from openalea.core.observer import Observed, AbstractListener, lock_notify
@@ -55,6 +56,10 @@ class Follower(AbstractListener):
 
 
 class ControlContainer(Observed, AbstractListener):
+
+    """
+    >>> from openalea.core.control.manager import ControlContainer
+    """
 
     def __init__(self):
         Observed.__init__(self)
@@ -96,8 +101,10 @@ class ControlContainer(Observed, AbstractListener):
         Convenience method to create a control and add it to container.
         See :class:`~openealea.core.control.control.Control`.
 
+
         >>> container = ControlContainer()
         >>> container.add('i', interface='IInt', value=1)
+        Control('i', IInt, value=1)
 
         :param name: Control name
         :param kwds: Control keywords like interface, value, ...

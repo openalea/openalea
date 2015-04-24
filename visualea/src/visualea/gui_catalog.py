@@ -21,7 +21,7 @@
 __license__ = "CeCILL V2"
 __revision__ = " $Id$"
 
-from openalea.vpltk import qt
+from openalea.vpltk.qt import qt
 from openalea.core.interface import *  # IGNORE:W0614,W0401
 from openalea.core.observer import lock_notify
 

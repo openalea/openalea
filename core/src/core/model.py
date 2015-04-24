@@ -31,7 +31,9 @@ each step depending on previous one.
 
 To define model instructions, you need to define at least "step" instructions.
 To do that, you can use:
+
     - :meth:`~IModel.set_step_code`
+
 To use a Model, you also need to define set_code method that is able to extract inputs, outpus and step, init, ... 
 from given source code.
 

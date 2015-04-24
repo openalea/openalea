@@ -317,10 +317,10 @@ def parse_input_and_output(docstring):
         outputs = output_name:output_type, ...
 
     :use:
+        >>> from openalea.oalab.model.parse import parse_input_and_output
         >>> comment = '''
-        >>> input = a:int=4, b
-        >>> output = r:float
-        >>> '''
+        ... input = a:int=4, b
+        ... output = r:float'''
         >>> inputs, outputs = parse_input_and_output(comment)
         >>> inputs
         ['a:int=4', 'b']
@@ -354,18 +354,18 @@ def parse_lpy(string):
     :return: docstring of the file if exists (must be a multiline docstring!). If not found, return None.
 
     :use:
-        >>> f = open(lpyfilename, "r")
-        >>> lpystring = f.read()
-        >>> f.close()
+        >>> f = open(lpyfilename, "r") # doctest: +SKIP
+        >>> lpystring = f.read() # doctest: +SKIP
+        >>> f.close() # doctest: +SKIP
         >>>
-        >>> docstring = parse_lpy(lpystring)
+        >>> docstring = parse_lpy(lpystring) # doctest: +SKIP
         >>>
-        >>> from openalea.oalab.model.parse import parse_doc
-        >>> if docstring is not None:
-        >>>     model, inputs, outputs = parse_doc(docstring)
-        >>>     print "model : ", model
-        >>>     print "inputs : ", inputs
-        >>>     print "outputs : ", outputs
+        >>> from openalea.oalab.model.parse import parse_doc 
+        >>> if docstring is not None: # doctest: +SKIP
+        ...     model, inputs, outputs = parse_doc(docstring) # doctest: +SKIP
+        ...     print "model : ", model # doctest: +SKIP
+        ...     print "inputs : ", inputs # doctest: +SKIP
+        ...     print "outputs : ", outputs # doctest: +SKIP
     """
     # TODO: need a code review
     begin = None
@@ -412,14 +412,15 @@ class InputObj(object):
         - an attribute *interface*: interface/type of the input obj (str) (optional)
         - an attribute *default*: default value of the input obj (str) (optional)
 
+    >>> from openalea.oalab.model.parse import InputObj
     >>> obj = InputObj('a:float=1')
     >>> obj.name
     'a'
     >>> obj.default
-    1
+    '1'
     >>> obj.interface
-    'IFloat'
-    >>> print obj
+    IFloat
+    >>> obj
     InputObj('a:IFloat=1')
 
     :param string: string object with format "input_name:input_type=input_default_value" or "input_name=input_default_value" or "input_name:input_type" or "input_name"
@@ -489,12 +490,13 @@ class OutputObj(InputObj):
 
 def prepare_inputs(inputs_info, *args, **kwargs):
     """
+    >>> from openalea.oalab.model.parse import InputObj
     >>> inputs_info = [InputObj('a:int=1'), InputObj('b:int=2')]
-    >>> prepare_inputs(inputs_info) #DOCTEST: +IGNORE
+    >>> prepare_inputs(inputs_info) # doctest: +SKIP
     {'a':1, 'b':2}
-    >>> prepare_inputs(inputs_info, 10) #DOCTEST: +IGNORE
+    >>> prepare_inputs(inputs_info, 10) # doctest: +SKIP
     {'a':10, 'b':2}
-    >>> prepare_inputs(inputs_info, 10, 20) #DOCTEST: +IGNORE
+    >>> prepare_inputs(inputs_info, 10, 20) # doctest: +SKIP
     {'a':10, 'b':20}
     """
     filename = kwargs.pop('name', "unknown")
