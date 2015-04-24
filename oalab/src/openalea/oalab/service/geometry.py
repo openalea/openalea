@@ -48,7 +48,7 @@ def to_shape3d(obj):
         return to_shape3d(obj._repr_geom_())
 
     if isinstance(obj, WorldObject):
-        return to_shape3d(obj.obj)
+        return to_shape3d(obj.data)
 
     for types, function in __registry.iteritems():
         if isinstance(obj, types):
