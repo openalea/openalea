@@ -33,7 +33,8 @@ import os
 
 from openalea.core.path import path as Path
 
-FORCE_UI_GENERATION = True
+
+FORCE_UI_GENERATION = False
 
 
 def get_data(name, path):
@@ -59,20 +60,11 @@ def mtime(path):
 def mtime_datetime(path):
     return datetime.datetime.fromtimestamp(mtime(path))
 
-try:
-    if os.environ['QT_API'] == 'pyqt':
-        from PyQt4.uic import compileUi
-        compile_args = dict(execute=False, indent=4)
-    elif os.environ['QT_API'] == 'pyside':
-        from pysideuic import compileUi
-        compile_args = dict(execute=False, indent=4, from_imports=False)
-    else:
-        raise NotImplementedError
-except ImportError:
-    print 'You must install %s-tools' % os.environ['QT_API']
+
+from openalea.vpltk.qt.uic import compileUi, compile_args
 
 
-def generate_pyfile_from_uifile(name, src=None, dest=None):
+def generate_pyfile_from_uifile(name, src=None, dest=None, uibasename=None):
     """
     Function searches ...
 
@@ -96,29 +88,34 @@ def generate_pyfile_from_uifile(name, src=None, dest=None):
 
       Do not edit generated file because all data written here are lost.
 
-    :param filename: the qt-designer ui file name. Ex: options.ui
-    :type filename: str
+    :param name: 
+    :type name: str
 
     :return: Qt class (corresponding to filename), Qt type class (type of first value)
     :rtype: couple
     """
-    if name == '__main__':
+    modulename = name
+    if uibasename:
+        name = uibasename
+    else:
+        name = name.split('.')[-1]
+    if modulename == '__main__':
         return
     paths = []
     if src:
         filepath = Path(src)
         paths.append(filepath)
     else:
-        path = 'designer/%s.ui' % name.split('.')[-1]
-        filepath = Path(get_data(name, path))
+        path = 'designer/%s.ui' % name
+        filepath = Path(get_data(modulename, path))
         paths.append(filepath)
 
-        path = 'resources/%s.ui' % name.split('.')[-1]
-        filepath = Path(get_data(name, path))
+        path = 'resources/%s.ui' % name
+        filepath = Path(get_data(modulename, path))
         paths.append(filepath)
 
-        path = '%s.ui' % name.split('.')[-1]
-        filepath = Path(get_data(name, path))
+        path = '%s.ui' % name
+        filepath = Path(get_data(modulename, path))
         paths.append(filepath)
 
     for path in paths:
@@ -210,3 +207,13 @@ def compile_ui_files(module, import_instructions=None):
                                 except:
                                     print 'COMPILATION ERROR: cannot compile', py
                                     print
+
+try:
+    from openalea.vpltk.qt import QtCore
+    from openalea.vpltk.qt._test import QtCore as previous_QtCore
+    if QtCore.QObject != previous_QtCore.QObject:
+        raise ImportError
+except ImportError:
+    # First call, ui files are not generated or wrong implementation
+    FORCE_UI_GENERATION = True
+    generate_pyfile_from_uifile('openalea.vpltk.qt', uibasename='test')
