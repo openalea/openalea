@@ -10,7 +10,7 @@ MODE_DESIGN = 1
 from openalea.vpltk.qt.designer import generate_pyfile_from_uifile
 
 generate_pyfile_from_uifile(__name__)
-from openalea.oalab.gui.control.designer._widget_container import Ui_WidgetContainer
+from openalea.oalab.gui.control.designer._panel import Ui_WidgetContainer
 
 
 class WidgetContainer2(QtGui.QWidget, Ui_WidgetContainer):
