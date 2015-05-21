@@ -68,23 +68,26 @@ class CommandLineParser(object):
             from openalea.core.plugin import iter_groups
 
             if args.list_plugins in ['summary', 'all']:
-                for category in sorted(iter_groups()):
-                    if category.startswith('oalab') or category.startswith('vpltk'):
-                        eps = [ep for ep in pkg_resources.iter_entry_points(category)]
-                        if args.list_plugins == 'all':
-                            print '\033[91m%s\033[0m' % category
-                            print
-                            for ep in eps:
-                                print_plugin_name(ep)
-                            print
-                            print
-                        else:
-                            print '  - \033[91m%s\033[0m (%d plugins)' % (category, len(eps))
-
-            elif args.list_plugins:
-                print 'Plugins for category %r' % args.list_plugins
-                for ep in pkg_resources.iter_entry_points(args.list_plugins):
-                    print_plugin_name(ep)
+                prefixes = ['oalab', 'vpltk', 'openalea']
+            else:
+                prefixes = [args.list_plugins]
+            for category in sorted(iter_groups()):
+                match = False
+                for prefix in prefixes:
+                    if category.startswith(prefix):
+                        match = True
+                        break
+                if match:
+                    eps = [ep for ep in pkg_resources.iter_entry_points(category)]
+                    if args.list_plugins == 'summary':
+                        print '  - \033[91m%s\033[0m (%d plugins)' % (category, len(eps))
+                    else:
+                        print '\033[91m%s\033[0m' % category
+                        print
+                        for ep in eps:
+                            print_plugin_name(ep)
+                        print
+                        print
 
         if args.debug_plugins:
             debug = args.debug_plugins.split(',')
