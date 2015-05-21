@@ -104,7 +104,7 @@ class PluginInstanceManager(object):
             # Passed instance is not registered for this plugin
             pass
 
-    def _new(self, category, name, class_args=None, class_kwds=None):
+    def _function(self, category, name):
         if category not in self.pm._plugin:
             self.pm._load_plugins(category)
         try:
@@ -117,21 +117,21 @@ class PluginInstanceManager(object):
             except TypeError, e:
                 raise enhanced_error(e, plugin_class=plugin_class)
 
-            if class_args is None:
-                class_args = []
-            if class_kwds is None:
-                class_kwds = {}
-
             try:
-                klass = plugin()
+                function = plugin()
             except TypeError, e:
                 raise enhanced_error(e, plugin=plugin, plugin_class=plugin_class)
+
+            return function
+
+    def function(self, category, name):
+        if self._debug_mode(category):
+            return self._function(category, name)
+        else:
             try:
-                instance = klass(*class_args, **class_kwds)
-            except TypeError, e:
-                raise enhanced_error(e, plugin_class=klass)
-            self.register(category, name, instance)
-            return instance
+                return self._function(category, name)
+            except:
+                return None
 
     def new(self, category, name, class_args=None, class_kwds=None):
         """
@@ -218,5 +218,6 @@ debug_plugin = PIM.__call__
 new_plugin_instance = PIM.new
 plugin_implementations = PIM.implementations
 plugin_instance = PIM.instance
+plugin_function = PIM.function
 plugin_instances = PIM.instances
 plugin_instance_exists = PIM.has_instance
