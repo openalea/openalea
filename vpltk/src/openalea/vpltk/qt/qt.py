@@ -3,4 +3,43 @@
 The goal is to have the same version of QString and QVariant in all OpenAlea
 """
 
-from openalea.vpltk.qt import QtCore, QtGui, QtOpenGL, QtTest, QtSql, QtWebKit, QtSvg, phonon
+try:
+    from openalea.vpltk.qt import QtCore
+except ImportError:
+    pass
+
+try:
+    from openalea.vpltk.qt import QtGui
+except ImportError:
+    pass
+
+try:
+    from openalea.vpltk.qt import QtOpenGL
+except ImportError:
+    pass
+
+try:
+    from openalea.vpltk.qt import QtTest
+except ImportError:
+    pass
+
+try:
+    from openalea.vpltk.qt import QtSql
+except ImportError:
+    pass
+
+try:
+    from openalea.vpltk.qt import QtWebKit
+except ImportError:
+    pass
+
+try:
+    from openalea.vpltk.qt import QtSvg
+except ImportError:
+    pass
+
+try:
+    from openalea.vpltk.qt import phonon
+except ImportError:
+    pass
+
