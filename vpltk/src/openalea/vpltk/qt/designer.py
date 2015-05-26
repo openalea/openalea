@@ -33,7 +33,8 @@ import os
 
 from openalea.core.path import path as Path
 
-FORCE_UI_GENERATION = True
+
+FORCE_UI_GENERATION = False
 
 
 def get_data(name, path):
@@ -59,20 +60,40 @@ def mtime(path):
 def mtime_datetime(path):
     return datetime.datetime.fromtimestamp(mtime(path))
 
-try:
-    if os.environ['QT_API'] == 'pyqt':
-        from PyQt4.uic import compileUi
-        compile_args = dict(execute=False, indent=4)
-    elif os.environ['QT_API'] == 'pyside':
-        from pysideuic import compileUi
-        compile_args = dict(execute=False, indent=4, from_imports=False)
+
+def replaceext(self, ext, old_ext=None):
+    u"""
+    Changes current extension to ext.
+    If extension contains more than one dot (ex: .tar.gz) you can specify
+    it with "old_ext" argument.
+
+    >>> from pyLot.core import Path
+    >>> p = Path(u'path.py')
+    >>> p.replaceext(u'.rst')
+    Path(u'path.rst')
+
+    >>> p = Path(u'archive.tar.gz')
+    >>> p.replaceext(u'.tgz')
+    Path(u'archive.tar.tgz')
+    >>> p.replaceext(u'.tgz', u'.tar.gz')
+    Path(u'archive.tgz')
+    """
+    if old_ext is None:
+        path, old_ext = self.splitext()
+        return self.__class__(path + ext)
     else:
-        raise NotImplementedError
-except ImportError:
-    print 'You must install %s-tools' % os.environ['QT_API']
+        path_ext = self[-len(old_ext):]
+        if path_ext != old_ext:
+            raise ValueError, 'old_ext %(OLD_EXT)r and path ext %(PATH_EXT)r do not match.' % dict(
+                OLD_EXT=old_ext, PATH_EXT=path_ext[1:])
+        else:
+            return self.__class__(self[:-len(old_ext)] + ext)
 
 
-def generate_pyfile_from_uifile(name, src=None, dest=None):
+from openalea.vpltk.qt.uic import compileUi, compile_args
+
+
+def generate_pyfile_from_uifile(name, src=None, dest=None, uibasename=None, force=None):
     """
     Function searches ...
 
@@ -96,29 +117,36 @@ def generate_pyfile_from_uifile(name, src=None, dest=None):
 
       Do not edit generated file because all data written here are lost.
 
-    :param filename: the qt-designer ui file name. Ex: options.ui
-    :type filename: str
+    :param name: 
+    :type name: str
 
     :return: Qt class (corresponding to filename), Qt type class (type of first value)
     :rtype: couple
     """
-    if name == '__main__':
+    if force is None:
+        force = FORCE_UI_GENERATION
+    modulename = name
+    if uibasename:
+        name = uibasename
+    else:
+        name = name.split('.')[-1]
+    if modulename == '__main__':
         return
     paths = []
     if src:
         filepath = Path(src)
         paths.append(filepath)
     else:
-        path = 'designer/%s.ui' % name.split('.')[-1]
-        filepath = Path(get_data(name, path))
+        path = 'designer/%s.ui' % name
+        filepath = Path(get_data(modulename, path))
         paths.append(filepath)
 
-        path = 'resources/%s.ui' % name.split('.')[-1]
-        filepath = Path(get_data(name, path))
+        path = 'resources/%s.ui' % name
+        filepath = Path(get_data(modulename, path))
         paths.append(filepath)
 
-        path = '%s.ui' % name.split('.')[-1]
-        filepath = Path(get_data(name, path))
+        path = '%s.ui' % name
+        filepath = Path(get_data(modulename, path))
         paths.append(filepath)
 
     for path in paths:
@@ -141,13 +169,13 @@ def generate_pyfile_from_uifile(name, src=None, dest=None):
         else:
             generate = True
 
-    if generate or FORCE_UI_GENERATION:
+    if generate or force:
         module_dir = str(path.parent)
         if module_dir not in sys.path:
             sys.path.append(module_dir)
 
-        if FORCE_UI_GENERATION:
-            print 'force building of %s from %s\n' % (pyfilename, path)
+        if force:
+            print 'build %s from %s\n' % (pyfilename, path)
         else:
             print '%s has changed, build %s\n' % (path, pyfilename)
 
@@ -173,12 +201,16 @@ def compile_ui_files(module, import_instructions=None):
     from openalea.core import codegen
 
     if import_instructions is None:
-        import_instructions = """
-    from openalea.vpltk.qt.designer import generate_pyfile_from_uifile
+        import_instructions = "from openalea.vpltk.qt.designer import generate_pyfile_from_uifile\n"
 
-    """
-    root = Path(__import__(module).__file__).parent
-    for py in root.walkfiles('*.py'):
+    module = __import__(module)
+    paths = []
+    for root in module.__path__:
+        root = Path(root)
+        for py in root.walkfiles('*.py'):
+            paths.append((root, py))
+
+    for root, py in paths:
         f = open(py)
         lines = f.readlines()
         f.close()
@@ -199,14 +231,34 @@ def compile_ui_files(module, import_instructions=None):
                             pass
                         else:
                             if func_name == 'generate_pyfile_from_uifile':
+                                true = ast.parse('True').body[0]
+
+                                for keyword in value.keywords:
+                                    if keyword.arg == 'force':
+                                        keyword.value = true
+                                        break
+                                else:
+                                    value.keywords.append(ast.keyword('force', true))
                                 src = codegen.to_source(instr)
+
                                 if py.startswith('./') or py.startswith('.\\'):
                                     py = Path(py[2:])
-                                name = root.parent.relpathto(py).replaceext('').replace(os.sep, '.')
+                                name = replaceext(root.parent.relpathto(py), '').replace(os.sep, '.')
                                 src = src.replace('__name__', repr(name))
                                 try:
                                     code = compile(import_instructions + src, "<string>", "exec")
                                     exec code
-                                except:
+                                except Exception, e:
+                                    print repr(e)
                                     print 'COMPILATION ERROR: cannot compile', py
                                     print
+
+try:
+    from openalea.vpltk.qt import QtCore
+    from openalea.vpltk.qt._test import QtCore as previous_QtCore
+    if QtCore.QObject != previous_QtCore.QObject:
+        raise ImportError
+except ImportError:
+    # First call, ui files are not generated or wrong implementation
+    FORCE_UI_GENERATION = True
+    generate_pyfile_from_uifile('openalea.vpltk.qt', uibasename='test')
