@@ -20,6 +20,8 @@ __revision__ = ""
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core.observer import AbstractListener
 
+from openalea.oalab.service.drag_and_drop import DragAndDropHandler
+
 
 class GenericWorldBrowser(QtGui.QWidget):
 
@@ -49,6 +51,8 @@ class WorldBrowser(GenericWorldBrowser, AbstractListener):
         actionClearWorld = QtGui.QAction(QtGui.QIcon(":/images/resources/plant.png"), "Clear World", self)
         actionClearWorld.triggered.connect(self.clear)
         self._actions = [["Project", "World", actionClearWorld, 0]]
+
+        self.dnd = DragAndDropHandler(self, callbacks={'IImage': self.drop_object})
 
     def initialize(self):
         from openalea.oalab.world.world import World
@@ -94,6 +98,9 @@ class WorldBrowser(GenericWorldBrowser, AbstractListener):
             self.world.unregister_listener(self)
         self.world = world
         self.world.register_listener(self)
+
+    def drop_object(self, obj, **kwargs):
+        self.world.add(obj, **kwargs)
 
 
 class WorldModel(QtGui.QStandardItemModel):

@@ -20,7 +20,7 @@ def decode(mimetype, mimedata):
         from openalea.core.project.manager import ProjectManager
         from openalea.core.path import path
         pm = ProjectManager()
-        return pm.get('data', path(mimedata).name)
+        return pm.cproject.get_item('data', path(unicode(mimedata)).name)
     else:
         return str(mimedata)
 
