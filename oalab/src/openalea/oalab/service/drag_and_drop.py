@@ -109,12 +109,12 @@ def encode(obj, mimetype=None):
     pass
 
 
-class DragAndDropHandler(object):
+class DragAndDrop(object):
 
-    def __init__(self, widget, callbacks, **kwargs):
+    def __init__(self, widget, **kwargs):
         self.widget = widget
-        self.callbacks = callbacks
         self.kwargs = kwargs
+        self.drop_callbacks = []
 
         self.widget.setAcceptDrops(True)
 
@@ -123,6 +123,9 @@ class DragAndDropHandler(object):
         self.widget.dragLeaveEvent = self.drag_leave_event
         #widget.dragMoveEvent = self.drag_move_event
         #widget.dropEvent = new.instancemethod(drop_event, widget, widget.__class__)
+
+    def add_drop_callback(self, fmt, callback):
+        self.drop_callbacks.append({fmt: callback})
 
     def drag_enter_event(self, event):
         self._compatible = compatible_mime(event.mimeData(), interfaces=self.callbacks.keys())
@@ -154,7 +157,7 @@ class DragAndDropHandler(object):
                     break
 
         if data is not None and interface is not None:
-            self.callbacks[interface](data, **kwds)
+            self.drop_callbacks[interface](data, **kwds)
             event.acceptProposedAction()
         else:
             return QtGui.QWidget.dropEvent(self.widget, event)

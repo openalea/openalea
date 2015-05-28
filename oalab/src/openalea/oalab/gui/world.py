@@ -20,7 +20,7 @@ __revision__ = ""
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core.observer import AbstractListener
 
-from openalea.oalab.service.drag_and_drop import DragAndDropHandler
+from openalea.oalab.service.drag_and_drop import DragAndDrop
 
 
 class GenericWorldBrowser(QtGui.QWidget):
@@ -52,7 +52,8 @@ class WorldBrowser(GenericWorldBrowser, AbstractListener):
         actionClearWorld.triggered.connect(self.clear)
         self._actions = [["Project", "World", actionClearWorld, 0]]
 
-        self.dnd = DragAndDropHandler(self, callbacks={'IImage': self.drop_object})
+        self.dnd = DragAndDrop(self)
+        self.dnd.add_drop_callback('IImage', self.drop_object)
 
     def initialize(self):
         from openalea.oalab.world.world import World
