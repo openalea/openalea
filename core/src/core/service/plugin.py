@@ -124,6 +124,35 @@ class PluginInstanceManager(object):
 
             return function
 
+    def _new(self, category, name, class_args=None, class_kwds=None):
+        if category not in self.pm._plugin:
+            self.pm._load_plugins(category)
+        try:
+            plugin_class = self.pm._plugin[category][name]
+        except KeyError:
+            pass
+        else:
+            try:
+                plugin = plugin_class()
+            except TypeError, e:
+                raise enhanced_error(e, plugin_class=plugin_class)
+
+            if class_args is None:
+                class_args = []
+            if class_kwds is None:
+                class_kwds = {}
+
+            try:
+                klass = plugin()
+            except TypeError, e:
+                raise enhanced_error(e, plugin=plugin, plugin_class=plugin_class)
+            try:
+                instance = klass(*class_args, **class_kwds)
+            except TypeError, e:
+                raise enhanced_error(e, plugin_class=klass)
+            self.register(category, name, instance)
+            return instance
+
     def function(self, category, name):
         if self._debug_mode(category):
             return self._function(category, name)
