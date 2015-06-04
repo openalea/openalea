@@ -4,6 +4,7 @@ from openalea.core.service.interface import interface_name
 from openalea.core.plugin import iter_plugins
 from openalea.vpltk.qt import QtGui
 from openalea.oalab.gui.utils import ModalDialog
+from openalea.oalab.session.session import Session
 
 import weakref
 
