@@ -32,6 +32,8 @@ import pkg_resources
 import site
 import sys
 
+from openalea.core.factory import AbstractFactory
+
 def plugin_implements(plugin, interface):
     return interface in plugin_implementations(plugin)
 
@@ -47,6 +49,7 @@ def plugin_implementations(plugin):
 
 def plugin_name(plugin):
     return plugin.name if hasattr(plugin, 'name') else plugin.__name__
+
 
 def discover(group, name=None):
     """
@@ -104,7 +107,7 @@ def iter_plugins(group, name=None, debug=False):
                 else:
                     yield ep
 
-class Plugin(object):
+class Plugin(AbstractFactory):
     """ Define a Plugin from an entry point. """
 
     def __init__(self, epoint):
@@ -124,6 +127,19 @@ class Plugin(object):
 
     def load(self, *args, **kwds):
         return self.ep.load(*args, **kwds)
+
+    def _get_module(self):
+        return self.module_name
+
+    module = property(_get_module)
+
+    def _get_distribution(self):
+        return self.dist
+
+    distribution = property(_get_distribution)
+
+    def __call__(self, *args, **kwds):
+        return self.load(*args, **kwds)
 
 class PluginDef(object):
   def __new__(self, klass):
