@@ -51,6 +51,10 @@ class PluginManager(object):
         if plugins is not None:
             self.add_plugins(plugins)
 
+        for metaplugin in self.plugins('openalea.plugin'):
+            for plugin in metaplugin.plugins:
+                self.add_plugin(metaplugin.category, plugin)
+
     def clear(self):
         self._plugin = {}  # dict category -> plugin name -> Plugin class or Plugin proxy
         self._plugin_loaded = {}
@@ -62,7 +66,7 @@ class PluginManager(object):
         """
         self._plugin_proxy[category] = plugin_proxy
 
-    def add_plugin(self, category, plugin, plugin_proxy=None):
+    def add_plugin(self, category, plugin, plugin_proxy=None, **kwds):
         if plugin_proxy is None and category in self._plugin_proxy:
             plugin_proxy = self._plugin_proxy[category]
 
@@ -72,7 +76,10 @@ class PluginManager(object):
         try:
             name = plugin.name
         except AttributeError:
-            name = plugin.__name__
+            try:
+                name = plugin.__name__
+            except AttributeError:
+                name = str(plugin)
         self._plugin.setdefault(category, {})[name] = plugin
 
     def add_plugins(self, plugins=None):
@@ -93,7 +100,7 @@ class PluginManager(object):
                 plugin_class = ep.load()
                 logger.debug('%s load plugin %s' % (self.__class__.__name__, ep))
                 self._plugin_loaded[identifier] = plugin_class
-                self.add_plugin(category, plugin_class, plugin_proxy=plugin_proxy)
+                self.add_plugin(category, plugin_class, plugin_proxy=plugin_proxy, identifier=identifier)
             else:
                 try:
                     plugin_class = ep.load()
@@ -108,7 +115,7 @@ class PluginManager(object):
                 else:
                     logger.debug('%s load plugin %s' % (self.__class__.__name__, ep))
                     self._plugin_loaded[identifier] = plugin_class
-                    self.add_plugin(category, plugin_class, plugin_proxy=plugin_proxy)
+                    self.add_plugin(category, plugin_class, plugin_proxy=plugin_proxy, identifier=identifier)
 
         return plugin_class
 

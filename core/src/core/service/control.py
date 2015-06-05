@@ -78,6 +78,10 @@ def get_control(name):
     return cm.control(name)
 
 
+def get_control_by_id(identifier):
+    return ControlManager().control(uid=identifier)
+
+
 def group_controls(control_list):
     container = ControlContainer()
     for control in control_list:

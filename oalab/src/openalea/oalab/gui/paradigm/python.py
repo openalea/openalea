@@ -46,6 +46,15 @@ class PythonModelController(ParadigmController):
             from openalea.oalab.editor.highlight import Highlighter
             editor = Editor(parent=self.parent)
             Highlighter(editor.editor)
+
+        from openalea.oalab.service.drag_and_drop import add_drop_callback
+
+        def drop_text(text, **kwds):
+            cursor = kwds.get('cursor')
+            cursor.insertText(text)
+        add_drop_callback(editor, 'openalea/code.oalab', drop_text, title="Python code")
+        add_drop_callback(editor, 'openalea/identifier', drop_text, title="Name")
+
         return editor
 
     def instantiate_widget(self):

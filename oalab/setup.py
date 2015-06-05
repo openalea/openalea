@@ -91,6 +91,10 @@ setup(
             'oalab = openalea.oalab.main2:main',
         ],
 
+        'openalea.plugin': [
+            'BuiltinMimeDataCodecPlugin = openalea.oalab.plugins.mimedata:BuiltinMimeDataCodecPlugin',
+        ],
+
         'oalab.paradigm_applet': [
             'PythonApplet = openalea.oalab.plugins.models.pythongui:PythonModelGUI',
             'RApplet = openalea.oalab.plugins.models.rgui:RModelGUI',
@@ -148,7 +152,7 @@ setup(
         ],
 
         'oalab.interface': [
-            'OpenAleaLabInterfacePlugin = openalea.oalab.plugins.interfaces:OpenAleaLabInterfacePlugin', 
+            'OpenAleaLabInterfacePlugin = openalea.oalab.plugins.interfaces:OpenAleaLabInterfacePlugin',
             'ColormapInterfacePlugin = openalea.oalab.plugins.interfaces:ColormapInterfacePlugin',
         ],
 
