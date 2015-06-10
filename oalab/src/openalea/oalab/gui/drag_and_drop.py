@@ -25,6 +25,20 @@ from openalea.oalab.mimedata import MimeCodecManager
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.oalab.gui.utils import ModalDialog, make_error_dialog
 
+mcm = MimeCodecManager()
+
+
+def encode_to_qmimedata(data, mimetype):
+    possible_conv = {}
+    for k, g in itertools.groupby(mcm._registry_encode, lambda data: data[0]):
+        possible_conv[k] = list(g)
+
+    qmimedata = QtCore.QMimeData()
+    if mimetype in possible_conv:
+        for mimetype_in, mimetype_out in possible_conv[mimetype]:
+            qmimedata = mcm.qtencode(data, qmimedata, mimetype_in, mimetype_out)
+    return qmimedata
+
 
 class DropSelectorWidget(QtGui.QWidget):
 
@@ -79,8 +93,6 @@ class DropSelectorMenu(QtGui.QMenu):
 
 
 class DragHandler(object):
-    conv = MimeCodecManager()
-    conv.init()
 
     def __init__(self, widget, **kwds):
         self.widget = widget
@@ -98,28 +110,16 @@ class DragHandler(object):
         self._drag_format.append(mimetype_out)
         self._drag_kwds[mimetype_out] = kwds
 
-    def qtencode(self, data, mimetype):
-
-        possible_conv = {}
-        for k, g in itertools.groupby(self.conv._registry_encode, lambda data: data[0]):
-            possible_conv[k] = list(g)
-
-        qmimedata = QtCore.QMimeData()
-        if mimetype in possible_conv:
-            for mimetype_in, mimetype_out in possible_conv[mimetype]:
-                qmimedata = self.conv.qtencode(data, qmimedata, mimetype_in, mimetype_out)
-        return qmimedata
-
 
 class DropHandler(object):
-    conv = MimeCodecManager()
-    conv.init()
 
     def __init__(self, widget, **kwds):
         self.widget = widget
         self._kwds = kwds
         self._drop_callbacks = {}
         self._drop_kwds = {}
+
+        mcm.init()
 
         # Drop part
         self.widget.setAcceptDrops(True)
@@ -135,7 +135,7 @@ class DropHandler(object):
         self._drop_kwds[mimetype_out] = kwds
         self._drop_callbacks[mimetype_out] = callback
 
-        for conv in self.conv._registry_decode:
+        for conv in mcm._registry_decode:
             if conv[1].startswith(mimetype_out):
                 if conv[1] not in self._drop_callbacks:
                     self.add_drop_callback(conv[1], callback, **kwds)
@@ -149,7 +149,7 @@ class DropHandler(object):
             return
         for mimetype_in, mimetype_out in possible_conv[selected]:
             try:
-                data, kwds = self.conv.qtdecode(source, mimetype_in, mimetype_out)
+                data, kwds = mcm.qtdecode(source, mimetype_in, mimetype_out)
             except CustomException, e:
                 make_error_dialog(e)
             else:
@@ -158,7 +158,7 @@ class DropHandler(object):
                 self._drop_callbacks[selected](data, **kwds)
 
     def _compatibe_mime(self, mimetype_in_list):
-        return self.conv.compatible_mime(mimetype_in_list, self._drop_callbacks.keys())
+        return mcm.compatible_mime(mimetype_in_list, self._drop_callbacks.keys())
 
     def can_insert_from_mime_data(self, source):
         self._compatible = self._compatibe_mime(source.formats())
@@ -166,7 +166,7 @@ class DropHandler(object):
 
     def drag_enter_event(self, event):
         mimedata = event.mimeData()
-        self._compatible = self.conv.compatible_mime(mimedata.formats(), mimetype_out_list=self._drop_callbacks.keys())
+        self._compatible = mcm.compatible_mime(mimedata.formats(), mimetype_out_list=self._drop_callbacks.keys())
 
         if self._compatible:
             event.acceptProposedAction()
@@ -188,7 +188,7 @@ class DropHandler(object):
         labels = {}
         for all_conv in possible_conv.values():
             for conv in all_conv:
-                plugin = self.conv._registry_decode_plugin[conv]
+                plugin = mcm._registry_decode_plugin[conv]
                 if hasattr(plugin, 'mimetype_desc'):
                     for mimetype, desc in plugin.mimetype_desc.items():
                         if 'title' in desc:
@@ -205,7 +205,7 @@ class DropHandler(object):
         for k, g in itertools.groupby(self._compatible, lambda data: data[1]):
             conv = []
             for mimetype_in, mimetype_out in list(g):
-                ok = self.conv.quick_check(mimedata, mimetype_in, mimetype_out)
+                ok = mcm.quick_check(mimedata, mimetype_in, mimetype_out)
 
                 if ok:
                     conv.append((mimetype_in, mimetype_out))
@@ -237,7 +237,7 @@ class DropHandler(object):
             return
         for mimetype_in, mimetype_out in possible_conv[selected]:
             try:
-                data, kwds = self.conv.qtdecode(mimedata, mimetype_in, mimetype_out)
+                data, kwds = mcm.qtdecode(mimedata, mimetype_in, mimetype_out)
                 kwds['mimedata'] = mimedata
                 self._drop_callbacks[selected](data, **kwds)
             except CustomException, e:

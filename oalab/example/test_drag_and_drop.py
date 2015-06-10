@@ -18,65 +18,11 @@
 #
 ###############################################################################
 
-from openalea.vpltk.qt import QtGui, QtCore
+from openalea.vpltk.qt import QtGui
 
-from openalea.core.plugin.manager import PluginManager
-from openalea.oalab.mimedata import QMimeCodec, QMimeCodecPlugin
+# Load SampleCustomData, associated codecs and register its
+from openalea.oalab.plugins.mimedata.sample import SampleCustomData
 
-
-class CustomData(object):
-
-    def __init__(self, num, letter):
-        self.num = num
-        self.letter = letter
-
-    def __repr__(self, ):
-        return '%s(num=%r, letter=%r)' % (self.__class__.__name__, self.num, self.letter)
-
-
-class Codec(QMimeCodec):
-
-    def decode(self, raw_data, mimetype_in, mimetype_out):
-        num, letter = raw_data.split(';')
-        num = int(num)
-        if mimetype_out == 'custom/data':
-            data = CustomData(num, letter)
-        elif mimetype_out == 'openalealab/control':
-            from openalea.core.control import Control
-            data = Control(letter, 'IInt', num)
-        elif mimetype_out == 'text/plain':
-            data = 'customdata: %s, %s' % (letter, num)
-        elif mimetype_out == 'text/plain.verbose':
-            data = 'Custom data define these values:\n  - letter: %s\n  - num: %s' % (letter, num)
-        return data, {}
-
-    def encode(self, data, mimetype_in, mimetype_out):
-        return mimetype_out, '%s;%s' % (data.num, data.letter)
-
-
-class SampleCodecPlugin(QMimeCodecPlugin):
-    qtencode = [
-        ("custom/data", "custom/data"),
-    ]
-    qtdecode = [
-        ("custom/data", "custom/data"),
-        ("custom/data", "openalealab/control"),
-        ("custom/data", "text/plain"),
-        ("custom/data", "text/plain.verbose"),
-    ]
-
-    mimetype_desc = {
-        'text/plain': dict(title='Short Text'),
-        'text/plain.verbose': dict(title='Long Text'),
-        'custom/data': dict(title='Custom data'),
-        'openalealab/control': dict(title='Control'),
-    }
-
-    def __call__(self):
-        return Codec
-
-pm = PluginManager()
-pm.add_plugin('openalea.codec.mimetype', SampleCodecPlugin)
 
 instance = QtGui.QApplication.instance()
 if instance is None:
@@ -84,7 +30,7 @@ if instance is None:
 else:
     app = instance
 
-from openalea.oalab.service.drag_and_drop import add_drop_callback, add_drag_format, encode
+from openalea.oalab.service.drag_and_drop import add_drop_callback, add_drag_format, encode_to_qmimedata
 
 
 class DragModel(QtGui.QStandardItemModel):
@@ -101,8 +47,8 @@ class DragModel(QtGui.QStandardItemModel):
     def mimeData(self, indices):
         for index in indices:
             row = index.row()
-        data = CustomData(row, self._lst[row])
-        return encode(self, data, 'custom/data')
+        data = SampleCustomData(row, self._lst[row])
+        return encode_to_qmimedata(data, 'custom/data')
 
 
 class DragWidget(QtGui.QTreeView):

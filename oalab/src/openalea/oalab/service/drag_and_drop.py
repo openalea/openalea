@@ -20,13 +20,17 @@
 
 __all__ = ['add_drop_callback', 'add_drag_format', 'encode']
 
-from openalea.oalab.gui.drag_and_drop import DragHandler, DropHandler
+from openalea.oalab.gui.drag_and_drop import DragHandler, DropHandler, encode_to_qmimedata
+from openalea.oalab.mimedata import MimeCodecManager
 
 _drag_handler = {
 }
 
 _drop_handler = {
 }
+
+mm = MimeCodecManager()
+mm.init()
 
 
 def drop_handler(widget, **kwds):
@@ -56,6 +60,9 @@ def add_drag_format(widget, mimetype, **kwds):
     dnd.add_drag_format(mimetype, **kwds)
 
 
-def encode(widget, data, mimetype, **kwds):
-    dnd = drag_handler(widget)
-    return dnd.qtencode(data, mimetype, **kwds)
+def encode(data, mimetype_in, mimetype_out):
+    return mm.encode(data, mimetype_in, mimetype_out)
+
+
+def decode(raw_data, mimetype_in, mimetype_out):
+    return mm.decode(raw_data, mimetype_in, mimetype_out)

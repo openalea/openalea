@@ -182,7 +182,6 @@ class DataflowView(qt.View):
             # -- retreive the data from the event mimeData --
             model, kwds = decode(self, mimedata, "openalealab/model", "openalealab/model")
             model_id = model.name
-            print model, model_id
 
             try:
                 # version > August 2014 (Git)

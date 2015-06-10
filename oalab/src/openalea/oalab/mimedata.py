@@ -162,6 +162,17 @@ class MimeCodecManager(object):
     def quick_check(self, mimedata, mimetype_in, mimetype_out):
         return self._decode('quick_check', mimedata, mimetype_in, mimetype_out)
 
+    def encode(self, data, mimetype_in, mimetype_out):
+        try:
+            plugin = self._registry_encode_plugin[(mimetype_in, mimetype_out)]
+        except KeyError:
+            return None, {}
+        else:
+            klass = plugin()()
+            decoder = klass()
+            # decoder.decode(mimedata, ...)
+            return getattr(decoder, 'encode')(data, mimetype_in, mimetype_out)
+
     def qtencode(self, data, qmimedata, mimetype_in, mimetype_out):
         try:
             plugin = self._registry_encode_plugin[(mimetype_in, mimetype_out)]
