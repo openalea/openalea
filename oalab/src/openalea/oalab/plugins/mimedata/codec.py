@@ -19,9 +19,16 @@
 ###############################################################################
 
 from openalea.core.path import path
-from openalea.core.service.data import get_data
+from openalea.core.service.project import project_item
+from urlparse import urlparse
 
 from openalea.oalab.mimedata import QMimeCodec
+
+
+def pyname(name):
+    for sym in ["-", "+", "*", "/", "\"", "."]:
+        name = name.replace(sym, '_')
+    return str(name)
 
 
 class UrlCodec(QMimeCodec):
@@ -46,6 +53,65 @@ class UrlCodec(QMimeCodec):
             return None, {}
 
 
+def encode_project_item(category, data, mimetype_in, mimetype_out):
+    # openalea://user@localhost:/project/projectname/data/dataname
+    uri = 'openalea://user@localhost:/%s/%s/%s' % (None, category, data.name)
+    return ('openalealab/%s' % category, uri)
+
+
+def decode_project_item(raw_data, mimetype_in, mimetype_out):
+    pkg_type, pkg_name, category, name = urlparse(raw_data).path.split('/')
+    return project_item(None, category, name)
+
+
+class BuiltinModelCodec(QMimeCodec):
+
+    """
+    data.read()
+    text = item.text()
+
+    # name_without_ext = ".".join(text.split(".")[:-1])
+    name_without_ext = text
+    name_without_space = "_".join(name_without_ext.split())
+    for sym in ["-", "+", "*", "/", "\"", "."]:
+        name_without_space = "_".join(name_without_space.split(sym))
+
+    python_call_string = '%s = Model("%s")' % (name_without_space, name_without_ext)
+    icon = item.icon()
+    pixmap = icon.pixmap(20, 20)
+
+    itemData = QtCore.QByteArray()
+    dataStream = QtCore.QDataStream(itemData, QtCore.QIODevice.WriteOnly)
+    model_id = name_without_ext
+    dataStream.writeString(str(python_call_string))
+    dataStream.writeString(str(model_id))
+
+    mimeData = QtCore.QMimeData()
+    mimeData.setText(python_call_string)
+    mimeData.setData("openalealab/model", itemData)
+    """
+
+    def encode(self, data, mimetype_in, mimetype_out):
+        return encode_project_item('model', data, mimetype_in, mimetype_out)
+
+    def decode(self, raw_data, mimetype_in, mimetype_out):
+        if mimetype_in != 'openalealab/model':
+            return None, {}
+
+        data = decode_project_item(raw_data, mimetype_in, mimetype_out)
+        kwds = dict(name=str(data.name), path=(data.path))
+
+        if mimetype_out == "openalealab/model":
+            return data, kwds
+        elif mimetype_out == "openalea/identifier":
+            return data.name, kwds
+        elif mimetype_out == "openalea/code.oalab.get":
+            pycode = '%s = get_model(%r)' % (pyname(data.name), str(data.name))
+            return pycode, kwds
+        else:
+            raise NotImplementedError(mimetype_out)
+
+
 class BuiltinControlCodec(QMimeCodec):
 
     """
@@ -58,7 +124,7 @@ class BuiltinControlCodec(QMimeCodec):
         raw_data: str id;name
         """
         from openalea.core.service.control import get_control_by_id
-        identifier, name = raw_data.data().split(';')
+        identifier, name = raw_data.split(';')
         control = get_control_by_id(identifier)
         if control.name != name:
             return None
@@ -81,9 +147,13 @@ class BuiltinControlCodec(QMimeCodec):
             return control, {}
         elif mimetype_out == "openalea/identifier":
             return control.name, {}
-        elif mimetype_out == "openalea/code.oalab":
+        elif mimetype_out == "openalea/code.oalab.get":
             varname = '_'.join(control.name.split())
             pycode = '%s = get_control(%r) #%s' % (varname, control.name, control.interface)
+            return pycode, {}
+        elif mimetype_out == "openalea/code.oalab.create":
+            varname = '_'.join(control.name.split())
+            pycode = '%s = new_control(%s, %s, %s)' % (varname, control.name, control.interface, control.value)
             return pycode, {}
         else:
             return control, {}
@@ -91,23 +161,25 @@ class BuiltinControlCodec(QMimeCodec):
 
 class BuiltinDataCodec(QMimeCodec):
 
+    def encode(self, data, mimetype_in, mimetype_out):
+        return encode_project_item("data", data, mimetype_in, mimetype_out)
+
     def decode(self, raw_data, mimetype_in, mimetype_out):
         if mimetype_in != 'openalealab/data':
             return None, {}
 
-        print repr(raw_data)
-        data = get_data(raw_data.name)
+        data = decode_project_item(raw_data, mimetype_in, mimetype_out)
+        kwds = dict(name=str(data.name), path=(data.path))
 
         if mimetype_out == "openalealab/data":
-            return data, {}
+            return data, kwds
         elif mimetype_out == "openalea/identifier":
-            return data.name, {}
-        elif mimetype_out == "openalea/code.oalab":
-            varname = '_'.join(data.name.split())
-            pycode = '%s = get_data(%r)' % (varname, data.name)
-            return pycode, {}
+            return data.name, kwds
+        elif mimetype_out == "openalea/code.oalab.get":
+            pycode = '%s = data / %r' % (pyname(data.name), str(data.name))
+            return pycode, kwds
         else:
-            return data, {}
+            return data, kwds
 
 
 #-        elif source.hasFormat('openalealab/omero'):

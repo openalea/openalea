@@ -251,6 +251,8 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
             config.set("ProjectManager", "Last Project", last_proj)
             config.write()
 
+from openalea.oalab.service.drag_and_drop import add_drag_format, encode
+
 
 class ProjectManagerView(QtGui.QTreeView):
 
@@ -588,77 +590,6 @@ class ProjectManagerView(QtGui.QTreeView):
         fname = QtGui.QFileDialog.getExistingDirectory(parent, 'Select Project Directory', my_path)
         return fname
 
-    # Drag and drop
-
-    def startDrag(self, supportedActions):
-        index = self.getIndex()
-        item = self.getItem()
-        data = self._model.projectdata(index)
-        if data is None:
-            return
-        category, name = data
-        # Check item in src
-        # TODO move this part in dragEnterEvent with mimetype
-        obj = self._model._project.get(category, name)
-        if category in ['src', 'model']:
-            # Read file and parse model to get inputs, outputs, doc that may be
-            # useful once dropped.
-            obj.read()
-            text = item.text()
-
-            # name_without_ext = ".".join(text.split(".")[:-1])
-            name_without_ext = text
-            name_without_space = "_".join(name_without_ext.split())
-            for sym in ["-", "+", "*", "/", "\"", "."]:
-                name_without_space = "_".join(name_without_space.split(sym))
-
-            python_call_string = '%s = Model("%s")' % (name_without_space, name_without_ext)
-            icon = item.icon()
-            pixmap = icon.pixmap(20, 20)
-
-            itemData = QtCore.QByteArray()
-            dataStream = QtCore.QDataStream(itemData, QtCore.QIODevice.WriteOnly)
-            model_id = name_without_ext
-            dataStream.writeString(str(python_call_string))
-            dataStream.writeString(str(model_id))
-
-            mimeData = QtCore.QMimeData()
-            mimeData.setText(python_call_string)
-            mimeData.setData("openalealab/model", itemData)
-
-            drag = QtGui.QDrag(self)
-            drag.setMimeData(mimeData)
-            drag.setHotSpot(QtCore.QPoint(pixmap.width() / 2, pixmap.height() / 2))
-            drag.setPixmap(pixmap)
-
-            drag.start(QtCore.Qt.CopyAction)
-
-        elif category == 'data':
-            p = '%s/%r' % (category, str(obj.filename))
-            mimetype, mimedata = encode(obj, mimetype='openalealab/data')
-            qmime_data = QtCore.QMimeData()
-            qmime_data.setData(mimetype, mimedata)
-            qmime_data.setText(p)
-            drag = QtGui.QDrag(self)
-            drag.setMimeData(qmime_data)
-            drag.start()
-
-    def dragEnterEvent(self, event):
-        if event.mimeData().hasFormat("openalealab/model"):
-            event.accept()
-        else:
-            event.ignore()
-
-    def dragMoveEvent(self, event):
-        if event.mimeData().hasFormat("openalealab/model"):
-            event.setDropAction(QtCore.Qt.MoveAction)
-            event.accept()
-        else:
-            event.ignore()
-
-    def dropEvent(self, event):
-        event.ignore()
-
 
 class ProjectManagerModel(QtGui.QStandardItemModel):
 
@@ -667,6 +598,9 @@ class ProjectManagerModel(QtGui.QStandardItemModel):
         self._data = {}
         self._root_item = None
         self._project = None
+
+        add_drag_format(self, 'openalealab/data')
+        add_drag_format(self, 'openalealab/model')
 
     def project_icon(self, project):
         # Propose icon by default.
@@ -754,3 +688,14 @@ class ProjectManagerModel(QtGui.QStandardItemModel):
             return ('project', index.data())
         else:
             return None
+
+    def mimeData(self, indices):
+        for index in indices:
+            pass
+
+        category, name = self.projectdata(index)
+        if category in ('model', 'data'):
+            data = self._project.get_item(category, name)
+            return encode(self, data, 'openalealab/%s' % category)
+        else:
+            return QtGui.QStandardItemModel.mimeData(self, indices)

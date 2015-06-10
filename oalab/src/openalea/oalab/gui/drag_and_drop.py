@@ -26,20 +26,20 @@ from openalea.vpltk.qt import QtGui, QtCore
 from openalea.oalab.gui.utils import ModalDialog, make_error_dialog
 
 
-class DropSelector(QtGui.QWidget):
+class DropSelectorWidget(QtGui.QWidget):
 
     def __init__(self, lst, labels=None):
         QtGui.QWidget.__init__(self)
 
         if labels is None:
-            labels = lst
+            labels = {}
 
         self._layout = QtGui.QVBoxLayout(self)
 
         self._cb = QtGui.QComboBox()
         self._lst = lst
         for i, mimetype in enumerate(self._lst):
-            self._cb.addItem(labels[i])
+            self._cb.addItem(labels.get(mimetype, mimetype))
 
         self._layout.addWidget(QtGui.QLabel("Drop as ..."))
         self._layout.addWidget(self._cb)
@@ -48,35 +48,66 @@ class DropSelector(QtGui.QWidget):
         return self._lst[self._cb.currentIndex()]
 
 
+class DropSelectorMenu(QtGui.QMenu):
+
+    def __init__(self, lst, labels=None, tooltip=None):
+        QtGui.QMenu.__init__(self)
+
+        if labels is None:
+            labels = {}
+        if tooltip is None:
+            tooltip = {}
+
+        self._mimetype = None
+        self._action = {}
+        lst.sort()
+        for mimetype in sorted(lst):
+            label = labels.get(mimetype, mimetype)
+            action = QtGui.QAction(label, self)
+            tt = '%s (%s)' % (label, mimetype)
+            action.setToolTip(tt)
+            action.triggered.connect(self._triggered)
+            self._action[action] = mimetype
+            self.addAction(action)
+
+    def _triggered(self):
+        action = self.sender()
+        self._mimetype = self._action[action]
+
+    def mimetype(self):
+        return self._mimetype
+
+
 class DragHandler(object):
     conv = MimeCodecManager()
     conv.init()
 
-    def __init__(self, widget, **kwargs):
+    def __init__(self, widget, **kwds):
         self.widget = widget
-        self.kwargs = kwargs
-        self.drag_format = []
+        self._kwds = kwds
+        self._drag_format = []
+        self._drag_kwds = {}
 
         if isinstance(widget, QtGui.QStandardItemModel):
             self.mimeTypes = self.mime_types
 
     def mime_types(self):
-        return self.drag_format
+        return self._drag_format
 
     def add_drag_format(self, mimetype_out, **kwds):
-        self.drag_format.append(mimetype_out)
+        self._drag_format.append(mimetype_out)
+        self._drag_kwds[mimetype_out] = kwds
 
-    def encode(self, data, mimetype):
+    def qtencode(self, data, mimetype):
 
         possible_conv = {}
-        for k, g in itertools.groupby(self.conv._registry, lambda data: data[0]):
+        for k, g in itertools.groupby(self.conv._registry_encode, lambda data: data[0]):
             possible_conv[k] = list(g)
 
         qmimedata = QtCore.QMimeData()
         if mimetype in possible_conv:
             for mimetype_in, mimetype_out in possible_conv[mimetype]:
-                raw_data = self.conv.encode(data, mimetype_in, mimetype_out)
-                qmimedata.setData(mimetype_out, raw_data)
+                qmimedata = self.conv.qtencode(data, qmimedata, mimetype_in, mimetype_out)
         return qmimedata
 
 
@@ -84,11 +115,11 @@ class DropHandler(object):
     conv = MimeCodecManager()
     conv.init()
 
-    def __init__(self, widget, **kwargs):
+    def __init__(self, widget, **kwds):
         self.widget = widget
-        self.kwargs = kwargs
-        self.drop_callbacks = {}
-        self._labels = {}
+        self._kwds = kwds
+        self._drop_callbacks = {}
+        self._drop_kwds = {}
 
         # Drop part
         self.widget.setAcceptDrops(True)
@@ -101,17 +132,21 @@ class DropHandler(object):
             self.widget.dragLeaveEvent = self.drag_leave_event
 
     def add_drop_callback(self, mimetype_out, callback, **kwds):
-        if 'title' in kwds:
-            self._labels[mimetype_out] = kwds.pop('title')
-        else:
-            self._labels[mimetype_out] = mimetype_out
-        self.drop_callbacks[mimetype_out] = callback
+        self._drop_kwds[mimetype_out] = kwds
+        self._drop_callbacks[mimetype_out] = callback
+
+        for conv in self.conv._registry_decode:
+            if conv[1].startswith(mimetype_out):
+                if conv[1] not in self._drop_callbacks:
+                    self.add_drop_callback(conv[1], callback, **kwds)
 
     def insert_from_mime_data(self, source):
         cursor = self.widget.textCursor()
         rect = self.widget.cursorRect()
         pos = self.widget.viewport().mapToGlobal(rect.center())
         possible_conv, selected = self._drop(source, pos=pos)
+        if possible_conv is None:
+            return
         for mimetype_in, mimetype_out in possible_conv[selected]:
             try:
                 data, kwds = self.conv.qtdecode(source, mimetype_in, mimetype_out)
@@ -120,15 +155,18 @@ class DropHandler(object):
             else:
                 kwds['mimedata'] = source
                 kwds['cursor'] = cursor
-                self.drop_callbacks[selected](data, **kwds)
+                self._drop_callbacks[selected](data, **kwds)
+
+    def _compatibe_mime(self, mimetype_in_list):
+        return self.conv.compatible_mime(mimetype_in_list, self._drop_callbacks.keys())
 
     def can_insert_from_mime_data(self, source):
-        self._compatible = self.conv.compatible_mime(source.formats(), mimetype_out_list=self.drop_callbacks.keys())
+        self._compatible = self._compatibe_mime(source.formats())
         return bool(self._compatible)
 
     def drag_enter_event(self, event):
         mimedata = event.mimeData()
-        self._compatible = self.conv.compatible_mime(mimedata.formats(), mimetype_out_list=self.drop_callbacks.keys())
+        self._compatible = self.conv.compatible_mime(mimedata.formats(), mimetype_out_list=self._drop_callbacks.keys())
 
         if self._compatible:
             event.acceptProposedAction()
@@ -145,6 +183,17 @@ class DropHandler(object):
             event.acceptProposedAction()
         else:
             event.ignore()
+
+    def _labels(self, possible_conv):
+        labels = {}
+        for all_conv in possible_conv.values():
+            for conv in all_conv:
+                plugin = self.conv._registry_decode_plugin[conv]
+                if hasattr(plugin, 'mimetype_desc'):
+                    for mimetype, desc in plugin.mimetype_desc.items():
+                        if 'title' in desc:
+                            labels[mimetype] = desc['title']
+        return labels
 
     def _drop(self, mimedata, pos=None):
         # Check all conversion available
@@ -170,12 +219,11 @@ class DropHandler(object):
             selected = possible_conv.keys()[0]
         else:
             keys = sorted(possible_conv.keys())
-            labels = [self._labels[k] for k in keys]
-            selector = DropSelector(keys, labels)
-            dialog = ModalDialog(selector)
-            if pos:
-                dialog.move(pos)
-            if dialog.exec_():
+            labels = self._labels(possible_conv)
+
+            #for k:'%s (%s)' % (self._drop_kwds[k]['title'], k) for k in keys}
+            selector = DropSelectorMenu(keys, labels)
+            if selector.exec_(pos):
                 selected = selector.mimetype()
             else:
                 return None, None
@@ -185,11 +233,13 @@ class DropHandler(object):
         mimedata = event.mimeData()
         pos = self.widget.mapToGlobal(event.pos())
         possible_conv, selected = self._drop(mimedata, pos)
+        if possible_conv is None:
+            return
         for mimetype_in, mimetype_out in possible_conv[selected]:
             try:
                 data, kwds = self.conv.qtdecode(mimedata, mimetype_in, mimetype_out)
                 kwds['mimedata'] = mimedata
-                self.drop_callbacks[selected](data, **kwds)
+                self._drop_callbacks[selected](data, **kwds)
             except CustomException, e:
                 make_error_dialog(e)
             else:

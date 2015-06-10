@@ -44,14 +44,14 @@ class Codec(QMimeCodec):
         elif mimetype_out == 'openalealab/control':
             from openalea.core.control import Control
             data = Control(letter, 'IInt', num)
+        elif mimetype_out == 'text/plain':
+            data = 'customdata: %s, %s' % (letter, num)
+        elif mimetype_out == 'text/plain.verbose':
+            data = 'Custom data define these values:\n  - letter: %s\n  - num: %s' % (letter, num)
         return data, {}
 
     def encode(self, data, mimetype_in, mimetype_out):
-        return '%s;%s' % (data.num, data.letter)
-
-    def qtencode(self, data, mimetype_in, mimetype_out):
-        raw_data = self.encode(data, mimetype_in, mimetype_out)
-        return QtCore.QByteArray(raw_data)
+        return mimetype_out, '%s;%s' % (data.num, data.letter)
 
 
 class SampleCodecPlugin(QMimeCodecPlugin):
@@ -61,7 +61,16 @@ class SampleCodecPlugin(QMimeCodecPlugin):
     qtdecode = [
         ("custom/data", "custom/data"),
         ("custom/data", "openalealab/control"),
+        ("custom/data", "text/plain"),
+        ("custom/data", "text/plain.verbose"),
     ]
+
+    mimetype_desc = {
+        'text/plain': dict(title='Short Text'),
+        'text/plain.verbose': dict(title='Long Text'),
+        'custom/data': dict(title='Custom data'),
+        'openalealab/control': dict(title='Control'),
+    }
 
     def __call__(self):
         return Codec
@@ -87,7 +96,7 @@ class DragModel(QtGui.QStandardItemModel):
             self.appendRow(QtGui.QStandardItem(l))
 
         # Define all type of data managed by this model
-        add_drag_format(self, "custom/data")
+        add_drag_format(self, "custom/data", icon=":/images/resources/openalealogo.png")
 
     def mimeData(self, indices):
         for index in indices:
@@ -111,10 +120,11 @@ class DropWidget(QtGui.QLabel):
 
     def __init__(self):
         QtGui.QLabel.__init__(self, "Drop here .................................................")
-        add_drop_callback(self, 'openalea/interface.IImage', self.drop, title="Image")
-        add_drop_callback(self, 'openalea/interface.IPath', self.drop, title="Path")
-        add_drop_callback(self, 'openalealab/control', self.drop, title="Control")
-        add_drop_callback(self, 'custom/data', self.drop, title="Custom Data")
+        add_drop_callback(self, 'openalea/interface.IImage', self.drop)
+        add_drop_callback(self, 'openalea/interface.IPath', self.drop)
+        add_drop_callback(self, 'openalealab/control', self.drop)
+        add_drop_callback(self, 'custom/data', self.drop)
+        add_drop_callback(self, 'text/plain', self.drop)
 
     def drop(self, data, **kwds):
         self.setText(repr(data))

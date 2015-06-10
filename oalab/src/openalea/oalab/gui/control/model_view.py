@@ -187,6 +187,9 @@ class NameControlDelegate(QtGui.QStyledItemDelegate):
         QtGui.QStyledItemDelegate.setModelData(self, editor, model, index)
 
 
+from openalea.oalab.service.drag_and_drop import add_drag_format, encode
+
+
 class ControlModel(QtGui.QStandardItemModel, AbstractListener):
 
     def __init__(self, manager=None):
@@ -200,6 +203,8 @@ class ControlModel(QtGui.QStandardItemModel, AbstractListener):
         self._index_control = {}
         self._manager = None
         self.set_manager(manager)
+
+        add_drag_format(self, "openalealab/control")
 
     def set_manager(self, manager=None):
         if manager is self._manager:
@@ -223,20 +228,10 @@ class ControlModel(QtGui.QStandardItemModel, AbstractListener):
             return self._headers[col]
         return None
 
-    def supportedDragActions(self, *args, **kwargs):
-        return QtGui.QStandardItemModel.supportedDragActions(self, *args, **kwargs)
-
-    def mimeTypes(self):
-        return ["openalealab/control"]
-
     def mimeData(self, indices):
         for index in indices:
             control = self.control(index)
-        mimetype, mimedata = encode(control)
-        qmime_data = QtCore.QMimeData()
-        qmime_data.setData(mimetype, mimedata)
-        qmime_data.setText(control.name)
-        return qmime_data
+        return encode(self, control, "openalealab/control")
 
     def data(self, index, role):
         if role == QtCore.Qt.DisplayRole and index.column() == 0:

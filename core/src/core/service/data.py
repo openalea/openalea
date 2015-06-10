@@ -140,10 +140,3 @@ def to_data(model, mimetype):
     kwds['mimetype'] = klass.mimetype
     data = klass(**kwds)
     data.content = model.repr_code()
-
-
-def get_data(name):
-    from openalea.core.project.manager import ProjectManager
-    pm = ProjectManager()
-    data = pm.cproject.get_item('data', name)
-    return data

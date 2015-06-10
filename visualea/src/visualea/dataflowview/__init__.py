@@ -178,12 +178,11 @@ class DataflowView(qt.View):
         """ Drag and Drop from the Model """
         mimedata = event.mimeData()
         if mimedata.hasFormat("openalealab/model"):
+            from openalea.oalab.service.drag_and_drop import decode
             # -- retreive the data from the event mimeData --
-            pieceData = mimedata.data("openalealab/model")
-            dataStream = qt.QtCore.QDataStream(pieceData, qt.QtCore.QIODevice.ReadOnly)
-
-            dataStream.readString()
-            model_id = str(dataStream.readString())
+            model, kwds = decode(self, mimedata, "openalealab/model", "openalealab/model")
+            model_id = model.name
+            print model, model_id
 
             try:
                 # version > August 2014 (Git)

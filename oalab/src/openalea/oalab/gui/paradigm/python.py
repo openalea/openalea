@@ -52,8 +52,8 @@ class PythonModelController(ParadigmController):
         def drop_text(text, **kwds):
             cursor = kwds.get('cursor')
             cursor.insertText(text)
-        add_drop_callback(editor, 'openalea/code.oalab', drop_text, title="Python code")
-        add_drop_callback(editor, 'openalea/identifier', drop_text, title="Name")
+        add_drop_callback(editor, 'openalea/code.oalab', drop_text)
+        add_drop_callback(editor, 'openalea/identifier', drop_text)
 
         return editor
 

@@ -34,9 +34,20 @@ class UrlCodecPlugin(QMimeCodecPlugin):
 class BuiltinControlCodecPlugin(QMimeCodecPlugin):
     qtdecode = [
         ('openalealab/control', 'openalealab/control'),
-        ('openalealab/control', 'openalea/code.oalab'),
         ('openalealab/control', 'openalea/identifier'),
+        ('openalealab/control', 'openalea/code.oalab.get'),
+        ('openalealab/control', 'openalea/code.oalab.create'),
     ]
+
+    qtencode = [
+        ('openalealab/control', 'openalealab/control')
+    ]
+
+    mimetype_desc = {
+        'openalea/code.oalab.get': dict(title='Python code (Get existing control)'),
+        'openalea/code.oalab.create': dict(title='Python code (Create new control)'),
+        'openalea/identifier': dict(title='Name')
+    }
 
     def __call__(self):
         from openalea.oalab.plugins.mimedata.codec import BuiltinControlCodec
@@ -46,15 +57,39 @@ class BuiltinControlCodecPlugin(QMimeCodecPlugin):
 class BuiltinDataCodecPlugin(QMimeCodecPlugin):
     qtdecode = [
         ('openalealab/data', 'openalealab/data'),
-        ('openalealab/data', 'openalea/code.oalab'),
         ('openalealab/data', 'openalea/identifier'),
+        ('openalealab/data', 'openalea/code.oalab.get'),
     ]
+    qtencode = [
+        ('openalealab/data', 'openalealab/data')
+    ]
+
+    mimetype_desc = {
+        'openalea/code.oalab.get': dict(title='Python Code (Data path)'),
+        'openalea/identifier': dict(title='Data Name'),
+    }
 
     def __call__(self):
         from openalea.oalab.plugins.mimedata.codec import BuiltinDataCodec
         return BuiltinDataCodec
 
 
+class BuiltinModelCodecPlugin(QMimeCodecPlugin):
+    qtdecode = [
+        ('openalealab/model', 'openalealab/model'),
+        ('openalealab/model', 'openalea/identifier'),
+        ('openalealab/model', 'openalea/code.oalab.get'),
+    ]
+    qtencode = [
+        ('openalealab/model', 'openalealab/model')
+    ]
+
+    def __call__(self):
+        from openalea.oalab.plugins.mimedata.codec import BuiltinModelCodec
+        return BuiltinModelCodec
+
+
 class BuiltinMimeDataCodecPlugin(object):
     category = 'openalea.codec.mimetype'
-    plugins = [UrlCodecPlugin, BuiltinControlCodecPlugin, BuiltinDataCodecPlugin]
+    plugins = [UrlCodecPlugin,
+               BuiltinControlCodecPlugin, BuiltinDataCodecPlugin, BuiltinModelCodecPlugin]

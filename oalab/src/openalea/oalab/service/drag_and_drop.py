@@ -58,4 +58,4 @@ def add_drag_format(widget, mimetype, **kwds):
 
 def encode(widget, data, mimetype, **kwds):
     dnd = drag_handler(widget)
-    return dnd.encode(data, mimetype, **kwds)
+    return dnd.qtencode(data, mimetype, **kwds)

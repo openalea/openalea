@@ -75,13 +75,13 @@ class QMimeCodec(MimeCodec):
         else:
             return self.decode(raw_data, mimetype_in, mimetype_out)
 
-    def qtencode(self, data, mimetype_in, mimetype_out):
+    def qtencode(self, data, qmimedata, mimetype_in, mimetype_out):
         """
         data -> QMimeData
         """
-        mimetype, mimedata = self.encode(data)
-        qmime_data = QtCore.QMimeData()
-        qmime_data.setData(mimetype, mimedata)
+        mimetype, mimedata = self.encode(data, mimetype_in, mimetype_out)
+        qmimedata.setData(mimetype, mimedata)
+        return qmimedata
 
 
 class MimeCodecPlugin(object):
@@ -98,8 +98,11 @@ class MimeCodecManager(object):
     __metaclass__ = Singleton
 
     def __init__(self):
-        self._registry = set()
-        self._registry_plugin = {}
+        self._registry_decode = set()
+        self._registry_decode_plugin = {}
+
+        self._registry_encode = set()
+        self._registry_encode_plugin = {}
 
     def init(self):
         from openalea.core.plugin.manager import PluginManager
@@ -108,12 +111,16 @@ class MimeCodecManager(object):
         for plugin in pm.plugins('openalea.codec.mimetype'):
             for k, v in plugin.qtdecode:
                 codec = (unicode(k), unicode(v))
-                self._registry.add(codec)
-                self._registry_plugin[codec] = plugin
+                self._registry_decode.add(codec)
+                self._registry_decode_plugin[codec] = plugin
+            for k, v in plugin.qtencode:
+                codec = (unicode(k), unicode(v))
+                self._registry_encode.add(codec)
+                self._registry_encode_plugin[codec] = plugin
 
     def _mimelist(self, mimetype_list, keyidx):
         if mimetype_list is None:
-            mimetype_list = [k[keyidx] for k in self._registry]
+            mimetype_list = [k[keyidx] for k in self._registry_decode]
         elif isinstance(mimetype_list, basestring):
             mimetype_list = [mimetype_list]
         else:
@@ -124,8 +131,12 @@ class MimeCodecManager(object):
         mimetype_in_list = self._mimelist(mimetype_in_list, 0)
         mimetype_out_list = self._mimelist(mimetype_out_list, 1)
         wish = set(itertools.product(mimetype_in_list, mimetype_out_list))
-        existing = set(self._registry)
-        res = wish.intersection(existing)
+        existing = set(self._registry_decode)
+        res = []
+        for wk, wv in wish:
+            for ek, ev in existing:
+                if wk == ek and wv.startswith(ev):
+                    res.append((ek, ev))
         return res
 
     def is_compatible(self, mimetype_in_list=None, mimetype_out_list=None):
@@ -133,7 +144,7 @@ class MimeCodecManager(object):
 
     def _decode(self, funcname, mimedata, mimetype_in, mimetype_out):
         try:
-            plugin = self._registry_plugin[(mimetype_in, mimetype_out)]
+            plugin = self._registry_decode_plugin[(mimetype_in, mimetype_out)]
         except KeyError:
             return None, {}
         else:
@@ -151,13 +162,13 @@ class MimeCodecManager(object):
     def quick_check(self, mimedata, mimetype_in, mimetype_out):
         return self._decode('quick_check', mimedata, mimetype_in, mimetype_out)
 
-    def encode(self, data, mimetype_in, mimetype_out):
+    def qtencode(self, data, qmimedata, mimetype_in, mimetype_out):
         try:
-            plugin = self._registry_plugin[(mimetype_in, mimetype_out)]
+            plugin = self._registry_encode_plugin[(mimetype_in, mimetype_out)]
         except KeyError:
             return None, {}
         else:
             klass = plugin()()
             decoder = klass()
             # decoder.decode(mimedata, ...)
-            return getattr(decoder, 'qtencode')(data, mimetype_in, mimetype_out)
+            return getattr(decoder, 'qtencode')(data, qmimedata, mimetype_in, mimetype_out)
