@@ -74,6 +74,13 @@ class World(VPLScene, AbstractListener):
         if not self._block:
             self.notify_listeners(('world_object_changed', (self, old, new)))
 
+    def _emit_world_object_removed(self, old):
+        """
+        Notify listeners with world_object_removed event
+        """
+        if not self._block:
+            self.notify_listeners(('world_object_removed', (self, old)))
+
     def _emit_world_object_item_changed(self, obj, item, old, new):
         """
         Notify listeners with world_object_item_changed event
@@ -95,6 +102,13 @@ class World(VPLScene, AbstractListener):
         # VPLScene.__setitem__(self, key, world_obj)
         super(VPLScene, self).__setitem__(key, world_obj)
         self._emit_world_object_changed(old, world_obj)
+
+    def __delitem__(self, key):
+        if key in self:
+            old = self[key]
+            super(VPLScene, self).__delitem__(key)
+            self._emit_world_object_removed(old)
+
 
     def sync(self):
         if not self._block:
@@ -121,6 +135,10 @@ class World(VPLScene, AbstractListener):
                     setattr(obj, key, t)
         self[name] = obj
         return obj
+
+    def remove(self, name):
+        if name in self:
+            del self[name]
 
     def change_object_attribute(self, name, attribute):
         print "World < received attributeChanged!"

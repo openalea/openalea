@@ -74,6 +74,10 @@ class WorldBrowser(GenericWorldBrowser, AbstractListener):
         if signal == 'world_changed':
             self.set_world(data)
             self.refresh()
+        elif signal == 'world_object_removed':
+            world = data[0]
+            self.set_world(world)
+            self.refresh()
         elif signal == 'world_object_changed':
             world = data[0]
             self.set_world(world)
@@ -223,6 +227,8 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
     def notify(self, sender, event=None):
         signal, data = event
         if signal == 'world_changed':
+            self.refresh()
+        elif signal == 'world_object_removed':
             self.refresh()
         elif signal == 'world_object_changed':
             world, old_object, world_object = data
