@@ -8,9 +8,12 @@ def get_interpreter_class():
     :return: the interpreter class to instantiate the shell
     """
     try:
-        from .ipython import InProcessInterpreter as Interpreter
+        from openalea.core.interpreter.ipython import Interpreter
     except ImportError:
-        from .python import Interpreter
+        from openalea.core.interpreter.python import Interpreter
+    else:
+        from openalea.core.interpreter import adapt_interpreter
+        adapt_interpreter(Interpreter)
     return Interpreter
 
 from openalea.core.util import warn_deprecated
