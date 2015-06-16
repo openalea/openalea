@@ -64,20 +64,17 @@ paned_menu_size = QtCore.QSize(10000, 80)
 style_paned_menu = """
 
     QWidget {
-         background-color: transparent;
      }
 
     """
 
 style_pane = """
     QWidget {
-         background-color: red;
      }
      """
 
 style_group = """
     QWidget {
-         background-color: green;
      }
      """
 
@@ -117,6 +114,8 @@ def fill_panedmenu(menu, actions):
             menu.addBtnByAction(*args)
         elif isinstance(action, QtGui.QMenu):
             pass
+        elif isinstance(action, QtGui.QWidget):
+            menu.addWidget(action)
         else:
             continue
 
@@ -297,7 +296,7 @@ class Group(QtGui.QWidget):
         """
         Permit to add small widget like if it was a small button
         """
-        if style == 'big':
+        if style == 'bigwidget':
             self._group_big.addWidget(widget)
         else:
             self._group_small.addWidget(widget)
@@ -502,6 +501,11 @@ class ContextualMenu(QtGui.QWidget):
             return
 
         self._current_group().addBtnByAction(action, btn_type)
+
+    def addWidget(self, widget):
+        if self._current_group is None or self._current_group() is None:
+            return
+        self._current_group().addWidget(widget)
 
     def properties(self):
         return dict(style=0)

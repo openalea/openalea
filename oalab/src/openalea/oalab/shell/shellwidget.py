@@ -77,6 +77,12 @@ class ShellWidget(RichIPythonWidget, GraphicalStreamRedirection):
     def read(self, *args, **kwargs):
         self.kernel_client.stdin_channel.input(*args, **kwargs)
 
+    def readline(self, size=None):
+        from openalea.oalab.gui.utils import raw_input_dialog
+        txt = raw_input_dialog()
+        self.write(txt)
+        return txt
+
     def get_interpreter(self):
         """
         :return: the interpreter object

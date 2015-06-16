@@ -227,11 +227,14 @@ class ControlContainer(Observed, AbstractListener):
         self.register_listener(follower)
         self.follower[name] = follower
 
-    @classmethod
     def unregister_follower(self, name):
         if name in self.follower:
             self.unregister_listener(self.follower[name])
             del self.follower[name]
+
+    def clear_followers(self):
+        for follower_name in self.follower.keys():
+            self.unregister_follower(follower_name)
 
 
 class ControlManager(ControlContainer):

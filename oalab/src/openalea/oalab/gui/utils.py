@@ -151,6 +151,21 @@ def password():
         return _password.text()
 
 
+def raw_input_dialog(prompt=None, size=None):
+    _widget = QtGui.QWidget()
+    _layout = QtGui.QVBoxLayout(_widget)
+    _line = QtGui.QLineEdit()
+
+    _layout.addWidget(QtGui.QLabel("Input ?"))
+    _layout.addWidget(_line)
+
+    dialog = ModalDialog(_widget)
+    if dialog.exec_() and _line.text():
+        return _line.text()
+    else:
+        return u'\n'
+
+
 def make_error_dialog(e, parent=None, icon=QtGui.QMessageBox.Critical):
     if not isinstance(e, CustomException):
         e = cast_error(e, CustomException)

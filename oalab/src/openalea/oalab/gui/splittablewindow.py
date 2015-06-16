@@ -277,12 +277,14 @@ class AppletFrame(QtGui.QWidget):
         # Fill toolbar
         self._menu.show()
         self.clear_toolbar()
-        try:
+        if hasattr(applet, 'local_toolbar_actions'):
+            actions = applet.local_toolbar_actions()
+        elif hasattr(applet, 'toolbar_actions'):
             actions = applet.toolbar_actions()
-        except AttributeError:
-            pass
         else:
-            self._menu.set_actions('n', actions)
+            actions = None
+        if actions:
+            self._menu.set_actions('NoName', actions)
 
     def clear_toolbar(self):
         if self._show_toolbar.value:
@@ -1064,13 +1066,14 @@ class OALabMainWin(QtGui.QMainWindow):
             if hasattr(instance, 'initialize'):
                 instance.initialize()
 
-    def _widget_actions(self, obj):
+    def _widget_actions(self, obj, methodname='toolbar_actions'):
         actions = None
-        if hasattr(obj, 'toolbar_actions'):
-            if isinstance(obj.toolbar_actions, list):
-                actions = obj.toolbar_actions
+        if hasattr(obj, methodname):
+            method_or_list = getattr(obj, methodname)
+            if isinstance(method_or_list, list):
+                actions = method_or_list
             else:
-                actions = obj.toolbar_actions()
+                actions = method_or_list()
 
         if actions is None:
             return []
@@ -1249,8 +1252,12 @@ class TestMainWin(OALabMainWin):
         self.interp.user_ns['applet'] = applet
         self.interp.user_ns['applets'] = applets
 
+        print 'functions:'
         for f in kwds.pop('tests', []):
             self.interp.user_ns['run_%s' % f.__name__] = f
+            print 'run_%s' % f.__name__
+
+        self.resize(QtCore.QSize(800, 600))
 
     def debug(self):
         from openalea.oalab.session.session import Session
