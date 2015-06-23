@@ -2,11 +2,12 @@
 #
 #       OpenAlea.MyModule: MyModule Description
 #
-#       Copyright 2013 INRIA - CIRAD - INRA
+#       Copyright 2013-2015 INRIA - CIRAD - INRA
 #
-#       File author(s): FirstName LastName <firstname.lastname@lab.com>
+#       File author(s): Julien Coste <julien.coste@inria.fr>
 #
-#       File contributor(s):
+#       File contributor(s): Julien Coste <julien.coste@inria.fr>,
+#                            Guillaume Cerutti <guillaume.cerutti@inria.fr>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
@@ -17,15 +18,17 @@
 ###############################################################################
 """
 Visual Programming nodes define to interact with the oalab application components like:
-    - the scene
     - control
-    - observer
+    - world
 """
 
 __revision__ = '$Id$'
 
-from openalea.core import *
-from openalea.plantgl.all import Scene as PglScene
+#from openalea.core import *
+
+from openalea.core.node import Node
+from openalea.core.observer import AbstractListener
+
 from openalea.oalab.world.world import World
 from openalea.core.control.manager import ControlManager
 
@@ -68,6 +71,23 @@ class WorldWriter(AbstractWorld):
             del self.world[self.key]
 
 
+class WorldAdder(AbstractWorld):
+
+    def __call__(self, inputs):
+        """ inputs is the list of input values """
+
+        obj = inputs[0]
+        name = inputs[1]
+        kwargs = inputs[2]
+        self.set_caption("World object: %s" % name)
+        self.world.add(obj,name=name,**kwargs)
+        return (obj, )
+
+    def reset(self):
+        if hasattr(self, 'key'):
+            world.remove(self.key)
+
+
 class WorldDefault(AbstractWorld):
 
     def __init__(self, *args, **kwds):
@@ -90,6 +110,7 @@ class WorldDefault(AbstractWorld):
         obj = self.world.setdefault(key, default_value)
         self.set_caption("%s" % (key,))
         return (obj, )
+
 
 
 class Control(Node, AbstractListener):
@@ -123,31 +144,3 @@ class Control(Node, AbstractListener):
         return (obj.value, )
 
 
-class Scene2Geom(Node):
-
-    def __init__(self):
-        Node.__init__(self)
-        self.add_input(name="scene", interface=None)
-        self.add_output(name="geom", interface=None)
-        #self.add_output( name = "geom2", interface = None)
-        #self.add_output( name = "geom3", interface = None)
-
-    def __call__(self, inputs):
-        scene = inputs[0]
-        geom = scene[0].geometry
-        #geom2 = scene[1].geometry
-        #geom3 = scene[2].geometry
-        return (geom,)
-
-
-class Geom2Scene(Node):
-
-    def __init__(self):
-        Node.__init__(self)
-        self.add_input(name="geom", interface=None)
-        self.add_output(name="scene", interface=None)
-
-    def __call__(self, inputs):
-        geometry = inputs[0]
-        scene = PglScene([geometry])
-        return (scene, )
