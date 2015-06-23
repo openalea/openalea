@@ -16,12 +16,27 @@ __alias__ = []
 
 __all__ = []
 
+
+worldadder = Factory(name="World add",
+             description="Add data into the world.",
+             category="oalab control",
+             nodemodule="openalea.oalab_wralea.oalabnode",
+             nodeclass="WorldAdder",
+             inputs = (dict(name='Object', interface=None),
+                       dict(name='Name', interface='IStr'),
+                       dict(name='kwargs', interface='IDict'),),
+             outputs = (dict(name='Obj', interface=None),),
+             lazy = False,
+             )
+
+__all__.append('worldadder')
+
 worldreader = Factory( name="World reader",
               description="Read data from the data world.",
               category="oalab control",
               nodemodule="openalea.oalab_wralea.oalabnode",
               nodeclass="WorldReader",
-              inputs = (dict(name='Key', interface=IStr),),
+              inputs = (dict(name='Key', interface='IStr'),),
               outputs = (dict(name='Obj', interface=None),),
               lazy = False,
               
@@ -34,7 +49,7 @@ worldwriter = Factory(name="World writer",
              category="oalab control",
              nodemodule="openalea.oalab_wralea.oalabnode",
              nodeclass="WorldWriter",
-             inputs = (dict(name='Key', interface=IStr),
+             inputs = (dict(name='Key', interface='IStr'),
                        dict(name='Obj', interface=None),),
              outputs = (dict(name='Obj', interface=None),),
              lazy = False,
@@ -47,7 +62,7 @@ world_rw = Factory(name="World setdefault",
              category="oalab control",
              nodemodule="openalea.oalab_wralea.oalabnode",
              nodeclass="WorldDefault",
-             inputs = (dict(name='Key', interface=IStr),
+             inputs = (dict(name='Key', interface='IStr'),
                        dict(name='Value', interface=None),),
              outputs = (dict(name='Obj', interface=None),),
              lazy = False,
@@ -60,7 +75,7 @@ controlreader = Factory( name="Control",
               category="oalab control",
               nodemodule="openalea.oalab_wralea.oalabnode",
               nodeclass="Control",
-              inputs = (dict(name='Key', interface=IStr),),
+              inputs = (dict(name='Key', interface='IStr'),),
               outputs = (dict(name='Obj', interface=None),),
               lazy = False,
               
@@ -86,8 +101,8 @@ geom_2_scene = Factory(name='Geometry to Scene',
                 category='Data I/O',
                 nodemodule='openalea.oalab_wralea.oalabnode',
                 nodeclass='Geom2Scene',
-                inputs=(dict(name='geometry', interface=IStr)),
-                outputs=(dict(name='Scene', interface=IStr)),
+                inputs=(dict(name='geometry', interface='IStr')),
+                outputs=(dict(name='Scene', interface='IStr')),
                )
                
 __all__.append('geom_2_scene')
