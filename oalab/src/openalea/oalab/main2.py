@@ -66,7 +66,8 @@ def main():
         pass
 
     session = Session()
-    cli = CommandLineParser(sys.argv, session)
+    cli = CommandLineParser(session=session)
+    cli.parse()
 
     if session.gui:
         from openalea.vpltk.qt import QtGui

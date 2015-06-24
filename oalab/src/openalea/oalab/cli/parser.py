@@ -39,7 +39,7 @@ def print_plugin_name(ep):
 
 class CommandLineParser(object):
 
-    def __init__(self, args, session=None):
+    def __init__(self, args=None, session=None):
         if session is None:
             from openalea.oalab.session.all import Session
             session = Session()
@@ -54,6 +54,8 @@ class CommandLineParser(object):
         group.add_argument('--debug-plugins', metavar='category', default='',
                            help='Raise error while loading instead of passing it silently. Use "all" to debug all plugins')
         group.add_argument('--color', help='Color terminal output', action="store_true")
+
+    def parse(self):
 
         args = self.parser.parse_args()
         self.session.gui = True
@@ -98,3 +100,4 @@ class CommandLineParser(object):
             pim.debug = debug
 
         self.session.extension = args.extension
+        self.args = args

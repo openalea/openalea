@@ -35,7 +35,8 @@ def main():
 
     create_project_shortcut()
     session = Session()
-    cli = CommandLineParser(sys.argv, session)
+    cli = CommandLineParser(session=session)
+    cli.parse()
 
     if session.gui:
         from openalea.vpltk.qt import QtGui

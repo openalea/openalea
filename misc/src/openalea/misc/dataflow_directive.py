@@ -169,7 +169,7 @@ def run_code(plot_path, package_name, node_name, basename, tmpdir, destdir, opti
     except:
         import traceback, sys
         traceback.print_exc()
-        sys.exit(-1)
+        #sys.exit(-1)
     return 1
 
 
