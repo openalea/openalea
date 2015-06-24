@@ -100,7 +100,7 @@ class TestPluginManager(unittest.TestCase):
         self.pm.debug = False
 
     def test_autoload(self):
-        assert self.pm._plugin == {}
+        assert self.pm._plugin.keys() == ['openalea.plugin']
         self.pm.plugins('test.c1')
         assert 'test.c1' in self.pm._plugin
 
