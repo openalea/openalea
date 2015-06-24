@@ -18,6 +18,11 @@
 #
 ###############################################################################
 
+"""
+
+
+"""
+
 import itertools
 
 from openalea.core.customexception import CustomException

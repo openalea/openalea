@@ -25,7 +25,6 @@ from openalea.core.path import path
 from openalea.core.plugin import iter_plugins
 from openalea.core.project import Project
 from openalea.core.project.manager import ProjectManager
-from openalea.core.service.mimetype import encode
 from openalea.core.service.data import DataClass, MimeType
 
 from openalea.oalab.gui import resources_rc
@@ -33,6 +32,7 @@ from openalea.oalab.gui.utils import ModalDialog
 from openalea.oalab.gui.utils import qicon
 from openalea.oalab.project.creator import CreateProjectWidget
 from openalea.oalab.project.pretty_preview import ProjectSelectorScroll
+from openalea.oalab.service.drag_and_drop import add_drag_format, encode_to_qmimedata
 from openalea.core.service.plugin import plugin_instance_exists, plugin_instance
 
 """
@@ -250,8 +250,6 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
             config = Settings()
             config.set("ProjectManager", "Last Project", last_proj)
             config.write()
-
-from openalea.oalab.service.drag_and_drop import add_drag_format, encode
 
 
 class ProjectManagerView(QtGui.QTreeView):
@@ -696,6 +694,6 @@ class ProjectManagerModel(QtGui.QStandardItemModel):
         category, name = self.projectdata(index)
         if category in ('model', 'data'):
             data = self._project.get_item(category, name)
-            return encode(self, data, 'openalealab/%s' % category)
+            return encode_to_qmimedata(data, 'openalealab/%s' % category)
         else:
             return QtGui.QStandardItemModel.mimeData(self, indices)

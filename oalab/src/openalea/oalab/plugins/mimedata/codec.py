@@ -33,6 +33,11 @@ def pyname(name):
 
 class UrlCodec(QMimeCodec):
 
+    """
+    decoding: text/uri-list -> path
+    encoding: path -> text/uri-list
+    """
+
     def qtdecode(self, mimedata, mimetype_in, mimetype_out):
         kwds = {}
         if mimetype_in == 'text/uri-list':
@@ -65,31 +70,6 @@ def decode_project_item(raw_data, mimetype_in, mimetype_out):
 
 
 class BuiltinModelCodec(QMimeCodec):
-
-    """
-    data.read()
-    text = item.text()
-
-    # name_without_ext = ".".join(text.split(".")[:-1])
-    name_without_ext = text
-    name_without_space = "_".join(name_without_ext.split())
-    for sym in ["-", "+", "*", "/", "\"", "."]:
-        name_without_space = "_".join(name_without_space.split(sym))
-
-    python_call_string = '%s = Model("%s")' % (name_without_space, name_without_ext)
-    icon = item.icon()
-    pixmap = icon.pixmap(20, 20)
-
-    itemData = QtCore.QByteArray()
-    dataStream = QtCore.QDataStream(itemData, QtCore.QIODevice.WriteOnly)
-    model_id = name_without_ext
-    dataStream.writeString(str(python_call_string))
-    dataStream.writeString(str(model_id))
-
-    mimeData = QtCore.QMimeData()
-    mimeData.setText(python_call_string)
-    mimeData.setData("openalealab/model", itemData)
-    """
 
     def encode(self, data, mimetype_in, mimetype_out):
         return encode_project_item('model', data, mimetype_in, mimetype_out)
@@ -180,11 +160,3 @@ class BuiltinDataCodec(QMimeCodec):
             return pycode, kwds
         else:
             return data, kwds
-
-
-#-        elif source.hasFormat('openalealab/omero'):
-#-            data = decode('openalealab/omero', source.data('openalealab/omero'))
-#-            if data is None:
-#-                return
-#-            name = data.split('=')[0]
-#-            uri = '='.join(data.split('=')[1:])

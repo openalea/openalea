@@ -26,6 +26,7 @@ from openalea.core.control.manager import ControlContainer
 from openalea.oalab.gui.control.editor import ControlEditor
 from openalea.oalab.gui.utils import ModalDialog
 from openalea.core.control.pyserial import save_controls
+from openalea.oalab.service.drag_and_drop import add_drag_format, encode_to_qmimedata
 
 
 class ControlView(QtGui.QTreeView):
@@ -187,9 +188,6 @@ class NameControlDelegate(QtGui.QStyledItemDelegate):
         QtGui.QStyledItemDelegate.setModelData(self, editor, model, index)
 
 
-from openalea.oalab.service.drag_and_drop import add_drag_format, encode
-
-
 class ControlModel(QtGui.QStandardItemModel, AbstractListener):
 
     def __init__(self, manager=None):
@@ -231,7 +229,7 @@ class ControlModel(QtGui.QStandardItemModel, AbstractListener):
     def mimeData(self, indices):
         for index in indices:
             control = self.control(index)
-        return encode(self, control, "openalealab/control")
+        return encode_to_qmimedata(control, "openalealab/control")
 
     def data(self, index, role):
         if role == QtCore.Qt.DisplayRole and index.column() == 0:

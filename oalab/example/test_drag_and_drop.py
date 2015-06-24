@@ -20,9 +20,8 @@
 
 from openalea.vpltk.qt import QtGui
 
-# Load SampleCustomData, associated codecs and register its
-from openalea.oalab.plugins.mimedata.sample import SampleCustomData
-
+from openalea.oalab.testing.drag_and_drop import DragAndDropWidget
+from openalea.oalab.service.drag_and_drop import add_drop_callback, add_drag_format, encode_to_qmimedata
 
 instance = QtGui.QApplication.instance()
 if instance is None:
@@ -30,56 +29,8 @@ if instance is None:
 else:
     app = instance
 
-from openalea.oalab.service.drag_and_drop import add_drop_callback, add_drag_format, encode_to_qmimedata
-
-
-class DragModel(QtGui.QStandardItemModel):
-
-    def __init__(self):
-        QtGui.QStandardItemModel.__init__(self)
-        self._lst = list('abc')
-        for l in self._lst:
-            self.appendRow(QtGui.QStandardItem(l))
-
-        # Define all type of data managed by this model
-        add_drag_format(self, "custom/data", icon=":/images/resources/openalealogo.png")
-
-    def mimeData(self, indices):
-        for index in indices:
-            row = index.row()
-        data = SampleCustomData(row, self._lst[row])
-        return encode_to_qmimedata(data, 'custom/data')
-
-
-class DragWidget(QtGui.QTreeView):
-
-    def __init__(self):
-        QtGui.QTreeView.__init__(self)
-
-        self.setDragEnabled(True)
-        self.setDragDropMode(self.DragOnly)
-        self._model = DragModel()
-        self.setModel(self._model)
-
-
-class DropWidget(QtGui.QLabel):
-
-    def __init__(self):
-        QtGui.QLabel.__init__(self, "Drop here .................................................")
-        add_drop_callback(self, 'openalea/interface.IImage', self.drop)
-        add_drop_callback(self, 'openalea/interface.IPath', self.drop)
-        add_drop_callback(self, 'openalealab/control', self.drop)
-        add_drop_callback(self, 'custom/data', self.drop)
-        add_drop_callback(self, 'text/plain', self.drop)
-
-    def drop(self, data, **kwds):
-        self.setText(repr(data))
-
-drag = DragWidget()
-drag.show()
-
-drop = DropWidget()
-drop.show()
+dnd = DragAndDropWidget()
+dnd.show()
 
 if instance is None:
     app.exec_()

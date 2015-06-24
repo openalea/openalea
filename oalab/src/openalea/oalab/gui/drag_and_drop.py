@@ -17,6 +17,15 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+"""
+This module define classes to manage drag and drop in a universal way: approach is the same for all widgets.
+It provides 2 main classes:
+
+DragHandler: knows how to transform python object to QMimeData and be able to create a drag action
+DropHandler: knows how to convert a QMimeData to a python object compatible with widget 
+DropSelector*: Widgets used if more than one drop type are available. Allow user to choose which drop type to use.
+"""
+
 import itertools
 
 from openalea.core.customexception import CustomException
