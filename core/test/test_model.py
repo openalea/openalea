@@ -287,7 +287,7 @@ out = f()
     from openalea.core.model import PythonModel
     model = PythonModel(name='func')
     model.set_code(code)
-    model.init()
-    model.step()
+    assert model.init() == 1
 
-test_in_function()
+
+

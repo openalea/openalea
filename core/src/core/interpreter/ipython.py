@@ -32,6 +32,8 @@ class IPythonInProcessInterpreter(InProcessKernel):
     :param gui: GUI to use. Default 'qt4'.
     :param locals: namespace to set to the interpreter. Default 'None'.
     """
+    # NOTE: to manually define class used for shell, for example InProcessInteractiveShell, just set shell_class attr
+    # shell_class = InProcessInteractiveShell
 
     def __init__(self, gui="qt4", locals=None):
         super(IPythonInProcessInterpreter, self).__init__(gui=gui)
