@@ -218,7 +218,8 @@ class Project(Observed):
             self.ns.update(ns)
         shell = kwargs.get('shell')
         if shell:
-            shell.user_ns = self.ns
+            shell.user_ns.clear()
+            shell.user_ns.update(self.ns)
 
     def stop(self, *args, **kwargs):
         self.started = False
