@@ -109,7 +109,6 @@ class World(VPLScene, AbstractListener):
             super(VPLScene, self).__delitem__(key)
             self._emit_world_object_removed(old)
 
-
     def sync(self):
         if not self._block:
             self.notify_listeners(('world_sync', self))
@@ -148,7 +147,6 @@ class World(VPLScene, AbstractListener):
 
     def notify(self, sender, event=None):
         signal, data = event
-        print event
         if event == 'world_object_data_changed':
             world_obj, old, new = data
             #self._emit_value_changed(old, new)
@@ -292,4 +290,4 @@ class WorldObject(Observed):
 
     def notify_listeners(self, event=None):
         if not self._silent:
-            super(WorldObject,self).notify_listeners(event)
+            super(WorldObject, self).notify_listeners(event)
