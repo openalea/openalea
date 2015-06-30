@@ -216,10 +216,11 @@ class Project(Observed):
             model = to_model(startup)
             ns = model.run_code(startup.read(), self.ns)
             self.ns.update(ns)
-        shell = kwargs.get('shell')
-        if shell:
-            shell.user_ns.clear()
-            shell.user_ns.update(self.ns)
+        interpreter = kwargs.get('shell')
+        if interpreter:
+            interpreter.shell.user_ns.clear()
+            interpreter.shell.init_user_ns()
+            interpreter.shell.user_ns.update(self.ns)
 
     def stop(self, *args, **kwargs):
         self.started = False

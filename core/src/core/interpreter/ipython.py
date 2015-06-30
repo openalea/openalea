@@ -47,9 +47,10 @@ class IPythonInProcessInterpreter(InProcessKernel):
         return self.shell.runcode(code_obj)
 
     def reset(self, namespace=None, **kwargs):
-        self.user_ns.clear()
+        self.shell.user_ns.clear()
+        self.shell.init_user_ns()
         if namespace:
-            self.user_ns.update(namespace)
+            self.shell.user_ns.update(namespace)
 
     def update(self, namespace, **kwargs):
         namespace.update(self.user_ns)
