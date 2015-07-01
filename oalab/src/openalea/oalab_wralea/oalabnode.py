@@ -87,6 +87,20 @@ class WorldAdder(AbstractWorld):
         if hasattr(self, 'key'):
             world.remove(self.key)
 
+class WorldData(AbstractWorld):
+
+    def __call__(self, inputs):
+        """ inputs is the list of input values """
+
+        name = inputs[0]
+        self.set_caption("World object data: %s" % name)
+        data = self.world[name].data
+        return (data, )
+
+    def reset(self):
+        if hasattr(self, 'key'):
+            world.remove(self.key)
+
 
 class WorldDefault(AbstractWorld):
 

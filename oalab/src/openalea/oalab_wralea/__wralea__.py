@@ -22,7 +22,7 @@ worldadder = Factory(name="World add",
              category="oalab control",
              nodemodule="openalea.oalab_wralea.oalabnode",
              nodeclass="WorldAdder",
-             inputs = (dict(name='Object', interface=None),
+             inputs = (dict(name='Data', interface=None),
                        dict(name='Name', interface='IStr'),
                        dict(name='kwargs', interface='IDict'),),
              outputs = (dict(name='Obj', interface=None),),
@@ -30,6 +30,18 @@ worldadder = Factory(name="World add",
              )
 
 __all__.append('worldadder')
+
+worlddata= Factory(name="World data",
+             description="Read data from the world.",
+             category="oalab control",
+             nodemodule="openalea.oalab_wralea.oalabnode",
+             nodeclass="WorldData",
+             inputs = (dict(name='Name', interface='IStr'),),
+             outputs = (dict(name='Data', interface=None),),
+             lazy = False,
+             )
+
+__all__.append('worlddata')
 
 worldreader = Factory( name="World reader",
               description="Read data from the data world.",
