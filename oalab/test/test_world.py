@@ -1,6 +1,6 @@
 
 
-from openalea.oalab.world import World, WorldObject
+from openalea.core.world import World, WorldObject
 from openalea.core.unittest_tools import TestCase, EventTracker
 
 ev = EventTracker()

@@ -78,7 +78,7 @@ class ShellWidget(RichIPythonWidget, GraphicalStreamRedirection):
         self.kernel_client.stdin_channel.input(*args, **kwargs)
 
     def readline(self, size=None):
-        from openalea.oalab.gui.utils import raw_input_dialog
+        from openalea.oalab.utils import raw_input_dialog
         txt = raw_input_dialog()
         self.write(txt)
         return txt

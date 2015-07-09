@@ -32,6 +32,22 @@ import pkg_resources
 import site
 import sys
 
+def plugin_implements(plugin, interface):
+    return interface in plugin_implementations(plugin)
+
+
+def plugin_implementations(plugin):
+    if hasattr(plugin, 'implements'):
+        implements = plugin.implements
+        if isinstance(implements, basestring):
+            implements=[implements]
+        return implements
+    else:
+        return []
+
+def plugin_name(plugin):
+    return plugin.name if hasattr(plugin, 'name') else plugin.__name__
+
 def discover(group, name=None):
     """
     Return all Plugin objects from group.
@@ -109,4 +125,7 @@ class Plugin(object):
     def load(self, *args, **kwds):
         return self.ep.load(*args, **kwds)
 
-
+class PluginDef(object):
+  def __new__(self, klass):
+    klass.__plugin__ = True
+    return klass

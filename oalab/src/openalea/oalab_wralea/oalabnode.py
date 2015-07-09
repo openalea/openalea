@@ -29,7 +29,7 @@ __revision__ = '$Id$'
 from openalea.core.node import Node
 from openalea.core.observer import AbstractListener
 
-from openalea.oalab.world.world import World
+from openalea.core.world.world import World
 from openalea.core.control.manager import ControlManager
 
 # Nodes for read/write in world

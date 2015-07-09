@@ -25,16 +25,15 @@ __all__ = ['CommandLineParser']
 import os
 import argparse
 
+from openalea.core.service.plugin import plugin_implementations, plugin_name
 
-def print_plugin_name(ep):
-    try:
-        name = ep.load().name
-    except ImportError:
-        pass
-    except AttributeError:
-        print '  - %s (%s)' % (ep.name, ep)
+
+def print_plugin_name(plugin):
+    interfaces = plugin_implementations(plugin)
+    if interfaces:
+        print '%s (implements: %s)' % (plugin_name(plugin), ', '.join(interfaces))
     else:
-        print '  - %s (%s)' % (name, ep)
+        print plugin_name(plugin)
 
 
 class CommandLineParser(object):
@@ -48,6 +47,7 @@ class CommandLineParser(object):
         self.parser = argparse.ArgumentParser(description='OALab Command Line')
         self.parser.add_argument('-e', '--extension', metavar='extension', type=str, default="",
                                  help='Lab extension to launch')
+        self.parser.add_argument('-v', '--verbose', action='store_true', help='Display more information')
         group = self.parser.add_argument_group('Plugin development')
         group.add_argument('--list-plugins', metavar='category', type=str, default='',
                            help='List available plugin for given category. If all, list all plugins. If summary, list only categories')
@@ -65,6 +65,8 @@ class CommandLineParser(object):
             os.environ['OA_CLICOLOR'] = '1'
 
         if args.list_plugins:
+            from openalea.core.plugin.manager import PluginManager
+            pm = PluginManager()
             self.session.gui = False
             import pkg_resources
             from openalea.core.plugin import iter_groups
@@ -82,12 +84,32 @@ class CommandLineParser(object):
                 if match:
                     eps = [ep for ep in pkg_resources.iter_entry_points(category)]
                     if args.list_plugins == 'summary':
-                        print '  - \033[91m%s\033[0m (%d plugins)' % (category, len(eps))
-                    else:
-                        print '\033[91m%s\033[0m' % category
-                        print
+                        print '\n\033[91m%s\033[0m (%d plugins)' % (category, len(eps))
                         for ep in eps:
-                            print_plugin_name(ep)
+                            parts = [str(s) for s in (ep.module_name, ep.name)]
+                            identifier = ':'.join(parts)
+                            print '  - %s \033[90m%s (%s)\033[0m' % (ep.name, identifier, ep.dist.egg_name())
+                    else:
+                        print '\033[44m%s\033[0m' % category
+                        UNDEF = 'Not defined'
+                        plugin_groups = {UNDEF: []}
+                        for plugin in pm.plugins(category):
+                            interfaces = plugin_implementations(plugin)
+                            if interfaces:
+                                for interface in interfaces:
+                                    plugin_groups.setdefault(interface, []).append(plugin)
+                            else:
+                                plugin_groups[UNDEF].append(plugin)
+                        for group, plugins in plugin_groups.items():
+                            if not plugins:
+                                continue
+                            print '  implements: \033[91m%s\033[0m' % group
+                            for plugin in plugins:
+                                print '    - \033[93m%s \033[90m%s:%s\033[0m' % (plugin_name(plugin), plugin.__module__, plugin.__name__)
+                                if args.verbose:
+                                    print '        plugin: %s, egg: %s\n        path: %s' % (
+                                        ep.name, ep.dist.egg_name(), ep.dist.location)
+
                         print
                         print
 

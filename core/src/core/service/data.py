@@ -1,6 +1,6 @@
 
 from openalea.core.path import path as Path
-from openalea.core.plugin import iter_plugins
+from openalea.core.service.plugin import plugins
 from openalea.core.data import Data
 
 import mimetypes
@@ -8,13 +8,13 @@ import mimetypes
 __all__ = ["DataFactory", "DataClass", "MimeType", "DataType"]
 
 REGISTERY_MIME_CLASS = {}
-for DataClass in iter_plugins('oalab.dataclass'):
-    REGISTERY_MIME_CLASS[DataClass.mimetype] = DataClass
+for DataClass in plugins('openalea.core', interface='IData'):
+    REGISTERY_MIME_CLASS[DataClass.mimetype] = DataClass()()
 # for ModelClass in iter_plugins('oalab.model'):
 #     REGISTERY_MIME_CLASS[ModelClass.mimetype] = ModelClass
 
 REGISTERY_NAME_MIME = {}
-for DataClass in iter_plugins('oalab.dataclass'):
+for DataClass in plugins('openalea.core', interface='IData'):
     REGISTERY_NAME_MIME[DataClass.default_name.lower()] = DataClass.mimetype
     REGISTERY_NAME_MIME[DataClass.extension.lower()] = DataClass.mimetype
 

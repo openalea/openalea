@@ -1,9 +1,9 @@
 
-__all__ = ['PluginManager']
 
 import weakref
 from openalea.core.singleton import Singleton
 from openalea.core.plugin.manager import PluginManager
+from openalea.core.plugin.plugin import plugin_name, plugin_implements, plugin_implementations
 from openalea.core import logger
 
 
@@ -210,13 +210,13 @@ class PluginInstanceManager(object):
 PM = PluginManager()
 PIM = PluginInstanceManager()
 
+
 plugins = PM.plugins
 plugin_class = PM.plugin
 
 clear_plugin_instances = PIM.clear
 debug_plugin = PIM.__call__
 new_plugin_instance = PIM.new
-plugin_implementations = PIM.implementations
 plugin_instance = PIM.instance
 plugin_instances = PIM.instances
 plugin_instance_exists = PIM.has_instance

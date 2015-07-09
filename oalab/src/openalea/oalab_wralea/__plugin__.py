@@ -25,7 +25,7 @@ HelpWidget = ObjectFactory(name='HelpWidget',
                           description="Help Widget", 
                           category="helpers", 
                           interfaces=["IHelper"], 
-                          nodemodule="openalea.oalab.gui.help", 
+                          nodemodule="openalea.oalab.widget.help", 
                           nodeclass="HelpWidget")
 __all__.append('HelpWidget')
 

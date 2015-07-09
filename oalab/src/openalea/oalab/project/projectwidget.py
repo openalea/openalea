@@ -27,13 +27,13 @@ from openalea.core.project import Project
 from openalea.core.project.manager import ProjectManager
 from openalea.core.service.data import DataClass, MimeType
 
-from openalea.oalab.gui import resources_rc
-from openalea.oalab.gui.utils import ModalDialog
-from openalea.oalab.gui.utils import qicon
+from openalea.oalab.widget import resources_rc
+from openalea.oalab.utils import ModalDialog
+from openalea.oalab.utils import qicon
 from openalea.oalab.project.creator import CreateProjectWidget
 from openalea.oalab.project.pretty_preview import ProjectSelectorScroll
 from openalea.oalab.service.drag_and_drop import add_drag_format, encode_to_qmimedata
-from openalea.core.service.plugin import plugin_instance_exists, plugin_instance
+from openalea.core.service.plugin import plugin_instance_exists, plugin_instance, plugins
 
 """
 TODO:
@@ -50,7 +50,7 @@ class SelectCategory(QtGui.QWidget):
         if categories is None:
             categories = Project.DEFAULT_CATEGORIES.keys()
         if dtypes is None:
-            dtypes = [plugin.default_name for plugin in iter_plugins('oalab.paradigm_applet')]
+            dtypes = [plugin.default_name for plugin in plugins('oalab.plugin', interface='IParadigmApplet')]
             dtypes.append('Other')
         self.categories = categories
 

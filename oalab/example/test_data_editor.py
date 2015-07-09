@@ -1,7 +1,7 @@
 
 
 from openalea.vpltk.qt import QtGui
-from openalea.oalab.gui.container import ParadigmContainer
+from openalea.oalab.paradigm.container import ParadigmContainer
 from openalea.oalab.session.session import Session
 
 if __name__ == '__main__':

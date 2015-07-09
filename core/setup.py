@@ -68,16 +68,12 @@ setup(
     entry_points={
         "wralea": ["openalea.flow control = openalea.core.system", ],
         "console_scripts": ["alea = openalea.core.alea:main"],
-        'oalab.dataclass': [
-            'PythonFile = openalea.core.data:PythonFile',
-        ],
-        #         'oalab.model': [
-        #             'PythonFileModel = openalea.core.model:PythonFileModel',
-        #         ],
-        'oalab.modelclass': [
-            'PythonModel = openalea.core.model:PythonModel',
+
+        'openalea.core': [
+            'OpenAleaBuiltin = openalea.core.plugin.builtin',
         ],
     },
+
 
 
 )

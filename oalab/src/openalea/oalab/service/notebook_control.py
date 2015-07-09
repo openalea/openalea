@@ -5,7 +5,7 @@ from openalea.core.control.control import Control
 
 from openalea.core.observer import AbstractListener
 
-from openalea.oalab.gui.control.widget import AbstractControlWidget
+from openalea.oalab.control.widget import AbstractControlWidget
 
 
 class NotebookControlWidget(AbstractControlWidget):

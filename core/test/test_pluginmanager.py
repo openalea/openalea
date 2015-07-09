@@ -54,8 +54,7 @@ def install_package():
 
         entry_points={
             'test.c1': [
-                'Plugin1 = tstpkg1.plugin:C1Plugin1',
-                'Plugin2 = tstpkg1.plugin:C1Plugin2',
+                'Plugins = tstpkg1.plugin',
             ],
             'test.c2': [
                 'Plugin1 = tstpkg1.plugin:C2Plugin1',
@@ -100,9 +99,26 @@ class TestPluginManager(unittest.TestCase):
         self.pm.debug = False
 
     def test_autoload(self):
-        assert self.pm._plugin.keys() == ['openalea.plugin']
+        assert self.pm._plugin.keys() == []
         self.pm.plugins('test.c1')
         assert 'test.c1' in self.pm._plugin
+
+    def test_module_plugin_def(self):
+        self.pm.plugins('test.c1')
+        assert 'MyPlugin1' in self.pm._plugin['test.c1']
+        assert 'MyPlugin2' in self.pm._plugin['test.c1']
+
+    def test_manual_plugin_def(self):
+        self.pm.plugins('test.c2')
+        assert 'C2Plugin1' in self.pm._plugin['test.c2']
+        assert 'C2Plugin2' in self.pm._plugin['test.c2']
+
+    def test_interface_filter(self):
+        plugins = self.pm.plugins('test.c1')
+        assert len(plugins) == 2
+        plugins = self.pm.plugins('test.c1', interface='IClass1')
+        assert len(plugins) == 1
+        assert plugins[0].name == 'MyPlugin1'
 
     def test_dynamic_plugin(self):
         self.pm.add_plugin('test.dynamic3', AlgoPlugin1)
@@ -207,25 +223,6 @@ class TestPluginManager(unittest.TestCase):
         self.pm.clear()
         self.pm.debug = False
         self.pm.plugins('test.err1')
-
-    def test_plugin_proxy(self):
-
-        from openalea.core.plugin.manager import SimpleClassPluginProxy
-
-        pm = PluginManager()
-        pm.set_proxy('oalab.modelclass', SimpleClassPluginProxy)
-
-        clear_plugin_instances()
-        w1 = plugin_instance('oalab.modelclass', 'PythonModel')
-        w2 = plugin_instance('oalab.modelclass', 'PythonModel')
-        w3 = plugin_instance('oalab.modelclass', 'PythonModel')
-        w4 = new_plugin_instance('oalab.modelclass', 'PythonModel')
-
-        assert w1
-        assert w1 is w2 is w3
-        assert w1 is not w4
-
-        assert len(plugin_instances('oalab.modelclass', 'PythonModel')) == 2
 
     @classmethod
     def tearDownClass(cls):

@@ -6,7 +6,7 @@ interface plugin documentation
 Details
 =======
 
-.. autoclass:: openalea.oalab.plugins.interface.IPluginInterface
+.. autoclass:: openalea.oalab.interface.IPluginInterface
     :members: __call__, name
 
 """

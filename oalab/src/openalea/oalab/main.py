@@ -1,12 +1,12 @@
+# -*- coding: utf-8 -*-
 # -*- python -*-
 #
-#       OALab start here
 #
 #       OpenAlea.OALab: Multi-Paradigm GUI
 #
-#       Copyright 2013 INRIA - CIRAD - INRA
+#       Copyright 2014 INRIA - CIRAD - INRA
 #
-#       File author(s): Julien Coste <julien.coste@inria.fr>
+#       File author(s): Guillaume Baty <guillaume.baty@inria.fr>
 #
 #       File contributor(s):
 #
@@ -17,11 +17,41 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+
 import sys
-from openalea.oalab.session.all import Session
-from openalea.oalab.project.symlink import create_project_shortcut
 from openalea.oalab.cli.parser import CommandLineParser
 from openalea.core.service.plugin import debug_plugin, plugins
+
+
+def launch_lab(plugin_class):
+    from openalea.oalab.widget.splittablewindow import OALabMainWin
+    from openalea.core.settings import get_openalea_home_dir
+    from openalea.core.path import path as Path
+    from openalea.core.service.introspection import alias
+    from openalea.oalab.utils import qicon
+
+    plugin = plugin_class()
+    lab_class = plugin()
+    layout_path = Path(get_openalea_home_dir()) / '%s.oaui' % lab_class.name
+    OALabMainWin.DEFAULT_LAYOUT_PATH = layout_path
+    OALabMainWin.DEFAULT_LAYOUT = lab_class.layout
+    OALabMainWin.DEFAULT_MENU_NAMES = lab_class.menu_names
+    OALabMainWin.LAB = lab_class
+    if hasattr(lab_class, "start"):
+        lab_class.start()
+    win = OALabMainWin(lab=lab_class)
+    win.setWindowIcon(qicon(lab_class.icon))
+    if hasattr(lab_class, 'connect_applet'):
+        win.appletSet.connect(lab_class.connect_applet)
+    win.emit_applet_set()
+    if hasattr(lab_class, "initialize"):
+        lab_class.initialize()
+    win.initialize()
+    win.setWindowTitle('OpenAleaLab "%s"' % alias(plugin))
+    win.showMaximized()
+    win.raise_()
+
+    return win
 
 
 def main():
@@ -32,15 +62,17 @@ def main():
         - If found, launch extension
         - If not found, quit application and shows available extensions
     """
+    class Session(object):
+        pass
 
-    create_project_shortcut()
     session = Session()
     cli = CommandLineParser(session=session)
     cli.parse()
 
     if session.gui:
         from openalea.vpltk.qt import QtGui
-        from openalea.oalab.gui.mainwindow import MainWindow
+        from openalea.core.settings import get_openalea_home_dir
+        from openalea.core.path import path as Path
 
         app = QtGui.QApplication(sys.argv)
 
@@ -48,8 +80,6 @@ def main():
         # Run all extension matching session.extension
         available_extensions = []
 
-        if session.extension == '':
-            session.extension = 'plant'
         for plugin_class in plugins('oalab.lab'):
             try:
                 ext = plugin_class.name
@@ -62,12 +92,14 @@ def main():
                 available_extensions.append(text)
 
             if session.extension == ext:
-                plugin = plugin_class()
-                win = MainWindow(session)
-                debug_plugin('oalab.lab', func=plugin, func_args=[win])
-                win.show()
-                win.raise_()
+                win = launch_lab(plugin_class)
                 break
+
+        if win is None:
+            from openalea.oalab.widget.pluginselector import select_plugin
+            plugin_class = select_plugin('oalab.lab', size=(400, 10), title='Select a Laboratory')
+            if plugin_class:
+                win = launch_lab(plugin_class)
 
         if win:
             app.exec_()
@@ -75,7 +107,6 @@ def main():
             print 'Extension %r not found' % session.extension
             print 'Please choose a valid \033[94mextension\033[0m:'
             print '\n'.join(available_extensions)
-
 
 if(__name__ == "__main__"):
     main()

@@ -351,7 +351,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         for k in project.ns.keys() + ['world', 'data', 'project']:
             if k in interpreter.user_ns:
                 del interpreter.user_ns[k]
-        from openalea.oalab.world import World
+        from openalea.core.world import World
         world = World()
         world.clear()
 
@@ -369,7 +369,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
             interpreter.user_ns.update(self._cproject.ns)
             interpreter.user_ns['project'] = self._cproject
             interpreter.user_ns['data'] = self._cproject.path / 'data'
-            from openalea.oalab.world import World
+            from openalea.core.world import World
             world = World()
             world.update_namespace(interpreter)
 

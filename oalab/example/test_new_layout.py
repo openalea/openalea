@@ -1,7 +1,7 @@
 
 
 from openalea.vpltk.qt import QtGui, QtCore
-from openalea.oalab.gui.splittablewindow import TestMainWin, obj_icon
+from openalea.oalab.widget.splittablewindow import TestMainWin, obj_icon
 
 
 class TestApplet(QtGui.QLineEdit):

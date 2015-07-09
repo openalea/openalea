@@ -2,8 +2,8 @@
 
 from openalea.vpltk.qt import QtGui
 from openalea.core.control.manager import ControlManager
-from openalea.oalab.gui.control.manager import ControlManagerWidget
-from openalea.oalab.gui.control.panel import ControlPanel
+from openalea.oalab.control.manager import ControlManagerWidget
+from openalea.oalab.control.panel import ControlPanel
 from openalea.core.service.control import new_control
 from openalea.core.service.interface import interface_names, get_interface
 from openalea.oalab.service import qt_control
@@ -56,7 +56,7 @@ def disp_controls():
 
 if __name__ == '__main__':
 
-    from openalea.oalab.gui.splittablewindow import TestMainWin
+    from openalea.oalab.widget.splittablewindow import TestMainWin
     instance = QtGui.QApplication.instance()
 
     if instance is None:

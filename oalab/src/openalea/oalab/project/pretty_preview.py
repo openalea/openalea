@@ -1,6 +1,6 @@
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core.path import path
-from openalea.oalab.gui import resources_rc
+from openalea.oalab.widget import resources_rc
 from openalea.oalab.project.preview import Preview, pretty_print
 from openalea.core.project.manager import ProjectManager
 import sys

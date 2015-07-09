@@ -22,12 +22,32 @@ See :meth:`PluginManager.set_proxy` and "plugin_proxy" parameter in :meth:`Plugi
 
 """
 
+import inspect
+
 from warnings import warn
 from openalea.core.singleton import Singleton
 from openalea.core import logger
 from openalea.core.service.introspection import name
 
 __all__ = ['PluginManager']
+
+
+def plugin_implements(plugin, interface):
+    if hasattr(plugin, 'implements') and interface in plugin.implements:
+        return True
+    else:
+        return False
+
+
+def plugin_implementations(plugin):
+    if hasattr(plugin, 'implements'):
+        return plugin.implements
+    else:
+        return []
+
+
+def plugin_name(plugin):
+    return plugin.name if hasattr(plugin, 'name') else plugin.__name__
 
 
 class PluginManager(object):
@@ -41,7 +61,6 @@ class PluginManager(object):
         """
         self._plugin = {}  # dict category -> plugin name -> Plugin class or Plugin proxy
         self._plugin_proxy = {}
-        self._plugin_loaded = {}
 
         self.debug = False
         self._proxies = {}
@@ -50,10 +69,6 @@ class PluginManager(object):
 
         if plugins is not None:
             self.add_plugins(plugins)
-
-        for metaplugin in self.plugins('openalea.plugin'):
-            for plugin in metaplugin.plugins:
-                self.add_plugin(metaplugin.category, plugin)
 
     def clear(self):
         self._plugin = {}  # dict category -> plugin name -> Plugin class or Plugin proxy
@@ -89,35 +104,51 @@ class PluginManager(object):
         for category, plugin in plugins.iteritems():
             self.add_plugin(category, plugin)
 
+    def _is_plugin_meta(self, obj):
+        if hasattr(obj, '__plugin__'):
+            return True
+        else:
+            return False
+
+    def _add_plugin_from_ep(self, category, ep, plugin_class, plugin_proxy=None):
+        logger.debug('%s load plugin %s' % (self.__class__.__name__, ep))
+        if inspect.ismodule(plugin_class):
+            plugin_classes = []
+            for pl_name in dir(plugin_class):
+                pl = getattr(plugin_class, pl_name)
+                if self._is_plugin_meta(pl):
+                    plugin_classes.append(pl)
+        elif isinstance(plugin_class, list):
+            plugin_classes = plugin_class
+        else:
+            plugin_classes = [plugin_class]
+
+        for plugin_class in plugin_classes:
+            name = plugin_class.name if hasattr(plugin_class, 'name') else plugin_class.__name__
+            parts = [str(s) for s in (ep.dist.egg_name(), category, ep.module_name, ep.name, name)]
+            identifier = ':'.join(parts)
+            self.add_plugin(category, plugin_class, plugin_proxy=plugin_proxy, identifier=identifier)
+
     def _load_entry_point_plugin(self, category, entry_point, plugin_proxy=None):
         ep = entry_point
-        identifier = '%s:%s:%s' % (category, ep.module_name, ep.name)
         plugin_class = None
-        if identifier in self._plugin_loaded:
-            plugin_class = self._plugin_loaded[identifier]
+        if self.debug:
+            plugin_class = ep.load()
+            logger.debug('%s load plugin %s' % (self.__class__.__name__, ep))
+            self._add_plugin_from_ep(category, ep, plugin_class, plugin_proxy)
         else:
-            if self.debug:
+            try:
                 plugin_class = ep.load()
-                logger.debug('%s load plugin %s' % (self.__class__.__name__, ep))
-                self._plugin_loaded[identifier] = plugin_class
-                self.add_plugin(category, plugin_class, plugin_proxy=plugin_proxy, identifier=identifier)
+            except KeyboardInterrupt:
+                logger.error('%s: error loading %s ' % (category, ep))
+            except Exception, e:
+                # never want a plugin load to kill the test run
+                # but we can't log here because the logger is not yet
+                # configured
+                warn("Unable to load plugin %s: %s" % (ep, e),
+                     RuntimeWarning)
             else:
-                try:
-                    plugin_class = ep.load()
-                except KeyboardInterrupt:
-                    logger.error('%s: error loading %s ' % (category, ep))
-                except Exception, e:
-                    # never want a plugin load to kill the test run
-                    # but we can't log here because the logger is not yet
-                    # configured
-                    warn("Unable to load plugin %s: %s" % (ep, e),
-                         RuntimeWarning)
-                else:
-                    logger.debug('%s load plugin %s' % (self.__class__.__name__, ep))
-                    self._plugin_loaded[identifier] = plugin_class
-                    self.add_plugin(category, plugin_class, plugin_proxy=plugin_proxy, identifier=identifier)
-
-        return plugin_class
+                self._add_plugin_from_ep(category, ep, plugin_class, plugin_proxy)
 
     def _load_plugins(self, category, plugin_proxy=None):
         from pkg_resources import iter_entry_points
@@ -127,12 +158,12 @@ class PluginManager(object):
     def discover(self, category):
         self._load_plugins(category)
 
-    def plugin(self, category, name=None):
+    def plugin(self, category, name=None, interface=None):
         """
         Return a list of all plugins available for this category.
         """
         if name is None:
-            return self.plugins(category)
+            return self.plugins(category, interface=interface)
         else:
             try:
                 plugins = self._plugin[category]
@@ -156,7 +187,7 @@ class PluginManager(object):
         sorted_plugins = [plugin_dict[name] for name in sorted(plugin_dict.keys())]
         return sorted_plugins
 
-    def plugins(self, category):
+    def plugins(self, category, interface=None):
         """
         Return a list of all plugins available for this category.
         """
@@ -165,9 +196,16 @@ class PluginManager(object):
         except KeyError:
             self._plugin.setdefault(category, {})
             self._load_plugins(category)
-            return self._sorted_plugins(self._plugin[category].values())
-        else:
+            plugins = self._plugin[category].values()
+
+        if interface is None:
             return self._sorted_plugins(plugins)
+        else:
+            final_list = []
+            for plugin in plugins:
+                if plugin_implements(plugin, interface):
+                    final_list.append(plugin)
+            return self._sorted_plugins(final_list)
 
 
 class SimpleClassPluginProxy(object):

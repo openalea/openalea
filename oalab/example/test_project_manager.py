@@ -2,7 +2,7 @@
 
 from openalea.vpltk.qt import QtGui
 from openalea.oalab.service.applet import get_applet
-from openalea.oalab.gui.mainwindow import MainWindow
+from openalea.oalab.widget.mainwindow import MainWindow
 from openalea.oalab.session.session import Session
 from openalea.core.plugin import iter_plugins
 from openalea.core.service.ipython import interpreter

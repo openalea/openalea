@@ -22,7 +22,7 @@
 from openalea.vpltk.qt import QtGui
 
 # Load SampleCustomData, associated codecs and register its
-from openalea.oalab.plugins.mimedata.sample import SampleCustomData
+from openalea.oalab.testing.mimedata import SampleCustomData
 from openalea.oalab.service.drag_and_drop import add_drop_callback, add_drag_format, encode_to_qmimedata
 
 

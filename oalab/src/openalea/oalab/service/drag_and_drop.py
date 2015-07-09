@@ -20,7 +20,7 @@
 
 __all__ = ['add_drop_callback', 'add_drag_format', 'encode']
 
-from openalea.oalab.gui.drag_and_drop import DragHandler, DropHandler, encode_to_qmimedata
+from openalea.oalab.drag_and_drop import DragHandler, DropHandler, encode_to_qmimedata
 from openalea.oalab.mimedata import MimeCodecManager
 
 _drag_handler = {
