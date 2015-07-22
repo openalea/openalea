@@ -29,7 +29,7 @@ class UrlCodecPlugin(QMimeCodecPlugin):
     ]
 
     def __call__(self):
-        from openalea.oalab.plugins.mimedata.codec import UrlCodec
+        from openalea.oalab.mimedata.codec import UrlCodec
         return UrlCodec
 
 
@@ -53,7 +53,7 @@ class BuiltinControlCodecPlugin(QMimeCodecPlugin):
     }
 
     def __call__(self):
-        from openalea.oalab.plugins.mimedata.codec import BuiltinControlCodec
+        from openalea.oalab.mimedata.builtin import BuiltinControlCodec
         return BuiltinControlCodec
 
 
@@ -74,7 +74,7 @@ class BuiltinDataCodecPlugin(QMimeCodecPlugin):
     }
 
     def __call__(self):
-        from openalea.oalab.plugins.mimedata.codec import BuiltinDataCodec
+        from openalea.oalab.mimedata.builtin import BuiltinDataCodec
         return BuiltinDataCodec
 
 
@@ -89,8 +89,13 @@ class BuiltinModelCodecPlugin(QMimeCodecPlugin):
         ('openalealab/model', 'openalealab/model')
     ]
 
+    mimetype_desc = {
+        'openalea/code.oalab.get': dict(title='Python Code (get model)'),
+        'openalea/identifier': dict(title='Model Name'),
+    }
+
     def __call__(self):
-        from openalea.oalab.plugins.mimedata.codec import BuiltinModelCodec
+        from openalea.oalab.mimedata.builtin import BuiltinModelCodec
         return BuiltinModelCodec
 
 

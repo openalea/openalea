@@ -20,7 +20,8 @@
 
 
 from openalea.core.plugin.manager import PluginManager
-from openalea.oalab.mimedata import QMimeCodec, QMimeCodecPlugin
+from openalea.oalab.mimedata.qcodec import QMimeCodec
+from openalea.oalab.mimedata import QMimeCodecPlugin
 
 
 class SampleCustomData(object):

@@ -18,7 +18,15 @@
 #
 ###############################################################################
 
-from openalea.oalab.mimedata.codec import *
-from openalea.oalab.mimedata.exception import *
-from openalea.oalab.mimedata.manager import *
-from openalea.oalab.mimedata.plugin import *
+
+class MimeCodecPlugin(object):
+    implements = ['IMimeCodec']
+    decode = {}
+    encode = {}
+
+
+class QMimeCodecPlugin(object):
+    implements = ['IQMimeCodec']
+
+    qtdecode = {}
+    qtencode = {}

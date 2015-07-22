@@ -22,7 +22,7 @@ from openalea.core.path import path
 from openalea.core.service.project import project_item
 from urlparse import urlparse
 
-from openalea.oalab.mimedata import QMimeCodec
+from openalea.oalab.mimedata.qcodec import QMimeCodec
 
 
 def pyname(name):

@@ -18,7 +18,17 @@
 #
 ###############################################################################
 
-from openalea.oalab.mimedata.codec import *
-from openalea.oalab.mimedata.exception import *
-from openalea.oalab.mimedata.manager import *
-from openalea.oalab.mimedata.plugin import *
+
+class MimeCodec(object):
+
+    def quick_check(self, mimedata, mimetype_in, mimetype_out):
+        return True
+
+    def encode(self, data, mimetype_in, mimetype_out):
+        return ('openalealab/control', '%s;%s' % (data.identifier, data.name))
+
+    def decode(self, rawdata, mimetype_in, mimetype_out):
+        """
+        NO Qt HERE !
+        """
+        pass
