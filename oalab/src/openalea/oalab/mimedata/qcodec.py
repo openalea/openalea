@@ -19,7 +19,7 @@
 ###############################################################################
 
 from openalea.vpltk.qt import QtCore
-from openalea.oalab.mimedata.mimecodec import MimeCodec
+from openalea.oalab.mimedata.codec import MimeCodec
 
 
 class QMimeCodec(MimeCodec):

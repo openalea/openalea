@@ -82,6 +82,10 @@ class PluginManager(object):
         self._plugin_proxy[category] = plugin_proxy
 
     def add_plugin(self, category, plugin, plugin_proxy=None, **kwds):
+        """
+        optional parameters:
+          - identifier: 
+        """
         if plugin_proxy is None and category in self._plugin_proxy:
             plugin_proxy = self._plugin_proxy[category]
 
@@ -95,6 +99,11 @@ class PluginManager(object):
                 name = plugin.__name__
             except AttributeError:
                 name = str(plugin)
+
+        default_id = ':'.join([plugin.__module__, plugin.__name__])
+        plugin.identifier = kwds.get('identifier', default_id)
+        plugin.name = name
+
         self._plugin.setdefault(category, {})[name] = plugin
 
     def add_plugins(self, plugins=None):
@@ -160,7 +169,8 @@ class PluginManager(object):
 
     def plugin(self, category, name=None, interface=None):
         """
-        Return a list of all plugins available for this category.
+        plugin(self, group, identifier)
+        -> Plugin or raises UnknownPluginError
         """
         if name is None:
             return self.plugins(category, interface=interface)
@@ -189,7 +199,11 @@ class PluginManager(object):
 
     def plugins(self, category, interface=None):
         """
-        Return a list of all plugins available for this category.
+        plugins(self, group, tags=None, criteria=None, **kwds)
+        Return a list of all plugins available for this group and matching tags and criteria.
+
+        optional parameters:
+            pass
         """
         try:
             plugins = self._plugin[category].values()
