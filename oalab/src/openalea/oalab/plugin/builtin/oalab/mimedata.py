@@ -97,10 +97,3 @@ class BuiltinModelCodecPlugin(QMimeCodecPlugin):
     def __call__(self):
         from openalea.oalab.mimedata.builtin import BuiltinModelCodec
         return BuiltinModelCodec
-
-
-@PluginDef
-class BuiltinMimeDataCodecPlugin(object):
-    category = 'openalea.codec.mimetype'
-    plugins = [UrlCodecPlugin,
-               BuiltinControlCodecPlugin, BuiltinDataCodecPlugin, BuiltinModelCodecPlugin]

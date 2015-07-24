@@ -5,7 +5,7 @@
 
 """
 
-from openalea.core.plugin.manager import PluginManager
+from openalea.core.plugin.manager import PluginManager, get_implementation
 from openalea.core.interface import IInterface, TypeInterfaceMap
 
 pm = PluginManager()
@@ -24,8 +24,8 @@ def load_interfaces():
     Need to load interface classes to auto register them
     (see :class:`openalea.core.interface.IInterfaceMetaClass`)
     """
-    for plugin in pm.plugins('oalab.interface'):
-        plugin()()
+    for plugin in pm.plugins('openalea.core', interface='IInterface'):
+        get_implementation(plugin())
 
 load_interfaces()
 

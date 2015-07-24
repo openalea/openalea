@@ -105,18 +105,10 @@ setup(
             'OpenAleaLabs = openalea.oalab.plugin.builtin.lab',
         ],
 
-        'oalab.interface': [
-            'OpenAleaLabInterfacePlugin = openalea.oalab.plugin.builtin.interface',
-        ],
-
         'openalea.core': [
             'OpenAleaLabOpenAleaCorePlugin = openalea.oalab.plugin.builtin.core',
         ],
 
-        # 'console_scripts': [
-        #       'fake_script = openalea.fakepackage.amodule:console_script', ],
-        # 'gui_scripts': [
-        #      'fake_gui = openalea.fakepackage.amodule:gui_script',],
         'wralea': [
             'oalab = openalea.oalab_wralea',
         ],

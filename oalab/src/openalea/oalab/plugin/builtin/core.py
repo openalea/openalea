@@ -23,8 +23,20 @@ from openalea.core.plugin import PluginDef
 
 
 @PluginDef
+class OpenAleaLabInterfacePlugin(object):
+    implement = 'IInterface'
+
+    def __call__(self):
+
+        from openalea.oalab.plugin.applet import IApplet
+        from openalea.oalab.interface import IColormap, IIntRange
+
+        return [IColormap, IIntRange, IApplet]
+
+
+@PluginDef
 class RFile(object):
-    implements = ['IData']
+    implement = 'IData'
 
     default_name = "R"
     default_file_name = "script.r"
@@ -40,7 +52,7 @@ class RFile(object):
 
 @PluginDef
 class RModel(object):
-    implements = ['IModel']
+    implement = 'IModel'
 
     default_name = "R"
     icon = ":/images/resources/RLogo.png"
@@ -54,7 +66,7 @@ class RModel(object):
 
 @PluginDef
 class VisualeaFile(object):
-    implements = ['IData']
+    implement = 'IData'
 
     default_name = "Workflow"
     default_file_name = "workflow.wpy"
@@ -71,7 +83,7 @@ class VisualeaFile(object):
 
 @PluginDef
 class VisualeaModel(object):
-    implements = ['IModel']
+    implement = 'IModel'
 
     default_name = "Workflow"
     icon = ":/images/resources/openalealogo.png"
@@ -94,4 +106,4 @@ def tutorials():
         oalab_dir = shared_data(oalab)
         return [path(oalab_dir)]
 
-tutorials.implements = 'oalab.projects'
+tutorials.implement = 'oalab.projects'

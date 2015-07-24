@@ -2,7 +2,7 @@ from openalea.core.plugin import PluginDef
 
 
 class AbstractParadigmPlugin(object):
-    implements = ['IParadigmApplet']
+    implement = 'IParadigmApplet'
 
 
 @PluginDef

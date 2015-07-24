@@ -4,7 +4,7 @@ from openalea.core.plugin import PluginDef
 
 @PluginDef
 class PythonModel(object):
-    implements = ['IModel']
+    implement = 'IModel'
 
     dtype = 'Python'
     mimetype = 'text/x-python'
@@ -16,7 +16,7 @@ class PythonModel(object):
 
 @PluginDef
 class PythonFile(object):
-    implements = ['IData']
+    implement = 'IData'
 
     mimetype = 'text/x-python'
     default_name = 'Python'

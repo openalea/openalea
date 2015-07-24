@@ -20,13 +20,13 @@
 
 
 class MimeCodecPlugin(object):
-    implements = ['IMimeCodec']
+    implement = 'IMimeCodec'
     decode = {}
     encode = {}
 
 
 class QMimeCodecPlugin(object):
-    implements = ['IQMimeCodec']
+    implement = 'IQMimeCodec'
 
     qtdecode = {}
     qtencode = {}

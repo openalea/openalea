@@ -28,26 +28,62 @@ from warnings import warn
 from openalea.core.singleton import Singleton
 from openalea.core import logger
 from openalea.core.service.introspection import name
+from openalea.core.util import camel_case_to_lower
 
 __all__ = ['PluginManager']
 
 
-def plugin_implements(plugin, interface):
-    if hasattr(plugin, 'implements') and interface in plugin.implements:
+def get_implementation(plugin):
+    if hasattr(plugin, 'modulename') and hasattr(plugin, 'objectname'):
+        modulename = plugin.modulename
+        objectname = plugin.objectname
+
+        module = __import__(modulename, fromlist=[objectname])
+        return getattr(module, objectname)
+    elif inspect.isclass(plugin):
+        return plugin()()
+    else:
+        return plugin()
+
+
+def plugin_implement(plugin, interface):
+    if hasattr(plugin, 'implement') and interface == plugin.implement:
         return True
     else:
         return False
 
 
-def plugin_implementations(plugin):
-    if hasattr(plugin, 'implements'):
-        return plugin.implements
+def plugin_implementation(plugin):
+    if hasattr(plugin, 'implement'):
+        return plugin.implement
     else:
-        return []
+        return None
 
 
 def plugin_name(plugin):
     return plugin.name if hasattr(plugin, 'name') else plugin.__name__
+
+
+def generate_plugin_name(plugin):
+    try:
+        name = plugin.name
+    except AttributeError:
+        try:
+            name = plugin.__name__
+        except AttributeError:
+            name = str(plugin)
+        try:
+            idx = name.lower().index('plugin')
+        except ValueError:
+            pass
+        else:
+            name = name[0:idx] + name[idx + 6:]
+        name = camel_case_to_lower(name)
+    return name
+
+
+def generate_plugin_id(plugin):
+    return ':'.join([plugin.__module__, plugin.__name__])
 
 
 class PluginManager(object):
@@ -92,19 +128,10 @@ class PluginManager(object):
         if plugin_proxy:
             plugin = plugin_proxy(plugin)
 
-        try:
-            name = plugin.name
-        except AttributeError:
-            try:
-                name = plugin.__name__
-            except AttributeError:
-                name = str(plugin)
+        plugin.identifier = kwds.get('identifier', generate_plugin_id(plugin))
+        plugin.name = kwds.get('name', generate_plugin_name(plugin))
 
-        default_id = ':'.join([plugin.__module__, plugin.__name__])
-        plugin.identifier = kwds.get('identifier', default_id)
-        plugin.name = name
-
-        self._plugin.setdefault(category, {})[name] = plugin
+        self._plugin.setdefault(category, {})[plugin.name] = plugin
 
     def add_plugins(self, plugins=None):
         if plugins is None:
@@ -217,7 +244,7 @@ class PluginManager(object):
         else:
             final_list = []
             for plugin in plugins:
-                if plugin_implements(plugin, interface):
+                if plugin_implement(plugin, interface):
                     final_list.append(plugin)
             return self._sorted_plugins(final_list)
 

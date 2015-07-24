@@ -34,18 +34,16 @@ import sys
 
 from openalea.core.factory import AbstractFactory
 
-def plugin_implements(plugin, interface):
-    return interface in plugin_implementations(plugin)
+def plugin_implement(plugin, interface):
+    return interface in plugin_implementation(plugin)
 
 
-def plugin_implementations(plugin):
-    if hasattr(plugin, 'implements'):
-        implements = plugin.implements
-        if isinstance(implements, basestring):
-            implements=[implements]
-        return implements
+def plugin_implementation(plugin):
+    if hasattr(plugin, 'implement'):
+        implement = plugin.implement
+        return implement
     else:
-        return []
+        return None
 
 def plugin_name(plugin):
     return plugin.name if hasattr(plugin, 'name') else plugin.__name__

@@ -28,7 +28,7 @@ class IQMimeCodecPlugin(IInterface):
     An encoder should define:
     1 TYPE -> n out mimetype
     """
-    implements = ['IQMimeCodec']
+    implement = 'IQMimeCodec'
 
     def qtdecode(self, mimedata, mimetype_in, mimetype_out):
         """

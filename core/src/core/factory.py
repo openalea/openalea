@@ -24,21 +24,21 @@ __license__ = "Cecill-C"
 
 
 class AbstractFactory(object):
+
     """
     Abstract Factory is Factory base class.
 
     :Properties:
         - name
         - metainfo
-        
+
         - module
-        - distribution (aka egg name)
+        - distribution (aka egg name) 
     """
 
     mimetype = "openalea/factory"
 
     #package = property(get_pkg, set_pkg)
-
 
     def is_valid(self):
         """
@@ -57,4 +57,3 @@ class AbstractFactory(object):
 
     def __call__(self, *args, **kwds):
         return self.instantiate()
-

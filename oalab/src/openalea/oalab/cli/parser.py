@@ -25,13 +25,13 @@ __all__ = ['CommandLineParser']
 import os
 import argparse
 
-from openalea.core.service.plugin import plugin_implementations, plugin_name
+from openalea.core.service.plugin import plugin_implementation, plugin_name
 
 
 def print_plugin_name(plugin):
-    interfaces = plugin_implementations(plugin)
-    if interfaces:
-        print '%s (implements: %s)' % (plugin_name(plugin), ', '.join(interfaces))
+    interface = plugin_implementation(plugin)
+    if interface:
+        print '%s (implements: %s)' % (plugin_name(plugin), interface)
     else:
         print plugin_name(plugin)
 
@@ -94,10 +94,9 @@ class CommandLineParser(object):
                         UNDEF = 'Not defined'
                         plugin_groups = {UNDEF: []}
                         for plugin in pm.plugins(category):
-                            interfaces = plugin_implementations(plugin)
-                            if interfaces:
-                                for interface in interfaces:
-                                    plugin_groups.setdefault(interface, []).append(plugin)
+                            interface = plugin_implementation(plugin)
+                            if interface:
+                                plugin_groups.setdefault(interface, []).append(plugin)
                             else:
                                 plugin_groups[UNDEF].append(plugin)
                         for group, plugins in plugin_groups.items():

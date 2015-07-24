@@ -2,8 +2,8 @@
 
 import weakref
 from openalea.core.singleton import Singleton
-from openalea.core.plugin.manager import PluginManager
-from openalea.core.plugin.plugin import plugin_name, plugin_implements, plugin_implementations
+from openalea.core.plugin.manager import PluginManager, get_implementation
+from openalea.core.plugin.plugin import plugin_name, plugin_implement, plugin_implementation
 from openalea.core import logger
 
 
@@ -118,7 +118,7 @@ class PluginInstanceManager(object):
                 raise enhanced_error(e, plugin_class=plugin_class)
 
             try:
-                function = plugin()
+                function = get_implementation(plugin)
             except TypeError, e:
                 raise enhanced_error(e, plugin=plugin, plugin_class=plugin_class)
 
@@ -143,7 +143,7 @@ class PluginInstanceManager(object):
                 class_kwds = {}
 
             try:
-                klass = plugin()
+                klass = get_implementation(plugin)
             except TypeError, e:
                 raise enhanced_error(e, plugin=plugin, plugin_class=plugin_class)
             try:

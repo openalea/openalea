@@ -5,7 +5,7 @@ from openalea.core.plugin import PluginDef
 @PluginDef
 class C1Plugin1(object):
     name = 'MyPlugin1'
-    implements = ['IClass1']
+    implement = ['IClass1']
 
     def __call__(self):
         from tstpkg1.impl import C1Class1

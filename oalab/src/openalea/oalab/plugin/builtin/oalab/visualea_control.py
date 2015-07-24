@@ -62,7 +62,7 @@ def new_plugin(widget_class, interface, shape=None):
     klass.controls = [interface.__name__]
     klass.name = interface.__name__[1:] + 'Widget'
     klass.edit_shape = shape
-    klass.implements = ['IWidgetSelector']
+    klass.implement = 'IWidgetSelector'
 
     return PluginDef(klass)
 
