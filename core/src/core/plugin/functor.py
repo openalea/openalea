@@ -1,7 +1,6 @@
 import inspect
 from openalea.core.service.plugin import plugins, plugin, register_plugin
 
-
 class PluginFunctor(object):
 
     def __init__(self, group, *args, **kwargs):
@@ -9,6 +8,22 @@ class PluginFunctor(object):
         self._args = args
         self._kwargs = kwargs
         self._aliases = dict()
+
+    def __contains__(self, name):
+        if not name in self._aliases:
+            try:
+                plugin(name)
+            except:
+                return False
+            else:
+                return True
+        else:
+            return True
+
+    def __delitem__(self, name):
+        if not name in self._aliases:
+            raise KeyError('\'name\' parameter is not a plugin alias')
+        del self._aliases[name]
 
     def __getitem__(self, name):
         if name in self._aliases:
@@ -39,7 +54,6 @@ class PluginFunctor(object):
         else:
             raise TypeError('\'plugin\' parameter')
 
-
 def get_plugin(self):
     return self._plugin
 
@@ -47,7 +61,6 @@ def get_plugin(self):
 def set_plugin(self, name):
     self._plugin = name
     self.__class__.__call__ = self[self._plugin].implementation
-
 
 def plugin_doc(plugin_func):
     __doc__ = ['Implemented plugins:']
