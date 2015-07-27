@@ -23,18 +23,6 @@ from openalea.core.plugin import PluginDef
 
 
 @PluginDef
-class OpenAleaLabInterfacePlugin(object):
-    implement = 'IInterface'
-
-    def __call__(self):
-
-        from openalea.oalab.plugin.applet import IApplet
-        from openalea.oalab.interface import IColormap, IIntRange
-
-        return [IColormap, IIntRange, IApplet]
-
-
-@PluginDef
 class RFile(object):
     implement = 'IData'
 

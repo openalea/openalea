@@ -34,7 +34,7 @@ class MimeCodecManager(object):
         self._registry_encode_plugin = {}
 
     def init(self):
-        for plugin in plugins('oalab.plugin', interface='IQMimeCodec'):
+        for plugin in plugins('oalab.plugin', criteria=dict(interface='IQMimeCodec')):
             for k, v in plugin.qtdecode:
                 codec = (unicode(k), unicode(v))
                 self._registry_decode.add(codec)
@@ -74,7 +74,7 @@ class MimeCodecManager(object):
         except KeyError:
             return None, {}
         else:
-            klass = plugin()()
+            klass = plugin.implementation
             decoder = klass()
             # decoder.decode(mimedata, ...)
             return getattr(decoder, funcname)(mimedata, mimetype_in, mimetype_out)
@@ -94,7 +94,7 @@ class MimeCodecManager(object):
         except KeyError:
             return None, {}
         else:
-            klass = plugin()()
+            klass = plugin.implementation
             decoder = klass()
             # decoder.decode(mimedata, ...)
             return getattr(decoder, 'encode')(data, mimetype_in, mimetype_out)
@@ -105,7 +105,7 @@ class MimeCodecManager(object):
         except KeyError:
             return None, {}
         else:
-            klass = plugin()()
+            klass = plugin.implementation
             decoder = klass()
             # decoder.decode(mimedata, ...)
             return getattr(decoder, 'qtencode')(data, qmimedata, mimetype_in, mimetype_out)

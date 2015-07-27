@@ -109,6 +109,10 @@ setup(
             'OpenAleaLabOpenAleaCorePlugin = openalea.oalab.plugin.builtin.core',
         ],
 
+        'openalea.interface': [
+            'OpenAleaLabOpenAleaInterfacePlugin = openalea.oalab.plugin.builtin.interface',
+        ],
+
         'wralea': [
             'oalab = openalea.oalab_wralea',
         ],

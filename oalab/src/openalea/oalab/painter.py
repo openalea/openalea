@@ -2,7 +2,7 @@
 
 from openalea.vpltk.qt import QtCore, QtGui
 
-from openalea.core.service.interface import interface_alias
+from openalea.core.service.interface import interface_label
 from openalea.core.control import Control
 
 
@@ -24,7 +24,7 @@ class AbstractPainter(object):
 class PainterInterfaceObject(AbstractPainter):
 
     def paint_control(self, control, painter, rectangle, option=None):
-        self.paint_data(interface_alias(control.interface), painter, rectangle, option)
+        self.paint_data(interface_label(control.interface), painter, rectangle, option)
 
     def paint_data(self, data, painter, rectangle, option=None):
         painter.save()

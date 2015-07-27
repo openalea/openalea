@@ -13,21 +13,23 @@ pm = PluginManager()
 __all__ = [
     'get_interface',
     'guess_interface',
-    'interface_alias',
+    'interface_label',
     'interface_class',
     'interface_name',
     'new_interface',
-    ]
+]
+
 
 def load_interfaces():
     """
     Need to load interface classes to auto register them
     (see :class:`openalea.core.interface.IInterfaceMetaClass`)
     """
-    for plugin in pm.plugins('openalea.core', interface='IInterface'):
-        get_implementation(plugin())
+    for plugin in pm.plugins('openalea.interface'):
+        plugin.implementation
 
 load_interfaces()
+
 
 def interfaces(debug=False):
     """
@@ -39,6 +41,8 @@ def interfaces(debug=False):
 # guess is not explicit enough
 # interface(1) is better than guess(1)
 # or to_interface(obj) -> interface
+
+
 def guess_interface(obj):
     """
     Returns interfaces than can correspond to object
@@ -47,11 +51,13 @@ def guess_interface(obj):
     ['IInt']
     """
     interfaces = []
-    type_to_iname = {typ: [interface.__name__] for (typ, interface) in TypeInterfaceMap().items()}
+    type_to_iname = {}
+    for (typ, interface) in TypeInterfaceMap().items():
+        type_to_iname[typ] = [interface.__name__]
     classname_to_iname = {
-        'NurbsCurve2D':['ICurve2D'],
-        'Material':['IColor'],
-        'NurbsPatch':['IPatch'],
+        'NurbsCurve2D': ['ICurve2D'],
+        'Material': ['IColor'],
+        'NurbsPatch': ['IPatch'],
     }
     if obj and isinstance(obj, list):
         if obj[0].__class__.__name__ == 'Material':
@@ -66,6 +72,7 @@ def guess_interface(obj):
 
     return interfaces
 
+
 def interface_class(interface=None):
     """
     Returns interface class corresponding to interface
@@ -77,7 +84,10 @@ def interface_class(interface=None):
 
     # interface is a builtin type (int, float, ...)
     if isinstance(interface, type):
-        type_to_iname = {typ: [interface_.__name__] for (typ, interface_) in TypeInterfaceMap().items()}
+        type_to_iname = {}
+        for (typ, interface) in TypeInterfaceMap().items():
+            type_to_iname[typ] = [interface.__name__]
+
         if interface in type_to_iname:
             return interface_class(type_to_iname[interface][0])
 
@@ -123,6 +133,7 @@ def interface_name(interface=None):
         cls = interface_class(interface)
         return cls.__name__
 
+
 def get_interface(interface, *args, **kwargs):
     """
     If interface is yet an instance of interface, returns it else, return an
@@ -134,8 +145,10 @@ def get_interface(interface, *args, **kwargs):
         iclass = interface_class(interface)
         return iclass(*args, **kwargs)
 
+
 def check_value(value, interface):
     pass
+
 
 def new_interface(interface=None, value=None, *args, **kwargs):
     if interface is not None and value is None:
@@ -153,9 +166,11 @@ def new_interface(interface=None, value=None, *args, **kwargs):
     else:
         raise ValueError, 'you must define at least one of interface or value'
 
+
 def interface_names(debug=False):
     names = [interface.__name__ for interface in interfaces()]
     return sorted(list(set(names)))
+
 
 def interface_default_value(interface):
     if hasattr(interface, 'sample'):
@@ -165,7 +180,8 @@ def interface_default_value(interface):
     else:
         return None
 
-def interface_alias(interface):
+
+def interface_label(interface):
     interface = interface_class(interface)
     if hasattr(interface, '__alias__'):
         return interface.__alias__

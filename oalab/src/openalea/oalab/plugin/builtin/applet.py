@@ -20,11 +20,13 @@ __revision__ = ""
 from openalea.core.plugin import PluginDef
 
 
-@PluginDef
-class ContextualMenu(object):
+class AppletPlugin(object):
+    name_conversion = PluginDef.DROP_PLUGIN
 
-    name = 'ContextualMenu'
-    alias = 'Contextual Menu'
+
+@PluginDef
+class ContextualMenu(AppletPlugin):
+    label = 'Contextual Menu'
 
     def __call__(self):
         from openalea.oalab.widget.menu import ContextualMenu
@@ -32,10 +34,8 @@ class ContextualMenu(object):
 
 
 @PluginDef
-class ControlManager(object):
-
-    name = 'ControlManager'
-    alias = 'Controls'
+class ControlManager(AppletPlugin):
+    label = 'Controls'
     icon = 'controlmanager.png'
 
     def __call__(self):
@@ -44,10 +44,8 @@ class ControlManager(object):
 
 
 @PluginDef
-class EditorManager(object):
-
-    name = 'EditorManager'
-    alias = 'Model Editor'
+class EditorManager(AppletPlugin):
+    label = 'Model Editor'
     icon = 'oxygen_text-x-python.png'
 
     def __call__(self):
@@ -57,10 +55,8 @@ class EditorManager(object):
 
 
 @PluginDef
-class FileBrowser(object):
-
-    name = 'FileBrowser'
-    alias = 'File Browser'
+class FileBrowser(AppletPlugin):
+    label = 'File Browser'
     icon = 'oxygen_system-file-manager.png'
 
     def __call__(self):
@@ -70,10 +66,8 @@ class FileBrowser(object):
 
 
 @PluginDef
-class HelpWidget(object):
-
-    name = 'HelpWidget'
-    alias = 'Help'
+class HelpWidget(AppletPlugin):
+    label = 'Help'
     icon = 'oxygen_system-help.png'
 
     def __call__(self):
@@ -83,9 +77,8 @@ class HelpWidget(object):
 
 
 @PluginDef
-class HistoryWidget(object):
-    name = 'HistoryWidget'
-    alias = 'History'
+class HistoryWidget(AppletPlugin):
+    label = 'History'
     icon = 'Crystal_Clear_app_clock.png'
 
     def __call__(self):
@@ -95,10 +88,7 @@ class HistoryWidget(object):
 
 
 @PluginDef
-class Logger(object):
-
-    name = 'Logger'
-    alias = 'Logger'
+class Logger(AppletPlugin):
     icon = 'icon_logger2.png'
 
     def __call__(self):
@@ -108,10 +98,8 @@ class Logger(object):
 
 
 @PluginDef
-class PkgManagerWidget(object):
-
-    name = 'PkgManagerWidget'
-    alias = 'VisualeaPkg'
+class PkgManagerWidget(AppletPlugin):
+    label = 'VisualeaPkg'
     icon = ":/images/resources/openalealogo.png"
 
     def __call__(self):
@@ -120,10 +108,10 @@ class PkgManagerWidget(object):
         return PackageManagerTreeView
 
 
-class MplFigureWidget(object):
+class MplFigureWidget(AppletPlugin):
 
     name = 'FigureWidget'
-    alias = 'Figure (Matplotlib)'
+    label = 'Figure (Matplotlib)'
     icon = 'icon_mplfigure.png'
 
     def __call__(self):
@@ -132,10 +120,10 @@ class MplFigureWidget(object):
         return MplFigureWidget
 
 
-class MplTabWidget(object):
+class MplTabWidget(AppletPlugin):
 
     name = 'Plot2d'
-    alias = '2D Plots (Matplotlib)'
+    label = '2D Plots (Matplotlib)'
     icon = 'icon_mplwidget.png'
 
     def __call__(self):
@@ -145,10 +133,8 @@ class MplTabWidget(object):
 
 
 @PluginDef
-class ProjectManager(object):
-
-    name = 'ProjectManager'
-    alias = 'Project'
+class ProjectManager(AppletPlugin):
+    label = 'Project'
     icon = 'adwaita_accessories-dictionary.png'
 
     def __call__(self):
@@ -157,10 +143,8 @@ class ProjectManager(object):
 
 
 @PluginDef
-class ShellWidget(object):
-
-    name = 'ShellWidget'
-    alias = 'Shell'
+class ShellWidget(AppletPlugin):
+    label = 'Shell'
     icon = 'oxygen_utilities-terminal.png'
 
     def __call__(self):
@@ -169,10 +153,9 @@ class ShellWidget(object):
 
 
 @PluginDef
-class SplitterApplet(object):
+class SplitterApplet(AppletPlugin):
     icon = 'oxygen_view-split-top-bottom.png'
-    name = 'SplitterApplet'
-    alias = 'Splitter'
+    label = 'Splitter'
 
     def __call__(self):
         from openalea.oalab.widget.splittablewindow import SplitterApplet
@@ -180,10 +163,7 @@ class SplitterApplet(object):
 
 
 @PluginDef
-class Store(object):
-
-    name = 'Store'
-    alias = 'Store'
+class Store(AppletPlugin):
 
     def __call__(self):
         from openalea.oalab.widget.store import Store
@@ -191,10 +171,7 @@ class Store(object):
 
 
 @PluginDef
-class World(object):
-
-    name = 'World'
-    alias = 'World'
+class World(AppletPlugin):
     icon = 'oxygen_world.png'
 
     def __call__(self):
@@ -204,10 +181,8 @@ class World(object):
 
 
 @PluginDef
-class WorldControl(object):
-
-    name = 'WorldControl'
-    alias = 'WorldControl'
+class WorldControl(AppletPlugin):
+    label = 'World Controls'
     icon = 'oxygen_world_control.png'
 
     def __call__(self):

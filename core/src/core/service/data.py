@@ -8,15 +8,15 @@ import mimetypes
 __all__ = ["DataFactory", "DataClass", "MimeType", "DataType"]
 
 REGISTERY_MIME_CLASS = {}
-for DataClass in plugins('openalea.core', interface='IData'):
-    REGISTERY_MIME_CLASS[DataClass.mimetype] = DataClass()()
+for pl in plugins('openalea.core', criteria=dict(implement='IData')):
+    REGISTERY_MIME_CLASS[pl.mimetype] = pl
 # for ModelClass in iter_plugins('oalab.model'):
 #     REGISTERY_MIME_CLASS[ModelClass.mimetype] = ModelClass
 
 REGISTERY_NAME_MIME = {}
-for DataClass in plugins('openalea.core', interface='IData'):
-    REGISTERY_NAME_MIME[DataClass.default_name.lower()] = DataClass.mimetype
-    REGISTERY_NAME_MIME[DataClass.extension.lower()] = DataClass.mimetype
+for pl in plugins('openalea.core', criteria=dict(implement='IData')):
+    REGISTERY_NAME_MIME[pl.default_name.lower()] = pl.mimetype
+    REGISTERY_NAME_MIME[pl.extension.lower()] = pl.mimetype
 
 # for ModelClass in iter_plugins('oalab.model'):
 #     REGISTERY_NAME_MIME[ModelClass.default_name.lower()] = ModelClass.mimetype
@@ -57,7 +57,7 @@ def DataType(path=None, name=None, mimetype=None):
         #         for ModelClass in iter_plugins('oalab.model'):
         #             if ModelClass.mimetype == mimetype:
         #                 return ModelClass.default_name
-        for DataClass in iter_plugins('oalab.dataclass'):
+        for DataClass in plugins('oalab.dataclass', criteria=dict(implement='IData')):
             if DataClass.mimetype == mimetype:
                 return DataClass.default_name
     else:
@@ -73,11 +73,9 @@ def DataClass(dtype=None):
     if dtype is None, returns all available DataClasses
     """
     if dtype in REGISTERY_MIME_CLASS:
-        return REGISTERY_MIME_CLASS[dtype]
+        return REGISTERY_MIME_CLASS[dtype].implementation
     else:
         return Data
-
-DataClass.all = set(REGISTERY_MIME_CLASS.values() + [Data])
 
 
 def arrange_data_args(path, mimetype, dtype):

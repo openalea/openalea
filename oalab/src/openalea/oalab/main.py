@@ -80,7 +80,8 @@ def main():
         # Run all extension matching session.extension
         available_extensions = []
 
-        for plugin_class in plugins('oalab.lab'):
+        for plugin in plugins('oalab.lab'):
+            plugin_class = plugin.__class__
             try:
                 ext = plugin_class.name
             except AttributeError:

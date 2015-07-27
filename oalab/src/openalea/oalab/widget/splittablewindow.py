@@ -25,7 +25,7 @@ import weakref
 
 from openalea.core.control import Control
 from openalea.core.plugin.manager import PluginManager
-from openalea.core.service.plugin import (new_plugin_instance, plugin_instances, plugin_class, plugins,
+from openalea.core.service.plugin import (new_plugin_instance, plugin_instances, plugin, plugins,
                                           plugin_instance, plugin_instance_exists)
 
 from openalea.oalab.control.qcontainer import QControlContainer
@@ -81,18 +81,18 @@ class AppletSelector(QtGui.QWidget):
         self._layout.setContentsMargins(0, 0, 0, 0)
 
         self._cb_applets = QtGui.QComboBox()
-        self._applet_alias = []  # list of alias sorted by name
-        self._applet_plugins = {}  # alias -> plugin class
+        self._applet_label = []  # list of label sorted by name
+        self._applet_plugins = {}  # label -> plugin class
 
         self._cb_applets.addItem('Select applet')
-        for plugin_class in plugins('oalab.applet'):
-            self._applet_alias.append(plugin_class.alias)
-            self._applet_plugins[plugin_class.alias] = plugin_class
-        self._applet_alias.sort()
+        for plugin in plugins('oalab.applet'):
+            self._applet_label.append(plugin.label)
+            self._applet_plugins[plugin.label] = plugin
+        self._applet_label.sort()
 
-        for alias in self._applet_alias:
-            plugin_class = self._applet_plugins[alias]
-            self._cb_applets.addItem(obj_icon(plugin_class), alias)
+        for label in self._applet_label:
+            plugin_class = self._applet_plugins[label]
+            self._cb_applets.addItem(obj_icon(plugin_class), label)
 
         self._layout.addWidget(self._cb_applets)
 
@@ -113,7 +113,7 @@ class AppletSelector(QtGui.QWidget):
 
     def applet(self, idx):
         if 1 <= idx <= len(self._applet_plugins):
-            plugin_class = self._applet_plugins[self._applet_alias[idx - 1]]
+            plugin_class = self._applet_plugins[self._applet_label[idx - 1]]
             return plugin_class.name if hasattr(plugin_class, 'name') else plugin_class.__name__
         else:
             return None
@@ -123,8 +123,8 @@ class AppletSelector(QtGui.QWidget):
 
     def setCurrentApplet(self, name):
         self._cb_applets.setCurrentIndex(0)
-        for i, alias in enumerate(self._applet_alias):
-            plugin_class = self._applet_plugins[alias]
+        for i, label in enumerate(self._applet_label):
+            plugin_class = self._applet_plugins[label]
             plugin_name = plugin_class.name if hasattr(plugin_class, 'name') else plugin_class.__name__
             if plugin_name == name:
                 self._cb_applets.setCurrentIndex(i + 1)
@@ -173,8 +173,8 @@ class AppletFrame(QtGui.QWidget):
     def __init__(self):
         QtGui.QWidget.__init__(self)
 
-        self._show_toolbar = Control('toolbar', interface='IBool', value=False, alias='Show Toolbar')
-        self._show_title = Control('title', interface='IBool', value=False, alias='Show Applet Title')
+        self._show_toolbar = Control('toolbar', interface='IBool', value=False, label='Show Toolbar')
+        self._show_title = Control('title', interface='IBool', value=False, label='Show Applet Title')
 
         self._props = QControlContainer()
         self._props.controlValueChanged.connect(self._on_prop_changed)
@@ -245,8 +245,8 @@ class AppletFrame(QtGui.QWidget):
     def set_applet(self, applet):
         self._applet = weakref.ref(applet)
         self._layout.insertWidget(1, applet)
-        _plugin_class = plugin_class('oalab.applet', applet.name)
-        self._l_title.setText(_plugin_class.alias)
+        _plugin = plugin('oalab.applet', applet.name)
+        self._l_title.setText(_plugin.label)
         p = QtGui.QSizePolicy
         applet.setSizePolicy(p(p.MinimumExpanding, p.MinimumExpanding))
 
@@ -448,19 +448,18 @@ class AppletTabWidget(QtGui.QTabWidget):
             return
 
         name = self._name[idx]
-        _plugin_class = plugin_class('oalab.applet', name)
+        pl = plugin('oalab.applet', name)
         applet = self._applets[idx][name]
-
-        # self.setTabText(idx, _plugin_class.alias)
-        if tabposition_int(self.tabPosition()) == 3:
+        # self.setTabText(idx, _plugin_class.label)
+        if self.tabPosition() == QtGui.QTabWidget.East:
             rotation = -90
         elif tabposition_int(self.tabPosition()) == 2:
             rotation = 90
         else:
             rotation = 0
 
-        self.setTabIcon(idx, obj_icon(_plugin_class, applet=applet, rotation=rotation))
-        self.setTabToolTip(idx, _plugin_class.alias)
+        self.setTabIcon(idx, obj_icon(pl, applet=applet, rotation=rotation))
+        self.setTabToolTip(idx, pl.label)
         self.widget(idx).set_edit_mode(self._edit_mode)
 
     def currentAppletName(self):
@@ -912,7 +911,7 @@ class OALabMainWin(QtGui.QMainWindow):
 
     DEFAULT_LAYOUT = dict(
         name='default',
-        alias='Default Layout',
+        label='Default Layout',
         children={},
         parents={0: None},
         properties={

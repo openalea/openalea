@@ -105,41 +105,66 @@ def iter_plugins(group, name=None, debug=False):
                 else:
                     yield ep
 
-class Plugin(AbstractFactory):
+class IPlugin(object):
     """ Define a Plugin from an entry point. """
 
-    def __init__(self, epoint):
-        self.ep = epoint
+    @property
+    def identifier(self):
+        """
+        Unique identifier. By default, identifier is pluginmodule:PluginClass
+        """
 
     @property
     def name(self):
-        return self.ep.name
+        """
+        Short name to identify plugin. Different plugin may have same name.
+        """
 
     @property
-    def module_name(self):
-        return self.ep.module_name
+    def alias(self):
+        """
+        Human readable name
+        """
 
     @property
-    def dist(self):
-        return self.ep.dist
+    def modulename(self):
+        """
+        Python module path containing implementation
+        """
 
-    def load(self, *args, **kwds):
-        return self.ep.load(*args, **kwds)
+    @property
+    def objectname(self):
+        """
+        Name of implementation
+        """
 
-    def _get_module(self):
-        return self.module_name
+    @property
+    def distribution(self):
+        """
+        Current python distribution
+        """
 
-    module = property(_get_module)
+    @property
+    def module(self):
+        """
+        Module containing implementation
+        """
 
-    def _get_distribution(self):
-        return self.dist
+    @property
+    def implementation(self):
+        """
+        Real implementation
+        """
 
-    distribution = property(_get_distribution)
-
-    def __call__(self, *args, **kwds):
-        return self.load(*args, **kwds)
+class Plugin(object):
+    pass
 
 class PluginDef(object):
+  UNCHANGED =0
+  DROP_PLUGIN = 1
+  LOWER_CASE = 2
+
   def __new__(self, klass):
     klass.__plugin__ = True
+    klass.plugin_name = self.LOWER_CASE
     return klass

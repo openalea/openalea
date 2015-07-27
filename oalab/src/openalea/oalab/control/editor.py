@@ -2,7 +2,7 @@
 import weakref
 from openalea.vpltk.qt import QtGui, QtCore
 
-from openalea.core.service.interface import interface_alias
+from openalea.core.service.interface import interface_label
 from openalea.oalab.service.qt_control import qt_widget_plugins
 from openalea.core.control import Control
 from openalea.deploy.shared_data import shared_data
@@ -34,6 +34,7 @@ from openalea.vpltk.qt.designer import generate_pyfile_from_uifile
 generate_pyfile_from_uifile(__name__)
 from openalea.oalab.gui.control.designer._editor import Ui_ControlEditor
 
+
 class ControlEditor(QtGui.QWidget, Ui_ControlEditor):
     counters = {}
 
@@ -61,7 +62,7 @@ class ControlEditor(QtGui.QWidget, Ui_ControlEditor):
 
         plugins = qt_widget_plugins()
         for iname in plugins:
-            alias = interface_alias(iname)
+            alias = interface_label(iname)
             self.alias_to_iname[alias] = iname
             self.tooltips[iname] = '<b>%s</b><br />Interface name:%s' % (alias, iname)
 
@@ -94,7 +95,7 @@ class ControlEditor(QtGui.QWidget, Ui_ControlEditor):
         icon_path = None
         for plugin in qt_widget_plugins(iname):
             if widget_name == plugin.name:
-                widget = plugin.load()
+                widget = plugin.implementation
                 if hasattr(plugin, 'icon_path'):
                     icon_path = plugin.icon_path
                     if icon_path and not icon_path.exists():

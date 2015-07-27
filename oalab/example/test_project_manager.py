@@ -4,19 +4,19 @@ from openalea.vpltk.qt import QtGui
 from openalea.oalab.service.applet import get_applet
 from openalea.oalab.widget.mainwindow import MainWindow
 from openalea.oalab.session.session import Session
-from openalea.core.plugin import iter_plugins
+from openalea.core.service.plugin import plugins
 from openalea.core.service.ipython import interpreter
 
 if __name__ == '__main__':
     instance = QtGui.QApplication.instance()
-    if instance is None :
+    if instance is None:
         app = QtGui.QApplication([])
-    else :
+    else:
         app = instance
 
     session = Session()
     mainwin = MainWindow(session)
-    for plugin in iter_plugins('oalab.applet'):
+    for plugin in plugins('oalab.applet'):
         if plugin.name in ('ProjectManager', 'EditorManager'):
             mainwin.add_plugin(plugin())
 
@@ -32,7 +32,7 @@ if __name__ == '__main__':
     mainwin.show()
     mainwin.raise_()
 
-    if instance is None :
+    if instance is None:
         app.exec_()
 
 """

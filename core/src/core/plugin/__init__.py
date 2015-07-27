@@ -14,6 +14,7 @@ Generally, a plugin code looks like:
     class PluginMyApplet(object):
         name = 'MyApplet'
         alias = 'My Applet'
+        __plugin__ = True
 
         def __call__(self):
             from mypackage.gui.applet.myapplet import MyApplet

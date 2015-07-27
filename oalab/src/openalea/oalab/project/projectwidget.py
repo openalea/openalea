@@ -50,7 +50,7 @@ class SelectCategory(QtGui.QWidget):
         if categories is None:
             categories = Project.DEFAULT_CATEGORIES.keys()
         if dtypes is None:
-            dtypes = [plugin.default_name for plugin in plugins('oalab.plugin', interface='IParadigmApplet')]
+            dtypes = [plugin.default_name for plugin in plugins('oalab.plugin', criteria=dict(implement='IParadigmApplet'))]
             dtypes.append('Other')
         self.categories = categories
 

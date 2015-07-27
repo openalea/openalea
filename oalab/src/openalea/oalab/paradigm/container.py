@@ -53,11 +53,10 @@ class ParadigmContainer(QtGui.QTabWidget):
         self.paradigms = {}
         self._new_file_actions = {}
         self.paradigms_actions = []
-        for plugin_class in plugins('oalab.plugin', interface='IParadigmApplet'):
-            plugin = plugin_class()
+        for plugin in plugins('oalab.plugin', criteria=dict(implement='IParadigmApplet')):
             paradigm_applet = debug_plugin('oalab.plugin', func=plugin)
             if paradigm_applet:
-                self.paradigms[plugin_class.name] = paradigm_applet
+                self.paradigms[plugin.name] = paradigm_applet
 
         self._open_objects = {}
 
@@ -397,7 +396,7 @@ class ParadigmContainer(QtGui.QTabWidget):
     def add(self, project, name, code, dtype=None, category=None):
         if dtype is None:
 
-            dtypes = [ModelClass.default_name for ModelClass in plugins('oalab.modelclass')]
+            dtypes = [pl.default_name for pl in plugins('openalea.core', criteria=dict(implement='IModel'))]
         else:
             dtypes = [dtype]
 

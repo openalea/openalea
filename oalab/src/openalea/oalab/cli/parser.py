@@ -104,7 +104,8 @@ class CommandLineParser(object):
                                 continue
                             print '  implements: \033[91m%s\033[0m' % group
                             for plugin in plugins:
-                                print '    - \033[93m%s \033[90m%s:%s\033[0m' % (plugin_name(plugin), plugin.__module__, plugin.__name__)
+                                p_class = plugin.__class__
+                                print '    - \033[93m%s \033[90m%s:%s\033[0m' % (plugin_name(plugin), p_class.__module__, p_class.__name__)
                                 if args.verbose:
                                     print '        plugin: %s, egg: %s\n        path: %s' % (
                                         ep.name, ep.dist.egg_name(), ep.dist.location)
