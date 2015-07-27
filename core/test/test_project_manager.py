@@ -1,3 +1,5 @@
+import shutil
+import sys
 
 from openalea.core.unittest_tools import TestCase, EventTracker
 from openalea.core.path import tempdir
@@ -5,7 +7,12 @@ from openalea.core.path import path as Path
 from openalea.core.project.project import Project
 from openalea.core.project.manager import ProjectManager
 
+
+# used to test symlinks only on unix systems
+win = 'win' in sys.platform
+
 pm = ProjectManager()
+pm.count = 0
 ev = EventTracker()
 # ev.debug = True
 pm.register_listener(ev)
@@ -16,7 +23,6 @@ def get_data(filename):
 
 
 class TestProjectManager(TestCase):
-
     def setUp(self):
         self.tmpdir = tempdir()
         self.tmpdir2 = tempdir()
@@ -27,6 +33,7 @@ class TestProjectManager(TestCase):
         ev.events  # clear events
 
     def tearDown(self):
+        pm.close()
         self.tmpdir.rmtree()
         self.tmpdir2.rmtree()
 
@@ -47,7 +54,8 @@ class TestProjectManager(TestCase):
         project = Project(self.tmpdir / 'p2')
         project.save()
 
-        project.path.symlink(self.tmpdir / 'link')
+        if not win:
+            project.path.symlink(self.tmpdir / 'link')
 
         project = Project(self.tmpdir2 / 'p1', alias="Project 1")
         project.save()
@@ -55,7 +63,8 @@ class TestProjectManager(TestCase):
         project = Project(self.tmpdir2 / 'p3')
         project.save()
 
-        project.path.symlink(self.tmpdir2 / 'link')
+        if not win:
+            project.path.symlink(self.tmpdir2 / 'link')
 
     def test_create_project_from_manager(self):
         proj = pm.create('new_temp_project', projectdir=self.tmpdir)
@@ -70,14 +79,18 @@ class TestProjectManager(TestCase):
         pm.discover()
 
         directories = sorted([str(path.name) for path in self.tmpdir.listdir()])
-        project_dirs = sorted([str(project.path.name) for project in pm.projects])
+        project_dirs = sorted(
+            [str(project.path.name) for project in pm.projects])
 
         # Check that we discover projects in the right repository (tmpdir)
         for project in pm.projects:
             self.assertEqual(project.projectdir, self.tmpdir)
 
         # Check all directory have been created
-        self.assertListEqual(directories, ['link', 'p1', 'p2'])
+        if win:
+            self.assertListEqual(directories, ['p1', 'p2'])
+        else:
+            self.assertListEqual(directories, ['link', 'p1', 'p2'])
 
         # Check symlink has been replaced by right path
         # And check projects are not appended twice

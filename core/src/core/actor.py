@@ -18,7 +18,6 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-
 class IActor(object):
     """Interface to emulate a function
 

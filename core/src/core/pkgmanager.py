@@ -350,7 +350,7 @@ class PackageManager(Observed):
         # Ensure to add a non existing path
         for p in container:
             common = os.path.commonprefix((p, path))
-            # the path is already in wraleapth
+            # the path is already in wralepath
             if (common == p and os.path.join(common, path[len(common):]) == path):
                 return
             # the new path is more generic, we keep it
