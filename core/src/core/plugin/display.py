@@ -45,16 +45,16 @@ def format_criterion(criterion, value, indent=0):
         return '%s%s = %s' % (istr, criterion, value)
 
 
-def list_plugins(prefixes, verbose=False):
+def list_plugins(lst, verbose=False):
     from openalea.core.plugin.manager import PluginManager
     pm = PluginManager()
     import pkg_resources
     from openalea.core.plugin import iter_groups
 
-    if prefixes in ['summary', 'all']:
+    if lst in ['summary', 'all']:
         prefixes = ['oalab', 'vpltk', 'openalea']
     else:
-        prefixes = [prefixes]
+        prefixes = [lst]
     for group in sorted(iter_groups()):
         match = False
         for prefix in prefixes:
@@ -63,7 +63,7 @@ def list_plugins(prefixes, verbose=False):
                 break
         if match:
             eps = [ep for ep in pkg_resources.iter_entry_points(group)]
-            if list_plugins == 'summary':
+            if lst == 'summary':
                 print '\n\033[91m%s\033[0m (%d plugins)' % (group, len(eps))
                 for ep in eps:
                     parts = [str(s) for s in (ep.module_name, ep.name)]

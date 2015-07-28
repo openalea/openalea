@@ -59,7 +59,7 @@ class CommandLineParser(object):
 
         if args.list_plugins:
             self.session.gui = False
-            list_plugins(prefixes=args.list_plugins, verbose=args.verbose)
+            list_plugins(args.list_plugins, verbose=args.verbose)
 
         if args.debug_plugins:
             debug = args.debug_plugins.split(',')
