@@ -93,24 +93,24 @@ setup(
 
 
         'oalab.applet': [
-            'OpenAleaLabApplet = openalea.oalab.plugin.builtin.applet',
+            'oalab.applet/oalab = openalea.oalab.plugin.builtin.applet',
         ],
 
         'oalab.plugin': [
-            'PluginOpenAleaLab = openalea.oalab.plugin.builtin.oalab',
-            'PluginVisualeaWidgetSelectors = openalea.oalab.plugin.builtin.oalab.visualea_control:PluginVisualeaWidgetSelectors',
+            'oalab/oalab.core = openalea.oalab.plugin.builtin.oalab',
+            'oalab/oalab.core.visualea = openalea.oalab.plugin.builtin.oalab.visualea_control:PluginVisualeaWidgetSelectors',
         ],
 
         'oalab.lab': [
-            'OpenAleaLabs = openalea.oalab.plugin.builtin.lab',
+            'oalab.lab/oalab = openalea.oalab.plugin.builtin.lab',
         ],
 
         'openalea.core': [
-            'OpenAleaLabOpenAleaCorePlugin = openalea.oalab.plugin.builtin.core',
+            'openalea.core/oalab = openalea.oalab.plugin.builtin.core',
         ],
 
         'openalea.interface': [
-            'OpenAleaLabOpenAleaInterfacePlugin = openalea.oalab.plugin.builtin.interface',
+            'openalea.interface/oalab = openalea.oalab.plugin.builtin.interface',
         ],
 
         'wralea': [

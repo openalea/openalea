@@ -70,7 +70,7 @@ setup(
         "console_scripts": ["alea = openalea.core.alea:main"],
 
         'openalea.core': [
-            'OpenAleaBuiltin = openalea.core.plugin.builtin',
+            'openalea.core/openalea = openalea.core.plugin.builtin',
         ],
     },
 

@@ -27,7 +27,7 @@ Once this class has been written, just register it in the setup.py file of your 
 
     entry_points={
         'oalab.applet': [
-            'MyApplet = mypackage.plugin.applet', # read all plugins defined in this module ...
+            'oalab.applet/mypackage = mypackage.plugin.applet', # read all plugins defined in this module ...
             ]
         }
 
