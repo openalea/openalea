@@ -25,15 +25,8 @@ __all__ = ['CommandLineParser']
 import os
 import argparse
 
-from openalea.core.service.plugin import plugin_implementation, plugin_name
-
-
-def print_plugin_name(plugin):
-    interface = plugin_implementation(plugin)
-    if interface:
-        print '%s (implements: %s)' % (plugin_name(plugin), interface)
-    else:
-        print plugin_name(plugin)
+from openalea.core.service.plugin import plugin_name
+from openalea.core.plugin.display import list_plugins
 
 
 class CommandLineParser(object):
@@ -65,53 +58,8 @@ class CommandLineParser(object):
             os.environ['OA_CLICOLOR'] = '1'
 
         if args.list_plugins:
-            from openalea.core.plugin.manager import PluginManager
-            pm = PluginManager()
             self.session.gui = False
-            import pkg_resources
-            from openalea.core.plugin import iter_groups
-
-            if args.list_plugins in ['summary', 'all']:
-                prefixes = ['oalab', 'vpltk', 'openalea']
-            else:
-                prefixes = [args.list_plugins]
-            for category in sorted(iter_groups()):
-                match = False
-                for prefix in prefixes:
-                    if category.startswith(prefix):
-                        match = True
-                        break
-                if match:
-                    eps = [ep for ep in pkg_resources.iter_entry_points(category)]
-                    if args.list_plugins == 'summary':
-                        print '\n\033[91m%s\033[0m (%d plugins)' % (category, len(eps))
-                        for ep in eps:
-                            parts = [str(s) for s in (ep.module_name, ep.name)]
-                            identifier = ':'.join(parts)
-                            print '  - %s \033[90m%s (%s)\033[0m' % (ep.name, identifier, ep.dist.egg_name())
-                    else:
-                        print '\033[44m%s\033[0m' % category
-                        UNDEF = 'Not defined'
-                        plugin_groups = {UNDEF: []}
-                        for plugin in pm.plugins(category):
-                            interface = plugin_implementation(plugin)
-                            if interface:
-                                plugin_groups.setdefault(interface, []).append(plugin)
-                            else:
-                                plugin_groups[UNDEF].append(plugin)
-                        for group, plugins in plugin_groups.items():
-                            if not plugins:
-                                continue
-                            print '  implements: \033[91m%s\033[0m' % group
-                            for plugin in plugins:
-                                p_class = plugin.__class__
-                                print '    - \033[93m%s \033[90m%s:%s\033[0m' % (plugin_name(plugin), p_class.__module__, p_class.__name__)
-                                if args.verbose:
-                                    print '        plugin: %s, egg: %s\n        path: %s' % (
-                                        ep.name, ep.dist.egg_name(), ep.dist.location)
-
-                        print
-                        print
+            list_plugins(prefixes=args.list_plugins, verbose=args.verbose)
 
         if args.debug_plugins:
             debug = args.debug_plugins.split(',')

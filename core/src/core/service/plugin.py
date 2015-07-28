@@ -3,7 +3,7 @@
 import weakref
 from openalea.core.singleton import Singleton
 from openalea.core.plugin.manager import PluginManager, get_implementation
-from openalea.core.plugin.plugin import plugin_name, plugin_implement, plugin_implementation
+from openalea.core.plugin.plugin import plugin_name
 from openalea.core import logger
 
 
@@ -105,15 +105,13 @@ class PluginInstanceManager(object):
             pass
 
     def _function(self, group, name):
-        if group not in self.pm._plugin:
-            self.pm._load_plugins(group)
-            plugin = plugin_class()
-            try:
-                function = plugin.implementation
-            except TypeError, e:
-                raise enhanced_error(e, plugin=plugin, plugin_class=plugin.__class__)
+        plugin = self.pm.plugin(group, name)
+        try:
+            function = plugin.implementation
+        except TypeError, e:
+            raise enhanced_error(e, plugin=plugin, plugin_class=plugin.__class__)
 
-            return function
+        return function
 
     def _new(self, group, name, class_args=None, class_kwds=None):
         plugin = self.pm.plugin(group, name)

@@ -1,10 +1,11 @@
 import inspect
 from openalea.core.service.plugin import plugins, plugin, register_plugin
 
+
 class PluginFunctor(object):
 
     @staticmethod
-    def factory(group, *tags, **criteria):
+    def factory(group, default=None, *tags, **criteria):
 
         class PluginFunctorSingleton(PluginFunctor):
             _group = group
@@ -12,7 +13,10 @@ class PluginFunctor(object):
             _criteria = criteria
             _aliases = dict()
 
-        return PluginFunctorSingleton()
+        functor = PluginFunctorSingleton()
+        if default:
+            functor.plugin = default
+        return functor
 
     def __contains__(self, name):
         if not name in self._aliases:
@@ -59,12 +63,15 @@ class PluginFunctor(object):
         else:
             raise TypeError('\'plugin\' parameter')
 
+
 def get_plugin(self):
     return self._plugin
+
 
 def set_plugin(self, name):
     self._plugin = name
     self.__class__.__call__ = staticmethod(self[self._plugin].implementation)
+
 
 def plugin_doc(plugin_func):
     __doc__ = ['Implemented plugins:']

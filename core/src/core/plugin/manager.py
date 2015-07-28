@@ -50,20 +50,6 @@ def get_implementation(plugin):
         return plugin()
 
 
-def plugin_implement(plugin, interface):
-    if hasattr(plugin, 'implement') and interface == plugin.implement:
-        return True
-    else:
-        return False
-
-
-def plugin_implementation(plugin):
-    if hasattr(plugin, 'implement'):
-        return plugin.implement
-    else:
-        return None
-
-
 def plugin_name(plugin):
     return plugin.name if hasattr(plugin, 'name') else plugin.__class__.__name__
 
@@ -146,6 +132,8 @@ class PluginManager(object):
             plugin.tags = []
         if not hasattr(plugin, "implementation"):
             plugin.__class__.implementation = property(fget=get_implementation)
+        if not hasattr(plugin, "name_conversion"):
+            plugin.name_conversion = 2
 
     def add_plugin(self, group, plugin, plugin_proxy=None, **kwds):
         """

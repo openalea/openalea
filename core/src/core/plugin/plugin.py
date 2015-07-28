@@ -34,17 +34,6 @@ import sys
 
 from openalea.core.factory import AbstractFactory
 
-def plugin_implement(plugin, interface):
-    return interface in plugin_implementation(plugin)
-
-
-def plugin_implementation(plugin):
-    if hasattr(plugin, 'implement'):
-        implement = plugin.implement
-        return implement
-    else:
-        return None
-
 def plugin_name(plugin):
     return plugin.name if hasattr(plugin, 'name') else plugin.__name__
 
@@ -166,5 +155,4 @@ class PluginDef(object):
 
   def __new__(self, klass):
     klass.__plugin__ = True
-    klass.plugin_name = self.LOWER_CASE
     return klass
