@@ -127,6 +127,7 @@ class TestProject(unittest.TestCase):
         d2 = Data(path=get_data('model.py'))
         assert(d1.is_same_data(d2) is False)
         assert(d2.is_same_data(d1) is False)
-        self.assertEqual(d1.read(), "print 'hello world'\n")
-        self.assertEqual(d2.read(), "print 'hello world'\n")
+        # need to use strip to avoid \n vs \r\n problems
+        self.assertEqual(d1.read().strip(), "print 'hello world'")
+        self.assertEqual(d2.read().strip(), "print 'hello world'")
         self.assertEqual(d1.filename, d2.filename)

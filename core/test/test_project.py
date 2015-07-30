@@ -151,7 +151,8 @@ class TestProject(TestCase):
         m3 = self.project.add('model', path=sample)
         assert str(m3.filename) == 'model.py'
         assert m3.path == self.project.path / 'model' / 'model.py'
-        self.assertEqual(m3.read(), code)
+        # added strip to avoid problems with end of lines on windows
+        self.assertEqual(m3.read().strip(), code.strip())
         events = self.ev.events
         self.check_events(events, ['data_added', 'project_changed'])
 
@@ -194,7 +195,8 @@ class TestProject(TestCase):
         # assert proj2.control["my_integer"] == 42
         # assert proj2.control["my_float"] == 3.14
         self.assertEqual(proj2.model["plop.py"].read(), "print 'plop world'")
-        self.assertEqual(proj2.model["model.py"].read(), "print 'hello world'\n")
+        # added strip to avoid trouble with end of lines on windows
+        self.assertEqual(proj2.model["model.py"].read().strip(), "print 'hello world'")
 
     def test_get_model(self):
         self.project.add("model", filename="1.py",)
