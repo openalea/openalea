@@ -22,9 +22,9 @@ class QtControlEditor(QtGui.QWidget):
         self._control = control
 
 
-def widget_alias(widget):
-    if hasattr(widget, 'alias'):
-        return widget.alias
+def widget_label(widget):
+    if hasattr(widget, 'label'):
+        return widget.label
     elif hasattr(widget, 'name'):
         return str(widget.name)
     else:
@@ -55,27 +55,27 @@ class ControlEditor(QtGui.QWidget, Ui_ControlEditor):
 
         self.tooltips = {}
 
-        self.alias_to_iname = {}
+        self.label_to_iname = {}
 
-        self.alias_to_wname = {}
-        self.widget_to_alias = {}
+        self.label_to_wname = {}
+        self.widget_to_label = {}
 
         plugins = qt_widget_plugins()
         for iname in plugins:
-            alias = interface_label(iname)
-            self.alias_to_iname[alias] = iname
-            self.tooltips[iname] = '<b>%s</b><br />Interface name:%s' % (alias, iname)
+            label = interface_label(iname)
+            self.label_to_iname[label] = iname
+            self.tooltips[iname] = '<b>%s</b><br />Interface name:%s' % (label, iname)
 
-        for alias in sorted(self.alias_to_iname):
-            iname = self.alias_to_iname[alias]
+        for label in sorted(self.label_to_iname):
+            iname = self.label_to_iname[label]
             self._interfaces.append(iname)
             tooltip = self.tooltips[iname]
 
-            item = QtGui.QListWidgetItem(alias)
+            item = QtGui.QListWidgetItem(label)
             item.setToolTip(tooltip)
             item.setStatusTip(tooltip)
 
-            self.cb_interface.addItem(alias)
+            self.cb_interface.addItem(label)
 
         self.cb_interface.currentIndexChanged.connect(self.refresh)
         self.cb_widget.currentIndexChanged.connect(self.on_widget_changed)
@@ -113,7 +113,7 @@ class ControlEditor(QtGui.QWidget, Ui_ControlEditor):
             if pixmap.width() >= 400 or pixmap.height() >= 400:
                 pixmap = pixmap.scaled(400, 400, QtCore.Qt.KeepAspectRatio)
             self.widget_preview.setPixmap(pixmap)
-            self.l_widget.setToolTip('<b>%s</b><br /><img src="%s" width="200" />' % (widget_alias(plugin), icon_path))
+            self.l_widget.setToolTip('<b>%s</b><br /><img src="%s" width="200" />' % (widget_label(plugin), icon_path))
         else:
             self.widget_preview.setText("No preview")
 
@@ -142,20 +142,20 @@ class ControlEditor(QtGui.QWidget, Ui_ControlEditor):
         self.cb_widget.clear()
         self.widget_plugins = []
 
-        self.alias_to_wname = {}
+        self.label_to_wname = {}
 
         editors = qt_widget_plugins(iname)
         for widget in editors:
             self.widget_plugins.append(widget)
-            alias = widget_alias(widget)
-            self.alias_to_wname[alias] = widget.name
-            self.cb_widget.addItem(alias)
+            label = widget_label(widget)
+            self.label_to_wname[label] = widget.name
+            self.cb_widget.addItem(label)
 
     def control(self):
         iname = self._interfaces[self.cb_interface.currentIndex()]
         control = Control(self.e_name.text(), iname,
-                          widget=self.alias_to_wname[self.cb_widget.currentText()],
-                          constraints=self.constraints())
+                       widget=self.label_to_wname[self.cb_widget.currentText()],
+                       constraints=self.constraints())
         self.__class__.counters[iname] = self.__class__.counters.setdefault(iname, 0) + 1
         return control
 

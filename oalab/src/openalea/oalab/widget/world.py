@@ -280,7 +280,7 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
                     attribute['name'],
                     interface=attribute['interface'],
                     value=attribute['value'],
-                    alias=attribute['alias'],
+                    label=attribute['label'],
                     constraints=attribute['constraints']
                 )
                 manager.register_follower(attribute['name'], self._attribute_changed(world_object, attribute['name']))

@@ -219,9 +219,9 @@ class ControlWidgetSelectorPlugin(object):
     """
 
     controls = []
-    name = 'ControlWidget'
     icon_path = None
     implement = 'IWidgetSelector'
+    name_conversion = 1
 
     edit_shape = [] # ['hline', 'vline', 'small', 'large', 'responsive']
     view_shape = [] # ['hline', 'vline', 'small', 'large', 'responsive']

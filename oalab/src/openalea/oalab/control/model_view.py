@@ -232,7 +232,7 @@ class ControlModel(QtGui.QStandardItemModel, AbstractListener):
 
     def data(self, index, role):
         if role == QtCore.Qt.DisplayRole and index.column() == 0:
-            return unicode(self.control(index).alias)
+            return unicode(self.control(index).label)
         elif role == QtCore.Qt.DisplayRole and index.column() == 1:
             return unicode(self.control(index).value)
         else:

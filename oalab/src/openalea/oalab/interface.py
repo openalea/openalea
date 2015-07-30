@@ -30,7 +30,7 @@ class IColormap(IInterface):
                             (1.0, (1.0, 1.0, 1.0))])
 
     """
-    __alias__ = u'Colormap'
+    __label__ = u'Colormap'
 
     def __init__(self, **kargs):
         IInterface.__init__(self, **kargs)
@@ -57,7 +57,7 @@ class IIntRange(IInterface):
     (0, 255)
 
     """
-    __alias__ = u'Integer range'
+    __label__ = u'Integer range'
 
     def __init__(self, min=-2 ** 24, max=2 ** 24, **kargs):
         IInterface.__init__(self, **kargs)

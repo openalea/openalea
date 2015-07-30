@@ -67,7 +67,7 @@ class TestApplet(QtGui.QLineEdit):
 
 class TestAppletPlugin(object):
     name = 'TestApplet'
-    alias = 'Test Applet'
+    label = 'Test Applet'
 
     def __call__(self):
         return TestApplet

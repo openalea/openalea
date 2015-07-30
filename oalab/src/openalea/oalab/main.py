@@ -27,7 +27,7 @@ def launch_lab(plugin_class):
     from openalea.oalab.widget.splittablewindow import OALabMainWin
     from openalea.core.settings import get_openalea_home_dir
     from openalea.core.path import path as Path
-    from openalea.core.service.introspection import alias
+    from openalea.core.service.introspection import label
     from openalea.oalab.utils import qicon
 
     plugin = plugin_class()
@@ -47,7 +47,7 @@ def launch_lab(plugin_class):
     if hasattr(lab_class, "initialize"):
         lab_class.initialize()
     win.initialize()
-    win.setWindowTitle('OpenAleaLab "%s"' % alias(plugin))
+    win.setWindowTitle('OpenAleaLab "%s"' % label(plugin))
     win.showMaximized()
     win.raise_()
 

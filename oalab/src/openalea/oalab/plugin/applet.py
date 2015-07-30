@@ -22,7 +22,7 @@ For example Xyz -> HelpApplet
     class PluginXyz(object):
 
         name = 'Xyz'
-        alias = 'Xyz'
+        label = 'Xyz'
 
         def __call__(self):
             # Write your code here
@@ -107,7 +107,7 @@ For that purpose, we create a Plugin called HelpWidgetPlugin in helper package:
             # 2. Fill menus, actions, toolbars, ...
 
             # 1.
-                mainwindow.add_applet(applet, self.alias, area='inputs')
+                mainwindow.add_applet(applet, self.label, area='inputs')
 
             # 2.
             if applet.actions():
@@ -147,7 +147,7 @@ Details
 =======
 
 .. autoclass:: openalea.oalab.plugins.applet.IPluginApplet
-    :members: __call__, instance, name, alias
+    :members: __call__, instance, name, label
 
 .. autoclass:: openalea.oalab.plugins.applets.PluginApplet
     :members: __call__, instance, _fill_menu
@@ -253,7 +253,7 @@ class IPluginApplet(object):
     """
 
     name = 'AppletName'
-    alias = 'Applet alias'
+    label = 'Applet label'
 
     def __call__(self):
         """

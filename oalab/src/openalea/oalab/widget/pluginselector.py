@@ -21,7 +21,7 @@
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.oalab.widget.pages import WelcomePage
 from openalea.core.service.plugin import plugins
-from openalea.core.service.introspection import alias
+from openalea.core.service.introspection import label
 from openalea.oalab.utils import obj_icon, ModalDialog
 
 
@@ -34,7 +34,7 @@ class PluginSelector(WelcomePage):
         self._actions = {}
         self._sorted_actions = []
         for plugin_class in plugins(category):
-            action = QtGui.QAction(obj_icon(plugin_class), alias(plugin_class), self)
+            action = QtGui.QAction(obj_icon(plugin_class), label(plugin_class), self)
             action.triggered.connect(self._on_action_triggered)
             self._actions[action] = plugin_class
             self._sorted_actions.append(action)

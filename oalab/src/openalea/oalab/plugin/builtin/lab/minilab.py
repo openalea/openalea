@@ -43,7 +43,7 @@ class MiniLab(object):
     connections = []
 
     name = 'mini'
-    alias = 'IPython'
+    label = 'IPython'
     icon = 'oxygen_utilities-terminal.png'
     applets = ['EditorManager']
 

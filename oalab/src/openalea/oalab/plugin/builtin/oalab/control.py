@@ -56,8 +56,7 @@ class PluginIntSlider(ControlWidgetSelectorPlugin):
 class PluginIntWidgetSelector(ControlWidgetSelectorPlugin):
 
     controls = ['IInt']
-    name = 'IntWidgetSelector'
-    alias = 'Integer editor'
+    label = 'Integer editor'
     required = ['IInt.min', 'IInt.max']
     edit_shape = ['responsive']
     icon_path = shared_data(openalea.oalab, 'icons/IntWidgetSelector_hline.png')
@@ -71,8 +70,7 @@ class PluginIntWidgetSelector(ControlWidgetSelectorPlugin):
 class PluginFloatWidgetSelector(ControlWidgetSelectorPlugin):
 
     controls = ['IFloat']
-    name = 'FloatWidgetSelector'
-    alias = 'Float editor'
+    label = 'Float editor'
     required = ['IFloat.min', 'IFloat.max', 'IFloat.step']
     edit_shape = ['responsive']
     icon_path = shared_data(openalea.oalab, 'icons/IntWidgetSelector_hline.png')
@@ -86,8 +84,7 @@ class PluginFloatWidgetSelector(ControlWidgetSelectorPlugin):
 class PluginIntRangeWidgetSelector(ControlWidgetSelectorPlugin):
 
     controls = ['IIntRange']
-    name = 'IntRangeWidgetSelector'
-    alias = 'Int Range editor'
+    label = 'Int Range editor'
     required = ['IIntRange.min', 'IIntRange.max']
     edit_shape = ['responsive']
 
@@ -100,8 +97,7 @@ class PluginIntRangeWidgetSelector(ControlWidgetSelectorPlugin):
 class PluginColormapWidgetSelector(ControlWidgetSelectorPlugin):
 
     controls = ['IColormap']
-    name = 'IntColormapWidgetSelector'
-    alias = 'Colormap editor'
+    label = 'Colormap editor'
     required = []
     edit_shape = ['responsive']
     paint = True
@@ -115,7 +111,6 @@ class PluginColormapWidgetSelector(ControlWidgetSelectorPlugin):
 class PluginBoolWidgetSelector(ControlWidgetSelectorPlugin):
 
     controls = ['IBool']
-    name = 'BoolWidgetSelector'
     edit_shape = ['responsive']
 
     def __call__(self):
@@ -127,15 +122,8 @@ class PluginBoolWidgetSelector(ControlWidgetSelectorPlugin):
 class PluginStringWidgetSelector(ControlWidgetSelectorPlugin):
 
     controls = ['IStr']
-    name = 'StrWidgetSelector'
     edit_shape = ['hline', 'large', 'small']
 
     def __call__(self):
         from openalea.oalab.widget.control import StrLineEdit
         return StrLineEdit
-
-PluginOpenAleaLabWidgetSelectors = [
-    PluginBoolWidgetSelector,
-    PluginIntWidgetSelector,
-    PluginStringWidgetSelector,
-]

@@ -115,7 +115,7 @@ def qt_container(container, **kwargs):
         if editor:
             widget.editor[control] = weakref.ref(editor)
             widget.control[control.name] = control
-            layout.addRow(control.alias, editor)
+            layout.addRow(control.label, editor)
     return widget
 
 

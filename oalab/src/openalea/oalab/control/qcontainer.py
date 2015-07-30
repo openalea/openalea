@@ -45,8 +45,8 @@ class QControlContainer(QtCore.QObject, ControlContainer):
     def create_actions(self, parent):
         for control in self.controls():
             interface = control.interface
-            alias = control.alias
-            action = QtGui.QAction(alias, parent)
+            label = control.label
+            action = QtGui.QAction(label, parent)
             self._control[action] = control
             self._action[control] = action
             if'IBool' in str(interface.__class__):
