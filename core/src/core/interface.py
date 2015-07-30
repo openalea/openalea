@@ -31,6 +31,7 @@ import types
 
 
 class TypeInterfaceMap(dict):
+
     """
     Singleton class to map Interface with standard python type
     InterfaceWidgetMap inherits from dict class
@@ -52,7 +53,9 @@ class TypeInterfaceMap(dict):
 
         TypeNameInterfaceMap().declare_interface(str(interface), interface)
 
+
 class TypeNameInterfaceMap(dict):
+
     """
     Singleton class to map Interface Name with interface type
     InterfaceWidgetMap inherits from dict class
@@ -72,14 +75,16 @@ class TypeNameInterfaceMap(dict):
         if name and name not in self:
             self[name] = interface
 
+
 class IInterfaceMetaClass(type):
+
     """
     IInterface Metaclass
     Allow to register corresponding python type
     """
 
-
     all = [] # all interfaces
+
     def __new__(cls, name, bases, dict):
         newCls = type.__new__(cls, name, bases, dict)
         return newCls
@@ -101,8 +106,8 @@ class IInterfaceMetaClass(type):
 # Defaults interfaces
 
 
-
 class IInterface(object):
+
     """ Abstract base class for all interfaces """
     __metaclass__ = IInterfaceMetaClass
     __pytype__ = None
@@ -123,31 +128,36 @@ class IInterface(object):
         # self.label = kargs.get('label', None)
 
     def __repr__(self):
-        return self.__class__.__name__+'()'
+        return self.__class__.__name__ + '()'
 
 
 class IStr(IInterface):
+
     """ String interface """
 
     __pytype__ = types.StringType
     __color__ = color_palette.maroon
-    __alias__ = u'Short Text'
+    __label__ = u'Short Text'
 
     @classmethod
     def default(cls):
         return str()
 
+
 class ISlice(IInterface):
+
     """ String interface """
 
     __pytype__ = types.SliceType
     __color__ = color_palette.maroon
-    __alias__ = u'Slice'
+    __label__ = u'Slice'
+
 
 class IFileStr(IStr):
+
     """ File Path interface """
     __color__ = color_palette.maroon
-    __alias__ = u'File path'
+    __label__ = u'File path'
 
     def __init__(self, filter="All (*)", save=False, **kargs):
         IInterface.__init__(self, **kargs)
@@ -163,30 +173,35 @@ class IFileStr(IStr):
 
 
 class IDirStr(IStr):
+
     """ Directory Path interface """
-    __alias__ = u'Directory path'
+    __label__ = u'Directory path'
     pass
 
 
 class ITextStr(IStr):
+
     """ Long String interface """
-    __alias__ = u'Long text'
+    __label__ = u'Long text'
     pass
 
+
 class ICodeStr(IStr):
+
     """ Source code interface """
-    __alias__ = u'Code'
+    __label__ = u'Code'
     pass
 
 
 class IFloat(IInterface):
+
     """ Float interface """
 
     __pytype__ = types.FloatType
     __color__ = color_palette.blue
-    __alias__ = u'Float'
+    __label__ = u'Float'
 
-    def __init__(self, min= -2.**24, max=2.**24, step=1., **kargs):
+    def __init__(self, min=-2. ** 24, max=2. ** 24, step=1., **kargs):
         IInterface.__init__(self, **kargs)
         self.min = min
         self.max = max
@@ -201,8 +216,8 @@ class IFloat(IInterface):
         default_max = 2 ** 24
         default_step = 1.
         if (self.min == default_min and
-            self.max == default_max and
-            self.step == default_step):
+                self.max == default_max and
+                self.step == default_step):
             return self.__class__.__name__
         else:
             return 'IFloat(min=%d, max=%d, step=%f)' % \
@@ -210,12 +225,13 @@ class IFloat(IInterface):
 
 
 class IInt(IInterface):
+
     """ Int interface """
     __pytype__ = types.IntType
     __color__ = color_palette.blue
-    __alias__ = u'Integer ℤ'
+    __label__ = u'Integer ℤ'
 
-    def __init__(self, min= -2 ** 24, max=2 ** 24, step=1, **kargs):
+    def __init__(self, min=-2 ** 24, max=2 ** 24, step=1, **kargs):
         IInterface.__init__(self, **kargs)
         self.min = min
         self.max = max
@@ -233,8 +249,8 @@ class IInt(IInterface):
         default_max = 2 ** 24
         default_step = 1
         if (self.min == default_min and
-            self.max == default_max and
-            self.step == default_step):
+                self.max == default_max and
+                self.step == default_step):
             return self.__class__.__name__
         else:
             return 'IInt(min=%d, max=%d, step=%d)' % \
@@ -242,11 +258,12 @@ class IInt(IInterface):
 
 
 class IBool(IInterface):
+
     """ Bool interface """
 
     __pytype__ = types.BooleanType
     __color__ = color_palette.aqua
-    __alias__ = 'Boolean (True/False)'
+    __label__ = 'Boolean (True/False)'
 
     @classmethod
     def default(cls):
@@ -254,9 +271,10 @@ class IBool(IInterface):
 
 
 class IEnumStr(IStr):
+
     """ String enumeration """
     __color__ = color_palette.purple
-    __alias__ = 'Predefined texts'
+    __label__ = 'Predefined texts'
 
     def __init__(self, enum=[], **kargs):
         IInterface.__init__(self, **kargs)
@@ -267,45 +285,53 @@ class IEnumStr(IStr):
 
 
 class IRGBColor(IInterface):
+
     """ RGB Color """
     __color__ = color_palette.lime
-    __alias__ = 'Color (RGB)'
+    __label__ = 'Color (RGB)'
     pass
 
 
 class IDateTime(IInterface):
+
     """ DateTime """
     __color__ = color_palette.teal
-    __alias__ = 'Date'
+    __label__ = 'Date'
     pass
 
 
 class ITuple3(IInterface):
+
     """ Tuple3 """
     __color__ = color_palette.fuchsia
-    __alias__ = 'Triple'
+    __label__ = 'Triple'
 
     @classmethod
     def default(cls):
         return (None, None, None)
 
+
 class ITuple(IInterface):
+
     """ Tuple """
-    __alias__ = 'Tuple'
+    __label__ = 'Tuple'
     __pytype__ = types.TupleType
     __color__ = color_palette.fuchsia
 
+
 class IFunction(IInterface):
+
     """ Function interface """
     __color__ = color_palette.white
     __pytype__ = types.FunctionType
 
 
 class ISequence(IInterface):
+
     """ Sequence interface (list, tuple, ...) """
     __pytype__ = types.ListType
     __color__ = color_palette.green
-    __alias__ = 'Sequence'
+    __label__ = 'Sequence'
 
     @classmethod
     def default(cls):
@@ -313,10 +339,11 @@ class ISequence(IInterface):
 
 
 class IDict(IInterface):
+
     """ Dictionary interface """
     __pytype__ = types.DictType
     __color__ = color_palette.olive
-    __alias__ = 'Mapping key, value (dictionary)'
+    __label__ = 'Mapping key, value (dictionary)'
 
     @classmethod
     def default(cls):
@@ -325,14 +352,16 @@ class IDict(IInterface):
 
 
 class IData(IStr):
+
     """ Package data interface """
     __color__ = color_palette.silver
-    __alias__ = 'Data'
+    __label__ = 'Data'
 
 # Dictionary to map Interface with corresponding widget
 
 
 class InterfaceWidgetMap(dict):
+
     """
     Singleton class to map Interface with InterfaceWidget
     InterfaceWidgetMap inherits from dict class
@@ -357,6 +386,7 @@ class InterfaceWidgetMap(dict):
 
 
 class IWidgetMetaClass(type):
+
     """ InterfaceWidget Metaclass """
 
     def __init__(cls, name, bases, dic, **kargs):
@@ -366,6 +396,7 @@ class IWidgetMetaClass(type):
 
 
 class IInterfaceWidget(AbstractListener):
+
     """ Base class for widget associated to an interface """
 
     __metaclass__ = IWidgetMetaClass

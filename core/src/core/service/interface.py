@@ -183,7 +183,7 @@ def interface_default_value(interface):
 
 def interface_label(interface):
     interface = interface_class(interface)
-    if hasattr(interface, '__alias__'):
-        return interface.__alias__
+    if hasattr(interface, '__label__'):
+        return interface.__label__
     else:
         return str(interface)

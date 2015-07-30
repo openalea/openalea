@@ -83,7 +83,11 @@ def list_plugins(lst, verbose=False):
                     if not plugins:
                         continue
                     print '  implements: \033[91m%s\033[0m' % group
+                    plugin_names = {}
                     for plugin in plugins:
+                        plugin_names[plugin.name] = plugin
+                    for pl_name in sorted(plugin_names):
+                        plugin = plugin_names[pl_name]
                         p_class = plugin.__class__
                         print '    - \033[93m%s \033[90m%s:%s\033[0m' % (plugin_name(plugin), p_class.__module__, p_class.__name__)
                         if verbose:

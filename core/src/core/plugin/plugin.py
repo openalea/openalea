@@ -110,7 +110,7 @@ class IPlugin(object):
         """
 
     @property
-    def alias(self):
+    def label(self):
         """
         Human readable name
         """

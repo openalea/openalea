@@ -150,7 +150,7 @@ class PluginManager(object):
             plugin = plugin_proxy(plugin)
 
         self.patch_plugin(plugin)
-        self._plugin.setdefault(group, {})[plugin.name] = plugin
+        self._plugin.setdefault(group, {})[plugin.identifier] = plugin
         return plugin
 
     def add_plugins(self, plugins=None):
@@ -224,17 +224,11 @@ class PluginManager(object):
         plugin(self, group, name)
         -> return first plugin matching name, if not found, raises UnknownPluginError
         """
-        try:
-            plugins = self._plugin[group]
-        except KeyError:
-            self._plugin.setdefault(group, {})
-            self._load_plugins(group)
-            plugins = self._plugin[group]
-
-        if identifier in plugins:
+        plugins = self.plugins(group)
+        if identifier in self._plugin[group]:
             return self._plugin[group][identifier]
         else:
-            for pl in self.plugins(group):
+            for pl in plugins:
                 if pl.name == identifier:
                     return pl
             raise UnknownPluginError
@@ -298,7 +292,7 @@ class SimpleClassPluginProxy(object):
     By default, plugin name is "RealClass" name
 
     class ThirdPartyProxy(SimpleClassPluginProxy):
-        alias = property(fget=lambda self: self.klass.title)
+        label = property(fget=lambda self: self.klass.title)
 
     .. warning::
 

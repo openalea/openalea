@@ -13,7 +13,7 @@ Generally, a plugin code looks like:
 
     class PluginMyApplet(object):
         name = 'MyApplet'
-        alias = 'My Applet'
+        label = 'My Applet'
         __plugin__ = True
 
         def __call__(self):
