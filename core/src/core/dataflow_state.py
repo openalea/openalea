@@ -53,7 +53,6 @@ class DataflowState(object):
 
         # resume state
         self._state.update(save)
-        print self._state
 
     def is_ready_for_evaluation(self):
         """ Test wether the state contains enough information

@@ -1,6 +1,6 @@
 from nose.tools import assert_raises
 
-from openalea.core.dataflow import DataFlow, PortError
+from openalea.core.dataflow import DataFlow
 from openalea.core.dataflow_state import DataflowState
 from openalea.core.node import Node
 

@@ -189,7 +189,18 @@ class DataFlow(PropertyGraph):
                 if self.target_port(eid)==pid:
                     yield eid
 
-  ####################################################
+    def nb_connections(self, pid):
+        """ Compute number of edges connected to a given port.
+
+        args:
+            - pid (pid): id of port
+
+        return:
+            - int
+        """
+        return len(tuple(self.connected_edges(pid)))
+
+    ####################################################
     #
     #        local port concept
     #
