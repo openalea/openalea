@@ -1,9 +1,11 @@
-import unittest
 import os
 import sys
+import unittest
 
 from openalea.core.path import path as Path
 from openalea.core.path import tempdir
+from openalea.core.plugin.manager import PluginManager
+from openalea.core.service.plugin import new_plugin_instance, plugin_instance, plugin_instances, clear_plugin_instances
 
 
 class Algo(object):
@@ -80,9 +82,6 @@ def install_package():
 
     return tmppath, pythonpath
 
-from openalea.core.plugin.manager import PluginManager
-from openalea.core.service.plugin import new_plugin_instance, plugin_instance, plugin_instances, clear_plugin_instances
-
 
 class TestPluginManager(unittest.TestCase):
 
@@ -103,14 +102,18 @@ class TestPluginManager(unittest.TestCase):
         assert 'test.c1' in self.pm._plugin
 
     def test_module_plugin_def(self):
-        self.pm.plugins('test.c1')
-        assert 'MyPlugin1' in self.pm._plugin['test.c1']
-        assert 'MyPlugin2' in self.pm._plugin['test.c1']
+        assert self.pm.plugins('test.c1')
+
+        # check if right plugins have been found
+        assert self.pm.plugin('test.c1', 'MyPlugin1') is not None
+        assert self.pm.plugin('test.c1', 'MyPlugin2') is not None
 
     def test_manual_plugin_def(self):
-        self.pm.plugins('test.c2')
-        assert 'C2Plugin1' in self.pm._plugin['test.c2']
-        assert 'C2Plugin2' in self.pm._plugin['test.c2']
+        assert self.pm.plugins('test.c2')
+
+        # check if right plugins have been found
+        assert self.pm.plugin('test.c2', 'C2Plugin1') is not None
+        assert self.pm.plugin('test.c2', 'C2Plugin2') is not None
 
     def test_interface_filter(self):
         plugins = self.pm.plugins('test.c1')
