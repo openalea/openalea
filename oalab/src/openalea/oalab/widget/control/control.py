@@ -5,9 +5,11 @@ This module define Qt controls, ie QWidget able to edit control's values.
 For documentation, see :class:`~openalea.oalab.plugins.control`
 """
 
-from openalea.vpltk.qt import QtCore, QtGui
+from openalea.deploy.shared_data import shared_data
+import openalea.oalab
 from openalea.oalab.control.widget import AbstractQtControlWidget
 from openalea.oalab.widget.basic import QFloatSlider, QSpanSlider, QColormapBar
+from openalea.vpltk.qt import QtCore, QtGui
 
 
 class BoolCheckBox(QtGui.QCheckBox, AbstractQtControlWidget):
@@ -505,7 +507,8 @@ class ColormapRectangle(QColormapBar, AbstractQtControlWidget):
 
         self.value_changed_signal = self.valueChanged
 
-    def reset(self, value=dict(name='grey', color_points=dict([(0.0, (0.0, 0.0, 0.0)), (1.0, (1.0, 1.0, 1.0))])), **kwargs):
+    def reset(self, value=dict(name='grey', color_points=dict(
+            [(0.0, (0.0, 0.0, 0.0)), (1.0, (1.0, 1.0, 1.0))])), **kwargs):
         self.setValue(value)
 
     def read(self, control):
@@ -513,10 +516,6 @@ class ColormapRectangle(QColormapBar, AbstractQtControlWidget):
 
     def apply(self, control):
         AbstractQtControlWidget.apply(self, control)
-
-
-from openalea.deploy.shared_data import shared_data
-import tissuelab
 
 
 class ColormapSwitcher(QtGui.QWidget, AbstractQtControlWidget):
@@ -540,7 +539,7 @@ class ColormapSwitcher(QtGui.QWidget, AbstractQtControlWidget):
 
         colormap_names = []
         # colormaps_path = Path(shared_data(tissuelab, 'colormaps/grey.lut')).parent
-        colormaps_path = shared_data(tissuelab) / 'colormaps'
+        colormaps_path = shared_data(openalea.oalab) / 'colormaps'
         for colormap_file in colormaps_path.walkfiles('*.lut'):
             colormap_name = str(colormap_file.name[:-4])
             colormap_names.append(colormap_name)
@@ -575,7 +574,8 @@ class ColormapSwitcher(QtGui.QWidget, AbstractQtControlWidget):
 
         self.value_changed_signal = self.valueChanged
 
-    def reset(self, value=dict(name='grey', color_points=dict([(0.0, (0.0, 0.0, 0.0)), (1.0, (1.0, 1.0, 1.0))])), **kwargs):
+    def reset(self, value=dict(name='grey', color_points=dict(
+            [(0.0, (0.0, 0.0, 0.0)), (1.0, (1.0, 1.0, 1.0))])), **kwargs):
         self.setValue(value)
 
     def read(self, control):
@@ -595,8 +595,8 @@ class ColormapSwitcher(QtGui.QWidget, AbstractQtControlWidget):
     def updateColormap(self, colormap_index):
         self.colormap_name = self.combobox.itemText(colormap_index)
 
-        from tissuelab.gui.vtkviewer.colormap_utils import Colormap, colormap_from_file
-        colormap_path = shared_data(tissuelab, 'colormaps/' + self.colormap_name + '.lut')
+        from openalea.oalab.colormap.colormap_utils import colormap_from_file
+        colormap_path = shared_data(openalea.oalab, 'colormaps/' + self.colormap_name + '.lut')
 
         colormap = colormap_from_file(colormap_path, name=self.colormap_name)
         self.setValue(dict(name=self.colormap_name, color_points=colormap._color_points))
