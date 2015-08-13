@@ -36,7 +36,6 @@ def connect(old, new, sender_str, receiver_str, existing_connections):
                     pass
 
 
-@PluginDef
 class MiniLab(object):
     state = 'stopped'
     existing_connections = []  # list to store all created connections
@@ -205,3 +204,8 @@ class MiniLab(object):
     @classmethod
     def stop(cls, *args, **kwds):
         cls.state = "stopped"
+
+
+@PluginDef
+class IPythonLab(MiniLab):
+    name = 'ipython'

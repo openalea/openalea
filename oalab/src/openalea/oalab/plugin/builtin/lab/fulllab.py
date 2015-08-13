@@ -4,6 +4,7 @@ from openalea.oalab.plugin.builtin.lab.minilab import MiniLab
 
 class FullLab(MiniLab):
     name = 'full'
+    label = 'Full Lab'
 
     def __call__(self, mainwin=None):
         if mainwin is None:

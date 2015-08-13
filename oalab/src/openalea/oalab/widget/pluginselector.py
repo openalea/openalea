@@ -18,11 +18,10 @@
 #
 ###############################################################################
 
-from openalea.vpltk.qt import QtGui, QtCore
-from openalea.oalab.widget.pages import WelcomePage
 from openalea.core.service.plugin import plugins
-from openalea.core.service.introspection import label
 from openalea.oalab.utils import obj_icon, ModalDialog
+from openalea.oalab.widget.pages import WelcomePage
+from openalea.vpltk.qt import QtGui, QtCore
 
 
 class PluginSelector(WelcomePage):
@@ -33,10 +32,10 @@ class PluginSelector(WelcomePage):
 
         self._actions = {}
         self._sorted_actions = []
-        for plugin_class in plugins(category):
-            action = QtGui.QAction(obj_icon(plugin_class), label(plugin_class), self)
+        for plugin in plugins(category):
+            action = QtGui.QAction(obj_icon(plugin), plugin.label, self)
             action.triggered.connect(self._on_action_triggered)
-            self._actions[action] = plugin_class
+            self._actions[action] = plugin
             self._sorted_actions.append(action)
 
         self.set_actions(self._sorted_actions)
@@ -77,9 +76,7 @@ def select_plugin(category, parent=None, **kwargs):
 
 if __name__ == '__main__':
     import sys
-    import inspect
     from openalea.vpltk.qt import QtGui
-    from openalea.core.plugin import iter_groups
 
     instance = QtGui.QApplication.instance()
     if instance is None:

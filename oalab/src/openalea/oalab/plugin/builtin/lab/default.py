@@ -7,6 +7,7 @@ EmptyLab = MiniLab
 
 class DefaultLab(MiniLab):
     name = 'default'
+    label = "OpenAleaLab"
 
     # OLD API
     applets = [
