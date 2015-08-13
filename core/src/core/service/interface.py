@@ -5,8 +5,9 @@
 
 """
 
-from openalea.core.plugin.manager import PluginManager, get_implementation
 from openalea.core.interface import IInterface, TypeInterfaceMap
+from openalea.core.plugin.manager import PluginManager, get_implementation
+
 
 pm = PluginManager()
 
@@ -85,8 +86,8 @@ def interface_class(interface=None):
     # interface is a builtin type (int, float, ...)
     if isinstance(interface, type):
         type_to_iname = {}
-        for (typ, interface) in TypeInterfaceMap().items():
-            type_to_iname[typ] = [interface.__name__]
+        for (_typ, _interface) in TypeInterfaceMap().items():
+            type_to_iname[_typ] = [_interface.__name__]
 
         if interface in type_to_iname:
             return interface_class(type_to_iname[interface][0])
@@ -120,7 +121,7 @@ def interface_class(interface=None):
 
     # Nothing found
     else:
-        raise ValueError, 'Interface %s not found ' % repr(interface)
+        raise ValueError('Interface %s not found ' % repr(interface))
 
 
 def interface_name(interface=None):
@@ -162,9 +163,9 @@ def new_interface(interface=None, value=None, *args, **kwargs):
         if interfaces:
             return get_interface(interface[0], *args, **kwargs)
         else:
-            raise ValueError, 'Cannot infer interface from %s' % value
+            raise ValueError('Cannot infer interface from %s' % value)
     else:
-        raise ValueError, 'you must define at least one of interface or value'
+        raise ValueError('you must define at least one of interface or value')
 
 
 def interface_names(debug=False):
