@@ -22,7 +22,7 @@ This module define classes to manage drag and drop in a universal way: approach 
 It provides 2 main classes:
 
 DragHandler: knows how to transform python object to QMimeData and be able to create a drag action
-DropHandler: knows how to convert a QMimeData to a python object compatible with widget 
+DropHandler: knows how to convert a QMimeData to a python object compatible with widget
 DropSelector*: Widgets used if more than one drop type are available. Allow user to choose which drop type to use.
 """
 
@@ -30,9 +30,9 @@ import itertools
 
 from openalea.core.customexception import CustomException
 from openalea.oalab.mimedata import MimeCodecManager
-
-from openalea.vpltk.qt import QtGui, QtCore
 from openalea.oalab.utils import ModalDialog, make_error_dialog
+from openalea.vpltk.qt import QtGui, QtCore
+
 
 mcm = MimeCodecManager()
 
@@ -159,7 +159,7 @@ class DropHandler(object):
         for mimetype_in, mimetype_out in possible_conv[selected]:
             try:
                 data, kwds = mcm.qtdecode(source, mimetype_in, mimetype_out)
-            except CustomException, e:
+            except CustomException as e:
                 make_error_dialog(e)
             else:
                 kwds['mimedata'] = source
@@ -249,7 +249,7 @@ class DropHandler(object):
                 data, kwds = mcm.qtdecode(mimedata, mimetype_in, mimetype_out)
                 kwds['mimedata'] = mimedata
                 self._drop_callbacks[selected](data, **kwds)
-            except CustomException, e:
+            except CustomException as e:
                 make_error_dialog(e)
             else:
                 event.acceptProposedAction()

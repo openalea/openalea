@@ -1,6 +1,6 @@
 
+from openalea.oalab.service.drag_and_drop import encode, decode, reload_drag_and_drop_plugins
 from openalea.oalab.testing.mimedata import SampleCustomData
-from openalea.oalab.service.drag_and_drop import encode, decode
 
 
 def test_codec():

@@ -19,8 +19,9 @@
 ###############################################################################
 
 import itertools
-from openalea.core.singleton import Singleton
+
 from openalea.core.service.plugin import plugins
+from openalea.core.singleton import Singleton
 
 
 class MimeCodecManager(object):
@@ -34,7 +35,7 @@ class MimeCodecManager(object):
         self._registry_encode_plugin = {}
 
     def init(self):
-        for plugin in plugins('oalab.plugin', criteria=dict(interface='IQMimeCodec')):
+        for plugin in plugins('oalab.plugin', criteria=dict(implement='IQMimeCodec')):
             for k, v in plugin.qtdecode:
                 codec = (unicode(k), unicode(v))
                 self._registry_decode.add(codec)
