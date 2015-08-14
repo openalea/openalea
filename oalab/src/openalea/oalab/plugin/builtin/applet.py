@@ -108,6 +108,7 @@ class PkgManagerWidget(AppletPlugin):
         return PackageManagerTreeView
 
 
+@PluginDef
 class MplFigureWidget(AppletPlugin):
 
     name = 'FigureWidget'

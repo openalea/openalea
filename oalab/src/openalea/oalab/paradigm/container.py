@@ -203,6 +203,19 @@ class ParadigmContainer(QtGui.QTabWidget):
             ["Edit", "Text Edit", self.actionRunSelection, 0],
         ]
 
+    def toolbars(self):
+        tb_run = QtGui.QToolBar("Run")
+
+        tb_run.addActions([
+            self.actionRun,
+            self.actionAnimate,
+            self.actionStep,
+            self.actionStop,
+            self.actionInit,
+        ])
+
+        return [tb_run]
+
     def menu_actions(self):
         actions = []
         for menu in self.menus():

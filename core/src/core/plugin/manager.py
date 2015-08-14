@@ -23,14 +23,14 @@ See :meth:`PluginManager.set_proxy` and "plugin_proxy" parameter in :meth:`Plugi
 """
 
 import inspect
-
 from warnings import warn
-from openalea.core.singleton import Singleton
+
 from openalea.core import logger
+from openalea.core.plugin.plugin import PluginDef
 from openalea.core.service.introspection import name
+from openalea.core.singleton import Singleton
 from openalea.core.util import camel_case_to_lower
 
-from openalea.core.plugin.plugin import PluginDef
 
 __all__ = ['PluginManager']
 
@@ -199,7 +199,7 @@ class PluginManager(object):
                 plugin_class = ep.load()
             except KeyboardInterrupt:
                 logger.error('%s: error loading %s ' % (group, ep))
-            except Exception, e:
+            except Exception as e:
                 # never want a plugin load to kill the test run
                 # but we can't log here because the logger is not yet
                 # configured
@@ -231,7 +231,8 @@ class PluginManager(object):
             for pl in plugins:
                 if pl.name == identifier:
                     return pl
-            raise UnknownPluginError
+            args = dict(identifier=identifier, group=group)
+            raise UnknownPluginError("Plugin %(identifier)s not found in %(group)s" % args)
 
     def _sorted_plugins(self, plugins):
         plugin_dict = {}
@@ -268,7 +269,8 @@ class PluginManager(object):
                 continue
 
             # Check all criteria. If one criteria dont match, ignore plugin
-            if not all(hasattr(pl, criterion) and getattr(pl, criterion) == criteria[criterion] for criterion in criteria):
+            if not all(hasattr(pl, criterion) and getattr(pl, criterion)
+                       == criteria[criterion] for criterion in criteria):
                 continue
 
             valid_plugins.append(pl)

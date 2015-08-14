@@ -24,9 +24,9 @@ from openalea.core import settings
 from openalea.core.control.manager import ControlManager
 from openalea.core.observer import Observed, AbstractListener
 from openalea.core.path import path as Path
-from openalea.core.plugin import iter_plugins
 from openalea.core.project.project import Project
 from openalea.core.service.ipython import interpreter
+from openalea.core.service.plugin import plugins
 from openalea.core.settings import get_openalea_tmp_dir
 from openalea.core.singleton import Singleton
 
@@ -80,8 +80,8 @@ class ProjectManager(Observed, AbstractListener):
         repositories.add(Path(settings.get_project_dir()))
 
         # 2. Add project repositories defined by packages
-        for plugin in iter_plugins('oalab.project_repository'):
-            for repository in plugin():
+        for plugin in plugins('oalab.plugin', implement="ProjectRepositoryList"):
+            for repository in plugin:
                 repositories.add(repository)
 
         # 3. Read repositories defined by users and saved in config

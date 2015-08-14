@@ -30,6 +30,7 @@ from openalea.core.project import Project
 from openalea.core.project.manager import ProjectManager
 from openalea.core.service.data import DataClass, MimeType
 from openalea.core.service.plugin import plugin_instance_exists, plugin_instance, plugins
+from openalea.core.settings import get_default_home_dir
 from openalea.oalab.project.creator import CreateProjectWidget
 from openalea.oalab.project.pretty_preview import ProjectSelectorScroll
 from openalea.oalab.service.drag_and_drop import add_drag_format, encode_to_qmimedata
@@ -182,6 +183,12 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
             ["Project", "Manage", self.view.actionEditMeta, 1],
         ]
 
+    def toolbars(self):
+        actions = [action[2] for action in self.toolbar_actions()]
+        toolbar = QtGui.QToolBar("Project")
+        toolbar.addActions(actions)
+        return [toolbar]
+
     def menus(self):
         actions = [action[2] for action in self.toolbar_actions()]
         menu = QtGui.QMenu('File', self)
@@ -207,10 +214,10 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         for project in self.pm.projects:
             all_projects.setdefault(project.projectdir, []).append(project)
 
+        home = path(get_default_home_dir())
         for projectdir, projects in all_projects.iteritems():
-            title = unicode(projectdir.name)
-            if title == 'data':
-                title = 'Examples'
+            relpath = home.relpathto(projectdir)
+            title = unicode(relpath)
             menu = QtGui.QMenu(title, self.menu_available_projects)
             for project in projects:
                 icon_path = project.icon_path
