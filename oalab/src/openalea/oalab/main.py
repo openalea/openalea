@@ -19,8 +19,9 @@
 ###############################################################################
 
 import sys
-from openalea.oalab.cli.parser import CommandLineParser
+
 from openalea.core.service.plugin import debug_plugin, plugins
+from openalea.oalab.cli.parser import CommandLineParser
 
 
 def launch_lab(plugin_class):
@@ -98,7 +99,7 @@ def main():
 
         if win is None:
             from openalea.oalab.widget.pluginselector import select_plugin
-            plugin_class = select_plugin('oalab.lab', size=(400, 10), title='Select a Laboratory')
+            plugin_class = select_plugin('oalab.lab', title='Select a Laboratory')
             if plugin_class:
                 win = launch_lab(plugin_class)
 

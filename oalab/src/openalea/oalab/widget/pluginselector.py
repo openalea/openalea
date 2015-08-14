@@ -27,8 +27,10 @@ from openalea.vpltk.qt import QtGui, QtCore
 class PluginSelector(WelcomePage):
     pluginSelected = QtCore.Signal(object)
 
-    def __init__(self, category, parent=None):
-        WelcomePage.__init__(self, parent=parent)
+    def __init__(self, category, parent=None, style=None):
+        if style is None:
+            style = WelcomePage.STYLE_LARGE
+        WelcomePage.__init__(self, parent=parent, style=style)
 
         self._actions = {}
         self._sorted_actions = []
@@ -56,14 +58,15 @@ def select_plugin(category, parent=None, **kwargs):
         - size: tuple (width, height) [default: (640,480)]
         - title: unicode [default: "Select plugin"]
     """
-    size = kwargs.pop('size', (640, 480))
+    size = kwargs.pop('size', None)
+    style = kwargs.pop('style', None)
     title = kwargs.pop('title', 'Select plugin')
-    selector = PluginSelector(category)
+    selector = PluginSelector(category, style=style)
     selector.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-    selector.resize(*size)
+    if size:
+        selector.resize(*size)
     dialog = ModalDialog(selector, parent=parent, buttons=QtGui.QDialogButtonBox.Cancel)
     dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-    dialog.resize(*size)
     dialog.setWindowTitle(title)
     selector.pluginSelected.connect(dialog.accept)
     if dialog.exec_():

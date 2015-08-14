@@ -17,22 +17,20 @@
 ###############################################################################
 __revision__ = ""
 
-from openalea.vpltk.qt import QtCore, QtGui
-from openalea.core.service.plugin import debug_plugin, plugins
-
 from openalea.core import logger
-from openalea.oalab.widget.pages import WelcomePage
 from openalea.core import settings
-from openalea.core.path import path
-from openalea.oalab.widget import resources_rc  # do not remove this import else icon are not drawn
-from openalea.oalab.utils import qicon
-from openalea.core.project import ProjectManager, Project
-from openalea.oalab.project.projectwidget import SelectCategory
-from openalea.oalab.utils import ModalDialog
 from openalea.core.model import Model
-
-from openalea.oalab.service.applet import get_applet
+from openalea.core.path import path
+from openalea.core.project import ProjectManager, Project
 from openalea.core.service.data import DataFactory, DataClass, DataType, MimeType
+from openalea.core.service.plugin import debug_plugin, plugins
+from openalea.oalab.project.projectwidget import SelectCategory
+from openalea.oalab.service.applet import get_applet
+from openalea.oalab.utils import ModalDialog
+from openalea.oalab.utils import qicon
+from openalea.oalab.widget import resources_rc  # do not remove this import else icon are not drawn
+from openalea.oalab.widget.pages import WelcomePage
+from openalea.vpltk.qt import QtCore, QtGui
 
 
 class ParadigmContainer(QtGui.QTabWidget):
@@ -454,7 +452,7 @@ class ParadigmContainer(QtGui.QTabWidget):
         pm = get_applet(identifier='ProjectManager')
         if pm:
             actions = [pm.actionNewProj, pm.actionOpenProj]
-            welcomePage = WelcomePage(actions=actions, parent=self.parent())
+            welcomePage = WelcomePage(actions=actions, parent=self.parent(), style=WelcomePage.STYLE_MEDIUM)
             self.addTab(welcomePage, "Welcome")
 
     def addCreateFileTab(self):
@@ -462,7 +460,7 @@ class ParadigmContainer(QtGui.QTabWidget):
         Display a tab to select type of file that you can create
         """
         if self.paradigms_actions:
-            page = WelcomePage(actions=self.paradigms_actions)
+            page = WelcomePage(actions=self.paradigms_actions, style=WelcomePage.STYLE_MEDIUM)
             self.addTab(page, "Create File")
         else:
             self.addProjectTab()
