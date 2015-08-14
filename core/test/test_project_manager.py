@@ -1,11 +1,12 @@
 import shutil
 import sys
 
-from openalea.core.unittest_tools import TestCase, EventTracker
-from openalea.core.path import tempdir
 from openalea.core.path import path as Path
-from openalea.core.project.project import Project
+from openalea.core.path import tempdir
 from openalea.core.project.manager import ProjectManager
+from openalea.core.project.project import Project
+from openalea.core.unittest_tools import TestCase, EventTracker
+
 
 
 # used to test symlinks only on unix systems

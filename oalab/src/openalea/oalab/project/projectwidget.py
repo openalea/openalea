@@ -17,8 +17,11 @@
 #
 ###############################################################################
 
-from openalea.vpltk.qt import QtGui, QtCore
+"""
+TODO:
+    - use project known categories instead of hard coded 'model', 'src', ...
 
+"""
 from openalea.core import settings
 from openalea.core.observer import AbstractListener
 from openalea.core.path import path
@@ -26,20 +29,14 @@ from openalea.core.plugin import iter_plugins
 from openalea.core.project import Project
 from openalea.core.project.manager import ProjectManager
 from openalea.core.service.data import DataClass, MimeType
-
-from openalea.oalab.widget import resources_rc
-from openalea.oalab.utils import ModalDialog
-from openalea.oalab.utils import qicon
+from openalea.core.service.plugin import plugin_instance_exists, plugin_instance, plugins
 from openalea.oalab.project.creator import CreateProjectWidget
 from openalea.oalab.project.pretty_preview import ProjectSelectorScroll
 from openalea.oalab.service.drag_and_drop import add_drag_format, encode_to_qmimedata
-from openalea.core.service.plugin import plugin_instance_exists, plugin_instance, plugins
-
-"""
-TODO:
-    - use project known categories instead of hard coded 'model', 'src', ...
-
-"""
+from openalea.oalab.utils import ModalDialog
+from openalea.oalab.utils import qicon
+from openalea.oalab.widget import resources_rc
+from openalea.vpltk.qt import QtGui, QtCore
 
 
 class SelectCategory(QtGui.QWidget):
@@ -50,7 +47,11 @@ class SelectCategory(QtGui.QWidget):
         if categories is None:
             categories = Project.DEFAULT_CATEGORIES.keys()
         if dtypes is None:
-            dtypes = [plugin.default_name for plugin in plugins('oalab.plugin', criteria=dict(implement='IParadigmApplet'))]
+            dtypes = [
+                plugin.default_name for plugin in plugins(
+                    'oalab.plugin',
+                    criteria=dict(
+                        implement='IParadigmApplet'))]
             dtypes.append('Other')
         self.categories = categories
 
@@ -454,6 +455,7 @@ class ProjectManagerView(QtGui.QTreeView):
         if dialog.exec_():
             project = project_creator.project()
             self.pm.cproject = project
+            self.pm.write_settings()
 
     def open_all_scripts_from_project(self, project):
         if self.paradigm_container is not None:

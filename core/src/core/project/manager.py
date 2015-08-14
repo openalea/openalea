@@ -16,19 +16,19 @@
 #
 ###############################################################################
 
+from ConfigParser import NoSectionError, NoOptionError
 import os
 import sys
 
-from openalea.core.path import path as Path
 from openalea.core import settings
-from openalea.core.project.project import Project
-from openalea.core.singleton import Singleton
-from openalea.core.observer import Observed, AbstractListener
-from ConfigParser import NoSectionError, NoOptionError
-from openalea.core.plugin import iter_plugins
 from openalea.core.control.manager import ControlManager
+from openalea.core.observer import Observed, AbstractListener
+from openalea.core.path import path as Path
+from openalea.core.plugin import iter_plugins
+from openalea.core.project.project import Project
 from openalea.core.service.ipython import interpreter
 from openalea.core.settings import get_openalea_tmp_dir
+from openalea.core.singleton import Singleton
 
 
 class ProjectManager(Observed, AbstractListener):
@@ -40,6 +40,12 @@ class ProjectManager(Observed, AbstractListener):
 
     >>> from openalea.core.project import ProjectManager
     >>> project_manager = ProjectManager()
+
+
+    .. warning::
+
+      ProjectManager must not write settings itself.
+      Only user application should call these methods.
 
     """
     __metaclass__ = Singleton
@@ -123,10 +129,10 @@ class ProjectManager(Observed, AbstractListener):
 
         try:
             config.set("ProjectManager", "Last Project", str(self.previous_project))
-        except settings.NoSectionError, e:
+        except settings.NoSectionError as e:
             config.add_section("ProjectManager")
             config.add_option("ProjectManager", "Last Project", str(self.previous_project))
-        except settings.NoOptionError, e:
+        except settings.NoOptionError as e:
             config.add_option("ProjectManager", "Last Project", str(self.previous_project))
 
         config.write()
@@ -227,7 +233,6 @@ You can rename/move this project thanks to the button "Save As" in menu.
             projectdir = Path(projectdir).abspath()
             if projectdir not in self.repositories:
                 self.repositories.append(projectdir)
-                self.write_settings()
 
         project = Project(projectdir / name, **kwargs)
 
