@@ -1,10 +1,11 @@
 
 
 import weakref
-from openalea.core.singleton import Singleton
+
+from openalea.core import logger
 from openalea.core.plugin.manager import PluginManager, get_implementation
 from openalea.core.plugin.plugin import plugin_name
-from openalea.core import logger
+from openalea.core.singleton import Singleton
 
 
 def enhanced_error(error, **kwds):
@@ -12,7 +13,7 @@ def enhanced_error(error, **kwds):
     Add plugin information to given exception.
     By default, if a plugin fails, for example because a dependency cannot be imported,
     user get error message "ImportError: No module named mydep". This message is useless because we don't know
-    which plugin has failed. 
+    which plugin has failed.
 
     Once enhanced, error message become:
     "MyLab (mypackage.lab.mylab): ImportError: No module named mydep"
@@ -108,7 +109,7 @@ class PluginInstanceManager(object):
         plugin = self.pm.plugin(group, name)
         try:
             function = plugin.implementation
-        except TypeError, e:
+        except TypeError as e:
             raise enhanced_error(e, plugin=plugin, plugin_class=plugin.__class__)
 
         return function
@@ -123,12 +124,13 @@ class PluginInstanceManager(object):
 
         try:
             klass = plugin.implementation
-        except TypeError, e:
+        except TypeError as e:
             raise enhanced_error(e, plugin=plugin, plugin_class=plugin.__class__)
 
+        instance = klass(*class_args, **class_kwds)
         try:
             instance = klass(*class_args, **class_kwds)
-        except TypeError, e:
+        except TypeError as e:
             raise enhanced_error(e, plugin=plugin, plugin_class=klass)
         self.register(group, name, instance)
         return instance

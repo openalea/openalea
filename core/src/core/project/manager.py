@@ -80,8 +80,8 @@ class ProjectManager(Observed, AbstractListener):
         repositories.add(Path(settings.get_project_dir()))
 
         # 2. Add project repositories defined by packages
-        for plugin in plugins('oalab.plugin', implement="ProjectRepositoryList"):
-            for repository in plugin:
+        for plugin in plugins('oalab.plugin', criteria=dict(implement="ProjectRepositoryList")):
+            for repository in plugin():
                 repositories.add(repository)
 
         # 3. Read repositories defined by users and saved in config

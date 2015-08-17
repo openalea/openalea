@@ -50,6 +50,17 @@ def get_implementation(plugin):
         return plugin()
 
 
+def get_criteria(plugin):
+    criteria = {}
+    for criterion in dir(plugin):
+        if criterion.startswith('_'):
+            continue
+        elif criterion in ('implementation', 'name_conversion', 'identifier', 'tags', 'criteria'):
+            continue
+        criteria[criterion] = getattr(plugin, criterion)
+    return criteria
+
+
 def plugin_name(plugin):
     return plugin.name if hasattr(plugin, 'name') else plugin.__class__.__name__
 
@@ -134,6 +145,8 @@ class PluginManager(object):
             plugin.__class__.implementation = property(fget=get_implementation)
         if not hasattr(plugin, "name_conversion"):
             plugin.name_conversion = 2
+
+        plugin.__class__.criteria = property(fget=get_criteria)
 
     def add_plugin(self, group, plugin, plugin_proxy=None, **kwds):
         """

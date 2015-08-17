@@ -20,7 +20,7 @@ from openalea.core.service.plugin import plugin_name
 def can_display_criterion(criterion, value):
     if criterion.startswith('_'):
         return False
-    elif criterion in ('implementation', 'name', 'name_conversion', 'identifier', 'tags', 'implement'):
+    elif criterion in ('implementation', 'name', 'name_conversion', 'identifier', 'tags', 'implement', 'criteria'):
         return False
     return True
 
@@ -30,7 +30,8 @@ def format_criterion(criterion, value, indent=0):
     if criterion == 'authors':
         s = '%sauthors:\n' % istr
         for author in value:
-            s += istr + ' - %s (insitute: %s)\n' % (author.get('name', 'Anonymous'), author.get('institute', 'not defined'))
+            s += istr + ' - %s (insitute: %s)\n' % (author.get('name', 'Anonymous'),
+                                                    author.get('institute', 'not defined'))
         return s
     elif criterion == 'inputs':
         s = istr + 'f('
