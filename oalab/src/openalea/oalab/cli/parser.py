@@ -22,10 +22,9 @@
 
 __all__ = ['CommandLineParser']
 
-import os
 import argparse
+import os
 
-from openalea.core.service.plugin import plugin_name
 from openalea.core.plugin.display import list_plugins
 
 

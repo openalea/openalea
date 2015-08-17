@@ -28,7 +28,6 @@ from warnings import warn
 from openalea.core import logger
 from openalea.core.plugin.plugin import PluginDef
 from openalea.core.service.introspection import name
-from openalea.core.singleton import Singleton
 from openalea.core.util import camel_case_to_lower
 
 
@@ -100,13 +99,13 @@ def generate_plugin_id(plugin):
 
 class PluginManager(object):
 
-    __metaclass__ = Singleton
-
-    def __init__(self, plugins=None, plugin_proxy=None):
+    def __init__(self, plugins=None, plugin_proxy=None, autoload=['entry_points']):
         """
         :param plugins: list of plugins you want to add manually
         :param plugin_proxy: proxy class to use by default
         """
+        self._autoload = autoload
+
         self._plugin = {}  # dict group -> plugin name -> Plugin class or Plugin proxy
         self._plugin_proxy = {}
 
@@ -222,9 +221,10 @@ class PluginManager(object):
                 self._add_plugin_from_ep(group, ep, plugin_class, plugin_proxy)
 
     def _load_plugins(self, group, plugin_proxy=None):
-        from pkg_resources import iter_entry_points
-        for ep in iter_entry_points(group):
-            self._load_entry_point_plugin(group, ep, plugin_proxy=plugin_proxy)
+        if "entry_points" in self._autoload:
+            from pkg_resources import iter_entry_points
+            for ep in iter_entry_points(group):
+                self._load_entry_point_plugin(group, ep, plugin_proxy=plugin_proxy)
 
     def discover(self, group):
         self._load_plugins(group)

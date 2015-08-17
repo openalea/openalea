@@ -18,25 +18,23 @@
 #
 ###############################################################################
 
-import sys
 import json
+import sys
 import weakref
 
-
+import openalea.core
 from openalea.core.control import Control
+from openalea.core.path import path as Path
 from openalea.core.plugin.manager import PluginManager
+from openalea.core.service.ipython import interpreter
 from openalea.core.service.plugin import (new_plugin_instance, plugin_instances, plugin, plugins,
                                           plugin_instance, plugin_instance_exists)
-
 from openalea.oalab.control.qcontainer import QControlContainer
+from openalea.oalab.utils import ModalDialog, obj_icon, qicon, Splitter
 from openalea.oalab.widget.menu import ContextualMenu
 from openalea.oalab.widget.splitterui import SplittableUI, BinaryTree
-from openalea.oalab.utils import ModalDialog, obj_icon, qicon, Splitter
-
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.vpltk.qt.compat import tabposition_int, tabposition_qt
-
-import openalea.core
 
 
 def menu_actions(widget):
@@ -1063,7 +1061,6 @@ class OALabMainWin(QtGui.QMainWindow):
         self.splittable.set_edit_mode(mode)
 
     def initialize(self):
-        self.pm = PluginManager()
         for instance in plugin_instances('oalab.applet'):
             if hasattr(instance, 'initialize'):
                 instance.initialize()
@@ -1222,9 +1219,6 @@ class SplitterApplet(Splitter):
         dic = Splitter.properties(self)
         dic['applets'] = self._applets.keys()
         return dic
-
-from openalea.core.path import path as Path
-from openalea.core.service.ipython import interpreter
 
 
 class TestMainWin(OALabMainWin):

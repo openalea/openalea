@@ -14,7 +14,7 @@
 #
 ###############################################################################
 
-from openalea.core.service.plugin import plugin_name
+from openalea.core.plugin.plugin import plugin_name
 
 
 def can_display_criterion(criterion, value):
