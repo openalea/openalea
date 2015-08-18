@@ -1,15 +1,14 @@
 
-import unittest
-import subprocess
+
 import platform
-from openalea.core.unittest_tools import TestCase, EventTracker
+import subprocess
 
 from openalea.core.observer import AbstractListener
 from openalea.core.path import path as Path
 from openalea.core.path import tempdir
 from openalea.core.project import Project
 from openalea.core.service.data import DataFactory
-import re
+from openalea.core.unittest_tools import TestCase, EventTracker
 
 
 def get_data(filename):

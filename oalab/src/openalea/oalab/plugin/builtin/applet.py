@@ -139,8 +139,8 @@ class ProjectManager(AppletPlugin):
     icon = 'adwaita_accessories-dictionary.png'
 
     def __call__(self):
-        from openalea.oalab.project.projectwidget import ProjectManagerWidget
-        return ProjectManagerWidget
+        from openalea.oalab.project.projecteditor import ProjectEditorWidget
+        return ProjectEditorWidget
 
 
 @PluginDef

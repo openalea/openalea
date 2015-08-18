@@ -27,9 +27,9 @@ __all__ = [
 ]
 
 
-from openalea.core.plugin import iter_plugins
 from openalea.core.control.control import Control
 from openalea.core.control.manager import ControlManager, ControlContainer
+from openalea.core.plugin import iter_plugins
 
 
 def create_control(name, iname=None, value=None, constraints=None):
@@ -39,7 +39,7 @@ def create_control(name, iname=None, value=None, constraints=None):
     To track it, use register service.
     """
     if iname is None and value is None:
-        raise ValueError, 'You must define a least a value or an interface'
+        raise ValueError('You must define a least a value or an interface')
     control = Control(name, iname, value, constraints=constraints)
     return control
 
@@ -92,3 +92,7 @@ def group_controls(control_list):
 def clear_controls():
     cm = ControlManager()
     return cm.clear()
+
+
+def control_namespace():
+    return ControlManager().namespace()

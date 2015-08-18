@@ -26,6 +26,7 @@ import argparse
 import os
 
 from openalea.core.plugin.display import list_plugins
+from openalea.core.service.plugin import debug_plugins
 
 
 class CommandLineParser(object):
@@ -64,9 +65,7 @@ class CommandLineParser(object):
             debug = args.debug_plugins.split(',')
             if 'oalab.lab' not in debug:
                 debug.append('oalab.lab')
-            from openalea.core.service.plugin import PluginInstanceManager
-            pim = PluginInstanceManager()
-            pim.debug = debug
+            debug_plugins(debug)
 
         self.session.extension = args.extension
         self.args = args

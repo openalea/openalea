@@ -28,7 +28,6 @@ from openalea.core.project.project import Project
 from openalea.core.service.ipython import interpreter
 from openalea.core.service.plugin import plugins
 from openalea.core.settings import get_openalea_tmp_dir
-from openalea.core.singleton import Singleton
 
 
 class ProjectManager(Observed, AbstractListener):
@@ -48,7 +47,6 @@ class ProjectManager(Observed, AbstractListener):
       Only user application should call these methods.
 
     """
-    __metaclass__ = Singleton
 
     def __init__(self):
         Observed.__init__(self)
@@ -66,8 +64,7 @@ class ProjectManager(Observed, AbstractListener):
         self.previous_project = "temp"
 
         self.shell = interpreter()
-        # TODO Search in preference file if user has path to append in self.repositories
-        self.cproject = self.default()
+        self.cproject = None
 
     @staticmethod
     def search_path():
@@ -246,7 +243,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
             project = projects[0]
         else:
             project = self.default()
-        self.cproject = project
+        return project
 
     def load(self, name, projectdir=None, **kwargs):
         """
@@ -310,6 +307,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         signal, data = event
         if signal == 'project_changed':
             self.notify_listeners(('project_updated', self))
+            self.update_namespace(self.shell)
 
     def _close_project(self):
         os.chdir(self._cwd)
@@ -328,6 +326,11 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
     @cproject.setter
     def cproject(self, project):
+        print >> sys.__stdout__, "*" * 120
+        print >> sys.__stdout__, self._cproject, '->', project
+        import traceback
+        traceback.print_stack(file=sys.__stdout__)
+
         if project is self._cproject:
             if project and not project.started:
                 self.notify_listeners(('start_project', self))

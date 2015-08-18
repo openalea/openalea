@@ -7,6 +7,10 @@ PM = PluginManager()
 PIM = PluginInstanceManager(PM)
 
 
+def debug_plugins(debug='all'):
+    PM.debug = debug
+    PIM.debug = debug
+
 plugin = PM.plugin
 plugins = PM.plugins
 

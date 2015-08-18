@@ -26,10 +26,10 @@ from openalea.core import settings
 from openalea.core.observer import AbstractListener
 from openalea.core.path import path
 from openalea.core.plugin import iter_plugins
-from openalea.core.project import Project
-from openalea.core.project.manager import ProjectManager
 from openalea.core.service.data import DataClass, MimeType
+from openalea.core.service.plugin import debug_plugin, plugins
 from openalea.core.service.plugin import plugin_instance_exists, plugin_instance, plugins
+from openalea.core.service.project import write_project_settings, default_project, projects
 from openalea.core.settings import get_default_home_dir
 from openalea.oalab.project.creator import CreateProjectWidget
 from openalea.oalab.project.pretty_preview import ProjectSelectorScroll
@@ -123,19 +123,16 @@ class RenameModel(QtGui.QWidget):
         return self.combo.currentText()
 
 
-class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
+class ProjectManagerWidget(QtGui.QWidget):
 
     def __init__(self):
         QtGui.QWidget.__init__(self)
-        AbstractListener.__init__(self)
 
         layout = QtGui.QVBoxLayout(self)
         self.view = ProjectManagerView()
         self.model = self.view.model()
         layout.addWidget(self.view)
         layout.setContentsMargins(0, 0, 0, 0)
-
-        self.pm = ProjectManager()
 
         self.menu_available_projects = QtGui.QMenu(u'Available Projects')
 
@@ -159,12 +156,14 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         self.menu_available_projects.aboutToShow.connect(self._update_available_project_menu)
         self.action_available_project = {}  # Dict used to know what project corresponds to triggered action
 
-        self.pm.register_listener(self)
-
     def initialize(self):
+        if plugin_instance_exists('oalab.applet', 'EditorManager'):
+            paradigm_container = plugin_instance('oalab.applet', 'EditorManager')
+            self.view.link_paradigm_container(paradigm_container)
+
         self.view.initialize()
-        self.pm.load_default()
-        self.set_project(self.pm.cproject)
+        project = default_project()
+        self.set_project(project)
 
     def closeEvent(self, event):
         self.writeSettings()
@@ -198,28 +197,26 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         return [menu]
 
     def project(self):
-        if self.pm:
-            return self.pm.cproject
+        return self.view.project()
 
     def _update_available_project_menu(self):
         """
         Discover all projects and generate an action for each one.
         Then connect this action to _on_open_project_triggered
         """
-        self.pm.discover()
         self.menu_available_projects.clear()
         self.action_available_project.clear()
 
         all_projects = {}  # dict parent dir -> list of Project objects
-        for project in self.pm.projects:
+        for project in projects():
             all_projects.setdefault(project.projectdir, []).append(project)
 
         home = path(get_default_home_dir())
-        for projectdir, projects in all_projects.iteritems():
+        for projectdir, _projects in all_projects.iteritems():
             relpath = home.relpathto(projectdir)
             title = unicode(relpath)
             menu = QtGui.QMenu(title, self.menu_available_projects)
-            for project in projects:
+            for project in _projects:
                 icon_path = project.icon_path
                 icon_name = icon_path if icon_path else ":/images/resources/openalealogo.png"
                 action = QtGui.QAction(QtGui.QIcon(icon_name), project.name, self.menu_available_projects)
@@ -231,15 +228,7 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
 
     def _on_open_project_triggered(self):
         project = self.action_available_project[self.sender()]
-        self.pm.cproject = project
-
-    def notify(self, sender, event=None):
-        signal, data = event
-        if signal == 'project_changed':
-            project = self.pm.cproject
-            self.view.set_project(project=project)
-        elif signal == 'project_updated':
-            self.view.refresh()
+        self.set_project(project)
 
     def set_project(self, project):
         self.view.set_project(project)
@@ -252,21 +241,27 @@ class ProjectManagerWidget(QtGui.QWidget, AbstractListener):
         Register current settings (geometry and window state)
         in a setting file
         """
-        if self.pm.cproject:
-            from openalea.core.settings import Settings
-            last_proj = self.pm.cproject.name
-            config = Settings()
+        cproject = self.project()
+        from openalea.core.settings import Settings
+        config = Settings()
+        if cproject:
+            last_proj = cproject.name
             config.set("ProjectManager", "Last Project", last_proj)
-            config.write()
+        else:
+            config.set("ProjectManager", "Last Project", "")
+
+        config.write()
 
 
-class ProjectManagerView(QtGui.QTreeView):
+class ProjectManagerView(QtGui.QTreeView, AbstractListener):
 
     def __init__(self):
         QtGui.QTreeView.__init__(self)
+        AbstractListener.__init__(self)
 
+        self._project = None
+        self.paradigm_container = None
         self._model = ProjectManagerModel()
-        self.pm = ProjectManager()
         self.setModel(self._model)
 
         self._model.dataChanged.connect(self._on_model_changed)
@@ -280,9 +275,6 @@ class ProjectManagerView(QtGui.QTreeView):
         self.setAcceptDrops(True)
 
         self._actions = []
-        self._new_file_actions = {}
-        self.paradigms_actions = []
-        self.paradigms = {}
 
         self.actionEditMeta = QtGui.QAction(qicon("book.png"), "Edit Project Information", self)
         self.actionEditMeta.triggered.connect(self.edit_metadata)
@@ -310,17 +302,40 @@ class ProjectManagerView(QtGui.QTreeView):
         self.actionOpenProj.triggered.connect(self.open_project)
         self.actionOpenProj.setShortcut(self.tr('Ctrl+Shift+O'))
 
+        self.paradigms = {}
+        self._new_file_actions = {}
+        self.paradigms_actions = []
+        for plugin in plugins('oalab.plugin', criteria=dict(implement='IParadigmApplet')):
+            applet = debug_plugin('oalab.plugin', func=plugin)
+            if applet:
+                self.paradigms[plugin.name] = applet
+                action = QtGui.QAction(QtGui.QIcon(applet.icon), "New " + applet.default_name, self)
+                action.triggered.connect(self.new_file)
+                self.paradigms_actions.append(action)
+                self._new_file_actions[action] = applet.default_name
+                self._actions.append(["Project", "Manage", action, 1],)
+
+    def link_paradigm_container(self, paradigm_container):
+        self.paradigm_container = paradigm_container
+        self.paradigm_container.paradigms_actions = self.paradigms_actions
+
     #  API
-
-    def _get_paradigm_container(self):
-        if plugin_instance_exists('oalab.applet', 'EditorManager'):
-            return plugin_instance('oalab.applet', 'EditorManager')
-    paradigm_container = property(fget=_get_paradigm_container)
-
     def initialize(self):
         pass
 
+    def notify(self, sender, event=None):
+        signal, data = event
+        print event
+        if signal == 'project_changed':
+            self.refresh()
+
     def set_project(self, project):
+        if self._project:
+            self._project.unregister_listener(self)
+        self._project = project
+        if self._project:
+            project.register_listener(self)
+
         # TODO: Dirty hack to remove asap. Close project selector if widget has been created
         if hasattr(self, "proj_selector"):
             del self.proj_selector
@@ -350,8 +365,7 @@ class ProjectManagerView(QtGui.QTreeView):
             return index
 
     def project(self):
-        if self.pm:
-            return self.pm.cproject
+        return self._model.project()
 
     def selected_data(self):
         index = self.getIndex()
@@ -371,7 +385,7 @@ class ProjectManagerView(QtGui.QTreeView):
     #  Contextual menu
 
     def add_new_file_actions(self, menu):
-        for applet in self.paradigm_container.paradigms.values():
+        for applet in self.paradigms.values():
             action = QtGui.QAction(qicon(applet.icon), 'New %s' % applet.default_name, self)
             action.triggered.connect(self.new_file)
             self._new_file_actions[action] = applet
@@ -392,7 +406,7 @@ class ProjectManagerView(QtGui.QTreeView):
 
         elif category == 'category' and obj in ('startup', 'doc', 'lib'):
             new_startup = QtGui.QAction(qicon('filenew.png'), 'New file', self)
-            new_startup.triggered.connect(self.new_file)
+            new_startup.triggered.connect(self._new_file)
             menu.addAction(new_startup)
 
         if category == 'model':
@@ -426,7 +440,7 @@ class ProjectManagerView(QtGui.QTreeView):
         return menu
 
     def contextMenuEvent(self, event):
-        if self.pm.cproject is None:
+        if self.project() is None:
             return
         menu = self.create_menu()
         menu.exec_(event.globalPos())
@@ -450,9 +464,7 @@ class ProjectManagerView(QtGui.QTreeView):
         If name==false, display a widget to choose project to open.
         Then open project.
         """
-        self.pm.discover()
-        projects = self.pm.projects
-        self.proj_selector = ProjectSelectorScroll(projects=projects)
+        self.proj_selector = ProjectSelectorScroll(projects=projects())
         self.proj_selector.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.proj_selector.show()
 
@@ -461,13 +473,27 @@ class ProjectManagerView(QtGui.QTreeView):
         dialog = ModalDialog(project_creator)
         if dialog.exec_():
             project = project_creator.project()
-            self.pm.cproject = project
-            self.pm.write_settings()
+            project.set_project(project)
+            project.save()
+            write_project_settings()
 
     def open_all_scripts_from_project(self, project):
         if self.paradigm_container is not None:
             for model in project.model.values():
                 self.paradigm_container.open_data(model)
+
+    def _new_file(self):
+        category = 'model'
+        try:
+            dtype = self._new_file_actions[self.sender()]
+            name = '%s_%s.%s' % (dtype, category, DataClass(MimeType(name=dtype)).extension)
+        except KeyError:
+            dtype = None
+            name = 'new_file.ext'
+
+        category, data = self.add(self.project(), name, code='', dtype=dtype, category=category)
+        if data:
+            self.open_data(data)
 
     def new_file(self, dtype=None):
         try:
@@ -498,9 +524,48 @@ class ProjectManagerView(QtGui.QTreeView):
             name = '%s_%s.%s' % (klass.default_name, category, klass.extension)
         else:
             name = category
-        category, data = self.paradigm_container.add(project, name, code, dtype=dtype, category=category)
-        if data:
+        category, data = self.add(project, name, code, dtype=dtype, category=category)
+        if self.paradigm_container and data:
             self.paradigm_container.open_data(data)
+
+    def add(self, project, name, code, dtype=None, category=None):
+        project = self.project()
+        if dtype is None:
+            dtypes = [pl.default_name for pl in plugins('openalea.core', criteria=dict(implement='IModel'))]
+        else:
+            dtypes = [dtype]
+
+        if category:
+            categories = [category]
+        else:
+            categories = project.DEFAULT_CATEGORIES.keys()
+        selector = SelectCategory(filename=name, categories=categories, dtypes=dtypes)
+        dialog = ModalDialog(selector)
+        if dialog.exec_():
+            category = selector.category()
+            filename = selector.name()
+            dtype = selector.dtype()
+            path = project.path / category / filename
+            data = project.get_item(category, filename)
+            if path.exists() and data is None:
+                box = QtGui.QMessageBox.information(self, 'Data yet exists',
+                                                    'Data with name %s already exists in this project, just add it' % filename)
+                code = None
+                data = project.add(category=category, filename=filename, content=code, dtype=dtype)
+            elif path.exists() and data:
+                pass
+            if data:
+                self.open_in_editor(category, name)
+                return category, data
+        return None, None
+
+    def open_in_editor(self, category, name):
+        project = self.project()
+        if self.paradigm_container is None:
+            paradigm_container = plugin_instance('oalab.applet', 'EditorManager')
+            self.link_paradigm_container(paradigm_container)
+        self.paradigm_container.show()
+        self.paradigm_container.open_data(project.get(category, name))
 
     def open(self):
         project, category, name = self.selected_data()
@@ -519,7 +584,7 @@ class ProjectManagerView(QtGui.QTreeView):
                 from openalea.file.files import start
                 start(project.get(category, name).path)
             else:
-                self.paradigm_container.open_data(project.get(category, name))
+                self.open_in_editor(category, name)
 
     def _rename(self, project, category, name):
         if category in project.DEFAULT_CATEGORIES:
@@ -561,8 +626,6 @@ class ProjectManagerView(QtGui.QTreeView):
         project = self.project()
         if project:
             project.save()
-            if self.paradigm_container:
-                self.paradigm_container.save_all()
 
     def save_as(self):
         project = self.project()
@@ -573,7 +636,7 @@ class ProjectManagerView(QtGui.QTreeView):
                 project.save_as(projectdir, name)
 
     def close(self):
-        self.pm.cproject = None
+        self.set_project(None)
 
     def close_all_scripts(self):
         if self.paradigm_container is None:
@@ -627,6 +690,9 @@ class ProjectManagerModel(QtGui.QStandardItemModel):
     def set_project(self, project):
         self._project = project
         self.refresh()
+
+    def project(self):
+        return self._project
 
     def refresh(self):
         self.clear()

@@ -26,7 +26,7 @@ It is generally used to define algorithms or process.
 A model has inputs, outputs and an internal state.
 Inputs and outputs are used to allow communication between environnement and models and between models.
 Internal state is used by the model itself but cannot be reached from outside.
-This internal step is generally used when user want to execute model step by step, 
+This internal step is generally used when user want to execute model step by step,
 each step depending on previous one.
 
 To define model instructions, you need to define at least "step" instructions.
@@ -34,7 +34,7 @@ To do that, you can use:
 
     - :meth:`~IModel.set_step_code`
 
-To use a Model, you also need to define set_code method that is able to extract inputs, outpus and step, init, ... 
+To use a Model, you also need to define set_code method that is able to extract inputs, outpus and step, init, ...
 from given source code.
 
 Animate notification are not yet implemented.
@@ -110,7 +110,7 @@ class IModel(object):
                 c = a+b
 
         you can extract input, output and step function.
-        So, 
+        So,
         m = Model("m1")
         m.set_code(code)
 

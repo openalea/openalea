@@ -18,10 +18,30 @@
 #
 ###############################################################################
 
+from openalea.core.project.manager import ProjectManager
+PM = ProjectManager()
+
+
+def set_active_project(project):
+    PM.cproject = project
+
+
+def active_project():
+    return PM.cproject
+
+
+def projects():
+    PM.discover()
+    return PM.projects
+
 
 def project_item(project_name, category, name):
-    from openalea.core.project.manager import ProjectManager
-    pm = ProjectManager()
+
     print 'get item', project_name, category, name
-    data = pm.cproject.get_item(category, name)
+    data = PM.cproject.get_item(category, name)
     return data
+
+create_project = PM.create
+
+write_project_settings = PM.write_settings
+default_project = PM.load_default

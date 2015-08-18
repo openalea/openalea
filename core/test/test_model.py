@@ -1,14 +1,12 @@
-from openalea.oalab.model.parse import InputObj, OutputObj
-from openalea.core.model import Model
-from openalea.core.service.run import namespace
-from openalea.core.service.control import clear_controls
-from openalea.core.project.manager import ProjectManager
-
 import copy
 
-pm = ProjectManager()
-project = pm.create('unittest', '/tmp/notwritable')
-pm.cproject = project
+from openalea.core.model import Model
+from openalea.core.service.control import clear_controls, control_namespace
+from openalea.core.service.project import create_project
+from openalea.oalab.model.parse import InputObj, OutputObj
+
+
+project = create_project('unittest', '/tmp/notwritable')
 
 
 def register_model(model):
@@ -76,7 +74,9 @@ def test_global_and_control():
     from openalea.core.service.control import new_control
     new_control('a', 'IInt', 10)
     a = 123456789
-    ns = namespace()
+    ns = {}
+    ns.update(control_namespace())
+    ns['Model'] = project.get_runnable_model
 
     ms1.set_step_code('m = Model("IOFullyDefined")\nc = m.run()')
     assert ms1.run(namespace=ns) == 0
@@ -104,7 +104,8 @@ def test_global_and_control():
 
     b = 20
     ns = locals()
-    ns.update(namespace())
+    ns.update(control_namespace())
+    ns['Model'] = project.get_runnable_model
 
     ms1.set_step_code('m = Model("IOWithoutDefault")\nc = m.run()')
     assert ms1.run(namespace=ns) == 30  # 30 free variables a, b. use global var a, b
@@ -163,7 +164,9 @@ def test_global_and_control_it():
 
     new_control('a', 'IInt', 10)
     a = 123456789
-    ns = namespace()
+    ns = {}
+    ns.update(control_namespace())
+    ns['Model'] = project.get_runnable_model
 
     nstep = 3
 
@@ -215,10 +218,11 @@ def test_multiple_call():
     model2.outputs_info = [OutputObj('m1'), OutputObj('m2')]
     model2.set_step_code(code)
 
-    register_model(model1)
-    ns = namespace()
+    project.add("model", model1)
+    ns = {}
+    ns['Model'] = project.get_runnable_model
 
-    m1, m2 = model2.run(namespace=ns)
+    m1, m2 = project.run_model(model2, namespace=ns)
     assert m1 == 4
     assert m2 == 2
 
@@ -288,6 +292,3 @@ out = f()
     model = PythonModel(name='func')
     model.set_code(code)
     assert model.init() == 1
-
-
-

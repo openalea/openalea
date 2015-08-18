@@ -21,10 +21,11 @@ from openalea.core import logger
 from openalea.core import settings
 from openalea.core.model import Model
 from openalea.core.path import path
-from openalea.core.project import ProjectManager, Project
+from openalea.core.project import Project
 from openalea.core.service.data import DataFactory, DataClass, DataType, MimeType
 from openalea.core.service.plugin import debug_plugin, plugins
-from openalea.oalab.project.projectwidget import SelectCategory
+from openalea.core.service.project import active_project
+from openalea.oalab.project.dialog import SelectCategory
 from openalea.oalab.service.applet import get_applet
 from openalea.oalab.utils import ModalDialog
 from openalea.oalab.utils import qicon
@@ -57,8 +58,6 @@ class ParadigmContainer(QtGui.QTabWidget):
                 self.paradigms[plugin.name] = paradigm_applet
 
         self._open_objects = {}
-
-        self.projectManager = ProjectManager()
 
         self.setAccessibleName("Container")
         self.setElideMode(QtCore.Qt.ElideLeft)
@@ -290,7 +289,7 @@ class ParadigmContainer(QtGui.QTabWidget):
         self.reset()
 
     def project(self):
-        return self.projectManager.cproject
+        return active_project()
 
     def applet(self, obj, dtype, mimetype=None):
         applet_class = None

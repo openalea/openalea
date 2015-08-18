@@ -45,19 +45,18 @@ You have here the default architecture of the project saved in directory "projec
         project.save()
 """
 
+from collections import OrderedDict
+import copy
 import os
 
-from openalea.core.observer import Observed
 from openalea.core.control import Control
+from openalea.core.data import Data
+from openalea.core.observer import Observed
 from openalea.core.path import path as Path
 from openalea.core.project.configobj import ConfigObj
-from openalea.core.data import Data
 from openalea.core.service.data import DataFactory
 from openalea.core.service.interface import interface_name
 from openalea.core.service.model import to_model, ModelFactory
-
-
-from collections import OrderedDict
 
 
 def _normpath(path):
@@ -159,7 +158,7 @@ class Project(Observed):
                 self.notify_listeners(('metadata_changed', (self, key, old_value, value)))
                 self.notify_listeners(('project_changed', self))
         elif key in self.DEFAULT_CATEGORIES:
-            raise NameError, "cannot change '%s' attribute" % key
+            raise NameError("cannot change '%s' attribute" % key)
         else:
             return super(Project, self).__setattr__(key, value)
 
@@ -230,9 +229,15 @@ class Project(Observed):
         cm.clear()
 
     def run(self, filename, *args, **kwargs):
-        model = self.get_model(filename)
-        model.ns.update(self.ns)
-        model.run(*args, **kwargs)
+        model = self.get_runnable_model(filename)
+        return self.run_model(model)
+
+    def run_model(self, model, *args, **kwargs):
+        ns = {}
+        ns.update(self.ns)
+        ns.update(kwargs.pop('namespace', {}))
+        ns["Model"] = self.get_runnable_model
+        return model.run(*args, namespace=ns, **kwargs)
 
     def add(self, category, obj=None, **kwargs):
         return self.add_item(category, obj, **kwargs)
@@ -409,6 +414,13 @@ class Project(Observed):
                     LST=', '.join([repr(str(_model.filename)) for _model in found_models])
                 )
                 raise ValueError('%(NUM)d model have basename %(BASENAME)r: %(LST)s' % dic)
+
+    def get_runnable_model(self, name):
+        data = self.get_model(name)
+        if data:
+            model = to_model(data)
+            if model:
+                return copy.copy(model)
 
     def _load(self):
         """

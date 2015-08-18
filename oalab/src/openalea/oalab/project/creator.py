@@ -21,7 +21,8 @@ from time import gmtime, strftime
 
 from openalea.core import settings
 from openalea.core.path import path
-from openalea.core.project import Project, ProjectManager
+from openalea.core.project import Project
+from openalea.core.service.project import create_project
 from openalea.oalab.service.qt_control import widget
 from openalea.vpltk.qt import QtGui, QtCore
 
@@ -34,7 +35,6 @@ class CreateProjectWidget(QtGui.QWidget):
 
     def __init__(self, proj=None, parent=None):
         super(CreateProjectWidget, self).__init__(parent)
-        self.pm = ProjectManager()
 
         self.widget_metadata = QtGui.QWidget()
         self.widget_path = QtGui.QWidget()
@@ -43,9 +43,9 @@ class CreateProjectWidget(QtGui.QWidget):
 
         # Name and path
         if proj is None:
-            date = strftime("%Y-%m-%d_%H-%M-%S", gmtime())
+            date = strftime("%Y%m%d_%H-%M-%S", gmtime())
             name = 'project_%s' % date if not proj else proj.name
-            projectdir = self.pm.defaultdir
+            projectdir = path(settings.get_project_dir())
         else:
             name = proj.name
             projectdir = proj.path.parent
@@ -85,7 +85,7 @@ class CreateProjectWidget(QtGui.QWidget):
         projectdir = self.editor_projectdir.value()
         name = self.editor_name.value()
         metadata = self.metadata()
-        project = self.pm.create(name, projectdir, **metadata)
+        project = create_project(name, projectdir, **metadata)
         return project
 
     def metadata(self):

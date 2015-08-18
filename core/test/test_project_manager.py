@@ -5,6 +5,7 @@ from openalea.core.path import path as Path
 from openalea.core.path import tempdir
 from openalea.core.project.manager import ProjectManager
 from openalea.core.project.project import Project
+
 from openalea.core.unittest_tools import TestCase, EventTracker
 
 
@@ -164,7 +165,7 @@ class TestProjectManager(TestCase):
         assert 'data' not in user_ns
 
     def test_world_namespace(self):
-        from openalea.core.service.run import namespace
+
         from openalea.core.model import Model
 
         proj = pm.create('new_temp_project', projectdir=self.tmpdir)
@@ -178,7 +179,7 @@ class TestProjectManager(TestCase):
         model = Model()
         proj.add('model', model)
         model.set_code(code)
-        model.run(**namespace())
+        model.run(**proj.ns)
 
         assert w.keys() == ['i']
         assert w['i'].obj == 1
