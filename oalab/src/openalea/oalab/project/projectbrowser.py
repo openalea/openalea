@@ -79,8 +79,6 @@ class ProjectBrowserWidget(QtGui.QWidget):
         self._actions += self.view._actions
 
     def _create_menus(self):
-        self.menu_available_projects = QtGui.QMenu(u'Available Projects')
-
         # Menu used to display all available projects.
         # This menu is filled dynamically each time this menu is opened
         self.menu_available_projects = QtGui.QMenu(u'Available Projects')
@@ -176,7 +174,6 @@ class ProjectBrowserView(QtGui.QTreeView, AbstractListener):
         QtGui.QTreeView.__init__(self)
         AbstractListener.__init__(self)
 
-        self._project = None
         self._model = ProjectModel()
 
         self.setModel(self._model)
@@ -224,10 +221,10 @@ class ProjectBrowserView(QtGui.QTreeView, AbstractListener):
             self.refresh()
 
     def set_project(self, project):
-        if self._project:
-            self._project.unregister_listener(self)
-        self._project = project
-        if self._project:
+        old_proj = self._model.project()
+        if old_proj:
+            old_proj.unregister_listener(self)
+        if project:
             project.register_listener(self)
 
         # TODO: Dirty hack to remove asap. Close project selector if widget has been created
@@ -237,12 +234,11 @@ class ProjectBrowserView(QtGui.QTreeView, AbstractListener):
         self._model.set_project(project)
 
         if project:
-            # self.close_all_scripts()
-            # self.open_all_scripts_from_project(project)
+            self.close_all_scripts()
+            self.open_all_scripts_from_project(project)
             self.expandAll()
         else:
-            pass
-            #self.close_all_scripts()
+            self.close_all_scripts()
 
     def refresh(self):
         self._model.refresh()
@@ -336,8 +332,14 @@ class ProjectBrowserView(QtGui.QTreeView, AbstractListener):
         self.proj_selector.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.proj_selector.show()
 
-    def open_project_item(self, category, name):
-        print 'open', category, name
+    def open_all_scripts_from_project(self, project):
+        pass
+
+    def close_all_scripts(self):
+        pass
+
+    def open_project_item(self, category, item):
+        print 'open', category, item
 
     def close_project_item(self, data):
         print 'close', data
@@ -359,7 +361,8 @@ class ProjectBrowserView(QtGui.QTreeView, AbstractListener):
                 from openalea.file.files import start
                 start(project.get(category, name).path)
             else:
-                self.open_project_item(category, name)
+                item = project.get(category, name)
+                self.open_project_item(category, item)
 
     def _rename(self, project, category, name):
         if category in project.DEFAULT_CATEGORIES:

@@ -65,6 +65,8 @@ class ProjectEditorView(ProjectBrowserView):
         self.actionImportFile = QtGui.QAction(qicon("open.png"), "Import file", self)
         self.actionImportFile.triggered.connect(self.import_file)
 
+        self.paradigm_container = None
+
         self.paradigms = {}
         self._new_file_actions = {}
         self.paradigms_actions = []
@@ -75,7 +77,7 @@ class ProjectEditorView(ProjectBrowserView):
                 action = QtGui.QAction(QtGui.QIcon(applet.icon), "New " + applet.default_name, self)
                 action.triggered.connect(self.new_file)
                 self.paradigms_actions.append(action)
-                self._new_file_actions[action] = applet.default_name
+                self._new_file_actions[action] = applet
                 self._actions.append(["Project", "Manage", action, 1],)
 
     def initialize(self):
@@ -87,27 +89,25 @@ class ProjectEditorView(ProjectBrowserView):
         self.paradigm_container = paradigm_container
         self.paradigm_container.paradigms_actions = self.paradigms_actions
 
-    def open_project_item(self, category, name):
-        project = self.project()
+    def open_project_item(self, category, data):
         if self.paradigm_container is None:
             paradigm_container = plugin_instance('oalab.applet', 'EditorManager')
             self.link_paradigm_container(paradigm_container)
+            import traceback
+            traceback.print_stack()
         self.paradigm_container.show()
-        self.paradigm_container.open_data(project.get(category, name))
+        self.paradigm_container.open_data(data)
 
     def close_all_scripts(self):
-        pass
+        if self.paradigm_container:
+            self.paradigm_container.closeAll()
 
     def open_all_scripts_from_project(self, project):
         for model in project.model.values():
-            self.open_in_editor('model', model)
+            self.open_project_item('model', model)
 
     def add_new_file_actions(self, menu):
-        for applet in self.paradigms.values():
-            action = QtGui.QAction(qicon(applet.icon), 'New %s' % applet.default_name, self)
-            action.triggered.connect(self.new_file)
-            self._new_file_actions[action] = applet
-            menu.addAction(action)
+        menu.addActions(self._new_file_actions.keys())
         menu.addSeparator()
 
     def create_menu(self):
@@ -176,8 +176,7 @@ class ProjectEditorView(ProjectBrowserView):
         else:
             name = category
         category, data = self.add(project, name, code, dtype=dtype, category=category)
-        if self.paradigm_container and data:
-            self.paradigm_container.open_data(data)
+        self.open_project_item(category, data)
 
     def add(self, project, name, code, dtype=None, category=None):
         project = self.project()
@@ -205,7 +204,9 @@ class ProjectEditorView(ProjectBrowserView):
                 data = project.add(category=category, filename=filename, content=code, dtype=dtype)
             elif path.exists() and data:
                 pass
+            else:
+                data = project.add(category=category, filename=filename, content=code, dtype=dtype)
             if data:
-                self.open_in_editor(category, name)
+                self.open_project_item(category, data)
                 return category, data
         return None, None

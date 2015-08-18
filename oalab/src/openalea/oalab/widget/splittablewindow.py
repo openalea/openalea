@@ -248,6 +248,9 @@ class AppletFrame(QtGui.QWidget):
         p = QtGui.QSizePolicy
         applet.setSizePolicy(p(p.MinimumExpanding, p.MinimumExpanding))
 
+    def applet(self):
+        return self._applet
+
     def remove_applet(self, applet):
         self._layout.removeWidget(applet)
 
@@ -389,6 +392,13 @@ class AppletTabWidget(QtGui.QTabWidget):
             del self._name[idx]
         self.removeTab(idx)
 
+    def user_set_applet(self, name):
+        self.set_applet(name)
+
+        applet = self.currentWidget().applet()
+        if hasattr(applet, 'initialize'):
+            applet.initialize()
+
     def set_applet(self, name, properties=None):
         """
         Show applet "name" in current tab.
@@ -421,8 +431,6 @@ class AppletTabWidget(QtGui.QTabWidget):
 
             applet.setAttribute(QtCore.Qt.WA_DeleteOnClose)
             applet.setContextMenuPolicy(QtCore.Qt.NoContextMenu)
-            if hasattr(applet, 'initialize'):
-                applet.initialize()
             applet.name = name
             if properties:
                 try:
@@ -520,7 +528,7 @@ class AppletContainer(QtGui.QWidget):
         self.appletSet.connect(self._on_applet_changed)
 
         self._applet_selector = AppletSelector()
-        self._applet_selector.appletChanged.connect(self._tabwidget.set_applet)
+        self._applet_selector.appletChanged.connect(self._tabwidget.user_set_applet)
 
         self._layout.addWidget(self._e_title)
         self._layout.addWidget(self._tabwidget)
