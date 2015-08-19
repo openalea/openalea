@@ -81,8 +81,10 @@ class WelcomePage(QtGui.QWidget):
 
         self._layout = QtGui.QGridLayout(self)
         self._layout.setAlignment(QtCore.Qt.AlignCenter)
-        if actions:
-            self.set_actions(actions)
+        if actions is None:
+            actions = []
+
+        self.set_actions(actions)
 
     def set_actions(self, actions):
         self._buttons = []

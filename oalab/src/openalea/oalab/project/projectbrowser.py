@@ -37,12 +37,19 @@ from openalea.vpltk.qt import QtGui, QtCore
 
 
 class ProjectBrowserWidget(QtGui.QWidget):
+    item_clicked = QtCore.Signal(object, str, str) # project, category, name
+    item_double_clicked = QtCore.Signal(object, str, str) # project, category, name
+    item_removed = QtCore.Signal(object, str, object) # project, category, item
+    project_closed = QtCore.Signal(object) # old project
+    project_open = QtCore.Signal(object) # new project
 
     def __init__(self):
         QtGui.QWidget.__init__(self)
 
         layout = QtGui.QVBoxLayout(self)
         self.view = ProjectBrowserView()
+        self._transfer_view_signals()
+
         self.model = self.view.model()
         layout.addWidget(self.view)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -50,14 +57,16 @@ class ProjectBrowserWidget(QtGui.QWidget):
         self._create_actions()
         self._create_menus()
 
-    def initialize(self):
-        self.view.initialize()
-        project = default_project()
-        self.set_project(project)
-
     def closeEvent(self, event):
         self.write_settings()
         event.accept()
+
+    def _transfer_view_signals(self):
+        self.view.item_clicked.connect(self.item_clicked.emit)
+        self.view.item_double_clicked.connect(self.item_double_clicked.emit)
+        self.view.item_removed.connect(self.item_removed)
+        self.view.project_closed.connect(self.project_closed.emit)
+        self.view.project_open.connect(self.project_open.emit)
 
     def _create_actions(self):
         self.actionNewProj = QtGui.QAction(qicon("new.png"), "New Project", self)
@@ -169,6 +178,11 @@ class ProjectBrowserWidget(QtGui.QWidget):
 
 
 class ProjectBrowserView(QtGui.QTreeView, AbstractListener):
+    item_clicked = QtCore.Signal(object, str, str) # project, category, name
+    item_double_clicked = QtCore.Signal(object, str, str) # project, category, name
+    item_removed = QtCore.Signal(object, str, object) # project, category, item
+    project_closed = QtCore.Signal(object) # old project
+    project_open = QtCore.Signal(object) # new project
 
     def __init__(self):
         QtGui.QTreeView.__init__(self)
@@ -212,9 +226,6 @@ class ProjectBrowserView(QtGui.QTreeView, AbstractListener):
         self.actionOpenProj.setShortcut(self.tr('Ctrl+Shift+O'))
 
     #  API
-    def initialize(self):
-        pass
-
     def notify(self, sender, event=None):
         signal, data = event
         if signal == 'project_changed':
@@ -234,11 +245,10 @@ class ProjectBrowserView(QtGui.QTreeView, AbstractListener):
         self._model.set_project(project)
 
         if project:
-            self.close_all_scripts()
-            self.open_all_scripts_from_project(project)
-            self.expandAll()
+            self.project_closed.emit(old_proj)
+            self.project_open.emit(project)
         else:
-            self.close_all_scripts()
+            self.project_closed.emit(old_proj)
 
     def refresh(self):
         self._model.refresh()
@@ -332,18 +342,6 @@ class ProjectBrowserView(QtGui.QTreeView, AbstractListener):
         self.proj_selector.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.proj_selector.show()
 
-    def open_all_scripts_from_project(self, project):
-        pass
-
-    def close_all_scripts(self):
-        pass
-
-    def open_project_item(self, category, item):
-        print 'open', category, item
-
-    def close_project_item(self, data):
-        print 'close', data
-
     def open(self):
         project, category, name = self.selected_data()
         if project:
@@ -361,8 +359,7 @@ class ProjectBrowserView(QtGui.QTreeView, AbstractListener):
                 from openalea.file.files import start
                 start(project.get(category, name).path)
             else:
-                item = project.get(category, name)
-                self.open_project_item(category, item)
+                self.item_double_clicked.emit(project, category, name)
 
     def _rename(self, project, category, name):
         if category in project.DEFAULT_CATEGORIES:
@@ -391,7 +388,7 @@ class ProjectBrowserView(QtGui.QTreeView, AbstractListener):
                 if dialog.exec_():
                     project.remove(category, data)
                     data.path.remove()
-                    self.close_project_item(data)
+                    self.item_removed.emit(project, category, data)
 
     def save(self):
         project = self.project()

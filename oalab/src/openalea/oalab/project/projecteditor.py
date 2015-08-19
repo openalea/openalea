@@ -49,6 +49,8 @@ class ProjectEditorWidget(ProjectBrowserWidget):
 
         layout = QtGui.QVBoxLayout(self)
         self.view = ProjectEditorView()
+        self._transfer_view_signals()
+
         self.model = self.view.model()
         layout.addWidget(self.view)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -56,14 +58,39 @@ class ProjectEditorWidget(ProjectBrowserWidget):
         self._create_actions()
         self._create_menus()
 
+    def initialize(self):
+        # Connect to ParadigmContainer if available
+        if plugin_instance_exists('oalab.applet', 'EditorManager'):
+            self.paradigm_container = plugin_instance('oalab.applet', 'EditorManager')
+            self.paradigm_container.paradigms_actions = self.view.paradigms_actions
+            self.item_double_clicked.connect(self._on_item_double_clicked)
+            self.item_removed.connect(self._on_item_removed)
+            self.project_closed.connect(self._on_project_closed)
+            self.project_open.connect(self._on_project_open)
+
+    def _on_project_closed(self, project):
+        welcome_actions = [self.actionNewProj, self.view.actionOpenProj]
+        self.paradigm_container.set_welcome_actions(welcome_actions)
+        self.paradigm_container.close_all()
+
+    def _on_project_open(self, project):
+        welcome_actions = self.view.paradigms_actions
+        self.paradigm_container.set_welcome_actions(welcome_actions)
+        #for model in project.model.values():
+        #    self.paradigm_container.open_data(model)
+
+    def _on_item_double_clicked(self, project, category, name):
+        item = project.get_item(category, name)
+        self.paradigm_container.open_data(item)
+
+    def _on_item_removed(self, project, category, item):
+        self.paradigm_container.close_data(item)
+
 
 class ProjectEditorView(ProjectBrowserView):
 
     def __init__(self):
         ProjectBrowserView.__init__(self)
-
-        self.actionImportFile = QtGui.QAction(qicon("open.png"), "Import file", self)
-        self.actionImportFile.triggered.connect(self.import_file)
 
         self.paradigm_container = None
 
@@ -80,31 +107,9 @@ class ProjectEditorView(ProjectBrowserView):
                 self._new_file_actions[action] = applet
                 self._actions.append(["Project", "Manage", action, 1],)
 
-    def initialize(self):
-        if plugin_instance_exists('oalab.applet', 'EditorManager'):
-            paradigm_container = plugin_instance('oalab.applet', 'EditorManager')
-            self.link_paradigm_container(paradigm_container)
-
-    def link_paradigm_container(self, paradigm_container):
-        self.paradigm_container = paradigm_container
-        self.paradigm_container.paradigms_actions = self.paradigms_actions
-
-    def open_project_item(self, category, data):
-        if self.paradigm_container is None:
-            paradigm_container = plugin_instance('oalab.applet', 'EditorManager')
-            self.link_paradigm_container(paradigm_container)
-            import traceback
-            traceback.print_stack()
-        self.paradigm_container.show()
-        self.paradigm_container.open_data(data)
-
-    def close_all_scripts(self):
+    def open_project_item(self, category, item):
         if self.paradigm_container:
-            self.paradigm_container.closeAll()
-
-    def open_all_scripts_from_project(self, project):
-        for model in project.model.values():
-            self.open_project_item('model', model)
+            self.paradigm_container.open_data(item)
 
     def add_new_file_actions(self, menu):
         menu.addActions(self._new_file_actions.keys())

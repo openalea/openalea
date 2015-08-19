@@ -1,13 +1,14 @@
 
 
 import sys
-from pyqode.core.api import ColorScheme
-from pyqode.python.backend import server
+
 from pyqode.core import api
 from pyqode.core import modes
 from pyqode.core import panels
+from pyqode.core.api import ColorScheme
 from pyqode.python import modes as pymodes
 from pyqode.python import panels as pypanels
+from pyqode.python.backend import server
 from pyqode.python.folding import PythonFoldDetector
 from pyqode.python.widgets import PyCodeEditBase
 
@@ -86,7 +87,7 @@ class PyCodeEditor(PyCodeEditBase):
         api.CodeEdit.setPlainText(self, txt, mimetype, encoding)
 
     def __repr__(self):
-        return 'LPyCodeEdit(path=%r)' % self.file.path
+        return '%s(path=%r)' % (self.__class__.__name__, self.file.path)
 
     def actions(self):
         """

@@ -367,6 +367,7 @@ class Model(object):
 class PythonModel(Model):
     dtype = 'Python'
     mimetype = 'text/x-python'
+    default_name = 'Python'
 
     def __init__(self, **kwargs):
         Model.__init__(self, **kwargs)

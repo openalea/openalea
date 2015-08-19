@@ -1,4 +1,5 @@
 # -*- python -*-
+# -*- coding: utf8 -*-
 #
 #       OpenAlea.OALab: Multi-Paradigm GUI
 #
@@ -6,7 +7,7 @@
 #
 #       File author(s): Julien Coste <julien.coste@inria.fr>
 #
-#       File contributor(s):
+#       File contributor(s): Guillaume Bâty <guillaume.baty@inria.fr>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
@@ -24,7 +25,6 @@ from openalea.core.path import path
 from openalea.core.project import Project
 from openalea.core.service.data import DataFactory, DataClass, DataType, MimeType
 from openalea.core.service.plugin import debug_plugin, plugins
-from openalea.core.service.project import active_project
 from openalea.oalab.project.dialog import SelectCategory
 from openalea.oalab.service.applet import get_applet
 from openalea.oalab.utils import ModalDialog
@@ -37,6 +37,8 @@ from openalea.vpltk.qt import QtCore, QtGui
 class ParadigmContainer(QtGui.QTabWidget):
 
     """
+    Widget to edit and run models.
+
     Contains paradigm applets (oalab.paradigm_applet)
     """
     identifier = "WidgetEditorContainer"
@@ -48,6 +50,8 @@ class ParadigmContainer(QtGui.QTabWidget):
         self.setTabsClosable(True)
 
         self.applets = []
+        self.welcome_actions = []
+
         self._open_tabs = {}
         self.paradigms = {}
         self._new_file_actions = {}
@@ -59,237 +63,30 @@ class ParadigmContainer(QtGui.QTabWidget):
 
         self._open_objects = {}
 
-        self.setAccessibleName("Container")
-        self.setElideMode(QtCore.Qt.ElideLeft)
-
-        self.actionNewFile = QtGui.QAction(qicon("new.png"), "New file", self)
-        self.actionOpenFile = QtGui.QAction(qicon("open.png"), "Open file", self)
-        self.actionSave = QtGui.QAction(qicon("save.png"), "Save File", self)
-        self.actionSaveAs = QtGui.QAction(qicon("save.png"), "Save As", self)
-        self.actionRun = QtGui.QAction(qicon("run.png"), "Run", self)
-        self.actionAnimate = QtGui.QAction(qicon("play.png"), "Animate", self)
-        self.actionStep = QtGui.QAction(qicon("step.png"), "Step", self)
-        self.actionStop = QtGui.QAction(qicon("pause.png"), "Stop", self)
-        self.actionInit = QtGui.QAction(qicon("rewind.png"), "Init", self)
-        self.actionCloseCurrent = QtGui.QAction(qicon("closeButton.png"), "Close current tab", self)
-
-        self.actionRunSelection = QtGui.QAction(qicon("run.png"), "Run subpart", self)
-
-        self.actionUndo = QtGui.QAction(qicon("editundo.png"), "Undo", self)
-        self.actionRedo = QtGui.QAction(qicon("editredo.png"), "Redo", self)
-        self.actionSearch = QtGui.QAction(qicon("editfind.png"), "Search", self)
-
-        self.actionComment = QtGui.QAction(qicon("commentOn.png"), "Comment", self)
-        self.actionUnComment = QtGui.QAction(qicon("commentOff.png"), "Uncomment", self)
-        self.actionGoto = QtGui.QAction(qicon("next-green.png"), "Go To", self)
-
-        self.actionNewFile.setShortcut(self.tr("Ctrl+N"))
-        self.actionOpenFile.setShortcut(
-            QtGui.QApplication.translate("MainWindow", "Ctrl+O", None, QtGui.QApplication.UnicodeUTF8))
-
-        self.actionRunSelection.setShortcut(
-            QtGui.QApplication.translate("MainWindow", "Ctrl+E", None, QtGui.QApplication.UnicodeUTF8))
-
-        self.actionCloseCurrent.setShortcut(
-            QtGui.QApplication.translate("MainWindow", "Ctrl+W", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionSearch.setShortcut(
-            QtGui.QApplication.translate("MainWindow", "Ctrl+F", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionGoto.setShortcut(
-            QtGui.QApplication.translate("MainWindow", "Ctrl+G", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionSave.setShortcut(
-            QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
-        # self.actionRun.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+R", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionRun.setShortcuts([QtGui.QApplication.translate("MainWindow", "F1", None, QtGui.QApplication.UnicodeUTF8), QtGui.QApplication.translate(
-            "MainWindow", "Ctrl+R", None, QtGui.QApplication.UnicodeUTF8)])
-        self.actionAnimate.setShortcut(
-            QtGui.QApplication.translate("MainWindow", "F2", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionStep.setShortcut(
-            QtGui.QApplication.translate("MainWindow", "F3", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionStop.setShortcut(
-            QtGui.QApplication.translate("MainWindow", "F4", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionInit.setShortcut(
-            QtGui.QApplication.translate("MainWindow", "F5", None, QtGui.QApplication.UnicodeUTF8))
-
-        self.actionNewFile.triggered.connect(self.new_file)
-        self.actionOpenFile.triggered.connect(self.open)
-        self.actionSave.triggered.connect(self.save_current)
-#         self.actionSaveAs.triggered.connect(self.save_as)
-        self.actionRun.triggered.connect(self.run)
-        self.actionAnimate.triggered.connect(self.animate)
-        self.actionStep.triggered.connect(self.step)
-        self.actionStop.triggered.connect(self.stop)
-        self.actionInit.triggered.connect(self.init)
-        self.actionCloseCurrent.triggered.connect(self.close_current)
-
-        self.actionRunSelection.triggered.connect(self.execute)
-
-        self.actionUndo.triggered.connect(self.undo)
-        self.actionRedo.triggered.connect(self.redo)
-        self.actionSearch.triggered.connect(self.search)
-        self.actionGoto.triggered.connect(self.goto)
-        self.actionComment.triggered.connect(self.comment)
-        self.actionUnComment.triggered.connect(self.uncomment)
-
-        self.actionAddFile = QtGui.QAction(qicon("bool.png"), "Add to Project", self)
-        self.actionAddFile.triggered.connect(self.add_current_file)
-
-        self.actionStop.setEnabled(False)
-
-        self._run_actions = [
-            self.actionAnimate,
-            self.actionInit,
-            self.actionRun,
-            self.actionRunSelection,
-            self.actionStep,
-            self.actionStop,
-        ]
-
-        self._actions = [
-            ["Project", "Manage", self.actionNewFile, 0],
-            ["Project", "Manage", self.actionAddFile, 1],
-            ["Project", "Manage", self.actionOpenFile, 1],
-            ["Project", "Manage", self.actionSave, 1],
-            ["Project", "Manage", self.actionCloseCurrent, 1],
-
-            ["Project", "Play", self.actionRun, 0],
-            ["Project", "Play", self.actionAnimate, 0],
-            ["Project", "Play", self.actionStep, 0],
-            ["Project", "Play", self.actionStop, 0],
-            ["Project", "Play", self.actionInit, 0],
-
-            ["Edit", "Text Edit", self.actionUndo, 0],
-            ["Edit", "Text Edit", self.actionRedo, 0],
-            ["Edit", "Text Edit", self.actionSearch, 0],
-            ["Edit", "Text Edit", self.actionGoto, 0],
-            ["Edit", "Text Edit", self.actionComment, 0],
-            ["Edit", "Text Edit", self.actionUnComment, 0],
-            ["Edit", "Text Edit", self.actionRunSelection, 0],
-        ]
-
-        self.connect_paradigm_container()
-        self.extensions = ""
-        self.connect(self, QtCore.SIGNAL('tabCloseRequested(int)'), self.autoClose)
+        self.connect(self, QtCore.SIGNAL('tabCloseRequested(int)'), self.auto_close)
         self.connect(self, QtCore.SIGNAL('currentChanged(int)'), self.safe_display_help)
-        self.currentChanged.connect(self.on_current_tab_changed)
 
-        self.addDefaultTab()
+        self.add_default_tab()
         self.fine_tune()
 
     def fine_tune(self):
         self.setDocumentMode(True)
         # self.setMinimumSize(100, 100)
-
-    def toolbar_actions(self):
-        return [
-            ["Project", "Manage", self.actionNewFile, 0],
-            ["Project", "Manage", self.actionAddFile, 1],
-            ["Project", "Manage", self.actionOpenFile, 1],
-            ["Project", "Manage", self.actionSave, 1],
-            ["Project", "Manage", self.actionCloseCurrent, 1],
-
-            ["Project", "Play", self.actionRun, 0],
-            ["Project", "Play", self.actionAnimate, 0],
-            ["Project", "Play", self.actionStep, 0],
-            ["Project", "Play", self.actionStop, 0],
-            ["Project", "Play", self.actionInit, 0],
-
-            ["Edit", "Text Edit", self.actionUndo, 0],
-            ["Edit", "Text Edit", self.actionRedo, 0],
-            ["Edit", "Text Edit", self.actionSearch, 0],
-            ["Edit", "Text Edit", self.actionGoto, 0],
-            ["Edit", "Text Edit", self.actionComment, 0],
-            ["Edit", "Text Edit", self.actionUnComment, 0],
-            ["Edit", "Text Edit", self.actionRunSelection, 0],
-        ]
-
-    def toolbars(self):
-        tb_run = QtGui.QToolBar("Run")
-
-        tb_run.addActions([
-            self.actionRun,
-            self.actionAnimate,
-            self.actionStep,
-            self.actionStop,
-            self.actionInit,
-        ])
-
-        return [tb_run]
-
-    def menu_actions(self):
-        actions = []
-        for menu in self.menus():
-            actions += menu.actions()
-        return actions
-
-    def menus(self):
-
-        menu_project = QtGui.QMenu("File", self)
-        menu_edit = QtGui.QMenu("Edit", self)
-
-        menu_play = QtGui.QMenu("Run", menu_project)
-        menu_manage = QtGui.QMenu("Files", menu_project)
-
-        menu_project.addMenu(menu_manage)
-        menu_project.addMenu(menu_play)
-
-        menu_manage.addActions([
-            self.actionNewFile,
-            self.actionAddFile,
-            self.actionOpenFile,
-            self.actionSave,
-            self.actionCloseCurrent,
-        ])
-
-        menu_play.addActions([
-            self.actionRun,
-            self.actionAnimate,
-            self.actionStep,
-            self.actionStop,
-            self.actionInit,
-        ])
-
-        menu_edit.addActions([
-            self.actionUndo,
-            self.actionRedo,
-            self.actionSearch,
-            self.actionGoto,
-            self.actionComment,
-            self.actionUnComment,
-            self.actionRunSelection,
-        ])
-
-        return [menu_project, menu_edit]
-
-    def on_current_tab_changed(self):
-        controller = self.current_controller()
-        if controller:
-            runnable = controller.runnable()
-        else:
-            runnable = False
-        self._set_run_mode(runnable)
-
-    def _set_run_mode(self, mode=True):
-        if mode:
-            for action in self._run_actions:
-                action.setEnabled(True)
-        else:
-            for action in self._run_actions:
-                action.setEnabled(False)
-
-    def connect_paradigm_container(self):
-        # Connect actions from self.paradigms to menu (newPython, newLpy,...)
-        for applet in self.paradigms.values():
-            action = QtGui.QAction(QtGui.QIcon(applet.icon), "New " + applet.default_name, self)
-            action.triggered.connect(self.new_file)
-            self.paradigms_actions.append(action)
-            self._new_file_actions[action] = applet.default_name
-            self._actions.append(["Project", "Manage", action, 1],)
+        self.setAccessibleName("Container")
+        self.setElideMode(QtCore.Qt.ElideLeft)
 
     def initialize(self):
         self.reset()
 
-    def project(self):
-        return active_project()
+    def _on_text_changed(self, *args):
+        tab = self.sender()
+        idx = self.indexOf(tab)
+        if idx >= 0:
+            self._set_tab_red(idx)
+
+    ###########################################################################
+    # Convenience method
+    ###########################################################################
 
     def applet(self, obj, dtype, mimetype=None):
         applet_class = None
@@ -309,18 +106,20 @@ class ParadigmContainer(QtGui.QTabWidget):
     def data_name(self, obj):
         return obj.filename
 
-    def current_controller(self):
-        try:
-            return self.currentWidget().applet
-        except AttributeError:
-            return None
+    def _tab(self, tab):
+        if tab is None:
+            return self.currentWidget()
+        if tab is None:
+            return
+        if tab not in self._open_tabs:
+            return
 
-    def current_data(self):
-        tab = self.currentWidget()
-        if tab:
-            return self._open_tabs[tab]
-        else:
-            return None
+    def data(self, tab=None):
+        return self._open_tabs[self._tab(tab)]
+
+    ###########################################################################
+    # Open/Close data
+    ###########################################################################
 
     def open(self):
         filepath = showOpenFileDialog()
@@ -339,21 +138,13 @@ class ParadigmContainer(QtGui.QTabWidget):
             if hasattr(applet, 'textChanged'):
                 applet.textChanged.connect(self._on_text_changed)
 
-            self.rmTab("Welcome")
+            self.remove_tab("Welcome")
             idx = self.addTab(applet, self.data_name(obj))
             if obj.path:
                 self.setTabToolTip(idx, obj.path)
             self.setCurrentIndex(idx)
             self._open_objects[obj] = applet
             self._open_tabs[applet] = obj
-
-    def close_current(self):
-        self.close()
-
-    def close_data(self, obj):
-        if obj in self._open_objects:
-            tab = self._open_objects[obj]
-            self.close(tab)
 
     def close(self, tab=None):
         if tab is None:
@@ -367,124 +158,91 @@ class ParadigmContainer(QtGui.QTabWidget):
             tab.close()
 
         if self.count() == 0:
-            self.addDefaultTab()
+            self.add_default_tab()
+
+    def close_current(self):
+        self.close()
+
+    def close_data(self, obj):
+        if obj in self._open_objects:
+            tab = self._open_objects[obj]
+            self.close(tab)
+
+    def auto_close(self, n_tab):
+        self.close(self.widget(n_tab))
+
+    def close_all(self):
+        n = self.count()
+        for i in range(n):
+            self.close_current()
+
+    ###########################################################################
+    # Apply
+    ###########################################################################
+
+    def apply(self, tab=None):
+        tab = self._tab(tab)
+        try:
+            applet = tab.applet
+        except AttributeError:
+            return
+
+        applet.apply()
+
+    def apply_all(self):
+        """
+        Save all opened files
+        """
+        n = self.count()
+        for i in range(n):
+            self.apply(tab=self.widget(i))
+
+    ###########################################################################
+    # Save
+    ###########################################################################
+
+    def save(self, tab=None):
+        self.apply(tab)
+        obj = self.data(tab)
+        obj.save()
+        self._set_tab_black(self.indexOf(tab))
 
     def save_current(self):
         self.save()
 
-    def save(self, tab=None):
-        if tab is None:
-            tab = self.currentWidget()
-        if tab is None:
-            return
-        if tab not in self._open_tabs:
-            return
+    def save_all(self):
+        """
+        Save all opened files
+        """
+        n = self.count()
+        for i in range(n):
+            self.save(tab=self.widget(i))
 
-        obj = self._open_tabs[tab]
-        try:
-            controller = tab.applet
-        except AttributeError:
-            return
+    ###########################################################################
+    # Tab coloration
+    ###########################################################################
 
-        controller.apply()
-        obj.save()
-        self.setTabBlack(self.indexOf(tab))
-
-    def new_file(self):
-        category = 'model'
-        try:
-            dtype = self._new_file_actions[self.sender()]
-            name = '%s_%s.%s' % (dtype, category, DataClass(MimeType(name=dtype)).extension)
-        except KeyError:
-            dtype = None
-            name = 'new_file.ext'
-
-        category, data = self.add(self.project(), name, code='', dtype=dtype, category=category)
-        if data:
-            self.open_data(data)
-
-    def add(self, project, name, code, dtype=None, category=None):
-        if dtype is None:
-
-            dtypes = [pl.default_name for pl in plugins('openalea.core', criteria=dict(implement='IModel'))]
-        else:
-            dtypes = [dtype]
-
-        if category:
-            categories = [category]
-        else:
-            categories = Project.DEFAULT_CATEGORIES.keys()
-        selector = SelectCategory(filename=name, categories=categories, dtypes=dtypes)
-        dialog = ModalDialog(selector)
-        if dialog.exec_():
-            category = selector.category()
-            filename = selector.name()
-            dtype = selector.dtype()
-            path = project.path / category / filename
-            if path.exists():
-                box = QtGui.QMessageBox.information(self, 'Data yet exists',
-                                                    'Data with name %s already exists in this project, just add it' % filename)
-                code = None
-            data = project.add(category=category, filename=filename, content=code, dtype=dtype)
-            if data:
-                return category, data
-        return None, None
-
-    def add_current_file(self):
-        project = self.project()
-        if project is None:
-            return
-        obj = self.current_data()
-        if obj is None:
-            return
-
-        dtype = DataType(mimetype=obj.mimetype)
-        self.add(project, obj.filename, obj.read(), dtype=dtype)
-
-    def setTabRed(self, index=None):
+    def _set_tab_red(self, index=None):
         if index is None:
             index = self.currentIndex()
         if index != -1:
             self.tabBar().setTabTextColor(index, QtCore.Qt.red)
 
-    def setTabBlack(self, index=None):
+    def _set_tab_black(self, index=None):
         if index is None:
             index = self.currentIndex()
         if index != -1:
             self.tabBar().setTabTextColor(index, QtCore.Qt.black)
 
-    def setAllTabBlack(self):
+    def set_all_tab_black(self):
         for index in range(self.count()):
-            self.setTabBlack(index)
+            self._set_tab_black(index)
 
-    def addProjectTab(self):
-        """
-        Display a welcome tab if nothing is opened
-        """
-        pm = get_applet(identifier='ProjectManager')
-        if pm:
-            actions = [pm.actionNewProj, pm.actionOpenProj]
-            welcomePage = WelcomePage(actions=actions, parent=self.parent(), style=WelcomePage.STYLE_MEDIUM)
-            self.addTab(welcomePage, "Welcome")
+    ###########################################################################
+    # Tab management
+    ###########################################################################
 
-    def addCreateFileTab(self):
-        """
-        Display a tab to select type of file that you can create
-        """
-        if self.paradigms_actions:
-            page = WelcomePage(actions=self.paradigms_actions, style=WelcomePage.STYLE_MEDIUM)
-            self.addTab(page, "Create File")
-        else:
-            self.addProjectTab()
-        self.rmTab("Welcome")
-
-    def addDefaultTab(self):
-        if self.project():
-            self.addCreateFileTab()
-        else:
-            self.addProjectTab()
-
-    def rmTab(self, tabname="Welcome"):
+    def remove_tab(self, tabname="Welcome"):
         """
         Remove the tab named "tabname"
 
@@ -498,16 +256,18 @@ class ParadigmContainer(QtGui.QTabWidget):
         """
         Delete all tabs
         """
-        self.closeAll()
+        self.close_all()
 
-    def connect_actions(self):
-        widget = self.applets[-1].widget()
-        menu = self.controller.menu
-        if widget:
-            if widget.actions():
-                for action in widget.actions():
-                    # Add actions in PanedMenu
-                    menu.addBtnByAction(*action)
+    def set_welcome_actions(self, actions=[]):
+        self.welcome_actions = actions
+
+    def add_welcome_tab(self, actions):
+        self.remove_tab("Welcome")
+        welcomePage = WelcomePage(actions=actions, parent=self.parent(), style=WelcomePage.STYLE_MEDIUM)
+        self.addTab(welcomePage, "Welcome")
+
+    def add_default_tab(self):
+        self.add_welcome_tab(self.welcome_actions)
 
     def safe_display_help(self):
         """
@@ -518,34 +278,9 @@ class ParadigmContainer(QtGui.QTabWidget):
             if hasattr(widget, "display_help"):
                 widget.display_help()
 
-    def autoClose(self, n_tab):
-        self.close(self.widget(n_tab))
-
-    def closeAll(self):
-        n = self.count()
-        for i in range(n):
-            self.close_current()
-
-    def actions(self):
-        """
-        :return: list of actions to set in the menu.
-        """
-        return self._actions
-
-    def mainMenu(self):
-        """
-        :return: Name of menu tab to automatically set current when current widget
-        begin current.
-        """
-        return "Project"
-
-    def save_all(self):
-        """
-        Save all opened files
-        """
-        n = self.count()
-        for i in range(n):
-            self.save(tab=self.widget(i))
+    ###########################################################################
+    # Run models
+    ###########################################################################
 
     def execute(self):
         self.currentWidget().applet.execute()
@@ -571,54 +306,6 @@ class ParadigmContainer(QtGui.QTabWidget):
         self.currentWidget().applet.init()
         logger.debug("Init " + self.currentWidget().applet.name)
 
-    def undo(self):
-        if hasattr(self.currentWidget(), "undo"):
-            self.currentWidget().undo()
-            logger.debug("Undo " + self.currentWidget().applet.name)
-        else:
-            logger.warning("Can't use method Undo in " + self.currentWidget().applet.name)
-
-    def redo(self):
-        if hasattr(self.currentWidget(), "redo"):
-            self.currentWidget().redo()
-            logger.debug("Redo " + self.currentWidget().applet.name)
-        else:
-            logger.warning("Can't use method Redo in " + self.currentWidget().applet.name)
-
-    def search(self):
-        if hasattr(self.currentWidget(), "search"):
-            self.currentWidget().search()
-            logger.debug("Search " + self.currentWidget().applet.name)
-        else:
-            logger.warning("Can't use method search in " + self.currentWidget().applet.name)
-
-    def comment(self):
-        if hasattr(self.currentWidget(), "comment"):
-            self.currentWidget().comment()
-            logger.debug("comment " + self.currentWidget().applet.name)
-        else:
-            logger.warning("Can't use method comment in " + self.currentWidget().applet.name)
-
-    def uncomment(self):
-        if hasattr(self.currentWidget(), "uncomment"):
-            self.currentWidget().uncomment()
-            logger.debug("uncomment " + self.currentWidget().applet.name)
-        else:
-            logger.warning("Can't use method uncomment in " + self.currentWidget().applet.name)
-
-    def goto(self):
-        if hasattr(self.currentWidget(), "goto"):
-            self.currentWidget().goto()
-            logger.debug("Goto " + self.currentWidget().applet.name)
-        else:
-            logger.warning("Can't use method Goto in " + self.currentWidget().applet.name)
-
-    def _on_text_changed(self, *args):
-        tab = self.sender()
-        idx = self.indexOf(tab)
-        if idx >= 0:
-            self.setTabRed(idx)
-
 
 def showOpenFileDialog(extension=None, where=None, parent=None):
     if extension is None:
@@ -632,3 +319,155 @@ def showOpenFileDialog(extension=None, where=None, parent=None):
     fname = QtGui.QFileDialog.getOpenFileName(parent, 'Select File to open',
                                               my_path, "All (*);;Scripts Files (%s)" % extension)
     return fname
+
+
+class ModelEditorApplet(ParadigmContainer):
+
+    def __init__(self, parent=None):
+        ParadigmContainer.__init__(self, parent=parent)
+        self._create_actions()
+        self._create_connections()
+
+    def _create_actions(self):
+        # Create actions
+        self.actionRun = QtGui.QAction(qicon("run.png"), "Run", self)
+        self.actionAnimate = QtGui.QAction(qicon("play.png"), "Animate", self)
+        self.actionStep = QtGui.QAction(qicon("step.png"), "Step", self)
+        self.actionStop = QtGui.QAction(qicon("pause.png"), "Stop", self)
+        self.actionInit = QtGui.QAction(qicon("rewind.png"), "Init", self)
+        self.actionRunSelection = QtGui.QAction(qicon("run.png"), "Run subpart", self)
+
+        self.actionSave = QtGui.QAction(qicon("save.png"), "Save File", self)
+        self.actionCloseCurrent = QtGui.QAction(qicon("closeButton.png"), "Close current tab", self)
+
+        # Add shortcuts
+        self.actionRunSelection.setShortcut(self.tr("Ctrl+E"))
+        self.actionCloseCurrent.setShortcut(self.tr("Ctrl+W"))
+        self.actionRun.setShortcuts(["F1", "Ctrl+R"])
+        #self.actionInit.setShortcut("F1")
+        self.actionAnimate.setShortcut("F2")
+        self.actionStep.setShortcut("F3")
+        self.actionStop.setShortcut("F4")
+
+        # Store actions
+        self._run_actions = [
+            self.actionAnimate,
+            self.actionInit,
+            self.actionRun,
+            self.actionRunSelection,
+            self.actionStep,
+            self.actionStop,
+        ]
+
+        # File
+        self.actionNewFile = QtGui.QAction(qicon("new.png"), "New file", self)
+        self.actionOpenFile = QtGui.QAction(qicon("open.png"), "Open file", self)
+        self.actionSaveAs = QtGui.QAction(qicon("save.png"), "Save As", self)
+
+        # Text edit
+        self.actionNewFile.setShortcut(self.tr("Ctrl+N"))
+        self.actionOpenFile.setShortcut(self.tr("Ctrl+O"))
+        self.actionSave.setShortcut(self.tr("Ctrl+S"))
+
+        self._actions = [
+            #["Project", "Manage", self.actionNewFile, 0],
+            #["Project", "Manage", self.actionOpenFile, 1],
+
+            ["Project", "Play", self.actionRun, 0],
+            ["Project", "Play", self.actionAnimate, 0],
+            ["Project", "Play", self.actionStep, 0],
+            ["Project", "Play", self.actionStop, 0],
+            ["Project", "Play", self.actionInit, 0],
+
+
+        ]
+
+    def _create_connections(self):
+        self.currentChanged.connect(self.on_current_tab_changed)
+
+        self.actionRun.triggered.connect(self.run)
+        self.actionAnimate.triggered.connect(self.animate)
+        self.actionStep.triggered.connect(self.step)
+        self.actionStop.triggered.connect(self.stop)
+        self.actionInit.triggered.connect(self.init)
+
+        self.actionNewFile.triggered.connect(self.new_file)
+        self.actionOpenFile.triggered.connect(self.open)
+        self.actionSave.triggered.connect(self.save_current)
+        self.actionCloseCurrent.triggered.connect(self.close_current)
+
+        self.actionRunSelection.triggered.connect(self.execute)
+
+    def actions(self):
+        """
+        :return: list of actions to set in the menu.
+        """
+        return self._actions
+
+    def toolbar_actions(self):
+        return self._actions
+
+    def toolbars(self):
+
+        tb_run = QtGui.QToolBar("Run")
+        tb_run.addActions([
+            self.actionRun,
+            self.actionAnimate,
+            self.actionStep,
+            self.actionStop,
+            self.actionInit,
+        ])
+
+        tb_edit = QtGui.QToolBar("Edit")
+        tb_edit.addActions([
+            self.actionSave,
+            self.actionCloseCurrent,
+        ])
+
+        return [tb_run, tb_edit]
+
+    def menu_actions(self):
+        actions = []
+        for menu in self.menus():
+            actions += menu.actions()
+        return actions
+
+    def menus(self):
+
+        menu_project = QtGui.QMenu("File", self)
+
+        menu_project.addActions([
+            self.actionNewFile,
+            self.actionOpenFile,
+            self.actionSave,
+            self.actionCloseCurrent,
+        ])
+
+        menu_project.addSeparator()
+
+        menu_project.addActions([
+            self.actionRun,
+            self.actionAnimate,
+            self.actionStep,
+            self.actionStop,
+            self.actionInit,
+        ])
+
+        return [menu_project]
+
+    def on_current_tab_changed(self):
+        try:
+            runnable = self.currentWidget().applet.runnable()
+        except AttributeError:
+            runnable = False
+        self._set_run_mode(runnable)
+
+    def _set_run_mode(self, mode=True):
+        if mode:
+            for action in self._run_actions:
+                action.setEnabled(True)
+        else:
+            for action in self._run_actions:
+                action.setEnabled(False)
+
+ModelEditorApplet = ParadigmContainer
