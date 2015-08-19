@@ -445,6 +445,7 @@ class AppletTabWidget(QtGui.QTabWidget):
         self._name[idx] = name
         self._redraw_tab(idx)
 
+        applet.parent_tab = self
         self.appletSet.emit(old, name)
 
     def _redraw_tab(self, idx):
@@ -795,7 +796,7 @@ class OALabSplittableUi(SplittableUI):
         self._geomCache[0] = self.contentsRect()
         self._install_child(0, content)
 
-        self._containers = {}
+        self._containers = set()
 
         self.set_edit_mode()
 
@@ -803,7 +804,7 @@ class OALabSplittableUi(SplittableUI):
         if isinstance(container, AppletContainer):
             if container not in self._containers:
                 container.appletSet.connect(self.appletSet.emit)
-                self._containers[container] = container
+                self._containers.add(container)
 
     def emit_applet_set(self):
         for container in self._containers:
@@ -933,6 +934,7 @@ class OALabMainWin(QtGui.QMainWindow):
 
     def __init__(self, layout=None, **kwds):
         QtGui.QMainWindow.__init__(self)
+        self.autosave = kwds.get('autosave', False)
         self._lab = kwds.get('lab', None)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
@@ -1034,8 +1036,9 @@ class OALabMainWin(QtGui.QMainWindow):
         return layout
 
     def _save_layout(self):
-        with open(self.layout_filepath, 'w') as layout_file:
-            json.dump(self.layout(), layout_file, sort_keys=True, indent=2)
+        if self.autosave:
+            with open(self.layout_filepath, 'w') as layout_file:
+                json.dump(self.layout(), layout_file, sort_keys=True, indent=2)
 
     def closeEvent(self, event):
         close = True
@@ -1227,44 +1230,3 @@ class SplitterApplet(Splitter):
         dic = Splitter.properties(self)
         dic['applets'] = self._applets.keys()
         return dic
-
-
-class TestMainWin(OALabMainWin):
-
-    def __init__(self, layout=None, **kwds):
-        """
-        tests: list of function runnable in shell (name changed to run_<funcname>)
-        layout_file
-        """
-        OALabMainWin.__init__(self, layout=layout, **kwds)
-
-        self.interp = interpreter()
-        self.interp.user_ns['mainwin'] = self
-        self.interp.user_ns['splittable'] = self.splittable
-        self.interp.user_ns['debug'] = self.debug
-        self.interp.user_ns['QtCore'] = QtCore
-        self.interp.user_ns['QtGui'] = QtGui
-
-        from openalea.core.service.plugin import plugin_instance, plugin_instances
-
-        def applet(name):
-            return plugin_instance('oalab.applet', name)
-
-        def applets(name):
-            return plugin_instances('oalab.applet', name)
-
-        self.interp.user_ns['applet'] = applet
-        self.interp.user_ns['applets'] = applets
-
-        print 'functions:'
-        for f in kwds.pop('tests', []):
-            self.interp.user_ns['run_%s' % f.__name__] = f
-            print 'run_%s' % f.__name__
-
-        self.resize(QtCore.QSize(800, 600))
-
-    def debug(self):
-        from openalea.oalab.session.session import Session
-        session = Session()
-        self.interp.user_ns['session'] = session
-        session.debug = True

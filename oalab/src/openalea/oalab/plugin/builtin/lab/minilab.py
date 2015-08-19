@@ -191,6 +191,13 @@ class MiniLab(object):
 
     @classmethod
     def initialize(cls, *args, **kwds):
+        from openalea.core.service.plugin import plugin_instance_exists, plugin_instance
+        if plugin_instance_exists('oalab.applet', 'ProjectManager'):
+            from openalea.core.service.project import default_project
+            project_applet = plugin_instance('oalab.applet', 'ProjectManager')
+            project = default_project()
+            project_applet.set_project(project)
+
         cls.state = "initialized"
 
     @classmethod

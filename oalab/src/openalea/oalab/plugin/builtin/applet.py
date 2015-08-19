@@ -50,8 +50,8 @@ class EditorManager(AppletPlugin):
 
     def __call__(self):
         # Load and instantiate graphical component that actually provide feature
-        from openalea.oalab.paradigm.container import ParadigmContainer
-        return ParadigmContainer
+        from openalea.oalab.paradigm.container import ModelEditorApplet
+        return ModelEditorApplet
 
 
 @PluginDef

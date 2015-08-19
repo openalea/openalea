@@ -56,7 +56,7 @@ def disp_controls():
 
 if __name__ == '__main__':
 
-    from openalea.oalab.widget.splittablewindow import TestMainWin
+    from openalea.oalab.testing.applet import TestMainWin
     instance = QtGui.QApplication.instance()
 
     if instance is None:
@@ -71,13 +71,15 @@ if __name__ == '__main__':
         sample_controls
     ]
 
-    layout = ({0: [1, 2]},
-              {0: None, 1: 0, 2: 0},
-              {0: {'amount': 0.4619140625, 'splitDirection': 1},
-               1: {'widget': {'position': 0, 'applet': [u'ControlManager']}},
-               2: {'widget': {'position': 0, 'applet': [u'ShellWidget']}}})
-
-    mw = TestMainWin(default_layout=layout, tests=tests, layout_file='.test_control_manager.lay')
+    layout = dict(children={0: [1, 2]},
+                  parents={0: None, 1: 0, 2: 0},
+                  properties={0: {'amount': 0.5, 'splitDirection': 1},
+                              1: {'widget': {'applets': [{'name': 'ControlManager'}]}},
+                              2: {'widget': {'applets': [{'name': 'ShellWidget'}]}},
+                              }
+                  )
+    mw = TestMainWin(default_layout=layout, tests=tests,
+                     layout_file='.test_control_manager.lay')
 
     mw.resize(1024, 768)
     mw.show()

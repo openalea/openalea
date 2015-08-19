@@ -326,11 +326,6 @@ You can rename/move this project thanks to the button "Save As" in menu.
 
     @cproject.setter
     def cproject(self, project):
-        print >> sys.__stdout__, "*" * 120
-        print >> sys.__stdout__, self._cproject, '->', project
-        import traceback
-        traceback.print_stack(file=sys.__stdout__)
-
         if project is self._cproject:
             if project and not project.started:
                 self.notify_listeners(('start_project', self))

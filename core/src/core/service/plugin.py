@@ -11,11 +11,14 @@ def debug_plugins(debug='all'):
     PM.debug = debug
     PIM.debug = debug
 
+
+def register_plugin(group, plugin):
+    PM.discover(group)
+    PM.add_plugin(group, plugin)
+
 plugin = PM.plugin
 plugins = PM.plugins
 
-
-register_plugin = PM.add_plugin
 
 clear_plugin_instances = PIM.clear
 debug_plugin = PIM.__call__

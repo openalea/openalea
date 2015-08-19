@@ -40,14 +40,15 @@ def launch_lab(plugin_class):
     OALabMainWin.LAB = lab_class
     if hasattr(lab_class, "start"):
         lab_class.start()
-    win = OALabMainWin(lab=lab_class)
+    win = OALabMainWin(lab=lab_class, autosave=True)
     win.setWindowIcon(qicon(lab_class.icon))
     if hasattr(lab_class, 'connect_applet'):
         win.appletSet.connect(lab_class.connect_applet)
     win.emit_applet_set()
+    win.initialize()
     if hasattr(lab_class, "initialize"):
         lab_class.initialize()
-    win.initialize()
+
     win.setWindowTitle('OpenAleaLab "%s"' % label(plugin))
     win.showMaximized()
     win.raise_()
