@@ -22,10 +22,9 @@ TODO:
     - use project known categories instead of hard coded 'model', 'src', ...
 
 """
-from openalea.core import settings
 from openalea.core.observer import AbstractListener
 from openalea.core.path import path
-from openalea.core.service.project import (default_project, projects, set_active_project)
+from openalea.core.service.project import (projects, set_active_project)
 from openalea.core.settings import get_default_home_dir
 from openalea.oalab.project.dialog import rename_model, edit_metadata, new_project
 from openalea.oalab.project.pretty_preview import ProjectSelectorScroll
@@ -37,6 +36,7 @@ from openalea.vpltk.qt import QtGui, QtCore
 
 
 class ProjectBrowserWidget(QtGui.QWidget):
+    item_added = QtCore.Signal(object, str, str) # project, category, name
     item_clicked = QtCore.Signal(object, str, str) # project, category, name
     item_double_clicked = QtCore.Signal(object, str, str) # project, category, name
     item_removed = QtCore.Signal(object, str, object) # project, category, item
@@ -62,6 +62,7 @@ class ProjectBrowserWidget(QtGui.QWidget):
         event.accept()
 
     def _transfer_view_signals(self):
+        self.view.item_added.connect(self.item_added)
         self.view.item_clicked.connect(self.item_clicked.emit)
         self.view.item_double_clicked.connect(self.item_double_clicked.emit)
         self.view.item_removed.connect(self.item_removed)
@@ -73,17 +74,11 @@ class ProjectBrowserWidget(QtGui.QWidget):
         self.actionNewProj.triggered.connect(self.new_project)
         self.actionNewProj.setShortcut(self.tr("Ctrl+Shift+N"))
 
-        # Do not remove for the moment because used in ParadigmContainer
-        # TODO: clean ParadigmContainer and remove it
-        self.actionOpenProj = self.view.actionOpenProj
-
         group = "Project"
         self._actions = [[group, "Manage Project", self.actionNewProj, 0],
                          [group, "Manage Project", self.view.actionOpenProj, 0],
-                         [group, "Manage Project", self.view.actionSaveProj, 0],
                          [group, "Manage Project", self.view.actionCloseProj, 0],
                          [group, "Manage Project", self.view.actionEditMeta, 1],
-                         #[group, "Manage Project", self.view.actionRenameProject, 1],
                          ]
         self._actions += self.view._actions
 
@@ -178,6 +173,7 @@ class ProjectBrowserWidget(QtGui.QWidget):
 
 
 class ProjectBrowserView(QtGui.QTreeView, AbstractListener):
+    item_added = QtCore.Signal(object, str, str) # project, category, name
     item_clicked = QtCore.Signal(object, str, str) # project, category, name
     item_double_clicked = QtCore.Signal(object, str, str) # project, category, name
     item_removed = QtCore.Signal(object, str, object) # project, category, item
@@ -208,14 +204,6 @@ class ProjectBrowserView(QtGui.QTreeView, AbstractListener):
 
         self.actionEditMeta = QtGui.QAction(qicon("book.png"), "Edit Project Information", self)
         self.actionEditMeta.triggered.connect(self.edit_metadata)
-
-        self.actionSaveProjAs = QtGui.QAction(qicon("save.png"), "Save As", self)
-        self.actionSaveProjAs.triggered.connect(self.save_as)
-
-        self.actionSaveProj = QtGui.QAction(qicon("save.png"), "Save project", self)
-        self.actionSaveProj.triggered.connect(self.save)
-        self.actionSaveProj.setShortcut(
-            QtGui.QApplication.translate("MainWindow", "Ctrl+Shift+S", None, QtGui.QApplication.UnicodeUTF8))
 
         self.actionCloseProj = QtGui.QAction(qicon("closeButton.png"), "Close project", self)
         self.actionCloseProj.triggered.connect(self.close)
@@ -315,8 +303,6 @@ class ProjectBrowserView(QtGui.QTreeView, AbstractListener):
 
         if category in ['project']:
             menu.addAction(self.actionEditMeta)
-            menu.addAction(self.actionSaveProj)
-            menu.addAction(self.actionSaveProjAs)
             menu.addAction(self.actionCloseProj)
 
         return menu
@@ -362,7 +348,7 @@ class ProjectBrowserView(QtGui.QTreeView, AbstractListener):
                 self.item_double_clicked.emit(project, category, name)
 
     def _rename(self, project, category, name):
-        if category in project.DEFAULT_CATEGORIES:
+        if category in project.categories:
             rename_model(project, category, name)
         elif category == 'project':
             self.edit_metadata()
@@ -380,7 +366,7 @@ class ProjectBrowserView(QtGui.QTreeView, AbstractListener):
     def delete(self):
         project, category, name = self.selected_data()
         if project:
-            if category in project.DEFAULT_CATEGORIES:
+            if category in project.categories:
                 data = project.get(category, name)
 
                 confirm = QtGui.QLabel('Remove %s ?' % data.path)
@@ -390,35 +376,8 @@ class ProjectBrowserView(QtGui.QTreeView, AbstractListener):
                     data.path.remove()
                     self.item_removed.emit(project, category, data)
 
-    def save(self):
-        project = self.project()
-        if project:
-            project.save()
-
-    def save_as(self):
-        project = self.project()
-        if project:
-            p = path(self.showNewProjectDialog(default_name=None, text="Select name to save project")).abspath()
-            projectdir, name = p.splitpath()
-            if name:
-                project.save_as(projectdir, name)
-
     def close(self):
         self.set_project(None)
 
     def import_file(self):
         print 'import_file'
-
-    def showNewProjectDialog(self, default_name=None, text=None, parent=None):
-        my_path = path(settings.get_project_dir())
-        if default_name:
-            my_path = my_path / default_name
-        if not text:
-            text = 'Select name to create project'
-        fname = QtGui.QFileDialog.getSaveFileName(parent, text, my_path)
-        return fname
-
-    def showOpenProjectDialog(self, parent=None):
-        my_path = path(settings.get_project_dir())
-        fname = QtGui.QFileDialog.getExistingDirectory(parent, 'Select Project Directory', my_path)
-        return fname

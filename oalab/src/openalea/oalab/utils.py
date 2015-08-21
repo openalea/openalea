@@ -98,6 +98,11 @@ class ModalDialog(QtGui.QDialog):
         layout.addWidget(widget)
         layout.addWidget(self.bbox)
 
+    def set_valid(self, validity):
+        ok = self.bbox.button(QtGui.QDialogButtonBox.Ok)
+        if ok:
+            ok.setEnabled(validity)
+
 
 class Splitter(QtGui.QSplitter):
 

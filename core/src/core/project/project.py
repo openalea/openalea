@@ -45,6 +45,13 @@ You have here the default architecture of the project saved in directory "projec
         project.save()
 """
 
+__all__ = [
+    "Project",
+    "ErrorInvalidItem",
+    "ErrorInvalidItemName",
+    "ErrorItemExistsInProject",
+]
+
 from collections import OrderedDict
 import copy
 import os
@@ -54,9 +61,45 @@ from openalea.core.data import Data
 from openalea.core.observer import Observed
 from openalea.core.path import path as Path
 from openalea.core.project.configobj import ConfigObj
+from openalea.core.customexception import CustomException
 from openalea.core.service.data import DataFactory
 from openalea.core.service.interface import interface_name
 from openalea.core.service.model import to_model, ModelFactory
+
+
+class ErrorInvalidItemName(CustomException):
+    title = u'Error: item name is not valid'
+    message = u'%(name)r is not valid'
+    desc = u"Item name must not be empty, contain punctuation (except '_')or non ascii character"
+
+    def _kargs(self):
+        return dict(
+            project=self._args[0],
+            category=self._args[1],
+            name=self._args[2],
+        )
+
+
+class ErrorItemExistsInProject(CustomException):
+    title = u'Error: item exists in project yet.'
+    message = u'Item %(name)s is in project yet'
+    desc = u"As item is in project yet, yu cannot add it again. Use replacement instead"
+
+    def _kargs(self):
+        return dict(
+            project=self._args[0],
+            category=self._args[1],
+            name=self._args[2],
+        )
+
+
+class ErrorInvalidItem(CustomException):
+    title = u'Error: item is invalid'
+    message = u'Item is invalid: %(message)s'
+    desc = u"Item is invalid"
+
+    def _kargs(self):
+        return dict(message=self._args[0])
 
 
 def _normpath(path):
@@ -121,10 +164,10 @@ class Project(Observed):
     MODE_LINK = 'link'
 
     def __init__(self, path, **kwargs):
+        self.categories = kwargs.get('categories', self.DEFAULT_CATEGORIES)
         Observed.__init__(self)
 
         self.metadata = OrderedDict()
-        self.categories = {}
 
         # listeners = kwargs['listeners'] if 'listeners' in kwargs else []
         # for listener in listeners:
@@ -138,7 +181,7 @@ class Project(Observed):
             self.metadata[k] = kwargs.get(k, v.value)
 
         # Allocate category dictionaries
-        for k in self.DEFAULT_CATEGORIES:
+        for k in self.categories:
             self.__dict__[k] = {}
 
         if self._path.exists():
@@ -151,13 +194,15 @@ class Project(Observed):
         self.ns = {}
 
     def __setattr__(self, key, value):
-        if key in self.DEFAULT_METADATA:
+        if key == "categories":
+            return super(Project, self).__setattr__(key, value)
+        elif key in self.DEFAULT_METADATA:
             old_value = self.metadata[key]
             if old_value != value:
                 self.metadata[key] = value
                 self.notify_listeners(('metadata_changed', (self, key, old_value, value)))
                 self.notify_listeners(('project_changed', self))
-        elif key in self.DEFAULT_CATEGORIES:
+        elif key in self.categories:
             raise NameError("cannot change '%s' attribute" % key)
         else:
             return super(Project, self).__setattr__(key, value)
@@ -262,14 +307,12 @@ class Project(Observed):
                 category_dict[str(obj.filename)] = obj
             else:
                 raise ValueError("data '%s' already exists in project '%s'" % (obj.filename, self.alias))
-            return obj
         elif obj:
             category_dict = getattr(self, category)
             if obj.name not in category_dict:
                 category_dict[str(obj.name)] = obj
             else:
                 raise ValueError("data '%s' already exists in project '%s'" % (obj.name, self.alias))
-            return obj
         else:
             filename = Path(kwargs.pop('filename')) if 'filename' in kwargs else None
             content = kwargs.pop('content', None)
@@ -286,7 +329,7 @@ class Project(Observed):
                 new_path = self.path / category / filename.name
             elif path:
                 if not path.exists():
-                    raise ValueError("path '%s' doesn't exists" % path)
+                    raise ErrorInvalidItem("path '%s' doesn't exists" % path)
                 filename = path.name
                 new_path = self.path / category / filename
             else:
@@ -316,7 +359,10 @@ class Project(Observed):
                 # Nothing to do, data is yet in the right place
 
             data_obj = DataFactory(new_path, mimetype, dtype=dtype, default_content=content)
-            return self._add_item(category, data_obj, **kwargs)
+            obj = self._add_item(category, data_obj, **kwargs)
+
+        obj.package = self
+        return obj
 
     def _remove_item(self, category, obj=None, **kwargs):
         category_dict = getattr(self, category)
@@ -344,6 +390,18 @@ class Project(Observed):
     def _project_changed(self):
         self.notify_listeners(('project_changed', self))
         self._save_manifest()
+
+    def valid_item_name(self, category, name):
+        if not name:
+            return ErrorInvalidItemName(self, category, name)
+
+        data = self.get_item(category, name)
+        if data:
+            return ErrorItemExistsInProject(self, category, name)
+
+        path = self.path / category / name
+        if data is None and path.exists():
+            return Warning("Data yet exists on disk. Just add it.")
 
     def add_item(self, category, obj=None, **kwargs):
         data = self._add_item(category, obj, **kwargs)
@@ -380,7 +438,14 @@ class Project(Observed):
         if src == dest:
             return
         if src.exists():
+            # Update item paths
+            for category in self.categories:
+                for item in self.items(category).values():
+                    if hasattr(item, 'path'):
+                        item.path = dest / category / item.path.name
+            # Move all files
             src.move(dest)
+
         self._path = dest
         self.notify_listeners(('project_moved', (self, src, dest)))
         self._project_changed()

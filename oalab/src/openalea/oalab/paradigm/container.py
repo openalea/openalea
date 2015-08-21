@@ -24,14 +24,18 @@ from openalea.core.model import Model
 from openalea.core.path import path
 from openalea.core.project import Project
 from openalea.core.service.data import DataFactory, DataClass, DataType, MimeType
-from openalea.core.service.plugin import debug_plugin, plugins
+from openalea.core.service.plugin import debug_plugin, plugins, plugin_instance_exists
+
+from openalea.oalab.paradigm.creator import ParadigmCreator
 from openalea.oalab.project.dialog import SelectCategory
 from openalea.oalab.service.applet import get_applet
 from openalea.oalab.utils import ModalDialog
 from openalea.oalab.utils import qicon
 from openalea.oalab.widget import resources_rc  # do not remove this import else icon are not drawn
 from openalea.oalab.widget.pages import WelcomePage
+
 from openalea.vpltk.qt import QtCore, QtGui
+from openalea.vpltk.qt.compat import getopenfilename, getsavefilename
 
 
 class ParadigmContainer(QtGui.QTabWidget):
@@ -50,16 +54,11 @@ class ParadigmContainer(QtGui.QTabWidget):
         self.setTabsClosable(True)
 
         self.applets = []
-        self.welcome_actions = []
 
         self._open_tabs = {}
-        self.paradigms = {}
-        self._new_file_actions = {}
-        self.paradigms_actions = []
-        for plugin in plugins('oalab.plugin', criteria=dict(implement='IParadigmApplet')):
-            paradigm_applet = debug_plugin('oalab.plugin', func=plugin)
-            if paradigm_applet:
-                self.paradigms[plugin.name] = paradigm_applet
+        self.paradigm = ParadigmCreator()
+        self.paradigm.paradigm_clicked.connect(self.new_paradigm)
+        self.welcome_actions = self.paradigm.actions()
 
         self._open_objects = {}
 
@@ -88,45 +87,48 @@ class ParadigmContainer(QtGui.QTabWidget):
     # Convenience method
     ###########################################################################
 
-    def applet(self, obj, dtype, mimetype=None):
-        applet_class = None
-        if dtype in self.paradigms:
-            # Check in paradigm.default_name
-            applet_class = self.paradigms[dtype]
+    def _data_label(self, obj):
+        if hasattr(obj, 'category'):
+            return '%s/%s' % (obj.category, obj.filename)
+        elif hasattr(obj, 'path'):
+            return '%s/%s' % (obj.path.parent.name, obj.filename)
         else:
-            # Check in paradigm.extension
-            for value in self.paradigms.values():
-                if dtype == value.extension:
-                    applet_class = value
-        if applet_class is None:
-            applet_class = self.paradigms["Textual"]
-
-        return applet_class(data=obj).instantiate_widget()
-
-    def data_name(self, obj):
-        return obj.filename
+            return obj.filename
 
     def _tab(self, tab):
+        if tab:
+            return tab
         if tab is None:
-            return self.currentWidget()
-        if tab is None:
-            return
-        if tab not in self._open_tabs:
-            return
+            tab = self.currentWidget()
+        if tab in self._open_tabs:
+            return tab
+        else:
+            return None
 
-    def data(self, tab=None):
+    def _data(self, tab=None):
         return self._open_tabs[self._tab(tab)]
 
     ###########################################################################
     # Open/Close data
     ###########################################################################
 
-    def open(self):
-        filepath = showOpenFileDialog()
-        if filepath:
-            filepath = path(filepath)
-            obj = DataFactory(path=filepath)
-            self.open_data(obj)
+    def open_file(self, filepath=None):
+        if filepath in(None, True, False):
+            filepath, filters = getopenfilename(self, u"Select file")
+        filepath = path(filepath).normpath().abspath()
+
+        # check if a data in container yet correspond to this path
+        found = None
+        for data in self._open_objects:
+            if filepath == data.path.normpath().abspath():
+                found = data
+        # If not, create a new data
+        if found:
+            data = found
+        else:
+            data = DataFactory(filepath)
+        self.open_data(data)
+        return data
 
     def open_data(self, obj):
         # Check if object is yet open else create applet
@@ -134,12 +136,13 @@ class ParadigmContainer(QtGui.QTabWidget):
             tab = self._open_objects[obj]
             self.setCurrentWidget(tab)
         else:
-            applet = self.applet(obj, obj.default_name)
+            applet = self.paradigm.applet(obj, obj.default_name)
+
             if hasattr(applet, 'textChanged'):
                 applet.textChanged.connect(self._on_text_changed)
 
             self.remove_tab("Welcome")
-            idx = self.addTab(applet, self.data_name(obj))
+            idx = self.addTab(applet, self._data_label(obj))
             if obj.path:
                 self.setTabToolTip(idx, obj.path)
             self.setCurrentIndex(idx)
@@ -177,6 +180,18 @@ class ParadigmContainer(QtGui.QTabWidget):
             self.close_current()
 
     ###########################################################################
+    # New
+    ###########################################################################
+    def new_paradigm(self, dtype):
+        p, filters = getsavefilename(self, "New file")
+        if p:
+            if p.exists():
+                p.remove()
+
+            data = DataFactory(p, dtype=dtype)
+            self.open_data(data)
+
+    ###########################################################################
     # Apply
     ###########################################################################
 
@@ -202,8 +217,9 @@ class ParadigmContainer(QtGui.QTabWidget):
     ###########################################################################
 
     def save(self, tab=None):
+        tab = self._tab(tab)
         self.apply(tab)
-        obj = self.data(tab)
+        obj = self._data(tab)
         obj.save()
         self._set_tab_black(self.indexOf(tab))
 
@@ -290,6 +306,10 @@ class ParadigmContainer(QtGui.QTabWidget):
         self.currentWidget().applet.run()
         logger.debug("Run " + self.currentWidget().applet.name)
 
+    def run_in_shell(self):
+        self.currentWidget().applet.run(run_in_shell=True)
+        logger.debug("Run " + self.currentWidget().applet.name)
+
     def animate(self):
         self.currentWidget().applet.animate()
         logger.debug("Animate " + self.currentWidget().applet.name)
@@ -307,20 +327,6 @@ class ParadigmContainer(QtGui.QTabWidget):
         logger.debug("Init " + self.currentWidget().applet.name)
 
 
-def showOpenFileDialog(extension=None, where=None, parent=None):
-    if extension is None:
-        extension = ""
-
-    if where is not None:
-        my_path = path(str(where)).abspath().splitpath()[0]
-    else:
-        my_path = path(settings.get_project_dir())
-    logger.debug("Search to open file with extension " + extension + " from " + my_path)
-    fname = QtGui.QFileDialog.getOpenFileName(parent, 'Select File to open',
-                                              my_path, "All (*);;Scripts Files (%s)" % extension)
-    return fname
-
-
 class ModelEditorApplet(ParadigmContainer):
 
     def __init__(self, parent=None):
@@ -331,72 +337,72 @@ class ModelEditorApplet(ParadigmContainer):
     def _create_actions(self):
         # Create actions
         self.actionRun = QtGui.QAction(qicon("run.png"), "Run", self)
+        self.actionRunInShell = QtGui.QAction(qicon("run.png"), "Run in shell", self)
+
+        menu_run = QtGui.QMenu("Run", self)
+        menu_run.addActions([self.actionRun, self.actionRunInShell])
+
+        self.toolbutton_run = QtGui.QToolButton(self)
+        self.toolbutton_run.setMenu(menu_run)
+        self.toolbutton_run.setDefaultAction(self.actionRun)
+
         self.actionAnimate = QtGui.QAction(qicon("play.png"), "Animate", self)
         self.actionStep = QtGui.QAction(qicon("step.png"), "Step", self)
         self.actionStop = QtGui.QAction(qicon("pause.png"), "Stop", self)
         self.actionInit = QtGui.QAction(qicon("rewind.png"), "Init", self)
         self.actionRunSelection = QtGui.QAction(qicon("run.png"), "Run subpart", self)
 
-        self.actionSave = QtGui.QAction(qicon("save.png"), "Save File", self)
+        # File I/O
         self.actionCloseCurrent = QtGui.QAction(qicon("closeButton.png"), "Close current tab", self)
+        self.actionOpenFile = QtGui.QAction(qicon("open.png"), "Open file", self)
+        self.actionSave = QtGui.QAction(qicon("save.png"), "Save File", self)
+        self.actionSaveAs = QtGui.QAction(qicon("save.png"), "Save As", self)
 
         # Add shortcuts
-        self.actionRunSelection.setShortcut(self.tr("Ctrl+E"))
-        self.actionCloseCurrent.setShortcut(self.tr("Ctrl+W"))
-        self.actionRun.setShortcuts(["F1", "Ctrl+R"])
         #self.actionInit.setShortcut("F1")
         self.actionAnimate.setShortcut("F2")
+        self.actionRun.setShortcuts(["F1", "Ctrl+R"])
+        self.actionRunSelection.setShortcut(self.tr("Ctrl+E"))
         self.actionStep.setShortcut("F3")
         self.actionStop.setShortcut("F4")
+
+        self.actionCloseCurrent.setShortcut(self.tr("Ctrl+W"))
+        self.actionOpenFile.setShortcut(self.tr("Ctrl+O"))
+        self.actionSave.setShortcut(self.tr("Ctrl+S"))
+        #self.actionSaveAs.setShortcut(self.tr("Ctrl+Shift+S"))
 
         # Store actions
         self._run_actions = [
             self.actionAnimate,
             self.actionInit,
-            self.actionRun,
+            self.toolbutton_run,
             self.actionRunSelection,
             self.actionStep,
             self.actionStop,
         ]
 
-        # File
-        self.actionNewFile = QtGui.QAction(qicon("new.png"), "New file", self)
-        self.actionOpenFile = QtGui.QAction(qicon("open.png"), "Open file", self)
-        self.actionSaveAs = QtGui.QAction(qicon("save.png"), "Save As", self)
-
-        # Text edit
-        self.actionNewFile.setShortcut(self.tr("Ctrl+N"))
-        self.actionOpenFile.setShortcut(self.tr("Ctrl+O"))
-        self.actionSave.setShortcut(self.tr("Ctrl+S"))
-
         self._actions = [
-            #["Project", "Manage", self.actionNewFile, 0],
-            #["Project", "Manage", self.actionOpenFile, 1],
-
             ["Project", "Play", self.actionRun, 0],
             ["Project", "Play", self.actionAnimate, 0],
             ["Project", "Play", self.actionStep, 0],
             ["Project", "Play", self.actionStop, 0],
             ["Project", "Play", self.actionInit, 0],
-
-
         ]
 
     def _create_connections(self):
         self.currentChanged.connect(self.on_current_tab_changed)
 
-        self.actionRun.triggered.connect(self.run)
         self.actionAnimate.triggered.connect(self.animate)
+        self.actionInit.triggered.connect(self.init)
+        self.actionRun.triggered.connect(self.run)
+        self.actionRunInShell.triggered.connect(self.run_in_shell)
+        self.actionRunSelection.triggered.connect(self.execute)
         self.actionStep.triggered.connect(self.step)
         self.actionStop.triggered.connect(self.stop)
-        self.actionInit.triggered.connect(self.init)
 
-        self.actionNewFile.triggered.connect(self.new_file)
-        self.actionOpenFile.triggered.connect(self.open)
-        self.actionSave.triggered.connect(self.save_current)
         self.actionCloseCurrent.triggered.connect(self.close_current)
-
-        self.actionRunSelection.triggered.connect(self.execute)
+        self.actionOpenFile.triggered.connect(self.open_file)
+        self.actionSave.triggered.connect(self.save_current)
 
     def actions(self):
         """
@@ -410,8 +416,8 @@ class ModelEditorApplet(ParadigmContainer):
     def toolbars(self):
 
         tb_run = QtGui.QToolBar("Run")
+        tb_run.addWidget(self.toolbutton_run)
         tb_run.addActions([
-            self.actionRun,
             self.actionAnimate,
             self.actionStep,
             self.actionStop,
@@ -420,9 +426,15 @@ class ModelEditorApplet(ParadigmContainer):
 
         tb_edit = QtGui.QToolBar("Edit")
         tb_edit.addActions([
+            self.actionOpenFile,
             self.actionSave,
+            #self.actionSaveAs,
             self.actionCloseCurrent,
         ])
+
+        #tb_paradigm = QtGui.QToolBar("Paradigms")
+        #tb_paradigm.addActions(self.paradigm.actions())
+        #return [tb_run, tb_edit, tb_paradigm]
 
         return [tb_run, tb_edit]
 
@@ -437,9 +449,9 @@ class ModelEditorApplet(ParadigmContainer):
         menu_project = QtGui.QMenu("File", self)
 
         menu_project.addActions([
-            self.actionNewFile,
             self.actionOpenFile,
             self.actionSave,
+            #self.actionSaveAs,
             self.actionCloseCurrent,
         ])
 
@@ -463,11 +475,8 @@ class ModelEditorApplet(ParadigmContainer):
         self._set_run_mode(runnable)
 
     def _set_run_mode(self, mode=True):
-        if mode:
-            for action in self._run_actions:
-                action.setEnabled(True)
-        else:
-            for action in self._run_actions:
-                action.setEnabled(False)
-
-ModelEditorApplet = ParadigmContainer
+        for action in self._run_actions:
+            action.setEnabled(mode)
+            if isinstance(action, QtGui.QToolButton):
+                for act in action.actions():
+                    act.setEnabled(mode)

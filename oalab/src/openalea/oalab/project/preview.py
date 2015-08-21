@@ -1,5 +1,4 @@
 from openalea.vpltk.qt import QtGui
-from openalea.core.path import path
 from openalea.core.project import Project
 from openalea.core.project.manager import ProjectManager
 
@@ -21,7 +20,7 @@ def html_item_summary(project):
 
     html = ''
     # Loop on all categories available in this project
-    for category, desc in project.DEFAULT_CATEGORIES.items():
+    for category, desc in project.categories.items():
         if category in excluded_categories:
             continue
         title = desc['title']

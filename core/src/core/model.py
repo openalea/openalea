@@ -206,9 +206,10 @@ class Model(object):
 
     def _populate_ns(self):
         # add vars defined in init function
-        for k in self.interp.user_ns:
-            if k not in self._ns:
-                self._ns[k] = self.interp.user_ns[k]
+        self._ns.update(self.interp.user_ns)
+        #for k in self.interp.user_ns:
+        #    if k not in self._ns:
+        #        self._ns[k] = self.interp.user_ns[k]
 
     def _pop_ns(self):
         # Restore original namespace
@@ -288,14 +289,17 @@ class Model(object):
 
     def run(self, *args, **kwds):
         if 'run' in self._code:
-            return self._exec('run')
+            rvalues = self._exec('run')
         else:
             nstep = kwds.pop('nstep', 1)
             self.init(*args, **kwds)
             out = []
             for i in range(nstep):
                 out = self.step()
-            return out
+            rvalues = out
+        if kwds.get('run_in_shell', False):
+            self.interp.user_ns.update(self._ns)
+        return rvalues
 
     def eval_value(self, value):
         return literal_eval(value)

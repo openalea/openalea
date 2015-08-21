@@ -22,24 +22,15 @@ TODO:
     - use project known categories instead of hard coded 'model', 'src', ...
 
 """
-from openalea.core import settings
-from openalea.core.observer import AbstractListener
-from openalea.core.path import path
-from openalea.core.plugin import iter_plugins
+from openalea.vpltk.qt import QtGui
+
 from openalea.core.service.data import DataClass, MimeType
-from openalea.core.service.plugin import debug_plugin, plugins
-from openalea.core.service.plugin import plugin_instance_exists, plugin_instance, plugins
-from openalea.core.service.project import write_project_settings, default_project, projects
-from openalea.core.settings import get_default_home_dir
-from openalea.oalab.project.creator import CreateProjectWidget
-from openalea.oalab.project.dialog import SelectCategory, RenameModel
-from openalea.oalab.project.pretty_preview import ProjectSelectorScroll
+from openalea.core.service.plugin import plugin_instance_exists, plugin_instance
+
+from openalea.oalab.paradigm.creator import ParadigmCreator, ParadigmInfoSelector
 from openalea.oalab.project.projectbrowser import ProjectBrowserWidget, ProjectBrowserView
-from openalea.oalab.service.drag_and_drop import add_drag_format, encode_to_qmimedata
 from openalea.oalab.utils import ModalDialog
-from openalea.oalab.utils import qicon
 from openalea.oalab.widget import resources_rc
-from openalea.vpltk.qt import QtGui, QtCore
 
 
 class ProjectEditorWidget(ProjectBrowserWidget):
@@ -62,11 +53,17 @@ class ProjectEditorWidget(ProjectBrowserWidget):
         # Connect to ParadigmContainer if available
         if plugin_instance_exists('oalab.applet', 'EditorManager'):
             self.paradigm_container = plugin_instance('oalab.applet', 'EditorManager')
-            self.paradigm_container.paradigms_actions = self.view.paradigms_actions
             self.item_double_clicked.connect(self._on_item_double_clicked)
             self.item_removed.connect(self._on_item_removed)
+            self.item_added.connect(self._on_item_double_clicked)
             self.project_closed.connect(self._on_project_closed)
             self.project_open.connect(self._on_project_open)
+
+    def toolbars(self):
+        toolbars = ProjectBrowserWidget.toolbars(self)
+        toolbar_paradigm = QtGui.QToolBar("Paradigms")
+        toolbar_paradigm.addActions(self.view.paradigm.actions())
+        return toolbars + [toolbar_paradigm]
 
     def _on_project_closed(self, project):
         welcome_actions = [self.actionNewProj, self.view.actionOpenProj]
@@ -74,8 +71,9 @@ class ProjectEditorWidget(ProjectBrowserWidget):
         self.paradigm_container.close_all()
 
     def _on_project_open(self, project):
-        welcome_actions = self.view.paradigms_actions
+        welcome_actions = self.view.paradigm.actions()
         self.paradigm_container.set_welcome_actions(welcome_actions)
+        self.paradigm_container.close_all()
         #for model in project.model.values():
         #    self.paradigm_container.open_data(model)
 
@@ -93,26 +91,18 @@ class ProjectEditorView(ProjectBrowserView):
         ProjectBrowserView.__init__(self)
 
         self.paradigm_container = None
+        self.contextual_creator = ParadigmCreator(self)
+        self.contextual_creator.paradigm_clicked.connect(self.new_contextual_paradigm)
 
-        self.paradigms = {}
-        self._new_file_actions = {}
-        self.paradigms_actions = []
-        for plugin in plugins('oalab.plugin', criteria=dict(implement='IParadigmApplet')):
-            applet = debug_plugin('oalab.plugin', func=plugin)
-            if applet:
-                self.paradigms[plugin.name] = applet
-                action = QtGui.QAction(QtGui.QIcon(applet.icon), "New " + applet.default_name, self)
-                action.triggered.connect(self.new_file)
-                self.paradigms_actions.append(action)
-                self._new_file_actions[action] = applet
-                self._actions.append(["Project", "Manage", action, 1],)
+        self.paradigm = ParadigmCreator(self)
+        self.paradigm.paradigm_clicked.connect(self.new_paradigm)
 
-    def open_project_item(self, category, item):
-        if self.paradigm_container:
-            self.paradigm_container.open_data(item)
-
-    def add_new_file_actions(self, menu):
-        menu.addActions(self._new_file_actions.keys())
+    def add_new_file_actions(self, menu, paradigms=None):
+        if paradigms is None:
+            menu.addActions(self.contextual_creator.actions())
+        else:
+            for paradigm in paradigms:
+                menu.addAction(self.contextual_creator.action(paradigm))
         menu.addSeparator()
 
     def create_menu(self):
@@ -129,89 +119,66 @@ class ProjectEditorView(ProjectBrowserView):
             self.add_new_file_actions(menu)
 
         elif category == 'category' and obj in ('startup', 'lib'):
-            new_startup = QtGui.QAction(qicon('filenew.png'), 'New file', self)
-            new_startup.triggered.connect(self._new_file)
-            menu.addAction(new_startup)
+            self.add_new_file_actions(menu, ['Python'])
 
         if category == 'model':
             self.add_new_file_actions(menu)
 
         return menu
 
-    def _new_file(self):
-        category = 'model'
-        try:
-            dtype = self._new_file_actions[self.sender()]
-            name = '%s_%s.%s' % (dtype, category, DataClass(MimeType(name=dtype)).extension)
-        except KeyError:
-            dtype = None
-            name = 'new_file.ext'
+    def _new_paradigm(self, project, category=None, dtype=None, name=None):
+        klass = DataClass(MimeType(name=dtype))
+        if name is None:
+            # Builtin default name for some categories
+            if category in ['startup', 'lib']:
+                d = {'startup': 'start.py', 'lib': 'algo.py'}
+                name = d[category]
+            else:
+                # If category defined, use it in name
+                if category:
+                    name = '%s_%s.%s' % (klass.default_name.lower(), category.lower(), klass.extension)
+                else:
+                    name = 'file.%s' % klass.extension
 
-        category, data = self.add(self.project(), name, code='', dtype=dtype, category=category)
-        if data:
-            self.open_data(data)
-
-    def new_file(self, dtype=None):
-        try:
-            applet = self._new_file_actions[self.sender()]
-        except KeyError:
-            dtype = None
-        else:
-            dtype = applet.default_name
-        project, category, data = self.selected_data()
-        code = ''
-        project = self.project()
-
-        if category == 'category':
-            category = data
-        elif category in project.DEFAULT_CATEGORIES:
-            pass
-        else:
-            category = None
-
-        if dtype is None and category in ['startup', 'lib']:
-            dtype = 'Python'
-
-        if category in ['startup', 'lib']:
-            d = {'startup': 'start.py', 'lib': 'algo.py'}
-            name = d[category]
-        elif dtype:
-            klass = DataClass(MimeType(name=dtype))
-            name = '%s_%s.%s' % (klass.default_name, category, klass.extension)
-        else:
-            name = category
-        category, data = self.add(project, name, code, dtype=dtype, category=category)
-        self.open_project_item(category, data)
-
-    def add(self, project, name, code, dtype=None, category=None):
-        project = self.project()
-        if dtype is None:
-            dtypes = [pl.default_name for pl in plugins('openalea.core', criteria=dict(implement='IModel'))]
-        else:
-            dtypes = [dtype]
+        # Change extension to fit dtype (case name is given with wrong extension)
+        parts = name.split('.')
+        parts[-1] = klass.extension
+        default_name = '.'.join(parts)
 
         if category:
             categories = [category]
         else:
-            categories = project.DEFAULT_CATEGORIES.keys()
-        selector = SelectCategory(filename=name, categories=categories, dtypes=dtypes)
-        dialog = ModalDialog(selector)
+            categories = project.categories.keys()
+
+        # Show dialog
+        w = ParadigmInfoSelector(default_name, categories, [dtype],
+                                 project=project)
+        dialog = ModalDialog(w)
+        w.validity_changed.connect(dialog.set_valid)
+        dialog.set_valid(w.is_valid())
         if dialog.exec_():
-            category = selector.category()
-            filename = selector.name()
-            dtype = selector.dtype()
-            path = project.path / category / filename
-            data = project.get_item(category, filename)
-            if path.exists() and data is None:
-                box = QtGui.QMessageBox.information(self, 'Data yet exists',
-                                                    'Data with name %s already exists in this project, just add it' % filename)
-                code = None
-                data = project.add(category=category, filename=filename, content=code, dtype=dtype)
-            elif path.exists() and data:
-                pass
+            name = w.name()
+            category = w.category()
+            dtype = w.dtype()
+            p = project.path / category / name
+            if p.exists():
+                project.add(category, path=p)
             else:
-                data = project.add(category=category, filename=filename, content=code, dtype=dtype)
-            if data:
-                self.open_project_item(category, data)
-                return category, data
-        return None, None
+                project.add(category, filename=name, content="", dtype=dtype)
+            self.item_added.emit(project, category, name)
+
+    def new_contextual_paradigm(self, dtype):
+        project, category, data = self.selected_data()
+        name = None
+        if category == 'category':
+            category = data
+        elif category in project.categories:
+            name = data
+        else:
+            category = None
+
+        self._new_paradigm(project, category, dtype, name)
+
+    def new_paradigm(self, dtype):
+        project = self.project()
+        self._new_paradigm(project, dtype=dtype)

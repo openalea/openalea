@@ -30,11 +30,11 @@ import types
 
 
 class TextualModelController(ParadigmController):
-    default_name = "file"
+    default_name = "Textual"
     default_file_name = "file"
-    pattern = ""
-    extension = ""
-    icon = ""
+    pattern = "*.*"
+    extension = ".txt"
+    icon = "Crystal_Clear_mimetype_txt2.png"
 
     def _default_editor(self):
         from openalea.oalab.editor.plaintext_editor import PlainTextEditor as Editor

@@ -5,7 +5,7 @@ from openalea.core.service.plugin import plugins
 from openalea.core.service.project import write_project_settings
 from openalea.oalab.project.creator import CreateProjectWidget
 from openalea.oalab.utils import ModalDialog
-from openalea.vpltk.qt import QtGui, QtCore
+from openalea.vpltk.qt import QtGui
 
 
 def rename_model(project, category, name):

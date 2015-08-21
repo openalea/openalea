@@ -101,7 +101,7 @@ class FileBrowser(GenericFileBrowser):
         # This applet use "call applet" approach
         paradigm_container = self.paradigm_container
         if paradigm_container:
-            paradigm_container.open_data(DataFactory(path))
+            paradigm_container.open_file(path)
 
         # A second possible approach would be to ask lab to connect this applet to an applet with a slot accepting
         # a factory parameter. In this case, you do not need to create this method but you need to add a connection in

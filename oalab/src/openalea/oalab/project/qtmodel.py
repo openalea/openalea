@@ -18,7 +18,7 @@
 ###############################################################################
 
 from openalea.oalab.service.drag_and_drop import add_drag_format, encode_to_qmimedata
-from openalea.vpltk.qt import QtGui, QtCore
+from openalea.vpltk.qt import QtGui
 
 
 class ProjectModel(QtGui.QStandardItemModel):
@@ -81,7 +81,7 @@ class ProjectModel(QtGui.QStandardItemModel):
         item.setIcon(self.project_icon(project))
         parentItem.appendRow(item)
 
-        for category in project.DEFAULT_CATEGORIES:
+        for category in project.categories:
             item2 = QtGui.QStandardItem(category)
             item.appendRow(item2)
 
@@ -111,11 +111,11 @@ class ProjectModel(QtGui.QStandardItemModel):
         if self._project is None:
             return
 
-        if index.parent().data() in self._project.DEFAULT_CATEGORIES:
+        if index.parent().data() in self._project.categories:
             category = index.parent().data()
             name = index.data()
             return category, name
-        elif index.data() in self._project.DEFAULT_CATEGORIES:
+        elif index.data() in self._project.categories:
             return ('category', index.data())
         elif index.data() == self._root_item:
             return ('project', index.data())

@@ -18,6 +18,7 @@
 
 from openalea.core.service.data import DataFactory
 from openalea.core.service.model import ModelFactory, to_model
+from openalea.core.service.control import control_namespace
 from openalea.core.data import Data
 from openalea.core.model import Model
 
@@ -119,21 +120,30 @@ class ParadigmController(object):
     def execute(self):
         raise NotImplementedError
 
-    def namespace(self, **kwargs):
-        from openalea.core.service.run import namespace
-        ns = namespace()
+    def namespace(self, model, **kwargs):
+        ns = {}
+        # Project namespace if available
+        if hasattr(model, 'package'):
+            if hasattr(model.package, 'ns'):
+                ns.update(model.package.ns)
+            if hasattr(model.package, 'namespace'):
+                ns.update(model.package.namespace())
+
+        # Control namespace
+        ns.update(control_namespace())
+
+        # User namespace
         ns.update(kwargs)
         return ns
 
     def run(self, *args, **kwargs):
         if self.runnable():
             self.apply()
-            return self.model.run(*args, **self.namespace(**kwargs))
+            return self.model.run(*args, **self.namespace(self.model, **kwargs))
 
     def step(self, nstep=1):
         if self.runnable():
             self.apply()
-            print self.model
             return self.model.step(nstep=nstep)
 
     def stop(self):
@@ -143,12 +153,12 @@ class ParadigmController(object):
     def animate(self, *args, **kwargs):
         if self.runnable():
             self.apply()
-            return self.model.animate(*args, **self.namespace(**kwargs))
+            return self.model.animate(*args, **self.namespace(self.model, **kwargs))
 
     def init(self, *args, **kwargs):
         if self.runnable():
             self.apply()
-            return self.model.init(*args, **self.namespace(**kwargs))
+            return self.model.init(*args, **self.namespace(self.model, **kwargs))
 
     def widget(self):
         """
