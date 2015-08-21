@@ -26,42 +26,61 @@ from openalea.vpltk.qt.compat import orientation_qt, orientation_int
 from openalea.core.customexception import CustomException, cast_error
 from openalea.deploy.shared_data import shared_data
 from openalea.core.path import path as Path
+from openalea.oalab.widget import resources_rc
 
 
 def get_shared_data(filename):
     return shared_data(openalea.oalab, filename)
 
 
-def qicon(filename):
-    if filename is None:
-        return QtGui.QIcon(get_shared_data('icons/oxygen_application-x-desktop.png'))
-    if filename.startswith(':/'):
+def qicon(filename, default=None, paths=None):
+    if isinstance(filename, QtGui.QIcon):
+        return filename
+
+    if not filename:
+        if default is None:
+            default = get_shared_data('icons/oxygen_application-x-desktop.png')
+        return qicon(default, default)
+    elif filename.startswith(':/'):
         return QtGui.QIcon(filename)
     else:
-        path = Path(filename)
-        if not path.isfile():
-            path = get_shared_data(filename)
-            if path is None:
-                path = get_shared_data('icons/%s' % filename)
+        _paths = [Path(filename)]
+        if paths:
+            _paths += [Path(p) / filename for p in paths]
 
-        if path:
-            return QtGui.QIcon(path)
+        found = None
+        for path in _paths:
+            if path.isfile():
+                found = path
+                break
+
+        if found is None:
+            for path in (filename, 'icons/%s' % filename):
+                path = get_shared_data(path)
+                if path and path.isfile():
+                    found = path
+                    break
+
+        if found:
+            return QtGui.QIcon(found)
         else:
-            return QtGui.QIcon(":/images/resources/%s" % filename)
+            return qicon(":/images/resources/%s" % filename)
 
 
-def obj_icon(obj, rotation=0, size=(64, 64), applet=None):
-    if hasattr(applet, 'icon'):
-        applet_icon = applet.icon
+def obj_icon(obj_lst, rotation=0, size=(64, 64), default=None, paths=None):
+    if not isinstance(obj_lst, (list, tuple)):
+        obj_lst = [obj_lst]
+
+    _obj_icon = None
+    for obj in obj_lst:
+        if hasattr(obj, 'icon'):
+            _obj_icon = obj.icon
+            break
+
+    if _obj_icon:
+        icon = qicon(_obj_icon, default=default, paths=paths)
     else:
-        applet_icon = None
-
-    if applet_icon:
-        icon = qicon(applet_icon)
-    elif hasattr(obj, 'icon'):
-        icon = qicon(obj.icon)
-    else:
-        icon = qicon('oxygen_application-x-desktop.png')
+        icon = qicon(None, default)
 
     if rotation:
         pix = icon.pixmap(*size)

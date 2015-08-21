@@ -465,7 +465,7 @@ class AppletTabWidget(QtGui.QTabWidget):
         else:
             rotation = 0
 
-        self.setTabIcon(idx, obj_icon(pl, applet=applet, rotation=rotation))
+        self.setTabIcon(idx, obj_icon([pl, applet], rotation=rotation))
         self.setTabToolTip(idx, pl.label)
         self.widget(idx).set_edit_mode(self._edit_mode)
 

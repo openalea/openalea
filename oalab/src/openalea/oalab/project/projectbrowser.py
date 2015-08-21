@@ -27,7 +27,7 @@ from openalea.core.path import path
 from openalea.core.service.project import (projects, set_active_project)
 from openalea.core.settings import get_default_home_dir
 from openalea.oalab.project.dialog import rename_model, edit_metadata, new_project
-from openalea.oalab.project.pretty_preview import ProjectSelectorScroll
+from openalea.oalab.project.selector import ProjectSelector
 from openalea.oalab.project.qtmodel import ProjectModel
 from openalea.oalab.utils import ModalDialog
 from openalea.oalab.utils import qicon
@@ -324,9 +324,12 @@ class ProjectBrowserView(QtGui.QTreeView, AbstractListener):
         If name==false, display a widget to choose project to open.
         Then open project.
         """
-        self.proj_selector = ProjectSelectorScroll(projects=projects())
-        self.proj_selector.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        self.proj_selector.show()
+        self.proj_selector = ProjectSelector()
+        dialog = ModalDialog(self.proj_selector)
+        if dialog.exec_():
+            project = self.proj_selector.project()
+            if project:
+                self.set_project(project)
 
     def open(self):
         project, category, name = self.selected_data()

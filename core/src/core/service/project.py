@@ -36,10 +36,12 @@ def projects():
 
 
 def project_item(project_name, category, name):
-
-    print 'get item', project_name, category, name
     data = PM.cproject.get_item(category, name)
     return data
+
+
+def add_project_directory(projectdir):
+    PM.repositories.append(projectdir)
 
 create_project = PM.create
 

@@ -19,6 +19,7 @@
 
 from openalea.oalab.service.drag_and_drop import add_drag_format, encode_to_qmimedata
 from openalea.vpltk.qt import QtGui
+from openalea.oalab.utils import obj_icon
 
 
 class ProjectModel(QtGui.QStandardItemModel):
@@ -31,21 +32,6 @@ class ProjectModel(QtGui.QStandardItemModel):
 
         add_drag_format(self, 'openalealab/data')
         add_drag_format(self, 'openalealab/model')
-
-    def project_icon(self, project):
-        # Propose icon by default.
-        # If project have another one, use it
-        icon_project = QtGui.QIcon(":/images/resources/openalea_icon2.png")
-        icon = icon_project
-        if hasattr(project, "icon"):
-            icon_name = project.icon
-            if len(icon_name):
-                if icon_name[0] is not ":":
-                    # local icon
-                    icon_name = project.path / icon_name
-                    # else native icon from oalab.gui.resources
-                icon = QtGui.QIcon(icon_name)
-        return icon
 
     def set_project(self, project):
         self._project = project
@@ -78,7 +64,7 @@ class ProjectModel(QtGui.QStandardItemModel):
         item = QtGui.QStandardItem(name)
         self._root_item = name
 
-        item.setIcon(self.project_icon(project))
+        item.setIcon(obj_icon(project, default=icons['project'], paths=[project.path]))
         parentItem.appendRow(item)
 
         for category in project.categories:

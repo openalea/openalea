@@ -130,6 +130,7 @@ class ControlView(QtGui.QTreeView):
             index = self.model().createIndex(row, 1)
             controls.append(self.model().control(index))
         self.controlsSelected.emit(controls)
+        return QtGui.QTreeView.selectionChanged(self, selected, deselected)
 
     def onRowsInserted(self, *args, **kwargs):
         self.resizeColumnToContents(0)

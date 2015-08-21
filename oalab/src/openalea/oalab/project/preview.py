@@ -85,17 +85,7 @@ class Preview(QtGui.QWidget):
         layout.addWidget(model_list, i + 1, 0, 1, 2)
 
         model_list.setText(html_item_summary(project))
-
-        open_button = QtGui.QPushButton("Open this project")
-        open_button.clicked.connect(self.on_project_opened)
-        layout.addWidget(open_button, i + 2, 0)
-
         self.setLayout(layout)
-
-    def on_project_opened(self):
-        pm = ProjectManager()
-        pm.cproject = self.project
-        self.hide()
 
 
 def main():
