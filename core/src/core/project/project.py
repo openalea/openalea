@@ -229,6 +229,15 @@ class Project(Observed):
         return self._path.name
 
     @property
+    def title(self):
+        if hasattr(self, 'label'):
+            return self.label
+        elif hasattr(self, 'alias'):
+            return self.alias
+        else:
+            return ' '.join(self.name.capitalize().split('_'))
+
+    @property
     def icon_path(self):
         """
         :return: the complete path of the icon. To modify it, you have to modify the path of project,

@@ -64,6 +64,8 @@ setup(
     install_requires=[],
     dependency_links=['http://openalea.gforge.inria.fr/pi'],
 
+    share_dirs={'share': 'share'},
+
     # entry_points
     entry_points={
         "wralea": ["openalea.flow control = openalea.core.system", ],

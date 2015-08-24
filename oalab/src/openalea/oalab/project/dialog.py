@@ -28,6 +28,8 @@ def edit_metadata(project):
                 project.move(_proj.path)
             project.metadata = project_creator.metadata()
             project.save()
+            return True
+    return False
 
 
 def new_project():

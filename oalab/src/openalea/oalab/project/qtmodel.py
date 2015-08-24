@@ -19,7 +19,7 @@
 
 from openalea.oalab.service.drag_and_drop import add_drag_format, encode_to_qmimedata
 from openalea.vpltk.qt import QtGui
-from openalea.oalab.utils import obj_icon
+from openalea.oalab.utils import obj_icon, qicon
 
 
 class ProjectModel(QtGui.QStandardItemModel):
@@ -52,16 +52,16 @@ class ProjectModel(QtGui.QStandardItemModel):
             control=QtGui.QIcon(":/images/resources/node.png"),
             world=QtGui.QIcon(":/images/resources/plant.png"),
             startup=QtGui.QIcon(":/images/resources/editredo.png"),
-            data=QtGui.QIcon(":/images/resources/fileopen.png"),
+            data=qicon("icons/Crystal_Clear_filesystem_folder_grey_open.png"),
             doc=QtGui.QIcon(":/images/resources/book.png"),
             cache=QtGui.QIcon(":/images/resources/editcopy.png"),
-            model=QtGui.QIcon(":/images/resources/new.png"),
+            model=qicon("icons/Crystal_Clear_app_kservices.png"),
             lib=QtGui.QIcon(":/images/resources/codefile-red.png"),
         )
 
         name = project.name
         parentItem = self.invisibleRootItem()
-        item = QtGui.QStandardItem(name)
+        item = QtGui.QStandardItem(project.title)
         self._root_item = name
 
         item.setIcon(obj_icon(project, default=icons['project'], paths=[project.path]))

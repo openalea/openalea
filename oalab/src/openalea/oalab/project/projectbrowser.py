@@ -29,8 +29,8 @@ from openalea.core.settings import get_default_home_dir
 from openalea.oalab.project.dialog import rename_model, edit_metadata, new_project
 from openalea.oalab.project.selector import ProjectSelector
 from openalea.oalab.project.qtmodel import ProjectModel
-from openalea.oalab.utils import ModalDialog
-from openalea.oalab.utils import qicon
+from openalea.oalab.project.preview import DEFAULT_PROJECT_ICON
+from openalea.oalab.utils import ModalDialog, qicon, obj_icon
 from openalea.oalab.widget import resources_rc
 from openalea.vpltk.qt import QtGui, QtCore
 
@@ -129,10 +129,9 @@ class ProjectBrowserWidget(QtGui.QWidget):
             relpath = home.relpathto(projectdir)
             title = unicode(relpath)
             menu = QtGui.QMenu(title, self.menu_available_projects)
-            for project in _projects:
-                icon_path = project.icon_path
-                icon_name = icon_path if icon_path else ":/images/resources/openalealogo.png"
-                action = QtGui.QAction(QtGui.QIcon(icon_name), project.name, self.menu_available_projects)
+            for project in sorted(_projects, key=lambda project: project.title):
+                icon = obj_icon(project, default=DEFAULT_PROJECT_ICON, paths=[project.path])
+                action = QtGui.QAction(icon, project.title, self.menu_available_projects)
                 action.triggered.connect(self._on_open_project_triggered)
                 menu.addAction(action)
                 self.action_available_project[action] = project
@@ -260,8 +259,10 @@ class ProjectBrowserView(QtGui.QTreeView, AbstractListener):
         index = self.getIndex()
         project = self.project()
         data = self._model.projectdata(index)
-        if index is None or project is None or data is None:
+        if project is None:
             return (None, None, None)
+        elif project and data is None:
+            return project, None, None
         else:
             category, name = data
             return project, category, name
@@ -277,7 +278,11 @@ class ProjectBrowserView(QtGui.QTreeView, AbstractListener):
         menu = QtGui.QMenu(self)
         project, category, obj = self.selected_data()
 
-        if category == 'category' and obj == 'data':
+        if project and category is None:
+            menu.addAction(self.actionEditMeta)
+            menu.addAction(self.actionCloseProj)
+
+        elif category == 'category' and obj == 'data':
             import_data = QtGui.QAction(qicon('import.png'), 'Import data', self)
             import_data.triggered.connect(self.open)
             menu.addAction(import_data)
@@ -301,10 +306,6 @@ class ProjectBrowserView(QtGui.QTreeView, AbstractListener):
             menu.addAction(deleteAction)
             deleteAction.triggered.connect(self.delete)
 
-        if category in ['project']:
-            menu.addAction(self.actionEditMeta)
-            menu.addAction(self.actionCloseProj)
-
         return menu
 
     def contextMenuEvent(self, event):
@@ -317,7 +318,9 @@ class ProjectBrowserView(QtGui.QTreeView, AbstractListener):
 
     def edit_metadata(self):
         project = self.project()
-        edit_metadata(project)
+        rvalue = edit_metadata(project)
+        if rvalue:
+            self.refresh()
 
     def open_project(self, name=False, path=None):
         """
@@ -326,6 +329,8 @@ class ProjectBrowserView(QtGui.QTreeView, AbstractListener):
         """
         self.proj_selector = ProjectSelector()
         dialog = ModalDialog(self.proj_selector)
+        dialog.resize(800, 600)
+        dialog.setContentsMargins(3, 3, 3, 3)
         if dialog.exec_():
             project = self.proj_selector.project()
             if project:
@@ -333,7 +338,7 @@ class ProjectBrowserView(QtGui.QTreeView, AbstractListener):
 
     def open(self):
         project, category, name = self.selected_data()
-        if project:
+        if project and category:
             if category == 'category' and name == 'data':
                 p = QtGui.QFileDialog.getOpenFileName(self, 'Select File to open', project.path, "All (*)")
                 if p:
@@ -358,12 +363,12 @@ class ProjectBrowserView(QtGui.QTreeView, AbstractListener):
 
     def rename(self):
         project, category, name = self.selected_data()
-        if project:
+        if project and category:
             self._rename(project, category, name)
 
     def remove(self):
         project, category, name = self.selected_data()
-        if project:
+        if project and category:
             project.remove(category, filename=name)
 
     def delete(self):

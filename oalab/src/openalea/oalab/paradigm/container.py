@@ -115,6 +115,8 @@ class ParadigmContainer(QtGui.QTabWidget):
     def open_file(self, filepath=None):
         if filepath in(None, True, False):
             filepath, filters = getopenfilename(self, u"Select file")
+        if filepath is None:
+            return
         filepath = path(filepath).normpath().abspath()
 
         # check if a data in container yet correspond to this path

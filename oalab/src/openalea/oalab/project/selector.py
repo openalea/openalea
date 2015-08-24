@@ -26,10 +26,10 @@ from openalea.vpltk.qt.compat import getexistingdirectory
 from openalea.core.service.project import (projects, add_project_directory,
                                            write_project_settings)
 
-from openalea.oalab.utils import obj_icon
+from openalea.oalab.utils import obj_icon, qicon
 from openalea.oalab.widget.switcher import WidgetSwitcher
 from openalea.oalab.widget import resources_rc
-from openalea.oalab.project.preview import Preview
+from openalea.oalab.project.preview import Preview, DEFAULT_PROJECT_ICON
 from openalea.core.path import path as Path
 from openalea.core.settings import get_default_home_dir
 
@@ -55,7 +55,6 @@ class ProjectExplorerModel(QtGui.QStandardItemModel):
         return self._projects
 
     def refresh(self):
-        default_icon = ':/images/resources/openalea_icon2.png'
 
         self.clear()
         self._group = {}
@@ -71,20 +70,30 @@ class ProjectExplorerModel(QtGui.QStandardItemModel):
 
         parent_item = self.invisibleRootItem()
         root = Path(get_default_home_dir())
-        for path, projects in groupby(_projects, lambda item: item[0]):
+
+        groups = groupby(_projects, lambda item: item[0])
+
+        for path, projects in groups:
             name = str(root.relpathto(path))
             repository_item = QtGui.QStandardItem(name)
-            #item.project = project
-            #item.setIcon(obj_icon(project, default=default_icon, paths=[project.path]))
+            repository_item.setIcon(qicon("icons/Crystal_Clear_filesystem_folder_grey_open.png"))
             parent_item.appendRow(repository_item)
             self._group[repository_item] = []
 
-            for _, project in projects:
-                item = QtGui.QStandardItem(project.name)
+            for _, project in sorted(projects, key=lambda args: args[1].title):
+                item = QtGui.QStandardItem(project.title)
                 item.project = project
-                item.setIcon(obj_icon(project, default=default_icon, paths=[project.path]))
+                item.setIcon(obj_icon(project, default=DEFAULT_PROJECT_ICON, paths=[project.path]))
                 repository_item.appendRow(item)
                 self._group[repository_item].append(item)
+
+        self.more_item = QtGui.QStandardItem("Add more projects")
+        self.more_item.setIcon(qicon("icons/Crystal_Clear_action_edit_add.png"))
+        parent_item.appendRow(self.more_item)
+
+    def search_project_selected(self, idx):
+        item = self.itemFromIndex(idx)
+        return item is self.more_item
 
     def project(self, idx):
         try:
@@ -95,13 +104,16 @@ class ProjectExplorerModel(QtGui.QStandardItemModel):
 
 class ProjectExplorerView(QtGui.QTreeView):
     project_changed = QtCore.Signal(object)
+    search_project_request = QtCore.Signal()
 
     def __init__(self, parent=None):
         QtGui.QTreeView.__init__(self, parent=parent)
+        self.setContentsMargins(0, 0, 0, 0)
         self._model = ProjectExplorerModel()
         self.setModel(self._model)
 
         self.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+        self.setIconSize(QtCore.QSize(24, 24))
 
     def set_projects(self, projects):
         self._model.set_projects(projects)
@@ -112,7 +124,10 @@ class ProjectExplorerView(QtGui.QTreeView):
 
     def selectionChanged(self, selected, deselected):
         for idx in selected.indexes():
-            self.project_changed.emit(self._model.project(idx))
+            if self._model.search_project_selected(idx):
+                self.search_project_request.emit()
+            else:
+                self.project_changed.emit(self._model.project(idx))
         return QtGui.QTreeView.selectionChanged(self, selected, deselected)
 
 
@@ -129,19 +144,19 @@ class ProjectSelector(QtGui.QWidget):
 
         self._explorer = ProjectExplorerView()
         self._explorer.project_changed.connect(self._on_project_changed)
+        self._explorer.search_project_request.connect(self.add_path_to_search_project)
         self._explorer.setSizePolicy(p(p.MinimumExpanding, p.MinimumExpanding))
 
         self._switcher = WidgetSwitcher(parent=self)
         self._switcher.setSizePolicy(p(p.MinimumExpanding, p.MinimumExpanding))
 
-        self._pb_search = QtGui.QPushButton("Search Projects")
-        self._pb_search.clicked.connect(self.add_path_to_search_project)
-
-        self._layout.addWidget(self._explorer, 0, 0)
-        self._layout.addWidget(self._switcher, 0, 1)
-        self._layout.addWidget(self._pb_search, 1, 0)
+        self._layout.addWidget(QtGui.QLabel("Select a project"), 0, 0)
+        self._layout.addWidget(self._explorer, 1, 0)
+        self._layout.addWidget(self._switcher, 1, 1)
 
         self.set_projects(projects())
+
+        self.resize(800, 600)
 
     def set_projects(self, projects):
         self._explorer.set_projects(projects)

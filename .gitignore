@@ -61,3 +61,7 @@ nosetests.xml
 
 # svn
 .svn
+
+# temporary files
+*._icon.png
+

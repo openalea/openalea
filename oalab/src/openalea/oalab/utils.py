@@ -28,21 +28,28 @@ from openalea.deploy.shared_data import shared_data
 from openalea.core.path import path as Path
 from openalea.oalab.widget import resources_rc
 
+DEFAULT_SCALE = (256, 256)
+
 
 def get_shared_data(filename):
     return shared_data(openalea.oalab, filename)
 
 
-def qicon(filename, default=None, paths=None):
+def qicon(filename, default=None, paths=None, save_filepath=None):
     if isinstance(filename, QtGui.QIcon):
         return filename
 
     if not filename:
         if default is None:
             default = get_shared_data('icons/oxygen_application-x-desktop.png')
-        return qicon(default, default)
+        return qicon(default, default, save_filepath=save_filepath)
     elif filename.startswith(':/'):
-        return QtGui.QIcon(filename)
+        pixmap = QtGui.QPixmap(filename).scaled(*DEFAULT_SCALE, aspectRatioMode=QtCore.Qt.KeepAspectRatio)
+        icon = QtGui.QIcon(pixmap)
+        if save_filepath:
+            icon.addFile(save_filepath)
+            pixmap.save(save_filepath)
+        return icon
     else:
         _paths = [Path(filename)]
         if paths:
@@ -62,12 +69,17 @@ def qicon(filename, default=None, paths=None):
                     break
 
         if found:
-            return QtGui.QIcon(found)
+            pixmap = QtGui.QPixmap(found).scaled(*DEFAULT_SCALE, aspectRatioMode=QtCore.Qt.KeepAspectRatio)
+            icon = QtGui.QIcon(pixmap)
+            if save_filepath:
+                icon.addFile(save_filepath)
+                pixmap.save(save_filepath)
+            return icon
         else:
-            return qicon(":/images/resources/%s" % filename)
+            return qicon(":/images/resources/%s" % filename, save_filepath=save_filepath)
 
 
-def obj_icon(obj_lst, rotation=0, size=(64, 64), default=None, paths=None):
+def obj_icon(obj_lst, rotation=0, size=(64, 64), default=None, paths=None, save_filepath=None):
     if not isinstance(obj_lst, (list, tuple)):
         obj_lst = [obj_lst]
 
@@ -78,9 +90,9 @@ def obj_icon(obj_lst, rotation=0, size=(64, 64), default=None, paths=None):
             break
 
     if _obj_icon:
-        icon = qicon(_obj_icon, default=default, paths=paths)
+        icon = qicon(_obj_icon, default=default, paths=paths, save_filepath=save_filepath)
     else:
-        icon = qicon(None, default)
+        icon = qicon(None, default, save_filepath=save_filepath)
 
     if rotation:
         pix = icon.pixmap(*size)

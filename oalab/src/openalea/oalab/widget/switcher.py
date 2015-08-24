@@ -10,6 +10,8 @@ class WidgetSwitcher(QtGui.QWidget):
         self._previous = None
 
         self._layout = QtGui.QHBoxLayout(self)
+        self._layout.setContentsMargins(0, 0, 0, 0)
+        self._layout.setSpacing(0)
 
         p = QtGui.QSizePolicy
 

@@ -1,0 +1,28 @@
+.title {
+	font-size:20px;
+}
+
+.section-title {
+	font-size: 16px;
+	font-weight: bold;
+	font-style: italic;
+	color: #6BA81E;
+	/* text-decoration: underline;*/
+}
+
+
+div#meta-information.section .key {
+	font-weight: bold;
+}
+
+.section .item-namebase {
+	font-weight: bold;
+}
+
+.section#meta-information {
+}
+
+.section#model {
+
+}
+
