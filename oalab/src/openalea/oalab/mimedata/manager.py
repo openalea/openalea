@@ -35,6 +35,12 @@ class MimeCodecManager(object):
         self._registry_encode_plugin = {}
 
     def init(self):
+        self._registry_decode = set()
+        self._registry_decode_plugin = {}
+
+        self._registry_encode = set()
+        self._registry_encode_plugin = {}
+
         for plugin in plugins('oalab.plugin', criteria=dict(implement='IQMimeCodec')):
             for k, v in plugin.qtdecode:
                 codec = (unicode(k), unicode(v))
@@ -65,6 +71,12 @@ class MimeCodecManager(object):
                 if wk == ek and wv.startswith(ev):
                     res.append((ek, ev))
         return res
+
+    def possible_conv(self, data, mimetype):
+        _possible_conv = {}
+        for k, g in itertools.groupby(self._registry_encode, lambda data: data[0]):
+            _possible_conv[k] = list(g)
+        return _possible_conv
 
     def is_compatible(self, mimetype_in_list=None, mimetype_out_list=None):
         return bool(self.compatible_mime(mimetype_in_list, mimetype_out_list))

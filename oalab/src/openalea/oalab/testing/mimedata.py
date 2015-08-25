@@ -19,10 +19,10 @@
 ###############################################################################
 
 
-from openalea.core.plugin.manager import PluginManager
+from openalea.core.service.plugin import register_plugin
 from openalea.oalab.mimedata import QMimeCodecPlugin
 from openalea.oalab.mimedata.qcodec import QMimeCodec
-from openalea.oalab.service.drag_and_drop import reload_drag_and_drop_plugins
+from openalea.oalab.service.mimedata import reload_drag_and_drop_plugins
 
 
 class SampleCustomData(object):
@@ -76,6 +76,6 @@ class SampleCustomDataCodecPlugin(QMimeCodecPlugin):
     def __call__(self):
         return SampleCustomDataCodec
 
-pm = PluginManager()
-pm.add_plugin('oalab.plugin', SampleCustomDataCodecPlugin)
+
+register_plugin('oalab.plugin', SampleCustomDataCodecPlugin)
 reload_drag_and_drop_plugins()
