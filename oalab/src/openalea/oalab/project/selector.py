@@ -38,6 +38,7 @@ class ProjectExplorerModel(QtGui.QStandardItemModel):
 
     def __init__(self):
         QtGui.QStandardItemModel.__init__(self)
+
         self._headers = [u'Project']
         self.setHorizontalHeaderLabels(self._headers)
         self._group = {}
@@ -114,6 +115,8 @@ class ProjectExplorerView(QtGui.QTreeView):
 
         self.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.setIconSize(QtCore.QSize(24, 24))
+
+        self.setHeaderHidden(True)
 
     def set_projects(self, projects):
         self._model.set_projects(projects)
