@@ -18,7 +18,7 @@
 ###############################################################################
 
 from openalea.oalab.service.drag_and_drop import add_drag_format, encode_to_qmimedata
-from openalea.vpltk.qt import QtGui
+from openalea.vpltk.qt import QtGui, QtCore
 from openalea.oalab.utils import obj_icon, qicon
 
 
@@ -32,6 +32,9 @@ class ProjectModel(QtGui.QStandardItemModel):
 
         add_drag_format(self, 'openalealab/data')
         add_drag_format(self, 'openalealab/model')
+
+    def dropMimeData(self, data, action, row, column, parent):
+        return False
 
     def set_project(self, project):
         self._project = project
@@ -117,4 +120,5 @@ class ProjectModel(QtGui.QStandardItemModel):
             data = self._project.get_item(category, name)
             return encode_to_qmimedata(data, 'openalealab/%s' % category)
         else:
-            return QtGui.QStandardItemModel.mimeData(self, indices)
+            # QtGui.QStandardItemModel.mimeData(self, indices)
+            return QtCore.QMimeData()
