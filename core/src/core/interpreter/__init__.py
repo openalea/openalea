@@ -76,5 +76,7 @@ def adapt_interpreter(ip):
     ip.runcode = runcode
     ip.runsource = runsource
     ip.loadcode = loadcode
+    if not hasattr(ip, 'shell'):
+        ip.shell = ip
 
     return ip

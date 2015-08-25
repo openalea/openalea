@@ -47,3 +47,6 @@ create_project = PM.create
 
 write_project_settings = PM.write_settings
 default_project = PM.load_default
+load_project = PM.load
+search_project = PM.search
+discover_projects = PM.discover

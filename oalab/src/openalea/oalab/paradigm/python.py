@@ -54,6 +54,7 @@ class PythonModelController(ParadigmController):
             cursor.insertText(text)
         add_drop_callback(editor, 'openalea/code.oalab', drop_text)
         add_drop_callback(editor, 'openalea/identifier', drop_text)
+        add_drop_callback(editor, 'text/plain', drop_text)
 
         return editor
 

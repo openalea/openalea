@@ -79,13 +79,6 @@ class PyCodeEditor(PyCodeEditBase):
             color_scheme=self.syntax_highlighter.color_scheme.name)
         return clone
 
-    def setPlainText(self, txt, mimetype='text/x-python', encoding='utf-8'):
-        """
-        Extends QCodeEdit.setPlainText to allow user to setPlainText without
-        mimetype (since the python syntax highlighter does not use it).
-        """
-        api.CodeEdit.setPlainText(self, txt, mimetype, encoding)
-
     def __repr__(self):
         return '%s(path=%r)' % (self.__class__.__name__, self.file.path)
 

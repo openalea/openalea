@@ -216,6 +216,37 @@ class Project(Observed):
     def __repr__(self):
         return "%s(%r)" % (self.__class__.__name__, str(self.path))
 
+    def _repr_html_(self):
+        import openalea.core
+        import base64
+        from openalea.deploy.shared_data import shared_data
+        from openalea.core.project.html import html_metainfo_summary, html_item_summary, obj_icon_path
+        from IPython.display import Image
+
+        stylesheet_path = shared_data(openalea.core, 'stylesheet.css')
+        if stylesheet_path and stylesheet_path.isfile():
+            with open(stylesheet_path) as f:
+                stylesheet = f.read()
+            html = '<style>%s</style>' % stylesheet
+        else:
+            html = ''
+
+        icon = obj_icon_path(self, paths=[self.path])
+        if icon:
+            data = base64.b64encode(Image(filename=icon)._repr_png_()).decode('ascii')
+            image = '<image width="64px" style="vertical-align:middle;" src="data:image/png;base64,%s">' % data
+        else:
+            image = ''
+
+        args = dict(image=image, title=self.title)
+
+        html += '<div class="summary"><p class="title">%(image)s%(title)s</p>' % args
+        html += '\n<hr>'
+        html += html_metainfo_summary(self)
+        html += html_item_summary(self)
+        html += '</div>'
+        return html
+
     @property
     def path(self):
         return self._path
@@ -271,7 +302,7 @@ class Project(Observed):
             self.ns.update(ns)
         interpreter = kwargs.get('shell')
         if interpreter:
-            interpreter.shell.user_ns.clear()
+            #interpreter.shell.user_ns.clear()
             interpreter.shell.init_user_ns()
             interpreter.shell.user_ns.update(self.ns)
 

@@ -3,6 +3,7 @@ import datetime
 import traceback
 import os
 
+
 def camel_case_to_lower(name):
     """
 
@@ -39,6 +40,7 @@ def camel_case_to_lower(name):
     lowername = lowername.lstrip('_')
     return lowername
 
+
 def warn_deprecated(old_name, new_name, date=None):
     """
     :param date: (yyyy, mm, dd) ex: (2014, 9, 25) for 2014, 25th of september
@@ -51,7 +53,8 @@ def warn_deprecated(old_name, new_name, date=None):
         datemsg = 'soon'
 
     if 'OA_CLICOLOR' in os.environ:
-        msg = "\n\033[93m%r is deprecated and will be removed \033[91m%s.\033[0m. Use %r instead. " % (old_name, datemsg, new_name)
+        msg = "\n\033[93m%r is deprecated and will be removed \033[91m%s.\033[0m. Use %r instead. " % (
+            old_name, datemsg, new_name)
     else:
         msg = "\n%r is deprecated and will be removed %s. Use %r instead. " % (old_name, datemsg, new_name)
 
@@ -63,5 +66,3 @@ def warn_deprecated(old_name, new_name, date=None):
         raise IOError
     else:
         warnings.warn(msg, stacklevel=3)
-
-

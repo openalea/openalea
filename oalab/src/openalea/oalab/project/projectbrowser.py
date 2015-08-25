@@ -335,6 +335,7 @@ class ProjectBrowserView(QtGui.QTreeView, AbstractListener):
             project = self.proj_selector.project()
             if project:
                 self.set_project(project)
+                set_active_project(project)
 
     def open(self):
         project, category, name = self.selected_data()
