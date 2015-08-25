@@ -128,11 +128,13 @@ class DropHandler(object):
         self._drop_callbacks = {}
         self._drop_kwds = {}
 
+        self._compatible = None
+
         mcm.init()
 
         # Drop part
         self.widget.setAcceptDrops(True)
-        if isinstance(widget, QtGui.QPlainTextEdit):
+        if isinstance(widget, (QtGui.QPlainTextEdit, QtGui.QTextEdit)):
             self.widget.canInsertFromMimeData = self.can_insert_from_mime_data
             self.widget.insertFromMimeData = self.insert_from_mime_data
         else:
@@ -154,8 +156,12 @@ class DropHandler(object):
         rect = self.widget.cursorRect()
         pos = self.widget.viewport().mapToGlobal(rect.center())
         possible_conv, selected = self._drop(source, pos=pos)
-        if possible_conv is None:
-            return
+
+        # If not explicitly defined, use widget default drag and drop
+        if not possible_conv:
+            self._compatible = None
+            return super(self.widget.__class__, self.widget).insertFromMimeData(source)
+
         for mimetype_in, mimetype_out in possible_conv[selected]:
             try:
                 data, kwds = mcm.qtdecode(source, mimetype_in, mimetype_out)
@@ -165,13 +171,15 @@ class DropHandler(object):
                 kwds['mimedata'] = source
                 kwds['cursor'] = cursor
                 self._drop_callbacks[selected](data, **kwds)
+            self._compatible = None
 
-    def _compatibe_mime(self, mimetype_in_list):
+    def _compatible_mime(self, mimetype_in_list):
         return mcm.compatible_mime(mimetype_in_list, self._drop_callbacks.keys())
 
     def can_insert_from_mime_data(self, source):
-        self._compatible = self._compatibe_mime(source.formats())
-        return bool(self._compatible)
+        default = super(self.widget.__class__, self.widget).canInsertFromMimeData(source)
+        self._compatible = self._compatible_mime(source.formats())
+        return bool(self._compatible) or default
 
     def drag_enter_event(self, event):
         mimedata = event.mimeData()
@@ -179,19 +187,19 @@ class DropHandler(object):
 
         if self._compatible:
             event.acceptProposedAction()
-            return QtGui.QWidget.dragEnterEvent(self.widget, event)
+            return super(self.widget.__class__, self.widget).dragEnterEvent(event)
         else:
-            return QtGui.QWidget.dragEnterEvent(self.widget, event)
+            return super(self.widget.__class__, self.widget).dragEnterEvent(event)
 
     def drag_leave_event(self, event):
         self._compatible = None
-        return QtGui.QWidget.dragLeaveEvent(self.widget, event)
+        return super(self.widget.__class__, self.widget).dragLeaveEvent(event)
 
     def drag_move_event(self, event):
         if self._compatible:
             event.acceptProposedAction()
         else:
-            event.ignore()
+            return super(self.widget.__class__, self.widget).dragMoveEvent(event)
 
     def _labels(self, possible_conv):
         labels = {}
@@ -211,6 +219,9 @@ class DropHandler(object):
         # but ... if corresponding file is not an image, quick_check should return False.
         # In this case, we do not add conversion to compatible list.
         possible_conv = {}
+        if not self._compatible:
+            return {}, None
+
         for k, g in itertools.groupby(self._compatible, lambda data: data[1]):
             conv = []
             for mimetype_in, mimetype_out in list(g):
@@ -243,7 +254,7 @@ class DropHandler(object):
         pos = self.widget.mapToGlobal(event.pos())
         possible_conv, selected = self._drop(mimedata, pos)
         if possible_conv is None:
-            return
+            self._compatible = None
         for mimetype_in, mimetype_out in possible_conv[selected]:
             try:
                 data, kwds = mcm.qtdecode(mimedata, mimetype_in, mimetype_out)
@@ -254,3 +265,4 @@ class DropHandler(object):
             else:
                 event.acceptProposedAction()
                 return QtGui.QWidget.dropEvent(self.widget, event)
+            self._compatible = None
