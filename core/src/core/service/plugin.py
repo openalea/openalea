@@ -12,12 +12,12 @@ def debug_plugins(debug='all'):
     PIM.debug = debug
 
 
-def register_plugin(group, plugin):
+def register_plugin(plugin, group=None):
     PM.discover(group)
-    PM.add_plugin(group, plugin)
+    PM.add(plugin, group)
 
-plugin = PM.plugin
-plugins = PM.plugins
+plugin = PM.item
+plugins = PM.items
 
 
 clear_plugin_instances = PIM.clear
@@ -28,3 +28,7 @@ plugin_function = PIM.function
 plugin_instances = PIM.instances
 plugin_instance_exists = PIM.has_instance
 set_plugin_instance_manager = PIM.set_manager
+
+
+def default_plugin_manager():
+    return PM

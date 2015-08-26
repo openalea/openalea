@@ -74,7 +74,7 @@ def list_plugins(lst, verbose=False):
                 print '\033[44m%s\033[0m' % group
                 UNDEF = 'Not defined'
                 plugin_groups = {UNDEF: []}
-                for plugin in pm.plugins(group):
+                for plugin in pm.items(group):
                     interface = getattr(plugin, 'implement', None)
                     if interface:
                         plugin_groups.setdefault(interface, []).append(plugin)

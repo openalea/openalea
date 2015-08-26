@@ -101,40 +101,40 @@ class TestPluginManager(unittest.TestCase):
 
     def test_autoload(self):
         pm = PluginManager()
-        pm.plugins('test.c1')
-        assert 'test.c1' in pm._plugin
-        assert 'tstpkg1.plugin:C1Plugin1' in pm._plugin['test.c1']
+        pm.items('test.c1')
+        assert 'test.c1' in pm._item
+        assert 'tstpkg1.plugin:C1Plugin1' in pm._item['test.c1']
 
         pm = PluginManager(autoload=[])
-        pm.plugins('test.c1')
-        assert 'test.c1' in pm._plugin
-        assert 'tstpkg1.plugin:C1Plugin1' not in pm._plugin['test.c1']
+        pm.items('test.c1')
+        assert 'test.c1' in pm._item
+        assert 'tstpkg1.plugin:C1Plugin1' not in pm._item['test.c1']
 
     def test_module_plugin_def(self):
-        assert self.pm.plugins('test.c1')
+        assert self.pm.items('test.c1')
 
         # check if right plugins have been found
-        assert self.pm.plugin('test.c1', 'MyPlugin1') is not None
-        assert self.pm.plugin('test.c1', 'MyPlugin2') is not None
+        assert self.pm.item('MyPlugin1', 'test.c1') is not None
+        assert self.pm.item('MyPlugin2', 'test.c1') is not None
 
     def test_manual_plugin_def(self):
-        assert self.pm.plugins('test.c2')
+        assert self.pm.items('test.c2')
 
         # check if right plugins have been found
-        assert self.pm.plugin('test.c2', 'C2Plugin1') is not None
-        assert self.pm.plugin('test.c2', 'C2Plugin2') is not None
+        assert self.pm.item('C2Plugin1', 'test.c2') is not None
+        assert self.pm.item('C2Plugin2', 'test.c2') is not None
 
     def test_interface_filter(self):
-        plugins = self.pm.plugins('test.c1')
+        plugins = self.pm.items('test.c1')
         assert len(plugins) == 2
-        plugins = self.pm.plugins('test.c1', criteria=dict(implement='IClass1'))
+        plugins = self.pm.items('test.c1', criteria=dict(implement='IClass1'))
         assert len(plugins) == 1
         assert plugins[0].name == 'MyPlugin1'
 
     def test_dynamic_plugin(self):
-        self.pm.add_plugin('test.dynamic3', AlgoPlugin1)
-        self.pm.add_plugin('test.dynamic3', AlgoPlugin2)
-        assert len(self.pm.plugins('test.dynamic3')) == 2
+        pl = self.pm.add(AlgoPlugin1, 'test.dynamic3')
+        self.pm.add(AlgoPlugin2, 'test.dynamic3')
+        assert len(self.pm.items('test.dynamic3')) == 2
 
         objc3c1 = self.pim.instance('test.dynamic3', 'algo_1')
         assert objc3c1
@@ -145,7 +145,7 @@ class TestPluginManager(unittest.TestCase):
 
     def atest_proxy_plugin(self):
         from openalea.core.plugin.manager import SimpleClassPluginProxy
-        self.pm.add_plugin('test.dynamic4', Algo, plugin_proxy=SimpleClassPluginProxy)
+        self.pm.add('test.dynamic4', Algo, plugin_proxy=SimpleClassPluginProxy)
         objc4c1 = self.pim.instance('test.dynamic4', 'Algo')
         objc4c1_2 = self.pim.instance('test.dynamic4', 'Algo')
         objc4c1_3 = self.pim.new('test.dynamic4', 'Algo')
@@ -160,12 +160,12 @@ class TestPluginManager(unittest.TestCase):
         import tstpkg1.impl
 
         # Check manager use plugin name attribute if defined (instead of class name)
-        c1plugin1 = self.pm.plugin('test.c1', 'MyPlugin1')
+        c1plugin1 = self.pm.item('MyPlugin1', 'test.c1')
         self.assertIsInstance(c1plugin1, tstpkg1.plugin.C1Plugin1)
 
         # Check there is no conflict if two plugins with same alias (in setup.py) but in different categories
         # Check plugin name use class name if no attribute "name"
-        c2plugin1 = self.pm.plugin('test.c2', 'C2Plugin1')
+        c2plugin1 = self.pm.item('C2Plugin1', 'test.c2')
         self.assertIsInstance(c2plugin1, tstpkg1.plugin.C2Plugin1)
 
     def test_new_instance(self):
@@ -229,11 +229,11 @@ class TestPluginManager(unittest.TestCase):
 
         self.pm.debug = True
         with self.assertRaises(ImportError):
-            self.pm.plugins('test.err1')
+            self.pm.items('test.err1')
 
         self.pm.clear()
         self.pm.debug = False
-        self.pm.plugins('test.err1')
+        self.pm.items('test.err1')
 
     @classmethod
     def tearDownClass(cls):

@@ -26,15 +26,17 @@ import inspect
 from warnings import warn
 
 from openalea.core import logger
+from openalea.core.manager import GenericManager
 from openalea.core.plugin.plugin import PluginDef
 from openalea.core.service.introspection import name
 from openalea.core.util import camel_case_to_lower
 
+from pkg_resources import iter_entry_points
 
 __all__ = ['PluginManager']
 
 
-class UnknownPluginError(Exception):
+class UnknownItemError(Exception):
     pass
 
 
@@ -47,17 +49,6 @@ def get_implementation(plugin):
         return getattr(module, objectname)
     else:
         return plugin()
-
-
-def get_criteria(plugin):
-    criteria = {}
-    for criterion in dir(plugin):
-        if criterion.startswith('_'):
-            continue
-        elif criterion in ('implementation', 'name_conversion', 'identifier', 'tags', 'criteria'):
-            continue
-        criteria[criterion] = getattr(plugin, criterion)
-    return criteria
 
 
 def plugin_name(plugin):
@@ -74,103 +65,46 @@ def drop_plugin(name):
     return name
 
 
-def generate_plugin_name(plugin):
-    try:
-        name = plugin.name
-    except AttributeError:
+class PluginManager(GenericManager):
+
+    def generate_item_name(self, item):
         try:
-            name = plugin.__class__.__name__
+            name = item.name
         except AttributeError:
-            name = str(plugin.__class__)
+            try:
+                name = item.__class__.__name__
+            except AttributeError:
+                name = str(item.__class__)
 
-        if hasattr(plugin, 'name_conversion'):
-            if plugin.name_conversion == PluginDef.UNCHANGED:
+        if hasattr(item, 'name_conversion'):
+            if item.name_conversion == PluginDef.UNCHANGED:
                 return name
-            elif plugin.name_conversion == PluginDef.DROP_PLUGIN:
+            elif item.name_conversion == PluginDef.DROP_PLUGIN:
                 return drop_plugin(name)
+            else:
+                return camel_case_to_lower(drop_plugin(name))
+        else:
+            return name
 
-        return camel_case_to_lower(drop_plugin(name))
-    return name
+    def generate_item_id(self, plugin):
+        return ':'.join([plugin.__class__.__module__, plugin.__class__.__name__])
 
+    def discover(self, group=None, item_proxy=None):
+        if "entry_points" in self._autoload:
+            for ep in iter_entry_points(group):
+                self._load_entry_point_plugin(group, ep, item_proxy=item_proxy)
 
-def generate_plugin_id(plugin):
-    return ':'.join([plugin.__class__.__module__, plugin.__class__.__name__])
+    def patch_item(self, item):
+        if not hasattr(item, "name_conversion"):
+            item.name_conversion = 2
 
+        GenericManager.patch_item(self, item)
 
-class PluginManager(object):
-
-    def __init__(self, plugins=None, plugin_proxy=None, autoload=['entry_points']):
-        """
-        :param plugins: list of plugins you want to add manually
-        :param plugin_proxy: proxy class to use by default
-        """
-        self._autoload = autoload
-
-        self._plugin = {}  # dict group -> plugin name -> Plugin class or Plugin proxy
-        self._plugin_proxy = {}
-
-        self.debug = False
-        self._proxies = {}
-
-        self.plugin_proxy = plugin_proxy
-
-        if plugins is not None:
-            self.add_plugins(plugins)
-
-    def clear(self):
-        self._plugin = {}  # dict group -> plugin name -> Plugin class or Plugin proxy
-        self._plugin_loaded = {}
-        self._proxies = {}
-
-    def set_proxy(self, group, plugin_proxy):
-        """
-        Embed all plugin for given group in plugin_proxy.
-        """
-        self._plugin_proxy[group] = plugin_proxy
+        # Look in class dict instead of hasattr(item, 'implementation') to avoid loading implementation
+        item.__class__.implementation = property(fget=get_implementation)
 
     def patch_ep_plugin(self, plugin, ep):
         pass
-
-    def patch_plugin(self, plugin):
-        if not hasattr(plugin, "identifier"):
-            plugin.identifier = generate_plugin_id(plugin)
-        if not hasattr(plugin, "name"):
-            plugin.name = generate_plugin_name(plugin)
-        if not hasattr(plugin, "label"):
-            plugin.label = plugin.name.replace('_', ' ').capitalize()
-        if not hasattr(plugin, "tags"):
-            plugin.tags = []
-        if not hasattr(plugin, "implementation"):
-            plugin.__class__.implementation = property(fget=get_implementation)
-        if not hasattr(plugin, "name_conversion"):
-            plugin.name_conversion = 2
-
-        plugin.__class__.criteria = property(fget=get_criteria)
-
-    def add_plugin(self, group, plugin, plugin_proxy=None, **kwds):
-        """
-        """
-        if inspect.isclass(plugin):
-            plugin = plugin()
-        else:
-            raise NotImplementedError
-
-        if plugin_proxy is None and group in self._plugin_proxy:
-            plugin_proxy = self._plugin_proxy[group]
-
-        if plugin_proxy:
-            plugin = plugin_proxy(plugin)
-
-        self.patch_plugin(plugin)
-        self._plugin.setdefault(group, {})[plugin.identifier] = plugin
-        return plugin
-
-    def add_plugins(self, plugins=None):
-        if plugins is None:
-            plugins = {}
-
-        for group, plugin in plugins.iteritems():
-            self.add_plugin(group, plugin)
 
     def _is_plugin_class(self, obj):
         if hasattr(obj, '__plugin__'):
@@ -182,6 +116,7 @@ class PluginManager(object):
 
     def _add_plugin_from_ep(self, group, ep, plugin_class, plugin_proxy=None):
         logger.debug('%s load plugin %s' % (self.__class__.__name__, ep))
+        from time import time
         if inspect.ismodule(plugin_class):
             plugin_classes = []
             for pl_name in dir(plugin_class):
@@ -197,15 +132,15 @@ class PluginManager(object):
             name = plugin_class.name if hasattr(plugin_class, 'name') else plugin_class.__name__
             parts = [str(s) for s in (ep.dist.egg_name(), group, ep.module_name, ep.name, name)]
             identifier = ':'.join(parts)
-            self.add_plugin(group, plugin_class, plugin_proxy=plugin_proxy, identifier=identifier)
+            self.add(plugin_class, group, item_proxy=plugin_proxy, identifier=identifier)
 
-    def _load_entry_point_plugin(self, group, entry_point, plugin_proxy=None):
+    def _load_entry_point_plugin(self, group, entry_point, item_proxy=None):
         ep = entry_point
         plugin_class = None
         if self.debug:
             plugin_class = ep.load()
             logger.debug('%s load plugin %s' % (self.__class__.__name__, ep))
-            self._add_plugin_from_ep(group, ep, plugin_class, plugin_proxy)
+            self._add_plugin_from_ep(group, ep, plugin_class, item_proxy)
         else:
             try:
                 plugin_class = ep.load()
@@ -218,76 +153,7 @@ class PluginManager(object):
                 warn("Unable to load plugin %s: %s" % (ep, e),
                      RuntimeWarning)
             else:
-                self._add_plugin_from_ep(group, ep, plugin_class, plugin_proxy)
-
-    def _load_plugins(self, group, plugin_proxy=None):
-        if "entry_points" in self._autoload:
-            from pkg_resources import iter_entry_points
-            for ep in iter_entry_points(group):
-                self._load_entry_point_plugin(group, ep, plugin_proxy=plugin_proxy)
-
-    def discover(self, group):
-        self._load_plugins(group)
-
-    def plugin(self, group, identifier):
-        """
-        plugin(self, group, identifier)
-        -> Plugin or raises UnknownPluginError
-
-        plugin(self, group, name)
-        -> return first plugin matching name, if not found, raises UnknownPluginError
-        """
-        plugins = self.plugins(group)
-        if identifier in self._plugin[group]:
-            return self._plugin[group][identifier]
-        else:
-            for pl in plugins:
-                if pl.name == identifier:
-                    return pl
-            args = dict(identifier=identifier, group=group)
-            raise UnknownPluginError("Plugin %(identifier)s not found in %(group)s" % args)
-
-    def _sorted_plugins(self, plugins):
-        plugin_dict = {}
-        for plugin in plugins:
-            if hasattr(plugin, 'name'):
-                plugin_dict[plugin.name] = plugin
-            else:
-                plugin_dict[plugin_name(plugin)] = plugin
-        sorted_plugins = [plugin_dict[name] for name in sorted(plugin_dict.keys())]
-        return sorted_plugins
-
-    def plugins(self, group, tags=None, criteria=None, **kwds):
-        """
-        plugins(self, group, tags=None, criteria=None, **kwds)
-        Return a list of all plugins available for this group and matching tags and criteria.
-
-        optional parameters:
-            pass
-        """
-        try:
-            plugins = self._plugin[group].values()
-        except KeyError:
-            self._plugin.setdefault(group, {})
-            self._load_plugins(group)
-            plugins = self._plugin[group].values()
-
-        if criteria is None:
-            criteria = {}
-
-        valid_plugins = []
-        for pl in plugins:
-            # Check tags. If one tag dont match, ignore this plugin
-            if tags is not None and all(tag in pl.tags for tag in tags) is False:
-                continue
-
-            # Check all criteria. If one criteria dont match, ignore plugin
-            if not all(hasattr(pl, criterion) and getattr(pl, criterion)
-                       == criteria[criterion] for criterion in criteria):
-                continue
-
-            valid_plugins.append(pl)
-        return valid_plugins
+                self._add_plugin_from_ep(group, ep, plugin_class, item_proxy)
 
 
 class SimpleClassPluginProxy(object):

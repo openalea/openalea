@@ -50,3 +50,7 @@ default_project = PM.load_default
 load_project = PM.load
 search_project = PM.search
 discover_projects = PM.discover
+
+
+def default_project_manager():
+    return PM

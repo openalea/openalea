@@ -106,7 +106,7 @@ class PluginInstanceManager(object):
             pass
 
     def _function(self, group, name):
-        plugin = self.pm.plugin(group, name)
+        plugin = self.pm.item(name, group)
         try:
             function = plugin.implementation
         except TypeError as e:
@@ -115,7 +115,7 @@ class PluginInstanceManager(object):
         return function
 
     def _new(self, group, name, class_args=None, class_kwds=None):
-        plugin = self.pm.plugin(group, name)
+        plugin = self.pm.item(name, group)
 
         if class_args is None:
             class_args = []
