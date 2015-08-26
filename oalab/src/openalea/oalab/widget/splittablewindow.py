@@ -243,7 +243,7 @@ class AppletFrame(QtGui.QWidget):
     def set_applet(self, applet):
         self._applet = weakref.ref(applet)
         self._layout.insertWidget(1, applet)
-        _plugin = plugin('oalab.applet', applet.name)
+        _plugin = plugin(applet.name, 'oalab.applet')
         self._l_title.setText(_plugin.label)
         p = QtGui.QSizePolicy
         applet.setSizePolicy(p(p.MinimumExpanding, p.MinimumExpanding))
@@ -455,7 +455,7 @@ class AppletTabWidget(QtGui.QTabWidget):
             return
 
         name = self._name[idx]
-        pl = plugin('oalab.applet', name)
+        pl = plugin(name, 'oalab.applet')
         applet = self._applets[idx][name]
         # self.setTabText(idx, _plugin_class.label)
         if self.tabPosition() == QtGui.QTabWidget.East:

@@ -178,7 +178,7 @@ class DataflowView(qt.View):
         """ Drag and Drop from the Model """
         mimedata = event.mimeData()
         if mimedata.hasFormat("openalealab/model"):
-            from openalea.oalab.service.drag_and_drop import decode
+            from openalea.oalab.service.mimedata import decode
             # -- retreive the data from the event mimeData --
             model, kwds = decode(self, mimedata, "openalealab/model", "openalealab/model")
             model_id = model.name
@@ -307,8 +307,7 @@ class DataflowView(qt.View):
 
         # -- Evaluator submenu --
         evaluatorSubmenu = menu.addMenu("Evaluator")
-        classlist = evalmodule.__evaluators__
-        classlist.sort()
+        classlist = sorted(evalmodule.__evaluators__)
         selectitem = None
         for c in classlist:
             action = operator(c, evaluatorSubmenu, "graph_set_evaluator_" + c)
@@ -348,7 +347,7 @@ def initialise_graph_view_from_model(graphView, graphModel):
         vtype = "vertex"
         doNotify = True
         vertex = graphModel.node(eltid)
-        if(vertex.__class__.__dict__.has_key("__graphitem__")):
+        if("__graphitem__" in vertex.__class__.__dict__):
             vtype = "annotation"
         elif isinstance(vertex, compositenode.CompositeNodeOutput):
             vtype = "outNode"
