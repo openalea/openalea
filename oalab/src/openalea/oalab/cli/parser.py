@@ -44,8 +44,8 @@ class CommandLineParser(object):
         group = self.parser.add_argument_group('Plugin development')
         group.add_argument('--list-plugins', metavar='category', type=str, default='',
                            help='List available plugin for given category. If all, list all plugins. If summary, list only categories')
-        group.add_argument('--show-plugins', metavar='category', type=str, default='',
-                           help='Show in a window available plugin for given category')
+        group.add_argument('--show-plugins', action='store_true',
+                           help='Launch plugin explorer')
         group.add_argument('--debug-plugins', metavar='category', default='',
                            help='Raise error while loading instead of passing it silently. Use "all" to debug all plugins')
         group.add_argument('--color', help='Color terminal output', action="store_true")
@@ -66,7 +66,7 @@ class CommandLineParser(object):
         if args.show_plugins:
             self.session.gui = False
             from openalea.oalab.pluginwidget.explorer import show_plugins
-            show_plugins(args.show_plugins)
+            show_plugins()
 
         if args.debug_plugins:
             debug = args.debug_plugins.split(',')

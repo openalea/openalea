@@ -17,9 +17,12 @@
 #
 ###############################################################################
 
+import pkg_resources
+
 from openalea.vpltk.qt import QtGui, QtCore
 
 from openalea.core.project.html import icon_path, html_section
+from openalea.core.plugin import iter_groups
 from openalea.core.service.plugin import plugins
 from openalea.oalab.manager.explorer import ManagerExplorer
 
@@ -99,15 +102,31 @@ class PluginExplorer(ManagerExplorer):
         ('dist', 'Python Distribution'),
     ]
 
-    def __init__(self, group=None, parent=None):
+    def __init__(self, parent=None):
         ManagerExplorer.__init__(self, parent)
 
-        self._group = group
-
-        self.set_items(plugins(group))
         self._explorer.set_default_item_icon(DEFAULT_ICON)
         self.set_criteria(self.criteria)
         self.groupby(filer_name='implement')
+
+        self._cb_group = QtGui.QComboBox()
+        prefixes = ['openalea', 'oalab', 'vpltk']
+        for group in sorted(iter_groups()):
+            match = False
+            for prefix in prefixes:
+                if group.startswith(prefix):
+                    match = True
+                    break
+            if match:
+                self._cb_group.addItem(group)
+        self._cb_group.currentIndexChanged.connect(self._on_group_changed)
+        self._layout.addWidget(self._cb_group, 0, 2)
+
+        self._on_group_changed(0)
+
+    def _on_group_changed(self, idx):
+        group = self._cb_group.itemText(idx)
+        self.set_items(plugins(group))
 
     def groupby(self, **kwds):
         filter_name = kwds.get("filter_name", None)
@@ -136,9 +155,8 @@ def show_plugins(group="oalab.applet"):
 
     app = QtGui.QApplication(sys.argv)
 
-    plugin_selector = PluginExplorer(group)
+    plugin_selector = PluginExplorer()
     plugin_selector.show()
-    plugin_selector.groupby(criteria='implement')
 
     app.exec_()
 
