@@ -99,8 +99,9 @@ def main():
                 break
 
         if win is None:
-            from openalea.oalab.widget.pluginselector import select_plugin
-            plugin_class = select_plugin('oalab.lab', title='Select a Laboratory')
+            from openalea.oalab.manager.selector import select_manager_item
+            from openalea.core.service.plugin import default_plugin_manager
+            plugin_class = select_manager_item(default_plugin_manager(), 'oalab.lab', title='Select a Laboratory')
             if plugin_class:
                 win = launch_lab(plugin_class)
 

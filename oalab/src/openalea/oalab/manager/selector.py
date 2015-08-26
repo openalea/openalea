@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
 # -*- python -*-
 #
+# OpenAlea.OALab: Multi-Paradigm GUI
 #
-#       OpenAlea.OALab: Multi-Paradigm GUI
-#
-#       Copyright 2014 INRIA - CIRAD - INRA
+#       Copyright 2015 INRIA - CIRAD - INRA
 #
 #       File author(s): Guillaume Baty <guillaume.baty@inria.fr>
 #
@@ -18,26 +16,29 @@
 #
 ###############################################################################
 
-from openalea.core.service.plugin import plugins
 from openalea.oalab.utils import obj_icon, ModalDialog
 from openalea.oalab.widget.pages import WelcomePage
 from openalea.vpltk.qt import QtGui, QtCore
 
 
-class PluginSelector(WelcomePage):
-    pluginSelected = QtCore.Signal(object)
+class ManagerItemSelector(WelcomePage):
+    item_selected = QtCore.Signal(object)
 
-    def __init__(self, category, parent=None, style=None):
+    def __init__(self, manager, group='default', parent=None, style=None):
+        """
+        items: function returning items for a given group
+        """
+        self.manager = manager
         if style is None:
             style = WelcomePage.STYLE_LARGE
         WelcomePage.__init__(self, parent=parent, style=style)
 
         self._actions = {}
         self._sorted_actions = []
-        for plugin in plugins(category):
-            action = QtGui.QAction(obj_icon(plugin), plugin.label, self)
+        for item in self.manager.items(group):
+            action = QtGui.QAction(obj_icon(item), item.label, self)
             action.triggered.connect(self._on_action_triggered)
-            self._actions[action] = plugin
+            self._actions[action] = item
             self._sorted_actions.append(action)
 
         self.set_actions(self._sorted_actions)
@@ -45,14 +46,14 @@ class PluginSelector(WelcomePage):
     def _on_action_triggered(self):
         plugin_class = self._actions[self.sender()]
         self.plugin_class = plugin_class
-        self.pluginSelected.emit(plugin_class)
+        self.item_selected.emit(plugin_class)
 
     def resize(self, *args, **kwargs):
         WelcomePage.resize(self, *args, **kwargs)
         self.set_actions(self._sorted_actions)
 
 
-def select_plugin(category, parent=None, **kwargs):
+def select_manager_item(manager, group, parent=None, **kwargs):
     """
     kwargs:
         - size: tuple (width, height) [default: (640,480)]
@@ -61,14 +62,14 @@ def select_plugin(category, parent=None, **kwargs):
     size = kwargs.pop('size', None)
     style = kwargs.pop('style', None)
     title = kwargs.pop('title', 'Select plugin')
-    selector = PluginSelector(category, style=style)
+    selector = ManagerItemSelector(manager, group, style=style)
     selector.setAttribute(QtCore.Qt.WA_DeleteOnClose)
     if size:
         selector.resize(*size)
     dialog = ModalDialog(selector, parent=parent, buttons=QtGui.QDialogButtonBox.Cancel)
     dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
     dialog.setWindowTitle(title)
-    selector.pluginSelected.connect(dialog.accept)
+    selector.item_selected.connect(dialog.accept)
     if dialog.exec_():
         plugin_class = selector.plugin_class
     else:
@@ -77,15 +78,25 @@ def select_plugin(category, parent=None, **kwargs):
     del selector
     return plugin_class
 
+
 if __name__ == '__main__':
     import sys
     from openalea.vpltk.qt import QtGui
+    from openalea.core.service.project import default_project_manager
+    from openalea.core.service.plugin import default_plugin_manager
 
     instance = QtGui.QApplication.instance()
     if instance is None:
         qapp = QtGui.QApplication(sys.argv)
     else:
         qapp = instance
+
+    plm = default_plugin_manager()
+    pm = default_project_manager()
+    managers = [
+        (plm, 'oalab.applet'),
+        (plm, 'oalab.lab'),
+    ]
 
     class TestPluginSelector(QtGui.QWidget):
 
@@ -97,8 +108,8 @@ if __name__ == '__main__':
             self.cb_category = QtGui.QComboBox()
             self.e_size = QtGui.QLineEdit("400x400")
 
-            for category in ['oalab.lab', 'oalab.applet']:
-                self.cb_category.addItem(category)
+            for manager, group in managers:
+                self.cb_category.addItem(group, manager)
 
             self.pb_select.clicked.connect(self.select)
 
@@ -110,7 +121,11 @@ if __name__ == '__main__':
             x, y = self.e_size.text().split('x')
             x = int(x)
             y = int(y)
-            print select_plugin(category=str(self.cb_category.currentText()), size=(x, y))
+            group = self.cb_category.currentText()
+            idx = self.cb_category.currentIndex()
+            manager = self.cb_category.itemData(idx)
+
+            print select_manager_item(manager, group, size=(x, y))
 
     widget = TestPluginSelector()
     widget.show()
