@@ -40,6 +40,17 @@ class UnknownItemError(Exception):
     pass
 
 
+def get_criteria(plugin):
+    criteria = {}
+    for criterion in dir(plugin):
+        if criterion.startswith('_'):
+            continue
+        elif criterion in ('implementation', 'name_conversion', 'identifier', 'tags', 'criteria'):
+            continue
+        criteria[criterion] = getattr(plugin, criterion)
+    return criteria
+
+
 def get_implementation(plugin):
     if hasattr(plugin, 'modulename') and hasattr(plugin, 'objectname'):
         modulename = plugin.modulename
@@ -94,9 +105,17 @@ class PluginManager(GenericManager):
             for ep in iter_entry_points(group):
                 self._load_entry_point_plugin(group, ep, item_proxy=item_proxy)
 
+    def instantiate(self, item):
+        if inspect.isclass(item):
+            return item()
+        else:
+            raise NotImplementedError
+
     def patch_item(self, item):
         if not hasattr(item, "name_conversion"):
             item.name_conversion = 2
+        if not hasattr(item, "criteria"):
+            item.__class__.criteria = property(fget=get_criteria)
 
         GenericManager.patch_item(self, item)
 
@@ -104,7 +123,9 @@ class PluginManager(GenericManager):
         item.__class__.implementation = property(fget=get_implementation)
 
     def patch_ep_plugin(self, plugin, ep):
-        pass
+        plugin.entry_point = ep.name
+        plugin.modulename = ep.module_name
+        plugin.dist = ep.dist
 
     def _is_plugin_class(self, obj):
         if hasattr(obj, '__plugin__'):
@@ -132,7 +153,8 @@ class PluginManager(GenericManager):
             name = plugin_class.name if hasattr(plugin_class, 'name') else plugin_class.__name__
             parts = [str(s) for s in (ep.dist.egg_name(), group, ep.module_name, ep.name, name)]
             identifier = ':'.join(parts)
-            self.add(plugin_class, group, item_proxy=plugin_proxy, identifier=identifier)
+            item = self.add(plugin_class, group, item_proxy=plugin_proxy, identifier=identifier)
+            self.patch_ep_plugin(item, ep)
 
     def _load_entry_point_plugin(self, group, entry_point, item_proxy=None):
         ep = entry_point

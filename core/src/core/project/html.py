@@ -7,6 +7,10 @@ from openalea.core.path import path as Path
 def icon_path(filepath, default=None, paths=None, packages=None):
     if filepath is None or isinstance(filepath, basestring) and filepath.startswith(':/'):
         return None
+    if paths is None:
+        paths = []
+    if packages is None:
+        packages = []
     # Search filename in all paths given by user
     _paths = [Path(filepath)] + [Path(p) / filepath for p in paths]
 

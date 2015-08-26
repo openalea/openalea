@@ -1,28 +1,21 @@
 import inspect
+from openalea.core.observer import Observed, AbstractListener
 
 
 class UnknownItemError(Exception):
     pass
 
 
-def get_criteria(plugin):
-    criteria = {}
-    for criterion in dir(plugin):
-        if criterion.startswith('_'):
-            continue
-        elif criterion in ('implementation', 'name_conversion', 'identifier', 'tags', 'criteria'):
-            continue
-        criteria[criterion] = getattr(plugin, criterion)
-    return criteria
-
-
-class GenericManager(object):
+class GenericManager(Observed, AbstractListener):
 
     def __init__(self, items=None, item_proxy=None, autoload=['entry_points']):
         """
         :param plugins: list of plugins you want to add manually
         :param plugin_proxy: proxy class to use by default
         """
+        Observed.__init__(self)
+        AbstractListener.__init__(self)
+
         self._autoload = autoload
         self.default_group = 'default'
 
@@ -39,13 +32,16 @@ class GenericManager(object):
 
     # API TO IMPLEMENT
 
-    def generate_item_id(self):
+    def generate_item_id(self, item):
         raise NotImplementedError
 
     def load_items(self, group=None):
         raise NotImplementedError
 
     def discover(self, group=None):
+        raise NotImplementedError
+
+    def instantiate(self, item):
         raise NotImplementedError
 
     # API COMMON TO ALL MANAGERS
@@ -72,10 +68,7 @@ class GenericManager(object):
         if item_proxy:
             item = item_proxy(item)
 
-        if inspect.isclass(item):
-            item = item()
-        else:
-            raise NotImplementedError
+        item = self.instantiate(item)
 
         self.patch_item(item)
         self._item.setdefault(group, {})[item.identifier] = item
@@ -104,7 +97,7 @@ class GenericManager(object):
 
     def items(self, group=None, tags=None, criteria=None, **kwds):
         if group is None:
-            return self.default_group
+            group = self.default_group
         try:
             items = self._item[group].values()
         except KeyError:
@@ -134,7 +127,6 @@ class GenericManager(object):
         if hasattr(item, '__patched__'):
             return
         item.__patched__ = True
-        item.__class__.criteria = property(fget=get_criteria)
         if not hasattr(item, "identifier"):
             item.identifier = self.generate_item_id(item)
         if not hasattr(item, "name"):
@@ -143,8 +135,8 @@ class GenericManager(object):
             item.label = item.name.replace('_', ' ').capitalize()
         if not hasattr(item, "tags"):
             item.tags = []
-
-        item.__class__.criteria = property(fget=get_criteria)
+        if not hasattr(item, "criteria"):
+            item.criteria = {}
 
     def set_proxy(self, group, item_proxy):
         """

@@ -30,12 +30,13 @@ class ManagerItemSelector(WelcomePage):
         """
         self.manager = manager
         if style is None:
-            style = WelcomePage.STYLE_LARGE
+            style = WelcomePage.STYLE_MEDIUM
         WelcomePage.__init__(self, parent=parent, style=style)
 
         self._actions = {}
+        items = sorted(self.manager.items(group), key=lambda item: item.label)
         self._sorted_actions = []
-        for item in self.manager.items(group):
+        for item in items:
             action = QtGui.QAction(obj_icon(item), item.label, self)
             action.triggered.connect(self._on_action_triggered)
             self._actions[action] = item
@@ -94,6 +95,7 @@ if __name__ == '__main__':
     plm = default_plugin_manager()
     pm = default_project_manager()
     managers = [
+        (pm, 'local'),
         (plm, 'oalab.applet'),
         (plm, 'oalab.lab'),
     ]
