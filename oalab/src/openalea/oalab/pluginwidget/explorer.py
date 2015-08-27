@@ -21,54 +21,21 @@ import pkg_resources
 
 from openalea.vpltk.qt import QtGui, QtCore
 
-from openalea.core.project.html import icon_path, html_section
-from openalea.core.plugin import iter_groups
-from openalea.core.service.plugin import plugins
-from openalea.oalab.manager.explorer import ManagerExplorer
-
-
 from openalea.core.path import path as Path
 
+from openalea.core.formatting.html import html_section
+from openalea.core.formatting.util import icon_path
+
+from openalea.core.plugin import iter_groups
+
+from openalea.core.plugin.formatting.html import html_header, html_footer, html_summary
+from openalea.core.plugin.formatting.util import DEFAULT_ICON
+from openalea.core.plugin.formatting.text import format_str, format_author
+from openalea.core.service.plugin import plugins
+
+from openalea.oalab.manager.explorer import ManagerExplorer
+
 QI = QtGui.QIcon
-
-import openalea.core
-import openalea.oalab
-from openalea.deploy.shared_data import shared_data
-stylesheet_path = shared_data(openalea.core, 'stylesheet.css')
-
-html_header = '<html>\n  <head>\n    <link rel="stylesheet" type="text/css" href="%s">\n  </head>' % stylesheet_path
-html_footer = '</html>'
-
-DEFAULT_ICON = "icons/Crystal_Clear_app_kservices.png"
-
-
-def html_summary(item):
-    if hasattr(item, 'icon'):
-        p = icon_path(item.icon, default=DEFAULT_ICON, packages=[openalea.core, openalea.oalab])
-        image = '<img style="vertical-align:middle;" src="%s" width="128" />' % p
-    else:
-        image = ''
-    args = dict(image=image, title=item.label, name=item.name)
-    html = '<div class="summary"><p class="title"> %(image)s' % args
-    html += '%(title)s</p>' % args
-    html += '\n<hr>'
-
-    items = []
-    for label, value in item.criteria.items():
-        if label in ('icon', ) or not value:
-            continue
-        items.append(
-            '<span class="key">%s</span>: <span class="value">%s</span>\n' %
-            (label.capitalize(), value))
-    html += html_section('criteria', 'Criteria', items)
-
-    items = []
-    for tag in item.tags:
-        items.append('<span class="key">%s</span>\n' % label)
-    html += html_section('tags', 'Tags', items)
-
-    html += '</div>'
-    return html
 
 
 class Preview(QtGui.QTextEdit):
@@ -82,10 +49,6 @@ class Preview(QtGui.QTextEdit):
         self.setContentsMargins(0, 0, 0, 0)
 
         html = html_header
-        html += '<div class="title">' + item.label + "</div>"
-        html += html_footer
-
-        html = html_header
         html += html_summary(item)
         html += html_footer
 
@@ -93,10 +56,26 @@ class Preview(QtGui.QTextEdit):
         self.setReadOnly(True)
 
 
+def filter_authors(item):
+    author = item.criteria.get('authors', None)
+    if author is None:
+        return
+    elif isinstance(author, dict):
+        return author.get('name', None)
+    else:
+        return author
+
+
+def format_label_author(author):
+    return format_author(author, email=False)
+
+
 class PluginExplorer(ManagerExplorer):
 
     criteria = [
         ('implement', 'Implementation'),
+        ('authors', 'Authors'),
+        ('tags', 'Tags'),
         ('entry_point', 'Entry Point'),
         ('modulename', 'Plugin Module'),
         ('dist', 'Python Distribution'),
@@ -107,7 +86,6 @@ class PluginExplorer(ManagerExplorer):
 
         self._explorer.set_default_item_icon(DEFAULT_ICON)
         self.set_criteria(self.criteria)
-        self.groupby(filer_name='implement')
 
         self._cb_group = QtGui.QComboBox()
         prefixes = ['openalea', 'oalab', 'vpltk']
@@ -131,7 +109,11 @@ class PluginExplorer(ManagerExplorer):
     def groupby(self, **kwds):
         filter_name = kwds.get("filter_name", None)
         if filter_name:
-            self.groupby(criteria=filter_name)
+            if filter_name == 'authors':
+                self.groupby(function=filter_authors, label=format_label_author)
+            else:
+                self.groupby(criteria=filter_name)
+            self._filter_box.set_filter(filter_name)
         else:
             self._explorer.groupby(**kwds)
 

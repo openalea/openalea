@@ -5,8 +5,24 @@
 	padding: 10px;
 }
 
+.introduction {
+	font-family: inherit;	
+	font-style: italic;
+	font-size: smaller;
+	color: rgb(100,100,100);
+}
+
+
 .title {
 	font-size:20px;
+	color: #6BA81E;
+	text-align: center;
+}
+
+.subtitle {
+	font-size:16px;
+	color: #6BA81E;
+	text-align: left;
 }
 
 .section-title {
@@ -31,5 +47,10 @@ div#meta-information.section .key {
 
 .section#model {
 
+}
+
+.logo-label {
+	font-size: 10px;
+	text-align: center;
 }
 

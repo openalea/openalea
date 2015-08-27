@@ -220,7 +220,8 @@ class Project(Observed):
         import openalea.core
         import base64
         from openalea.deploy.shared_data import shared_data
-        from openalea.core.project.html import html_metainfo_summary, html_item_summary, obj_icon_path
+        from openalea.core.project.formatting.html import html_metainfo_summary, html_item_summary
+        from openalea.core.formatting.util import obj_icon_path
         from IPython.display import Image
 
         stylesheet_path = shared_data(openalea.core, 'stylesheet.css')

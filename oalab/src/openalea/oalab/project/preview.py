@@ -2,7 +2,8 @@
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core.project import Project
 from openalea.core.project.manager import ProjectManager
-from openalea.core.project.html import html_metainfo_summary, html_item_summary, pretty_print
+from openalea.core.project.formatting.html import html_metainfo_summary, html_item_summary
+from openalea.core.formatting.util import pretty_print
 from openalea.core.path import path as Path
 
 QI = QtGui.QIcon

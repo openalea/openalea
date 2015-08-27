@@ -17,6 +17,36 @@
 from openalea.core.plugin.plugin import plugin_name
 
 
+def format_author(author, key=None, email=True):
+    if isinstance(author, dict):
+        name = author.get('name', None)
+        team = author.get('team', None)
+        if name is None and team:
+            name = '[Team] %s' % team
+
+        if email is True:
+            email = author.get('email', None)
+        else:
+            email = None
+        if email:
+            author = u'%s <%s>' % (name, email)
+        else:
+            author = name
+    else:
+        author = unicode(author)
+    return author
+
+
+def format_str(value, encoding='utf-8'):
+    if isinstance(value, list):
+        return u', '.join([format_str(v) for v in value])
+
+    if isinstance(value, str):
+        return value.decode(encoding)
+    else:
+        return unicode(value)
+
+
 def can_display_criterion(criterion, value):
     if criterion.startswith('_'):
         return False

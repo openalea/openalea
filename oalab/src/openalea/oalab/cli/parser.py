@@ -25,7 +25,7 @@ __all__ = ['CommandLineParser']
 import argparse
 import os
 
-from openalea.core.plugin.display import list_plugins
+from openalea.core.plugin.formatting.text import list_plugins
 from openalea.core.service.plugin import debug_plugins
 
 

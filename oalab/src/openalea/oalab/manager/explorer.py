@@ -42,7 +42,7 @@ class ManagerExplorerModel(QtGui.QStandardItemModel):
         self._groupby = {}
         self.default_item_icon = "icons/Crystal_Clear_app_kservices.png"
         self.default_group_icon = "icons/Crystal_Clear_filesystem_folder_grey_open.png"
-        self.undefined_group_label = "Default / Undefined"
+        self.undefined_group_label = "[Default / Undefined]"
 
     def headerData(self, col, orientation, role):
         if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
@@ -90,11 +90,20 @@ class ManagerExplorerModel(QtGui.QStandardItemModel):
             f_gby_label = lambda criterion: str(criterion)
 
         _items = []
+
         for item in items:
             key = f_gby_key(item)
-            if not key:
-                key = self.undefined_group_label
-            _items.append((key, item))
+            if isinstance(key, (list, set, tuple)):
+                if not key:
+                    key = [self.undefined_group_label]
+                for k in key:
+                    if not k:
+                        k = self.undefined_group_label
+                    _items.append((k, item))
+            else:
+                if not key:
+                    key = self.undefined_group_label
+                _items.append((key, item))
         _items.sort()
 
         parent_item = self.invisibleRootItem()
@@ -200,6 +209,11 @@ class FilterBox(QtGui.QWidget):
         for criterion in self._criteria:
             self._cb_groupby.addItem(criterion[1])
 
+    def set_filter(self, name):
+        idx = self._cb_groupby.findText(name)
+        if idx > -1:
+            self._cb_groupby.setCurrentIndex(idx)
+
 
 class ManagerExplorer(QtGui.QWidget):
 
@@ -242,6 +256,7 @@ class ManagerExplorer(QtGui.QWidget):
         return self._current
 
     def groupby(self, **kwds):
+        self._filter_box.set_filter(kwds.get('filter_name', "user_defined"))
         self._explorer.groupby(**kwds)
 
     def _on_item_changed(self, item):
