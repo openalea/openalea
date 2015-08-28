@@ -15,13 +15,13 @@
 
 .title {
 	font-size:20px;
-	color: #6BA81E;
+	color: #459454;
 	text-align: center;
 }
 
 .subtitle {
 	font-size:16px;
-	color: #6BA81E;
+	color: #459454;
 	text-align: left;
 }
 
@@ -29,7 +29,7 @@
 	font-size: 16px;
 	font-weight: bold;
 	font-style: italic;
-	color: #6BA81E;
+	color: #459454;
 	/* text-decoration: underline;*/
 }
 

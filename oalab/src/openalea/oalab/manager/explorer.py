@@ -210,9 +210,10 @@ class FilterBox(QtGui.QWidget):
             self._cb_groupby.addItem(criterion[1])
 
     def set_filter(self, name):
-        idx = self._cb_groupby.findText(name)
-        if idx > -1:
-            self._cb_groupby.setCurrentIndex(idx)
+        for i, criterion in enumerate(self._criteria):
+            if criterion[0] == name:
+                self._cb_groupby.setCurrentIndex(i)
+                return
 
 
 class ManagerExplorer(QtGui.QWidget):
