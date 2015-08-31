@@ -62,7 +62,7 @@ def html_summary(item):
             value = [value]
         for author in value:
             if author and author != "None":
-                items.append(format_author(author, key=label))
+                items.append(format_author(author, key=label, show_all=True))
 
     items.sort()
     html += html_section(u'credits', u'Credits', items)

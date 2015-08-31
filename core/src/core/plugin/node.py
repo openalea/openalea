@@ -15,15 +15,13 @@
 ###############################################################################
 
 from openalea.core.node import Factory
-from openalea.core.plugin.manager import generate_plugin_name
+from openalea.core.service.plugin import plugin
 
 
-def node_factory(plugin_class, name=None, category=None):
-    plugin = plugin_class()
-    if name is None:
-        name = generate_plugin_name(plugin)
-    return Factory(name=name, category=category,
-                   inputs=plugin.inputs, outputs=plugin.outputs,
-                   nodemodule=plugin.modulename,
-                   nodeclass=plugin.objectname,
+def node_factory(plugin_name, group=None, name=None, category=None):
+    _plugin = plugin(plugin_name, group=group)
+    return Factory(name=_plugin.name, category=category,
+                   inputs=_plugin.inputs, outputs=_plugin.outputs,
+                   nodemodule=_plugin.modulename,
+                   nodeclass=_plugin.objectname,
                    )

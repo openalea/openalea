@@ -52,7 +52,9 @@ class ControlManager(AppletPlugin):
 class EditorManager(AppletPlugin):
     label = 'Model Editor'
     icon = 'oxygen_text-x-python.png'
-    authors = [jcoste, gbaty, boudon, pradal, chopard, dbarbeau, cokelaer, dufourko]
+    authors = [cpradal, dbarbeau, fboudon, gbaty, jchopard, jcoste, sdufourko, tcokelaer,
+               {'name': u"Et al.", 'note': u"See also IParadigmApplet and IModel authors"}
+               ]
 
     def __call__(self):
         # Load and instantiate graphical component that actually provide feature
@@ -99,7 +101,7 @@ class HistoryWidget(AppletPlugin):
 @PluginDef
 class Logger(AppletPlugin):
     icon = 'icon_logger2.png'
-    authors = [dbarbeau, pradal]
+    authors = [dbarbeau, cpradal]
 
     def __call__(self):
         # Load and instantiate graphical component that actually provide feature
@@ -111,7 +113,7 @@ class Logger(AppletPlugin):
 class PkgManagerWidget(AppletPlugin):
     label = 'VisualeaPkg'
     icon = ":/images/resources/openalealogo.png"
-    authors = [dufourko, pradal, gbaty, jcoste]
+    authors = [sdufourko, cpradal, gbaty, jcoste]
 
     def __call__(self):
         # Load and instantiate graphical component that actually provide feature
@@ -125,7 +127,7 @@ class MplFigureWidget(AppletPlugin):
     name = 'FigureWidget'
     label = 'Figure (Matplotlib)'
     icon = 'icon_mplfigure.png'
-    authors = [diener, gbaty]
+    authors = [jdiener, gbaty]
 
     def __call__(self):
         # Load and instantiate graphical component that actually provide feature
@@ -138,7 +140,7 @@ class MplTabWidget(AppletPlugin):
     name = 'Plot2d'
     label = '2D Plots (Matplotlib)'
     icon = 'icon_mplwidget.png'
-    authors = [diener, gbaty]
+    authors = [jdiener, gbaty]
 
     def __call__(self):
         # Load and instantiate graphical component that actually provide feature
@@ -161,7 +163,7 @@ class ProjectManager(AppletPlugin):
 class ShellWidget(AppletPlugin):
     label = 'Shell'
     icon = 'oxygen_utilities-terminal.png'
-    authors = [boudon, jcoste, gbaty, pradal]
+    authors = [fboudon, jcoste, gbaty, cpradal]
 
     def __call__(self):
         from openalea.oalab.shell.shell import get_shell_class

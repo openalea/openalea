@@ -30,5 +30,3 @@ for i in range(n):
     print(transform)
     world.add(i, transform=transform(i))
 
-world.add(2, transform=transform(-1))
-world.add(2, transform=transform(-2))

@@ -17,24 +17,48 @@
 from openalea.core.plugin.plugin import plugin_name
 
 
-def format_author(author, key=None, email=True):
+def format_author(author, key=None, **kwds):
+
+    show_all = kwds.get('show_all', False)
+    fmt_author = ''
     if isinstance(author, dict):
-        name = author.get('name', None)
-        team = author.get('team', None)
+        name = author.get('name')
+
+        # Case only team is defined. Means author is a team
+        team = author.get('team')
         if name is None and team:
             name = '[Team] %s' % team
 
-        if email is True:
-            email = author.get('email', None)
+        # Email
+        if kwds.get('show_email', show_all) is True:
+            email = author.get('email')
         else:
             email = None
+
         if email:
-            author = u'%s <%s>' % (name, email)
+            fmt_author = u'%s <%s>' % (name, email)
         else:
-            author = name
+            fmt_author = name
+
+        # Employer / Team
+        employer = author.get('employer', None)
+        team = author.get('team', None)
+        if (employer and kwds.get('show_employerl', show_all)) or (team and kwds.get('show_team', show_all)):
+            fmt_author += '['
+            if employer and kwds.get('show_employer', show_all):
+                fmt_author += 'Employer: %s' % (', '.join(employer))
+            if team and kwds.get('show_team', show_all):
+                fmt_author += ' Team: %s' % ', '.join(team)
+            fmt_author += ']'
+
+        # Note
+        note = author.get('note')
+        if note and kwds.get('show_note', show_all):
+            fmt_author += ' (%s)' % note
+
     else:
-        author = unicode(author)
-    return author
+        fmt_author = unicode(author)
+    return fmt_author
 
 
 def format_str(value, encoding='utf-8'):

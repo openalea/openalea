@@ -30,9 +30,9 @@ def qicon_path(project):
 
 
 def html_project_summary(project):
-    args = dict(image=qicon_path(project), title=project.title, name=project.name)
+    args = dict(image=qicon_path(project), label=project.label, name=project.name)
     html = '<div class="summary"><p class="title"><img style="vertical-align:middle;" src="%(image)s" width="128" />' % args
-    html += '%(title)s</p>' % args
+    html += '%(label)s</p>' % args
     html += '\n<hr>'
     html += html_metainfo_summary(project)
     html += html_item_summary(project)
@@ -51,7 +51,7 @@ class Preview(QtGui.QTextEdit):
         self.setContentsMargins(0, 0, 0, 0)
 
         html = html_header
-        html += '<div class="title">' + pretty_print(project.title) + "</div>"
+        html += '<div class="label">' + pretty_print(project.label) + "</div>"
         html += html_footer
 
         html = html_header

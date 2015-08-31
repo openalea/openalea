@@ -115,9 +115,9 @@ class VisualeaModel(Model):
         outputs = self._outputs()
         return outputs
 
-    def namespace(self):
+    def namespace(self, **kwargs):
         from openalea.core.service.run import namespace
-        return namespace()
+        return namespace(self, **kwargs)
 
     def init(self, *args, **kwargs):
         """
@@ -223,7 +223,7 @@ class ModelNode(Node):
     def __call__(self, inputs=()):
         """ Call function. Must be overriden """
         from openalea.core.service.run import namespace
-        outputs = self.model(*inputs, namespace=namespace())
+        outputs = self.model(*inputs, namespace=namespace(self.model))
         return outputs
 
 

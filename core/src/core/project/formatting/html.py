@@ -64,8 +64,8 @@ def html_project_summary(project):
         image = '<img style="vertical-align:middle;" src="file://%s" width="128" />' % icon
     else:
         image = ''
-    args = dict(image=image, title=project.title, name=project.name)
-    html = '<div class="summary">%(image)s<p class="title">%(title)s</p>' % args
+    args = dict(image=image, label=project.label, name=project.name)
+    html = '<div class="summary">%(image)s<p class="title">%(label)s</p>' % args
     html += '\n<hr>'
     html += html_metainfo_summary(project)
     html += html_item_summary(project)

@@ -66,8 +66,26 @@ def filter_authors(item):
         return author
 
 
+def filter_team(item):
+    author = item.criteria.get('authors', None)
+    if author is None:
+        return
+    elif isinstance(author, dict):
+        return author.get('team', None)
+    else:
+        teams = set([])
+        for a in author:
+            for team in a.get('team', []):
+                teams.add(team)
+        return list(teams)
+
+
 def format_label_author(author):
     return format_author(author, email=False)
+
+
+def format_label_team(author):
+    return author
 
 
 class PluginExplorer(ManagerExplorer):
@@ -75,10 +93,11 @@ class PluginExplorer(ManagerExplorer):
     criteria = [
         ('implement', 'Implementation'),
         ('authors', 'Authors'),
+        ('team', 'Team'),
         ('tags', 'Tags'),
-        ('entry_point', 'Entry Point'),
-        ('modulename', 'Plugin Module'),
-        ('dist', 'Python Distribution'),
+        ('plugin_ep', 'Entry Point'),
+        ('plugin_modulename', 'Plugin Module'),
+        ('plugin_dist', 'Python Distribution'),
     ]
 
     def __init__(self, parent=None):
@@ -111,6 +130,8 @@ class PluginExplorer(ManagerExplorer):
         if filter_name:
             if filter_name == 'authors':
                 self.groupby(function=filter_authors, label=format_label_author)
+            elif filter_name == 'team':
+                self.groupby(function=filter_team, label=format_label_team)
             else:
                 self.groupby(criteria=filter_name)
             self._filter_box.set_filter(filter_name)

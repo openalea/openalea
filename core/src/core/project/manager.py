@@ -70,6 +70,11 @@ class ProjectManager(GenericManager):
         return item
 
     def patch_item(self, item):
+        if not hasattr(item, "label"):
+            if hasattr(item, "alias"):
+                item.label = item.alias
+            else:
+                item.label = item.name.replace('_', ' ').capitalize()
         if not hasattr(item, "criteria"):
             item.__class__.criteria = property(fget=get_criteria)
         GenericManager.patch_item(self, item)

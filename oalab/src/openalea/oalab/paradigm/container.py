@@ -355,10 +355,10 @@ class ModelEditorApplet(ParadigmContainer):
         self.actionRunSelection = QtGui.QAction(qicon("run.png"), "Run subpart", self)
 
         # File I/O
-        self.actionCloseCurrent = QtGui.QAction(qicon("closeButton.png"), "Close current tab", self)
-        self.actionOpenFile = QtGui.QAction(qicon("open.png"), "Open file", self)
-        self.actionSave = QtGui.QAction(qicon("save.png"), "Save File", self)
-        self.actionSaveAs = QtGui.QAction(qicon("save.png"), "Save As", self)
+        self.actionCloseCurrent = QtGui.QAction(qicon("close_file.png"), "Close current tab", self)
+        self.actionOpenFile = QtGui.QAction(qicon("open_file.png"), "Open file", self)
+        self.actionSave = QtGui.QAction(qicon("save_file.png"), "Save File", self)
+        self.actionSaveAs = QtGui.QAction(qicon("save_file.png"), "Save As", self)
 
         # Add shortcuts
         #self.actionInit.setShortcut("F1")

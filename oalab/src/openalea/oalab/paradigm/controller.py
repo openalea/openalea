@@ -21,6 +21,7 @@ from openalea.core.service.model import ModelFactory, to_model
 from openalea.core.service.control import control_namespace
 from openalea.core.data import Data
 from openalea.core.model import Model
+from openalea.core.service.run import namespace
 
 
 def check_mutually_exclusive(kwds, name1, name2):
@@ -121,20 +122,7 @@ class ParadigmController(object):
         raise NotImplementedError
 
     def namespace(self, model, **kwargs):
-        ns = {}
-        # Project namespace if available
-        if hasattr(model, 'package'):
-            if hasattr(model.package, 'ns'):
-                ns.update(model.package.ns)
-            if hasattr(model.package, 'namespace'):
-                ns.update(model.package.namespace())
-
-        # Control namespace
-        ns.update(control_namespace())
-
-        # User namespace
-        ns.update(kwargs)
-        return ns
+        return namespace(model, **kwargs)
 
     def run(self, *args, **kwargs):
         if self.runnable():

@@ -70,7 +70,7 @@ class ProjectBrowserWidget(QtGui.QWidget):
         self.view.project_open.connect(self.project_open.emit)
 
     def _create_actions(self):
-        self.actionNewProj = QtGui.QAction(qicon("new.png"), "New Project", self)
+        self.actionNewProj = QtGui.QAction(qicon("new_project.png"), "New Project", self)
         self.actionNewProj.triggered.connect(self.new_project)
         self.actionNewProj.setShortcut(self.tr("Ctrl+Shift+N"))
 
@@ -78,6 +78,7 @@ class ProjectBrowserWidget(QtGui.QWidget):
         self._actions = [[group, "Manage Project", self.actionNewProj, 0],
                          [group, "Manage Project", self.view.actionOpenProj, 0],
                          [group, "Manage Project", self.view.actionCloseProj, 0],
+                         [group, "Manage Project", self.view.action_save_proj, 0],
                          [group, "Manage Project", self.view.actionEditMeta, 1],
                          ]
         self._actions += self.view._actions
@@ -127,11 +128,11 @@ class ProjectBrowserWidget(QtGui.QWidget):
         home = path(get_default_home_dir())
         for projectdir, _projects in all_projects.iteritems():
             relpath = home.relpathto(projectdir)
-            title = unicode(relpath)
-            menu = QtGui.QMenu(title, self.menu_available_projects)
-            for project in sorted(_projects, key=lambda project: project.title):
+            label = unicode(relpath)
+            menu = QtGui.QMenu(label, self.menu_available_projects)
+            for project in sorted(_projects, key=lambda project: project.label):
                 icon = obj_icon(project, default=DEFAULT_PROJECT_ICON, paths=[project.path])
-                action = QtGui.QAction(icon, project.title, self.menu_available_projects)
+                action = QtGui.QAction(icon, project.label, self.menu_available_projects)
                 action.triggered.connect(self._on_open_project_triggered)
                 menu.addAction(action)
                 self.action_available_project[action] = project
@@ -201,16 +202,23 @@ class ProjectBrowserView(QtGui.QTreeView, AbstractListener):
     def _create_actions(self):
         self._actions = []
 
-        self.actionEditMeta = QtGui.QAction(qicon("book.png"), "Edit Project Information", self)
+        self.actionEditMeta = QtGui.QAction(
+            qicon("adwaita_accessories-dictionary.png"),
+            "Edit Project Information",
+            self)
         self.actionEditMeta.triggered.connect(self.edit_metadata)
 
-        self.actionCloseProj = QtGui.QAction(qicon("closeButton.png"), "Close project", self)
+        self.actionCloseProj = QtGui.QAction(qicon("close_project.png"), "Close project", self)
         self.actionCloseProj.triggered.connect(self.close)
         self.actionCloseProj.setShortcut(self.tr("Ctrl+Shift+W"))
 
-        self.actionOpenProj = QtGui.QAction(qicon("open.png"), "Open Project", self)
+        self.actionOpenProj = QtGui.QAction(qicon("open_project.png"), "Open Project", self)
         self.actionOpenProj.triggered.connect(self.open_project)
         self.actionOpenProj.setShortcut(self.tr('Ctrl+Shift+O'))
+
+        self.action_save_proj = QtGui.QAction(qicon("save_project.png"), "Save Project", self)
+        self.action_save_proj.triggered.connect(self.save_project)
+        self.action_save_proj.setShortcut(self.tr('Ctrl+Shift+S'))
 
     #  API
     def notify(self, sender, event=None):
@@ -355,6 +363,11 @@ class ProjectBrowserView(QtGui.QTreeView, AbstractListener):
                 start(project.get(category, name).path)
             else:
                 self.item_double_clicked.emit(project, category, name)
+
+    def save_project(self):
+        project = self.project()
+        if project:
+            project.save()
 
     def _rename(self, project, category, name):
         if category in project.categories:

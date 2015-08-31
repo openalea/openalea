@@ -53,9 +53,9 @@ def get_criteria(plugin):
 
 def get_implementation(plugin):
     if hasattr(plugin, 'modulename') and hasattr(plugin, 'objectname'):
+        print plugin, plugin.modulename
         modulename = plugin.modulename
         objectname = plugin.objectname
-
         module = __import__(modulename, fromlist=[objectname])
         return getattr(module, objectname)
     else:
@@ -78,7 +78,8 @@ def drop_plugin(name):
 
 class PluginManager(GenericManager):
 
-    def generate_item_name(self, item):
+    @classmethod
+    def generate_item_name(cls, item):
         try:
             name = item.name
         except AttributeError:
@@ -123,9 +124,9 @@ class PluginManager(GenericManager):
         item.__class__.implementation = property(fget=get_implementation)
 
     def patch_ep_plugin(self, plugin, ep):
-        plugin.entry_point = ep.name
-        plugin.modulename = ep.module_name
-        plugin.dist = ep.dist
+        plugin.plugin_ep = ep.name
+        plugin.plugin_modulename = ep.module_name
+        plugin.plugin_dist = ep.dist
 
     def _is_plugin_class(self, obj):
         if hasattr(obj, '__plugin__'):
@@ -168,12 +169,6 @@ class PluginManager(GenericManager):
                 plugin_class = ep.load()
             except KeyboardInterrupt:
                 logger.error('%s: error loading %s ' % (group, ep))
-            except Exception as e:
-                # never want a plugin load to kill the test run
-                # but we can't log here because the logger is not yet
-                # configured
-                warn("Unable to load plugin %s: %s" % (ep, e),
-                     RuntimeWarning)
             else:
                 self._add_plugin_from_ep(group, ep, plugin_class, item_proxy)
 

@@ -64,7 +64,7 @@ class ProjectModel(QtGui.QStandardItemModel):
 
         name = project.name
         parentItem = self.invisibleRootItem()
-        item = QtGui.QStandardItem(project.title)
+        item = QtGui.QStandardItem(project.label)
         self._root_item = name
 
         item.setIcon(obj_icon(project, default=icons['project'], paths=[project.path]))
