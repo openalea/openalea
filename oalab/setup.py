@@ -42,7 +42,7 @@ package_dir = dict([('', pkg_root_dir)] + [(namespace + "." + pkg, pkg_root_dir 
 setup_requires = ['openalea.deploy']
 
 # TODO: remove pygments 1.6 constraints when https://github.com/ipython/ipython/issues/6877 is fixed
-install_requires = ['pygments==1.6']
+install_requires = []
 
 # web sites where to find eggs
 dependency_links = ['http://openalea.gforge.inria.fr/pi']
