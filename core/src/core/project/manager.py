@@ -180,8 +180,11 @@ class ProjectManager(GenericManager):
         """
         :return: a default empty project
         """
+        # TODO: should define a generic "create" method that returns a patched item.
+        # for the moment, patch it manually
         _path = self.defaultdir
         proj = Project(_path / "temp")
+        proj.label = "Temporary Project"
         if not proj.path.exists():
             txt = '''"""
 OpenAlea Lab editor

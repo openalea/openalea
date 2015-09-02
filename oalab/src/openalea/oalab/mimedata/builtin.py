@@ -60,13 +60,17 @@ class UrlCodec(QMimeCodec):
 
 def encode_project_item(category, data, mimetype_in, mimetype_out):
     # openalea://user@localhost:/project/projectname/data/dataname
-    uri = 'openalea://user@localhost:/%s/%s/%s' % (None, category, data.name)
+    if hasattr(data, "package"):
+        package = data.package.name
+    else:
+        package = None
+    uri = 'openalea://user@localhost:/%s/%s/%s' % (package, category, data.name)
     return ('openalealab/%s' % category, uri)
 
 
 def decode_project_item(raw_data, mimetype_in, mimetype_out):
     pkg_type, pkg_name, category, name = urlparse(raw_data).path.split('/')
-    return project_item(None, category, name)
+    return project_item(pkg_name, category, name)
 
 
 class BuiltinModelCodec(QMimeCodec):

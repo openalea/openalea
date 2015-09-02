@@ -296,7 +296,7 @@ class AppletFrame(QtGui.QWidget):
             self._menu.hide()
 
     def properties(self):
-        return self._props.namespace()
+        return self._props.changed()
 
     def set_properties(self, properties):
         self._props.update(properties)
@@ -484,7 +484,10 @@ class AppletTabWidget(QtGui.QTabWidget):
 
     def properties(self):
         position = tabposition_int(self.tabPosition())
-        return dict(position=position)
+        if position != 0:
+            return dict(position=position)
+        else:
+            return {}
 
     def set_properties(self, properties):
         get = properties.get
@@ -501,8 +504,11 @@ class AppletTabWidget(QtGui.QTabWidget):
                     properties.update(self._applets[idx][name].properties())
                 except AttributeError:
                     pass
-                applets.append(dict(name=name, properties=properties, interface='IPluginInstance', ep='oalab.applet'))
-        layout = dict(applets=applets, properties=self.properties(), interface='IAppletTabWidget')
+                d = dict(name=name)
+                if properties:
+                    d['properties'] = properties
+                applets.append(d)
+        layout = dict(applets=applets, properties=self.properties())
         return layout
 
 
@@ -709,7 +715,6 @@ class AppletContainer(QtGui.QWidget):
     def _repr_json_(self):
         json = self._tabwidget._repr_json_()
         json.setdefault('properties', {}).update(self.properties())
-        json['interface'] = 'IAppletContainer'
         return json
 
 
@@ -877,7 +882,6 @@ class OALabSplittableUi(SplittableUI):
 
     def _repr_json_(self):
         dic = self._g._repr_json_(self.reprProps)
-        dic['interface'] = 'ISplittableUi'
         return dic
 
     def _onSplitRequest(self, paneId, orientation, amount):

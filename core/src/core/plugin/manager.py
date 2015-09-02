@@ -53,7 +53,6 @@ def get_criteria(plugin):
 
 def get_implementation(plugin):
     if hasattr(plugin, 'modulename') and hasattr(plugin, 'objectname'):
-        print plugin, plugin.modulename
         modulename = plugin.modulename
         objectname = plugin.objectname
         module = __import__(modulename, fromlist=[objectname])

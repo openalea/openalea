@@ -36,7 +36,25 @@ def projects():
 
 
 def project_item(project_name, category, name):
-    data = PM.cproject.get_item(category, name)
+    if project_name:
+        # Data is from current project, get it.
+        if PM.cproject and PM.cproject.name == project_name:
+            data = PM.cproject.get_item(category, name)
+        # Data is outside current project
+        else:
+            project = load_project(project_name)
+            if project:
+                data = project.get_item(category, name)
+            else:
+                data = None
+    # No information about project
+    # Hack, search in current project
+    # TODO: generate a new data from mimedata
+    else:
+        if PM.cproject:
+            data = PM.cproject.get_item(category, name)
+        else:
+            data = None
     return data
 
 

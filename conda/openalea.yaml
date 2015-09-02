@@ -16,6 +16,7 @@ markupsafe=0.23=py27_0
 matplotlib=1.4.3=np19py27_2
 numpy=1.9.2=py27_0
 openssl=1.0.1k=1
+pil=1.1.7=py27_2
 pip=7.1.0=py27_1
 pixman=0.26.2=0
 py2cairo=1.10.0=py27_2

@@ -49,123 +49,18 @@ class MiniLab(object):
     # NEW LAYOUT API
     menu_names = ('File', 'Edit', 'Help')
 
-    layout = {
-        "children": {
-            "0": [
-                1,
-                2
-            ],
-            "1": [
-                5,
-                6
-            ],
-            "6": [
-                7,
-                8
-            ]
-        },
-        "interface": "ISplittableUi",
-        "parents": {
-            "0": None,
-            "1": 0,
-            "2": 0,
-            "5": 1,
-            "6": 1,
-            "7": 6,
-            "8": 6
-        },
-        "properties": {
-            "0": {
-                "amount": 0.7214854111405835,
-                "splitDirection": 2
-            },
-            "1": {
-                "amount": 0.06027060270602706,
-                "splitDirection": 2
-            },
-            "2": {
-                "widget": {
-                    "applets": [
-                        {
-                            "ep": "oalab.applet",
-                            "interface": "IPluginInstance",
-                            "name": "ShellWidget",
-                            "properties": {
-                                "title": False,
-                                "toolbar": False
-                            }
-                        }
-                    ],
-                    "interface": "IAppletContainer",
-                    "properties": {
-                        "position": 0
-                    }
-                }
-            },
-            "5": {
-                "widget": {
-                    "applets": [
-                        {
-                            "ep": "oalab.applet",
-                            "interface": "IPluginInstance",
-                            "name": "ContextualMenu",
-                            "properties": {
-                                "style": 0,
-                                "title": False,
-                                "toolbar": False
-                            }
-                        }
-                    ],
-                    "interface": "IAppletContainer",
-                    "properties": {
-                        "position": 0
-                    }
-                }
-            },
-            "6": {
-                "amount": 0.15572916666666667,
-                "splitDirection": 1
-            },
-            "7": {
-                "widget": {
-                    "applets": [
-                        {
-                            "ep": "oalab.applet",
-                            "interface": "IPluginInstance",
-                            "name": "ProjectManager",
-                            "properties": {
-                                "title": False,
-                                "toolbar": False
-                            }
-                        }
-                    ],
-                    "interface": "IAppletContainer",
-                    "properties": {
-                        "position": 0
-                    }
-                }
-            },
-            "8": {
-                "widget": {
-                    "applets": [
-                        {
-                            "ep": "oalab.applet",
-                            "interface": "IPluginInstance",
-                            "name": "EditorManager",
-                            "properties": {
-                                "title": False,
-                                "toolbar": False
-                            }
-                        }
-                    ],
-                    "interface": "IAppletContainer",
-                    "properties": {
-                        "position": 0
-                    }
-                }
-            }
-        }
-    }
+    layout = {'parents': {0: None, 1: 0, 2: 0, 3: 1, 4: 1},
+              'properties': {0: {u'amount': 0.6957746478873239,
+                                 u'splitDirection': 2},
+                             1: {u'amount': 0.15247108307045215,
+                                 u'splitDirection': 1},
+                             2: {u'widget': {'applets': [{'name': u'ShellWidget'}],
+                                             'properties': {}}},
+                             3: {u'widget': {'applets': [{'name': u'ProjectManager'}],
+                                             'properties': {}}},
+                             4: {u'widget': {'applets': [{'name': u'EditorManager'}],
+                                             'properties': {}}}},
+              'children': {0: [1, 2], 1: [3, 4]}}
 
     def __call__(self, mainwin=None):
         if mainwin is None:
