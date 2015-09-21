@@ -32,7 +32,7 @@ def widget_label(widget):
 
 from openalea.vpltk.qt.designer import generate_pyfile_from_uifile
 generate_pyfile_from_uifile(__name__)
-from openalea.oalab.gui.control.designer._editor import Ui_ControlEditor
+from openalea.oalab.control.designer._editor import Ui_ControlEditor
 
 
 class ControlEditor(QtGui.QWidget, Ui_ControlEditor):
@@ -154,8 +154,8 @@ class ControlEditor(QtGui.QWidget, Ui_ControlEditor):
     def control(self):
         iname = self._interfaces[self.cb_interface.currentIndex()]
         control = Control(self.e_name.text(), iname,
-                       widget=self.label_to_wname[self.cb_widget.currentText()],
-                       constraints=self.constraints())
+                          widget=self.label_to_wname[self.cb_widget.currentText()],
+                          constraints=self.constraints())
         self.__class__.counters[iname] = self.__class__.counters.setdefault(iname, 0) + 1
         return control
 

@@ -32,6 +32,7 @@ import sys
 import os
 
 from openalea.core.path import path as Path
+from openalea.vpltk.qt import QT_MODULE_NAME
 
 
 FORCE_UI_GENERATION = False
@@ -84,8 +85,8 @@ def replaceext(self, ext, old_ext=None):
     else:
         path_ext = self[-len(old_ext):]
         if path_ext != old_ext:
-            raise ValueError, 'old_ext %(OLD_EXT)r and path ext %(PATH_EXT)r do not match.' % dict(
-                OLD_EXT=old_ext, PATH_EXT=path_ext[1:])
+            raise ValueError('old_ext %(OLD_EXT)r and path ext %(PATH_EXT)r do not match.' % dict(
+                OLD_EXT=old_ext, PATH_EXT=path_ext[1:]))
         else:
             return self.__class__(self[:-len(old_ext)] + ext)
 
@@ -117,7 +118,7 @@ def generate_pyfile_from_uifile(name, src=None, dest=None, uibasename=None, forc
 
       Do not edit generated file because all data written here are lost.
 
-    :param name: 
+    :param name:
     :type name: str
 
     :return: Qt class (corresponding to filename), Qt type class (type of first value)
@@ -165,7 +166,10 @@ def generate_pyfile_from_uifile(name, src=None, dest=None, uibasename=None, forc
         mtime_py = mtime_datetime(pyfilename)
         mtime_ui = mtime_datetime(path)
         if mtime_py > mtime_ui:
-            generate = False
+            # If py file is more recent than ui, check user has not changed QT_API
+            with open(pyfilename, 'r') as f:
+                content = f.read()
+                generate = QT_MODULE_NAME not in content
         else:
             generate = True
 
@@ -248,7 +252,7 @@ def compile_ui_files(module, import_instructions=None):
                                 try:
                                     code = compile(import_instructions + src, "<string>", "exec")
                                     exec code
-                                except Exception, e:
+                                except Exception as e:
                                     print repr(e)
                                     print 'COMPILATION ERROR: cannot compile', py
                                     print

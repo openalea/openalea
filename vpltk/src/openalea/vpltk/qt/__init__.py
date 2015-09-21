@@ -42,6 +42,7 @@ PYQT4_API = [
 #: names of the expected PySide api
 PYSIDE_API = ['pyside']
 
+QT_MODULE_NAME = None
 
 # If IPython is installed, use its order to avoid multiple python-qt loads
 try:
@@ -83,14 +84,16 @@ def setup_apiv2():
 
 
 def load_pyside():
+    global QT_MODULE_NAME
     logging.getLogger(__name__).debug('trying PySide')
     import PySide
     os.environ[QT_API] = PYSIDE_API[0]
     logging.getLogger(__name__).debug('imported PySide')
+    QT_MODULE_NAME = 'PySide'
 
 
 def load_pyqt4():
-    global is_pyqt46, __version_info__
+    global QT_MODULE_NAME, is_pyqt46, __version_info__
     logging.getLogger(__name__).debug('trying PyQt4')
     import PyQt4
     os.environ[QT_API] = PYQT4_API[0]
@@ -98,14 +101,17 @@ def load_pyqt4():
     logging.getLogger(__name__).debug('imported PyQt4')
     __version_info__ = tuple(__version__.split('.') + ['final', 1])
     is_pyqt46 = __version__.startswith('4.6')
+    QT_MODULE_NAME = 'PyQt4'
     print PyQt_license_warning
 
 
 def load_pyqt5():
+    global QT_MODULE_NAME
     logging.getLogger(__name__).debug('trying PyQt5')
     import PyQt5
     os.environ[QT_API] = PYQT5_API[0]
     logging.getLogger(__name__).debug('imported PyQt5')
+    QT_MODULE_NAME = 'PyQt5'
     print PyQt_license_warning
 
 
