@@ -79,7 +79,7 @@ class TestAppletPlugin(object):
 
 from openalea.core.service.plugin import register_plugin, plugins
 from openalea.core.util import camel_case_to_lower
-register_plugin('oalab.applet', TestAppletPlugin)
+register_plugin(TestAppletPlugin, 'oalab.applet')
 
 if __name__ == '__main__':
     SAMPLE_WIDGET = 'FileBrowser'

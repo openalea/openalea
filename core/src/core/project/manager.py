@@ -219,6 +219,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
                 self.repositories.append(projectdir)
 
         project = Project(projectdir / name, **kwargs)
+        self.patch_item(project)
 
         return project
 

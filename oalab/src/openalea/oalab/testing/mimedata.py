@@ -77,5 +77,5 @@ class SampleCustomDataCodecPlugin(QMimeCodecPlugin):
         return SampleCustomDataCodec
 
 
-register_plugin('oalab.plugin', SampleCustomDataCodecPlugin)
+register_plugin(SampleCustomDataCodecPlugin, 'oalab.plugin')
 reload_drag_and_drop_plugins()

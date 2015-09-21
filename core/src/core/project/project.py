@@ -47,8 +47,6 @@ You have here the default architecture of the project saved in directory "projec
 
 __all__ = [
     "Project",
-    "ErrorInvalidItem",
-    "ErrorInvalidItemName",
     "ErrorItemExistsInProject",
 ]
 
@@ -61,29 +59,16 @@ from openalea.core.data import Data
 from openalea.core.observer import Observed
 from openalea.core.path import path as Path
 from openalea.core.project.configobj import ConfigObj
-from openalea.core.customexception import CustomException
 from openalea.core.service.data import DataFactory
 from openalea.core.service.interface import interface_name
 from openalea.core.service.model import to_model, ModelFactory
-
-
-class ErrorInvalidItemName(CustomException):
-    title = u'Error: item name is not valid'
-    message = u'%(name)r is not valid'
-    desc = u"Item name must not be empty, contain punctuation (except '_')or non ascii character"
-
-    def _kargs(self):
-        return dict(
-            project=self._args[0],
-            category=self._args[1],
-            name=self._args[2],
-        )
+from openalea.core.customexception import CustomException, ErrorInvalidItem, ErrorInvalidItemName
 
 
 class ErrorItemExistsInProject(CustomException):
     title = u'Error: item exists in project yet.'
     message = u'Item %(name)s is in project yet'
-    desc = u"As item is in project yet, yu cannot add it again. Use replacement instead"
+    desc = u"As item is in project yet, you cannot add it again. Use replacement instead"
 
     def _kargs(self):
         return dict(
@@ -91,15 +76,6 @@ class ErrorItemExistsInProject(CustomException):
             category=self._args[1],
             name=self._args[2],
         )
-
-
-class ErrorInvalidItem(CustomException):
-    title = u'Error: item is invalid'
-    message = u'Item is invalid: %(message)s'
-    desc = u"Item is invalid"
-
-    def _kargs(self):
-        return dict(message=self._args[0])
 
 
 def _normpath(path):

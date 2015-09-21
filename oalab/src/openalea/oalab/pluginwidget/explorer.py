@@ -18,10 +18,13 @@
 ###############################################################################
 
 import pkg_resources
+import openalea.core
+import openalea.oalab
 
 from openalea.vpltk.qt import QtGui, QtCore
 
 from openalea.core.path import path as Path
+from openalea.core.path import tempdir
 
 from openalea.core.formatting.html import html_section
 from openalea.core.formatting.util import icon_path
@@ -34,6 +37,8 @@ from openalea.core.plugin.formatting.text import format_str, format_author
 from openalea.core.service.plugin import plugins
 
 from openalea.oalab.manager.explorer import ManagerExplorer
+from openalea.oalab.manager.explorer import ManagerExplorer
+from openalea.oalab.utils import qicon_path
 
 QI = QtGui.QIcon
 
@@ -46,14 +51,20 @@ class Preview(QtGui.QTextEdit):
 
     def __init__(self, item, parent=None):
         super(Preview, self).__init__(parent)
+
+        self._tmp = tempdir()
         self.setContentsMargins(0, 0, 0, 0)
 
         html = html_header
-        html += html_summary(item)
+        html += html_summary(item, icon_path=qicon_path(item, self._tmp))
         html += html_footer
 
         self.setText(html)
         self.setReadOnly(True)
+
+    def closeEvent(self, event):
+        self._tmp.rmtree()
+        return event.accept()
 
 
 def filter_authors(item):

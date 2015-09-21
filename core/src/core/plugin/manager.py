@@ -166,7 +166,7 @@ class PluginManager(GenericManager):
         else:
             try:
                 plugin_class = ep.load()
-            except KeyboardInterrupt:
+            except Exception:
                 logger.error('%s: error loading %s ' % (group, ep))
             else:
                 self._add_plugin_from_ep(group, ep, plugin_class, item_proxy)

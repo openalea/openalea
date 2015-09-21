@@ -94,7 +94,7 @@ for lib in scientific:
     dependencies[lib] = dict(team=lib.capitalize(), icon=u'%s.png' % lib, website=u'http://%s.org' % lib)
 
 
-dep_order = 'python qt pyqt ipython pyqode numpy matplotlib scipy pandas git'.split()
+dep_order = 'python qt pyqt ipython pyqode numpy matplotlib scipy pandas git vtk'.split()
 
 
 lst = [

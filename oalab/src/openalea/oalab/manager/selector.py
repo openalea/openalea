@@ -98,6 +98,7 @@ if __name__ == '__main__':
         (pm, 'local'),
         (plm, 'oalab.applet'),
         (plm, 'oalab.lab'),
+        (plm, 'openalea.image'),
     ]
 
     class TestPluginSelector(QtGui.QWidget):

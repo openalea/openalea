@@ -41,7 +41,7 @@ class PluginFunctor(object):
 
     def __setitem__(self, name, value):
         if isinstance(value, basestring):
-            value = plugin(self._group, value).identifier
+            value = plugin(value, self._group).identifier
             self._aliases[name] = value
             self.__class__.plugin = property(get_plugin, set_plugin, plugin_doc(self))
         elif inspect.isclass(value):
@@ -56,7 +56,7 @@ class PluginFunctor(object):
                 elif not getattr(value, criterion) == self._criteria[criterion]:
                     raise ValueError('\'value\' parameter: criterion \'' + criterion
                                      + '\' not equal to \'' + self._criteria[criterion] + '\'')
-            value = register_plugin(self._group, value).identifier # Add a plugin
+            value = register_plugin(value, self._group).identifier # Add a plugin
             if name is not None:
                 self[name] = value # Get the plugin unique name
             self.__class__.plugin = property(get_plugin, set_plugin, doc=plugin_doc(self))

@@ -182,7 +182,7 @@ class DataflowView(qt.View):
         if mimedata.hasFormat("openalealab/model"):
             from openalea.oalab.service.mimedata import decode
             # -- retreive the data from the event mimeData --
-            model, kwds = decode(self, mimedata, "openalealab/model", "openalealab/model")
+            model, kwds = decode(str(mimedata.data("openalealab/model")), "openalealab/model", "openalealab/model")
             model_id = model.name
 
             try:

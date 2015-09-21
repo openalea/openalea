@@ -22,7 +22,8 @@ from openalea.core.serialization import AbstractSaver
 from openalea.core.path import path as Path
 from configobj import ConfigObj
 from openalea.core.service.interface import interface_name
-from openalea.core.project import Project, ErrorInvalidItem
+from openalea.core.project import Project
+from openalea.core.customexception import ErrorInvalidItem
 
 
 class ProjectLoader(object):

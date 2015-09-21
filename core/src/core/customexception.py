@@ -22,6 +22,7 @@ __license__ = "GNU Lesser General Public License"
 
 __all__ = ['cast_error', 'display_error_color', 'CustomException', 'UserException']
 
+
 def cast_error(error, klass, title=True, message=True, desc=True, **kargs):
     new_error = klass(**kargs)
     if isinstance(error, CustomException):
@@ -33,6 +34,7 @@ def cast_error(error, klass, title=True, message=True, desc=True, **kargs):
         new_error.message = new_error.message if message else error.message
         new_error.desc = new_error.desc if desc else error.message
     return new_error
+
 
 def display_error_color(e):
     if not isinstance(e, CustomException):
@@ -149,3 +151,25 @@ class CustomException(Exception):
 
 class UserException(CustomException):
     pass
+
+
+class ErrorInvalidItemName(CustomException):
+    title = u'Error: item name is not valid'
+    message = u'%(name)r is not valid'
+    desc = u"Item name must not be empty, contain punctuation (except '_')or non ascii character"
+
+    def _kargs(self):
+        return dict(
+            project=self._args[0],
+            category=self._args[1],
+            name=self._args[2],
+        )
+
+
+class ErrorInvalidItem(CustomException):
+    title = u'Error: item is invalid'
+    message = u'Item is invalid: %(message)s'
+    desc = u"Item is invalid"
+
+    def _kargs(self):
+        return dict(message=self._args[0])

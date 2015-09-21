@@ -26,6 +26,7 @@ from openalea.vpltk.qt.compat import orientation_qt, orientation_int
 from openalea.core.customexception import CustomException, cast_error
 from openalea.deploy.shared_data import shared_data
 from openalea.core.path import path as Path
+from openalea.core.formatting.util import icon_path
 from openalea.oalab.widget import resources_rc
 
 DEFAULT_SCALE = (256, 256)
@@ -35,7 +36,7 @@ def get_shared_data(filename):
     return shared_data(openalea.oalab, filename)
 
 
-def qicon(filename, default=None, paths=None, save_filepath=None):
+def qicon(filename, default=None, paths=None, save_filepath=None, packages=None):
     if isinstance(filename, QtGui.QIcon):
         return filename
 
@@ -51,23 +52,9 @@ def qicon(filename, default=None, paths=None, save_filepath=None):
             pixmap.save(save_filepath)
         return icon
     else:
-        _paths = [Path(filename)]
-        if paths:
-            _paths += [Path(p) / filename for p in paths]
-
-        found = None
-        for path in _paths:
-            if path.isfile():
-                found = path
-                break
-
-        if found is None:
-            for path in (filename, 'icons/%s' % filename):
-                path = get_shared_data(path)
-                if path and path.isfile():
-                    found = path
-                    break
-
+        if packages is None:
+            packages = [openalea.core, openalea.oalab]
+        found = icon_path(filename, default=default, paths=paths, packages=packages)
         if found:
             pixmap = QtGui.QPixmap(found).scaled(*DEFAULT_SCALE, aspectRatioMode=QtCore.Qt.KeepAspectRatio)
             icon = QtGui.QIcon(pixmap)
@@ -79,7 +66,7 @@ def qicon(filename, default=None, paths=None, save_filepath=None):
             return qicon(":/images/resources/%s" % filename, save_filepath=save_filepath)
 
 
-def obj_icon(obj_lst, rotation=0, size=(64, 64), default=None, paths=None, save_filepath=None):
+def obj_icon(obj_lst, rotation=0, size=(64, 64), default=None, paths=None, save_filepath=None, packages=None):
     if not isinstance(obj_lst, (list, tuple)):
         obj_lst = [obj_lst]
 
@@ -90,9 +77,9 @@ def obj_icon(obj_lst, rotation=0, size=(64, 64), default=None, paths=None, save_
             break
 
     if _obj_icon:
-        icon = qicon(_obj_icon, default=default, paths=paths, save_filepath=save_filepath)
+        icon = qicon(_obj_icon, default=default, paths=paths, save_filepath=save_filepath, packages=packages)
     else:
-        icon = qicon(None, default, save_filepath=save_filepath)
+        icon = qicon(None, default, save_filepath=save_filepath, packages=packages)
 
     if rotation:
         pix = icon.pixmap(*size)
@@ -101,6 +88,17 @@ def obj_icon(obj_lst, rotation=0, size=(64, 64), default=None, paths=None, save_
         pix = pix.transformed(transform)
         icon = QtGui.QIcon(pix)
     return icon
+
+
+def qicon_path(obj, savedir, default=None, paths=None, packages=None):
+    """
+    If icon is pysically on disk, return path.
+    Else, save image in project dir and return it
+    """
+    ext = '.png'
+    icon_path = savedir / "._icon" + ext
+    icon = obj_icon(obj, save_filepath=icon_path, paths=paths, default=default, packages=packages)
+    return icon_path
 
 
 class ModalDialog(QtGui.QDialog):

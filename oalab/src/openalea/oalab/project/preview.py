@@ -11,26 +11,21 @@ DEFAULT_PROJECT_ICON = ":/images/resources/axiom2.png"
 
 import openalea.core
 from openalea.deploy.shared_data import shared_data
+
+from openalea.oalab.utils import qicon_path
+
 stylesheet_path = shared_data(openalea.core, 'stylesheet.css')
 
 html_header = '<html>\n  <head>\n    <link rel="stylesheet" type="text/css" href="%s">\n  </head>' % stylesheet_path
 html_footer = '</html>'
 
 
-def qicon_path(project):
-    """
-    If icon is pysically on disk, return path.
-    Else, save image in project dir and return it
-    """
-    from openalea.oalab.utils import obj_icon
-    ext = '.png'
-    icon_path = project.path / "._icon" + ext
-    obj_icon(project, save_filepath=icon_path, paths=[project.path], default=DEFAULT_PROJECT_ICON)
-    return icon_path
-
-
 def html_project_summary(project):
-    args = dict(image=qicon_path(project), label=project.label, name=project.name)
+    args = dict(
+        image=qicon_path(project, project.path, paths=[project.path], packages=[openalea.core, openalea.oalab],
+                         default=DEFAULT_PROJECT_ICON),
+        label=project.label,
+        name=project.name)
     html = '<div class="summary"><p class="title"><img style="vertical-align:middle;" src="%(image)s" width="128" />' % args
     html += '%(label)s</p>' % args
     html += '\n<hr>'

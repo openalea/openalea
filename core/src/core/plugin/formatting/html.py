@@ -39,10 +39,10 @@ def format_html(value, key=None):
     return format_str(value)
 
 
-def html_summary(item):
+def html_summary(item, **kwargs):
     if hasattr(item, 'icon'):
-        p = icon_path(item.icon, default=DEFAULT_ICON, packages=[openalea.core, openalea.oalab])
-        image = u'<img style="vertical-align:middle;" src="%s" width="128" />'
+        p = kwargs.get('icon_path', icon_path(item.icon))
+        image = u'<img style="vertical-align:middle;" src="%s" width="128" />' % p
     else:
         image = u''
     args = dict(image=image, title=format_html(item.label), name=format_html(item.name))
