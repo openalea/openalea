@@ -20,6 +20,7 @@
 from openalea.oalab.service.drag_and_drop import add_drag_format, encode_to_qmimedata
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.oalab.utils import obj_icon, qicon
+import openalea.oalab
 
 
 class ProjectModel(QtGui.QStandardItemModel):
@@ -55,7 +56,7 @@ class ProjectModel(QtGui.QStandardItemModel):
             control=QtGui.QIcon(":/images/resources/node.png"),
             world=QtGui.QIcon(":/images/resources/plant.png"),
             startup=QtGui.QIcon(":/images/resources/editredo.png"),
-            data=qicon("icons/Crystal_Clear_filesystem_folder_grey_open.png"),
+            data=qicon("Crystal_Clear_filesystem_folder_grey_open.png"),
             doc=QtGui.QIcon(":/images/resources/book.png"),
             cache=QtGui.QIcon(":/images/resources/editcopy.png"),
             model=qicon("icons/Crystal_Clear_app_kservices.png"),
@@ -86,11 +87,7 @@ class ProjectModel(QtGui.QStandardItemModel):
             for name in sorted(names):
                 data = data_dict[name]
                 item3 = QtGui.QStandardItem(name)
-                if hasattr(data, 'icon'):
-                    data_icon_path = data.icon
-                else:
-                    data_icon_path = ''
-                item3.setIcon(QtGui.QIcon(data_icon_path))
+                item3.setIcon(obj_icon(data, packages=[openalea.oalab]))
                 item3.setData((category, data))
                 item2.appendRow(item3)
 
