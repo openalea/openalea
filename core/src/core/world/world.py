@@ -140,7 +140,6 @@ class World(VPLScene, AbstractListener):
             del self[name]
 
     def change_object_attribute(self, name, attribute):
-        print "World < received attributeChanged!"
         attribute_name = attribute['name']
         attribute_value = attribute['value']
         self[name].set_attribute(attribute_name, attribute_value)
@@ -152,7 +151,6 @@ class World(VPLScene, AbstractListener):
             #self._emit_value_changed(old, new)
             self._emit_world_object_changed(old, world_obj)
         elif signal == 'world_object_attribute_changed':
-            print "World < world_object_attribute_changed!"
             world_obj, old, new = data
             self._emit_world_object_item_changed(world_obj, 'attribute', old, new)
 
@@ -264,7 +262,13 @@ class WorldObject(Observed):
                 interfaces = guess_interface(value)
                 if len(interfaces):
                     interface = interfaces[0]
-            self._attributes.append(dict(name=name, value=value, interface=interface, label=label, constraints=constraints))
+            self._attributes.append(
+                dict(
+                    name=name,
+                    value=value,
+                    interface=interface,
+                    label=label,
+                    constraints=constraints))
             self.notify_listeners(('world_object_attribute_changed', (self, None, self._attributes[-1])))
         else:
             from copy import copy

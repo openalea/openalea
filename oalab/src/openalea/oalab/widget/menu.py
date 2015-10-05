@@ -81,7 +81,7 @@ style_group = """
 style = """
     QToolButton {
          background-color: transparent;
-         min-width: 80px;
+         min-width: 10px;
      }
 
     QToolButton:hover {
@@ -434,7 +434,7 @@ class BigToolButton(ToolButton):
     def __init__(self, action, icon=None):
         super(BigToolButton, self).__init__(action, icon)
 
-        self.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
+        #self.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
         self.setIconSize(big_icon_size)
         self.setMinimumSize(big_btn_size)
 
