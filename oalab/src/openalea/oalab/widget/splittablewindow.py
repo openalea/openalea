@@ -36,6 +36,10 @@ from openalea.oalab.widget.splitterui import SplittableUI, BinaryTree
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.vpltk.qt.compat import tabposition_int, tabposition_qt
 
+from openalea.oalab.about import About
+from openalea.oalab.pluginwidget.explorer import PluginExplorer
+from openalea.oalab.utils import ModalDialog
+
 
 def menu_actions(widget):
     actions = []
@@ -1008,6 +1012,12 @@ class OALabMainWin(QtGui.QMainWindow):
         self.action_edit.toggled.connect(self.set_edit_mode)
         self.action_edit.setChecked(False)
 
+        self.action_about = QtGui.QAction("About", self.menu_classic['Help'])
+        self.action_about.triggered.connect(self.show_about)
+
+        self.action_plugins = QtGui.QAction("Plugins", self.menu_classic['Help'])
+        self.action_plugins.triggered.connect(self.show_plugins)
+
         icon = QtGui.QApplication.style().standardIcon(QtGui.QStyle.SP_TitleBarCloseButton)
         self.action_quit = QtGui.QAction(icon, "Quit application", self.menu_classic['File'])
         self.action_quit.triggered.connect(self.close)
@@ -1015,6 +1025,8 @@ class OALabMainWin(QtGui.QMainWindow):
 
     def _pre_fill_menus(self):
         self.menu_classic['Edit'].addAction(self.action_edit)
+        self.menu_classic['Help'].addAction(self.action_about)
+        self.menu_classic['Help'].addAction(self.action_plugins)
 
     def _post_fill_menus(self):
         self.menu_classic['File'].addSeparator()
@@ -1188,6 +1200,20 @@ class OALabMainWin(QtGui.QMainWindow):
 
     def layout(self):
         return self.splittable._repr_json_()
+
+    def show_about(self):
+        about = About()
+        dialog = ModalDialog(about)
+        dialog.resize(400, 600)
+        dialog.setWindowTitle("About OpenAleaLab ...")
+        dialog.exec_()
+
+    def show_plugins(self):
+        explorer = PluginExplorer()
+        dialog = ModalDialog(explorer)
+        dialog.resize(600, 600)
+        dialog.setWindowTitle("OpenAleaLab plugin's ...")
+        dialog.exec_()
 
 
 class SplitterApplet(Splitter):

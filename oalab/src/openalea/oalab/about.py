@@ -18,6 +18,7 @@
 
 import openalea.core
 import openalea.oalab
+import random
 
 from openalea.vpltk.qt import QtGui
 from openalea.oalab.pluginwidget.explorer import PluginExplorer
@@ -29,6 +30,8 @@ from openalea.core.formatting.html import html_section, html_list
 from openalea.vpltk.qt import QT_API
 from openalea.vpltk.qt import QtGui
 
+from openalea.core.plugin.formatting.text import format_author
+from openalea.core import authors as auth
 
 if QT_API == 'pyqt':
     try:
@@ -183,27 +186,71 @@ and future works primarily designed for the plant architecture modeling.
 """ % args
 
 
-class OpenAleaLabAbout(QtGui.QWidget):
+author_lst = [
+    auth.gbaty,
+    auth.fboudon,
+    auth.jchopard,
+    auth.tcokelaer,
+    auth.dbarbeau,
+    auth.sdufourko,
+    auth.gcerutti,
+    auth.cgodin,
+    auth.jcoste,
+    auth.emoscardi,
+    auth.pfernique,
+    auth.cpradal,
+]
 
-    def __init__(self):
+random.shuffle(author_lst)
+
+authors = ', '.join([format_author(author) for author in author_lst])
+args['authors'] = authors
+
+CREDITS = """
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="%(stylesheet)s">
+</head>
+
+<body>
+<h2 class="subtitle">OpenAleaLab</h2>
+<p class="introduction">Platform is written by (random order) ... </p>
+
+%(authors)s
+
+<p class="introduction">Components are written by numerous authors, see "Plugins" tab for more information</p>
+
+</body>
+
+
+
+</html>
+
+""" % args
+
+
+class AboutPage(QtGui.QWidget):
+
+    def __init__(self, banner_path=None, content=None):
         QtGui.QWidget.__init__(self)
+
+        if banner_path is None:
+            banner_path = shared_data(openalea.oalab, 'icons/logo/banner.png')
 
         self._lay = QtGui.QVBoxLayout(self)
 
         p = QtGui.QSizePolicy
 
         self._banner = QtGui.QLabel()
-        banner = QtGui.QPixmap(shared_data(openalea.oalab, 'icons/logo/banner.png'))
+        self._banner.setStyleSheet("QLabel { background-color : #ffffff;}")
+        banner = QtGui.QPixmap(banner_path)
         size = banner.size()
         self._banner.setPixmap(banner)
-        self._banner.setSizePolicy(p(p.Maximum, p.Maximum))
-        self._banner.setMaximumHeight(size.height())
-        self._banner.setMaximumWidth(size.width())
 
         self._content = QWebView()
         if hasattr(self._content, "setReadOnly"):
             self._content.setReadOnly(True)
-        self._content.setHtml(WELCOME)
+        self._content.setHtml(content)
 
         self._footer = QtGui.QLabel()
         self._footer.setStyleSheet("QLabel { background-color : #459454;}")
@@ -215,24 +262,36 @@ class OpenAleaLabAbout(QtGui.QWidget):
         self._lay.setSpacing(0)
 
 
+class OpenAleaLabSummary(AboutPage):
+
+    def __init__(self):
+        AboutPage.__init__(self, content=WELCOME)
+
+
+class OpenAleaLabCredits(AboutPage):
+
+    def __init__(self):
+        AboutPage.__init__(self, content=CREDITS)
+
+
 class About(QtGui.QTabWidget):
 
     def __init__(self):
         QtGui.QTabWidget.__init__(self)
 
-        self._welcome = OpenAleaLabAbout()
+        self._welcome = OpenAleaLabSummary()
         self._plugin = PluginExplorer()
         self._plugin.groupby(filter_name="dist")
 
-        self._credits = QtGui.QLabel('Credits')
+        self._credits = OpenAleaLabCredits()
 
         self.addTab(self._welcome, "About")
-        self.addTab(self._plugin, "Plugins")
         self.addTab(self._credits, "Credits")
+        self.addTab(self._plugin, "Plugins")
 
         size = self._welcome.size()
-        self.resize(size.width(), 775)
-        self.setMaximumWidth(size.width())
+        self._credits.resize(size.width(), 600)
+        self.resize(size.width(), 600)
         self.setContentsMargins(10, 10, 10, 10)
 
 
