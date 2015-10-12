@@ -20,8 +20,10 @@ from openalea.core.service.plugin import plugin
 
 def node_factory(plugin_name, group=None, name=None, category=None):
     _plugin = plugin(plugin_name, group=group)
-    return Factory(name=_plugin.name, category=category,
-                   inputs=_plugin.inputs, outputs=_plugin.outputs,
-                   nodemodule=_plugin.modulename,
-                   nodeclass=_plugin.objectname,
-                   )
+    name = name if name else _plugin.name
+    factory = Factory(name=name, category=category,
+                      inputs=_plugin.inputs, outputs=_plugin.outputs,
+                      nodemodule=_plugin.modulename,
+                      nodeclass=_plugin.objectname,
+                      )
+    return factory
