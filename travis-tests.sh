@@ -1,7 +1,7 @@
 #!/bin/sh
 
 cd core/test
-nosetests --exclude="test_package.py"
+nosetests --exclude="(test_package.py|test_packagemanager.py)"
 cd ../../oalab/test
 nosetests
 cd ../../grapheditor/test

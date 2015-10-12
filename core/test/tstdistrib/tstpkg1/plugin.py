@@ -1,12 +1,18 @@
 
+from openalea.core.plugin import PluginDef
+
+
+@PluginDef
 class C1Plugin1(object):
     name = 'MyPlugin1'
+    implement = 'IClass1'
 
     def __call__(self):
         from tstpkg1.impl import C1Class1
         return C1Class1
 
 
+@PluginDef
 class C1Plugin2(object):
     name = 'MyPlugin2'
 
@@ -17,12 +23,16 @@ class C1Plugin2(object):
 
 class C2Plugin1(object):
 
+    name_conversion = PluginDef.UNCHANGED
+
     def __call__(self):
         from tstpkg1.impl import C2Class1
         return C2Class1
 
 
 class C2Plugin2(object):
+
+    name_conversion = PluginDef.UNCHANGED
 
     def __call__(self):
         from tstpkg1.impl import C2Class2

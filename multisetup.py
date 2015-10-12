@@ -31,7 +31,8 @@ found in this directory.
     - multisetup -h
         * list of the options
 """
-import os, sys
+import os
+import sys
 
 try:
     from openalea.misc.multisetup import Multisetup
@@ -40,9 +41,8 @@ except ImportError:
     try:
         sys.path.insert(0, os.path.join('misc', 'src', 'openalea', 'misc'))
         from multisetup import Multisetup
-    except ImportError,e:
+    except ImportError as e:
         print e
-
 
 
 dirs = """
@@ -52,17 +52,15 @@ misc
 grapheditor
 visualea
 oalab
-deploygui
 """.split()
 #plantlab
 #openalea_meta
 
 
-
 def main():
 
     args = sys.argv[1:]
-    if  len(args) == 1 and args[0] in ['-h', '--help']:
+    if len(args) == 1 and args[0] in ['-h', '--help']:
         Multisetup.help()
     else:
         if 'develop -u' in args:
@@ -73,4 +71,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

@@ -22,6 +22,8 @@ from openalea.core.serialization import AbstractSaver
 from openalea.core.path import path as Path
 from configobj import ConfigObj
 from openalea.core.service.interface import interface_name
+from openalea.core.project import Project
+from openalea.core.customexception import ErrorInvalidItem
 
 
 class ProjectLoader(object):
@@ -30,14 +32,13 @@ class ProjectLoader(object):
     options = ['config_filename=oaproject.cfg', 'default_metadata']
 
     def load(self, path, protocol=None, **kwds):
-        from openalea.core.project import Project
         project = Project(path)
         return self.update(project, path, protocol=protocol, **kwds)
 
     def update(self, obj, path, protocol=None, **kwds):
         project = obj
         default_metadata = kwds.pop('default_metadata', project.DEFAULT_METADATA)
-        default_categories = kwds.pop('default_categories', project.DEFAULT_CATEGORIES)
+        default_categories = kwds.pop('default_categories', project.categories)
         config_filename = kwds.pop('config_filename', 'oaproject.cfg')
 
         config = ConfigObj(path / config_filename)
@@ -76,13 +77,16 @@ class ProjectLoader(object):
                         filenames = [filenames]
                     for filename in filenames:
                         section = '%s.path' % category
-                        if section in config:
-                            if filename in config[section]:
-                                project._add_item(category, path=config[section][filename], mode=project.MODE_LINK)
+                        try:
+                            if section in config:
+                                if filename in config[section]:
+                                    project._add_item(category, path=config[section][filename], mode=project.MODE_LINK)
+                                else:
+                                    project._add_item(category, filename=filename, mode=project.MODE_COPY)
                             else:
                                 project._add_item(category, filename=filename, mode=project.MODE_COPY)
-                        else:
-                            project._add_item(category, filename=filename, mode=project.MODE_COPY)
+                        except ErrorInvalidItem:
+                            pass
         return project
 
 
@@ -125,7 +129,7 @@ class ProjectSaver(AbstractSaver):
         config['manifest'] = dict()
         config['metadata'] = obj.metadata
 
-        for category in obj.DEFAULT_CATEGORIES:
+        for category in obj.categories:
             filenames_dict = getattr(obj, category)
             if filenames_dict:
                 category_path = obj.path / category

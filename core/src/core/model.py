@@ -26,7 +26,7 @@ It is generally used to define algorithms or process.
 A model has inputs, outputs and an internal state.
 Inputs and outputs are used to allow communication between environnement and models and between models.
 Internal state is used by the model itself but cannot be reached from outside.
-This internal step is generally used when user want to execute model step by step, 
+This internal step is generally used when user want to execute model step by step,
 each step depending on previous one.
 
 To define model instructions, you need to define at least "step" instructions.
@@ -34,7 +34,7 @@ To do that, you can use:
 
     - :meth:`~IModel.set_step_code`
 
-To use a Model, you also need to define set_code method that is able to extract inputs, outpus and step, init, ... 
+To use a Model, you also need to define set_code method that is able to extract inputs, outpus and step, init, ...
 from given source code.
 
 Animate notification are not yet implemented.
@@ -110,7 +110,7 @@ class IModel(object):
                 c = a+b
 
         you can extract input, output and step function.
-        So, 
+        So,
         m = Model("m1")
         m.set_code(code)
 
@@ -206,9 +206,10 @@ class Model(object):
 
     def _populate_ns(self):
         # add vars defined in init function
-        for k in self.interp.user_ns:
-            if k not in self._ns:
-                self._ns[k] = self.interp.user_ns[k]
+        self._ns.update(self.interp.user_ns)
+        #for k in self.interp.user_ns:
+        #    if k not in self._ns:
+        #        self._ns[k] = self.interp.user_ns[k]
 
     def _pop_ns(self):
         # Restore original namespace
@@ -288,14 +289,17 @@ class Model(object):
 
     def run(self, *args, **kwds):
         if 'run' in self._code:
-            return self._exec('run')
+            rvalues = self._exec('run')
         else:
             nstep = kwds.pop('nstep', 1)
             self.init(*args, **kwds)
             out = []
             for i in range(nstep):
                 out = self.step()
-            return out
+            rvalues = out
+        if kwds.get('run_in_shell', False):
+            self.interp.user_ns.update(self._ns)
+        return rvalues
 
     def eval_value(self, value):
         return literal_eval(value)
@@ -367,6 +371,7 @@ class Model(object):
 class PythonModel(Model):
     dtype = 'Python'
     mimetype = 'text/x-python'
+    default_name = 'Python'
 
     def __init__(self, **kwargs):
         Model.__init__(self, **kwargs)

@@ -28,6 +28,7 @@ QT_API_PYQTv1 = 'pyqtv1'
 QT_API_PYQT_DEFAULT = 'pyqtdefault' # don't set SIP explicitly
 QT_API_PYSIDE = 'pyside'
 
+
 def check_version(v, check):
     """check version string v >= check
 
@@ -40,7 +41,9 @@ def check_version(v, check):
     except TypeError:
         return True
 
+
 class ImportDenier(object):
+
     """Import Hook that will guard against bad Qt imports
     once IPython commits to a specific binding
     """

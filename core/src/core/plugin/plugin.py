@@ -32,6 +32,12 @@ import pkg_resources
 import site
 import sys
 
+from openalea.core.factory import AbstractFactory
+
+def plugin_name(plugin):
+    return plugin.name if hasattr(plugin, 'name') else plugin.__name__
+
+
 def discover(group, name=None):
     """
     Return all Plugin objects from group.
@@ -88,25 +94,65 @@ def iter_plugins(group, name=None, debug=False):
                 else:
                     yield ep
 
-class Plugin(object):
+class IPlugin(object):
     """ Define a Plugin from an entry point. """
 
-    def __init__(self, epoint):
-        self.ep = epoint
+    @property
+    def identifier(self):
+        """
+        Unique identifier. By default, identifier is pluginmodule:PluginClass
+        """
 
     @property
     def name(self):
-        return self.ep.name
+        """
+        Short name to identify plugin. Different plugin may have same name.
+        """
 
     @property
-    def module_name(self):
-        return self.ep.module_name
+    def label(self):
+        """
+        Human readable name
+        """
 
     @property
-    def dist(self):
-        return self.ep.dist
+    def modulename(self):
+        """
+        Python module path containing implementation
+        """
 
-    def load(self, *args, **kwds):
-        return self.ep.load(*args, **kwds)
+    @property
+    def objectname(self):
+        """
+        Name of implementation
+        """
 
+    @property
+    def distribution(self):
+        """
+        Current python distribution
+        """
 
+    @property
+    def module(self):
+        """
+        Module containing implementation
+        """
+
+    @property
+    def implementation(self):
+        """
+        Real implementation
+        """
+
+class Plugin(object):
+    pass
+
+class PluginDef(object):
+  UNCHANGED =0
+  DROP_PLUGIN = 1
+  LOWER_CASE = 2
+
+  def __new__(self, klass):
+    klass.__plugin__ = True
+    return klass

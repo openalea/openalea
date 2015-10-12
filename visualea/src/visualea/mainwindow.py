@@ -20,6 +20,10 @@ __license__ = "CeCILL v2"
 __revision__ = " $Id$ "
 
 from openalea.vpltk.qt import qt
+from openalea.vpltk.qt.designer import generate_pyfile_from_uifile, get_data
+src = get_data("openalea.visualea.mainwindow", "resources") / 'mainwindow.ui'
+dest = get_data("openalea.visualea.mainwindow", "ui_mainwindow.py")
+generate_pyfile_from_uifile(__name__, src=src, dest=dest)
 
 import ui_mainwindow
 try:
@@ -32,7 +36,7 @@ except ImportError:
 from openalea.core.algo.dataflow_evaluation import AbstractEvaluation
 from openalea.core import cli, logger
 from openalea.core.pkgmanager import PackageManager
-from openalea.core.settings import Settings,NoSectionError,NoOptionError
+from openalea.core.settings import Settings, NoSectionError, NoOptionError
 from openalea.core.node import NodeFactory
 from openalea.core.compositenode import CompositeNodeFactory
 
@@ -62,7 +66,7 @@ PROVENANCE = False
 
 class MainWindow(qt.QtGui.QMainWindow,
                  ui_mainwindow.Ui_MainWindow,
-                 SignalSlotListener) :
+                 SignalSlotListener):
 
     def __init__(self, session, parent=None):
         """
@@ -79,7 +83,7 @@ class MainWindow(qt.QtGui.QMainWindow,
         self.tabWorkspace.removeTab(0)
         self.tabWorkspace.setTabsClosable(True)
         self.ws_cpt = 0
-        
+
         if hasattr(AbstractEvaluation, "__provenance__"):
             self._prov = AbstractEvaluation.__provenance__
         else:
@@ -98,7 +102,7 @@ class MainWindow(qt.QtGui.QMainWindow,
         except NameError:
             InterpreterClass = get_interpreter_class()
             interpreter = InterpreterClass()
-                    
+
         # interpreter init defered after session init
         shellclass = get_shell_class()
         self.interpreterWidget = shellclass(interpreter,
@@ -106,7 +110,7 @@ class MainWindow(qt.QtGui.QMainWindow,
 
         GraphOperator.globalInterpreter = interpreter
         self.lowerpane.addTab(self.interpreterWidget, "Python Shell")
-        
+
         if logger.QT_LOGGING_MODEL_AVAILABLE:
             # openalea logger
             model = logger.LoggerOffice().get_handler("qt")
@@ -131,44 +135,44 @@ class MainWindow(qt.QtGui.QMainWindow,
         # Widgets
         self.connect(self.tabWorkspace, qt.QtCore.SIGNAL("contextMenuEvent(QContextMenuEvent)"),
                      self.contextMenuEvent)
-        self.tabWorkspace.currentChanged.connect( self.ws_changed)
-        self.search_lineEdit.editingFinished.connect( self.search_node)
-        self.tabWorkspace.tabCloseRequested.connect( self.close_tab_workspace)
+        self.tabWorkspace.currentChanged.connect(self.ws_changed)
+        self.search_lineEdit.editingFinished.connect(self.search_node)
+        self.tabWorkspace.tabCloseRequested.connect(self.close_tab_workspace)
 
         # Help Menu
-        self.action_About.triggered.connect( self.about)
-        self.actionOpenAlea_Web.triggered.connect( self.web)
-        self.action_Help.triggered.connect( self.help)
+        self.action_About.triggered.connect(self.about)
+        self.actionOpenAlea_Web.triggered.connect(self.web)
+        self.action_Help.triggered.connect(self.help)
 
         # File Menu
-        self.action_New_Session.triggered.connect( self.new_session)
-        self.action_Open_Session.triggered.connect( self.open_session)
-        self.action_Save_Session.triggered.connect( self.save_session)
-        self.actionSave_as.triggered.connect( self.save_as)
-        self.action_Quit.triggered.connect( self.quit)
+        self.action_New_Session.triggered.connect(self.new_session)
+        self.action_Open_Session.triggered.connect(self.open_session)
+        self.action_Save_Session.triggered.connect(self.save_session)
+        self.actionSave_as.triggered.connect(self.save_as)
+        self.action_Quit.triggered.connect(self.quit)
 
-        self.action_Image.triggered.connect( self.export_image)
-        self.action_Svg.triggered.connect( self.export_image_svg)
+        self.action_Image.triggered.connect(self.export_image)
+        self.action_Svg.triggered.connect(self.export_image_svg)
 
         # Package Manager Menu
-        self.action_Auto_Search.triggered.connect( self.reload_all)
-        self.action_Add_File.triggered.connect( self.add_pkgdir)
-        self.actionFind_Node.triggered.connect( self.find_node)
-        self.action_New_Network.triggered.connect( self.new_graph)
-        self.actionNew_Python_Node.triggered.connect( self.new_python_node)
-        self.actionNew_Package.triggered.connect( self.new_package)
-        self.action_Data_File.triggered.connect( self.new_data)
+        self.action_Auto_Search.triggered.connect(self.reload_all)
+        self.action_Add_File.triggered.connect(self.add_pkgdir)
+        self.actionFind_Node.triggered.connect(self.find_node)
+        self.action_New_Network.triggered.connect(self.new_graph)
+        self.actionNew_Python_Node.triggered.connect(self.new_python_node)
+        self.actionNew_Package.triggered.connect(self.new_package)
+        self.action_Data_File.triggered.connect(self.new_data)
 
         # DataPool Menu
-        self.actionClear_Data_Pool.triggered.connect( self.clear_data_pool)
+        self.actionClear_Data_Pool.triggered.connect(self.clear_data_pool)
 
         # Python Menu
         self.action_Execute_script.triggered.connect(
-                     self.exec_python_script)
+            self.exec_python_script)
         self.actionOpen_Console.triggered.connect(
-                     self.open_python_console)
+            self.open_python_console)
         self.actionClea_r_Console.triggered.connect(
-                     self.clear_python_console)
+            self.clear_python_console)
 
         # WorkspaceMenu
         self.__operatorAction = dict([(self.action_Run, "graph_run"),
@@ -201,7 +205,7 @@ class MainWindow(qt.QtGui.QMainWindow,
         self.action_New_Empty_Workspace.triggered.connect(self.new_workspace)
         self.menu_Workspace.aboutToShow.connect(self.__wsMenuShow)
         self.menu_Workspace.aboutToShow.connect(self.__wsMenuHide)
-        for ac, fname in  self.__operatorAction.iteritems():
+        for ac, fname in self.__operatorAction.iteritems():
             f = self.__make_operator_action_connector(ac, fname)
             ac.triggered.connect(f)
 
@@ -214,7 +218,7 @@ class MainWindow(qt.QtGui.QMainWindow,
 
         #load personnal GUI settings
         self.read_settings()
-        
+
         #############
         # Provenance
         #############
@@ -229,15 +233,15 @@ class MainWindow(qt.QtGui.QMainWindow,
             self.action_activ_prov.setChecked(prov)
             self.action_activ_prov.setObjectName("action_activ_prov")
             self.action_activ_prov.setText(qt.QtGui.QApplication.translate("MainWindow", "Connect/Disconnect Provenance", None, qt.QtGui.QApplication.UnicodeUTF8))
-     
+
             self.action_show_prov = qt.QtGui.QAction(self)
             self.action_show_prov.setCheckable(False)
             self.action_show_prov.setObjectName("action_show_prov")
             self.action_show_prov.setText(qt.QtGui.QApplication.translate("MainWindow", "Show Provenance", None, qt.QtGui.QApplication.UnicodeUTF8))
-     
+
             self.menu_provenance.addAction(self.action_activ_prov)
             self.menu_provenance.addAction(self.action_show_prov)
-            
+
             self.menubar.addAction(self.menu_provenance.menuAction())
 
             self.action_activ_prov.toggled.connect(self.set_provenance)
@@ -246,23 +250,23 @@ class MainWindow(qt.QtGui.QMainWindow,
     def set_provenance(self, provenance):
         """
         Set/Unset the registry of provenance
-        
+
         :param provenance: boolean which is set to True if we want to register provenance. Else, False.
         """
-        if hasattr(AbstractEvaluation,"__provenance__"):
+        if hasattr(AbstractEvaluation, "__provenance__"):
             self._prov = provenance
             AbstractEvaluation.__provenance__ = self._prov
-        
+
     def get_provenance(self):
         """
         :return: boolean which is set to True if we want to register provenance. Else, False.
         """
         return self._prov
-        
+
     def show_provenance(self):
         """
         Display the provenance
-        """       
+        """
         from openalea.visualea.provenance import ModalDialog, ProvenanceSelectorWidget, search_trace
         prov_widget = ProvenanceSelectorWidget(self)
         dialog = ModalDialog(prov_widget)
@@ -273,9 +277,9 @@ class MainWindow(qt.QtGui.QMainWindow,
             cn = prov_widget.c_n.text()
             pkg = prov_widget.pkg.text()
             wk = prov_widget.workspace.text()
-            
+
             search_trace(cn, pkg, wk, parent=self)
- 
+
     def on_session_started(self, session):
         self.initialise(session)
         self.session = session
@@ -283,11 +287,11 @@ class MainWindow(qt.QtGui.QMainWindow,
         # -- configure the interpreter --
         cli.init_interpreter(self.interpreterWidget.interpreter,
                              session,
-                             {"tabs":self.tabWorkspace})
+                             {"tabs": self.tabWorkspace})
 
         # -- now, many package manager related views --
         self.pkgmanager = session.pkgmanager
-        self.actionShow_log.triggered.connect( self.pkgmanager.log.print_log)
+        self.actionShow_log.triggered.connect(self.pkgmanager.log.print_log)
 
         # package tree view
         self.pkg_model = PkgModel(self.pkgmanager)
@@ -314,131 +318,130 @@ class MainWindow(qt.QtGui.QMainWindow,
 
         self.session.simulate_workspace_addition()
 
-
-    def debug (self) :
+    def debug(self):
         v = self.packageTreeView
-        print "items",v.expanded_items
-        print "model",v.model()
-        print "map",v.model().index_map
+        print "items", v.expanded_items
+        print "model", v.model()
+        print "map", v.model().index_map
 
-    def write_settings (self) :
+    def write_settings(self):
         """Save application settings.
         """
         settings = Settings()
 
         #main window
-        settings.set("MainWindow","size","(%d,%d)" % (self.width(),self.height() ) )
-        settings.set("MainWindow","pos","(%d,%d)" % (self.x(),self.y() ) )
+        settings.set("MainWindow", "size", "(%d,%d)" % (self.width(), self.height()))
+        settings.set("MainWindow", "pos", "(%d,%d)" % (self.x(), self.y()))
 
-        sizes = "[%s]" % ",".join("%d" % val for val in self.splitter_2.sizes() )
-        settings.set("MainWindow","splitter_2",sizes)
-        sizes = "[%s]" % ",".join("%d" % val for val in self.splitter_3.sizes() )
-        settings.set("MainWindow","splitter_3",sizes)
+        sizes = "[%s]" % ",".join("%d" % val for val in self.splitter_2.sizes())
+        settings.set("MainWindow", "splitter_2", sizes)
+        sizes = "[%s]" % ",".join("%d" % val for val in self.splitter_3.sizes())
+        settings.set("MainWindow", "splitter_3", sizes)
 
         #tree view
-        settings.set("TreeView","open","[]")
+        settings.set("TreeView", "open", "[]")
 
         #workspace
         last_open = "[%s]" % ",".join("'%s'" % item for item in self._last_opened)
-        settings.set("WorkSpace","last",last_open)
-        
+        settings.set("WorkSpace", "last", last_open)
+
         #provenance
         prov = self.get_provenance()
-        settings.set("Provenance","enable",str(prov))
+        settings.set("Provenance", "enable", str(prov))
 
         settings.write()
 
-    def read_settings (self) :
+    def read_settings(self):
         """Read application settings.
         """
         settings = Settings()
 
         #main window
-        try :
-            size = eval(settings.get("MainWindow","size") )
-            self.resize(qt.QtCore.QSize(*size) )
-        except NoSectionError :
+        try:
+            size = eval(settings.get("MainWindow", "size"))
+            self.resize(qt.QtCore.QSize(*size))
+        except NoSectionError:
             pass
-        except NoOptionError :
+        except NoOptionError:
             pass
-        try :
-            pos = eval(settings.get("MainWindow","pos") )
-            self.move(qt.QtCore.QPoint(*pos) )
-        except NoSectionError :
+        try:
+            pos = eval(settings.get("MainWindow", "pos"))
+            self.move(qt.QtCore.QPoint(*pos))
+        except NoSectionError:
             pass
-        except NoOptionError :
+        except NoOptionError:
             pass
-        try :
-            sizes = eval(settings.get("MainWindow","splitter_2") )
+        try:
+            sizes = eval(settings.get("MainWindow", "splitter_2"))
             self.splitter_2.setSizes(sizes)
-        except NoSectionError :
+        except NoSectionError:
             pass
-        except NoOptionError :
+        except NoOptionError:
             pass
-        try :
-            sizes = eval(settings.get("MainWindow","splitter_3") )
+        try:
+            sizes = eval(settings.get("MainWindow", "splitter_3"))
             self.splitter_3.setSizes(sizes)
-        except NoSectionError :
+        except NoSectionError:
             pass
-        except NoOptionError :
+        except NoOptionError:
             pass
         #workspace
-        try :
-            last_open = eval(settings.get("WorkSpace","last") )
+        try:
+            last_open = eval(settings.get("WorkSpace", "last"))
             last_open.reverse()
-            for item in last_open :
+            for item in last_open:
                 gr = item.split(".")
                 pkgid = ".".join(gr[:-1])
                 name = gr[-1]
-                self.add_last_open(pkgid,name)
-        except NoSectionError :
+                self.add_last_open(pkgid, name)
+        except NoSectionError:
             pass
-        except NoOptionError :
-            pass
-        
-        try :
-            prov = eval(settings.get("Provenance","enable") )
-            self.set_provenance(bool(prov))
-        except NoSectionError :
-            pass
-        except NoOptionError :
+        except NoOptionError:
             pass
 
-    def redo_last_open_menu (self) :
+        try:
+            prov = eval(settings.get("Provenance", "enable"))
+            self.set_provenance(bool(prov))
+        except NoSectionError:
+            pass
+        except NoOptionError:
+            pass
+
+    def redo_last_open_menu(self):
         """Create entries for last opened nodes.
         """
         self.menuLast_open.clear()
-        for action in self._last_open_action_group.actions() :
+        for action in self._last_open_action_group.actions():
             self._last_open_action_group.removeAction(action)
 
-        for i,node_descr in enumerate(self._last_opened) :
+        for i, node_descr in enumerate(self._last_opened):
             action = self.menuLast_open.addAction(node_descr)
-            action.setShortcut("Ctrl+%d" % (i + 1) )
+            action.setShortcut("Ctrl+%d" % (i + 1))
             self._last_open_action_group.addAction(action)
 
         self.menuLast_open.setEnabled(len(self._last_opened) > 0)
 
-    def reopen_last (self, action) :
+    def reopen_last(self, action):
         """Reopen a last open node.
         """
-        gr = str(action.text() ).split(".")
+        gr = str(action.text()).split(".")
         pkgid = ".".join(gr[:-1])
         name = gr[-1]
         manager = PackageManager()
         factory = manager[pkgid][name]
         self.open_compositenode(factory)
 
-    def add_last_open (self, pkgid, factory_name) :
+    def add_last_open(self, pkgid, factory_name):
         """Register a new lest opened node.
         """
-        key = ".".join([pkgid,factory_name])
-        try :
+        key = ".".join([pkgid, factory_name])
+        try:
             self._last_opened.remove(key)
-        except ValueError :
+        except ValueError:
             pass
 
-        self._last_opened.insert(0,key)
-        if len(self._last_opened) > 4 :
+        self._last_opened.insert(0, key)
+        if len(self._last_opened) > 4:
             del self._last_opened[-1]
 
         self.redo_last_open_menu()
@@ -456,16 +459,16 @@ class MainWindow(qt.QtGui.QMainWindow,
                 break
 
     def __make_operator_action_connector(self, action, name):
-        def connector(aBool = None):
+        def connector(aBool=None):
             graphview = self.tabWorkspace.currentWidget()
             if not isinstance(graphview, dataflowview.DataflowView):
                 return
 
             # daniel was here: now the menu is built using the graph operator.
-            operator = GraphOperator(graph      = graphview.scene().get_graph(),
-                                     graphScene = graphview.scene(),
-                                     clipboard  = self.session.clipboard,
-                                     siblings   = self.session.workspaces)
+            operator = GraphOperator(graph=graphview.scene().get_graph(),
+                                     graphScene=graphview.scene(),
+                                     clipboard=self.session.clipboard,
+                                     siblings=self.session.workspaces)
             operator.register_listener(self)
             operator(fName=name)()
 
@@ -481,18 +484,18 @@ class MainWindow(qt.QtGui.QMainWindow,
         self.session.add_workspace(node, notify=False)
         self.open_widget_tab(node, factory=factory)
 
-        self.add_last_open(factory.__pkg_id__,factory.name)
+        self.add_last_open(factory.__pkg_id__, factory.name)
 
     def about(self):
         """ Display About Dialog """
 
         mess = qt.QtGui.QMessageBox.about(self, "About Visualea",
-                                       "Version %s\n\n"%(metainfo.get_version()) +
-                                       "VisuAlea is part of the OpenAlea framework.\n"+
-                                       metainfo.get_copyright()+
-                                       "This Software is distributed under the Cecill-V2 License.\n\n"+
-                                       "Visit " + metainfo.url +"\n\n"
-                                       )
+                                          "Version %s\n\n" % (metainfo.get_version()) +
+                                          "VisuAlea is part of the OpenAlea framework.\n" +
+                                          metainfo.get_copyright() +
+                                          "This Software is distributed under the Cecill-V2 License.\n\n" +
+                                          "Visit " + metainfo.url + "\n\n"
+                                          )
 
     def help(self):
         """ Display help """
@@ -504,14 +507,14 @@ class MainWindow(qt.QtGui.QMainWindow,
 
     def quit(self):
         """ Quit Application """
-        if( qt.QtGui.QMessageBox.question(self, "Quit?", "Are you sure you want to quit?",
-                                       qt.QtGui.QMessageBox.Ok|qt.QtGui.QMessageBox.Cancel) ==
-                        qt.QtGui.QMessageBox.Ok):
+        if(qt.QtGui.QMessageBox.question(self, "Quit?", "Are you sure you want to quit?",
+                                         qt.QtGui.QMessageBox.Ok | qt.QtGui.QMessageBox.Cancel) ==
+                qt.QtGui.QMessageBox.Ok):
             qt.QtGui.QApplication.exit(0)
 
     def notify(self, sender, event):
         """ Notification from observed """
-        if event and isinstance(sender, GraphOperator) :
+        if event and isinstance(sender, GraphOperator):
             index = -1
             for i in range(self.tabWorkspace.count()):
                 wid = self.tabWorkspace.widget(i)
@@ -521,7 +524,7 @@ class MainWindow(qt.QtGui.QMainWindow,
                 return
             if(event[0] == "graphoperator_graphsaved"):
                 self.reinit_treeview()
-                caption = "Workspace %i - %s"%(index, event[2].name)
+                caption = "Workspace %i - %s" % (index, event[2].name)
                 self.tabWorkspace.setTabText(index, caption)
             elif(event[0] == "graphoperator_graphclosed"):
                 self.close_tab_workspace(index)
@@ -529,8 +532,8 @@ class MainWindow(qt.QtGui.QMainWindow,
                 self.session.workspaces[index] = event[2]
 
         if(type(sender) == type(self.session)):
-            if(event and event[0]=="workspace_added"):
-                graph=event[1]
+            if(event and event[0] == "workspace_added"):
+                graph = event[1]
                 self.open_widget_tab(graph, graph.factory)
             else:
                 self.update_tabwidget()
@@ -567,7 +570,7 @@ class MainWindow(qt.QtGui.QMainWindow,
         w.close()
         del w
 
-    def current_view (self) :
+    def current_view(self):
         """ Return the active widget """
         return self.tabWorkspace.currentWidget()
 
@@ -576,19 +579,19 @@ class MainWindow(qt.QtGui.QMainWindow,
         # open tab widgets
         for (i, node) in enumerate(self.session.workspaces):
 
-            if(i< self.tabWorkspace.count()):
+            if(i < self.tabWorkspace.count()):
                 widget = self.tabWorkspace.widget(i)
                 if(node != widget.scene().get_graph()):
                     self.close_tab_workspace(i)
-                    self.open_widget_tab(node, factory=node.factory, pos = i)
+                    self.open_widget_tab(node, factory=node.factory, pos=i)
 
         # close last tabs
-        removelist = range( len(self.session.workspaces), self.tabWorkspace.count())
+        removelist = range(len(self.session.workspaces), self.tabWorkspace.count())
         removelist.reverse()
         for i in removelist:
             self.close_tab_workspace(i)
 
-    def open_widget_tab(self, graph, factory, caption=None, pos = -1):
+    def open_widget_tab(self, graph, factory, caption=None, pos=-1):
         """
         Open a widget in a tab giving an instance and its widget
         caption is append to the tab title
@@ -596,7 +599,7 @@ class MainWindow(qt.QtGui.QMainWindow,
         gwidget = None
         try:
             # Since dataflowview.GraphicalGraph.__adapterType__ is dataflowview.adapter.GraphAdapter
-            # graph will automatically be wrapped by that class and gwidget will exclusevily 
+            # graph will automatically be wrapped by that class and gwidget will exclusevily
             # talk to the adapter instead of the original graph. This thing is twisted but works well.
             gwidget = dataflowview.GraphicalGraph.create_view(graph, parent=self)
             gwidget.set_clipboard(self.session.clipboard)
@@ -608,10 +611,9 @@ class MainWindow(qt.QtGui.QMainWindow,
             traceback.print_exc()
             return
 
-
-        if(not caption) :
+        if(not caption):
             i = self.session.workspaces.index(graph)
-            caption = "Workspace %i - %s"%(i, graph.get_caption())
+            caption = "Workspace %i - %s" % (i, graph.get_caption())
 
         index = self.tabWorkspace.insertTab(pos, gwidget, caption)
         self.tabWorkspace.setCurrentIndex(index)
@@ -621,7 +623,7 @@ class MainWindow(qt.QtGui.QMainWindow,
         #The bug is present until Qt4.6.2 at least. Bugreport:
         #http://bugreports.qt.nokia.com/browse/QTBUG-11148
         qt.QtCore.QCoreApplication.instance().notify(gwidget, qt.QtCore.QEvent(qt.QtCore.QEvent.WindowActivate))
-        if gwidget is not None :
+        if gwidget is not None:
             gwidget.show_entire_scene()
         return index
 
@@ -661,7 +663,7 @@ class MainWindow(qt.QtGui.QMainWindow,
                 break
 
         # if no bar was hit, return
-        if (index<0):
+        if (index < 0):
             return
 
         # set hit bar to front
@@ -694,7 +696,7 @@ class MainWindow(qt.QtGui.QMainWindow,
         dialog = NewGraph("New Composite Node", self.pkgmanager, self)
         ret = dialog.exec_()
 
-        if(ret>0):
+        if(ret > 0):
             newfactory = dialog.create_cnfactory(self.pkgmanager)
             self.reinit_treeview()
             self.open_compositenode(newfactory)
@@ -705,7 +707,7 @@ class MainWindow(qt.QtGui.QMainWindow,
         dialog = NewGraph("New Python Node", self.pkgmanager, self)
         ret = dialog.exec_()
 
-        if(ret>0):
+        if(ret > 0):
             dialog.create_nodefactory(self.pkgmanager)
             self.reinit_treeview()
 
@@ -715,17 +717,17 @@ class MainWindow(qt.QtGui.QMainWindow,
         dialog = NewData("Import data file", self.pkgmanager, self)
         ret = dialog.exec_()
 
-        if(ret>0):
+        if(ret > 0):
             dialog.create_datafactory(self.pkgmanager)
             self.reinit_treeview()
 
     def new_package(self):
         """ Create a new user package """
 
-        dialog = NewPackage(self.pkgmanager.keys(), parent = self)
+        dialog = NewPackage(self.pkgmanager.keys(), parent=self)
         ret = dialog.exec_()
 
-        if(ret>0):
+        if(ret > 0):
             (name, metainfo, path) = dialog.get_data()
 
             self.pkgmanager.create_user_package(name, metainfo, path)
@@ -736,12 +738,12 @@ class MainWindow(qt.QtGui.QMainWindow,
 
         filename = qt.QtGui.QFileDialog.getOpenFileName(
             self, "Python Script", "Python script (*.py)")
-            
+
         filename = str(filename)
         if(not filename):
             return
 
-        # Try if IPython    
+        # Try if IPython
         try:
             file = open(filename, 'r')
             src = ""
@@ -749,7 +751,7 @@ class MainWindow(qt.QtGui.QMainWindow,
                 src += f
             self.interpreterWidget.get_interpreter().runcode(src, hidden=False)
             file.close()
-            
+
         except:
             file = open(filename, 'r')
             sources = ''
@@ -761,8 +763,8 @@ class MainWindow(qt.QtGui.QMainWindow,
                 if(compiled):
                     self.interpreterWidget.get_interpreter().runcode(compiled)
                     sources = ''
-            file.close()        
-        
+            file.close()
+
         sources = ''
 
     def open_python_console(self):
@@ -795,14 +797,14 @@ class MainWindow(qt.QtGui.QMainWindow,
 
         if(not self.session.session_filename):
             self.save_as()
-        else :
+        else:
             self.session.save(self.session.session_filename)
 
     def save_as(self):
         """ Save as menu entry """
 
         filename = qt.QtGui.QFileDialog.getSaveFileName(
-            self, "OpenAlea Session",  qt.QtCore.QDir.homePath(), "Session file (*.oas)")
+            self, "OpenAlea Session", qt.QtCore.QDir.homePath(), "Session file (*.oas)")
 
         filename = str(filename)
         if(not filename):
@@ -891,15 +893,15 @@ class MainWindow(qt.QtGui.QMainWindow,
             return
 
         composite_node = widget.scene().get_graph()
-        if composite_node is not None :
+        if composite_node is not None:
             print "BEGIN script"
-            print composite_node.to_script(),"END script"
+            print composite_node.to_script(), "END script"
 
     def export_image(self):
         """ Export current workspace to an image """
 
         filename = qt.QtGui.QFileDialog.getSaveFileName(
-            self, "Export image",  qt.QtCore.QDir.homePath(), "PNG Image (*.png)")
+            self, "Export image", qt.QtCore.QDir.homePath(), "PNG Image (*.png)")
 
         filename = str(filename)
         if not filename:
@@ -927,7 +929,7 @@ class MainWindow(qt.QtGui.QMainWindow,
         """ Export current workspace to an image """
 
         filename = qt.QtGui.QFileDialog.getSaveFileName(
-            self, "Export svg image",  qt.QtCore.QDir.homePath(), "SVG Image (*.svg)")
+            self, "Export svg image", qt.QtCore.QDir.homePath(), "SVG Image (*.svg)")
 
         filename = str(filename)
         if not filename:

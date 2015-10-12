@@ -1,11 +1,11 @@
 
-from openalea.core.service.interface import interface_class, interface_name
+from openalea.core.service.interface import interface_class, interface_name, interface_label
 from openalea.core.plugin import iter_plugins
 from openalea.core.control.control import Control
 
 from openalea.core.observer import AbstractListener
 
-from openalea.oalab.gui.control.widget import AbstractControlWidget
+from openalea.oalab.control.widget import AbstractControlWidget
 
 
 class NotebookControlWidget(AbstractControlWidget):
@@ -114,7 +114,7 @@ def select_default_widgets():
         iclass = interface_class(iname)
 #         for name, notebookclass in widgets.iteritems():
         values = widget_dict
-        widget = widgets.SelectWidget(description=iclass.__alias__, values=values)
+        widget = widgets.SelectWidget(description=interface_label(iclass), values=values)
         children.append(widget)
         dic[iname] = widget
     box.children = children

@@ -17,10 +17,11 @@ def decode(mimetype, mimedata):
             return ControlManager().control(uid=identifier)
         return control
     elif mimetype == 'openalealab/data':
-        from openalea.core.project.manager import ProjectManager
+        from openalea.core.service.project import active_project
         from openalea.core.path import path
-        pm = ProjectManager()
-        return pm.get('data', path(mimedata).name)
+        project = active_project()
+        if project:
+            return project.get_item('data', path(unicode(mimedata)).name)
     else:
         return str(mimedata)
 

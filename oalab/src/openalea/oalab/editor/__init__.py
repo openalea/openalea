@@ -15,4 +15,6 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-__revision__ = ""
+"""
+This module contains widgets to edit texts, codes and models
+"""

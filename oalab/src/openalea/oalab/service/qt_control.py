@@ -1,9 +1,9 @@
 from openalea.core.control import Control
 from openalea.core.control.manager import ControlContainer
 from openalea.core.service.interface import interface_name
-from openalea.core.plugin import iter_plugins
+from openalea.core.service.plugin import plugins
 from openalea.vpltk.qt import QtGui
-from openalea.oalab.gui.utils import ModalDialog
+from openalea.oalab.utils import ModalDialog
 
 import weakref
 
@@ -17,10 +17,7 @@ If it's a list, search widget for first shape. If no widgets found, search for s
 
 
 def discover_qt_controls():
-    # session = Session()
-    # debug=session.debug_plugins
-    # TODO: use plugin instance manager
-    return [plugin for plugin in iter_plugins('oalab.qt_control')]
+    return plugins('oalab.plugin', criteria=dict(implement='IWidgetSelector'))
 
 
 def qt_editor_class(iname, shape=None, preferred=None):
@@ -39,7 +36,7 @@ def qt_editor_class(iname, shape=None, preferred=None):
             # Load widget specified with control
             for plugin in widget_plugins:
                 if preferred == plugin.name:
-                    widget_class = plugin.load()
+                    widget_class = plugin.implementation
                     return widget_class
 
     # No preferred widget specified or preferred widget not found.
@@ -54,7 +51,7 @@ def qt_editor_class(iname, shape=None, preferred=None):
     for shape in shapes:
         for plugin in widget_plugins:
             if shape in plugin.edit_shape or 'responsive' in plugin.edit_shape:
-                widget_class = plugin.load()
+                widget_class = plugin.implementation
                 widget_class.shape = shape
                 return widget_class
     return None
@@ -118,7 +115,7 @@ def qt_container(container, **kwargs):
         if editor:
             widget.editor[control] = weakref.ref(editor)
             widget.control[control.name] = control
-            layout.addRow(control.alias, editor)
+            layout.addRow(control.label, editor)
     return widget
 
 
@@ -134,13 +131,13 @@ def qt_painter(control, shape=None, preferred=None):
         # Load widget specified with control
         for plugin in widget_plugins:
             if preferred == plugin.name and plugin.paint:
-                widget_class = plugin.load()
+                widget_class = plugin.implementation
                 return widget_class.paint(control, shape)
 
     # Load first editor
     for plugin in widget_plugins:
         if plugin.paint:
-            widget_class = plugin.load()
+            widget_class = plugin.implementation
             return widget_class.paint(control, shape)
 
 

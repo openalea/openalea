@@ -1,19 +1,19 @@
 
 from openalea.core.path import path as Path
-from openalea.core.plugin import iter_plugins
+from openalea.core.service.plugin import plugins
 from openalea.core.model import Model
 
 import mimetypes
 
-__all__ = ["ModelFactory", "ModelClass",  "ModelType"]
+__all__ = ["ModelFactory", "ModelClass", "ModelType"]
 
 REGISTERY_MIME_CLASS = {}
-for ModelClass in iter_plugins('oalab.modelclass'):
-    REGISTERY_MIME_CLASS[ModelClass.mimetype] = ModelClass
+for pl in plugins('openalea.core', criteria=dict(implement='IModel')):
+    REGISTERY_MIME_CLASS[pl.mimetype] = pl
 
 REGISTERY_DTYPE_MIME = {}
-for ModelClass in iter_plugins('oalab.modelclass'):
-    REGISTERY_DTYPE_MIME[ModelClass.dtype.lower()] = ModelClass.mimetype
+for ModelClass in plugins('openalea.core', criteria=dict(implement='IModel')):
+    REGISTERY_DTYPE_MIME[pl.dtype.lower()] = pl.mimetype
 
 
 def ModelClass(dtype=None, mimetype=None):
@@ -25,16 +25,14 @@ def ModelClass(dtype=None, mimetype=None):
     if both dtype and mimetype is None, returns all available ModelClasses
     """
     if dtype is None and mimetype is None:
-        return set(REGISTERY_MIME_CLASS.values() + [Model])
+        return set([pl.implementation for pl in REGISTERY_MIME_CLASS.values()] + [Model])
 
     if mimetype in REGISTERY_MIME_CLASS:
-        return REGISTERY_MIME_CLASS[mimetype]
+        return REGISTERY_MIME_CLASS[mimetype].implementation
     elif dtype and dtype.lower() in REGISTERY_DTYPE_MIME:
         return ModelClass(mimetype=REGISTERY_DTYPE_MIME[dtype.lower()])
     else:
         return Model
-
-ModelClass.all = set(REGISTERY_MIME_CLASS.values() + [Model])
 
 
 def ModelFactory(*args, **kwds):

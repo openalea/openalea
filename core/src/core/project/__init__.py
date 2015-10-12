@@ -91,5 +91,4 @@ To search projects that are not located inside default directories:
 
 """
 from openalea.core.settings import get_project_dir
-from openalea.core.project.project import Project
-from openalea.core.project.manager import ProjectManager
+from openalea.core.project.project import *

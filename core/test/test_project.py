@@ -1,15 +1,15 @@
 
-import unittest
-import subprocess
+
 import platform
-from openalea.core.unittest_tools import TestCase, EventTracker
+import subprocess
 
 from openalea.core.observer import AbstractListener
 from openalea.core.path import path as Path
 from openalea.core.path import tempdir
 from openalea.core.project import Project
+from openalea.core.customexception import ErrorInvalidItem
 from openalea.core.service.data import DataFactory
-import re
+from openalea.core.unittest_tools import TestCase, EventTracker
 
 
 def get_data(filename):
@@ -96,11 +96,11 @@ class TestProject(TestCase):
     def test_add_exceptions(self):
 
         # Case of path passed doesn't exist
-        with self.assertRaises(ValueError) as cm:
+        with self.assertRaises(ErrorInvalidItem) as cm:
             self.project.add('data', path='/do/not/exist.err')
 
-        msg = "path '/do/not/exist.err' doesn't exists"
-        self.assertEqual(cm.exception.message, msg)
+        msg = "Item is invalid: path '/do/not/exist.err' doesn't exists"
+        self.assertEqual(cm.exception.getMessage(), msg)
         assert(len(self.project.data) == 0)
 
         # Case nothing is defined

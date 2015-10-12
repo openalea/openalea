@@ -2,7 +2,7 @@
 from openalea.core.service.model import ModelFactory
 from openalea.core.service.data import DataFactory
 from openalea.oalab.model.parse import InputObj, OutputObj
-from openalea.oalab.gui.paradigm.python import PythonModelController
+from openalea.oalab.paradigm.python import PythonModelController
 
 
 def test_constructor():

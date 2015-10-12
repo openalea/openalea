@@ -5,7 +5,7 @@
 Currently, the service convert object to PlantGL shapes.
 """
 
-from openalea.oalab.world.world import WorldObject
+from openalea.core.world.world import WorldObject
 
 __all__ = ['to_shape3d', 'register_shape3d']
 

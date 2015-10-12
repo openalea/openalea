@@ -1,27 +1,28 @@
 
-import copy
-from openalea.core.control.manager import ControlManager
-from openalea.core.project.manager import ProjectManager
-from openalea.core.service.model import to_model
-
-cm = ControlManager()
-pm = ProjectManager()
+from openalea.core.service.project import active_project
+from openalea.core.service.control import control_namespace
 
 
-def get_model(name):
-    data = pm.cproject.get_model(name)
-    if data:
-        model = to_model(data)
-        if model:
-            return copy.copy(model)
+def namespace(model, **kwargs):
+    ns = {}
+    # Project namespace if available
+    if hasattr(model, 'package'):
+        if hasattr(model.package, 'ns'):
+            ns.update(model.package.ns)
+        if hasattr(model.package, 'namespace'):
+            ns.update(model.package.namespace())
+
+    # Control namespace
+    ns.update(control_namespace())
+
+    # User namespace
+    ns.update(kwargs)
+    return ns
 
 
-def namespace():
-    # Move to runner class (model manager or ParadigmEditor)
+def get_model(name, *args, **kwds):
+    project = active_project()
+    if project:
+        return project.get_runnable_model(name)
 
-    namespace = {}
-    namespace.update(cm.namespace())
-    namespace.update(pm.cproject.ns)
-    namespace['Model'] = get_model
-
-    return namespace
+model = get_model

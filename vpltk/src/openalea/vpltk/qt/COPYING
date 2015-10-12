@@ -1,0 +1,19 @@
+
+Copyright © 2011 Spyder
+Contributor: Pierre Raybaut
+Contributions: initial files
+Website: http://github.com/spyder-ide/spyder
+
+Copyright © 2012-2013 pyLot - andheo
+Contributor: Guillaume Baty
+Contributions: compat module
+
+Copyright © 2014 INRIA - CIRAD - INRA
+Contributor: Frédéric Boudon
+Contributions: Adaptation to openalea
+http://github.com/openalea/openalea
+
+Copyright © 2015 PyQode
+Contributor: Colin Duquesnoy
+Contributions: Documentation, Qt5 support, bug fix
+Website: http://github.com/pyqode/pyqode.qt

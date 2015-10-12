@@ -2,11 +2,11 @@
 #
 #       OpenAlea.OALab: Multi-Paradigm GUI
 #
-#       Copyright 2014 INRIA - CIRAD - INRA
+#       Copyright 2014-2015 INRIA - CIRAD - INRA
 #
 #       File author(s): Julien Coste <julien.coste@inria.fr>
 #
-#       File contributor(s):
+#       File contributor(s): Guillaume Baty <guillaume.baty@inria.fr>
 #
 #       Distributed under the Cecill-C License.
 #       See accompanying file LICENSE.txt or copy at
@@ -16,38 +16,37 @@
 #
 ###############################################################################
 
+from openalea.core.manager import GenericManager, UnknownItemError
+
+
+from ConfigParser import NoSectionError, NoOptionError
 import os
 import sys
 
-from openalea.core.path import path as Path
 from openalea.core import settings
-from openalea.core.project.project import Project
-from openalea.core.singleton import Singleton
-from openalea.core.observer import Observed, AbstractListener
-from ConfigParser import NoSectionError, NoOptionError
-from openalea.core.plugin import iter_plugins
 from openalea.core.control.manager import ControlManager
+from openalea.core.path import path as Path
+from openalea.core.project.project import Project
 from openalea.core.service.ipython import interpreter
+from openalea.core.service.plugin import plugins
 from openalea.core.settings import get_openalea_tmp_dir
 
 
-class ProjectManager(Observed, AbstractListener):
+def get_criteria(project):
+    criteria = {}
+    for criterion in Project.DEFAULT_METADATA.keys() + ['path']:
+        criteria[criterion] = getattr(project, criterion)
+    return criteria
 
-    """
-    Object which permit to access to projects: creation, loading, searching, ...
 
-    It is a singleton.
+class ProjectManager(GenericManager):
 
-    >>> from openalea.core.project import ProjectManager
-    >>> project_manager = ProjectManager()
+    def __init__(self, items=None, item_proxy=None, autoload=['entry_points']):
+        # GenericManager
+        GenericManager.__init__(self, items, item_proxy, autoload)
+        self.default_group = "local"
 
-    """
-    __metaclass__ = Singleton
-
-    def __init__(self):
-        Observed.__init__(self)
-        AbstractListener.__init__(self)
-
+        # ProjectManager
         self.tmpdir = Path(get_openalea_tmp_dir())
         self._cproject = None
         self._cwd = Path('.').abspath()
@@ -55,13 +54,55 @@ class ProjectManager(Observed, AbstractListener):
 
         self.cm = ControlManager()
 
-        self.projects = []
         self.repositories = self.search_path()
         self.previous_project = "temp"
 
         self.shell = interpreter()
-        # TODO Search in preference file if user has path to append in self.repositories
-        self.cproject = self.default()
+        self.cproject = None
+
+    def generate_item_id(self, item):
+        return str(item.path)
+
+    def load_items(self, group=None):
+        raise NotImplementedError
+
+    def instantiate(self, item):
+        return item
+
+    def patch_item(self, item):
+        if not hasattr(item, "label"):
+            if hasattr(item, "alias"):
+                item.label = item.alias
+            else:
+                item.label = item.name.replace('_', ' ').capitalize()
+        if not hasattr(item, "criteria"):
+            item.__class__.criteria = property(fget=get_criteria)
+        GenericManager.patch_item(self, item)
+
+    def discover(self, group=None, config_name='oaproject.cfg'):
+        """
+        Discover projects from your disk and put them in self.projects.
+
+        Projects are not loaded, only metadata are.
+
+        :use:
+            >>> project_manager.discover()
+            >>> list_of_projects = project_manager.projects
+
+        To discover new projects, you can add path into *self.repositories*
+
+        .. code-block:: python
+
+            project_manager.repositories.append('path/to/search/projects')
+            project_manager.discover()
+        """
+        for _path in self.repositories:
+            _path = Path(_path)
+            if not _path.exists():
+                continue
+            for p in _path.walkfiles(config_name):
+                project = Project(p.parent)
+                self.add(project, self.default_group)
 
     @staticmethod
     def search_path():
@@ -74,7 +115,7 @@ class ProjectManager(Observed, AbstractListener):
         repositories.add(Path(settings.get_project_dir()))
 
         # 2. Add project repositories defined by packages
-        for plugin in iter_plugins('oalab.project_repository'):
+        for plugin in plugins('oalab.plugin', criteria=dict(implement="ProjectRepositoryList")):
             for repository in plugin():
                 repositories.add(repository)
 
@@ -123,78 +164,27 @@ class ProjectManager(Observed, AbstractListener):
 
         try:
             config.set("ProjectManager", "Last Project", str(self.previous_project))
-        except settings.NoSectionError, e:
+        except settings.NoSectionError as e:
             config.add_section("ProjectManager")
             config.add_option("ProjectManager", "Last Project", str(self.previous_project))
-        except settings.NoOptionError, e:
+        except settings.NoOptionError as e:
             config.add_option("ProjectManager", "Last Project", str(self.previous_project))
 
         config.write()
 
-    def discover(self, config_name='oaproject.cfg'):
-        """
-        Discover projects from your disk and put them in self.projects.
-
-        Projects are not loaded, only metadata are.
-
-        :use:
-            >>> project_manager.discover()
-            >>> list_of_projects = project_manager.projects
-
-        To discover new projects, you can add path into *self.repositories*
-
-        .. code-block:: python
-
-            project_manager.repositories.append('path/to/search/projects')
-            project_manager.discover()
-        """
-        projects = {}
-        for _path in self.repositories:
-            _path = Path(_path)
-            if not _path.exists():
-                continue
-            for p in _path.walkfiles(config_name):
-                project = Project(p.parent)
-                projects[project.path] = project
-        self.projects = projects.values()
-
-    def search(self, **kwargs):
-        """
-        Search a specific project that match filters.
-
-        :use:
-            >>> project = project_manager.search(name="myproject")
-
-        :param name: name of project to search (str)
-        :return: project if it is found, else None
-
-        If various projects are find, return the first (arbitrary)
-
-        :TODO: implement with real filter (ex: name = "*mtg*", authors = "*OpenAlea*", ...)
-        """
-        regexpr = kwargs.pop('regexpr', False)
-        name = kwargs.pop('name', None)
-        alias = kwargs.pop('alias', None)
-        if regexpr:
-            raise NotImplementedError
-
-        projects = []
-        for proj in self.projects:
-            if name:
-                if proj.path.name != name:
-                    continue
-            if alias:
-                if proj.alias != alias:
-                    continue
-            projects.append(proj)
-        return projects
+    ###########################################################################
+    # TO CLEAN
+    ###########################################################################
 
     def default(self):
         """
         :return: a default empty project
         """
+        # TODO: should define a generic "create" method that returns a patched item.
+        # for the moment, patch it manually
         _path = self.defaultdir
         proj = Project(_path / "temp")
+        proj.label = "Temporary Project"
         if not proj.path.exists():
             txt = '''"""
 OpenAlea Lab editor
@@ -227,21 +217,20 @@ You can rename/move this project thanks to the button "Save As" in menu.
             projectdir = Path(projectdir).abspath()
             if projectdir not in self.repositories:
                 self.repositories.append(projectdir)
-                self.write_settings()
 
         project = Project(projectdir / name, **kwargs)
+        self.patch_item(project)
 
         return project
 
     def load_default(self):
         self.discover()
         self.load_settings()
-        projects = [proj for proj in self.projects if proj.name == self.previous_project]
-        if len(projects):
-            project = projects[0]
-        else:
+        try:
+            project = self.item(self.previous_project)
+        except UnknownItemError:
             project = self.default()
-        self.cproject = project
+        return project
 
     def load(self, name, projectdir=None, **kwargs):
         """
@@ -264,9 +253,10 @@ You can rename/move this project thanks to the button "Save As" in menu.
             projectdir = kwargs['path']
 
         if not projectdir:
-            projects = self.search(name=name)
-            if projects:
-                project = projects[0]
+            try:
+                project = self.item(name)
+            except UnknownItemError:
+                pass
         else:
             full_path = Path(projectdir) / name
             if full_path.exists():
@@ -288,23 +278,23 @@ You can rename/move this project thanks to the button "Save As" in menu.
         self.cproject = None
 
     def __getitem__(self, name):
-        projects = self.search(name)
-        if projects:
-            return projects[0]
-        else:
+        try:
+            return self.item(name)
+        except UnknownItemError:
             return None
 
     def clear(self):
         """
         Clear the list of projects.
         """
-        self.projects = []
+        GenericManager.clear(self)
         self.cproject = self.default()
 
     def notify(self, sender, event=None):
         signal, data = event
         if signal == 'project_changed':
             self.notify_listeners(('project_updated', self))
+            self.update_namespace(self.shell)
 
     def _close_project(self):
         os.chdir(self._cwd)
@@ -351,7 +341,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
         for k in project.ns.keys() + ['world', 'data', 'project']:
             if k in interpreter.user_ns:
                 del interpreter.user_ns[k]
-        from openalea.oalab.world import World
+        from openalea.core.world import World
         world = World()
         world.clear()
 
@@ -369,7 +359,7 @@ You can rename/move this project thanks to the button "Save As" in menu.
             interpreter.user_ns.update(self._cproject.ns)
             interpreter.user_ns['project'] = self._cproject
             interpreter.user_ns['data'] = self._cproject.path / 'data'
-            from openalea.oalab.world import World
+            from openalea.core.world import World
             world = World()
             world.update_namespace(interpreter)
 

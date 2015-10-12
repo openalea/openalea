@@ -1,6 +1,6 @@
 
 
-from openalea.oalab.world import World, WorldObject
+from openalea.core.world import World, WorldObject
 from openalea.core.unittest_tools import TestCase, EventTracker
 
 ev = EventTracker()
@@ -30,8 +30,8 @@ class WorldTest(TestCase):
                           names=['world_object_changed'],
                           values={0: {0: self.world, 1: None, 2: obj}}
                           )
-        attribute_dict = dict(name='attr1', value=1, interface='IInt', alias="Attribute 1")
-        final_dict = dict(name='attr1', value=1, interface='IInt', alias="Attribute 1", constraints=None)
+        attribute_dict = dict(name='attr1', value=1, interface='IInt', label="Attribute 1")
+        final_dict = dict(name='attr1', value=1, interface='IInt', label="Attribute 1", constraints=None)
         obj.set_attribute(**attribute_dict)
         events = ev.events
         self.check_events(events,

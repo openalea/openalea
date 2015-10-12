@@ -2,48 +2,44 @@
 
 The goal is to have the same version of QString and QVariant in all OpenAlea
 """
-import os
-# print "qt"
-try: 
-    from IPython.external.qt import QtCore, QtGui, QtSvg, QT_API
+
+try:
+    from openalea.vpltk.qt import QtCore
 except ImportError:
-    # Use local IPython qt loader
-    from qt_loaders import (load_qt, QT_API_PYSIDE, QT_API_PYQT, QT_API_PYQT_DEFAULT)
-    
-    QT_API = os.environ.get('QT_API', None)
-    if QT_API not in [QT_API_PYSIDE, QT_API_PYQT, None]:
-        raise RuntimeError("Invalid Qt API %r, valid values are: %r, %r" %
-                           (QT_API, QT_API_PYSIDE, QT_API_PYQT))
-    if QT_API is None:
-        api_opts = [QT_API_PYSIDE, QT_API_PYQT]
-    else:
-        api_opts = [QT_API]
-    
-    try:
-        QtCore, QtGui, QtSvg, QT_API = load_qt(api_opts)    
-    except ImportError, e :
-        import warnings
-        message = """
-    
-===============================================================================
-You are trying to import openalea.vpltk.qt.
-This import will set api of Qt to version 2 (cf sip).
+    pass
 
-But api is yet set to 1!
+try:
+    from openalea.vpltk.qt import QtGui
+except ImportError:
+    pass
 
-So, if you want to use IPython inside OpenAlea applications (ie. LPy, 
-Visualea...), you have to import openalea.vpltk.qt before other applications 
-using Qt (ex: matplotlib with backend qtAgg).
+try:
+    from openalea.vpltk.qt import QtOpenGL
+except ImportError:
+    pass
 
-Else, you can continue: api 1 will be used.
-===============================================================================
+try:
+    from openalea.vpltk.qt import QtTest
+except ImportError:
+    pass
 
-"""
-        warnings.warn(message)
-        QT_API = QT_API_PYQT_DEFAULT
-        QtCore, QtGui, QtSvg, QT_API = load_qt([QT_API])
-    
-os.environ['QT_API'] = QT_API
-    
+try:
+    from openalea.vpltk.qt import QtSql
+except ImportError:
+    pass
 
+try:
+    from openalea.vpltk.qt import QtWebKit
+except ImportError:
+    pass
+
+try:
+    from openalea.vpltk.qt import QtSvg
+except ImportError:
+    pass
+
+try:
+    from openalea.vpltk.qt import phonon
+except ImportError:
+    pass
 

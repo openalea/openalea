@@ -45,19 +45,37 @@ You have here the default architecture of the project saved in directory "projec
         project.save()
 """
 
+__all__ = [
+    "Project",
+    "ErrorItemExistsInProject",
+]
+
+from collections import OrderedDict
+import copy
 import os
 
-from openalea.core.observer import Observed
 from openalea.core.control import Control
+from openalea.core.data import Data
+from openalea.core.observer import Observed
 from openalea.core.path import path as Path
 from openalea.core.project.configobj import ConfigObj
-from openalea.core.data import Data
 from openalea.core.service.data import DataFactory
 from openalea.core.service.interface import interface_name
 from openalea.core.service.model import to_model, ModelFactory
+from openalea.core.customexception import CustomException, ErrorInvalidItem, ErrorInvalidItemName
 
 
-from collections import OrderedDict
+class ErrorItemExistsInProject(CustomException):
+    title = u'Error: item exists in project yet.'
+    message = u'Item %(name)s is in project yet'
+    desc = u"As item is in project yet, you cannot add it again. Use replacement instead"
+
+    def _kargs(self):
+        return dict(
+            project=self._args[0],
+            category=self._args[1],
+            name=self._args[2],
+        )
 
 
 def _normpath(path):
@@ -122,10 +140,10 @@ class Project(Observed):
     MODE_LINK = 'link'
 
     def __init__(self, path, **kwargs):
+        self.categories = kwargs.get('categories', self.DEFAULT_CATEGORIES)
         Observed.__init__(self)
 
         self.metadata = OrderedDict()
-        self.categories = {}
 
         # listeners = kwargs['listeners'] if 'listeners' in kwargs else []
         # for listener in listeners:
@@ -139,7 +157,7 @@ class Project(Observed):
             self.metadata[k] = kwargs.get(k, v.value)
 
         # Allocate category dictionaries
-        for k in self.DEFAULT_CATEGORIES:
+        for k in self.categories:
             self.__dict__[k] = {}
 
         if self._path.exists():
@@ -152,14 +170,16 @@ class Project(Observed):
         self.ns = {}
 
     def __setattr__(self, key, value):
-        if key in self.DEFAULT_METADATA:
+        if key == "categories":
+            return super(Project, self).__setattr__(key, value)
+        elif key in self.DEFAULT_METADATA:
             old_value = self.metadata[key]
             if old_value != value:
                 self.metadata[key] = value
                 self.notify_listeners(('metadata_changed', (self, key, old_value, value)))
                 self.notify_listeners(('project_changed', self))
-        elif key in self.DEFAULT_CATEGORIES:
-            raise NameError, "cannot change '%s' attribute" % key
+        elif key in self.categories:
+            raise NameError("cannot change '%s' attribute" % key)
         else:
             return super(Project, self).__setattr__(key, value)
 
@@ -171,6 +191,38 @@ class Project(Observed):
 
     def __repr__(self):
         return "%s(%r)" % (self.__class__.__name__, str(self.path))
+
+    def _repr_html_(self):
+        import openalea.core
+        import base64
+        from openalea.deploy.shared_data import shared_data
+        from openalea.core.project.formatting.html import html_metainfo_summary, html_item_summary
+        from openalea.core.formatting.util import obj_icon_path
+        from IPython.display import Image
+
+        stylesheet_path = shared_data(openalea.core, 'stylesheet.css')
+        if stylesheet_path and stylesheet_path.isfile():
+            with open(stylesheet_path) as f:
+                stylesheet = f.read()
+            html = '<style>%s</style>' % stylesheet
+        else:
+            html = ''
+
+        icon = obj_icon_path(self, paths=[self.path])
+        if icon:
+            data = base64.b64encode(Image(filename=icon)._repr_png_()).decode('ascii')
+            image = '<image width="64px" style="vertical-align:middle;" src="data:image/png;base64,%s">' % data
+        else:
+            image = ''
+
+        args = dict(image=image, title=self.title)
+
+        html += '<div class="summary"><p class="title">%(image)s%(title)s</p>' % args
+        html += '\n<hr>'
+        html += html_metainfo_summary(self)
+        html += html_item_summary(self)
+        html += '</div>'
+        return html
 
     @property
     def path(self):
@@ -218,7 +270,7 @@ class Project(Observed):
             self.ns.update(ns)
         interpreter = kwargs.get('shell')
         if interpreter:
-            interpreter.shell.user_ns.clear()
+            #interpreter.shell.user_ns.clear()
             interpreter.shell.init_user_ns()
             interpreter.shell.user_ns.update(self.ns)
 
@@ -230,9 +282,15 @@ class Project(Observed):
         cm.clear()
 
     def run(self, filename, *args, **kwargs):
-        model = self.get_model(filename)
-        model.ns.update(self.ns)
-        model.run(*args, **kwargs)
+        model = self.get_runnable_model(filename)
+        return self.run_model(model)
+
+    def run_model(self, model, *args, **kwargs):
+        ns = {}
+        ns.update(self.ns)
+        ns.update(kwargs.pop('namespace', {}))
+        ns["Model"] = self.get_runnable_model
+        return model.run(*args, namespace=ns, **kwargs)
 
     def add(self, category, obj=None, **kwargs):
         return self.add_item(category, obj, **kwargs)
@@ -257,14 +315,12 @@ class Project(Observed):
                 category_dict[str(obj.filename)] = obj
             else:
                 raise ValueError("data '%s' already exists in project '%s'" % (obj.filename, self.alias))
-            return obj
         elif obj:
             category_dict = getattr(self, category)
             if obj.name not in category_dict:
                 category_dict[str(obj.name)] = obj
             else:
                 raise ValueError("data '%s' already exists in project '%s'" % (obj.name, self.alias))
-            return obj
         else:
             filename = Path(kwargs.pop('filename')) if 'filename' in kwargs else None
             content = kwargs.pop('content', None)
@@ -281,7 +337,7 @@ class Project(Observed):
                 new_path = self.path / category / filename.name
             elif path:
                 if not path.exists():
-                    raise ValueError("path '%s' doesn't exists" % path)
+                    raise ErrorInvalidItem("path '%s' doesn't exists" % path)
                 filename = path.name
                 new_path = self.path / category / filename
             else:
@@ -311,7 +367,10 @@ class Project(Observed):
                 # Nothing to do, data is yet in the right place
 
             data_obj = DataFactory(new_path, mimetype, dtype=dtype, default_content=content)
-            return self._add_item(category, data_obj, **kwargs)
+            obj = self._add_item(category, data_obj, **kwargs)
+
+        obj.package = self
+        return obj
 
     def _remove_item(self, category, obj=None, **kwargs):
         category_dict = getattr(self, category)
@@ -339,6 +398,18 @@ class Project(Observed):
     def _project_changed(self):
         self.notify_listeners(('project_changed', self))
         self._save_manifest()
+
+    def valid_item_name(self, category, name):
+        if not name:
+            return ErrorInvalidItemName(self, category, name)
+
+        data = self.get_item(category, name)
+        if data:
+            return ErrorItemExistsInProject(self, category, name)
+
+        path = self.path / category / name
+        if data is None and path.exists():
+            return Warning("Data yet exists on disk. Just add it.")
 
     def add_item(self, category, obj=None, **kwargs):
         data = self._add_item(category, obj, **kwargs)
@@ -375,7 +446,14 @@ class Project(Observed):
         if src == dest:
             return
         if src.exists():
+            # Update item paths
+            for category in self.categories:
+                for item in self.items(category).values():
+                    if hasattr(item, 'path'):
+                        item.path = dest / category / item.path.name
+            # Move all files
             src.move(dest)
+
         self._path = dest
         self.notify_listeners(('project_moved', (self, src, dest)))
         self._project_changed()
@@ -409,6 +487,13 @@ class Project(Observed):
                     LST=', '.join([repr(str(_model.filename)) for _model in found_models])
                 )
                 raise ValueError('%(NUM)d model have basename %(BASENAME)r: %(LST)s' % dic)
+
+    def get_runnable_model(self, name):
+        data = self.get_model(name)
+        if data:
+            model = to_model(data)
+            if model:
+                return copy.copy(model)
 
     def _load(self):
         """

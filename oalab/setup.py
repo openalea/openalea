@@ -42,7 +42,7 @@ package_dir = dict([('', pkg_root_dir)] + [(namespace + "." + pkg, pkg_root_dir 
 setup_requires = ['openalea.deploy']
 
 # TODO: remove pygments 1.6 constraints when https://github.com/ipython/ipython/issues/6877 is fixed
-install_requires = ['pygments==1.6']
+install_requires = []
 
 # web sites where to find eggs
 dependency_links = ['http://openalea.gforge.inria.fr/pi']
@@ -79,7 +79,7 @@ setup(
     include_package_data=True,
     # (you can provide an exclusion dictionary named exclude_package_data to remove parasites).
     # alternatively to global inclusion, list the file to include
-    # package_data = {'' : ['*.pyd', '*.so'],},
+    package_data = {'openalea.oalab' : ['*.ui'],},
 
     postinstall_scripts=['oalab_postinstall'],
     share_dirs={'share': 'share'},
@@ -88,78 +88,31 @@ setup(
     entry_points={
 
         'gui_scripts': [
-            'oalab = openalea.oalab.main2:main',
+            'oalab = openalea.oalab.main:main',
         ],
 
-        'oalab.paradigm_applet': [
-            'PythonApplet = openalea.oalab.plugins.models.pythongui:PythonModelGUI',
-            'RApplet = openalea.oalab.plugins.models.rgui:RModelGUI',
-            'VisualeaApplet = openalea.oalab.plugins.models.visualeagui:VisualeaModelGUI',
-            'TextualApplet = openalea.oalab.plugins.models.textualgui:TextualModelGUI',
-        ],
-
-        'oalab.dataclass': [
-            'VisualeaFile = openalea.oalab.model.visualea:VisualeaFile',
-            'RFile = openalea.oalab.model.r:RFile',
-        ],
-
-        'oalab.modelclass': [
-            'VisualeaModel = openalea.oalab.model.visualea:VisualeaModel',
-            'RModel = openalea.oalab.model.r:RModel',
-        ],
-
-        'oalab.model': [
-            'RModel = openalea.oalab.model.r:RModel',
-            'VisualeaModel = openalea.oalab.model.visualea:VisualeaModel',
-            'TextualModel = openalea.oalab.model.textual:TextualModel',
-        ],
 
         'oalab.applet': [
-            'ControlManager = openalea.oalab.plugins.applets.controlmanager:ControlManager',
-            'EditorManager = openalea.oalab.plugins.applets.editormanager:EditorManager',
-            'FileBrowser = openalea.oalab.plugins.applets.filebrowser:FileBrowser',
-            'HelpWidget = openalea.oalab.plugins.applets.helpwidget:HelpWidget',
-            'HistoryWidget = openalea.oalab.plugins.applets.historywidget:HistoryWidget',
-            'Logger = openalea.oalab.plugins.applets.logger:Logger',
-            'PkgManagerWidget = openalea.oalab.plugins.applets.packagemanager:PkgManagerWidget',
-            'ProjectManager = openalea.oalab.plugins.applets.projectwidget:ProjectManager',
-            'Store = openalea.oalab.plugins.applets.store:Store',
-            'World = openalea.oalab.plugins.applets.worldwidget:World',
-            'WorldControl = openalea.oalab.plugins.applets.worldwidget:WorldControl',
-            'MplTabWidget = openalea.oalab.plugins.applets.plot2d:MplTabWidget',
-            'MplFigureWidget = openalea.oalab.plugins.applets.plot2d:MplFigureWidget',
-            'ShellWidget = openalea.oalab.plugins.applets.shellwidget:ShellWidget',
-            'ContextualMenu = openalea.oalab.plugins.applets.contextualmenu:ContextualMenu',
-            'SplitterApplet = openalea.oalab.plugins.applets.splitter:SplitterApplet',
+            'oalab.applet/oalab = openalea.oalab.plugin.builtin.applet',
         ],
 
-        'oalab.qt_control': [
-            'PluginOpenAleaLabWidgetSelectors = openalea.oalab.plugins.controls:PluginOpenAleaLabWidgetSelectors',
-            'PluginVisualeaWidgetSelectors = openalea.oalab.plugins.controls:PluginVisualeaWidgetSelectors',
-            'PluginFloatWidgetSelector = openalea.oalab.plugins.controls:PluginFloatWidgetSelector',
-            'PluginIntRangeWidgetSelector = openalea.oalab.plugins.controls:PluginIntRangeWidgetSelector',
-            'PluginColormapWidgetSelector = openalea.oalab.plugins.controls:PluginColormapWidgetSelector',
+        'oalab.plugin': [
+            'oalab/oalab.core = openalea.oalab.plugin.builtin.oalab',
+            'oalab/oalab.core.visualea = openalea.oalab.plugin.builtin.oalab.visualea_control:PluginVisualeaWidgetSelectors',
         ],
 
         'oalab.lab': [
-            'MiniLab = openalea.oalab.plugins.labs.minilab:MiniLab',
-            #'FullLab = openalea.oalab.plugins.labs.fulllab:FullLab',
-            #'Default = openalea.oalab.plugins.labs.default:DefaultLab',
+            'oalab.lab/oalab = openalea.oalab.plugin.builtin.lab',
         ],
 
-        'oalab.interface': [
-            'OpenAleaLabInterfacePlugin = openalea.oalab.plugins.interfaces:OpenAleaLabInterfacePlugin', 
-            'ColormapInterfacePlugin = openalea.oalab.plugins.interfaces:ColormapInterfacePlugin',
+        'openalea.core': [
+            'openalea.core/oalab = openalea.oalab.plugin.builtin.core',
         ],
 
-        'oalab.project_repository': [
-            'ProjectRepositoryTutorials = openalea.oalab.plugins.project_repository:tutorials',
+        'openalea.interface': [
+            'openalea.interface/oalab = openalea.oalab.plugin.builtin.interface',
         ],
 
-        # 'console_scripts': [
-        #       'fake_script = openalea.fakepackage.amodule:console_script', ],
-        # 'gui_scripts': [
-        #      'fake_gui = openalea.fakepackage.amodule:gui_script',],
         'wralea': [
             'oalab = openalea.oalab_wralea',
         ],

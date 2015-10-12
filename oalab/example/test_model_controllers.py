@@ -11,9 +11,9 @@ from openalea.core.service.control import new_control
 from openalea.core.service.data import DataFactory
 from openalea.core.service.model import ModelFactory
 
-from openalea.oalab.gui.paradigm.python import PythonModelController
-from openalea.oalab.gui.paradigm.visualea import VisualeaModelController
-from openalea.oalab.world.world import World
+from openalea.oalab.paradigm.python import PythonModelController
+from openalea.oalab.paradigm.visualea import VisualeaModelController
+from openalea.core.world.world import World
 
 from openalea.oalab.service.paradigm import paradigm_controller
 

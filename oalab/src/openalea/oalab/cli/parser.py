@@ -22,19 +22,11 @@
 
 __all__ = ['CommandLineParser']
 
-import os
 import argparse
+import os
 
-
-def print_plugin_name(ep):
-    try:
-        name = ep.load().name
-    except ImportError:
-        pass
-    except AttributeError:
-        print '  - %s (%s)' % (ep.name, ep)
-    else:
-        print '  - %s (%s)' % (name, ep)
+from openalea.core.plugin.formatting.text import list_plugins
+from openalea.core.service.plugin import debug_plugins
 
 
 class CommandLineParser(object):
@@ -48,9 +40,12 @@ class CommandLineParser(object):
         self.parser = argparse.ArgumentParser(description='OALab Command Line')
         self.parser.add_argument('-e', '--extension', metavar='extension', type=str, default="",
                                  help='Lab extension to launch')
+        self.parser.add_argument('-v', '--verbose', action='store_true', help='Display more information')
         group = self.parser.add_argument_group('Plugin development')
         group.add_argument('--list-plugins', metavar='category', type=str, default='',
                            help='List available plugin for given category. If all, list all plugins. If summary, list only categories')
+        group.add_argument('--show-plugins', action='store_true',
+                           help='Launch plugin explorer')
         group.add_argument('--debug-plugins', metavar='category', default='',
                            help='Raise error while loading instead of passing it silently. Use "all" to debug all plugins')
         group.add_argument('--color', help='Color terminal output', action="store_true")
@@ -66,38 +61,18 @@ class CommandLineParser(object):
 
         if args.list_plugins:
             self.session.gui = False
-            import pkg_resources
-            from openalea.core.plugin import iter_groups
+            list_plugins(args.list_plugins, verbose=args.verbose)
 
-            if args.list_plugins in ['summary', 'all']:
-                prefixes = ['oalab', 'vpltk', 'openalea']
-            else:
-                prefixes = [args.list_plugins]
-            for category in sorted(iter_groups()):
-                match = False
-                for prefix in prefixes:
-                    if category.startswith(prefix):
-                        match = True
-                        break
-                if match:
-                    eps = [ep for ep in pkg_resources.iter_entry_points(category)]
-                    if args.list_plugins == 'summary':
-                        print '  - \033[91m%s\033[0m (%d plugins)' % (category, len(eps))
-                    else:
-                        print '\033[91m%s\033[0m' % category
-                        print
-                        for ep in eps:
-                            print_plugin_name(ep)
-                        print
-                        print
+        if args.show_plugins:
+            self.session.gui = False
+            from openalea.oalab.pluginwidget.explorer import show_plugins
+            show_plugins()
 
         if args.debug_plugins:
             debug = args.debug_plugins.split(',')
             if 'oalab.lab' not in debug:
                 debug.append('oalab.lab')
-            from openalea.core.service.plugin import PluginInstanceManager
-            pim = PluginInstanceManager()
-            pim.debug = debug
+            debug_plugins(debug)
 
         self.session.extension = args.extension
         self.args = args

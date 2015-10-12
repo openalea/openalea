@@ -30,10 +30,10 @@ def name(obj):
         return str(obj)
 
 
-def alias(obj):
-    if hasattr(obj, '__alias__'):
-        return obj.__alias__
-    elif hasattr(obj, 'alias'):
-        return obj.alias
+def label(obj):
+    if hasattr(obj, '__label__'):
+        return obj.__label__
+    elif hasattr(obj, 'label'):
+        return obj.label
     else:
         return str(name(obj)).capitalize()

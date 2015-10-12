@@ -1,42 +1,41 @@
-from openalea.vpltk.qt import QtGui
-from openalea.core.path import path
+
+from openalea.vpltk.qt import QtGui, QtCore
 from openalea.core.project import Project
 from openalea.core.project.manager import ProjectManager
+from openalea.core.project.formatting.html import html_metainfo_summary, html_item_summary
+from openalea.core.formatting.util import pretty_print
+from openalea.core.path import path as Path
+
+QI = QtGui.QIcon
+DEFAULT_PROJECT_ICON = ":/images/resources/axiom2.png"
+
+import openalea.core
+from openalea.deploy.shared_data import shared_data
+
+from openalea.oalab.utils import qicon_path
+
+stylesheet_path = shared_data(openalea.core, 'stylesheet.css')
+
+html_header = '<html>\n  <head>\n    <link rel="stylesheet" type="text/css" href="%s">\n  </head>' % stylesheet_path
+html_footer = '</html>'
 
 
-def pretty_print(obj):
-    """
-    :param obj: to decode. Can be a string/unicode or a list of string/unicod
-    :return: object decoded into utf-8.
-    """
-    if isinstance(obj, list):
-        text = ', '.join(obj).decode('utf-8')
-    else:
-        text = str(obj).decode('utf-8')
-    return text
-
-
-def html_item_summary(project):
-    excluded_categories = ['cache', 'world']
-
-    html = ''
-    # Loop on all categories available in this project
-    for category, desc in project.DEFAULT_CATEGORIES.items():
-        if category in excluded_categories:
-            continue
-        title = desc['title']
-        items = project.items(category)
-        if not items:
-            continue
-        html += '<b><u>%s</u></b>\n<ul>' % title
-        for item_name in sorted(items):
-            model = items[item_name]
-            html += '<li><b>%s</b>%s</li>' % (model.filename.namebase, model.filename.ext)
-        html += '</ul>'
+def html_project_summary(project):
+    args = dict(
+        image=qicon_path(project, project.path, paths=[project.path], packages=[openalea.core, openalea.oalab],
+                         default=DEFAULT_PROJECT_ICON),
+        label=project.label,
+        name=project.name)
+    html = '<div class="summary"><p class="title"><img style="vertical-align:middle;" src="%(image)s" width="128" />' % args
+    html += '%(label)s</p>' % args
+    html += '\n<hr>'
+    html += html_metainfo_summary(project)
+    html += html_item_summary(project)
+    html += '</div>'
     return html
 
 
-class Preview(QtGui.QWidget):
+class Preview(QtGui.QTextEdit):
 
     """
     This widget displays meta-information about project.
@@ -44,59 +43,18 @@ class Preview(QtGui.QWidget):
 
     def __init__(self, project, parent=None):
         super(Preview, self).__init__(parent)
-        wanted_size = 50
-        self.project = project
+        self.setContentsMargins(0, 0, 0, 0)
 
-        layout = QtGui.QGridLayout()
-        icon_name = ":/images/resources/openalea_icon2.png"
-        if len(project.icon):
-            if project.icon[0] is not ":":
-                # local icon
-                icon_name = project.path / project.icon
-                # else native icon from oalab.gui.resources
+        html = html_header
+        html += '<div class="label">' + pretty_print(project.label) + "</div>"
+        html += html_footer
 
-        image = QtGui.QImage(icon_name)
-        label = QtGui.QLabel()
-        label.setPixmap(QtGui.QPixmap(image))
-        size = image.size()
-        if size.height() > wanted_size or size.width() > wanted_size:
-            # Auto-rescale if image is bigger than wanted_size x wanted_size
-            label.setScaledContents(True)
-        label.setMinimumSize(wanted_size, wanted_size)
-        label.setMaximumSize(wanted_size, wanted_size)
-        layout.addWidget(label, 0, 0)
+        html = html_header
+        html += html_project_summary(project)
+        html += html_footer
 
-        layout.addWidget(QtGui.QLabel("<b><FONT SIZE = 40>" + pretty_print(project.name) + "<\b>"), 0, 1)
-
-        i = 1
-        for label in Project.DEFAULT_METADATA:
-            layout.addWidget(QtGui.QLabel(label), i, 0)
-            # GBY Review:
-            # QLabel expects a QString and QString is equivalent to unicode
-            # so you must convert str to unicode to support non ASCII characters correctly (for example accent in author's name)
-            # If project meta-info encoding is utf-8, you can write projet.author.decode('utf-8')
-            # Just put accents or greek characters in test data to check such problems
-
-            # GBY Review: if amount of metainfo grows, QTextEdit can be more convenient
-            layout.addWidget(QtGui.QLabel(pretty_print(getattr(project, label))), i, 1)
-            i += 1
-
-        layout.addWidget(QtGui.QLabel("Items:"), i, 0, 1, 2)
-        model_list = QtGui.QTextEdit()
-        layout.addWidget(model_list, i + 1, 0, 1, 2)
-
-        model_list.setText(html_item_summary(project))
-
-        open_button = QtGui.QPushButton("Open this project")
-        open_button.clicked.connect(self.on_project_opened)
-        layout.addWidget(open_button, i + 2, 0)
-
-        self.setLayout(layout)
-
-    def on_project_opened(self):
-        pm = ProjectManager()
-        pm.cproject = self.project
-        self.hide()
+        self.setText(html)
+        self.setReadOnly(True)
 
 
 def main():

@@ -17,8 +17,6 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-import weakref
-import sip
 from openalea.vpltk.qt import qt
 from openalea.visualea.graph_operator import GraphOperator
 from openalea.core import observer, compositenode
@@ -716,15 +714,15 @@ class GraphicalPort(qt.QtGui.QGraphicsEllipseItem, qtgraphview.Connector):
         painter.setBackgroundMode(qt.QtCore.Qt.TransparentMode)
         gradient = qt.QtGui.QLinearGradient(0, 0, 10, 0)
         if self.highlighted:
-            gradient.setColorAt(1, qt.QtGui.QColor(qt.QtCore.Qt.red).light(120))
-            gradient.setColorAt(0, qt.QtGui.QColor(qt.QtCore.Qt.darkRed).light(120))
+            gradient.setColorAt(1, qt.QtGui.QColor(qt.QtCore.Qt.red).lighter(120))
+            gradient.setColorAt(0, qt.QtGui.QColor(qt.QtCore.Qt.darkRed).lighter(120))
         else:
             if self.__interfaceColor is None:
-                gradient.setColorAt(0.8, qt.QtGui.QColor(qt.QtCore.Qt.yellow).light(120))
-                gradient.setColorAt(0.2, qt.QtGui.QColor(qt.QtCore.Qt.darkYellow).light(120))
+                gradient.setColorAt(0.8, qt.QtGui.QColor(qt.QtCore.Qt.yellow).lighter(120))
+                gradient.setColorAt(0.2, qt.QtGui.QColor(qt.QtCore.Qt.darkYellow).lighter(120))
             else:
-                gradient.setColorAt(0.8, self.__interfaceColor.light(120))
-                gradient.setColorAt(0.2, self.__interfaceColor.light(120))
+                gradient.setColorAt(0.8, self.__interfaceColor.lighter(120))
+                gradient.setColorAt(0.2, self.__interfaceColor.lighter(120))
 
         painter.setBrush(qt.QtGui.QBrush(gradient))
         painter.setPen(qt.QtGui.QPen(qt.QtCore.Qt.black, 0))

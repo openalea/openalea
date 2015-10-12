@@ -29,7 +29,7 @@ __revision__ = '$Id$'
 from openalea.core.node import Node
 from openalea.core.observer import AbstractListener
 
-from openalea.oalab.world.world import World
+from openalea.core.world.world import World
 from openalea.core.control.manager import ControlManager
 
 # Nodes for read/write in world
@@ -82,6 +82,20 @@ class WorldAdder(AbstractWorld):
         self.set_caption("World object: %s" % name)
         self.world.add(obj,name=name,**kwargs)
         return (obj, )
+
+    def reset(self):
+        if hasattr(self, 'key'):
+            world.remove(self.key)
+
+class WorldData(AbstractWorld):
+
+    def __call__(self, inputs):
+        """ inputs is the list of input values """
+
+        name = inputs[0]
+        self.set_caption("World object data: %s" % name)
+        data = self.world[name].data
+        return (data, )
 
     def reset(self):
         if hasattr(self, 'key'):

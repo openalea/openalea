@@ -21,8 +21,14 @@ __license__ = "CeCILL V2"
 __revision__ = " $Id$"
 
 
+import os
 from openalea.vpltk.qt import qt
-from PyQt4 import Qsci
+from openalea.vpltk.qt import QT_API, PYQT4_API, PYSIDE_API
+
+if os.environ[QT_API].lower() in PYQT4_API:
+    from PyQt4 import Qsci
+if os.environ[QT_API].lower() in PYSIDE_API:
+    import QScintilla as Qsci
 
 ###################################
 # LEXERS OVERRIDEN                #
@@ -30,16 +36,18 @@ from PyQt4 import Qsci
 ###################################
 # style indices (Scintilla reserves up to 39)
 styles = {}
-styles[40] = "HIGHLIGHT", qt.QtGui.QColor(0,0,0), qt.QtGui.QColor(0,180,0)
+styles[40] = "HIGHLIGHT", qt.QtGui.QColor(0, 0, 0), qt.QtGui.QColor(0, 180, 0)
 
-for k,v in list(styles.iteritems()):
+for k, v in list(styles.iteritems()):
     styles[v[0]] = k, v[1], v[2]
+
 
 def wrapLexerClass(lexerClass):
     class ExtendedLexerWrapper(lexerClass):
         # The lexers will use all 8 bits of style byte
+
         def styleBitsNeeded(self):
-            return 8;
+            return 8
 
     return ExtendedLexerWrapper
 
@@ -83,10 +91,9 @@ def wrapLexerClass(lexerClass):
     #         return 8;
 
 
-lexers = dict( (l[9:], wrapLexerClass(getattr(Qsci, l)))
-               for l in dir(Qsci) if l.startswith("QsciLexer") and \
-               "Custom" not in l and l != "QsciLexer" )
-
+lexers = dict((l[9:], wrapLexerClass(getattr(Qsci, l)))
+              for l in dir(Qsci) if l.startswith("QsciLexer") and
+              "Custom" not in l and l != "QsciLexer")
 
 
 ##########################################
@@ -116,7 +123,7 @@ class CodeWidget(Qsci.QsciScintilla):
 
     def showLineNumber(self, checked):
         self.setMarginType(1, Qsci.QsciScintilla.NumberMargin)
-        self.setMarginWidth(1,"10000" if checked else 0)
+        self.setMarginWidth(1, "10000" if checked else 0)
         self.setMarginLineNumbers(1, checked)
 
     def showFolding(self, checked):
@@ -138,7 +145,7 @@ class CodeWidget(Qsci.QsciScintilla):
         match = self.SendScintilla(Qsci.QsciScintilla.SCI_SEARCHINTARGET, textLen, text)
         while(match != -1):
             matchEnd = self.SendScintilla(Qsci.QsciScintilla.SCI_GETTARGETEND)
-            occurences.append((match,matchEnd))
+            occurences.append((match, matchEnd))
             # -- if there's a match, the target is modified so we shift its start
             # -- and restore its end --
             self.SendScintilla(Qsci.QsciScintilla.SCI_SETTARGETSTART, matchEnd)
@@ -166,12 +173,13 @@ class CodeWidget(Qsci.QsciScintilla):
         self.highlit = occurences
 
     def clearHighlights(self):
-        if self.highlit is None: return
+        if self.highlit is None:
+            return
 
         for occs in self.highlit:
             self.SendScintilla(Qsci.QsciScintilla.SCI_SETINDICATORCURRENT, 0)
             self.SendScintilla(Qsci.QsciScintilla.SCI_INDICATORCLEARRANGE,
-                               occs[0], occs[1]-occs[0])
+                               occs[0], occs[1] - occs[0])
         self.highlit = None
 
     def textSearch(self, text, fromStart, highlightAll, re=False,
@@ -188,7 +196,7 @@ class CodeWidget(Qsci.QsciScintilla):
 
     def textReplace(self, text, sub, fromStart, re=False,
                     cs=True, wo=False, wrap=True, forward=True,
-                    line=-1, index=-1, show=True ):
+                    line=-1, index=-1, show=True):
         if text is not None and sub is not None:
             self.clearHighlights()
             self.highlightOccurences(text)
@@ -200,7 +208,6 @@ class CodeWidget(Qsci.QsciScintilla):
                 self.replace(sub)
 
 
-
 #####################################
 # Code editor controls and settings #
 #####################################
@@ -208,23 +215,22 @@ class CodeWidget(Qsci.QsciScintilla):
 class CodeWidgetFindReplace(qt.QtGui.QWidget):
 
     # -- signals forwarded from internal widget --
-    textSearchRequest  = qt.QtCore.Signal(str, bool, bool)
+    textSearchRequest = qt.QtCore.Signal(str, bool, bool)
     textReplaceRequest = qt.QtCore.Signal(str, str, bool)
     resultClearRequest = qt.QtCore.Signal()
-
 
     def __init__(self, parent=None):
         qt.QtGui.QWidget.__init__(self, parent)
 
         # - Find text -
-        findLabel  = qt.QtGui.QLabel("Find:")
+        findLabel = qt.QtGui.QLabel("Find:")
         findLabel.setSizePolicy(qt.QtGui.QSizePolicy.Fixed, qt.QtGui.QSizePolicy.Fixed)
-        self.findLineEdit             = qt.QtGui.QLineEdit()
+        self.findLineEdit = qt.QtGui.QLineEdit()
         self.highlightResultsCheckBox = qt.QtGui.QCheckBox("Highlight all matches")
-        self.clearResultsPushButton   = qt.QtGui.QPushButton("Clear results")
+        self.clearResultsPushButton = qt.QtGui.QPushButton("Clear results")
 
         # - Replace text -
-        replaceLabel  = qt.QtGui.QLabel("Replace with:")
+        replaceLabel = qt.QtGui.QLabel("Replace with:")
         replaceLabel.setSizePolicy(qt.QtGui.QSizePolicy.Fixed, qt.QtGui.QSizePolicy.Fixed)
         self.replaceLineEdit = qt.QtGui.QLineEdit()
 
@@ -258,7 +264,7 @@ class CodeWidgetFindReplace(qt.QtGui.QWidget):
             self.textSearchRequest.emit(text, fromStart, highlightAll)
 
     def _replaceRequest(self):
-        findText    = self.findLineEdit.text()
+        findText = self.findLineEdit.text()
         replaceText = self.replaceLineEdit.text()
         fromStart = False
         if findText != "" and replaceText != "":
@@ -268,17 +274,17 @@ class CodeWidgetFindReplace(qt.QtGui.QWidget):
 class CodeWidgetPreferences(qt.QtGui.QWidget):
 
     # -- signals forwarded from internal widgets --
-    languageChanged   = qt.QtCore.Signal(str)
+    languageChanged = qt.QtCore.Signal(str)
     lineNumberToggled = qt.QtCore.Signal(bool)
-    foldingToggled    = qt.QtCore.Signal(bool)
+    foldingToggled = qt.QtCore.Signal(bool)
 
     def __init__(self, parent=None):
         qt.QtGui.QWidget.__init__(self, parent)
 
         # - language chooser -
-        label  = qt.QtGui.QLabel("Language:")
+        label = qt.QtGui.QLabel("Language:")
         self.languageCombo = qt.QtGui.QComboBox()
-        self.languageCombo.addItems( sorted(list(lexers.iterkeys())) )
+        self.languageCombo.addItems(sorted(list(lexers.iterkeys())))
         langLayout = qt.QtGui.QHBoxLayout()
         langLayout.addWidget(label, 0, qt.QtCore.Qt.AlignLeft)
         langLayout.addWidget(self.languageCombo, 0, qt.QtCore.Qt.AlignLeft)
@@ -309,27 +315,21 @@ class CodeWidgetPreferences(qt.QtGui.QWidget):
         self.showFoldingCheckBox.setChecked(showFolding)
 
 
-
-
-
-
-
-
 ######################################################
 # The final top widgets aggregating everything above #
 ######################################################
 
 class SmallTabWidget(qt.QtGui.QTabWidget):
+
     def __init__(self, parent=None):
         qt.QtGui.QTabWidget.__init__(self, parent)
         self.setSizePolicy(qt.QtGui.QSizePolicy.Preferred, qt.QtGui.QSizePolicy.Fixed)
         tabbar = self.tabBar()
-        tabbar.setStyleSheet("QTabBar::tab {" +\
-                             "height :18px;" +\
-                             "font-size :10px;" +\
+        tabbar.setStyleSheet("QTabBar::tab {" +
+                             "height :18px;" +
+                             "font-size :10px;" +
                              "}"
                              )
-
 
 
 class ScintillaCodeEditor(qt.QtGui.QWidget):
@@ -391,10 +391,7 @@ class ScintillaCodeEditor(qt.QtGui.QWidget):
         self.editor.setDocument(doc)
 
 
-
-
-
-if __name__=="__main__":
+if __name__ == "__main__":
     s = """
 class CodeEditor(Qsci.QsciScintilla):
     def __init__(self, *args, **kwargs):

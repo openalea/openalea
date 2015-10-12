@@ -50,7 +50,9 @@ class DataflowView(qt.View):
                           "openalea/data_instance": self.node_datapool_drop_handler,
                           "openalealab/model": self.node_model_factory_drop_handler,
                           "openalealab/control": self.node_control_drop_handler,
+                          "openalealab/data": self.node_data_drop_handler,
                           }
+
         self.set_mime_handler_map(mimeFormatsMap)
 
         # -- handle the vanishing toolbar --
@@ -178,12 +180,10 @@ class DataflowView(qt.View):
         """ Drag and Drop from the Model """
         mimedata = event.mimeData()
         if mimedata.hasFormat("openalealab/model"):
+            from openalea.oalab.service.mimedata import decode
             # -- retreive the data from the event mimeData --
-            pieceData = mimedata.data("openalealab/model")
-            dataStream = qt.QtCore.QDataStream(pieceData, qt.QtCore.QIODevice.ReadOnly)
-
-            dataStream.readString()
-            model_id = str(dataStream.readString())
+            model, kwds = decode(str(mimedata.data("openalealab/model")), "openalealab/model", "openalealab/model")
+            model_id = model.name
 
             try:
                 # version > August 2014 (Git)
@@ -229,6 +229,30 @@ class DataflowView(qt.View):
             if node:
                 node.set_input(0, data_key)
                 node.set_caption(data_key)
+            event.setDropAction(qt.QtCore.Qt.CopyAction)
+            event.accept()
+
+    def node_data_drop_handler(self, event):
+        # Drag and Drop from the DataPool
+        if(event.mimeData().hasFormat("openalealab/data")):
+            # -- retreive the data from the event mimeData --
+            from openalea.oalab.mimedata.builtin import decode_project_item
+            data = decode_project_item(
+                str(event.mimeData().data("openalealab/data")),
+                "openalealab/data",
+                "openalealab/data")
+
+            # -- find node factory --
+            pkgmanager = PackageManager()
+            pkg = pkgmanager["openalea.oalab"]
+            factory = pkg.get_factory("data")
+
+            # -- instantiate the new node at the given position --
+            position = self.mapToScene(event.pos())
+            node = self.__drop_from_factory(factory, [position.x(), position.y()])
+            if node:
+                node.set_input(0, data.name)
+                node.set_caption(unicode(data.name))
             event.setDropAction(qt.QtCore.Qt.CopyAction)
             event.accept()
 
@@ -309,8 +333,7 @@ class DataflowView(qt.View):
 
         # -- Evaluator submenu --
         evaluatorSubmenu = menu.addMenu("Evaluator")
-        classlist = evalmodule.__evaluators__
-        classlist.sort()
+        classlist = sorted(evalmodule.__evaluators__)
         selectitem = None
         for c in classlist:
             action = operator(c, evaluatorSubmenu, "graph_set_evaluator_" + c)
@@ -350,7 +373,7 @@ def initialise_graph_view_from_model(graphView, graphModel):
         vtype = "vertex"
         doNotify = True
         vertex = graphModel.node(eltid)
-        if(vertex.__class__.__dict__.has_key("__graphitem__")):
+        if("__graphitem__" in vertex.__class__.__dict__):
             vtype = "annotation"
         elif isinstance(vertex, compositenode.CompositeNodeOutput):
             vtype = "outNode"

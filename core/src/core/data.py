@@ -246,7 +246,7 @@ class Data(object):
     default_file_name = "filename.ext"
     pattern = "*.ext"
     extension = "ext"
-    icon = ":/images/resources/logo.png"
+    icon = "Crystal_Clear_app_kcmdf.png"
 
     def __init__(self, **kwargs):
         """

@@ -1,13 +1,13 @@
 
-from openalea.vpltk.qt import QtGui, QtCore
-from control_sizes import Ui_Form
-
+from openalea.vpltk.qt import QtGui
 import openalea.oalab.service.qt_control as scontrol
 from openalea.core.service.interface import new_interface, interfaces, load_interfaces
 from openalea.core.control import Control
 from openalea.core.control.manager import ControlManager
-from openalea.oalab.gui.control.qcontainer import QControlContainer
-from openalea.oalab.gui.control.model_view import ControlView, ControlModel
+<<<<<<< HEAD
+=======
+from openalea.oalab.control.qcontainer import QControlContainer
+from openalea.oalab.control.model_view import ControlView, ControlModel
 
 
 class CheckSizes(Ui_Form, QtGui.QWidget):
@@ -64,7 +64,10 @@ class CheckSizes(Ui_Form, QtGui.QWidget):
         for widget in self._qtcontrols:
             widget.autoapply(self._control, autoapply)
             widget.autoread(self._control, autoread)
+>>>>>>> MAJOR RESTRUCTURATION
 
+from openalea.oalab.gui.control.widget_tester import ControlWidgetTester
+from openalea.vpltk.qt.designer import generate_pyfile_from_uifile
 
 if __name__ == '__main__':
     import sys
@@ -106,7 +109,7 @@ if __name__ == '__main__':
 
         interface = new_interface(args.iname, value=eval(args.value), **eval(args.constraints))
         control = Control('a', interface, value=eval(args.value), widget=args.widget)
-        w = CheckSizes(control, sys.argv[2:])
+        w = ControlWidgetTester(control, sys.argv[2:])
         w.show()
         w.raise_()
 
