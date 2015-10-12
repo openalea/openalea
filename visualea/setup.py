@@ -36,6 +36,7 @@ setup(
 
     packages = packages,
     package_dir = package_dir,
+    package_data = {'openalea.visualea' : ['*.ui'],},
     include_package_data = True,
     zip_safe = False,
 
