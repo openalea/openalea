@@ -113,31 +113,31 @@ We will use these widgets depending on context:
     - QSlider for vline
     - QSpinBox for hline
 
-.. literalinclude:: ../../../openalea-src/oalab/src/openalea/oalab/plugins/controls/widgets.py
+.. literalinclude:: ../../../../../openalea/oalab/src/openalea/oalab/widget/control/control.py
     :linenos:
     :pyobject: AbstractIntWidget
 
-.. literalinclude:: ../../../openalea-src/oalab/src/openalea/oalab/plugins/controls/widgets.py
+.. literalinclude:: ../../../../../openalea/oalab/src/openalea/oalab/widget/control/control.py
     :linenos:
     :pyobject: IntDial
 
-.. literalinclude:: ../../../openalea-src/oalab/src/openalea/oalab/plugins/controls/widgets.py
+.. literalinclude:: ../../../../../openalea/oalab/src/openalea/oalab/widget/control/control.py
     :linenos:
     :pyobject: IntSpinBox
 
-.. literalinclude:: ../../../openalea-src/oalab/src/openalea/oalab/plugins/controls/widgets.py
+.. literalinclude:: ../../../../../openalea/oalab/src/openalea/oalab/widget/control/control.py
     :linenos:
     :pyobject: IntSimpleSlider
 
 We define also a widget to edit constraints
 
-.. literalinclude:: ../../../openalea-src/oalab/src/openalea/oalab/plugins/controls/constraints.py
+.. literalinclude:: ../../../../../openalea/oalab/src/openalea/oalab/widget/control/constraints.py
     :linenos:
     :pyobject: IntConstraintWidget
 
 Now, lets define widget selector to group all classes together :
 
-.. literalinclude:: ../../../openalea-src/oalab/src/openalea/oalab/plugins/controls/selectors.py
+.. literalinclude:: ../../../../../openalea/oalab/src/openalea/oalab/widget/control/selectors.py
     :linenos:
     :emphasize-lines: 11
     :pyobject: IntWidgetSelector
@@ -146,7 +146,7 @@ You can notice in line 11, instruction to set widget to fit to vline shape.
 
 And finally, lets define plugin that links to it.
 
-.. literalinclude:: ../../../openalea-src/oalab/src/openalea/oalab/plugins/controls/__init__.py
+.. literalinclude:: ../../../../../openalea/oalab/src/openalea/oalab/plugin/builtin/oalab/control.py
     :linenos:
     :pyobject: PluginIntWidgetSelector
 

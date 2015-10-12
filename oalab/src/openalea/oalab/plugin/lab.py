@@ -25,42 +25,33 @@ OpenAleaLab's extensions
 ========================
 
 
+Create a new lab is very easy.
+First, launch openalelab with ipython lab, pass in "Edit layout" and customize your interface. Once satisfied, quit openalealab.
+Copy content of file $HOME/.openalea/ipython.oaui in a file.
+Replace **null** with **None**, **false** with **False** and **true** with **True** to obtain a "python layout".
+
+
+
+Copy paste this sample:
+
+.. literalinclude:: ../../../../../openalea/oalab/src/openalea/oalab/plugin/lab.py
+    :linenos:
+    :pyobject: ILab
+
+And replace "{'children': {}, 'parents': {}, 'properties': {}}" with the "python layout"
+
 Details
 =======
 
-.. autoclass:: openalea.oalab.plugins.lab.IPluginLab
-    :members: __call__, name
-
 """
 
-
-class IPluginLab(object):
-
-    name = 'xyz'
-
-    def __call__(self, mainwin):
-        """
-        Load applet plugins and add its to mainwindow
+from openalea.oalab.plugin.builtin.lab.default import DefaultLab
 
 
-        Example 1: Imports and places applets explicitly
+class ILab(object):
+    name = 'mylab'
+    icon = 'icon_mylab.png'
+    label = 'My Lab'
 
-        .. code-block:: python
-
-            def __call__(self):
-                from mypackage.plugins.applets import AbcApplet
-                mainwin.add_applet(AbcApplet(), name='abc', area='inputs')
-
-
-        Example 2: use oalab.applet plugins and select it by names.
-        Here, plugin places himself in mainwindow.
-
-        .. code-block:: python
-
-            def __call__(self, mainwin):
-                from openalea.core.plugin import iter_plugins
-                for plugin in iter_plugins('oalab.applet'):
-                    if plugin.name == 'AbcApplet':
-                        mainwin.add_plugin(plugin())
-
-        """
+    connections = []
+    layout = {'children': {}, 'parents': {}, 'properties': {}}
