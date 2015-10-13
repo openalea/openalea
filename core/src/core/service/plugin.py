@@ -14,7 +14,7 @@ def debug_plugins(debug='all'):
 
 def register_plugin(plugin, group=None):
     PM.discover(group)
-    PM.add(plugin, group)
+    return PM.add(plugin, group)
 
 plugin = PM.item
 plugins = PM.items

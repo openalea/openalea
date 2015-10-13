@@ -120,7 +120,8 @@ class PluginManager(GenericManager):
         GenericManager.patch_item(self, item)
 
         # Look in class dict instead of hasattr(item, 'implementation') to avoid loading implementation
-        item.__class__.implementation = property(fget=get_implementation)
+        if not hasattr(item.__class__, 'implementation'):
+            item.__class__.implementation = property(fget=get_implementation)
 
     def patch_ep_plugin(self, plugin, ep):
         plugin.plugin_ep = ep.name
