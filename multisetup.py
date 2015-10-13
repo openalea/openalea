@@ -47,8 +47,8 @@ except ImportError:
 
 dirs = """
 vpltk
-core
 misc
+core
 grapheditor
 visualea
 oalab
