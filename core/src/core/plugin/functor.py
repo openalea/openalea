@@ -13,15 +13,22 @@ class PluginFunctor(object):
             _criteria = criteria
             _aliases = dict()
 
+            def __call__(self):
+                """No implementation precised"""
+                return NotImplemented
+
+            _plugin = None
+
         functor = PluginFunctorSingleton()
         if default:
             functor.plugin = default
+        functor.__class__.plugin = property(get_plugin, set_plugin, doc=plugin_doc(functor))
         return functor
 
     def __contains__(self, name):
         if not name in self._aliases:
             try:
-                plugin(name, self._groupt)
+                plugin(name, self._group)
             except:
                 return False
             else:
@@ -43,7 +50,7 @@ class PluginFunctor(object):
         if isinstance(value, basestring):
             value = plugin(value, self._group).identifier
             self._aliases[name] = value
-            self.__class__.plugin = property(get_plugin, set_plugin, plugin_doc(self))
+            self.__class__.plugin = property(get_plugin, set_plugin, doc=plugin_doc(self))
         elif inspect.isclass(value):
             if len(self._tags) == 0 and not hasattr(value, 'tags'):
                 value.tags = []
@@ -76,14 +83,14 @@ def set_plugin(self, name):
 def plugin_doc(plugin_func):
     __doc__ = ['Implemented plugins:']
     for plugin_class in plugins(plugin_func._group, plugin_func._tags, plugin_func._criteria):
-        __doc__.append(' - `' + plugin_class.identifier + '`') # modulename and objectname
+        __doc__.append(' * "' + plugin_class.identifier + '"') # modulename and objectname
         if plugin_class.__doc__:
-            __doc__[-1] += ' * ' + (" " * (len(__doc__[-1]) + 3)).join(line.strip()
+            __doc__[-1] += ' - ' + (" " * (len(__doc__[-1]) + 3)).join(line.strip()
                                                                        for line in plugin_class.__doc__.splitlines())
     __doc__.append('')
     __doc__.append('Defined aliases:')
     for alias in plugin_func._aliases:
-        __doc__.append(' * `' + alias + '` - Alias for plugin `' + plugin_func._aliases[alias] + '`')
+        __doc__.append(' * "' + alias + '" - Alias for plugin "' + plugin_func._aliases[alias] + '"')
     return '\n'.join(__doc__)
 
 PluginFunctor.plugin = property(get_plugin, set_plugin)
