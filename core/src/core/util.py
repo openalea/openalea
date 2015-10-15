@@ -54,10 +54,10 @@ def camel_case_to_upper(name):
     'SQUARE_ROOT'
 
     >>> camel_case_to_upper('SquareRoot')
-    ''SQUARE_ROOT
+    'SQUARE_ROOT'
 
     >>> camel_case_to_upper('ComputeSQRT')
-    ''COMPUTE_SQRT
+    'COMPUTE_SQRT'
 
     >>> camel_case_to_upper('SQRTCompute')
     'SQRT_COMPUTE'
