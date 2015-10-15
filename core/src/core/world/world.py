@@ -146,10 +146,11 @@ class World(VPLScene, AbstractListener):
 
     def notify(self, sender, event=None):
         signal, data = event
-        if event == 'world_object_data_changed':
+        print "World : ",signal
+        if signal == 'world_object_data_changed':
             world_obj, old, new = data
             #self._emit_value_changed(old, new)
-            self._emit_world_object_changed(old, world_obj)
+            self._emit_world_object_changed(world_obj, world_obj)
         elif signal == 'world_object_attribute_changed':
             world_obj, old, new = data
             self._emit_world_object_item_changed(world_obj, 'attribute', old, new)
@@ -251,6 +252,10 @@ class WorldObject(Observed):
             raise KeyError(str(key))
         else:
             return attribute
+
+    # def set_data(self, data):
+    #     self.notify_listeners(('world_object_data_changed', (self, self._data, data)))
+    #     self._data = data
 
     def set_attribute(self, name, value, interface=None, label=None, constraints=None):
         attribute_names = [a['name'] for a in self._attributes]
