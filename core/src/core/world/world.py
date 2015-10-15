@@ -146,7 +146,6 @@ class World(VPLScene, AbstractListener):
 
     def notify(self, sender, event=None):
         signal, data = event
-        print "World : ",signal
         if signal == 'world_object_data_changed':
             world_obj, old, new = data
             #self._emit_value_changed(old, new)
@@ -237,8 +236,10 @@ class WorldObject(Observed):
 
     @data.setter
     def data(self, data):
-        self.notify_listeners(('world_object_data_changed', (self, self._data, data)))
+        from copy import copy
+        old_data = copy(self._data)
         self._data = data
+        self.notify_listeners(('world_object_data_changed', (self, old_data, data)))
 
     @silent.setter
     def silent(self, value):
@@ -296,6 +297,9 @@ class WorldObject(Observed):
             return default_value
         else:
             return attribute['value']
+
+    def clear_kwargs(self):
+        self.kwargs = {}
 
     def notify_listeners(self, event=None):
         if not self._silent:
