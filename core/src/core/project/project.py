@@ -264,6 +264,7 @@ class Project(Observed):
         loading = ModelFactory(mimetype='text/x-python')
         ns = loading.run_code(loading_code, self.ns)
         self.ns.update(ns)
+        self.ns['get_model'] = self.get_runnable_model
         for startup in self.startup.values():
             model = to_model(startup)
             ns = model.run_code(startup.read(), self.ns)
