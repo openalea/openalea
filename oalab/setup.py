@@ -79,10 +79,10 @@ setup(
     include_package_data=True,
     # (you can provide an exclusion dictionary named exclude_package_data to remove parasites).
     # alternatively to global inclusion, list the file to include
-    package_data = {'openalea.oalab' : ['*.ui'],},
+    package_data = {'openalea.oalab': ['*.ui'],},
 
     postinstall_scripts=['oalab_postinstall'],
-    share_dirs={'openalea.oalab.share': 'share'},
+    share_dirs={'share': 'share'},
 
     # Declare src and wralea as entry_points (extensions) of your package
     entry_points={
