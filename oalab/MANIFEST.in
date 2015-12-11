@@ -1,0 +1,8 @@
+include MANIFEST.in
+include *.txt
+include *.py
+
+recursive-include src/openalea *
+
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
