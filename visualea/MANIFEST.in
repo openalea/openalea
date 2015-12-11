@@ -2,7 +2,7 @@ include MANIFEST.in
 include *.txt
 include *.py
 
-recursive-include src *
+recursive-include src/visualea *
 
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
