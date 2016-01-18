@@ -83,14 +83,15 @@ def set_plugin(self, name):
 def plugin_doc(plugin_func):
     __doc__ = ['Implemented plugins:']
     for plugin_class in plugins(plugin_func._group, plugin_func._tags, plugin_func._criteria):
-        __doc__.append(' * "' + plugin_class.identifier + '"') # modulename and objectname
+        __doc__.append(' * "' + plugin_class.name + '"') # modulename and objectname
         if plugin_class.__doc__:
             __doc__[-1] += ' - ' + (" " * (len(__doc__[-1]) + 3)).join(line.strip()
                                                                        for line in plugin_class.__doc__.splitlines())
-    __doc__.append('')
-    __doc__.append('Defined aliases:')
-    for alias in plugin_func._aliases:
-        __doc__.append(' * "' + alias + '" - Alias for plugin "' + plugin_func._aliases[alias] + '"')
+    if len(plugin_func._aliases) > 0:
+        __doc__.append('')
+        __doc__.append('Defined aliases:')
+        for alias in plugin_func._aliases:
+            __doc__.append(' * "' + alias + '" - Alias for plugin "' + plugin_func._aliases[alias] + '"')
     return '\n'.join(__doc__)
 
 PluginFunctor.plugin = property(get_plugin, set_plugin)

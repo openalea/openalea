@@ -23,7 +23,7 @@ def camel_case_to_lower(name):
     lowername = '_'
     index = 0
     while index < len(name):
-        if name[index].islower():
+        if not name[index].isupper():
             lowername += name[index]
             index += 1
         else:
@@ -67,7 +67,7 @@ def camel_case_to_upper(name):
     lowername = '_'
     index = 0
     while index < len(name):
-        if name[index].islower():
+        if not name[index].isupper():
             lowername += name[index].upper()
             index += 1
         else:
