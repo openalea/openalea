@@ -74,7 +74,7 @@ class WorldBrowser(GenericWorldBrowser, AbstractListener):
 
     def notify(self, sender, event=None):
         signal, data = event
-        print signal
+        # print signal
         if signal == 'world_changed':
             self.set_world(data)
             self.refresh()

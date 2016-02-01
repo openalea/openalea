@@ -26,6 +26,8 @@ __all__ = [
 from openalea.core.scene.vplscene import VPLScene
 from openalea.core.observer import Observed, AbstractListener
 
+from copy import copy
+
 # from collections import OrderedDict
 # from openalea.core.observer import Observed
 # class World(OrderedDict, Observed):
@@ -146,10 +148,10 @@ class World(VPLScene, AbstractListener):
 
     def notify(self, sender, event=None):
         signal, data = event
-        if event == 'world_object_data_changed':
+        if signal == 'world_object_data_changed':
             world_obj, old, new = data
             #self._emit_value_changed(old, new)
-            self._emit_world_object_changed(old, world_obj)
+            self._emit_world_object_changed(world_obj, world_obj)
         elif signal == 'world_object_attribute_changed':
             world_obj, old, new = data
             self._emit_world_object_item_changed(world_obj, 'attribute', old, new)
@@ -236,8 +238,9 @@ class WorldObject(Observed):
 
     @data.setter
     def data(self, data):
-        self.notify_listeners(('world_object_data_changed', (self, self._data, data)))
+        old_data = copy(self._data)
         self._data = data
+        self.notify_listeners(('world_object_data_changed', (self, old_data, data)))
 
     @silent.setter
     def silent(self, value):
@@ -251,6 +254,10 @@ class WorldObject(Observed):
             raise KeyError(str(key))
         else:
             return attribute
+
+    # def set_data(self, data):
+    #     self.notify_listeners(('world_object_data_changed', (self, self._data, data)))
+    #     self._data = data
 
     def set_attribute(self, name, value, interface=None, label=None, constraints=None):
         attribute_names = [a['name'] for a in self._attributes]
@@ -271,7 +278,6 @@ class WorldObject(Observed):
                     constraints=constraints))
             self.notify_listeners(('world_object_attribute_changed', (self, None, self._attributes[-1])))
         else:
-            from copy import copy
             old_attribute = copy(attribute)
             if interface is not None:
                 attribute['interface'] = interface
@@ -291,6 +297,9 @@ class WorldObject(Observed):
             return default_value
         else:
             return attribute['value']
+
+    def clear_kwargs(self):
+        self.kwargs.clear()
 
     def notify_listeners(self, event=None):
         if not self._silent:
