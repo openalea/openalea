@@ -26,6 +26,8 @@ __all__ = [
 from openalea.core.scene.vplscene import VPLScene
 from openalea.core.observer import Observed, AbstractListener
 
+from copy import copy
+
 # from collections import OrderedDict
 # from openalea.core.observer import Observed
 # class World(OrderedDict, Observed):
@@ -236,7 +238,6 @@ class WorldObject(Observed):
 
     @data.setter
     def data(self, data):
-        from copy import copy
         old_data = copy(self._data)
         self._data = data
         self.notify_listeners(('world_object_data_changed', (self, old_data, data)))
@@ -277,7 +278,6 @@ class WorldObject(Observed):
                     constraints=constraints))
             self.notify_listeners(('world_object_attribute_changed', (self, None, self._attributes[-1])))
         else:
-            from copy import copy
             old_attribute = copy(attribute)
             if interface is not None:
                 attribute['interface'] = interface
@@ -299,7 +299,7 @@ class WorldObject(Observed):
             return attribute['value']
 
     def clear_kwargs(self):
-        self.kwargs = {}
+        self.kwargs.clear()
 
     def notify_listeners(self, event=None):
         if not self._silent:
