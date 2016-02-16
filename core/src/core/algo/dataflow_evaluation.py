@@ -223,9 +223,13 @@ class AbstractEvaluation(object):
         node = self._dataflow.actor(vid)
 
         try:
+            # prov before
+            print "prov", node.get_caption()
             t0 = clock()
             ret = node.eval()
             t1 = clock()
+            # prov after
+            print "prov", "after"
 
             if PROVENANCE:
                 self.provenance.node_exec(vid, node, t0,t1)
