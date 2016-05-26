@@ -5,7 +5,7 @@ from openalea.core.model import Model
 
 import mimetypes
 
-__all__ = ["ModelFactory", "ModelClass", "ModelType"]
+__all__ = ["ModelFactory", "ModelClass"]
 
 REGISTERY_MIME_CLASS = {}
 for pl in plugins('openalea.core', criteria=dict(implement='IModel')):

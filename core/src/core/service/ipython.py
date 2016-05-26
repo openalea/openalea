@@ -1,4 +1,4 @@
-__all__ = ["get_interpreter", "interpreter"]
+__all__ = ["interpreter"]
 
 
 class IInterpreterPlugin(object):

@@ -113,8 +113,8 @@ geom_2_scene = Factory(name='Geometry to Scene',
                 category='Data I/O',
                 nodemodule='openalea.oalab_wralea.oalabnode',
                 nodeclass='Geom2Scene',
-                inputs=(dict(name='geometry', interface='IStr')),
-                outputs=(dict(name='Scene', interface='IStr')),
+                inputs=(dict(name='geometry', interface='IStr'),),
+                outputs=(dict(name='Scene', interface='IStr'),),
                )
                
 __all__.append('geom_2_scene')

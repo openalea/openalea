@@ -528,13 +528,16 @@ class CompositeNode(Node, DataFlow):
 
         try:
             self.evaluating = True
-            algo.eval(vtx_id,step=step)
+            algo.eval(vtx_id, step=step)
         finally:
             self.evaluating = False
         t1 = time.time()
         if quantify:
             logger.info('Evaluation time: %s'%(t1-t0))
             print 'Evaluation time: %s'%(t1-t0)
+
+        return algo._prov
+
     # Functions used by the node evaluator
 
     def eval(self, *args, **kwds):

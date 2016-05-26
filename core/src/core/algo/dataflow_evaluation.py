@@ -22,6 +22,8 @@ __revision__ = " $Id$ "
 import sys
 from time import clock
 import traceback as tb
+
+from openalea.provenance.simple_dict import Provenance as RVProvenance
 from openalea.core import ScriptLibrary
 
 from openalea.core.dataflow import SubDataflow
@@ -203,6 +205,9 @@ class AbstractEvaluation(object):
         :param dataflow: to be done
         """
         self._dataflow = dataflow
+
+        self._prov = RVProvenance()
+
         if PROVENANCE:
             self.provenance = PrintProvenance(dataflow)
 
@@ -224,12 +229,14 @@ class AbstractEvaluation(object):
 
         try:
             # prov before
-            print "prov", node.get_caption()
+            # print "prov", node.get_caption()
+            self._prov.before_eval(self._dataflow, vid)
             t0 = clock()
             ret = node.eval()
             t1 = clock()
             # prov after
-            print "prov", "after"
+            # print "prov", "after"
+            self._prov.after_eval(self._dataflow, vid)
 
             if PROVENANCE:
                 self.provenance.node_exec(vid, node, t0,t1)
@@ -600,7 +607,12 @@ class LambdaEvaluation(PriorityEvaluation):
         :param vtx_id: vertex id to start the evaluation
         :param context: list a value to assign to lambda variables
         """
+        self._prov.workflow = id(self._dataflow)
+        self._prov.init(self._dataflow)
+
         t0 = clock()
+        self._prov.time_init = t0
+
         if PROVENANCE and (not is_subdataflow):
             self.provenance.workflow_exec()
             self.provenance.start_time()
@@ -619,6 +631,7 @@ class LambdaEvaluation(PriorityEvaluation):
             self.provenance.end_time()
 
         t1 = clock()
+        self._prov.time_end = t1
         if quantify:
             print "Evaluation time: %s"%(t1-t0)
 

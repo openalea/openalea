@@ -1,4 +1,4 @@
-# Python files
+﻿# Python files
 *.py[cod]
 
 # C extensions
@@ -64,4 +64,7 @@ nosetests.xml
 
 # temporary files
 *._icon.png
+
+# try
+core/try/*
 
