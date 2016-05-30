@@ -9,8 +9,6 @@
 #
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
-
-#testing buildbot
 """
 Multisetup allows to build and install all the packages of OpenAlea
 found in this directory.
@@ -33,15 +31,15 @@ found in this directory.
 """
 import os
 import sys
-
 try:
     from openalea.misc.multisetup import Multisetup
 except ImportError:
-    print 'Install OpenAlea.Deploy first'
     try:
-        sys.path.insert(0, os.path.join('misc', 'src', 'openalea', 'misc'))
-        from multisetup import Multisetup
-    except ImportError as e:
+        # Avoid to import OpenAlea and to import multisetup because the name of this file.
+        sys.path.insert(0, os.path.join('misc', 'src', 'openalea'))
+        from misc import multisetup as msetup
+        Multisetup = msetup.Multisetup
+    except ImportError, e:
         print e
 
 
@@ -53,12 +51,10 @@ grapheditor
 visualea
 oalab
 """.split()
-#plantlab
-#openalea_meta
 
 
 def main():
-
+    """Run the command with args."""
     args = sys.argv[1:]
     if len(args) == 1 and args[0] in ['-h', '--help']:
         Multisetup.help()
