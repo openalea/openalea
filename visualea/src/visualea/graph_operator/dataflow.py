@@ -37,7 +37,13 @@ class DataflowOperators(Base):
     @busy_cursor
     def graph_run(self):
         master = self.master
-        master.get_graph().eval_as_expression()
+        sc = master.get_graph_scene()
+        view, = sc.views()
+        mw = view.parent().parent().parent().parent().parent().parent()
+        graph = master.get_graph()
+
+        prov = graph.eval_as_expression(record_provenance=mw._record_provenance)
+        mw.session.provenance = prov
 
 
     def graph_reset(self):

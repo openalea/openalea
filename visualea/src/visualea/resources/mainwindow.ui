@@ -248,6 +248,7 @@
     <addaction name="actionInvalidate"/>
     <addaction name="actionReset"/>
     <addaction name="actionConfigure_I_O"/>
+    <addaction name="actionRecordProvenance"/>
     <addaction name="separator"/>
     <addaction name="actionGroup_Selection"/>
     <addaction name="action_Copy"/>
@@ -504,6 +505,20 @@
   <action name="actionConfigure_I_O">
    <property name="text">
     <string>Configure I/O</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="actionRecordProvenance">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Record Provenance</string>
    </property>
    <property name="shortcutContext">
     <enum>Qt::ApplicationShortcut</enum>

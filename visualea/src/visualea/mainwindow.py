@@ -89,6 +89,9 @@ class MainWindow(qt.QtGui.QMainWindow,
         else:
             self._prov = False
 
+        # provenance
+        self._record_provenance = self.actionRecordProvenance.isChecked()
+
         #last opened nodes
         self._last_opened = []
 
@@ -219,6 +222,9 @@ class MainWindow(qt.QtGui.QMainWindow,
         #load personnal GUI settings
         self.read_settings()
 
+        # Provenance recording
+        self.actionRecordProvenance.toggled.connect(self.record_provenance)
+
         #############
         # Provenance
         #############
@@ -246,6 +252,17 @@ class MainWindow(qt.QtGui.QMainWindow,
 
             self.action_activ_prov.toggled.connect(self.set_provenance)
             self.action_show_prov.triggered.connect(self.show_provenance)
+
+    def record_provenance(self, record=None):
+        """Called in response to the corresponding action toggled
+
+        Args:
+            record: (bool) whether or not to record provenance
+
+        Returns:
+            None
+        """
+        self._record_provenance = record
 
     def set_provenance(self, provenance):
         """
