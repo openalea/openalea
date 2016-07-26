@@ -250,6 +250,9 @@
     <addaction name="actionConfigure_I_O"/>
     <addaction name="actionRecordProvenance"/>
     <addaction name="separator"/>
+    <addaction name="actionUploadWorkflow"/>
+    <addaction name="actionUploadProvenance"/>
+    <addaction name="separator"/>
     <addaction name="actionGroup_Selection"/>
     <addaction name="action_Copy"/>
     <addaction name="action_Cut"/>
@@ -519,6 +522,22 @@
    </property>
    <property name="text">
     <string>Record Provenance</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="actionUploadWorkflow">
+   <property name="text">
+    <string>Upload Workflow</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="actionUploadProvenance">
+   <property name="text">
+    <string>Upload Provenance</string>
    </property>
    <property name="shortcutContext">
     <enum>Qt::ApplicationShortcut</enum>
