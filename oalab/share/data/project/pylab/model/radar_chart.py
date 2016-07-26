@@ -9,7 +9,7 @@ polygon is not aligned with the radial axes.
 
 .. [1] http://en.wikipedia.org/wiki/Radar_chart
 """
-%pylab inline
+# %pylab inline
 import numpy as np
 
 import matplotlib.pyplot as plt
