@@ -24,6 +24,14 @@ class Colormap (object):
         self._color_map = None
         self.name = name
 
+    def __getitem__(self, key):
+        if key == 'name':
+            return self.name
+        elif key == 'color_points':
+            return self._color_points
+        else:
+            raise NameError("'Colormap' object has no attribute "+key)
+
     def get_color(self, value):
         from scipy.interpolate import splrep, splev
         if len(self._color_points) == 0:
