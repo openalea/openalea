@@ -93,6 +93,8 @@ class MainWindow(qt.QtGui.QMainWindow,
 
         # provenance
         self._record_provenance = self.actionRecordProvenance.isChecked()
+        self._current_workflow_id = None
+        self._current_prov_execution = 0
 
         # last opened nodes
         self._last_opened = []
@@ -291,12 +293,79 @@ class MainWindow(qt.QtGui.QMainWindow,
     def upload_provenance(self):
         """Called in response to the corresponding action
         """
+        from os import environ
+
+        from see_scripts.see_client import (get_ro_def,
+                                            get_single_by_name,
+                                            log_to_see, register_ro)
+        from see_scripts.wlf_client import upload_prov
+
         print "upload provenance on SEE"
+        # check that current provenance is not None
+        try:
+            prov = self.session.provenance
+        except AttributeError:
+            prov = None
+
+        if prov is None:
+            print "No provenance registered yet, run the dataflow?"
+            return
+
+        cn = self.session.get_current_workspace()
+        cnf = cn.factory
+
+        if cnf.uid != prov.workflow():
+            print("Current provenance not corresponding to "
+                  "current workflow, rerun?")
+            return
+
+        print "connect to SEE"
+        user = environ["SEE_user"]
+        pwd = environ["SEE_pwd"]
+        cname = environ["SEE_container"]
+        see_session = log_to_see(user, pwd)
+
+        # check that current workflow has been upload on the platform first
+        wdef = get_ro_def(cnf.uid, see_session)
+        if wdef is None:
+            print "current workflow unregistered, upload it first"
+            return
+
+        pdef = prov.as_wlformat()
+        # assign meaningful name to it
+        if wdef['id'] == self._current_workflow_id:
+            self._current_prov_execution += 1
+        else:
+            self._current_workflow_id = wdef['id']
+            self._current_prov_execution = 1
+
+        pdef["name"] = "%s_exec_%d" % (wdef['name'],
+                                       self._current_prov_execution)
+
+        # create container to put provenance in
+        try:
+            cid = get_single_by_name('container', cname, see_session)
+        except KeyError:
+            cid = register_ro(see_session, 'container', dict(name=cname))
+
+        try:
+            uid = upload_prov(see_session, pdef, cid, overwrite=False)
+            print "uploaded provenance", uid
+        except UserWarning as e:
+            print e.message
 
     def upload_workflow(self):
         """Called in response to the corresponding action
         """
+        from os import environ
+
+        from see_scripts.see_client import (get_single_by_name,
+                                            log_to_see, register_ro)
+        from see_scripts.cvt_oa import export_workflow
+        from see_scripts.wlf_client import upload_workflow
+
         print "upload current workflow on SEE"
+
         cn = self.session.get_current_workspace()
         cnf = cn.factory
 
@@ -304,7 +373,29 @@ class MainWindow(qt.QtGui.QMainWindow,
             print "empty nothing to do"
             return
 
-        print "upload", cnf.name, cnf.uid
+        print "connect to SEE"
+        user = environ["SEE_user"]
+        pwd = environ["SEE_pwd"]
+        cname = environ["SEE_container"]
+        see_session = log_to_see(user, pwd)
+
+        print "convert", cnf.name
+        wdef = export_workflow(see_session, cnf, {}, False)
+        if wdef is None:
+            print "Walou, CNF with same id already exists"
+            return
+
+        # create container to put workflow in
+        try:
+            cid = get_single_by_name('container', cname, see_session)
+        except KeyError:
+            cid = register_ro(see_session, 'container', dict(name=cname))
+
+        try:
+            uid = upload_workflow(see_session, wdef, cid, overwrite=False)
+            print "uploaded", cnf.name, uid
+        except UserWarning as e:
+            print e.message
 
     def set_provenance(self, provenance):
         """
