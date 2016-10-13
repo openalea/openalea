@@ -29,7 +29,7 @@ import copy
 
 from openalea.core.node import AbstractFactory, AbstractPort, Node
 from openalea.core.node import RecursionError
-from openalea.core.pkgmanager import PackageManager, UnknownPackageError
+from openalea.core.pkgmanager import PackageManager, protected, UnknownPackageError
 from openalea.core.package import UnknownNodeError
 from openalea.core.dataflow import DataFlow, InvalidEdge, PortError
 from openalea.core.settings import Settings
@@ -345,7 +345,14 @@ class CompositeNodeFactory(AbstractFactory):
         (package_id, factory_id) = self.elt_factory[vid]
         pkgmanager = PackageManager()
         pkg = pkgmanager[package_id]
-        factory = pkg.get_factory(factory_id)
+        try:
+            factory = pkg.get_factory(factory_id)
+        except UnknownNodeError, e:
+            # Bug when both package_id and protected(package_id) exist
+            pkg = pkgmanager[protected(package_id)]
+            factory = pkg.get_factory(factory_id)
+
+
         node = factory.instantiate(call_stack)
 
         attributes = copy.deepcopy(self.elt_data[vid])
@@ -585,7 +592,7 @@ class CompositeNode(Node, DataFlow):
             self._compute_inout_connection(vertex_selection, is_input=False)
 
         in_edges = \
-            self._compute_outside_connection(vertex_selection, in_edges, 
+            self._compute_outside_connection(vertex_selection, in_edges,
                 new_vid, is_input=True)
         out_edges = \
             self._compute_outside_connection(vertex_selection, out_edges,
