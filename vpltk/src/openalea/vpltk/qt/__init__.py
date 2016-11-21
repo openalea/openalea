@@ -28,7 +28,7 @@ __version__ = '2.6.0.dev0'
 __version_info__ = None
 is_pyqt46 = False
 
-PyQt_license_warning = "PyQt4 used: your application or derivative works must be released under GPL or CeCILL license !"
+PyQt_license_warning = "your application or derivative works must be released under GPL or CeCILL license !"
 
 #: Qt API environment variable name
 QT_API = 'QT_API'
@@ -102,7 +102,7 @@ def load_pyqt4():
     __version_info__ = tuple(__version__.split('.') + ['final', 1])
     is_pyqt46 = __version__.startswith('4.6')
     QT_MODULE_NAME = 'PyQt4'
-    print PyQt_license_warning
+    print QT_MODULE_NAME+' used : '+PyQt_license_warning
 
 
 def load_pyqt5():
@@ -112,7 +112,7 @@ def load_pyqt5():
     os.environ[QT_API] = PYQT5_API[0]
     logging.getLogger(__name__).debug('imported PyQt5')
     QT_MODULE_NAME = 'PyQt5'
-    print PyQt_license_warning
+    print QT_MODULE_NAME+' used : '+PyQt_license_warning
 
 
 QT_API_LOADER = {}
