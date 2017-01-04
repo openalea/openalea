@@ -17,9 +17,9 @@
 ###############################################################################
 
 
-from openalea.vpltk.qt import QtCore
-from openalea.core.observer import AbstractListener
+from Qt import QtCore
 
+from openalea.core.observer import AbstractListener
 
 class AbstractControlWidget(AbstractListener):
 

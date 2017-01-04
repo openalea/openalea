@@ -17,16 +17,16 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+
 __revision__ = ""
 
-from openalea.vpltk.qt import QtCore, QtGui
+from Qt import QtCore, QtGui, QtWidgets
 
-
-class Margin(QtGui.QWidget):
+class Margin(QtWidgets.QWidget):
     # Come from LPy
 
     def __init__(self, parent, editor):
-        QtGui.QWidget.__init__(self, parent)
+        QtWidgets.QWidget.__init__(self, parent)
         self.editor = editor
         self.showLines = True
 

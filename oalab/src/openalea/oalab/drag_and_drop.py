@@ -17,6 +17,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+
 """
 This module define classes to manage drag and drop in a universal way: approach is the same for all widgets.
 It provides 2 main classes:
@@ -28,16 +29,13 @@ DropSelector*: Widgets used if more than one drop type are available. Allow user
 
 import itertools
 
+from Qt import QtWidgets, QtGui, QtCore
+
 from openalea.core.customexception import CustomException
 from openalea.oalab.mimedata import MimeCodecManager
 from openalea.oalab.utils import ModalDialog, make_error_dialog
-from openalea.vpltk.qt import QtGui, QtCore
 
-
-from openalea.oalab.service.mimedata import (possible_conv, compatible_mime,
-                                             decode_function, decode_plugin,
-                                             qtencode, qtdecode, quick_check)
-
+from openalea.oalab.service.mimedata import (possible_conv, compatible_mime, decode_function, decode_plugin, qtencode, qtdecode, quick_check)
 
 def encode_to_qmimedata(data, mimetype):
     _possible_conv = possible_conv(data, mimetype)
@@ -46,35 +44,34 @@ def encode_to_qmimedata(data, mimetype):
     if mimetype in _possible_conv:
         for mimetype_in, mimetype_out in _possible_conv[mimetype]:
             qmimedata = qtencode(data, qmimedata, mimetype_in, mimetype_out)
-    return qmimedata
+    return qmimedatas
 
-
-class DropSelectorWidget(QtGui.QWidget):
+class DropSelectorWidget(QtWidgets.QWidget):
 
     def __init__(self, lst, labels=None):
-        QtGui.QWidget.__init__(self)
+        QtWidgets.QWidget.__init__(self)
 
         if labels is None:
             labels = {}
 
-        self._layout = QtGui.QVBoxLayout(self)
+        self._layout = QtWidgets.QVBoxLayout(self)
 
-        self._cb = QtGui.QComboBox()
+        self._cb = QtWidgets.QComboBox()
         self._lst = lst
         for i, mimetype in enumerate(self._lst):
             self._cb.addItem(labels.get(mimetype, mimetype))
 
-        self._layout.addWidget(QtGui.QLabel("Drop as ..."))
+        self._layout.addWidget(QtWidgets.QLabel("Drop as ..."))
         self._layout.addWidget(self._cb)
 
     def mimetype(self):
         return self._lst[self._cb.currentIndex()]
 
 
-class DropSelectorMenu(QtGui.QMenu):
+class DropSelectorMenu(QtWidgets.QMenu):
 
     def __init__(self, lst, labels=None, tooltip=None):
-        QtGui.QMenu.__init__(self)
+        QtWidgets.QMenu.__init__(self)
 
         if labels is None:
             labels = {}
@@ -86,7 +83,7 @@ class DropSelectorMenu(QtGui.QMenu):
         lst.sort()
         for mimetype in sorted(lst):
             label = labels.get(mimetype, mimetype)
-            action = QtGui.QAction(label, self)
+            action = QtWidgets.QAction(label, self)
             tt = '%s (%s)' % (label, mimetype)
             action.setToolTip(tt)
             action.triggered.connect(self._triggered)
@@ -109,7 +106,7 @@ class DragHandler(object):
         self._drag_format = []
         self._drag_kwds = {}
 
-        if isinstance(widget, QtGui.QStandardItemModel):
+        if isinstance(widget, QtWidgets.QStandardItemModel):
             self.mimeTypes = self.mime_types
 
     def mime_types(self):
@@ -135,7 +132,7 @@ class DropHandler(object):
 
         # Drop part
         self.widget.setAcceptDrops(True)
-        if isinstance(widget, (QtGui.QPlainTextEdit, QtGui.QTextEdit)):
+        if isinstance(widget, (QtWidgets.QPlainTextEdit, QtWidgets.QTextEdit)):
             self.widget.canInsertFromMimeData = self.can_insert_from_mime_data
             self.widget.insertFromMimeData = self.insert_from_mime_data
         else:
@@ -264,5 +261,5 @@ class DropHandler(object):
                 make_error_dialog(e)
             else:
                 event.acceptProposedAction()
-                return QtGui.QWidget.dropEvent(self.widget, event)
+                return QtWidgets.QWidget.dropEvent(self.widget, event)
             self._compatible = None

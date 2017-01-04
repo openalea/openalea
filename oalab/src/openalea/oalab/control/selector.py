@@ -16,7 +16,7 @@
 #
 ###############################################################################
 
-from openalea.vpltk.qt import QtGui, QtCore
+from Qt import QtCore
 
 from openalea.core.observer import AbstractListener
 
@@ -28,7 +28,6 @@ from openalea.oalab.widget.control import IntRangeSpinBoxes, IntRangeSimpleSlide
 from openalea.oalab.widget.control import ColormapRectangle, ColormapSwitcher
 
 from openalea.oalab.painter import PainterColormap
-
 
 class IntWidgetSelector(object):
 

@@ -18,17 +18,11 @@
 #
 ###############################################################################
 
-
-from openalea.vpltk.qt import QtGui, QtCore
 from openalea.oalab.testing.applet import test_applet
-
-
 from openalea.core.world import World, WorldObject
-
 
 c1 = dict(min=1, max=5)
 c2 = dict(min=0, max=10)
-
 
 def add_objects_then_attributes():
 
@@ -42,7 +36,6 @@ def add_objects_then_attributes():
     obj1.set_attribute('a1', 1, 'IInt', constraints=c1)
     obj1.set_attribute('a2', True, 'IBool')
     obj2.set_attribute('b1', 2.34, 'IFloat', constraints=c2)
-
 
 def add_objects_with_attributes_set():
     """
@@ -60,7 +53,6 @@ def add_objects_with_attributes_set():
 
     world["obj1"] = obj1
     world["obj2"] = obj2
-
 
 if __name__ == '__main__':
     test_applet('WorldControl', 'World', tests=[

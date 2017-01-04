@@ -20,27 +20,24 @@ import openalea.core
 import openalea.oalab
 import random
 
-from openalea.vpltk.qt import QtGui
+from Qt import QtGui, QtWidgets, QtCompat
+
 from openalea.oalab.pluginwidget.explorer import PluginExplorer
 
 from openalea.deploy.shared_data import shared_data
 from openalea.core.formatting.util import icon_path
 from openalea.core.formatting.html import html_section, html_list
-
-from openalea.vpltk.qt import QT_API
-from openalea.vpltk.qt import QtGui
-
 from openalea.core.plugin.formatting.text import format_author
 from openalea.core import authors as auth
 
-if QT_API == 'pyqt':
+if QtCompat.__binding__ == 'pyqt':
     try:
         from PyQt4.QtWebKit import QWebView
         VIEW = "webkit"
     except ImportError:
         QWebView = QtGui.QTextEdit
         VIEW = "basic"
-elif QT_API == 'pyside':
+elif QtCompat.__binding__ == 'pyside':
     try:
         from PySide.QtWebKit import QWebView
         VIEW = "webkit"
@@ -55,7 +52,6 @@ stylesheet_path = shared_data(openalea.core, 'stylesheet.css')
 
 if VIEW == "webkit":
     stylesheet_path = 'file://' + stylesheet_path
-
 
 dependencies = dict(
     vtk=dict(
@@ -96,15 +92,14 @@ scientific = ['ipython', 'matplotlib', 'numpy', 'pandas', 'scipy', 'python']
 for lib in scientific:
     dependencies[lib] = dict(team=lib.capitalize(), icon=u'%s.png' % lib, website=u'http://%s.org' % lib)
 
-
 dep_order = 'python qt pyqt ipython pyqode numpy matplotlib scipy pandas git vtk'.split()
-
 
 lst = [
     'openalea',
     'caribu'
     'PlantGL',
 ]
+
 submodules = html_list('submodule', lst)
 
 if VIEW == "webkit":
@@ -120,7 +115,6 @@ if VIEW == "webkit":
         html_dep += '  <img height="32px" src="%(icon)s" alt="%(team)s">\n' % args
         html_dep += '  <br /><span class="logo-label"><a href="%(website)s">%(team)s</a></span>\n' % args
         html_dep += '</div>\n' % args
-
 else:
     html_dep = ''
     width = 70
@@ -141,7 +135,6 @@ args = dict(
 )
 
 WELCOME = """
-
 <html>
 <head>
     <link rel="stylesheet" type="text/css" href="%(stylesheet)s">
@@ -165,7 +158,6 @@ light models (Caribu, muSlim, etc.), ...
 
 </p>
 
-
 <h2 class="subtitle">OpenAlea</h2>
 <p class="introduction">
 OpenAlea is a distributed collaborative effort to develop Python libraries and tools that address the needs of current
@@ -177,14 +169,10 @@ and future works primarily designed for the plant architecture modeling.
 <div class="section-title">Code is powered by</div>
 %(dependencies)s
 
-
 </body>
-
-
 
 </html>
 """ % args
-
 
 author_lst = [
     auth.gbaty,
@@ -222,26 +210,23 @@ CREDITS = """
 
 </body>
 
-
-
 </html>
 
 """ % args
 
-
-class AboutPage(QtGui.QWidget):
+class AboutPage(QtWidgets.QWidget):
 
     def __init__(self, banner_path=None, content=None):
-        QtGui.QWidget.__init__(self)
+        QtWidgets.QWidget.__init__(self)
 
         if banner_path is None:
             banner_path = shared_data(openalea.oalab, 'icons/logo/banner.png')
 
-        self._lay = QtGui.QVBoxLayout(self)
+        self._lay = QtWidgets.QVBoxLayout(self)
 
-        p = QtGui.QSizePolicy
+        p = QtWidgets.QSizePolicy
 
-        self._banner = QtGui.QLabel()
+        self._banner = QtWidgets.QLabel()
         self._banner.setStyleSheet("QLabel { background-color : #ffffff;}")
         banner = QtGui.QPixmap(banner_path)
         size = banner.size()
@@ -252,7 +237,7 @@ class AboutPage(QtGui.QWidget):
             self._content.setReadOnly(True)
         self._content.setHtml(content)
 
-        self._footer = QtGui.QLabel()
+        self._footer = QtWidgets.QLabel()
         self._footer.setStyleSheet("QLabel { background-color : #459454;}")
 
         self._lay.addWidget(self._banner)
@@ -274,10 +259,10 @@ class OpenAleaLabCredits(AboutPage):
         AboutPage.__init__(self, content=CREDITS)
 
 
-class About(QtGui.QTabWidget):
+class About(QtWidgets.QTabWidget):
 
     def __init__(self):
-        QtGui.QTabWidget.__init__(self)
+        QtWidgets.QTabWidget.__init__(self)
 
         self._welcome = OpenAleaLabSummary()
         self._plugin = PluginExplorer()
@@ -297,10 +282,10 @@ class About(QtGui.QTabWidget):
 
 if __name__ == '__main__':
 
-    instance = QtGui.QApplication.instance()
+    instance = QtWidgets.QApplication.instance()
 
     if instance is None:
-        app = QtGui.QApplication([])
+        app = QtWidgets.QApplication([])
     else:
         app = instance
 

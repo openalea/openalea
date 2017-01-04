@@ -1,21 +1,35 @@
+# Version: $Id$
+#
+#
+
+# Commentary:
+#
+#
+
+# Change Log:
+#
+#
+
+# Code:
 
 import weakref
-from openalea.vpltk.qt import QtGui, QtCore
+
+from Qt import QtWidgets, QtGui, QtCore
 
 from openalea.core.service.interface import interface_label
 from openalea.oalab.service.qt_control import qt_widget_plugins
 from openalea.core.control import Control
 from openalea.deploy.shared_data import shared_data
+
 import openalea.oalab
 
-
-class QtControlEditor(QtGui.QWidget):
+class QtControlEditor(QtWidgets.QWidget):
 
     def __init__(self, control=None):
-        QtGui.QWidget.__init__(self)
+        QtWidgets.QWidget.__init__(self)
         self.set_control(control)
 
-        self._layout = QtGui.QVBoxLayout(self)
+        self._layout = QtWidgets.QVBoxLayout(self)
         self._qt_editor = None
 
     def set_control(self, control=None):
@@ -35,11 +49,11 @@ generate_pyfile_from_uifile(__name__)
 from openalea.oalab.control.designer._editor import Ui_ControlEditor
 
 
-class ControlEditor(QtGui.QWidget, Ui_ControlEditor):
+class ControlEditor(QtWidgets.QWidget, Ui_ControlEditor):
     counters = {}
 
     def __init__(self, name='default'):
-        QtGui.QWidget.__init__(self)
+        QtWidgets.QWidget.__init__(self)
         Ui_ControlEditor.__init__(self)
         self.setupUi(self)
 
@@ -71,7 +85,7 @@ class ControlEditor(QtGui.QWidget, Ui_ControlEditor):
             self._interfaces.append(iname)
             tooltip = self.tooltips[iname]
 
-            item = QtGui.QListWidgetItem(label)
+            item = QtWidgets.QListWidgetItem(label)
             item.setToolTip(tooltip)
             item.setStatusTip(tooltip)
 
@@ -164,3 +178,6 @@ class ControlEditor(QtGui.QWidget, Ui_ControlEditor):
             return self._constraints().constraints()
         else:
             return {}
+
+#
+# editor.py ends here

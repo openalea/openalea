@@ -15,13 +15,14 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+
 __revision__ = ""
 
-from openalea.vpltk.qt import QtGui
+from Qt import QtGui, QtWidgets
+
 from pygments.formatters.html import HtmlFormatter
 from pygments.lexers import guess_lexer_for_filename, PythonLexer
 from pygments.styles import get_style_by_name
-
 
 class Highlighter(QtGui.QSyntaxHighlighter):
 

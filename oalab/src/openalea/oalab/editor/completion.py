@@ -15,14 +15,15 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+
 __revision__ = ""
 
-from openalea.vpltk.qt import QtGui
+from Qt import QtWidgets
+
 import keyword
 import __builtin__
 
-
-class DictionaryCompleter(QtGui.QCompleter):
+class DictionaryCompleter(QtWidgets.QCompleter):
 
     def __init__(self, parent=None):
         super(DictionaryCompleter, self).__init__(parent)
@@ -35,7 +36,7 @@ class DictionaryCompleter(QtGui.QCompleter):
         Use it to add new words from locals() and globals()
         """
         words = self.basic_words + locals().keys() + globals().keys()
-        QtGui.QCompleter.__init__(self, words, self.parent())
+        QtWidgets.QCompleter.__init__(self, words, self.parent())
 
     def add_words(self, words):
         """
