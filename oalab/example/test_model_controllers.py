@@ -1,4 +1,18 @@
+# Version: $Id$
+#
+#
 
+# Commentary:
+#
+#
+
+# Change Log:
+#
+#
+
+# Code:
+
+from Qt import QtGui, QtWidgets
 
 from openalea.core.compositenode import CompositeNodeFactory, CompositeNode
 from openalea.core.interface import IInt
@@ -17,17 +31,13 @@ from openalea.core.world.world import World
 
 from openalea.oalab.service.paradigm import paradigm_controller
 
-
-from openalea.vpltk.qt import QtGui
-
 from openalea.core.service.ipython import interpreter
+
 interp = interpreter()
 interp.user_ns['interp'] = interp
 
-
 pm = PackageManager()
 pm.init()
-
 
 def composite_node():
     inputs = []
@@ -74,7 +84,7 @@ def test_create_controllers():
 
 def test_instantiate_widgets(controllers):
     layout = interp.locals['layout']
-    tabwidget = interp.locals.get('tabwidget', QtGui.QTabWidget())
+    tabwidget = interp.locals.get('tabwidget', QtWidgets.QTabWidget())
     interp.user_ns['tabwidget'] = tabwidget
     layout.addWidget(tabwidget)
     for controller in controllers:
@@ -117,9 +127,9 @@ def test_all():
 
 
 if __name__ == '__main__':
-    instance = QtGui.QApplication.instance()
+    instance = QtWidgets.QApplication.instance()
     if instance is None:
-        app = QtGui.QApplication([])
+        app = QtWidgets.QApplication([])
     else:
         app = instance
 
@@ -129,8 +139,8 @@ if __name__ == '__main__':
     interp.locals.update(locals())
 
     # Set Shell Widget
-    widget = QtGui.QWidget()
-    layout = QtGui.QHBoxLayout(widget)
+    widget = QtWidgets.QWidget()
+    layout = QtWidgets.QHBoxLayout(widget)
 
     shellwdgt = get_shell_class()(interp)
     interp.locals['layout'] = layout
@@ -145,3 +155,6 @@ if __name__ == '__main__':
 
     if instance is None:
         app.exec_()
+
+#
+# test_model_controllers.py ends here

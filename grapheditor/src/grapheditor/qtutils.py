@@ -19,7 +19,7 @@ __revision__ = " $Id$ "
 
 
 import weakref
-from openalea.vpltk.qt import QtCore, QtGui
+from Qt import QtCore, QtGui, QtWidgets
 
 
 ##################################################################################
@@ -204,7 +204,6 @@ class MemoRects(QtGui.QGraphicsRectItem):
 
         painter.setBrush(QtGui.QBrush(self.__darkerColor))
         painter.drawConvexPolygon(self.__handlePoly)
-
 
 ###############################################
 # A Vanishing GraphicsItem mixing. Appears on #

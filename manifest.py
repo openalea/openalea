@@ -11,7 +11,6 @@ import re
 DIRS = """
 deploy
 deploygui
-vpltk
 core
 scheduler
 grapheditor
@@ -77,105 +76,104 @@ for dir_ in DIRS:
     print dir_
     os.chdir(dir_)
     entry_list = client.list('.', depth=ps.depth.infinity)
-    
-    filepaths = map(lambda svn_instance: svn_instance.data['path'], 
+
+    filepaths = map(lambda svn_instance: svn_instance.data['path'],
                     np.array(entry_list)[:,0])
-    
+
     filepaths.pop(0)
-    
+
     filepaths = np.char.lstrip(filepaths, '/').tolist()
-    
+
     if MANIFEST_FILENAME not in filepaths:
         filepaths.append(MANIFEST_FILENAME)
-    
+
     manifest_lines = np.char.add('include ', filepaths)
     manifest_lines = np.char.add(manifest_lines, '\n')
-    
+
     with open(MANIFEST_FILENAME, 'w') as f:
         f.writelines(manifest_lines)
-    
+
     retcode = sp.call(GEN_SPEC_FILE)
     if retcode:
         sys.exit('Error generating the spec file of %s' % dir_)
-    
+
     spec_filepath = glob.glob('./dist/*.spec')[0]
-    
+
     import shutil
     shutil.copyfile(spec_filepath, spec_filepath + '.old')
-    
+
     if os.path.isdir('doc') and os.listdir('doc'):
         parts['install_mkdir_doc_part'] = install_mkdir_doc_part
         parts['install_cp_doc_part'] = install_cp_doc_part
     else:
         parts['install_mkdir_doc_part'] = ''
         parts['install_cp_doc_part'] = ''
-        
+
     if os.path.isdir('example') and os.listdir('example'):
         parts['install_mkdir_example_part'] = install_mkdir_example_part
         parts['install_cp_example_part'] = install_cp_example_part
     else:
         parts['install_mkdir_example_part'] = ''
         parts['install_cp_example_part'] = ''
-        
+
     if os.path.isdir('share') and os.listdir('share'):
         parts['install_mkdir_share_part'] = install_mkdir_share_part
         parts['install_cp_share_part'] = install_cp_share_part
     else:
         parts['install_mkdir_share_part'] = ''
         parts['install_cp_share_part'] = ''
-            
+
     new_install_part = NEW_INSTALL_PART.format(**parts)
-    
+
     with open(spec_filepath, 'r') as spec_file:
         spec_str = spec_file.read() + '\n'
-        
+
     spec_str = INSTALL_PATTERN.sub(new_install_part + '\n', spec_str)
-    
+
     try:
         metadata = metainfo.read_metainfo('metainfo.ini', verbose=True)
         name = metadata['name']
     except IOError:
         name = 'OpenAlea.' + dir_
-    
+
     try:
         entry_map = pr.get_entry_map(name)
     except:
         entry_map = {}
-    
+
     if 'console_scripts' in entry_map:
         console_script_names = entry_map['console_scripts'].keys()
     else:
         console_script_names = []
-        
+
     if 'gui_scripts' in entry_map:
         gui_script_names = entry_map['gui_scripts'].keys()
     else:
         gui_script_names = []
-        
+
     new_files_part = NEW_FILES_PART
-    
+
     for script_name in console_script_names + gui_script_names:
         new_files_part += '%{_bindir}/' + script_name + '\n'
-    
+
     spec_str = FILES_PATTERN.sub(new_files_part + '\n', spec_str)
-    
+
     with open(spec_filepath, 'w') as spec_file:
         spec_file.write(spec_str)
-    
+
     retcode = sp.call(GEN_SOURCE_RPM)
     if retcode:
         sys.exit('Error generating the source rpm of %s' % dir_)
-    
+
     source_rpm_filepath = glob.glob('./dist/*.src.rpm')[0]
     install_source_rpm = INSTALL_SOURCE_RPM.format(source_rpm_filepath)
     retcode = sp.call(install_source_rpm.split())
     if retcode:
         sys.exit('Error installing the source rpm of %s' % dir_)
-        
+
     gen_binary_rpm = GEN_BINARY_RPM.format(spec_filepath)
     retcode = sp.call(gen_binary_rpm.split())
     if retcode:
         sys.exit('Error generating the binary rpm of %s' % dir_)
-        
-    os.chdir(curr_dir_bkp)
 
+    os.chdir(curr_dir_bkp)

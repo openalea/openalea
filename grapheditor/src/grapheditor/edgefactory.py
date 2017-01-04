@@ -19,7 +19,7 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-from openalea.vpltk.qt import QtCore, QtGui
+from Qt import QtCore, QtGui, QtWidgets
 
 # def EdgeFactory():
 #     try:
@@ -134,4 +134,3 @@ class SplineEdgePath(PolylineEdgePath):
             path.quadTo(self.p2 - py, self.p2)
 
         return path
-

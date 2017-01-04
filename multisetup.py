@@ -46,7 +46,6 @@ except ImportError:
 
 
 dirs = """
-vpltk
 misc
 core
 grapheditor

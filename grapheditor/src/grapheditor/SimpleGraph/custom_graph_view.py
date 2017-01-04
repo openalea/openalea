@@ -19,15 +19,16 @@ __revision__ = " $Id$ "
 
 
 """In this file we implement the basic graph views"""
+
+from Qt import QtWidgets, QtGui, QtCore
+
 from openalea.grapheditor.baselisteners import GraphListenerBase
 from openalea.grapheditor.qtutils  import mixin_method, extend_qt_scene_event
 from openalea.grapheditor.qtgraphview import Vertex, Edge, FloatingEdge
 from openalea.grapheditor.edgefactory import LinearEdgePath
-from openalea.vpltk.qt import QtGui, QtCore
+
 from custom_graph_model import Graph as GraphType
 from custom_graph_model import Vertex as VertexModel
-
-
 
 ##############################################################
 # Designing the widgets that will represent our vertices and #
@@ -51,7 +52,7 @@ class SimpleVertex(QtGui.QGraphicsEllipseItem, Vertex):
         pen=QtGui.QPen(QtCore.Qt.darkGreen)
         pen.setWidth(self.__border_size__-2)
         self.setPen(pen)
-        
+
         self.initialise_from_model()
 
     ##################
@@ -65,10 +66,10 @@ class SimpleVertex(QtGui.QGraphicsEllipseItem, Vertex):
 
     ##################
     # QtWorld-Events #
-    ##################        
+    ##################
     mousePressEvent = mixin_method(Vertex, QtGui.QGraphicsEllipseItem, "mousePressEvent")
     itemChange = mixin_method(Vertex, QtGui.QGraphicsEllipseItem, "itemChange")
-        
+
     def contextMenuEvent(self, event): #called on right click on the vertex.
         menu = QtGui.QMenu(event.widget())
         action= menu.addAction("Delete vertex")
@@ -81,7 +82,7 @@ class SimpleVertex(QtGui.QGraphicsEllipseItem, Vertex):
 
     def paint(self, painter, painterOptions, widget):
         QtGui.QGraphicsEllipseItem.paint(self, painter, painterOptions, widget)
-        
+
     def store_view_data(self, key, value, notify=True):
         self.vertex().get_ad_hoc_dict().set_metadata(key, value, notify)
 
@@ -93,7 +94,7 @@ class SimpleVertex(QtGui.QGraphicsEllipseItem, Vertex):
             self.vertex().get_ad_hoc_dict().simulate_full_data_change()
         else:
             self.vertex().exclusive_command(exclusive,
-                                            self.vertex().get_ad_hoc_dict().simulate_full_data_change)       
+                                            self.vertex().get_ad_hoc_dict().simulate_full_data_change)
 
 
 class SimpleEdge(QtGui.QGraphicsPathItem, Edge):
@@ -110,26 +111,26 @@ class SimpleEdge(QtGui.QGraphicsPathItem, Edge):
         self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.remove)
         menu.popup(event.screenPos())
         event.accept()
-        
+
     def remove(self):
         self.graph().remove_edge( self.srcBBox(), self.dstBBox() )
-        
+
     store_view_data = None
     get_view_data   = None
     announce_view_data = None
-        
+
     def announce_view_data_src(self, exclusive=False):
         if not exclusive:
             self.srcBBox().get_ad_hoc_dict().simulate_full_data_change()
         else:
-            self.srcBBox().exclusive_command(exclusive, 
+            self.srcBBox().exclusive_command(exclusive,
                                              self.srcBBox().get_ad_hoc_dict().simulate_full_data_change)
 
     def announce_view_data_dst(self, exclusive=False):
         if not exclusive:
             self.dstBBox().get_ad_hoc_dict().simulate_full_data_change()
         else:
-            self.dstBBox().exclusive_command(exclusive, 
+            self.dstBBox().exclusive_command(exclusive,
                                              self.dstBBox().get_ad_hoc_dict().simulate_full_data_change)
 
 
@@ -197,5 +198,5 @@ def GraphicalEdgeFactory(etype, *args, **kwargs):
 
 
 GraphListenerBase.register_strategy(SimpleStrategy)
-VertexModel.extend_ad_hoc_slots({"position"         :(list,[0,0]), 
+VertexModel.extend_ad_hoc_slots({"position"         :(list,[0,0]),
                                  "connectorPosition":(list,[0,0])})

@@ -19,13 +19,12 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 import weakref, types, gc, warnings
-from openalea.vpltk.qt import QtGui, QtCore
+from Qt import QtWidgets, QtGui, QtCore
 from openalea.vpltk.qt.compat import from_qvariant
 import base, baselisteners, qtutils
 import edgefactory
 
 from math import sqrt
-
 
 #------*************************************************------#
 class Element(baselisteners.GraphElementListenerBase):

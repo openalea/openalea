@@ -1,19 +1,32 @@
+# Version: $Id$
+#
+#
 
-from openalea.vpltk.qt import QtGui
+# Commentary:
+#
+#
+
+# Change Log:
+#
+#
+
+# Code:
+
+from Qt import QtGui, QtWidgets
+
 import openalea.oalab.service.qt_control as scontrol
+
 from openalea.core.service.interface import new_interface, interfaces, load_interfaces
 from openalea.core.control import Control
 from openalea.core.control.manager import ControlManager
-<<<<<<< HEAD
-=======
+
 from openalea.oalab.control.qcontainer import QControlContainer
 from openalea.oalab.control.model_view import ControlView, ControlModel
-
 
 class CheckSizes(Ui_Form, QtGui.QWidget):
 
     def __init__(self, control, edit_mode='edit'):
-        QtGui.QWidget.__init__(self)
+        QtWidgets.QWidget.__init__(self)
         self.setupUi(self)
 
         text = 'interface: %s, preferred widget: %s, edit mode: %s' % (control.interface, control.widget, edit_mode)
@@ -39,7 +52,7 @@ class CheckSizes(Ui_Form, QtGui.QWidget):
                 valid_widget_shape = shape
                 self._qtcontrols.append(widget)
             else:
-                layout.addWidget(QtGui.QLabel("X"))
+                layout.addWidget(QtWidgets.QLabel("X"))
 
         if valid_widget_shape:
             self._test_widget = m(self._control, shape=valid_widget_shape)
@@ -54,7 +67,7 @@ class CheckSizes(Ui_Form, QtGui.QWidget):
         self.l_large_box.addWidget(self._view, 1, 1, 2, 1)
 
     def contextMenuEvent(self, event):
-        menu = QtGui.QMenu(self)
+        menu = QtWidgets.QMenu(self)
         menu.addActions(self._qcontainer.actions())
         menu.exec_(event.pos())
 
@@ -101,9 +114,9 @@ if __name__ == '__main__':
                         w = plugin.load()
                         print '    \033[36m%s\033[0m\n        plugin: %s\n        widget: %s)' % (plugin.name, plugin, w)
     else:
-        instance = QtGui.QApplication.instance()
+        instance = QtWidgets.QApplication.instance()
         if instance is None:
-            app = QtGui.QApplication([])
+            app = QtWidgets.QApplication([])
         else:
             app = instance
 
@@ -115,3 +128,6 @@ if __name__ == '__main__':
 
         if instance is None:
             app.exec_()
+
+#
+# test_qt_control.py ends here

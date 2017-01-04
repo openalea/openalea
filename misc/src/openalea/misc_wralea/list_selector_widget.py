@@ -1,9 +1,22 @@
-################################################################################
-# Widgets
-import sys
-from openalea.visualea.node_widget import NodeWidget       
+# Version: $Id$
+#
+#
 
-from openalea.vpltk.qt import QtCore, QtGui
+# Commentary:
+#
+#
+
+# Change Log:
+#
+#
+
+# Code:
+
+import sys
+
+from Qt import QtCore, QtGui, QtWidgets
+
+from openalea.visualea.node_widget import NodeWidget
 
 class ListSelector(NodeWidget, QtGui.QDialog):
     """
@@ -11,28 +24,28 @@ class ListSelector(NodeWidget, QtGui.QDialog):
     """
     def __init__(self, node, parent):
 
-        QtGui.QDialog.__init__(self, parent)
+        QtWidgets.QDialog.__init__(self, parent)
         NodeWidget.__init__(self, node)
 
         #self.browser = QtGui.QTextBrowser()
-        
-        layout = QtGui.QVBoxLayout()
+
+        layout = QtWidgets.QVBoxLayout()
         #layout.addWidget(self.browser)
         self.setLayout(layout)
 
         self.in_list = []
         self.widgets = []
         self.notify(node, ("input_modified", 0))
-        
+
 
 
     def notify(self, sender, event):
-        # Notification sent by node 
+        # Notification sent by node
 
         if(event[0] != "input_modified"): return
 
         self.in_list = self.node.get_input(0)
-        self.node.out_indices = [True for i in self.in_list]       
+        self.node.out_indices = [True for i in self.in_list]
         self.create_buttons()
 
 
@@ -55,30 +68,22 @@ class ListSelector(NodeWidget, QtGui.QDialog):
         """ Remove old buttons and add new ones.
         """
         # Manage in the new func
-  
+
         layout = self.layout()
 
         for w in self.widgets:
             layout.removeWidget(w)
-        
+
         self.widgets = []
 
         for i, elt in enumerate(self.in_list):
             elt_name = str(elt)
-            button = QtGui.QCheckBox(elt_name)
+            button = QtWidgets.QCheckBox(elt_name)
             button.setChecked(True)
 
             self.connect(button, QtCore.SIGNAL("clicked()"), lambda index=i: self.reactToClick(index))
             layout.addWidget(button)
             self.widgets.append(button)
 
-
-            
-
-
-
-
-
-
-
-
+#
+# list_selector_widget.py ends here

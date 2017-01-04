@@ -107,7 +107,7 @@ def out_of_date(original, derived):
 
 
 
-from openalea.vpltk.qt import QtCore, QtGui
+from Qt import QtCore, QtGui, QtWidgets
 from openalea.visualea.dataflowview import GraphicalGraph
 # create the application only once!
 app = QtGui.QApplication.instance() or QtGui.QApplication([])
@@ -115,7 +115,7 @@ app = QtGui.QApplication.instance() or QtGui.QApplication([])
 pm = PackageManager(verbose=False)
 pm.init()
 class DataflowRenderer(QtCore.QObject):
-    def __init__(self, plot_path, package_name, node_name, 
+    def __init__(self, plot_path, package_name, node_name,
                  basename, tmpdir, destdir, options, parent=None):
         QtCore.QObject.__init__(self, parent)
 
@@ -127,12 +127,12 @@ class DataflowRenderer(QtCore.QObject):
         outname = 'dataflow_' + node_name
         outpath = os.path.join(tmpdir, outname)
 
-        self.filename = outpath 
+        self.filename = outpath
         self.width = float(options.get("width",400))
         self.scale = options.get("scale")
         self.scale = float(self.scale)/100. if self.scale is not None else None
-        
-        # -- we create the view whose content we will 
+
+        # -- we create the view whose content we will
         # render to file --
         #self.view  = GraphicalGraph.create_view(node, parent=self, noToolBar=True)
         self.scene = GraphicalGraph.__sceneType__._make_scene(GraphicalGraph, node, parent=self)
@@ -144,9 +144,9 @@ class DataflowRenderer(QtCore.QObject):
         rect    = self.scene.sceneRect()
         scale   = self.scale or rect.width()/self.width
 
-        transfo = QtGui.QTransform.fromScale(scale, scale) 
+        transfo = QtGui.QTransform.fromScale(scale, scale)
         rect    = transfo.mapRect(rect).toRect()
-        
+
         # -- our canvas filled with white --
         self.image = QtGui.QImage(rect.width(), rect.height(), QtGui.QImage.Format_RGB32)
         self.image.fill(0xFFFFFFFF)
@@ -217,7 +217,6 @@ def render_figures(plot_path, package_name, node_name, tmpdir, destdir, options)
     # We didn't find the files, so build them
 
     run_code(plot_path, package_name, node_name, basename, tmpdir, destdir, options)
-
 
     return 1
 
@@ -362,7 +361,7 @@ def setup(app):
     setup.config = app.config
     setup.confdir = app.confdir
 
-    options = {'alt': directives.unchanged,               
+    options = {'alt': directives.unchanged,
                'scale': directives.percentage,
                'width': directives.nonnegative_int,
                'align': align,

@@ -7,7 +7,7 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from openalea.vpltk.qt import QtCore, QtGui
+from Qt import QtCore, QtGui, QtWidgets
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
