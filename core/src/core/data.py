@@ -192,7 +192,7 @@ class DataNode(Node):
         """ Enable file monitoring """
         try:
             # TODO : Try to remove qt dependencie here
-            from openalea.vpltk.qt import QtCore
+            from Qt import QtCore
 
             self.watch = QtCore.QFileSystemWatcher()
             QtCore.QCoreApplication.instance().connect(

@@ -37,7 +37,6 @@ from openalea.core.factory import AbstractFactory
 def plugin_name(plugin):
     return plugin.name if hasattr(plugin, 'name') else plugin.__name__
 
-
 def discover(group, name=None):
     """
     Return all Plugin objects from group.

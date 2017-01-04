@@ -13,37 +13,34 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+
 """ a script to run alea dataflow and scripts"""
 
 __license__ = "Cecill-C"
 __revision__ = "$Id$"
 
 import sys
-from optparse import OptionParser
-#import threading
-from openalea.core.pkgmanager import PackageManager
 
+from optparse import OptionParser
+from openalea.core.pkgmanager import PackageManager
 
 def start_qt(factory, node):
     """ Start Qt, and open widget of factory, node
-
     :param factory: todo
     :param node: todo
-
     """
 
-    from openalea.vpltk.qt import QtGui, QtCore
+    from Qt import QtWidgets, QtGui, QtCore
 
-    app = QtGui.QApplication(sys.argv)
+    app = Qt.QApplication(sys.argv)
 
-    # CTRL+C binding
     import signal
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
     dialog = QtGui.QDialog()
-    widget = factory.instantiate_widget(node, autonomous=True)
-
     dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+
+    widget = factory.instantiate_widget(node, autonomous=True)
     widget.setParent(dialog)
 
     vboxlayout = QtGui.QVBoxLayout(dialog)
@@ -56,28 +53,23 @@ def start_qt(factory, node):
 
     app.exec_()
 
-
 def load_package_manager(*args):
     """ Return the package manager
-
     :param pkg_id:  package id
     :param node_id: node id
     :returns: package manager
-
     """
+
     pm = PackageManager()
     pm.init(verbose=False)
 
     return pm
 
-
 def get_node(component, inputs, pm=None):
     """ retrieve a node from its component name and inputs
-
     :param component: todo
     :param inputs: todo
     :param pm: package manager
-
     """
 
     pkg_id, node_id = component
@@ -108,19 +100,16 @@ def get_node(component, inputs, pm=None):
 
 def run_and_display(component, inputs, gui=False, pm=None):
     """ run component with inputs
-
     :param component: todo
     :param inputs: todo
     :param gui: todo
     :param pm: package manager
     :type gui: boolean (default is False)
     :type pm: package manager
-
     """
     factory, node = get_node(component, inputs, pm)
 
     if (not gui):
-
         try:
             node.eval()
             print _outputs(node)
@@ -128,14 +117,11 @@ def run_and_display(component, inputs, gui=False, pm=None):
             print "Error while executing component : ", error
             print "Try with -g flag"
         return
-
     else:
         start_qt(factory, node)
 
-
 def run(component, inputs, pm=None, vtx_id=-1):
     """ Run component with inputs. can exit by exception.
-
     If node_id is given, eval the dataflow from that node and return the result.
     """
 
@@ -148,7 +134,6 @@ def run(component, inputs, pm=None, vtx_id=-1):
         node.eval_as_expression(vtx_id)
         return _outputs(node.node(vtx_id))
 
-
 def query(component, pm=None):
     """ show help of component """
 
@@ -157,7 +142,6 @@ def query(component, pm=None):
     if (not pm):
         pm = load_package_manager()
 
-    # package not found
     if (not pkg_id or not pm.has_key(pkg_id)):
 
         print "Package '%s' not found." % (pkg_id)
@@ -177,7 +161,6 @@ def query(component, pm=None):
         print "Unknown node '%s'" % (node_id, )
         node_id = None
 
-    # query package
     print "\nPackage"
     print "-------"
     print "name : ", pkg.name
@@ -193,7 +176,6 @@ def query(component, pm=None):
         for k in keys:
             print "   ", pkg[k].get_id()
 
-    # query node
     else:
         factory = pkg[node_id]
         node = factory.instantiate()
@@ -218,11 +200,11 @@ def query(component, pm=None):
         for port in node.output_desc:
             print "  ", port.get_tip()
 
-
 def parse_component(name):
     """ Return (pkg_id, node_id) from name """
 
     tname = name.split('/')
+
     if(len(tname)<2):
         tname = name.split(':')
 
@@ -234,9 +216,9 @@ def parse_component(name):
         raise ValueError("Component name error :\
             cannot parse 'pkg_id:node_id'")
 
-
 def get_intput_callback(option, opt_str, value, parser):
     """todo"""
+
     assert value is None
 
     value = {}
@@ -244,23 +226,15 @@ def get_intput_callback(option, opt_str, value, parser):
     while rargs:
         arg = rargs[0]
 
-        # Stop if we hit an arg like "--foo", "-a", "-fx", "--file=f",
-        # etc.  Note that this also stops on "-3" or "-3.0", so if
-        # your option takes numeric values, you will need to handle
-        # this.
         if ((arg[:2] == "--" and len(arg) > 2) or
             (arg[:1] == "-" and len(arg) > 1 and arg[1] != "-")):
             break
-
         else:
             v = arg.split("=")
             if(len(v) != 2):
                 raise ValueError("Invalid input %s" % (str(arg)))
-
-
             value[v[0]] = v[1]
             del rargs[0]
-
 
     for k, v in value.iteritems():
         try:
@@ -273,9 +247,9 @@ def get_intput_callback(option, opt_str, value, parser):
 
 def function(factory):
     ''' Return a function which is evaluated like a python function.
-
     factory is a NodeFactory.
     '''
+
     node = factory.instantiate()
 
     def f(*args, **kwds):
@@ -287,10 +261,10 @@ def function(factory):
         node.eval()
 
         nb_output = node.get_nb_output()
-        return tuple(node.output(i) for i in range(nb_output))
-    
-    return f
 
+        return tuple(node.output(i) for i in range(nb_output))
+
+    return f
 
 def _outputs(node):
     #return node.outputs
@@ -299,33 +273,27 @@ def _outputs(node):
 def main():
     """ Parse options """
 
-        # options
     usage = """
 %prog [-r|-q] package_id[:node_id] [-i key1=val1 key2=val2 ...]
 or
 %prog [-r|-q] package_id[/node_id] [-i key1=val1 key2=val2 ...]
 """
-    parser = OptionParser(usage=usage)
 
+    parser = OptionParser(usage=usage)
     parser.add_option("-q", "--query", dest="query",
                        help="Show package/component help.",
                        action="store_true",
                        default=True)
-
     parser.add_option("-r", "--run", dest="run",
                        help="Run component.",
                        action="store_true",
                        default=False)
-
     parser.add_option("-g", "--gui",
                        help="Open graphical user interface",
                        action="store_true", default=False)
-
     parser.add_option("-l", "--local_data",
                        help="Data are local (ie in current directory)",
                        action="store_true", default=False)
-
-
     parser.add_option("-i", "--input",
                        action="callback", callback=get_intput_callback,
                        help="Specify inputs as KEY=VALUE, KEY=VALUE...",
@@ -343,7 +311,6 @@ or
 
     component = parse_component(args[0])
 
-    # Execute
     if(options.local_data):
         import openalea.core.data
         openalea.core.data.PackageData.__local__ = True
@@ -353,12 +320,8 @@ or
     else:
         query(component, )
 
-
 if __name__ == "__main__":
     main()
 
-
 # this example need to be fixed
-#python alea.py -r -g "adel.macro:6 plot_scene"
-#-i leafdb="'$OPENALEAPKG/adel/adel/data/leaves1.db'"
-# lsystem="'$OPENALEAPKG/adel/adel/lsystem/Adel.l'"
+# python alea.py -r -g "adel.macro:6 plot_scene" -i leafdb="'$OPENALEAPKG/adel/adel/data/leaves1.db'" lsystem="'$OPENALEAPKG/adel/adel/lsystem/Adel.l'"

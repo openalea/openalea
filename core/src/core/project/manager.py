@@ -363,14 +363,13 @@ You can rename/move this project thanks to the button "Save As" in menu.
             world = World()
             world.update_namespace(interpreter)
 
-
 def main():
     import sys
-    from openalea.vpltk.qt import QtGui
+
+    from Qt import QtWidgets, QtGui
     from openalea.core.service.ipython import interpreter
     from openalea.oalab.shell import ShellWidget
 
-    # Create Window with IPython shell
     app = QtGui.QApplication(sys.argv)
     interp = interpreter()
     shellwdgt = ShellWidget(interp)
@@ -378,15 +377,12 @@ def main():
     mainWindow.setCentralWidget(shellwdgt)
     mainWindow.show()
 
-    # Create Project Manager
-    pm = ProjectManager()
-
-    # Create or load project
     name = "project_test"
+
+    pm = ProjectManager()
     pm.load(name)
 
     app.exec_()
-
 
 if (__name__ == "__main__"):
     main()

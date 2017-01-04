@@ -107,7 +107,7 @@ def list_plugins(lst, verbose=False):
     from openalea.core.plugin import iter_groups
 
     if lst in ['summary', 'all']:
-        prefixes = ['openalea', 'oalab', 'vpltk']
+        prefixes = ['openalea', 'oalab']
     else:
         prefixes = [lst]
     for group in sorted(iter_groups()):

@@ -28,7 +28,7 @@ import signal
 from platform import platform as get_platform
 from platform import dist as get_dist
 
-from openalea.vpltk.qt import QtGui, QtCore
+from Qt import QtWidgets, QtGui, QtCore
 
 import ui_mainwindow
 
@@ -198,7 +198,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
             dist_list = self.pi._distmap[project_name]
             dist_list = dist_list[:]
             # linux cleanup
-            
+
             if 'Linux' in get_platform() and mode != 'INSTALLED':
                 dist_list = select_linux(dist_list)
             dist_list.sort(cmp = (lambda x,y : cmp(parse_version(y.version), parse_version(x.version))))
@@ -458,7 +458,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         if not ok :
             password = None
             return
-        
+
         add_private_gforge_repositories(login, password)
         self.refresh()
 
@@ -677,7 +677,7 @@ def select_linux(dist_list):
     Keep only linux-i686 that have the fedora or ubuntu tag, e.g. fedora_10
     fedora_11, Ubuntu_9.10 ...
 
-    if fedora >= 11, we do not want the vplants_linux that will download the 
+    if fedora >= 11, we do not want the vplants_linux that will download the
     best match for linux, that the highest version (i.e., x.y.z.linux_ubuntu)
 
     for other platform, we will take the default one that is ubuntu
@@ -704,7 +704,7 @@ def select_linux(dist_list):
             # hack for fedora (if vplants-0.8.0-linux present, it will look for
             # highest vesrion, which are ubuntu...
             if distribution_name=='fedora' and distribution_version>=11 and dist.project_name.lower() =='vplants':
-                pass 
+                pass
             else:
                 new_list.append(dist)
         # if pre-compiled files, we only want those with a linux tag
@@ -713,7 +713,7 @@ def select_linux(dist_list):
             if 'linux-i686' in dist.egg_name():
                 # if the name of the egg corresponds to the local platform
                 # then we keep this egg
-                # Note the condition on 'fc' to be backward compatible 
+                # Note the condition on 'fc' to be backward compatible
                 # with release 0.7
                 try:
                     # check that current platform is found
@@ -723,7 +723,7 @@ def select_linux(dist_list):
                                 new_list.append(dist)
                     else:
                         new_list.append(dist)
-                        
+
                 except:
                     pass
         elif dist.platform is None: # if non pre-compiled files, we keep them
@@ -784,4 +784,3 @@ def main(args=None):
 
 if __name__ == "__main__":
     main(sys.argv)
-
