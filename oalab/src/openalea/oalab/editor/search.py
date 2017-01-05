@@ -15,13 +15,14 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+
 __revision__ = ""
 
-from openalea.vpltk.qt import QtCore, QtGui
+from Qt import QtCore, QtGui, QtWidgets
+
 from openalea.core import logger
 
-
-class SearchWidget(QtGui.QWidget):
+class SearchWidget(QtWidgets.QWidget):
 
     def __init__(self, parent=None, session=None):
         super(SearchWidget, self).__init__(parent)
@@ -32,17 +33,17 @@ class SearchWidget(QtGui.QWidget):
         self.setMinimumSize(100, 100)
         self.setWindowTitle("Search")
 
-        self.actionSearch = QtGui.QAction("Search Next", self)
-        self.actionBackSearch = QtGui.QAction("Search Previous", self)
-        self.actionReplace = QtGui.QAction("Replace All", self)
-        self.lineEdit = QtGui.QLineEdit()
-        self.lineEditReplace = QtGui.QLineEdit()
-        self.textSearch = QtGui.QLabel("Search :")
-        self.textReplaceBy = QtGui.QLabel("Replace by :")
+        self.actionSearch = QtWidgets.QAction("Search Next", self)
+        self.actionBackSearch = QtWidgets.QAction("Search Previous", self)
+        self.actionReplace = QtWidgets.QAction("Replace All", self)
+        self.lineEdit = QtWidgets.QLineEdit()
+        self.lineEditReplace = QtWidgets.QLineEdit()
+        self.textSearch = QtWidgets.QLabel("Search :")
+        self.textReplaceBy = QtWidgets.QLabel("Replace by :")
 
-        self.btnNext = QtGui.QToolButton()
-        self.btnPrev = QtGui.QToolButton()
-        self.btnReplace = QtGui.QToolButton()
+        self.btnNext = QtWidgets.QToolButton()
+        self.btnPrev = QtWidgets.QToolButton()
+        self.btnReplace = QtWidgets.QToolButton()
         self.btnReplace.setMinimumSize(100, 40)
         self.btnNext.setMinimumSize(100, 40)
         self.btnPrev.setMinimumSize(100, 40)
@@ -50,15 +51,15 @@ class SearchWidget(QtGui.QWidget):
         self.btnPrev.setDefaultAction(self.actionBackSearch)
         self.btnNext.setDefaultAction(self.actionSearch)
 
-        self.caseBtn = QtGui.QCheckBox("Match Case")
-        self.wholeBtn = QtGui.QCheckBox("Whole Word (Disabled if case sensitive)")
+        self.caseBtn = QtWidgets.QCheckBox("Match Case")
+        self.wholeBtn = QtWidgets.QCheckBox("Whole Word (Disabled if case sensitive)")
 
         QtCore.QObject.connect(self.actionBackSearch, QtCore.SIGNAL('triggered(bool)'), self.searchBack)
         QtCore.QObject.connect(self.actionSearch, QtCore.SIGNAL('triggered(bool)'), self.search)
         QtCore.QObject.connect(self.actionReplace, QtCore.SIGNAL('triggered(bool)'), self.replaceall)
         QtCore.QObject.connect(self.lineEdit, QtCore.SIGNAL('returnPressed()'), self.search)
 
-        layout = QtGui.QGridLayout()
+        layout = QtWidgets.QGridLayout()
         layout.setAlignment(QtCore.Qt.AlignLeft)
 
         layout.addWidget(self.textSearch, 0, 0)

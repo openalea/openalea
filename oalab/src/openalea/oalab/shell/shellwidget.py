@@ -130,10 +130,11 @@ class ShellWidget(RichIPythonWidget, GraphicalStreamRedirection):
 
 
 def main():
-    from openalea.vpltk.qt import QtGui
+    from Qt import QtWidgets
+
     import sys
 
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
 
     from openalea.core.service.ipython import interpreter
     interpreter = interpreter()
@@ -143,12 +144,11 @@ def main():
     shellwdgt = ShellWidget(interpreter)
     interpreter.user_ns['shell'] = shellwdgt
 
-    mainWindow = QtGui.QMainWindow()
+    mainWindow = QtWidgets.QMainWindow()
     mainWindow.setCentralWidget(shellwdgt)
     mainWindow.show()
 
     app.exec_()
-
 
 if(__name__ == "__main__"):
     main()

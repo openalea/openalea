@@ -15,6 +15,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+
 __revision__ = "$Id: "
 
 from time import gmtime, strftime
@@ -23,11 +24,12 @@ from openalea.core import settings
 from openalea.core.path import path
 from openalea.core.project import Project
 from openalea.core.service.project import create_project
+
 from openalea.oalab.service.qt_control import widget
-from openalea.vpltk.qt import QtGui, QtCore
 
+from Qt import QtWidgets, QtGui, QtCore
 
-class CreateProjectWidget(QtGui.QWidget):
+class CreateProjectWidget(QtWidgets.QWidget):
 
     """
     Object which permit to create projects.
@@ -36,10 +38,10 @@ class CreateProjectWidget(QtGui.QWidget):
     def __init__(self, proj=None, parent=None):
         super(CreateProjectWidget, self).__init__(parent)
 
-        self.widget_metadata = QtGui.QWidget()
-        self.widget_path = QtGui.QWidget()
+        self.widget_metadata = QtWidgets.QWidget()
+        self.widget_path = QtWidgets.QWidget()
 
-        layout_path = QtGui.QFormLayout(self.widget_path)
+        layout_path = QtWidgets.QFormLayout(self.widget_path)
 
         # Name and path
         if proj is None:
@@ -53,19 +55,19 @@ class CreateProjectWidget(QtGui.QWidget):
         self.editor_name = widget('IStr', name)
         self.editor_projectdir = widget('IDirStr', projectdir)
 
-        layout_path.addRow(QtGui.QLabel('Name'), self.editor_name)
-        layout_path.addRow(QtGui.QLabel('Project Directory'), self.editor_projectdir)
+        layout_path.addRow(QtWidgets.QLabel('Name'), self.editor_name)
+        layout_path.addRow(QtWidgets.QLabel('Project Directory'), self.editor_projectdir)
         layout_path.setLabelAlignment(QtCore.Qt.AlignLeft)
 
         # Metadata
         self._metadata = {}
-        layout_metadata = QtGui.QFormLayout(self.widget_metadata)
+        layout_metadata = QtWidgets.QFormLayout(self.widget_metadata)
         layout_metadata.setLabelAlignment(QtCore.Qt.AlignLeft)
 
         for cat, metadata in Project.DEFAULT_METADATA.iteritems():
-            label = QtGui.QLabel(metadata.name.capitalize().replace('_', ' '))
+            label = QtWidgets.QLabel(metadata.name.capitalize().replace('_', ' '))
             editor = widget(metadata.interface, metadata.value)
-            editor.setSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Preferred)
+            editor.setSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Preferred)
             self._metadata[cat] = editor
             layout_metadata.addRow(label, editor)
 
@@ -76,8 +78,8 @@ class CreateProjectWidget(QtGui.QWidget):
         else:
             title = "New Project"
 
-        layout = QtGui.QVBoxLayout(self)
-        layout.addWidget(QtGui.QLabel(title))
+        layout = QtWidgets.QVBoxLayout(self)
+        layout.addWidget(QtWidgets.QLabel(title))
         layout.addWidget(self.widget_path)
         layout.addWidget(self.widget_metadata)
 
@@ -94,11 +96,10 @@ class CreateProjectWidget(QtGui.QWidget):
             metadata[key] = editor.value()
         return metadata
 
-
 def main():
     import sys
 
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
 #     pm = ProjectManager()
 #     pm.discover()
 #     proj = pm.load('Koch')
@@ -110,7 +111,6 @@ def main():
     print project
     for k, v in project.metadata.iteritems():
         print '    - %s: %s' % (k, v)
-
 
 if __name__ == "__main__":
     main()

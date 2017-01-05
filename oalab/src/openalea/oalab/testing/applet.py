@@ -1,14 +1,26 @@
+# Version: $Id$
+#
+#
+
+# Commentary:
+#
+#
+
+# Change Log:
+#
+#
+
+# Code:
+
+from Qt import QtCore, QtGui, QtWidgets
 
 from openalea.oalab.widget.splittablewindow import OALabMainWin
-from openalea.vpltk.qt import QtCore, QtGui
+
 from openalea.core.service.ipython import interpreter
-from openalea.core.service.plugin import (plugin_instance_exists, plugin_instance,
-                                          plugin_instances, plugins, debug_plugins)
+from openalea.core.service.plugin import (plugin_instance_exists, plugin_instance, plugin_instances, plugins, debug_plugins)
 from openalea.core.util import camel_case_to_lower
 
-
 class TestMainWin(OALabMainWin):
-
     def __init__(self, layout=None, **kwds):
         """
         tests: list of function runnable in shell (name changed to run_<funcname>)
@@ -22,6 +34,7 @@ class TestMainWin(OALabMainWin):
         self.interp.user_ns['debug'] = self.debug
         self.interp.user_ns['QtCore'] = QtCore
         self.interp.user_ns['QtGui'] = QtGui
+        self.interp.user_ns['QtWidgets'] = QtWidgets
 
         def applet(name):
             return plugin_instance('oalab.applet', name)
@@ -39,6 +52,7 @@ class TestMainWin(OALabMainWin):
         print '  - splittable'
         print '  - QtCore'
         print '  - QtGui'
+        print '  - QtWidgets'
 
         print '\nAPPLETS:'
         for plugin in plugins('oalab.applet'):
@@ -59,9 +73,7 @@ class TestMainWin(OALabMainWin):
     def debug(self):
         debug_plugins(True)
 
-
 class TestApplet(TestMainWin):
-
     def __init__(self, applet, **kwds):
         layout = dict(children={0: [1, 2]},
                       parents={0: None, 1: 0, 2: 0},
@@ -77,9 +89,7 @@ class TestApplet(TestMainWin):
 
         self.initialize()
 
-
 class TestTwoApplets(TestMainWin):
-
     def __init__(self, applet1, applet2, **kwds):
         layout = {
             "children": {
@@ -114,9 +124,7 @@ class TestTwoApplets(TestMainWin):
 
         self.initialize()
 
-
 class TestNApplets(TestMainWin):
-
     def __init__(self, applets, **kwds):
         applets = [{'name': applet} for applet in applets]
         layout = dict(children={0: [1, 2]},
@@ -133,12 +141,11 @@ class TestNApplets(TestMainWin):
 
         self.initialize()
 
-
 def test_applet(*args, **kwds):
-    instance = QtGui.QApplication.instance()
+    instance = QtWidgets.QApplication.instance()
 
     if instance is None:
-        app = QtGui.QApplication([])
+        app = QtWidgets.QApplication([])
     else:
         app = instance
 
@@ -152,3 +159,6 @@ def test_applet(*args, **kwds):
 
     if instance is None:
         return app.exec_()
+
+#
+# applet.py ends here

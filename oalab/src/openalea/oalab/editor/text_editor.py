@@ -15,26 +15,29 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+
 __revision__ = ""
 
-from openalea.vpltk.qt import QtCore, QtGui
+from Qt import QtCore, QtGui, QtWidgets
+
 from openalea.core.path import path
+from openalea.core import logger
+from openalea.core import settings
+
 from openalea.oalab.editor.search import SearchWidget
 from openalea.oalab.editor.completion import DictionaryCompleter
 from openalea.oalab.editor.line_number import Margin
 from openalea.oalab.editor.goto import GoToWidget
-from openalea.core import logger
-from openalea.core import settings
 
 has_flake8 = False
+
 try:
     from flake8 import run
     has_flake8 = True
 except ImportError:
     logger.warning("You should install **flake8** (using: pip install flake8)")
 
-
-class RichTextEditor(QtGui.QWidget):
+class RichTextEditor(QtWidgets.QWidget):
     textChanged = QtCore.Signal()
 
     def __init__(self, parent=None):
@@ -49,7 +52,7 @@ class RichTextEditor(QtGui.QWidget):
         self.goto_widget = GoToWidget(parent=self.editor)
         self.search_widget = SearchWidget(parent=self.editor)
 
-        self.layout = QtGui.QVBoxLayout()
+        self.layout = QtWidgets.QVBoxLayout()
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.addWidget(self.editor)
         self.layout.addWidget(self.search_widget)
@@ -135,11 +138,11 @@ def fix_indentation(text, n=4):
     return text.replace('\t', ' ' * n)
 
 
-class TextEditor(QtGui.QTextEdit):
+class TextEditor(QtWidgets.QTextEdit):
 
     def __init__(self, parent=None):
         super(TextEditor, self).__init__(parent)
-        self.setLineWrapMode(QtGui.QTextEdit.NoWrap)
+        self.setLineWrapMode(QtWidgets.QTextEdit.NoWrap)
         self.indentation = "    "
         self.completer = None
         self.name = None
@@ -517,7 +520,7 @@ class TextEditor(QtGui.QTextEdit):
             return
 
         completer.setWidget(self)
-        completer.setCompletionMode(QtGui.QCompleter.PopupCompletion)
+        completer.setCompletionMode(QtWidgets.QCompleter.PopupCompletion)
         completer.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
         self.completer = completer
         QtCore.QObject.connect(self.completer, QtCore.SIGNAL("activated(const QString&)"), self.insertCompletion)
@@ -574,17 +577,17 @@ def main():
     from openalea.oalab.shell import get_shell_class
     from openalea.core.service.ipython import interpreter
     from openalea.oalab.editor.highlight import Highlighter
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
 
     edit = TextEditor()
     Highlighter(edit)
     interp = interpreter()
     shell = get_shell_class()(interp)
 
-    win = QtGui.QMainWindow()
+    win = QtWidgets.QMainWindow()
     win.setCentralWidget(edit)
 
-    dock_widget = QtGui.QDockWidget("IPython", win)
+    dock_widget = QtWidgets.QDockWidget("IPython", win)
     interp.locals['mainwindow'] = win
     interp.locals['editor'] = edit
     interp.locals['shell'] = shell

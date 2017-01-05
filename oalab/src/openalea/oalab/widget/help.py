@@ -15,11 +15,14 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+
 __revision__ = ""
 
-from openalea.vpltk.qt import QtGui, QtCore
+from Qt import QtWidgets, QtGui, QtCore
+
 import resources_rc  # do not remove this import else icon are not drawn
 import webbrowser
+
 from openalea.oalab.widget.preferences import PreferenceWidget
 from openalea.oalab.utils import ModalDialog
 from openalea.oalab.service.help import register_helper
@@ -55,7 +58,7 @@ Then go into "oalab_examples" repository and select a project.
 """
 
 
-class HelpWidget(QtGui.QTextBrowser):
+class HelpWidget(QtWidgets.QTextBrowser):
 
     """
     Widget which permit to display informations/help.
@@ -66,11 +69,11 @@ class HelpWidget(QtGui.QTextBrowser):
         super(HelpWidget, self).__init__(parent=parent)
         self.setAccessibleName("HelpWidget")
 
-        actionHelpOpenAlea = QtGui.QAction(
+        actionHelpOpenAlea = QtWidgets.QAction(
             QtGui.QIcon(":/images/resources/openalealogo.png"), "OpenAlea WebSite", self)
-        actionHelpGForge = QtGui.QAction(QtGui.QIcon(":/images/resources/git.png"), "Submit Issues", self)
-        actionHelpTasks = QtGui.QAction(QtGui.QIcon(":/images/resources/gforge.png"), "See Tasks", self)
-        actionEditPref = QtGui.QAction(QtGui.QIcon(":/images/resources/node.png"), "Preferences", self)
+        actionHelpGForge = QtWidgets.QAction(QtGui.QIcon(":/images/resources/git.png"), "Submit Issues", self)
+        actionHelpTasks = QtWidgets.QAction(QtGui.QIcon(":/images/resources/gforge.png"), "See Tasks", self)
+        actionEditPref = QtWidgets.QAction(QtGui.QIcon(":/images/resources/node.png"), "Preferences", self)
 
         self.connect(actionHelpOpenAlea, QtCore.SIGNAL('triggered(bool)'), self.openWebsiteOpenalea)
         self.connect(actionHelpGForge, QtCore.SIGNAL('triggered(bool)'), self.openOALabIssues)
@@ -91,7 +94,7 @@ class HelpWidget(QtGui.QTextBrowser):
         return self.actions()
 
     def menus(self):
-        menu = QtGui.QMenu('Help', self)
+        menu = QtWidgets.QMenu('Help', self)
         actions = [action[2] for action in self.actions()]
         menu.addActions(actions)
         return [menu]

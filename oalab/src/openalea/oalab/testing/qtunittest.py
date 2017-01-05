@@ -19,9 +19,8 @@
 ###############################################################################
 
 import unittest
-from openalea.vpltk.qt import QtGui, QtCore
-from PyQt4 import QtTest
 
+from Qt import QtWidgets, QtGui, QtCore, QtTest
 
 class QtTestCase(unittest.TestCase):
     PAUSE_FACTOR = 1000
@@ -30,9 +29,9 @@ class QtTestCase(unittest.TestCase):
     def init(self):
         self._pause = False
         self._duration = 0
-        self.instance = QtGui.QApplication.instance()
+        self.instance = QtWidgets.QApplication.instance()
         if self.instance is None:
-            self.app = QtGui.QApplication([])
+            self.app = QtWidgets.QApplication([])
         else:
             self.app = self.instance
 

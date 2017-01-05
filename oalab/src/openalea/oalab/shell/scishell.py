@@ -2,7 +2,7 @@
 #
 #       OpenAlea.Visualea: OpenAlea graphical user interface
 #
-#       Copyright 2006-2009 - 2008 INRIA - CIRAD - INRA  
+#       Copyright 2006-2009 - 2008 INRIA - CIRAD - INRA
 #
 #       File author(s): Samuel Dufour-Kowalski <samuel.dufour@sophia.inria.fr>
 #                       Christophe Pradal <christophe.prada@cirad.fr>
@@ -10,23 +10,25 @@
 #       Distributed under the CeCILL v2 License.
 #       See accompanying file LICENSE.txt or copy at
 #           http://www.cecill.info/licences/Licence_CeCILL_V2-en.html
-# 
+#
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ################################################################################
-"""This module implements a QT4 python interpreter widget."""
+
+"""This module implements a QT5 python interpreter widget."""
 
 __license__ = "CeCILL V2"
 __revision__ = " $Id: scishell.py 3672 2012-12-05 12:28:19Z jcoste $"
 
 import os, sys
-from openalea.vpltk.qt import QtCore, QtGui
-#from openalea.vpltk.qt.QtCore import Qt
+
+from Qt import QtCore, QtGui, QtWidgets
+
 Qt = QtCore.Qt
 
 from PyQt4.Qsci import QsciScintilla, QsciLexerPython, QsciAPIs
-from streamredirection import *
 
+from streamredirection import *
 
 class SciShell(QsciScintilla,GraphicalStreamRedirection):
     """
@@ -34,14 +36,14 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
     It is inspired by PyCute (pycute.py) : http://gerard.vermeulen.free.fr (GPL)
     and Eric4 shell (shell.py) : http://www.die-offenbachs.de/eric/index.html (GPL)
     """
-    
+
     def __init__(self, interpreter, message="", log='', parent=None):
         """Constructor.
         @param interpreter : InteractiveInterpreter in which
         the code will be executed
 
         @param message : welcome message string
-        
+
         @param  'parent' : specifies the parent widget.
         If no parent widget has been specified, it is possible to
         exit the interpreter by Ctrl-D.
@@ -49,9 +51,9 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
 
         QsciScintilla.__init__(self, parent)
         GraphicalStreamRedirection.__init__(self)
-        
+
         self.interpreter = interpreter
-        
+
         # user interface setup
         self.setAutoIndent(True)
         self.setAutoCompletionThreshold(4)
@@ -64,13 +66,13 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
         self.incrementalSearchActive = False
         self.inRawMode = False
         self.echoInput = True
-            
+
         # Initialize history
         self.historyLists = {}
         self.maxHistoryEntries = 30
         self.history = []
         self.histidx = -1
-        
+
         self.reading = 0
         # interpreter prompt.
         try:
@@ -132,7 +134,7 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
         """ Return the interpreter object """
 
         return self.interpreter
-        
+
 
     def flush(self):
         """
@@ -146,7 +148,7 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
         Simulate stdin, stdout, and stderr.
         """
         return 1
-    
+
 
     def readline(self):
         """
@@ -157,7 +159,7 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
         self.setCursorPosition(line, col)
 
         buf = ""
-        
+
         if len(buf) == 0:
             return '\n'
         else:
@@ -181,46 +183,42 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
         self.ensureCursorVisible()
         self.ensureLineVisible(line)
 
-        
     ###########################################
 
     def __getEndPos(self):
         """
         Private method to return the line and column of the last character.
-        
+
         @return tuple of two values (int, int) giving the line and column
         """
         line = self.lines() - 1
         return (line, self.lineLength(line))
 
-    
     def paste(self):
         """
         Reimplemented slot to handle the paste action.
         """
 
-        lines = unicode(QtGui.QApplication.clipboard().text())
+        lines = unicode(QtWidgets.QApplication.clipboard().text())
         self.__executeLines(lines)
-        
-        
+
     def __middleMouseButton(self):
         """
         Private method to handle the middle mouse button press.
         """
-        lines = unicode(QtGui.QApplication.clipboard().text(
+        lines = unicode(QtWidgets.QApplication.clipboard().text(
             QtGui.QClipboard.Selection))
         self.__executeLines(lines)
 
-        
     def __executeLines(self, lines):
         """
         Private method to execute a set of lines as multiple commands.
-        
+
         :param lines: multiple lines of text to be executed as single
             commands (string)
 
         """
-        
+
         for line in lines.splitlines(True):
             if line.endswith("\r\n"):
                 fullline = True
@@ -230,16 +228,15 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
                 cmd = line[:-1]
             else:
                 fullline = False
-            
+
             self.__insertTextAtEnd(line)
             if fullline:
                 self.__executeCommand(cmd)
 
-                
     def __executeCommand(self, cmd):
         """
         Private slot to execute a command.
-        
+
         @param cmd command to be executed by debug client (string)
         """
 
@@ -264,8 +261,8 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
         else:
             self.write(sys.ps1)
             self.execlines = []
-        
-    
+
+
     def __insertText(self, s):
         """
         Insert text at the current cursor position.
@@ -288,7 +285,7 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
         self.setCursorPosition(self.prline, self.prcol)
 
 
-        
+
     def __isCursorOnLastLine(self):
         """
         Private method to check, if the cursor is on the last line.
@@ -304,7 +301,7 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
     def mousePressEvent(self, event):
         """
         Protected method to handle the mouse press event.
-        
+
         @param event the mouse press event (QMouseEvent)
         """
         self.setFocus()
@@ -317,12 +314,12 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
     def keyPressEvent(self, ev):
         """
         Re-implemented to handle the user input a key at a time.
-        
+
         @param ev key event (QKeyEvent)
         """
         txt = ev.text()
         key = ev.key()
-        
+
         ctrl = ev.modifiers() & Qt.ControlModifier
         shift = ev.modifiers() & Qt.ShiftModifier
         # See it is text to insert.
@@ -336,9 +333,9 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
 
             QsciScintilla.keyPressEvent(self, ev)
             self.incrementalSearchActive = True
-            
+
             if(txt == '.'):
-                self.__showDynCompletion()        
+                self.__showDynCompletion()
 
         elif(ctrl or shift):
             QsciScintilla.keyPressEvent(self, ev)
@@ -346,7 +343,6 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
 
         else:
             ev.ignore()
-
 
     def __QScintillaTab(self):
         """
@@ -359,8 +355,7 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
             buf = unicode(self.text(line)).replace(sys.ps1, "").replace(sys.ps2, "")
             if self.more and not buf[:index-len(sys.ps2)].strip():
                 self.SendScintilla(QsciScintilla.SCI_TAB)
-             
-        
+
     def __QScintillaDeleteBack(self):
         """
         Private method to handle the Backspace key.
@@ -369,11 +364,11 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
             line, col = self.getCursorPosition()
             ac = self.isListActive()
             oldLength = len(self.text(line))
-            
+
             if self.text(line).startswith(sys.ps1):
                 if col > len(sys.ps1):
                     self.SendScintilla(QsciScintilla.SCI_DELETEBACK)
-                    
+
             elif self.text(line).startswith(sys.ps2):
                 if col > len(sys.ps2):
                     self.SendScintilla(QsciScintilla.SCI_DELETEBACK)
@@ -381,7 +376,6 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
             elif col > 0:
                 self.SendScintilla(QsciScintilla.SCI_DELETEBACK)
 
-        
     def __QScintillaDelete(self):
         """
         Private method to handle the delete command.
@@ -396,16 +390,14 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
                 elif self.text(lineFrom).startswith(sys.ps2):
                     if indexFrom >= len(sys.ps2):
                         self.SendScintilla(QsciScintilla.SCI_CLEAR)
-                        
+
                 elif indexFrom >= 0:
                     self.SendScintilla(QsciScintilla.SCI_CLEAR)
-                    
+
                 self.setSelection(lineTo, indexTo, lineTo, indexTo)
             else:
                 self.SendScintilla(QsciScintilla.SCI_CLEAR)
 
-        
-        
     def __QScintillaNewline(self):
         """
         Private method to handle the Return key.
@@ -415,7 +407,7 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
                 self.SendScintilla(QsciScintilla.SCI_NEWLINE)
             elif self.reading:
                 self.reading = 0
-       
+
             else:
                 self.incrementalSearchString = ""
                 self.incrementalSearchActive = False
@@ -430,34 +422,31 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
             s= self.selectedText()
             self.__insertTextAtEnd(s)
 
-        
     def __QScintillaCharLeft(self, allLinesAllowed = False):
         """
         Private method to handle the Cursor Left command.
         """
-        
+
         if self.__isCursorOnLastLine() or allLinesAllowed:
             line, col = self.getCursorPosition()
             if self.text(line).startswith(sys.ps1):
                 if col > len(sys.ps1):
                     self.SendScintilla(QsciScintilla.SCI_CHARLEFT)
-                    
+
             elif self.text(line).startswith(sys.ps2):
                 if col > len(sys.ps2):
-                    
+
                     self.SendScintilla(QsciScintilla.SCI_CHARLEFT)
             elif col > 0:
-                
+
                 self.SendScintilla(QsciScintilla.SCI_CHARLEFT)
 
-        
     def __QScintillaCharRight(self):
         """
         Private method to handle the Cursor Right command.
         """
         if self.__isCursorOnLastLine():
             self.SendScintilla(QsciScintilla.SCI_CHARRIGHT)
-
 
     def __QScintillaVCHome(self):
         """
@@ -475,7 +464,6 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
                 col = 0
             self.setCursorPosition(line, col)
 
-        
     def __QScintillaLineEnd(self):
         """
         Private method to handle the End key.
@@ -485,7 +473,6 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
         elif self.__isCursorOnLastLine():
             self.SendScintilla(QsciScintilla.SCI_LINEEND)
 
-        
     def __QScintillaLineUp(self):
         """
         Private method to handle the Up key.
@@ -497,7 +484,7 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
             buf = unicode(self.text(line)).replace(sys.ps1, "").replace(sys.ps2, "")
             if buf and self.incrementalSearchActive:
                 if self.incrementalSearchString:
-                    idx = self.__rsearchHistory(self.incrementalSearchString, 
+                    idx = self.__rsearchHistory(self.incrementalSearchString,
                                                 self.histidx)
                     if idx >= 0:
                         self.histidx = idx
@@ -515,7 +502,6 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
                     self.histidx = self.histidx - 1
                     self.__useHistory()
 
-        
     def __QScintillaLineDown(self):
         """
         Private method to handle the Down key.
@@ -541,7 +527,6 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
                 if self.histidx >= 0 and self.histidx < len(self.history):
                     self.histidx += 1
                     self.__useHistory()
-  
 
     def __useHistory(self):
         """
@@ -560,14 +545,13 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
         self.removeSelectedText()
         self.__insertText(cmd)
 
-        
     def __searchHistory(self, txt, startIdx = -1):
         """
         Private method used to search the history.
-        
+
         @param txt text to match at the beginning (string)
         @param startIdx index to start search from (integer)
-        @return index of 
+        @return index of
         """
         if startIdx == -1:
             idx = 0
@@ -577,15 +561,14 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
               not self.history[idx].startswith(txt):
             idx += 1
         return idx
-    
-        
+
     def __rsearchHistory(self, txt, startIdx = -1):
         """
         Private method used to reverse search the history.
-        
+
         @param txt text to match at the beginning (string)
         @param startIdx index to start search from (integer)
-        @return index of 
+        @return index of
         """
         if startIdx == -1:
             idx = len(self.history) - 1
@@ -596,22 +579,20 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
             idx -= 1
         return idx
 
-
     def focusNextPrevChild(self, next):
         """
         Reimplemented to stop Tab moving to the next window.
-        
+
         While the user is entering a multi-line command, the movement to
         the next window by the Tab key being pressed is suppressed.
-        
+
         @param next next window
         @return flag indicating the movement
         """
         if next and self.more:
             return False
-    
-        return QsciScintilla.focusNextPrevChild(self,next)
 
+        return QsciScintilla.focusNextPrevChild(self,next)
 
     def __get_current_line(self):
         """ Return the current line """
@@ -622,7 +603,6 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
         text = buf.split()[-1][:-1]
         return text
 
-
     def __showHelp(self, text):
 
         #text = self.__get_current_line()
@@ -630,22 +610,20 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
         #self.__QScintillaNewline()
         #self.__insertTextAtEnd(text)
 
-        
     def __showDynCompletion(self):
         """
         Display a completion list based on the last token
         """
 
         text = self.__get_current_line()
-        
+
         try:
             locals = self.interpreter.locals
             obj = eval(text, globals(), self.interpreter.locals)
             l = dir(obj)
             #l = filter(lambda x : not x.startswith('__'), l)
-            self.__showCompletions(l, text) 
+            self.__showCompletions(l, text)
         except : pass
-        
 
     def __showCompletions(self, completions, text):
         """
@@ -653,7 +631,7 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
         """
         if len(completions) == 0:
             return
-        
+
         if len(completions) > 1:
             completions.sort()
             comps = list()
@@ -668,11 +646,10 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
             self.__insertText(txt)
             #self.completionText = ""
 
-        
     def __completionListSelected(self, id, txt):
         """
         Private slot to handle the selection from the completion list.
-        
+
         @param id the ID of the user list (should be 1) (integer)
         @param txt the selected text (str)
         """
@@ -690,11 +667,8 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
             self.__insertText(txt)
             #self.completionText = ""
 
-
-    # Drag and Drop support
     def dragEnterEvent(self, event):
         event.setAccepted(event.mimeData().hasFormat("text/plain"))
-
 
     def dragMoveEvent(self, event):
         if (event.mimeData().hasFormat("text/plain")):
@@ -703,14 +677,13 @@ class SciShell(QsciScintilla,GraphicalStreamRedirection):
         else:
             event.ignore()
 
-            
     def dropEvent(self, event):
 
         if(event.mimeData().hasFormat("text/plain")):
             line = event.mimeData().text()
             self.__insertTextAtEnd(line)
             self.setFocus()
-            
+
             event.setDropAction(QtCore.Qt.MoveAction)
             event.accept()
 

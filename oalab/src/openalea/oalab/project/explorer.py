@@ -16,18 +16,17 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-from openalea.vpltk.qt import QtGui, QtCore
-from openalea.vpltk.qt.compat import getexistingdirectory
 
+from Qt import QtWidgets
+
+from openalea.vpltk.qt.compat import getexistingdirectory
 
 from openalea.core.path import path as Path
 from openalea.core.settings import get_default_home_dir
-from openalea.core.service.project import (projects, add_project_directory,
-                                           write_project_settings)
+from openalea.core.service.project import (projects, add_project_directory, write_project_settings)
 
 from openalea.oalab.manager.explorer import ManagerExplorer
 from openalea.oalab.project.preview import Preview, DEFAULT_PROJECT_ICON
-
 
 class ProjectExplorer(ManagerExplorer):
 
@@ -78,15 +77,13 @@ class ProjectExplorer(ManagerExplorer):
             self._switcher.set_widget(Preview, item)
         self._current = item
 
-
 def main():
     import sys
 
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     selector = ProjectExplorer()
     selector.show()
     app.exec_()
-
 
 if __name__ == "__main__":
     main()

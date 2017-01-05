@@ -15,17 +15,17 @@
 #
 ################################################################################
 
-
 import sys
-from openalea.vpltk import qt
 
-RedirectionEventId = qt.QtCore.QEvent.User + 100
+from Qt import QtCore, QtWidgets
+
+RedirectionEventId = QtCore.QEvent.User + 100
+
 sys_stderr = None
 sys_stdout = None
 sys_stdin = None
 
 py2exe_release = False
-
 
 class MultipleRedirection(object):
 
@@ -45,7 +45,6 @@ class MultipleRedirection(object):
     def flush(self):
         pass
 
-
 class NoneOutput(object):
 
     """ Dummy file which redirects stream to nothing """
@@ -58,7 +57,6 @@ class NoneOutput(object):
         """ Emulate write function """
         pass
 
-
 class ThreadedRedirection(object):
 
     """ Dummy file which redirects stream to threaded gui output """
@@ -69,17 +67,16 @@ class ThreadedRedirection(object):
 
     def write(self, str):
         """ Emulate write function """
-        if self.guistream.thread() != qt.QtCore.QThread.currentThread():
-            e = qt.QtCore.QEvent(qt.QtCore.QEvent.Type(RedirectionEventId))
+        if self.guistream.thread() != QtCore.QThread.currentThread():
+            e = QtCore.QEvent(QtCore.QEvent.Type(RedirectionEventId))
             e.txt = str
-            qt.QtGui.QApplication.postEvent(self.guistream, e)
+            QtWidgets.QApplication.postEvent(self.guistream, e)
             pass
         else:
             self.guistream.write(str)
 
     def flush(self):
         pass
-
 
 class GraphicalStreamRedirection(object):
 

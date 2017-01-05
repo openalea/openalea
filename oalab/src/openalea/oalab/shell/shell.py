@@ -14,15 +14,18 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ################################################################################
+
 """This module implements a QT4 python interpreter widget."""
 
 __license__ = "CeCILL V2"
 __revision__ = " $Id: shell.py 3672 2012-12-05 12:28:19Z jcoste $"
 
 import sys
+
 from streamredirection import GraphicalStreamRedirection
 
-from openalea.vpltk.qt import QtGui, QtCore
+from Qt import QtWidgets, QtGui, QtCore
+
 from openalea.vpltk.check.ipython import has_ipython
 from openalea.vpltk.check.ipython_deps import has_full_deps
 
@@ -45,7 +48,7 @@ def get_shell_class():
         except ImportError:
             return PyCutExt
 
-class PyCutExt(QtGui.QTextEdit, GraphicalStreamRedirection):
+class PyCutExt(QtWidgets.QTextEdit, GraphicalStreamRedirection):
 
     """
     PyCute is a Python shell for PyQt.
@@ -72,7 +75,7 @@ class PyCutExt(QtGui.QTextEdit, GraphicalStreamRedirection):
         exit the interpreter by Ctrl-D.
         """
 
-        QtGui.QTextEdit.__init__(self, parent)
+        QtWidgets.QTextEdit.__init__(self, parent)
         GraphicalStreamRedirection.__init__(self)
 
         self.interpreter = interpreter
@@ -86,7 +89,6 @@ class PyCutExt(QtGui.QTextEdit, GraphicalStreamRedirection):
             self.eofKey = QtCore.Qt.Key_D
         else:
             self.eofKey = None
-
 
         # last line + last incomplete lines
         self.line = str()
@@ -104,7 +106,7 @@ class PyCutExt(QtGui.QTextEdit, GraphicalStreamRedirection):
 
         # user interface setup
         # self.setTextFormat(QtCore.Qt.PlainText)
-        self.setLineWrapMode(QtGui.QTextEdit.NoWrap)
+        self.setLineWrapMode(QtWidgets.QTextEdit.NoWrap)
         # self.setCaption('Python Shell')
 
 #         # font
@@ -145,12 +147,10 @@ class PyCutExt(QtGui.QTextEdit, GraphicalStreamRedirection):
                    'See http://www.riverbankcomputing.co.uk/qscintilla.\n\n')
         self.write(sys.ps1)
 
-
     def get_interpreter(self):
         """ Return the interpreter object """
 
         return self.interpreter
-
 
     def moveCursor(self, operation, mode=QtGui.QTextCursor.MoveAnchor):
         """
@@ -161,13 +161,11 @@ class PyCutExt(QtGui.QTextEdit, GraphicalStreamRedirection):
         cursor.movePosition(operation, mode)
         self.setTextCursor(cursor)
 
-
     def flush(self):
         """
         Simulate stdin, stdout, and stderr.
         """
         pass
-
 
     def isatty(self):
         """
@@ -175,11 +173,8 @@ class PyCutExt(QtGui.QTextEdit, GraphicalStreamRedirection):
         """
         return 1
 
-
     def clear(self):
         """ Clear """
-
-
 
     def readline(self):
         """
@@ -195,13 +190,12 @@ class PyCutExt(QtGui.QTextEdit, GraphicalStreamRedirection):
         else:
             return str(self.line)
 
-
     def write(self, text):
         """
         Simulate stdin, stdout, and stderr.
         """
         # The output of self.append(text) contains to many newline characters,
-        # so work around QtGui.QTextEdit's policy for handling newline characters.
+        # so work around QtWidgets.QTextEdit's policy for handling newline characters.
 
         cursor = self.textCursor()
 
@@ -220,13 +214,11 @@ class PyCutExt(QtGui.QTextEdit, GraphicalStreamRedirection):
         format.setForeground(QtGui.QBrush(QtGui.QColor(0, 0, 0)))
         cursor.setCharFormat(format)
 
-
     def writelines(self, text):
         """
         Simulate stdin, stdout, and stderr.
         """
         map(self.write, text)
-
 
     def fakeUser(self, lines):
         """
@@ -237,7 +229,6 @@ class PyCutExt(QtGui.QTextEdit, GraphicalStreamRedirection):
             self.write(self.line)
             self.write('\n')
             self.__run()
-
 
     def __run(self):
         """
@@ -264,14 +255,12 @@ class PyCutExt(QtGui.QTextEdit, GraphicalStreamRedirection):
             self.lines = []
         self.__clearLine()
 
-
     def __clearLine(self):
         """
         Clear input line buffer
         """
         # self.line.truncate(0)    ## bug
         self.point = 0
-
 
     def __insertText(self, text):
         """
@@ -284,7 +273,6 @@ class PyCutExt(QtGui.QTextEdit, GraphicalStreamRedirection):
         cursor = self.textCursor()
         cursor.insertText(text)
         self.color_line()
-
 
     def keyPressEvent(self, e):
         """
@@ -361,7 +349,6 @@ class PyCutExt(QtGui.QTextEdit, GraphicalStreamRedirection):
         else:
             e.ignore()
 
-
     def __recall(self):
         """
         Display the current item from the command history.
@@ -375,10 +362,8 @@ class PyCutExt(QtGui.QTextEdit, GraphicalStreamRedirection):
         else:
             self.write(sys.ps1)
 
-
         self.__clearLine()
         self.__insertText(self.history[self.pointer])
-
 
 #     def focusNextPrevChild(self, next):
 #         """
@@ -386,7 +371,7 @@ class PyCutExt(QtGui.QTextEdit, GraphicalStreamRedirection):
 #         """
 #         if next and self.more:
 #             return 0
-#         return QtGui.QTextEdit.focusNextPrevChild(self, next)
+#         return QtWidgets.QTextEdit.focusNextPrevChild(self, next)
 
     def mousePressEvent(self, e):
         """
@@ -395,13 +380,11 @@ class PyCutExt(QtGui.QTextEdit, GraphicalStreamRedirection):
         if e.button() == QtCore.Qt.LeftButton:
             self.moveCursor(QtGui.QTextCursor.End)
 
-
     def contentsContextMenuEvent(self, ev):
         """
         Suppress the right button context menu.
         """
         pass
-
 
     def color_line(self):
         """ Color the current line """
@@ -429,8 +412,6 @@ class PyCutExt(QtGui.QTextEdit, GraphicalStreamRedirection):
             format.setForeground(QtGui.QBrush(QtGui.QColor(R, G, B)))
             cursor.setCharFormat(format)
 
-
-        # Drag and Drop support
     def dragEnterEvent(self, event):
         event.setAccepted(event.mimeData().hasFormat("text/plain"))
 
@@ -441,7 +422,6 @@ class PyCutExt(QtGui.QTextEdit, GraphicalStreamRedirection):
             event.accept()
         else:
             event.ignore()
-
 
     def dropEvent(self, event):
 
@@ -459,11 +439,7 @@ class PyCutExt(QtGui.QTextEdit, GraphicalStreamRedirection):
 
     def customEvent(self, event):
         GraphicalStreamRedirection.customEvent(self, event)
-        QtGui.QTextEdit.customEvent(self, event)
-
-
-
-
+        QtWidgets.QTextEdit.customEvent(self, event)
 
 class SyntaxColor:
     """ Allow to color python keywords """
@@ -507,7 +483,7 @@ class SyntaxColor:
 
 def main():
     # Test the widget independently.
-    a = QtGui.QApplication(sys.argv)
+    a = QtWidgets.QApplication(sys.argv)
 
     # Restore default signal handler for CTRL+C
     import signal; signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -527,6 +503,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-

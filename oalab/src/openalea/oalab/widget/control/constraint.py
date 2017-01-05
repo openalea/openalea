@@ -1,22 +1,36 @@
+# Version: $Id$
+#
+#
+
+# Commentary:
+#
+#
+
+# Change Log:
+#
+#
+
+# Code:
+
 # -*- coding: utf-8 -*-
 
-from openalea.vpltk.qt import QtGui    
+from Qt import QtWidgets
 
-class IntConstraintWidget(QtGui.QWidget):
+class IntConstraintWidget(QtWidgets.QWidget):
     def __init__(self):
-        QtGui.QWidget.__init__(self)
-        layout = QtGui.QFormLayout(self)
+        QtWidgets.QWidget.__init__(self)
+        layout = QtWidgets.QFormLayout(self)
 
-        self.e_min = QtGui.QLineEdit('0')
-        self.e_max = QtGui.QLineEdit('100')
+        self.e_min = QtWidgets.QLineEdit('0')
+        self.e_max = QtWidgets.QLineEdit('100')
         text = 'Can be an int (for instance -5) or empty (no limits)'
         self.e_min.setToolTip(text)
         self.e_min.setWhatsThis(text)
         self.e_max.setToolTip(text)
         self.e_max.setWhatsThis(text)
 
-        layout.addRow(QtGui.QLabel('Minimum'), self.e_min)
-        layout.addRow(QtGui.QLabel('Maximum'), self.e_max)
+        layout.addRow(QtWidgets.QLabel('Minimum'), self.e_min)
+        layout.addRow(QtWidgets.QLabel('Maximum'), self.e_max)
 
     def constraints(self):
         dic = {}
@@ -33,14 +47,14 @@ class IntConstraintWidget(QtGui.QWidget):
         return dic
 
 
-class FloatConstraintWidget(QtGui.QWidget):
+class FloatConstraintWidget(QtWidgets.QWidget):
     def __init__(self):
-        QtGui.QWidget.__init__(self)
-        layout = QtGui.QFormLayout(self)
+        QtWidgets.QWidget.__init__(self)
+        layout = QtWidgets.QFormLayout(self)
 
-        self.e_min = QtGui.QLineEdit('0.0')
-        self.e_max = QtGui.QLineEdit('1.0')
-        self.e_step = QtGui.QLineEdit('0.01')
+        self.e_min = QtWidgets.QLineEdit('0.0')
+        self.e_max = QtWidgets.QLineEdit('1.0')
+        self.e_step = QtWidgets.QLineEdit('0.01')
         text = 'Can be a float (for instance -0.5) or empty (no limits)'
         self.e_min.setToolTip(text)
         self.e_min.setWhatsThis(text)
@@ -50,9 +64,9 @@ class FloatConstraintWidget(QtGui.QWidget):
         self.e_step.setToolTip(text)
         self.e_step.setWhatsThis(text)
 
-        layout.addRow(QtGui.QLabel('Minimum'), self.e_min)
-        layout.addRow(QtGui.QLabel('Maximum'), self.e_max)
-        layout.addRow(QtGui.QLabel('Step'), self.e_step)
+        layout.addRow(QtWidgets.QLabel('Minimum'), self.e_min)
+        layout.addRow(QtWidgets.QLabel('Maximum'), self.e_max)
+        layout.addRow(QtWidgets.QLabel('Step'), self.e_step)
 
     def constraints(self):
         dic = {}
@@ -64,10 +78,12 @@ class FloatConstraintWidget(QtGui.QWidget):
             dic['max'] = float(self.e_max.text())
         except ValueError:
             pass
-        try: 
+        try:
             dic['max'] = float(self.e_step.text())
             if dic['max']<0:
                 dic['max'] = 0.01
         except ValueError:
             pass
         return dic
+#
+# constraint.py ends here

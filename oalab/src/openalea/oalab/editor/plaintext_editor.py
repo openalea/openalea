@@ -1,9 +1,22 @@
+# Version: $Id$
+#
+#
 
+# Commentary:
+#
+#
 
-from openalea.vpltk.qt import QtGui
+# Change Log:
+#
+#
+
+# Code:
+
+from Qt import QtGui, QtWidgets
+
 from openalea.oalab.editor.text_editor import RichTextEditor
 
-class PlainTextEdit(QtGui.QPlainTextEdit):
+class PlainTextEdit(QtWidgets.QPlainTextEdit):
     def setText(self, txt):
         self.setPlainText(txt)
 
@@ -33,9 +46,9 @@ class PlainTextEdit(QtGui.QPlainTextEdit):
             txt = ""
         return unicode(txt).replace(u'\u2029', u'\n') # replace paragraph separators by new lines
 
-
 class PlainTextEditor(RichTextEditor):
     def _default_editor(self, *args, **kwargs):
         return PlainTextEdit(*args, **kwargs)
 
-
+#
+# plaintext_editor.py ends here

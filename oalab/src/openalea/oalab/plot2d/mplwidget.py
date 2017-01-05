@@ -1,17 +1,33 @@
+# Version: $Id$
+#
+#
+
+# Commentary:
+#
+#
+
+# Change Log:
+#
+#
+
+# Code:
+
 from __future__ import absolute_import
 
 import os
+
 import numpy as np
 
-from openalea.vpltk.qt import QtGui, QtCore
+from Qt import QtWidgets, QtGui, QtCore
 
 import matplotlib as mpl
+
 from matplotlib.figure import Figure
+
 from matplotlib.backend_bases import FigureManagerBase as FigureManagerBase
 from matplotlib.backends.backend_qt4agg import FigureManagerQT as mpl_FigureManagerQT
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg as NavigationToolbar
-
 
 def new_figure_manager_given_figure(num, figure):
     """
@@ -20,9 +36,7 @@ def new_figure_manager_given_figure(num, figure):
     """
     return FigureManagerQTwithTab(num)
 
-
-class AbstractMplWidget(QtGui.QWidget):
-
+class AbstractMplWidget(QtWidgets.QWidget):
     """
     Abstract class for widget using matplotlib
 
@@ -30,11 +44,12 @@ class AbstractMplWidget(QtGui.QWidget):
     attribute (instanciating it if necessary). Such a subclass can:
      - Have its own `_singleton` attribute, set to None by default
      - Override the class method `create_singleton` that takes no argument which
-       return the singleton instance. 
+       return the singleton instance.
        Otherwise the default method calls the class constructor with no argument
 
     It also duck type the QMainWindow interface used by matplotlib
     """
+
     _singleton = None
 
     @classmethod
@@ -53,12 +68,12 @@ class AbstractMplWidget(QtGui.QWidget):
         """ return (grand)parent window, creating it if necessary """
         w = self        # top widget which is not a main window
         p = w.parent()  # its parent, which should be a main window
-        while p is not None and not isinstance(p, QtGui.QMainWindow):
+        while p is not None and not isinstance(p, QtWidgets.QMainWindow):
             w = p
             p = w.parent()
 
         if p is None:
-            p = QtGui.QMainWindow()
+            p = QtWidgets.QMainWindow()
             p.setCentralWidget(w)
             self._window = p  # needs to keep a ref or else it'll be deleted
 
@@ -73,13 +88,13 @@ class AbstractMplWidget(QtGui.QWidget):
         return self.get_window().statusBar()
 
 
-class MplTabWidget(QtGui.QTabWidget, AbstractMplWidget):
+class MplTabWidget(QtWidgets.QTabWidget, AbstractMplWidget):
 
     """ Singleton class that implement mpl figure in a tab widget """
     _singleton = None                           # has its own singleton
 
     def __init__(self, parent=None):
-        QtGui.QTabWidget.__init__(self, parent=parent)
+        QtWidgets.QTabWidget.__init__(self, parent=parent)
 
         self.setTabsClosable(True)
         self.tabCloseRequested.connect(self.tabCloseEvent)
@@ -174,7 +189,7 @@ class MplTabWidget(QtGui.QTabWidget, AbstractMplWidget):
     def get_plugin_actions(self):
         """ return actions list for OAlab """
         def add_some_action(name, fct, key):
-            action = QtGui.QAction(name, self)
+            action = QtWidgets.QAction(name, self)
             action.triggered.connect(fct)
             self.addAction(action)
 
@@ -209,17 +224,17 @@ class MplTabWidget(QtGui.QTabWidget, AbstractMplWidget):
         plt.close()
 
 
-class CanvasWidget(QtGui.QWidget):
+class CanvasWidget(QtWidgets.QWidget):
 
     """ Widget that contains a mpl canvas """
 
     def __init__(self, parent=None):
-        QtGui.QWidget.__init__(self, parent=parent)
+        QtWidgets.QWidget.__init__(self, parent=parent)
 
         self.figure = Figure()
         self.canvas = FigureCanvas(self.figure)
 
-        self.setLayout(QtGui.QVBoxLayout())
+        self.setLayout(QtWidgets.QVBoxLayout())
         layout = self.layout()
         layout.setSpacing(0)
         layout.setMargin(0)
@@ -237,7 +252,7 @@ class FigureManagerQTwithTab(mpl_FigureManagerQT):
 
     def __init__(self, num):
         """ overwrite the FigureManageAt.__init__ """
-        #focused = QtGui.QApplication.focusWidget()
+        #focused = QtWidgets.QApplication.focusWidget()
         self.window = MplTabWidget.get_singleton()
         self.canvas, self.widget = self.window.add_tab_canvas(num, self._widgetclosed)
         FigureManagerBase.__init__(self, self.canvas, num)
@@ -301,3 +316,6 @@ class FigureManagerQTwithTab(mpl_FigureManagerQT):
     # def _widgetclosed( self ):
     # print 'FigureManagerQTwithTab._widgetclosed'
     # mpl_FigureManagerQT._widgetclosed(self)
+
+#
+# mplwidget.py ends here

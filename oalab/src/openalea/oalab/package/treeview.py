@@ -15,16 +15,19 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+
 __revision__ = ""
 
-from openalea.vpltk.qt import QtGui
+from Qt import QtGui
+
 from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.package import Package
-from openalea.visualea.node_treeview import NodeFactoryTreeView
-from openalea.visualea.node_treeview import SearchListView
-from openalea.oalab.service.applet import get_applet
 from openalea.core.service.model import ModelFactory
 
+from openalea.visualea.node_treeview import NodeFactoryTreeView
+from openalea.visualea.node_treeview import SearchListView
+
+from openalea.oalab.service.applet import get_applet
 
 class OALabTreeView(NodeFactoryTreeView):
     def __init__(self, parent=None):
@@ -49,7 +52,7 @@ class OALabTreeView(NodeFactoryTreeView):
 class OALabSearchView(SearchListView):
 
     def __init__(self, parent=None):
-        main_win = QtGui.QWidget()
+        main_win = QtWidgets.QWidget()
         super(OALabSearchView, self).__init__(main_win)
 
     def mouseDoubleClickEvent(self, event):

@@ -20,9 +20,10 @@
 #
 ###############################################################################
 
-from openalea.vpltk.qt import QtGui, QtCore
+from Qt import QtWidgets, QtGui, QtCore
 
 import matplotlib
+
 from matplotlib import pyplot
 
 from matplotlib.backends import backend_qt4agg
@@ -85,12 +86,12 @@ class FigureManagerQT(FigureManagerBase):
         print 'pylab.plot'
 
 
-class MplFigureWidget(QtGui.QFrame):
+class MplFigureWidget(QtWidgets.QFrame):
 
     count = 0
 
     def __init__(self):
-        QtGui.QFrame.__init__(self)
+        QtWidgets.QFrame.__init__(self)
 
         c = self.palette().color(self.backgroundRole())
         self._default_color = str((c.red(), c.green(), c.blue()))
@@ -106,11 +107,11 @@ class MplFigureWidget(QtGui.QFrame):
 
         self.setToolTip("Figure %d" % self.manager.num)
 
-        self.setFrameShape(QtGui.QFrame.Box)
-        self.setFrameShadow(QtGui.QFrame.Plain)
+        self.setFrameShape(QtWidgets.QFrame.Box)
+        self.setFrameShadow(QtWidgets.QFrame.Plain)
         self.setContentsMargins(1, 1, 1, 1)
 
-        self._layout = QtGui.QVBoxLayout(self)
+        self._layout = QtWidgets.QVBoxLayout(self)
         self._layout.addWidget(self.canvas)
         self._layout.setContentsMargins(1, 1, 1, 1)
 
@@ -121,12 +122,12 @@ class MplFigureWidget(QtGui.QFrame):
         return [['', '', action, 0] for action in self.mpl_toolbar.actions()]
 
     def show_active(self):
-        self.setFrameShape(QtGui.QFrame.Box)
+        self.setFrameShape(QtWidgets.QFrame.Box)
         self.setStyleSheet("background-color: rgb(0, 150, 0);")
 
     def show_inactive(self):
         self.setStyleSheet("")
-        self.setFrameShape(QtGui.QFrame.NoFrame)
+        self.setFrameShape(QtWidgets.QFrame.NoFrame)
 
     def hold(self, state=True):
         for axe in self.canvas.figure.axes:

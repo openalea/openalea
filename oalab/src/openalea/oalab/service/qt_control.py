@@ -1,8 +1,24 @@
+# Version: $Id$
+#
+#
+
+# Commentary:
+#
+#
+
+# Change Log:
+#
+#
+
+# Code:
+
+from Qt import QtWidgets, QtGui
+
 from openalea.core.control import Control
 from openalea.core.control.manager import ControlContainer
 from openalea.core.service.interface import interface_name
 from openalea.core.service.plugin import plugins
-from openalea.vpltk.qt import QtGui
+
 from openalea.oalab.utils import ModalDialog
 
 import weakref
@@ -10,15 +26,13 @@ import weakref
 """
 **preferred**: specify explicitly the name of the Qt control widget you want to use
 
-**shape**: if None, tries to return a widget. 
-If shape is a string, returns widget corresponding to this shape. 
+**shape**: if None, tries to return a widget.
+If shape is a string, returns widget corresponding to this shape.
 If it's a list, search widget for first shape. If no widgets found, search for second shape and so on.
 """
 
-
 def discover_qt_controls():
     return plugins('oalab.plugin', criteria=dict(implement='IWidgetSelector'))
-
 
 def qt_editor_class(iname, shape=None, preferred=None):
     iname = interface_name(iname)
@@ -79,7 +93,7 @@ def qt_dialog(control=None, **kwds):
     widget = qt_editor(control, **kwds)
     widget.autoapply(control, autoapply)
     dialog = ModalDialog(widget)
-    if dialog.exec_() == QtGui.QDialog.Accepted:
+    if dialog.exec_() == QtWidgets.QDialog.Accepted:
         return widget.value()
     else:
         return None
@@ -95,7 +109,7 @@ def qt_editor(control, shape=None, preferred=None, **kwds):
 
     if widget_class:
         widget = None
-        if issubclass(widget_class, QtGui.QWidget):
+        if issubclass(widget_class, QtWidgets.QWidget):
             widget = widget_class()
         else:
             widget = widget_class.edit(control, shape)
@@ -106,8 +120,8 @@ def qt_editor(control, shape=None, preferred=None, **kwds):
 
 
 def qt_container(container, **kwargs):
-    widget = QtGui.QWidget()
-    layout = QtGui.QFormLayout(widget)
+    widget = QtWidgets.QWidget()
+    layout = QtWidgets.QFormLayout(widget)
     widget.editor = {}
     widget.control = {}
     for control in container.controls():
@@ -143,16 +157,14 @@ def qt_painter(control, shape=None, preferred=None):
 
 def edit(control):
     import sys
-    if 'PyQt4.QtGui' in sys.modules or 'PySide.QtGui' in sys.modules:
-        from openalea.vpltk.qt import QtGui
-        if QtGui.QApplication.instance():
+    if 'PyQt5.QtWidgets' in sys.modules or 'PySide.QtWidgets' in sys.modules:
+        if QtWidgets.QApplication.instance():
             if isinstance(control, Control):
                 return qt_editor(control)
             elif isinstance(control, ControlContainer):
                 return qt_container(control)
     else:
         raise NotImplementedError, 'Only Qt editors are supported'
-
 
 def qt_widget_plugins(iname=None):
     """
@@ -172,3 +184,6 @@ def qt_widget_plugins(iname=None):
             return widget_plugins[iname]
         except KeyError:
             return []
+
+#
+# qt_control.py ends here

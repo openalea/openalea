@@ -15,30 +15,34 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-from openalea.vpltk.qt import QtGui, QtCore
+
+from Qt import QtWidgets, QtGui, QtCore
+
 from openalea.core import settings
 from openalea.core.path import path as Path
 from openalea.core.service.plugin import plugin_instance_exists, plugin_instance
 from openalea.core.service.data import DataFactory
+
 from openalea.oalab.utils import qicon
+
 import sys
 
+class GenericFileBrowser(QtWidgets.QWidget):
 
-class GenericFileBrowser(QtGui.QWidget):
     pathSelected = QtCore.Signal(object)
 
     def __init__(self):
         super(GenericFileBrowser, self).__init__()
-        self.model = QtGui.QFileSystemModel()
-        self.tree = QtGui.QTreeView()
+        self.model = QtWidgets.QFileSystemModel()
+        self.tree = QtWidgets.QTreeView()
         self.tree.setModel(self.model)
-        self.tree.header().setResizeMode(QtGui.QHeaderView.ResizeToContents)
+        self.tree.header().setResizeMode(QtWidgets.QHeaderView.ResizeToContents)
         self._home_dir = settings.get_default_home_dir()
         self._cwd = Path(".").abspath()
         self.model.setRootPath(self._home_dir)
         self.tree.setRootIndex(self.model.index(self._home_dir))
 
-        layout = QtGui.QGridLayout(self)
+        layout = QtWidgets.QGridLayout(self)
         layout.addWidget(self.tree)
 
         self._create_actions()
@@ -48,7 +52,7 @@ class GenericFileBrowser(QtGui.QWidget):
         self.tree.doubleClicked.connect(self._on_index_clicked)
 
     def _create_actions(self):
-        self._action_go_to_parent = QtGui.QAction(qicon('oxygen_go-up.png'), 'Parent dir', self)
+        self._action_go_to_parent = QtWidgets.QAction(qicon('oxygen_go-up.png'), 'Parent dir', self)
         self._action_go_to_parent.triggered.connect(self.go_to_parent)
 
     def toolbar_actions(self):
@@ -76,7 +80,6 @@ class GenericFileBrowser(QtGui.QWidget):
     def properties(self):
         columns = [i for i in range(self.model.columnCount()) if not self.tree.isColumnHidden(i)]
         return dict(columns=columns)
-
 
 class FileBrowser(GenericFileBrowser):
 
@@ -107,14 +110,12 @@ class FileBrowser(GenericFileBrowser):
         # a factory parameter. In this case, you do not need to create this method but you need to add a connection in
         # lab.
 
-
 def main():
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
 
     wid = FileBrowser()
     wid.show()
     app.exec_()
-
 
 if __name__ == "__main__":
     main()

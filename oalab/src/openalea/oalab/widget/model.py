@@ -14,28 +14,30 @@
 #
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
-from openalea.vpltk.qt import QtGui, QtCore
+
+from Qt import QtWidgets, QtGui, QtCore
+
 import sys
 
+class InputsModel(QtWidgets.QWidget):
 
-class InputsModel(QtGui.QWidget):
     def __init__(self, world={}, parent=None):
         super(InputsModel, self).__init__(parent=parent)
         self.world = world
 
-        layout = QtGui.QGridLayout(self)
+        layout = QtWidgets.QGridLayout(self)
 
-        self.label = QtGui.QLabel("Inputs: ")
+        self.label = QtWidgets.QLabel("Inputs: ")
 
-        self.combo_input = QtGui.QComboBox(self)
+        self.combo_input = QtWidgets.QComboBox(self)
         self.combo_input.addItems(world.keys())
 
-        self.add_button = QtGui.QPushButton("Add Input")
+        self.add_button = QtWidgets.QPushButton("Add Input")
         self.add_button.clicked.connect(self.add_input)
-        self.rm_button = QtGui.QPushButton("Remove Input")
+        self.rm_button = QtWidgets.QPushButton("Remove Input")
         self.rm_button.clicked.connect(self.rm_input)
 
-        self.ok_button = QtGui.QPushButton("Ok")
+        self.ok_button = QtWidgets.QPushButton("Ok")
         self.ok_button.clicked.connect(self.print_current)
 
         layout.addWidget(self.label, 0, 0)
@@ -59,23 +61,23 @@ class InputsModel(QtGui.QWidget):
     def print_current(self):
         print self.get_current()
 
+class OutputsModel(QtWidgets.QWidget):
 
-class OutputsModel(QtGui.QWidget):
     def __init__(self, parent=None):
         super(OutputsModel, self).__init__(parent=parent)
 
-        layout = QtGui.QGridLayout(self)
+        layout = QtWidgets.QGridLayout(self)
 
-        self.label = QtGui.QLabel("Outputs: ")
+        self.label = QtWidgets.QLabel("Outputs: ")
 
-        self.line_output = QtGui.QLineEdit(self)
+        self.line_output = QtWidgets.QLineEdit(self)
 
-        self.add_button = QtGui.QPushButton("Add Output")
+        self.add_button = QtWidgets.QPushButton("Add Output")
         self.add_button.clicked.connect(self.add_input)
-        self.rm_button = QtGui.QPushButton("Remove Output")
+        self.rm_button = QtWidgets.QPushButton("Remove Output")
         self.rm_button.clicked.connect(self.rm_input)
 
-        self.ok_button = QtGui.QPushButton("Ok")
+        self.ok_button = QtWidgets.QPushButton("Ok")
         self.ok_button.clicked.connect(self.print_current)
 
         layout.addWidget(self.label, 0, 0)
@@ -99,19 +101,19 @@ class OutputsModel(QtGui.QWidget):
     def print_current(self):
         print self.get_current()
 
+class InAndOutModel(QtWidgets.QWidget):
 
-class InAndOutModel(QtGui.QWidget):
     def __init__(self, world={}, parent=None):
         super(InAndOutModel, self).__init__(parent=parent)
         self.world = world
 
-        layout = QtGui.QGridLayout(self)
+        layout = QtWidgets.QGridLayout(self)
         self.inp = InputsModel(self.world)
         self.outp = OutputsModel()
         layout.addWidget(self.inp)
         layout.addWidget(self.outp)
 
-        self.ok_button = QtGui.QPushButton("Ok")
+        self.ok_button = QtWidgets.QPushButton("Ok")
         self.ok_button.clicked.connect(self.print_current)
 
         layout.addWidget(self.ok_button)
@@ -127,9 +129,8 @@ class InAndOutModel(QtGui.QWidget):
         print "inputs: ", inp
         print "outputs: ", outp
 
-
 def main():
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
 
     a = dict()
     a[""] = None
@@ -141,7 +142,6 @@ def main():
     wid = InAndOutModel(a)
     wid.show()
     app.exec_()
-
 
 if __name__ == "__main__":
     main()

@@ -16,10 +16,10 @@
 #
 ###############################################################################
 
+from Qt import QtWidgets, QtGui, QtCore
+
 from openalea.oalab.utils import obj_icon, ModalDialog
 from openalea.oalab.widget.pages import WelcomePage
-from openalea.vpltk.qt import QtGui, QtCore
-
 
 class ManagerItemSelector(WelcomePage):
     item_selected = QtCore.Signal(object)
@@ -37,7 +37,7 @@ class ManagerItemSelector(WelcomePage):
         items = sorted(self.manager.items(group), key=lambda item: item.label)
         self._sorted_actions = []
         for item in items:
-            action = QtGui.QAction(obj_icon(item), item.label, self)
+            action = QtWidgets.QAction(obj_icon(item), item.label, self)
             action.triggered.connect(self._on_action_triggered)
             self._actions[action] = item
             self._sorted_actions.append(action)
@@ -67,7 +67,7 @@ def select_manager_item(manager, group, parent=None, **kwargs):
     selector.setAttribute(QtCore.Qt.WA_DeleteOnClose)
     if size:
         selector.resize(*size)
-    dialog = ModalDialog(selector, parent=parent, buttons=QtGui.QDialogButtonBox.Cancel)
+    dialog = ModalDialog(selector, parent=parent, buttons=QtWidgets.QDialogButtonBox.Cancel)
     dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
     dialog.setWindowTitle(title)
     selector.item_selected.connect(dialog.accept)
@@ -82,13 +82,13 @@ def select_manager_item(manager, group, parent=None, **kwargs):
 
 if __name__ == '__main__':
     import sys
-    from openalea.vpltk.qt import QtGui
+    from Qt import QtWidgets, QtGui
     from openalea.core.service.project import default_project_manager
     from openalea.core.service.plugin import default_plugin_manager
 
-    instance = QtGui.QApplication.instance()
+    instance = QtWidgets.QApplication.instance()
     if instance is None:
-        qapp = QtGui.QApplication(sys.argv)
+        qapp = QtWidgets.QApplication(sys.argv)
     else:
         qapp = instance
 
@@ -101,15 +101,15 @@ if __name__ == '__main__':
         (plm, 'openalea.image'),
     ]
 
-    class TestPluginSelector(QtGui.QWidget):
+    class TestPluginSelector(QtWidgets.QWidget):
 
         def __init__(self):
-            QtGui.QWidget.__init__(self)
-            layout = QtGui.QVBoxLayout(self)
+            QtWidgets.QWidget.__init__(self)
+            layout = QtWidgets.QVBoxLayout(self)
 
-            self.pb_select = QtGui.QPushButton('select')
-            self.cb_category = QtGui.QComboBox()
-            self.e_size = QtGui.QLineEdit("400x400")
+            self.pb_select = QtWidgets.QPushButton('select')
+            self.cb_category = QtWidgets.QComboBox()
+            self.e_size = QtWidgets.QLineEdit("400x400")
 
             for manager, group in managers:
                 self.cb_category.addItem(group, manager)

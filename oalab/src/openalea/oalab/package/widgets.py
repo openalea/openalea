@@ -18,18 +18,20 @@
 __revision__ = ""
 
 import os
-from openalea.vpltk.qt import QtGui, QT_API, PYSIDE_API
+
+from Qt import QtGui, QtCompat # QT_API, PYSIDE_API
 
 from openalea.core.node import NodeFactory
 from openalea.core.compositenode import CompositeNodeFactory
+
 from openalea.visualea.node_treeview import NodeFactoryView, PkgModel, CategoryModel
 from openalea.visualea.node_treeview import SearchModel
+
 from openalea.oalab.package.treeview import OALabTreeView, OALabSearchView
 from openalea.oalab.package.manager import package_manager
 from openalea.oalab.service.applet import get_applet
 
-
-class PackageManagerTreeView(QtGui.QTabWidget):
+class PackageManagerTreeView(QtWidgets.QTabWidget):
 
     def __init__(self, parent=None):
         super(PackageManagerTreeView, self).__init__(parent=parent)
@@ -105,7 +107,7 @@ class PackageCategorieViewWidget(OALabTreeView):
         self.cat_model.reset()
 
 
-class PackageSearchWidget(QtGui.QWidget):
+class PackageSearchWidget(QtWidgets.QWidget):
 
     """
     Use it to find packages.
@@ -122,10 +124,10 @@ class PackageSearchWidget(QtGui.QWidget):
         self.search_model = SearchModel()
         self.result_widget.setModel(self.search_model)
 
-        self.search_lineEdit = QtGui.QLineEdit(self)
+        self.search_lineEdit = QtWidgets.QLineEdit(self)
         self.search_lineEdit.editingFinished.connect(self.search_node)
 
-        layout = QtGui.QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
         layout.addWidget(self.search_lineEdit)
         layout.addWidget(self.result_widget)
 

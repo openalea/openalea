@@ -18,10 +18,12 @@
 ###############################################################################
 
 from openalea.oalab.service.drag_and_drop import add_drag_format, encode_to_qmimedata
-from openalea.vpltk.qt import QtGui, QtCore
-from openalea.oalab.utils import obj_icon, qicon
-import openalea.oalab
 
+from Qt import QtGui, QtCore
+
+from openalea.oalab.utils import obj_icon, qicon
+
+import openalea.oalab
 
 class ProjectModel(QtGui.QStandardItemModel):
 

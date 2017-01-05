@@ -1,10 +1,23 @@
+# Version: $Id$
+#
+#
+
+# Commentary:
+#
+#
+
+# Change Log:
+#
+#
+
+# Code:
+
 # -*- coding: utf-8 -*-
 
-from openalea.vpltk.qt import QtCore, QtGui
+from Qt import QtCore, QtGui, QtWidgets
 
 from openalea.core.service.interface import interface_label
 from openalea.core.control import Control
-
 
 class AbstractPainter(object):
 
@@ -20,7 +33,6 @@ class AbstractPainter(object):
     def paint_data(self, data, painter, rectangle, option=None):
         raise NotImplementedError
 
-
 class PainterInterfaceObject(AbstractPainter):
 
     def paint_control(self, control, painter, rectangle, option=None):
@@ -30,7 +42,7 @@ class PainterInterfaceObject(AbstractPainter):
         painter.save()
 
         pen = QtGui.QPen()
-        if option and option.state & QtGui.QStyle.State_Selected:
+        if option and option.state & QtWidgets.QStyle.State_Selected:
             painter.fillRect(option.rect, option.palette.highlight())
             pen.setColor(option.palette.highlightedText().color())
         else:
@@ -80,3 +92,6 @@ class PainterColormap(AbstractPainter):
                 prev_color = color
 
         painter.restore()
+
+#
+# painter.py ends here
