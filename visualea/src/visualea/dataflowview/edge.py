@@ -18,11 +18,14 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 import weakref
-from openalea.vpltk.qt import qt
+
+from Qt import QtCore, QtGui, QtWidgets
+
 from openalea.visualea.graph_operator import GraphOperator
+
 from openalea.grapheditor import baselisteners, qtgraphview, edgefactory, qtutils
 
-class FloatingEdge(qt.QtGui.QGraphicsPathItem, qtgraphview.FloatingEdge):
+class FloatingEdge(QtWidgets.QGraphicsPathItem, qtgraphview.FloatingEdge):
     """
     Represents an edge during its creation
     It is connected to one connector only
@@ -31,7 +34,7 @@ class FloatingEdge(qt.QtGui.QGraphicsPathItem, qtgraphview.FloatingEdge):
     """
 
     def __init__(self, srcPoint, graph):
-        qt.QtGui.QGraphicsPathItem.__init__(self, None)
+        QtWidgets.QGraphicsPathItem.__init__(self, None)
         qtgraphview.FloatingEdge.__init__(self, srcPoint, graph)
 
     def get_connections(self):
@@ -67,16 +70,15 @@ class FloatingEdge(qt.QtGui.QGraphicsPathItem, qtgraphview.FloatingEdge):
             raise Exception("Nonsense connection : " + \
                                 "plugging input to input or output to output")
 
-
-class GraphicalEdge(qt.QtGui.QGraphicsPathItem, qtgraphview.Edge):
+class GraphicalEdge(QtWidgets.QGraphicsPathItem, qtgraphview.Edge):
     """ An edge between two graphical vertices """
 
     def __init__(self, edgeModel, graphadapter, port1, port2, parent=None):
         """ """
-        qt.QtGui.QGraphicsPathItem.__init__(self, parent)
+        QtWidgets.QGraphicsPathItem.__init__(self, parent)
         qtgraphview.Edge.__init__(self, edgeModel, graphadapter, port1, port2)
-        self.__edge_creator = self.set_edge_creator(edgefactory.SplineEdgePath())        
-        
+        self.__edge_creator = self.set_edge_creator(edgefactory.SplineEdgePath())
+
     def remove(self):
         self.scene().get_adapter().remove_edge( (self.srcBBox().vertex(), self.srcBBox()),
                                                 (self.dstBBox().vertex(), self.dstBBox()) )
@@ -89,5 +91,3 @@ class GraphicalEdge(qt.QtGui.QGraphicsPathItem, qtgraphview.Edge):
         menu.show()
         menu.move(event.screenPos())
         event.accept()
-
-

@@ -22,19 +22,21 @@ import edge
 import anno
 import adapter
 
-from openalea.vpltk.qt import qt
+from Qt import QtCore, QtGui, QtWidgets
+
 from openalea.vpltk.qt.compat import to_qvariant
+
 from openalea.visualea.graph_operator import GraphOperator
+
 from openalea.core import compositenode, node
-from openalea.core.pkgmanager import PackageManager  # for drag and drop
+from openalea.core.pkgmanager import PackageManager
 from openalea.core.node import RecursionError
 from openalea.core.algo import dataflow_evaluation as evalmodule
-from openalea.grapheditor import qt
-#from openalea.grapheditor import baselisteners, qtgraphview, qtutils
 from openalea.core.node import NodeFactory
 from openalea.core.compositenode import CompositeNodeFactory
-import openalea.grapheditor.base
 
+from openalea.grapheditor import qt
+import openalea.grapheditor.base
 
 class DataflowView(qt.View):
 
@@ -129,7 +131,7 @@ class DataflowView(qt.View):
             scene.add_vertex(node, position=pos)
             return node
         except RecursionError:
-            mess = qt.QtGui.QMessageBox.warning(self, "Error",
+            mess = QtWidgets.QMessageBox.warning(self, "Error",
                                                 "A graph cannot be contained in itself.")
             return None
 
@@ -138,12 +140,12 @@ class DataflowView(qt.View):
         operator = self.get_graph_operator()
         for ws in operator.get_siblings():
             if factory == ws.factory:
-                res = qt.QtGui.QMessageBox.warning(self, "Other instances are already opened!",
+                res = QtWidgets.QMessageBox.warning(self, "Other instances are already opened!",
                                                    "You are trying to insert a composite node that has already been opened.\n" +
                                                    "Doing this might cause confusion later on.\n" +
                                                    "Do you want to continue?",
-                                                   qt.QtGui.QMessageBox.Ok | qt.QtGui.QMessageBox.Cancel)
-                if res == qt.QtGui.QMessageBox.Cancel:
+                                                   QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
+                if res == QtWidgets.QMessageBox.Cancel:
                     return False
                 else:
                     break
@@ -157,7 +159,7 @@ class DataflowView(qt.View):
                 NodeFactory.mimetype) else CompositeNodeFactory.mimetype
             # -- retreive the data from the event mimeData --
             pieceData = event.mimeData().data(format)
-            dataStream = qt.QtCore.QDataStream(pieceData, qt.QtCore.QIODevice.ReadOnly)
+            dataStream = QtCore.QDataStream(pieceData, QtCore.QIODevice.ReadOnly)
             package_id = str(dataStream.readString())
             factory_id = str(dataStream.readString())
 
@@ -173,7 +175,7 @@ class DataflowView(qt.View):
             # -- instantiate the new node at the given position --
             position = self.mapToScene(event.pos())
             self.__drop_from_factory(factory, [position.x(), position.y()])
-            event.setDropAction(qt.QtCore.Qt.MoveAction)
+            event.setDropAction(QtCore.Qt.MoveAction)
             # event.accept()
 
     def node_model_factory_drop_handler(self, event):
@@ -207,7 +209,7 @@ class DataflowView(qt.View):
             # -- instantiate the new node at the given position --
             position = self.mapToScene(event.pos())
             self.__drop_from_factory(factory, [position.x(), position.y()])
-            event.setDropAction(qt.QtCore.Qt.MoveAction)
+            event.setDropAction(QtCore.Qt.MoveAction)
             # event.accept()
 
     def node_control_drop_handler(self, event):
@@ -215,7 +217,7 @@ class DataflowView(qt.View):
         if(event.mimeData().hasFormat("openalealab/control")):
             # -- retreive the data from the event mimeData --
             pieceData = event.mimeData().data("openalealab/control")
-            dataStream = qt.QtCore.QDataStream(pieceData, qt.QtCore.QIODevice.ReadOnly)
+            dataStream = QtCore.QDataStream(pieceData, QtCore.QIODevice.ReadOnly)
             identifier, data_key = str(pieceData).split(';')
 
             # -- find node factory --
@@ -229,7 +231,7 @@ class DataflowView(qt.View):
             if node:
                 node.set_input(0, data_key)
                 node.set_caption(data_key)
-            event.setDropAction(qt.QtCore.Qt.CopyAction)
+            event.setDropAction(QtCore.Qt.CopyAction)
             event.accept()
 
     def node_data_drop_handler(self, event):
@@ -253,7 +255,7 @@ class DataflowView(qt.View):
             if node:
                 node.set_input(0, data.name)
                 node.set_caption(unicode(data.name))
-            event.setDropAction(qt.QtCore.Qt.CopyAction)
+            event.setDropAction(QtCore.Qt.CopyAction)
             event.accept()
 
     def node_datapool_drop_handler(self, event):
@@ -261,7 +263,7 @@ class DataflowView(qt.View):
         if(event.mimeData().hasFormat("openalea/data_instance")):
             # -- retreive the data from the event mimeData --
             pieceData = event.mimeData().data("openalea/data_instance")
-            dataStream = qt.QtCore.QDataStream(pieceData, qt.QtCore.QIODevice.ReadOnly)
+            dataStream = QtCore.QDataStream(pieceData, QtCore.QIODevice.ReadOnly)
             data_key = str()
             data_key = str(data_key + dataStream)
 
@@ -276,7 +278,7 @@ class DataflowView(qt.View):
             if node:
                 node.set_input(0, data_key)
                 node.set_caption("pool ['%s']" % (data_key,))
-            event.setDropAction(qt.QtCore.Qt.MoveAction)
+            event.setDropAction(QtCore.Qt.MoveAction)
             event.accept()
 
     ##############################################
@@ -285,13 +287,13 @@ class DataflowView(qt.View):
     def keyPressEvent(self, e):
         qt.View.keyPressEvent(self, e)
         if not e.isAccepted():
-            if e.key() == qt.QtCore.Qt.Key_Space:
-                self.setDragMode(qt.QtGui.QGraphicsView.ScrollHandDrag)
+            if e.key() == QtCore.Qt.Key_Space:
+                self.setDragMode(QtWidgets.QGraphicsView.ScrollHandDrag)
 
     def keyReleaseEvent(self, e):
         key = e.key()
-        if key == qt.QtCore.Qt.Key_Space:
-            self.setDragMode(qt.QtGui.QGraphicsView.RubberBandDrag)
+        if key == QtCore.Qt.Key_Space:
+            self.setDragMode(QtWidgets.QGraphicsView.RubberBandDrag)
 
     #########################
     # Handling mouse events #
@@ -320,7 +322,7 @@ class DataflowView(qt.View):
     ###########################################
     def contextMenuEvent(self, event):
 
-        qt.QtGui.QGraphicsView.contextMenuEvent(self, event)
+        QtWidgets.QGraphicsView.contextMenuEvent(self, event)
         if event.isAccepted():
             return
 
@@ -346,7 +348,6 @@ class DataflowView(qt.View):
         menu.move(event.globalPos())
         menu.show()
         event.accept()
-
 
 def initialise_graph_view_from_model(graphView, graphModel):
 

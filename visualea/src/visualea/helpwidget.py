@@ -14,7 +14,7 @@
 #
 ###############################################################################
 
-from openalea.vpltk.qt import qt
+from Qt import QtCore, QtGui, QtWidgets
 
 #from openalea.visualea import lightsphinx
 
@@ -65,7 +65,7 @@ def rst2alea(text=""):
         res = res.replace('\n','<br />')
         return cleanup(res)
 
-        
+
 
 import re
 line_re = re.compile(r"^(.*?)", re.MULTILINE)
@@ -81,17 +81,17 @@ def simple_rst_to_html(rst):
     html = bold2_re.sub(r'<b>\1</b>', html)
     #html = bold3_re.sub(r'<b>\1</b>', html)
     return html
-        
-        
-class HelpWidget( qt.QtGui.QTextBrowser ):
+
+
+class HelpWidget(QtWidgets.QTextBrowser ):
 
     def __init__(self, parent=None):
-        qt.QtGui.QTextBrowser.__init__(self, parent)
-        self.setTextInteractionFlags(qt.QtCore.Qt.TextBrowserInteraction)
+        QtWidgets.QTextBrowser.__init__(self, parent)
+        self.setTextInteractionFlags(QtCore.Qt.TextBrowserInteraction)
         self.setOpenExternalLinks(True)
         self.css = None
 
-    def set_rst(self, txt):        
+    def set_rst(self, txt):
         if self.css:
             self.document().setDefaultStyleSheet(self.css)
         txt = simple_rst_to_html(txt)
@@ -104,6 +104,3 @@ class HelpWidget( qt.QtGui.QTextBrowser ):
             f.close()
         except Exception, e:
             pass
-            
-
-

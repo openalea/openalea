@@ -18,11 +18,13 @@ __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
 import weakref
-from openalea.vpltk.qt import qt
+
+from Qt import QtCore, QtGui, QtWidgets
+
 from openalea.core.observer import Observed
 from openalea.core.compositenode import CompositeNodeFactory
-from openalea.vpltk.qt.compat import to_qvariant
 
+from openalea.vpltk.qt.compat import to_qvariant
 
 class GraphOperator(Observed):
 
@@ -68,7 +70,7 @@ class GraphOperator(Observed):
     def get_action(self, actionName=None, parent=None, fName=None, **kwargs):
         if actionName is None and parent is None and fName is not None:
             return self.__get_wrapped(fName, kwargs)[0]
-        action = qt.QtGui.QAction(actionName, parent)
+        action = QtWidgets.QAction(actionName, parent)
         return self.bind_action(action, fName, kwargs)
 
     def bind_action(self, action, fName, kwargs=None):
@@ -142,7 +144,7 @@ class GraphOperator(Observed):
 
     def get_sensible_parent(self):
         # TODO improve this:
-        return qt.QtGui.QApplication.topLevelWidgets()[0]
+        return QtWidgets.QApplication.topLevelWidgets()[0]
 
     def get_graph_scene(self):
         return self.__scene
@@ -153,13 +155,13 @@ class GraphOperator(Observed):
             return scene.get_graph()
         else:
             return self.__graph
-            
+
     def get_graph_adapter(self):
         scene = self.get_graph_scene()
         if scene:
             return scene.get_adapter()
         else:
-            return self.__adapter          
+            return self.__adapter
 
     def get_vertex_item(self):
         return self.__vertexItem() if self.__vertexItem else None

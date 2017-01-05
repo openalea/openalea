@@ -1,4 +1,16 @@
+# Version: $Id$
+#
+#
 
+# Commentary:
+#
+#
+
+# Change Log:
+#
+#
+
+# Code:
 
 from openalea.core.data import PythonFile
 from openalea.core.model import PythonModel
@@ -6,12 +18,8 @@ from openalea.core.path import tempdir
 
 from openalea.oalab.paradigm.container import ParadigmContainer
 from openalea.oalab.testing.qtunittest import QtTestCase
-from openalea.vpltk.qt import QtGui, QtCore
-
-from PyQt4.QtTest import QTest
 
 SAMPLE_CODE = "# sample"
-
 
 class TestCaseParadigmEditor(QtTestCase):
 
@@ -58,3 +66,6 @@ class TestCaseParadigmEditor(QtTestCase):
             disk_code = f.read()
         self.assertEquals(self.data.content, hdd_code)
         self.assertEquals(disk_code, hdd_code)
+
+#
+# test_paradigm_editor.py ends here

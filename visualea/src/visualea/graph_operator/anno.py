@@ -17,7 +17,6 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id: color.py 2757 2010-08-12 14:43:58Z dbarbeau $ "
 
-from openalea.vpltk.qt import qt
 from openalea.visualea.graph_operator.base import Base
 
 class AnnotationOperators(Base):

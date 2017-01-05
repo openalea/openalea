@@ -17,24 +17,26 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+
 __revision__ = ""
 
 import weakref
-from openalea.vpltk.qt import QtGui, QtCore
+
+from Qt import QtWidgets, QtGui, QtCore
+
 from openalea.core.observer import AbstractListener
-from openalea.oalab.control.manager import ControlManagerWidget
 from openalea.core.service.ipython import interpreter as get_interpreter
 
+from openalea.oalab.control.manager import ControlManagerWidget
 from openalea.oalab.service.drag_and_drop import add_drop_callback
 
-
-class GenericWorldBrowser(QtGui.QWidget):
+class GenericWorldBrowser(QtWidgets.QWidget):
 
     def __init__(self):
         super(GenericWorldBrowser, self).__init__()
-        layout = QtGui.QGridLayout()
+        layout = QtWidgets.QGridLayout()
         self.model = WorldModel()
-        self.tree = QtGui.QTreeView()
+        self.tree = QtWidgets.QTreeView()
         self.tree.setModel(self.model)
         layout.addWidget(self.tree)
         self.setLayout(layout)
@@ -42,7 +44,6 @@ class GenericWorldBrowser(QtGui.QWidget):
     def set_world(self, world):
         self.model.set_world(world)
         self.tree.expandAll()
-
 
 class WorldBrowser(GenericWorldBrowser, AbstractListener):
 
@@ -53,7 +54,7 @@ class WorldBrowser(GenericWorldBrowser, AbstractListener):
 
         QtCore.QObject.connect(self.tree, QtCore.SIGNAL('doubleClicked(const QModelIndex&)'), self.show_world_object)
 
-        actionClearWorld = QtGui.QAction(QtGui.QIcon(":/images/resources/plant.png"), "Clear World", self)
+        actionClearWorld = QtWidgets.QAction(QtGui.QIcon(":/images/resources/plant.png"), "Clear World", self)
         actionClearWorld.triggered.connect(self.clear)
         self._actions = [["Project", "World", actionClearWorld, 0]]
 
@@ -115,7 +116,6 @@ class WorldBrowser(GenericWorldBrowser, AbstractListener):
     def drop_object(self, obj, **kwargs):
         self.world.add(obj, **kwargs)
 
-
 class WorldModel(QtGui.QStandardItemModel):
 
     def set_world(self, world={}):
@@ -129,8 +129,7 @@ class WorldModel(QtGui.QStandardItemModel):
             item2 = QtGui.QStandardItem(str(objtype))
             parentItem.appendRow([item1, item2])
 
-
-class WorldControlPanel(QtGui.QWidget, AbstractListener):
+class WorldControlPanel(QtWidgets.QWidget, AbstractListener):
     StyleTableView = 0
     StylePanel = 1
     DEFAULT_STYLE = StylePanel
@@ -139,7 +138,7 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
 
     def __init__(self, parent=None, style=None):
         AbstractListener.__init__(self)
-        QtGui.QWidget.__init__(self, parent=parent)
+        QtWidgets.QWidget.__init__(self, parent=parent)
 
         self.world = None
         self.model = WorldModel()
@@ -150,8 +149,8 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
 
         self._manager = {}
 
-        self._cb_world_object = QtGui.QComboBox()
-        p = QtGui.QSizePolicy
+        self._cb_world_object = QtWidgets.QComboBox()
+        p = QtWidgets.QSizePolicy
         self._cb_world_object.setSizePolicy(p(p.Expanding, p.Maximum))
         self._cb_world_object.currentIndexChanged.connect(self._selected_object_changed)
 
@@ -161,11 +160,11 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
         self.interpreter = get_interpreter()
         self.interpreter.locals['world_control'] = self
 
-        actionClearWorld = QtGui.QAction(QtGui.QIcon(":/images/resources/plant.png"), "Clear World", self)
+        actionClearWorld = QtWidgets.QAction(QtGui.QIcon(":/images/resources/plant.png"), "Clear World", self)
         actionClearWorld.triggered.connect(self.clear)
         self._actions = [["Project", "World", actionClearWorld, 0]]
 
-        self._layout = QtGui.QVBoxLayout(self)
+        self._layout = QtWidgets.QVBoxLayout(self)
         self._layout.addWidget(self._cb_world_object)
 
         if self.style == self.StyleTableView:
@@ -374,10 +373,10 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
     def _object_attribute_changed(self, object_name, attribute_name, old, new):
         self.world[object_name].set_attribute(attribute_name, new)
 
-
 def main():
     import sys
-    app = QtGui.QApplication(sys.argv)
+
+    app = QtWidgets.QApplication(sys.argv)
 
     from openalea.core.world import World
 
@@ -402,7 +401,6 @@ def main():
     wid2.show()
 
     app.exec_()
-
 
 if __name__ == "__main__":
     main()

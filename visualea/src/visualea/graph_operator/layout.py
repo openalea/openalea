@@ -17,7 +17,6 @@
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-from openalea.vpltk.qt import qt
 from openalea.visualea.graph_operator.base import Base
 
 class LayoutOperators(Base):

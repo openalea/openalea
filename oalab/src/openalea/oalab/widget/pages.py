@@ -16,12 +16,14 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+
 __revision__ = ""
 
 __all__ = ['WelcomePage']
 
 import math
-from openalea.vpltk.qt import QtCore, QtGui
+
+from Qt import QtCore, QtGui, QtWidgets
 """
         if style is None:
             style = self.STYLE_MEDIUM
@@ -39,8 +41,7 @@ from openalea.vpltk.qt import QtCore, QtGui
             raise NotImplementedError
 """
 
-
-class WelcomePage(QtGui.QWidget):
+class WelcomePage(QtWidgets.QWidget):
 
     """
     Create a widget page that display a list of actions as buttons
@@ -71,7 +72,7 @@ class WelcomePage(QtGui.QWidget):
     )
 
     def __init__(self, actions=None, parent=None, style=None):
-        QtGui.QWidget.__init__(self)
+        QtWidgets.QWidget.__init__(self)
         self.nx = 1 # number of widget by row
         self._style_kwargs = {}
         self._style = None
@@ -79,7 +80,7 @@ class WelcomePage(QtGui.QWidget):
             style = {}
         self.set_style(**style)
 
-        self._layout = QtGui.QGridLayout(self)
+        self._layout = QtWidgets.QGridLayout(self)
         self._layout.setAlignment(QtCore.Qt.AlignCenter)
         if actions is None:
             actions = []
@@ -89,7 +90,7 @@ class WelcomePage(QtGui.QWidget):
     def set_actions(self, actions):
         self._buttons = []
         for i, action in enumerate(actions):
-            button = QtGui.QToolButton()
+            button = QtWidgets.QToolButton()
             button.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
 
             button.setDefaultAction(action)

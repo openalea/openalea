@@ -15,22 +15,23 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+
 __revision__ = ""
 
-from openalea.vpltk.qt import QtGui, QtCore
+from Qt import QtWidgets, QtGui, QtCore
+
 from openalea.oalab import metainfo
 
 def show_splash_screen():
     """Show a small splash screen to make people wait for OpenAleaLab to startup"""
 
     pix = QtGui.QPixmap(":/images/resources/splash.png")
-    splash = QtGui.QSplashScreen(pix, QtCore.Qt.WindowStaysOnTopHint)
+    splash = QtWidgets.QSplashScreen(pix, QtCore.Qt.WindowStaysOnTopHint)
     splash.show()
     message = "" + metainfo.get_copyright() + \
               "Version : %s\n" % (metainfo.get_version(),) + \
               "Loading modules..."
     splash.showMessage(message, QtCore.Qt.AlignCenter | QtCore.Qt.AlignBottom)
     # -- make sure qt really display the message before importing the modules.--
-    QtGui.QApplication.processEvents()
+    QtWidgets.QApplication.processEvents()
     return splash
-

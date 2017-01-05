@@ -1,13 +1,30 @@
+# Version: $Id$
+#
+#
+
+# Commentary:
+#
+#
+
+# Change Log:
+#
+#
+
+# Code:
+
 # -*- coding: utf-8 -*-
+
 __all__ = ["PreferenceWidget"]
 
 import ast
+
 from openalea.vpltk.qt import QtGui
+
 from openalea.core import settings
-from openalea.oalab.service.qt_control import qt_editor
 from openalea.core.service.interface import guess_interface, new_interface
 from openalea.core.control import Control
 
+from openalea.oalab.service.qt_control import qt_editor
 
 def Widget(option_name, value):
     """
@@ -37,7 +54,7 @@ def Widget(option_name, value):
     return control, editor
 
 
-class PreferenceWidget(QtGui.QWidget):
+class PreferenceWidget(QtWidgets.QWidget):
     hidden_sections = ["AutoAddedConfItems", "MainWindow", "TreeView"]
 
     def __init__(self, parent=None):
@@ -49,9 +66,9 @@ class PreferenceWidget(QtGui.QWidget):
         self.setWindowTitle("OpenAleaLab Preferences")
         self.resize(600, 300)
 
-        mainlayout = QtGui.QVBoxLayout(self)
+        mainlayout = QtWidgets.QVBoxLayout(self)
 
-        self.tabwidget = QtGui.QTabWidget(self)
+        self.tabwidget = QtWidgets.QTabWidget(self)
         mainlayout.addWidget(self.tabwidget)
         config = settings.Settings()
 
@@ -72,9 +89,9 @@ class PreferenceWidget(QtGui.QWidget):
         for section in sections:
             if section not in self.hidden_sections:
                 self._option_values[section] = []
-                tab = QtGui.QWidget(self.tabwidget)
+                tab = QtWidgets.QWidget(self.tabwidget)
                 self.tabwidget.addTab(tab, section)
-                layout = QtGui.QFormLayout(tab)
+                layout = QtWidgets.QFormLayout(tab)
                 options = config.options(section)
                 for option_name in options:
                     value = config.get(section, option_name)
@@ -96,7 +113,7 @@ class PreferenceWidget(QtGui.QWidget):
 
 def main():
     import sys
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     win = PreferenceWidget()
     win.show()
 
@@ -109,3 +126,6 @@ def main():
 
 if(__name__ == "__main__"):
     main()
+
+#
+# preferences.py ends here
