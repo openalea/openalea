@@ -1,7 +1,21 @@
-"""
-Author: Thomas Cokelaer
+# Version: $Id$
+#
+#
+
+# Commentary:
+#
+#
+
+# Change Log:
+#
+#
+
+# Code:
 
 """
+Author: Thomas Cokelaer
+"""
+
 from openalea.visualea.helpwidget import *
 
 text1 = "This is a simple docstring"
@@ -25,25 +39,23 @@ rst2 = """<div class="document">
 </div>
 """
 
-
-
 def test_rst2alea():
-    #if docutils and sphinx are install, the first assert must be true, otherwise, the second one must be true. 
+    #if docutils and sphinx are install, the first assert must be true, otherwise, the second one must be true.
     res = rst2alea(text1)
     assert (res == rst1) or (res == text1+"\n")
     res = rst2alea(text2)
     assert (res == rst2) or (res == text2.replace("\n", "<br />")+"\n"), res
 
-from openalea.vpltk.qt import QtGui
-app = QtGui.QApplication([])
+from Qt import QtWidgets
+
+app = QtWidgets.QApplication([])
 
 def test_helpwidget():
     help = HelpWidget()
     help.set_rst(text1)
     assert text1 in help.toHtml()
 
-
-
 test_rst2alea()
-#test_helpwidget()
 
+#
+# test_helpwidget.py ends here

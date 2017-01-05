@@ -6,7 +6,7 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from openalea.vpltk import qt
+from Qt import QtCore
 
 qt_resource_data = "\
 \x00\x00\x04\x20\

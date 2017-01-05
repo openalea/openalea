@@ -13,6 +13,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+
 """
 The logger view widget.
 """
@@ -20,14 +21,14 @@ The logger view widget.
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-from openalea.vpltk.qt import qt
+from Qt import QtCore, QtGui, QtWidgets
 
-class LoggerView(qt.QtGui.QTableView):
+class LoggerView(QtWidgets.QTableView):
     """A QTableView that has more compact lines
     and customized header actions to manipulate logs"""
 
     def __init__(self, parent, model, *args, **kwargs):
-        qt.QtGui.QTableView.__init__(self, *args, **kwargs)
+        QtWidgets.QTableView.__init__(self, *args, **kwargs)
         rowHeight = self.fontMetrics().height() + 2;
         self.verticalHeader().setDefaultSectionSize(rowHeight);
         self.verticalHeader().setStyleSheet(
@@ -39,7 +40,7 @@ class LoggerView(qt.QtGui.QTableView):
             "margin: 1px;" + \
             "}")
 
-        self.__proxyModel = qt.QtGui.QSortFilterProxyModel(self)
+        self.__proxyModel = QtCore.QSortFilterProxyModel(self)
         self.__proxyModel.setSourceModel(model)
         self.__proxyModel.setDynamicSortFilter(True)
 
@@ -53,7 +54,7 @@ class LoggerView(qt.QtGui.QTableView):
 
     def on_section_pressed(self, section):
         if section == 0:
-            menu = qt.QtGui.QMenu(self)
+            menu = QtWidgets.QMenu(self)
             filterMenu = menu.addMenu("Filter...")
             #sortMenu   = menu.addMenu("Sort...")
 
@@ -72,7 +73,7 @@ class LoggerView(qt.QtGui.QTableView):
             showError.triggered.connect(self.show_error)
             showCritical.triggered.connect(self.show_critical)
 
-            menu.popup(menu.mapFromGlobal(qt.QtGui.QCursor.pos()))
+            menu.popup(menu.mapFromGlobal(QtGui.QCursor.pos()))
 
     def show_all(self):
         self.__proxyModel.setFilterWildcard("*")

@@ -29,6 +29,7 @@ from openalea.core.path import path as Path
 from openalea.core.plugin.manager import PluginManager
 from openalea.core.service.ipython import interpreter
 from openalea.core.service.plugin import (new_plugin_instance, plugin_instances, plugin, plugins, plugin_instance, plugin_instance_exists)
+
 from openalea.oalab.control.qcontainer import QControlContainer
 from openalea.oalab.utils import ModalDialog, obj_icon, qicon, Splitter
 from openalea.oalab.widget.menu import ContextualMenu
