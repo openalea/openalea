@@ -29,9 +29,9 @@ def has_deprecated_ipython():
     :return: True if user can use IPython. Else False.
     """
     try:
-        from IPython.kernel.inprocess.ipkernel import InProcessKernel
-        from IPython.frontend.qt.console.rich_ipython_widget import RichIPythonWidget
-        from IPython.frontend.qt.inprocess_kernelmanager import QtInProcessKernelManager
+        from ipykernel.inprocess.ipkernel import InProcessKernel
+        from IPython.qt.console.rich_ipython_widget import RichIPythonWidget
+        from IPython.qt.inprocess_kernelmanager import QtInProcessKernelManager
         return True
     except ImportError:
         return False
@@ -44,7 +44,7 @@ def has_new_ipython():
     :return: True if user can use IPython. Else False.
     """
     try:
-        from ipykernel.inprocess.ipkernel import InProcessKernel
+        from ipykerfnel.inprocess.ipkernel import InProcessKernel
         from qtconsole.console.rich_ipython_widget import RichJupyterWidget
         from qtconsole.inprocess import QtInProcessKernelManager
         return True

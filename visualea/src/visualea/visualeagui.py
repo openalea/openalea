@@ -26,8 +26,6 @@ import sys
 
 from Qt import QtCore, QtGui, QtWidgets
 
-from openalea.vpltk.qt.QtCore import __version__
-
 from openalea.core import logger
 from openalea.core.session import Session
 
@@ -80,11 +78,10 @@ class Openalea(QtWidgets.QApplication):
     def check_qt_version():
         """Ensure we are running a minimal version of Qt"""
         # QT_VERSION_STR implement __le__ operator
-        if(__version__ < '4.5.2'):
-            mess = QtWidgets.QMessageBox.warning(None,
+        mess = QtWidgets.QMessageBox.warning(None,
                                              "Error",
                                              "Visualea needs Qt library >= 4.5.2")
-            sys.exit(-1)
+        sys.exit(-1)
 
 def main(args):
     # Restore default signal handler for CTRL+C

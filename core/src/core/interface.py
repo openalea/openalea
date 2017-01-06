@@ -1,6 +1,6 @@
 # -*- python -*-
 # -*- coding:utf8 -*-
-#
+
 #       OpenAlea.Core
 #
 #       Copyright 2006-2009 INRIA - CIRAD - INRA
@@ -15,6 +15,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ##############################################################################
+
 """This module defines Interface classes (I/O types)"""
 
 __license__ = "Cecill-C"
@@ -25,10 +26,10 @@ from openalea.core.singleton import Singleton
 from openalea.core.observer import AbstractListener
 
 import color_palette # used for colors of interfaces
+
 import types
 
 # Dictionary to map Interface with corresponding python type
-
 
 class TypeInterfaceMap(dict):
 
@@ -53,7 +54,6 @@ class TypeInterfaceMap(dict):
 
         TypeNameInterfaceMap().declare_interface(str(interface), interface)
 
-
 class TypeNameInterfaceMap(dict):
 
     """
@@ -74,7 +74,6 @@ class TypeNameInterfaceMap(dict):
 
         if name and name not in self:
             self[name] = interface
-
 
 class IInterfaceMetaClass(type):
 
@@ -103,9 +102,6 @@ class IInterfaceMetaClass(type):
     def __repr__(cls):
         return cls.__name__
 
-# Defaults interfaces
-
-
 class IInterface(object):
 
     """ Abstract base class for all interfaces """
@@ -130,7 +126,6 @@ class IInterface(object):
     def __repr__(self):
         return self.__class__.__name__ + '()'
 
-
 class IStr(IInterface):
 
     """ String interface """
@@ -142,7 +137,6 @@ class IStr(IInterface):
     @classmethod
     def default(cls):
         return str()
-
 
 class ISlice(IInterface):
 
@@ -171,13 +165,11 @@ class IFileStr(IStr):
             return 'IFileStr(filter="%s", save=%s)' % \
                 (self.filter, str(self.save))
 
-
 class IDirStr(IStr):
 
     """ Directory Path interface """
     __label__ = u'Directory path'
     pass
-
 
 class ITextStr(IStr):
 
@@ -185,13 +177,11 @@ class ITextStr(IStr):
     __label__ = u'Long text'
     pass
 
-
 class ICodeStr(IStr):
 
     """ Source code interface """
     __label__ = u'Code'
     pass
-
 
 class IFloat(IInterface):
 
@@ -222,7 +212,6 @@ class IFloat(IInterface):
         else:
             return 'IFloat(min=%d, max=%d, step=%f)' % \
                 (self.min, self.max, self.step)
-
 
 class IInt(IInterface):
 
@@ -256,7 +245,6 @@ class IInt(IInterface):
             return 'IInt(min=%d, max=%d, step=%d)' % \
                 (self.min, self.max, self.step)
 
-
 class IBool(IInterface):
 
     """ Bool interface """
@@ -268,7 +256,6 @@ class IBool(IInterface):
     @classmethod
     def default(cls):
         return False
-
 
 class IEnumStr(IStr):
 
@@ -283,7 +270,6 @@ class IEnumStr(IStr):
     def __repr__(self):
         return 'IEnumStr(enum=%s)' % (str(self.enum))
 
-
 class IRGBColor(IInterface):
 
     """ RGB Color """
@@ -291,14 +277,12 @@ class IRGBColor(IInterface):
     __label__ = 'Color (RGB)'
     pass
 
-
 class IDateTime(IInterface):
 
     """ DateTime """
     __color__ = color_palette.teal
     __label__ = 'Date'
     pass
-
 
 class ITuple3(IInterface):
 
@@ -310,7 +294,6 @@ class ITuple3(IInterface):
     def default(cls):
         return (None, None, None)
 
-
 class ITuple(IInterface):
 
     """ Tuple """
@@ -318,13 +301,11 @@ class ITuple(IInterface):
     __pytype__ = types.TupleType
     __color__ = color_palette.fuchsia
 
-
 class IFunction(IInterface):
 
     """ Function interface """
     __color__ = color_palette.white
     __pytype__ = types.FunctionType
-
 
 class ISequence(IInterface):
 
@@ -336,7 +317,6 @@ class ISequence(IInterface):
     @classmethod
     def default(cls):
         return list()
-
 
 class IDict(IInterface):
 
@@ -350,15 +330,11 @@ class IDict(IInterface):
         """todo"""
         return dict()
 
-
 class IData(IStr):
 
     """ Package data interface """
     __color__ = color_palette.silver
     __label__ = 'Data'
-
-# Dictionary to map Interface with corresponding widget
-
 
 class InterfaceWidgetMap(dict):
 
@@ -381,10 +357,6 @@ class InterfaceWidgetMap(dict):
 
         self[interface] = widget
 
-
-# Base class for interface widget
-
-
 class IWidgetMetaClass(type):
 
     """ InterfaceWidget Metaclass """
@@ -393,7 +365,6 @@ class IWidgetMetaClass(type):
         super(IWidgetMetaClass, cls).__init__(name, bases, dic)
         if(cls.__interface__):
             InterfaceWidgetMap().declare_interface(cls.__interface__, cls)
-
 
 class IInterfaceWidget(AbstractListener):
 

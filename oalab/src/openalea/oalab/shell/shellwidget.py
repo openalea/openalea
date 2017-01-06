@@ -2,13 +2,11 @@ from streamredirection import GraphicalStreamRedirection
 
 
 try:
-    from IPython.qt.console.rich_ipython_widget import RichIPythonWidget
+    from qtconsole.rich_ipython_widget import RichIPythonWidget
 except ImportError:
-    from IPython.frontend.qt.console.rich_ipython_widget import RichIPythonWidget
-
+    from qt.console.rich_ipython_widget import RichIPythonWidget
 
 class ShellWidget(RichIPythonWidget, GraphicalStreamRedirection):
-
     """
     ShellWidget is an IPython shell.
     """
@@ -49,7 +47,7 @@ class ShellWidget(RichIPythonWidget, GraphicalStreamRedirection):
 
         # Set kernel manager
         try:
-            from IPython.qt.inprocess import QtInProcessKernelManager
+            from qtconsole.inprocess import QtInProcessKernelManager
         except ImportError:
             import warnings
             message = "You are using a deprecated version of IPython (please update)."

@@ -1,10 +1,23 @@
-import inspect
-from openalea.core.observer import Observed, AbstractListener
+# Version: $Id$
+#
+#
 
+# Commentary:
+#
+#
+
+# Change Log:
+#
+#
+
+# Code:
+
+import inspect
+
+from openalea.core.observer import Observed, AbstractListener
 
 class UnknownItemError(Exception):
     pass
-
 
 class GenericManager(Observed, AbstractListener):
 
@@ -150,3 +163,6 @@ class GenericManager(Observed, AbstractListener):
             item_dict[item.name] = item
         sorted_items = [item_dict[name] for name in sorted(item_dict.keys())]
         return sorted_items
+
+#
+# manager.py ends here

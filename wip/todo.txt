@@ -1,7 +1,7 @@
 (1) lien cassé: pylab/matplotlib -> applet
 la fenêtre n'est plus selectionnable, plusieurs tab semble poser des pb)
 
-(2) lien cassé : world -> applet 
+(2) lien cassé : world -> applet
 
 (3) Action dupliquées dans le menu contextuel
 check unicity ?
@@ -15,7 +15,7 @@ check unicity ?
 +        model.save()
 
 
-(5) comprendre ce bug: 
+(5) comprendre ce bug:
 
 ouvrir toolbox plant, supprm lineage, relancer -> crash
 
@@ -176,9 +176,6 @@ AttributeError: 'NoneType' object has no attribute 'name'
 /home/gbaty/prog/openalea/VENV/ipython2/local/lib/python2.7/site-packages/IPython/frontend.py:32: UserWarning: The top-level `frontend` package has been deprecated. All its subpackages have been moved to the top `IPython` level.
   warn("The top-level `frontend` package has been deprecated. "
 
-  
+
 from IPython.frontend.qt.console.rich_ipython_widget import RichIPythonWidget
--> from IPython.qt.console.rich_ipython_widget import RichIPythonWidget
-  
-  
-  
+-> from qtconsole.rich_ipython_widget import RichIPythonWidget

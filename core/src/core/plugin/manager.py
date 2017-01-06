@@ -1,16 +1,35 @@
-"""
-This plugin manager is inspired by nose PluginManager(s) released under LGPL license.
-You can get a full copy of this license on nosetest repository:`lgpl.txt <https://github.com/nose-devs/nose/blob/master/lgpl.txt>`_
-You can get original nose code on `github <https://github.com/nose-devs/nose/blob/master/nose/plugins/manager.py>`_
+# Version: $Id$
+#
+#
 
+# Commentary:
+#
+#
+
+# Change Log:
+#
+#
+
+# Code:
+
+"""
+This plugin manager is inspired by nose PluginManager(s) released
+under LGPL license.  You can get a full copy of this license on
+nosetest repository:`lgpl.txt
+<https://github.com/nose-devs/nose/blob/master/lgpl.txt>`_ You can get
+original nose code on `github
+<https://github.com/nose-devs/nose/blob/master/nose/plugins/manager.py>`_
 
 Plugin Manager
 --------------
 
-A plugin manager class is used to load plugins, search among it and manage the list of loaded plugins.
-Plugins are loaded from entry points or can be added dynamically to manager.
-  - To *list* plugins, see :meth:`PluginManager.plugin` and :meth:`PluginManager.plugins`.
-  - To *add* plugins dynamically, see :meth:`PluginManager.add_plugin` and :meth:`PluginManager.add_plugins`.
+A plugin manager class is used to load plugins, search among it and
+manage the list of loaded plugins.  Plugins are loaded from entry
+points or can be added dynamically to manager.
+- To *list* plugins,
+see :meth:`PluginManager.plugin` and :meth:`PluginManager.plugins`.
+- To *add* plugins dynamically, see :meth:`PluginManager.add_plugin` and
+:meth:`PluginManager.add_plugins`.
 
 All plugin are sorted in categories, each group defining a contract.
 This contract is generally described in an interface class or documentation.
@@ -19,10 +38,10 @@ If you want to use third party plugins that doesn't fit perfectly to your contra
 you can embed its in plugin proxies.
 To do that, you can specify a proxy class for an entire group or for one plugin.
 See :meth:`PluginManager.set_proxy` and "plugin_proxy" parameter in :meth:`PluginManager.add_plugin`.
-
 """
 
 import inspect
+
 from warnings import warn
 
 from openalea.core import logger
@@ -35,10 +54,8 @@ from pkg_resources import iter_entry_points
 
 __all__ = ['PluginManager']
 
-
 class UnknownItemError(Exception):
     pass
-
 
 def get_criteria(plugin):
     criteria = {}
@@ -50,7 +67,6 @@ def get_criteria(plugin):
         criteria[criterion] = getattr(plugin, criterion)
     return criteria
 
-
 def get_implementation(plugin):
     if hasattr(plugin, 'modulename') and hasattr(plugin, 'objectname'):
         modulename = plugin.modulename
@@ -60,10 +76,8 @@ def get_implementation(plugin):
     else:
         return plugin()
 
-
 def plugin_name(plugin):
     return plugin.name if hasattr(plugin, 'name') else plugin.__class__.__name__
-
 
 def drop_plugin(name):
     try:
@@ -73,7 +87,6 @@ def drop_plugin(name):
     else:
         name = name[0:idx] + name[idx + 6:]
     return name
-
 
 class PluginManager(GenericManager):
 
@@ -172,9 +185,7 @@ class PluginManager(GenericManager):
             else:
                 self._add_plugin_from_ep(group, ep, plugin_class, item_proxy)
 
-
 class SimpleClassPluginProxy(object):
-
     """
     Plugin approach used in OpenAlea is :
     entry_point --(load)--> plugin_class --(instantiate)--> plugin --call--> RealClass
@@ -208,3 +219,6 @@ class SimpleClassPluginProxy(object):
 
     def implementation(self):
         return self.klass
+
+#
+# manager.py ends here

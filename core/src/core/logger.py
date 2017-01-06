@@ -13,8 +13,9 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-"""Central logging module from openalea.
 
+"""
+Central logging module from openalea.
 
 Simple Tutorial
 ===============
@@ -45,7 +46,6 @@ this way::
     itemModel = logger.get_handler("qt")
 
 You can directly use it in a QListView.
-
 
 Per-package loggers
 ===================
@@ -120,12 +120,10 @@ Of course you can do this more selectively::
     hd = logger.get_handler("qt")
     # hd will not process logs below INFO level.
     hd.setLevel(logger.INFO)
-
 """
 
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
-
 
 import logging
 import weakref
@@ -133,103 +131,113 @@ import sys
 import os
 import os.path
 import collections
-from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL, NOTSET
-import logging.handlers
-from logging.handlers import TimedRotatingFileHandler
+import logger
+
 from openalea.core.singleton import Singleton
 
+defaultHandlerNames = ["file",  #TimedRotatingFileHandlerc "stream", #Output to stream]
 
-#: List of default handler names:
-defaultHandlerNames = ["file",  #TimedRotatingFileHandler
-                       "stream", #Output to stream
-                       ]
+defaultHandlerNames.append("qt") #log to a QStandardItemModel
 
-#: The QLogHandlerItemModel class is only created if PyQt4 is already loaded
-# otherwise ties core with PyQt and could prevent UI-less usage of core.
-
-if "PyQt4.QtCore" in sys.modules and "PyQt4.QtGui" in sys.modules:
-    QtCore = sys.modules["PyQt4.QtCore"]
-    QtGui  = sys.modules["PyQt4.QtGui"]
-    QT_LOGGING_MODEL_AVAILABLE=True
-    defaultHandlerNames.append("qt") #log to a QStandardItemModel
-else:
-    #print __name__+".QLogHandlerItemModel won't be available"
-    QT_LOGGING_MODEL_AVAILABLE=False
-
-
-#######################
-# TOP LEVEL FUNCTIONS #
-#######################
 def debug(msg):
-    """Send a debug level msg to openalea's default logger.
-    Handlers may or may not be connected yet."""
-    LoggerOffice().get_default_logger().debug(msg)
+    """
+    Send a debug level msg to openalea's default logger.
+    Handlers may or may not be connected yet.
+    """
+    Logger().debug(msg)
 
 def info(msg):
-    """Send a info level msg to openalea's default logger.
-    Handlers may or may not be connected yet."""
-    LoggerOffice().get_default_logger().info(msg)
+    """
+    Send a info level msg to openalea's default logger.
+    Handlers may or may not be connected yet.
+    """
+    Logger.info(msg)
 
 def warning(msg):
-    """Send a warning level msg to openalea's default logger.
-    Handlers may or may not be connected yet."""
-    LoggerOffice().get_default_logger().warning(msg)
+    """
+    Send a warning level msg to openalea's default logger.
+    Handlers may or may not be connected yet.
+    """
+    Logger.warning(msg)
 
 def error(msg):
-    """Send a error level msg to openalea's default logger.
-    Handlers may or may not be connected yet."""
-    LoggerOffice().get_default_logger().error(msg)
+    """
+    Send a error level msg to openalea's default logger.
+    Handlers may or may not be connected yet.
+    """
+    Logger.error(msg)
 
 def critical(msg):
-    """Send a critical level msg to openalea's default logger.
-    Handlers may or may not be connected yet."""
-    LoggerOffice().get_default_logger().critical(msg)
+    """
+    Send a critical level msg to openalea's default logger.
+    Handlers may or may not be connected yet.
+    """
+    Logger.critical(msg)
 
 def log(level, msg):
-    """Send an arbitrary level msg to openalea's default logger.
-    Handlers may or may not be connected yet."""
-    LoggerOffice().get_default_logger().log(level, msg)
+    """
+    Send an arbitrary level msg to openalea's default logger.
+    Handlers may or may not be connected yet.
+    """
+    Logger.log(level, msg)
 
 def get_logger(name):
-    """Returns the logger called `name`. It will always return
-    the same logger for the same name."""
-    return LoggerOffice().get_logger(name)
+    """
+    Returns the logger called `name`. It will always return
+    the same logger for the same name.
+    """
+    return Logger.get_logger(name)
 
 def get_handler(name):
-    """Returns the handler called `name`. It will always return
-    the same handler for the same name."""
-    return LoggerOffice().get_handler(name)
+    """
+    Returns the handler called `name`. It will always return
+    the same handler for the same name.
+    """
+    return Logger().get_handler(name)
 
 def get_logger_names():
-    """Returns a list of logger names known by OpenAlea's LoggerOffice"""
-    return LoggerOffice().get_logger_names()
+    """
+    Returns a list of logger names known by OpenAlea's LoggerOffice
+    """
+    return Logger().get_logger_names()
 
 def get_handler_names():
-    """Returns a list of handler names known by OpenAlea's LoggerOffice"""
-    return LoggerOffice().get_handler_names()
+    """
+    Returns a list of handler names known by OpenAlea's LoggerOffice
+    """
+    return Logger().get_handler_names()
 
 def connect_loggers_to_handlers(loggers, handlers):
-    """Connects loggers to handlers. Each argument can be a single item or
+    """
+    Connects loggers to handlers. Each argument can be a single item or
     a list of them. Each item can be the name of the logger/handler or
-    an instance of that."""
-    LoggerOffice().connect_loggers_to_handlers(loggers, handlers)
+    an instance of that.
+    """
+    Logger().connect_loggers_to_handlers(loggers, handlers)
 
 def disconnect_loggers_from_handlers(loggers, handlers):
-    """Disconnect loggers from handlers. Each argument can be a single item or
+    """
+    Disconnect loggers from handlers. Each argument can be a single item or
     a list of them. Each item can be the name of the logger/handler or
-    an instance of that."""
+    an instance of that.
+    """
     LoggerOffice().disconnect_loggers_from_handlers(loggers, handlers)
 
 def set_global_logger_level(level):
-    """Set level of all known loggers to level."""
+    """
+    Set level of all known loggers to level.
+    """
     LoggerOffice().set_global_logger_level(level)
 
 def set_global_handler_level(level):
-    """Set level of all known handlers to level."""
+    """
+    Set level of all known handlers to level.
+``"""
     LoggerOffice().set_global_handler_level(level)
 
 def default_init(level=logging.ERROR, handlers=defaultHandlerNames[:]):
-    """Configure the LoggerOffice with a default `openalea` logger
+    """
+    Configure the LoggerOffice with a default `openalea` logger
     and handlers named in `handlers`. The latter is a list of strings
     from "qt", "file", "stream".
 
@@ -239,27 +247,6 @@ def default_init(level=logging.ERROR, handlers=defaultHandlerNames[:]):
     - "stream" logs to stderr.
     """
     LoggerOffice().set_defaults(level, handlers)
-
-#####################
-# END OF PUBLIC API #
-#####################
-
-
-
-
-############################
-# Openalea Logging Central #
-############################
-class LoggerOffice(object):
-    """ This class behaves as the central registry of loggers
-    and handlers for Openalea. This way, the application can
-    query information about them.
-    """
-
-    ##################################################################
-    # As the top level function (public API) simply redirect to this #
-    # singleton, see the documentation of the former.                #
-    ##################################################################
 
     __metaclass__ = Singleton
 
@@ -286,18 +273,12 @@ class LoggerOffice(object):
         self.__globalLoggerLevel    = DEBUG
         self.set_global_logger_level(self.__globalLoggerLevel)
 
-    ###################
-    # Formatting logs #
-    ###################
     def get_format(self):
         return self.__format
 
     def get_date_format(self):
         return self.__dformat
 
-    ############
-    # HANDLERS #
-    ############
     def add_handler(self, name, handler):
         self.__handlers[name] = handler
         handler.setFormatter(self.__formatter)
@@ -308,22 +289,14 @@ class LoggerOffice(object):
 
     def get_handler(self, name):
         handler =  self.__handlers.get(name)
-        # if handler is None:
-        #     raise Exception("LoggerOffice.get_handler: no such handler %s"%name)
         return handler
 
     def iter_handlers(self):
         return self.__handlers.itervalues()
 
-    ###########
-    # LOGGERS #
-    ###########
     def add_logger(self, name):
         logger = logging.getLogger(name)
         self.__pyLoggers[name] = logger
-        #we force the propagate attribute to False
-        #otherwise the logging.root logger gets
-        #called somehow
         logger.propagate=False # ugh why ?
         return logger
 
@@ -339,9 +312,6 @@ class LoggerOffice(object):
     def iter_loggers(self):
         return self.__pyLoggers.itervalues()
 
-    #################################
-    # Logger to handler connections #
-    #################################
     def connect_loggers_to_handlers(self, loggers, handlers, noDisconnect=False):
         loggers  = self.__iterable_check(loggers)
         handlers = self.__iterable_check(handlers)
@@ -370,9 +340,6 @@ class LoggerOffice(object):
     def __iterable_check(self, value):
         return value if issubclass(type(value), collections.MutableSequence) else [value]
 
-    #########################
-    # LOGGING LEVEL CONTROL #
-    #########################
     def set_global_handler_level(self, level):
         self.__globalHandlerLevel = level
         for handler in self.iter_handlers():
@@ -383,13 +350,10 @@ class LoggerOffice(object):
         for logger in self.iter_loggers():
             logger.setLevel(self.__globalLoggerLevel)
 
-    ############
-    # DEFAULTS #
-    ############
     def set_defaults(self, level=logging.ERROR, handlers=None):
         if handlers is None:
             handlers = ["stream"]
-        # -- default handlers --
+
         if QT_LOGGING_MODEL_AVAILABLE and "qt" in handlers:
             ha = self.get_handler('qt') or QLogHandlerItemModel(level=level)
             self.add_handler("qt", ha)
@@ -413,7 +377,6 @@ class LoggerOffice(object):
         elif "stream" in self.__handlers:
             del self.__handlers["stream"]
 
-        # -- default loggers --
         self.make_default_logger(handlers)
         self.set_global_logger_level(level)
 
@@ -434,11 +397,6 @@ class LoggerOffice(object):
             logger = self.make_default_logger()
         return logger
 
-
-
-# Copied and hacked out of logging.__init__.py
-# _srcfile is used when walking the stack to check when we've got the first
-# caller stack frame that is not from this file
 if __file__[-4:].lower() in ['.pyc', '.pyo']:
     _srcfile = __file__[:-4] + '.py'
 else:
@@ -465,19 +423,15 @@ class PatchedPyLogger(logging.Logger):
             break
         return rv
 
-
 logging.setLoggerClass(PatchedPyLogger)
 default_init(level=logging.ERROR, handlers=["stream"])
 
-
-
-########################################################
-# -------- Some Logging handlers for Openalea -------- #
-########################################################
 if QT_LOGGING_MODEL_AVAILABLE:
     class QLogHandlerItemModel(QtGui.QStandardItemModel, logging.Handler):
-        """A Handler that stores the logs in a QStandardItemModel, directly usable
-        by QtGui.QTableViews"""
+        """
+        A Handler that stores the logs in a QStandardItemModel, directly usable
+        by QtGui.QTableViews
+        """
 
         cyan    = 146, 188, 227
         green   = 146, 231, 62
@@ -512,7 +466,6 @@ if QT_LOGGING_MODEL_AVAILABLE:
             vals = self.format(record).split(" - ")
             items = map(QtGui.QStandardItem, vals )
 
-            # -- optionnal colouring --
             if self.messageTypeIndex is not None:
                 msgType = vals[self.messageTypeIndex]
                 color = QtGui.QBrush(QLogHandlerItemModel.__colormap__[msgType])
@@ -522,5 +475,3 @@ if QT_LOGGING_MODEL_AVAILABLE:
                 it.setForeground(foreground)
                 it.setBackground(color)
             self.appendRow(items)
-
-

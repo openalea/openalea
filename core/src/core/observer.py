@@ -14,6 +14,7 @@
 #         OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+
 """This module defines all the classes for the Observer design Pattern"""
 
 __license__ = "Cecill-C"
@@ -26,14 +27,11 @@ except ImportError, e:
     print "NOT using graph editor observer", e
     graphobserver = False
 
-###############################################################################
-
 if graphobserver:
     from openalea.grapheditor.observer import *
 else:
    import weakref
    from collections import deque
-
 
    class Observed(object):
        """ Observed Object """
@@ -202,10 +200,6 @@ else:
            """
            raise NotImplementedError()
 
-
-   # Decorator function to protect an AbstractListener against notification
-
-
    def lock_notify(method):
 
        def wrapped(self, *args, **kwargs):
@@ -220,6 +214,4 @@ else:
 
            return result
 
-
        return wrapped
-
