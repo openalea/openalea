@@ -19,7 +19,7 @@
 
 from Qt import QtWidgets
 
-from openalea.vpltk.qt.compat import getexistingdirectory
+from openalea.qt.compat import getexistingdirectory
 
 from openalea.core.path import path as Path
 from openalea.core.settings import get_default_home_dir

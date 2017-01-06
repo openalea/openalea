@@ -37,7 +37,7 @@ from openalea.oalab.widget.pages import WelcomePage
 
 from Qt import QtCore, QtGui, QtWidgets
 
-from openalea.vpltk.qt.compat import getopenfilename, getsavefilename
+from openalea.qt.compat import getopenfilename, getsavefilename
 
 class ParadigmContainer(QtWidgets.QTabWidget):
 

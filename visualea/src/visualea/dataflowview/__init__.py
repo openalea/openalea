@@ -24,7 +24,7 @@ import adapter
 
 from Qt import QtCore, QtGui, QtWidgets
 
-from openalea.vpltk.qt.compat import to_qvariant
+from openalea.qt.compat import to_qvariant
 
 from openalea.visualea.graph_operator import GraphOperator
 

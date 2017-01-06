@@ -37,7 +37,7 @@ from openalea.oalab.widget.splitterui import SplittableUI, BinaryTree
 
 from Qt import QtWidgets, QtGui, QtCore
 
-from openalea.vpltk.qt.compat import tabposition_int, tabposition_qt
+from openalea.qt.compat import tabposition_int, tabposition_qt
 
 from openalea.oalab.about import About
 from openalea.oalab.pluginwidget.explorer import PluginExplorer

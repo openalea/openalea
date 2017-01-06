@@ -21,7 +21,7 @@ from itertools import groupby
 
 from Qt import QtWidgets, QtGui, QtCore
 
-from openalea.vpltk.qt.compat import getexistingdirectory
+from openalea.qt.compat import getexistingdirectory
 
 from openalea.oalab.utils import obj_icon, qicon
 from openalea.oalab.widget.switcher import WidgetSwitcher
