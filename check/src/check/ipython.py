@@ -44,9 +44,9 @@ def has_new_ipython():
     :return: True if user can use IPython. Else False.
     """
     try:
-        from IPython.kernel.inprocess.ipkernel import InProcessKernel
-        from IPython.qt.console.rich_ipython_widget import RichIPythonWidget
-        from IPython.qt.inprocess import QtInProcessKernelManager
+        from ipykernel.inprocess.ipkernel import InProcessKernel
+        from qtconsole.console.rich_ipython_widget import RichJupyterWidget
+        from qtconsole.inprocess import QtInProcessKernelManager
         return True
     except ImportError:
         return False
