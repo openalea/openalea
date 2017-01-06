@@ -35,17 +35,17 @@ if QtCompat.__binding__ == 'pyqt':
         from PyQt4.QtWebKit import QWebView
         VIEW = "webkit"
     except ImportError:
-        QWebView = QtGui.QTextEdit
+        QWebView = QtWidgets.QTextEdit
         VIEW = "basic"
 elif QtCompat.__binding__ == 'pyside':
     try:
         from PySide.QtWebKit import QWebView
         VIEW = "webkit"
     except ImportError:
-        QWebView = QtGui.QTextEdit
+        QWebView = QtWidgets.QTextEdit
         VIEW = "basic"
 else:
-    QWebView = QtGui.QTextEdit
+    QWebView = QtWidgets.QTextEdit
     VIEW = "basic"
 
 stylesheet_path = shared_data(openalea.core, 'stylesheet.css')

@@ -15,7 +15,7 @@
 ###############################################################################
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: splitterui.py 4222 2014-04-23 09:15:04Z gbaty $ "
+__revision__ = " $Id$ "
 
 
 """
@@ -106,9 +106,9 @@ class BinaryTree(object):
         >>> g.visit_i_breadth_first(visitor)
         """
 
-        def visit(self, vid):
-            print vid
-            return False, False  # don't ignore first or second child
+    def visit(self, vid):
+        print vid
+        return False, False  # don't ignore first or second child
 
     def __init__(self):
         """Construct a BinaryTree"""
