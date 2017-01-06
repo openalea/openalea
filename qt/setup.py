@@ -47,11 +47,12 @@ setup (
 
     packages=[
         'openalea.qt',
+        'openalea.qt.compat',
     ],
 
     package_dir={
         '': 'src',
-        'openalea.qt': pj('src', 'core'),
+        'openalea.qt': pj('src', 'qt'),
     },
 
     setup_requires=['openalea.deploy'],
