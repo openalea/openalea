@@ -15,11 +15,12 @@
 # -*- coding: utf-8 -*-
 
 """setup file for core package"""
+
 __revision__ = "$Id$"
 
 import os
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 pj = os.path.join
 
@@ -29,6 +30,13 @@ metadata = read_metainfo('metainfo.ini', verbose=True)
 
 for key, value in metadata.iteritems():
     exec("%s = '%s'" % (key, value))
+
+namespace = 'openalea'
+pkg_root_dir = 'src'
+pkgs = [ pkg for pkg in find_packages(pkg_root_dir) if namespace not in pkg]
+top_pkgs = [pkg for pkg in pkgs if  len(pkg.split('.')) < 2]
+packages = [ namespace + "." + pkg for pkg in pkgs]
+package_dir = dict([('',pkg_root_dir)] + [(namespace + "." + pkg, pkg_root_dir + "/" + pkg) for pkg in top_pkgs])
 
 setup (
     name=name,
@@ -45,14 +53,8 @@ setup (
     zip_safe=False,
     include_package_data=True,
 
-    packages=[
-        'openalea.check',
-    ],
-
-    package_dir={
-        '': 'src',
-        'openalea.check': pj('src', 'core'),
-    },
+    packages = packages,
+    package_dir= package_dir,
 
     setup_requires=['openalea.deploy'],
 
