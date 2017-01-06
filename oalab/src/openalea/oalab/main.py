@@ -23,7 +23,6 @@ import sys
 from openalea.core.service.plugin import debug_plugin, plugins
 from openalea.oalab.cli.parser import CommandLineParser
 
-
 def launch_lab(plugin_class):
     from openalea.oalab.widget.splittablewindow import OALabMainWin
     from openalea.core.settings import get_openalea_home_dir
@@ -54,7 +53,6 @@ def launch_lab(plugin_class):
     win.raise_()
 
     return win
-
 
 def main():
     """

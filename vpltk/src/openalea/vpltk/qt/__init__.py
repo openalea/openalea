@@ -19,7 +19,6 @@
 # Licensed under the terms of the MIT License
 # -------------------------------------------
 
-
 import os
 import sys
 import logging
@@ -49,11 +48,11 @@ try:
     from IPython.external.qt import api_opts
 except ImportError:
     import openalea.vpltk.qt.qt_loaders
-    QT_API_ORDER = ['pyside', 'pyqt', 'pyqt5']
+    QT_API_ORDER = ['pyqt5', 'pyside', 'pyqt']
 else:
     QT_API_ORDER = api_opts
-_api_version = int(os.environ.setdefault('QT_API_VERSION', '0'))
 
+_api_version = int(os.environ.setdefault('QT_API_VERSION', '0'))
 
 def setup_apiv2():
     """
@@ -82,7 +81,6 @@ def setup_apiv2():
                     raise ImportError('PyQt4')
         from PyQt4.QtCore import PYQT_VERSION_STR as __version__
 
-
 def load_pyside():
     global QT_MODULE_NAME
     logging.getLogger(__name__).debug('trying PySide')
@@ -90,7 +88,6 @@ def load_pyside():
     os.environ[QT_API] = PYSIDE_API[0]
     logging.getLogger(__name__).debug('imported PySide')
     QT_MODULE_NAME = 'PySide'
-
 
 def load_pyqt4():
     global QT_MODULE_NAME, is_pyqt46, __version_info__
@@ -104,7 +101,6 @@ def load_pyqt4():
     QT_MODULE_NAME = 'PyQt4'
     print PyQt_license_warning
 
-
 def load_pyqt5():
     global QT_MODULE_NAME
     logging.getLogger(__name__).debug('trying PyQt5')
@@ -114,23 +110,19 @@ def load_pyqt5():
     QT_MODULE_NAME = 'PyQt5'
     print PyQt_license_warning
 
-
 QT_API_LOADER = {}
+for API in PYQT5_API:
+    QT_API_LOADER[API] = load_pyqt5
 for API in PYSIDE_API:
     QT_API_LOADER[API] = load_pyside
 for API in PYQT4_API:
     QT_API_LOADER[API] = load_pyqt4
-for API in PYQT5_API:
-    QT_API_LOADER[API] = load_pyqt5
-
 
 class PythonQtError(Exception):
-
     """
     Error raise if no bindings could be selected
     """
     pass
-
 
 def autodetect():
     """
@@ -144,7 +136,6 @@ def autodetect():
             continue
         else:
             break
-
 
 if QT_API in os.environ:
     # check if the selected QT_API is available

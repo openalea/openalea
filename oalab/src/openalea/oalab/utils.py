@@ -25,7 +25,7 @@ import openalea.oalab
 
 from Qt import QtWidgets, QtGui, QtCore
 
-from openalea.vpltk.qt.compat import orientation_qt, orientation_int
+from openalea.qt.orientation_helper import orientation_qt, orientation_int
 
 from openalea.core.customexception import CustomException, cast_error
 from openalea.core.path import path as Path

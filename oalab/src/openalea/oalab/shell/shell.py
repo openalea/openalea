@@ -26,8 +26,8 @@ from streamredirection import GraphicalStreamRedirection
 
 from Qt import QtWidgets, QtGui, QtCore
 
-from openalea.vpltk.check.ipython import has_ipython
-from openalea.vpltk.check.ipython_deps import has_full_deps
+from openalea.check.ipython import has_ipython
+from openalea.check.ipython_deps import has_full_deps
 
 def get_shell_class():
     """

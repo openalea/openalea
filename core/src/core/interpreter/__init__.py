@@ -1,7 +1,18 @@
+# Version: $Id$
+#
+#
 
-from openalea.vpltk.check.ipython import has_ipython
+# Commentary:
+#
+#
+
+# Change Log:
+#
+#
+
+# Code:
+
 import sys
-
 
 def get_interpreter_class():
     """
@@ -17,7 +28,6 @@ def get_interpreter_class():
     return Interpreter
 
 from openalea.core.util import warn_deprecated
-
 
 def get_interpreter():
     warn_deprecated(__name__ + ".get_interpreter", __name__ + 'interpreter', (2014, 10, 8))
@@ -36,7 +46,6 @@ def get_interpreter():
         if interpreter_:
             return interpreter_
 
-
 def _interpreter_class():
     try:
         from openalea.core.interpreter.ipython import Interpreter
@@ -44,7 +53,6 @@ def _interpreter_class():
         from code import InteractiveInterpreter
 
     return Interpreter
-
 
 def adapt_interpreter(ip):
 
@@ -80,3 +88,6 @@ def adapt_interpreter(ip):
         ip.shell = ip
 
     return ip
+
+#
+# __init__.py ends here

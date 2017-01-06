@@ -58,6 +58,7 @@ class BinaryTree(object):
     #########################################################################
     # Exception definitions - Exception definitions - Exception definitions #
     #########################################################################
+
     class BadIdException(Exception):
 
         """Raised when you referred to an id that doesn't have a reason
@@ -96,7 +97,7 @@ class BinaryTree(object):
 
     class PrintingVisitor(object):
 
-        """ A simple visitor to print node ids as is goes by visiting
+       """ A simple visitor to print node ids as is goes by visiting
 
         :Examples:
         >>> g = BinaryTree()
@@ -446,8 +447,8 @@ class SplittableUI(QtWidgets.QWidget):
     reprProps = ["amount", "splitDirection"]
 
     widgetMenuRequest = QtCore.Signal(QtCore.QPoint, int)
-    dragEnterEventTest = QtCore.Signal(object, QtWidgets.QDragEnterEvent)
-    dropHandlerRequest = QtCore.Signal(object, int, QtWidgets.QDropEvent)
+    dragEnterEventTest = QtCore.Signal(object, QtGui.QDragEnterEvent)
+    dropHandlerRequest = QtCore.Signal(object, int, QtGui.QDropEvent)
 
     def __init__(self, parent=None, content=None):
         """Contruct a SplittableUI.

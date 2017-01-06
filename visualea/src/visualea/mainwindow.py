@@ -30,12 +30,10 @@ dest = get_data("openalea.visualea.mainwindow", "ui_mainwindow.py")
 generate_pyfile_from_uifile(__name__, src=src, dest=dest)
 
 import ui_mainwindow
-try:
-    from openalea.oalab.shell import get_shell_class
-    from openalea.core.service.ipython import interpreter as get_interpreter
-except ImportError:
-    from openalea.vpltk.shell.shell import get_shell_class, get_interpreter_class
 
+from openalea.oalab.shell import get_shell_class
+
+from openalea.core.service.ipython import interpreter as get_interpreter
 from openalea.core.algo.dataflow_evaluation import AbstractEvaluation
 from openalea.core import cli, logger
 from openalea.core.pkgmanager import PackageManager
@@ -51,6 +49,7 @@ from openalea.visualea.node_widget import SignalSlotListener
 import metainfo
 
 from openalea.visualea import helpwidget
+
 from openalea import misc
 
 from os.path import join as pj

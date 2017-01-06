@@ -44,17 +44,15 @@ except ImportError:
     except ImportError as e:
         print e
 
-
 dirs = """
 misc
 core
 grapheditor
 visualea
 oalab
+qt
+check
 """.split()
-#plantlab
-#openalea_meta
-
 
 def main():
 
@@ -66,7 +64,6 @@ def main():
             dirs.reverse()
         mysetup = Multisetup(curdir='.', commands=args, packages=dirs)
         mysetup.run()
-
 
 if __name__ == '__main__':
     main()

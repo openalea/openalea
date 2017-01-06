@@ -13,6 +13,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+
 """Generic Qt Graph Widget"""
 
 __license__ = "Cecill-C"

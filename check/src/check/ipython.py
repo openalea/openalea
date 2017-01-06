@@ -75,7 +75,7 @@ def has_ipython_config():
 
 
 def check_ipython():
-    from openalea.vpltk.check.ipython_deps import has_zmq
+    from openalea.check.ipython_deps import has_zmq
     try:
         import IPython
     except ImportError:

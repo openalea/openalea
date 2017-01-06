@@ -19,7 +19,7 @@
 spyderlib.qt.compat
 -------------------
 
-Transitional module providing compatibility functions intended to help 
+Transitional module providing compatibility functions intended to help
 migrating from PyQt to PySide.
 
 This module should be fully compatible with:
@@ -103,7 +103,7 @@ if os.environ[QT_API] in PYQT4_API:
 
     def to_qvariant(pyobj=None):
         """Convert Python object to QVariant
-        This is a transitional function from PyQt API #1 (QVariant exist) 
+        This is a transitional function from PyQt API #1 (QVariant exist)
         to PyQt API #2 and Pyside (QVariant does not exist)"""
         if PYQT_API_1:
             # PyQt API #1
@@ -115,7 +115,7 @@ if os.environ[QT_API] in PYQT4_API:
 
     def from_qvariant(qobj=None, convfunc=None):
         """Convert QVariant object to Python object
-        This is a transitional function from PyQt API #1 (QVariant exist) 
+        This is a transitional function from PyQt API #1 (QVariant exist)
         to PyQt API #2 and Pyside (QVariant does not exist)"""
         if PYQT_API_1:
             # PyQt API #1
@@ -136,13 +136,13 @@ if os.environ[QT_API] in PYQT4_API:
 else:
     def to_qvariant(obj=None):  # analysis:ignore
         """Convert Python object to QVariant
-        This is a transitional function from PyQt API#1 (QVariant exist) 
+        This is a transitional function from PyQt API#1 (QVariant exist)
         to PyQt API#2 and Pyside (QVariant does not exist)"""
         return obj
 
     def from_qvariant(qobj=None, pytype=None):  # analysis:ignore
         """Convert QVariant object to Python object
-        This is a transitional function from PyQt API #1 (QVariant exist) 
+        This is a transitional function from PyQt API #1 (QVariant exist)
         to PyQt API #2 and Pyside (QVariant does not exist)"""
         return qobj
 

@@ -1,9 +1,5 @@
 # -*- python -*-
 #
-#       Plugin System for vpltk
-#
-#       OpenAlea.VPLTk: Virtual Plants Lab Toolkit
-#
 #       Copyright 2013 INRIA - CIRAD - INRA
 #
 #       File author(s): Christophe Pradal <christophe.pradal@inria.fr>
@@ -17,6 +13,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
+
 __revision__ = ""
 
 """
@@ -24,8 +21,6 @@ Plugin fundamentals are:
   - Dicovery
   - Registration
   - EntryPoint
-
-
 """
 
 import pkg_resources

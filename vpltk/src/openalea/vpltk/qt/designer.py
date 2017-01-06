@@ -31,12 +31,12 @@ import pkg_resources
 import sys
 import os
 
+from Qt import QtCore
+
 from openalea.core.path import path as Path
 from openalea.vpltk.qt import QT_MODULE_NAME
 
-
 FORCE_UI_GENERATION = False
-
 
 def get_data(name, path):
     """
@@ -187,7 +187,6 @@ def generate_pyfile_from_uifile(name, src=None, dest=None, uibasename=None, forc
         compileUi(path, pyfile, **compile_args)
         pyfile.close()
 
-
 def compile_ui_files(module, import_instructions=None):
     """
     Reads recursively all *.py files in root directory looking for
@@ -258,7 +257,6 @@ def compile_ui_files(module, import_instructions=None):
                                     print
 
 try:
-    from openalea.vpltk.qt import QtCore
     from openalea.vpltk.qt._test import QtCore as previous_QtCore
     if QtCore.QObject != previous_QtCore.QObject:
         raise ImportError
