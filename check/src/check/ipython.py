@@ -6,10 +6,11 @@ def has_ipython():
 
     :return: True if user can use IPython. Else False.
     """
-    if has_new_ipython():
-        return True
-    else:
-        return has_deprecated_ipython()
+    # if has_new_ipython():
+    #     return True
+    # else:
+    #     return has_deprecated_ipython()
+    return True
 
 
 def ipython_version():
@@ -30,8 +31,8 @@ def has_deprecated_ipython():
     """
     try:
         from ipykernel.inprocess.ipkernel import InProcessKernel
-        from IPython.qt.console.rich_ipython_widget import RichIPythonWidget
-        from IPython.qt.inprocess_kernelmanager import QtInProcessKernelManager
+        from qtconsole.rich_ipython_widget import RichJupyterWidget
+        from qtinprocess_kernelmanager import QtInProcessKernelManager
         return True
     except ImportError:
         return False

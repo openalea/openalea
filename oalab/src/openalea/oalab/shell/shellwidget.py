@@ -1,18 +1,31 @@
+# Version: $Id$
+#
+#
+
+# Commentary:
+#
+#
+
+# Change Log:
+#
+#
+
+# Code:
+
 from streamredirection import GraphicalStreamRedirection
 
-
 try:
-    from qtconsole.rich_ipython_widget import RichIPythonWidget
+    from qtconsole.rich_ipython_widget import RichJupyterWidget
 except ImportError:
-    from qt.console.rich_ipython_widget import RichIPythonWidget
+    from qtconsole.rich_ipython_widget import RichJupyterWidget
 
-class ShellWidget(RichIPythonWidget, GraphicalStreamRedirection):
+class ShellWidget(RichJupyterWidget, GraphicalStreamRedirection):
     """
     ShellWidget is an IPython shell.
     """
 
     def __new__(self, interpreter=None, message="", log='', parent=None):
-        obj = RichIPythonWidget()
+        obj = RichJupyterWidget()
         obj.__class__ = ShellWidget
         return obj
 
@@ -69,8 +82,6 @@ class ShellWidget(RichIPythonWidget, GraphicalStreamRedirection):
 
             self.kernel_manager = km
             self.kernel_client = kernel_client
-        # For Debug Only
-        # self.interpreter.locals['shell'] = self
 
     def read(self, *args, **kwargs):
         self.kernel_client.stdin_channel.input(*args, **kwargs)
@@ -126,7 +137,6 @@ class ShellWidget(RichIPythonWidget, GraphicalStreamRedirection):
             pass
         display_history(input_)
 
-
 def main():
     from Qt import QtWidgets
 
@@ -138,7 +148,6 @@ def main():
     interpreter = interpreter()
 
     interpreter.user_ns['interp'] = interpreter
-    # Set Shell Widget
     shellwdgt = ShellWidget(interpreter)
     interpreter.user_ns['shell'] = shellwdgt
 
@@ -150,3 +159,6 @@ def main():
 
 if(__name__ == "__main__"):
     main()
+
+#
+# shellwidget.py ends here

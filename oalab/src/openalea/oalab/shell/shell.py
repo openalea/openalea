@@ -18,7 +18,7 @@
 """This module implements a QT4 python interpreter widget."""
 
 __license__ = "CeCILL V2"
-__revision__ = " $Id: shell.py 3672 2012-12-05 12:28:19Z jcoste $"
+__revision__ = " $Id$"
 
 import sys
 
@@ -29,6 +29,8 @@ from Qt import QtWidgets, QtGui, QtCore
 from openalea.check.ipython import has_ipython
 from openalea.check.ipython_deps import has_full_deps
 
+import logging
+
 def get_shell_class():
     """
     :return: the shell class to instantiate
@@ -37,6 +39,7 @@ def get_shell_class():
     if has_ipython() and has_full_deps():
         # Test IPython
         from openalea.oalab.shell import ShellWidget
+
         return ShellWidget
 
     else:
