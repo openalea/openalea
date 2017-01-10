@@ -1,4 +1,5 @@
 #!/usr/bin/python
+
 # -*- coding: utf-8 -*-
 
 #This file is part of pyLot library.
@@ -34,7 +35,6 @@ import os
 from Qt import QtCore
 
 from openalea.core.path import path as Path
-from openalea.vpltk.qt import QT_MODULE_NAME
 
 FORCE_UI_GENERATION = False
 
@@ -169,7 +169,8 @@ def generate_pyfile_from_uifile(name, src=None, dest=None, uibasename=None, forc
             # If py file is more recent than ui, check user has not changed QT_API
             with open(pyfilename, 'r') as f:
                 content = f.read()
-                generate = QT_MODULE_NAME not in content
+                # generate = QT_MODULE_NAME not in content
+                generate = True
         else:
             generate = True
 

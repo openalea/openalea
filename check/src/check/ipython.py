@@ -16,7 +16,7 @@ def ipython_version():
     try:
         from IPython import version_info
     except ImportError:
-        from IPython import __version__ as version
+        from qtconsole import __version__ as version
         from distutils.version import LooseVersion
         version_info = tuple(LooseVersion(version).version)
     return version_info
@@ -30,8 +30,8 @@ def has_deprecated_ipython():
     """
     try:
         from ipykernel.inprocess.ipkernel import InProcessKernel
-        from IPython.qt.console.rich_ipython_widget import RichIPythonWidget
-        from IPython.qt.inprocess_kernelmanager import QtInProcessKernelManager
+        from qconsole.rich_ipython_widget import RichIPythonWidget
+        from qtconsole.inprocess_kernelmanager import QtInProcessKernelManager
         return True
     except ImportError:
         return False
