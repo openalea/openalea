@@ -28,6 +28,13 @@ except ImportError:
 else:
     FilePath = DirPath = Path
 
+_tab_position = {
+    0: QtWidgets.QTabWidget.North,
+    1: QtWidgets.QTabWidget.South,
+    2: QtWidgets.QTabWidget.West,
+    3: QtWidgets.QTabWidget.East,
+}
+
 def arrange_path(path, path_class=Path):
     """
     Return a Path, FilePath or DirPath dependings on path nature.
@@ -51,7 +58,7 @@ def arrange_path(path, path_class=Path):
         return path_class(path)
 
 def to_qvariant(pyobj=None):
-    return QVariant(pyobj)
+    return QtCore.QVariant(pyobj)
 
 def from_qvariant(qobj=None, convfunc=None):
     assert callable(convfunc)

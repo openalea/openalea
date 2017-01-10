@@ -46,10 +46,17 @@ def get_interpreter():
         if interpreter_:
             return interpreter_
 
+import logging
+
 def _interpreter_class():
+
+    logger = logging.getLogger("interpreter")
+
     try:
+
         from openalea.core.interpreter.ipython import Interpreter
     except ImportError:
+
         from code import InteractiveInterpreter
 
     return Interpreter

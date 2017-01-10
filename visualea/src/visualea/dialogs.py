@@ -24,7 +24,7 @@ import os
 
 from Qt import QtCore, QtGui, QtWidgets
 
-from openalea.vpltk.qt.designer import generate_pyfile_from_uifile, get_data
+from openalea.qt.designer import generate_pyfile_from_uifile, get_data
 
 from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.pkgmanager import PackageManager

@@ -19,10 +19,10 @@
 ###############################################################################
 
 import types
-from ipykernel.inprocess.ipkernel import InProcessKernel
-from ipykernel.zmq.ipkernel import Kernel as ZMQKernel
-from IPython.core.error import UsageError
 
+from ipykernel.inprocess.ipkernel import InProcessKernel
+
+from IPython.core.error import UsageError
 
 class IPythonInProcessInterpreter(InProcessKernel):
 
@@ -35,7 +35,7 @@ class IPythonInProcessInterpreter(InProcessKernel):
     # NOTE: to manually define class used for shell, for example InProcessInteractiveShell, just set shell_class attr
     # shell_class = InProcessInteractiveShell
 
-    def __init__(self, gui="qt4", locals=None):
+    def __init__(self, gui="qt", locals=None):
         super(IPythonInProcessInterpreter, self).__init__(gui=gui)
         self.user_ns = self.shell.user_ns
         self.shell.showtraceback = types.MethodType(showtraceback, self.shell)
@@ -67,7 +67,6 @@ class IPythonInProcessInterpreter(InProcessKernel):
     def delete(self, varnames, **kwargs):
         for name in varnames:
             del self.user_ns[name]
-
 
 def showtraceback(self, exc_tuple=None, filename=None, tb_offset=None,
                   exception_only=False):
@@ -124,6 +123,5 @@ def showtraceback(self, exc_tuple=None, filename=None, tb_offset=None,
 
     except KeyboardInterrupt:
         self.write_err("\nKeyboardInterrupt\n")
-
 
 Interpreter = IPythonInProcessInterpreter

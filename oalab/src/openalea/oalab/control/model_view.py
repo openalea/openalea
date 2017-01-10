@@ -188,10 +188,10 @@ class NameControlDelegate(QtWidgets.QStyledItemDelegate):
         QtWidgets.QStyledItemDelegate.setModelData(self, editor, model, index)
 
 
-class ControlModel(QtWidgets.QStandardItemModel, AbstractListener):
+class ControlModel(QtGui.QStandardItemModel, AbstractListener):
 
     def __init__(self, manager=None):
-        QtWidgets.QStandardItemModel.__init__(self)
+        QtGui.QStandardItemModel.__init__(self)
         AbstractListener.__init__(self)
 
         self._headers = [u'Name', u'Value']
@@ -215,7 +215,7 @@ class ControlModel(QtWidgets.QStandardItemModel, AbstractListener):
         self.refresh()
 
     def flags(self, index):
-        default_flags = QtWidgets.QStandardItemModel.flags(self, index)
+        default_flags = QtGui.QStandardItemModel.flags(self, index)
         if (index.isValid()):
             return QtCore.Qt.ItemIsDragEnabled | default_flags
         else:
@@ -237,17 +237,17 @@ class ControlModel(QtWidgets.QStandardItemModel, AbstractListener):
         elif role == QtCore.Qt.DisplayRole and index.column() == 1:
             return unicode(self.control(index).value)
         else:
-            return QtWidgets.QStandardItemModel.data(self, index, role)
+            return QtGui.QStandardItemModel.data(self, index, role)
 
     def _create_control(self, control):
-        args = [QtWidgets.QStandardItem(a) for a in [control.name, str(control.value)]]
+        args = [QtGui.QStandardItem(a) for a in [control.name, str(control.value)]]
         self._control_index[control] = self.rowCount()
         self._index_control[self.rowCount()] = control
         self.appendRow(args)
 
         # Example of child for a control. Could be used to display a preview
         # name = args[0]
-        # name.appendRow(QtWidgets.QStandardItem("test"))
+        # name.appendRow(QtGui.QStandardItem("test"))
 
     def notify(self, sender, event):
         signal, data = event
@@ -270,7 +270,7 @@ class ControlModel(QtWidgets.QStandardItemModel, AbstractListener):
     def clear(self):
         self._control_index = {}
         self._index_control = {}
-        QtWidgets.QStandardItemModel.clear(self)
+        QtGui.QStandardItemModel.clear(self)
 
     def control(self, index):
         return self._index_control[index.row()]

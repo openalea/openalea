@@ -47,7 +47,7 @@ from openalea.visualea.util import grab_icon
 
 from openalea.visualea import images_rc
 
-from openalea.vpltk.qt.compat import to_qvariant
+from openalea.qt.compat import to_qvariant
 
 # Utilities function
 
@@ -362,7 +362,7 @@ class SearchModel (QtCore.QAbstractListModel):
     def set_results(self, results):
         """ Set the search results : results is a list of factory """
         self.searchresult = results
-        self.reset()
+        self.resetInternalData()
 
     def index(self, row, column, parent):
 

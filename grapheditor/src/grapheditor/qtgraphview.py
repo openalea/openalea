@@ -79,7 +79,7 @@ class Element(baselisteners.GraphElementListenerBase):
         self.setPos(point)
 
     def lock_position(self, val=True):
-        self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, not val)
+        self.setFlag(QtWidgets.QGraphicsItem.ItemIsMovable, not val)
 
     def default_position(self):
         return [0.0, 0.0]
@@ -202,8 +202,8 @@ class Vertex(Element):
         self.__defaultConnector = None
 
         self.setZValue(1.0)
-        self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, True)
-        self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)
+        self.setFlag(QtWidgets.QGraphicsItem.ItemIsMovable, True)
+        self.setFlag(QtWidgets.QGraphicsItem.ItemIsSelectable, True)
         self.setFlag(qtutils.ItemSendsGeometryChanges)
         self.__paintStrategy = defaultPaint
         if defaultCenterConnector:
@@ -270,7 +270,7 @@ class Vertex(Element):
         if sc:
             sc.invalidate()
 
-        if change == QtGui.QGraphicsItem.ItemVisibleHasChanged:
+        if change == QtWidgets.QGraphicsItem.ItemVisibleHasChanged:
             self.notify_position_change()
 
         elif change == qtutils.ItemPositionHasChanged:
@@ -296,7 +296,7 @@ class Edge(Element):
 
     def __init__(self, edge=None, graph=None, src=None, dst=None):
         Element.__init__(self, edge, graph)
-        self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable)
+        self.setFlag(QtWidgets.QGraphicsItem.ItemIsSelectable)
         self.setZValue(0.5)
         self.srcPoint = QtCore.QPointF()
         self.dstPoint = QtCore.QPointF()
@@ -390,7 +390,7 @@ class Edge(Element):
     def itemChange(self, change, value):
         """ Callback when item has been modified (move...) """
         # hack to update start and end points:
-        if change == QtGui.QGraphicsItem.ItemVisibleHasChanged:
+        if change == QtWidgets.QGraphicsItem.ItemVisibleHasChanged:
             try:
                 srcGraphical = filter(lambda x: isinstance(x(), Connector),
                                       self.srcBBox().listeners)[0]()
@@ -405,7 +405,7 @@ class Edge(Element):
                 # -other.
                 pass
 
-        elif (change == QtGui.QGraphicsItem.ItemSelectedChange):
+        elif (change == QtWidgets.QGraphicsItem.ItemSelectedChange):
             if(bool(value)):
                 color = QtCore.Qt.blue
             else:
@@ -416,7 +416,7 @@ class Edge(Element):
                                    QtCore.Qt.RoundCap,
                                    QtCore.Qt.RoundJoin))
 
-        return QtGui.QGraphicsItem.itemChange(self, change, value)
+        return QtWidgets.QGraphicsItem.itemChange(self, change, value)
 
 
 class FloatingEdge(Edge):

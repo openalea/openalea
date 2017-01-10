@@ -75,7 +75,7 @@ class ShellWidget(RichJupyterWidget, GraphicalStreamRedirection):
         else:
             km = QtInProcessKernelManager()
             km.kernel = self.interpreter
-            km.kernel.gui = 'qt4'
+            km.kernel.gui = 'qt'
 
             kernel_client = km.client()
             kernel_client.start_channels()

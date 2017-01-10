@@ -63,8 +63,12 @@ class ParadigmContainer(QtWidgets.QTabWidget):
 
         self._open_objects = {}
 
-        self.connect(self, QtCore.SIGNAL('tabCloseRequested(int)'), self.auto_close)
-        self.connect(self, QtCore.SIGNAL('currentChanged(int)'), self.safe_display_help)
+        #
+        # TODO
+        #
+
+        # self.connect(self, QtCore.SIGNAL('tabCloseRequested(int)'), self.auto_close)
+        # self.connect(self, QtCore.SIGNAL('currentChanged(int)'), self.safe_display_help)
 
         self.add_default_tab()
         self.fine_tune()

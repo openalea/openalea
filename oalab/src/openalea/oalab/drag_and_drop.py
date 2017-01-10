@@ -106,7 +106,7 @@ class DragHandler(object):
         self._drag_format = []
         self._drag_kwds = {}
 
-        if isinstance(widget, QtWidgets.QStandardItemModel):
+        if isinstance(widget, QtGui.QStandardItemModel):
             self.mimeTypes = self.mime_types
 
     def mime_types(self):

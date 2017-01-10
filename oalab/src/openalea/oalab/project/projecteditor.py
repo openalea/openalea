@@ -23,7 +23,7 @@ TODO:
 
 """
 
-from Qt import QtGui, QtWidgets
+from Qt import QtCore, QtGui, QtWidgets
 
 from openalea.core.service.data import DataClass, MimeType
 from openalea.core.service.plugin import plugin_instance_exists, plugin_instance

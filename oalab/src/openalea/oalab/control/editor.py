@@ -44,10 +44,11 @@ def widget_label(widget):
     else:
         return str(widget)
 
-from openalea.vpltk.qt.designer import generate_pyfile_from_uifile
-generate_pyfile_from_uifile(__name__)
-from openalea.oalab.control.designer._editor import Ui_ControlEditor
+from openalea.qt.designer import generate_pyfile_from_uifile
 
+generate_pyfile_from_uifile(__name__)
+
+from openalea.oalab.control.designer._editor import Ui_ControlEditor
 
 class ControlEditor(QtWidgets.QWidget, Ui_ControlEditor):
     counters = {}

@@ -586,8 +586,8 @@ class PyPackageReader(AbstractPackageReader):
                 print '%s is invalid : %s' % (self.filename, e)
                 pass
 
-        except:  # Treat all exception
-            pkgmanager.add('%s is invalid :' % (self.filename, ))
+        # except:  # Treat all exception
+        #     pkgmanager.add('%s is invalid :' % (self.filename, ))
 
         if (file):
             file.close()

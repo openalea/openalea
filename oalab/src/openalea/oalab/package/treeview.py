@@ -18,7 +18,7 @@
 
 __revision__ = ""
 
-from Qt import QtGui
+from Qt import QtGui, QtWidgets
 
 from openalea.core.compositenode import CompositeNodeFactory
 from openalea.core.package import Package

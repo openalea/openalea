@@ -19,7 +19,7 @@ __revision__ = ""
 
 import os
 
-from Qt import QtGui, QtCompat # QT_API, PYSIDE_API
+from Qt import QtWidgets, QtGui, QtCompat # QT_API, PYSIDE_API
 
 from openalea.core.node import NodeFactory
 from openalea.core.compositenode import CompositeNodeFactory
@@ -37,9 +37,9 @@ class PackageManagerTreeView(QtWidgets.QTabWidget):
         super(PackageManagerTreeView, self).__init__(parent=parent)
         self.addTab(PackageSearchWidget(), "Search Packages")
 
-        if os.environ[QT_API] not in PYSIDE_API:
-            self.addTab(PackageViewWidget(), "Packages")
-            self.addTab(PackageCategorieViewWidget(), "Packages Categories")
+        # if os.environ[QT_API] not in PYSIDE_API:
+        #     self.addTab(PackageViewWidget(), "Packages")
+        #     self.addTab(PackageCategorieViewWidget(), "Packages Categories")
 
 
 class PackageViewWidget(OALabTreeView):

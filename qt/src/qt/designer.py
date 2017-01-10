@@ -18,7 +18,7 @@
 # along with pyLot.  If not, see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Pierre Puiseux, Guillaume Baty'
-__copyright__ = "Copyright 2011-2012 (C) andheo, Université de Pau et des Pays de l'Adour"
+__copyright__ = "Copyright 2011-2012 (C) andheo, Universite de Pau et des Pays de l'Adour"
 __credits__ = ['Pierre Puiseux', 'Guillaume Baty']
 __license__ = "GNU Lesser General Public License"
 
@@ -91,8 +91,7 @@ def replaceext(self, ext, old_ext=None):
             return self.__class__(self[:-len(old_ext)] + ext)
 
 
-from openalea.vpltk.qt.uic import compileUi, compile_args
-
+from PyQt5.uic import compileUi #, compile_args
 
 def generate_pyfile_from_uifile(name, src=None, dest=None, uibasename=None, force=None):
     """
@@ -185,7 +184,7 @@ def generate_pyfile_from_uifile(name, src=None, dest=None, uibasename=None, forc
             print '%s has changed, build %s\n' % (path, pyfilename)
 
         pyfile = open(pyfilename, 'w')
-        compileUi(path, pyfile, **compile_args)
+        compileUi(path, pyfile) #, **compile_args)
         pyfile.close()
 
 def compile_ui_files(module, import_instructions=None):
@@ -205,7 +204,7 @@ def compile_ui_files(module, import_instructions=None):
     from openalea.core import codegen
 
     if import_instructions is None:
-        import_instructions = "from openalea.vpltk.qt.designer import generate_pyfile_from_uifile\n"
+        import_instructions = "from openalea.qt.designer import generate_pyfile_from_uifile\n"
 
     module = __import__(module)
     paths = []
@@ -256,12 +255,3 @@ def compile_ui_files(module, import_instructions=None):
                                     print repr(e)
                                     print 'COMPILATION ERROR: cannot compile', py
                                     print
-
-try:
-    from openalea.vpltk.qt._test import QtCore as previous_QtCore
-    if QtCore.QObject != previous_QtCore.QObject:
-        raise ImportError
-except ImportError:
-    # First call, ui files are not generated or wrong implementation
-    FORCE_UI_GENERATION = True
-    generate_pyfile_from_uifile('openalea.vpltk.qt', uibasename='test')

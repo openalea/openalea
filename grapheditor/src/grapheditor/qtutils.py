@@ -21,7 +21,6 @@ __revision__ = " $Id$ "
 import weakref
 from Qt import QtCore, QtGui, QtWidgets
 
-
 ##################################################################################
 # Some PYQT versions don't know about some QGraphicsItem flags or enums yet      #
 # even though the underlying Qt knows about it (.sip files not up-to-date        #
@@ -36,7 +35,7 @@ __dict__ = globals()
 __badsymbols = []
 for f in unportableFlags+unportableEnums:
     try:
-        __dict__[f] = getattr(QtGui.QGraphicsItem, f)
+        __dict__[f] = getattr(QtWidgets.QGraphicsItem, f)
     except Exception, e:
         __badsymbols.append(f)
         continue
@@ -102,7 +101,7 @@ class MemoRects(QtGui.QGraphicsRectItem):
         self.__handlePoly = QtGui.QPolygonF([QtCore.QPointF(0, -self.__handleSize),
                                              QtCore.QPointF(0, 0),
                                              QtCore.QPointF(-self.__handleSize,0)])
-        self.setFlag(QtGui.QGraphicsItem.ItemStacksBehindParent)
+        self.setFlag(QtWidgets.QGraphicsItem.ItemStacksBehindParent)
         # -- handle --
         self.__handlePos  = QtCore.QPointF(0,0)
         # -- header --
@@ -329,7 +328,7 @@ class AleaQGraphicsToolbar(QtGui.QGraphicsRectItem, AleaQGraphicsVanishingMixin)
         QtGui.QGraphicsRectItem.__init__(self, parent)
         AleaQGraphicsVanishingMixin.__init__(self)
         self.setPen(QtGui.QPen(QtCore.Qt.NoPen))
-        self.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations, True)
+        self.setFlag(QtWidgets.QGraphicsItem.ItemIgnoresTransformations, True)
         self.__layout = HorizontalLayout(parent=None, margins=(2.,2.,2.,2.),
                                          innerMargins=(1.,1.), center=True,
                                          mins=(20.,20.))
@@ -656,8 +655,8 @@ class VerticalLayout(Layout):
 #         Ctor.                                                                                         #
 #                                                                                                       #
 #         :Parameters:                                                                                  #
-# 	 - widget (QtGui.QWidget) - The QWidget to embed                                                #
-# 	 - parent (QtGui.QGraphicsItem) - Reference to the parent.                                      #
+# 	 - widget (QtWidgets.QWidget) - The QWidget to embed                                                #
+# 	 - parent (QtWidgets.QGraphicsItem) - Reference to the parent.                                      #
 #                                                                                                       #
 #         """                                                                                           #
 #         QtGui.QGraphicsProxyWidget.__init__(self, parent)                                             #

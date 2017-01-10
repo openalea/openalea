@@ -1,9 +1,21 @@
-from openalea.core.plugin import PluginDef
+# Version: $Id$
+#
+#
 
+# Commentary:
+#
+#
+
+# Change Log:
+#
+#
+
+# Code:
+
+from openalea.core.plugin import PluginDef
 
 class AbstractParadigmPlugin(object):
     implement = 'IParadigmApplet'
-
 
 @PluginDef
 class PythonModelGUI(AbstractParadigmPlugin):
@@ -47,3 +59,6 @@ class RModelGUI(AbstractParadigmPlugin):
     def __call__(self):
         from openalea.oalab.paradigm.r import RModelController
         return RModelController
+
+#
+# paradigm.py ends here
