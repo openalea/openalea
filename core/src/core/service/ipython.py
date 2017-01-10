@@ -1,5 +1,18 @@
-__all__ = ["get_interpreter", "interpreter"]
+# Version: $Id$
+#
+#
 
+# Commentary:
+#
+#
+
+# Change Log:
+#
+#
+
+# Code:
+
+__all__ = ["get_interpreter", "interpreter"]
 
 class IInterpreterPlugin(object):
 
@@ -12,7 +25,6 @@ class IInterpreterPlugin(object):
         """
         :return: interpreter class following IInterpreter interface
         """
-
 
 class IInterpreter(object):
 
@@ -72,8 +84,8 @@ class IInterpreter(object):
         """
 
 _interpreter = []
-from openalea.core.interpreter import _interpreter_class, adapt_interpreter
 
+from openalea.core.interpreter import _interpreter_class, adapt_interpreter
 
 def interpreter():
     """
@@ -94,3 +106,6 @@ def interpreter():
             Interpreter = _interpreter_class()
             _interpreter.append(Interpreter())
             return _interpreter[0]
+
+#
+# ipython.py ends here
