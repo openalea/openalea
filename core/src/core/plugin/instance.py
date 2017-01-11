@@ -1,4 +1,4 @@
-
+import logging
 
 import weakref
 
@@ -117,6 +117,9 @@ class PluginInstanceManager(object):
     def _new(self, group, name, class_args=None, class_kwds=None):
         plugin = self.pm.item(name, group)
 
+        logger = logging.getLogger("core::plugin::PluginInstanceManager::_new")
+        logger.warning(plugin)
+
         if class_args is None:
             class_args = []
         if class_kwds is None:
@@ -127,7 +130,9 @@ class PluginInstanceManager(object):
         except TypeError as e:
             raise enhanced_error(e, plugin=plugin, plugin_class=plugin.__class__)
 
+        logger.warning(klass)
         instance = klass(*class_args, **class_kwds)
+        logger.warning("toto")
         try:
             instance = klass(*class_args, **class_kwds)
         except TypeError as e:
@@ -166,8 +171,17 @@ class PluginInstanceManager(object):
         Use this function if you always want the same instance:
         If plugin has never been called, create a new instance else return first created one.
         """
+
+
+        logger = logging.getLogger("core::plugin::PluginInstanceManager::instance")
+        logger.warning(group)
+        logger.warning(name)
+
         if name in self._plugin_instances.get(group, {}):
             instances = self._plugin_instances[group][name]
+
+            logger.warning(instances)
+
             if instances:
                 obj = instances[0]()
             else:
@@ -179,7 +193,11 @@ class PluginInstanceManager(object):
                 del self._plugin_instances[group][name]
                 return self.instance(group, name, class_args, class_kwds)
         else:
+            logger.warning("New plugin instance")
             instance = self.new(group, name, class_args, class_kwds)
+
+            logger.warning(instance)
+
             if instance is None:
                 return
             self._plugin_instances.setdefault(group, {})[name] = [weakref.ref(instance)]

@@ -18,6 +18,7 @@
 #
 ###############################################################################
 
+import logging
 import json
 import sys
 import weakref
@@ -408,6 +409,10 @@ class AppletTabWidget(QtWidgets.QTabWidget):
         """
         Show applet "name" in current tab.
         """
+
+        logger = logging.getLogger("oalab::widget::AppletTabWidget::set_applet")
+        logger.warning("start")
+
         # clear view (hide all widgets in current tab)
         idx = self.currentIndex()
         old = self._name.get(idx, None)
@@ -416,6 +421,8 @@ class AppletTabWidget(QtWidgets.QTabWidget):
 
         if not name:
             return
+
+        logger.warning("after clean")
 
         # If applet has been instantiated before, just show it
         # Else, instantiate a new one, place it in layout and show it
@@ -426,10 +433,21 @@ class AppletTabWidget(QtWidgets.QTabWidget):
             # If applet has never been instantiated in the whole application,
             # we instantiate it as the "main" instance (ie reachable thanks to plugin_instance)
             # else, just create a new one.
+
+            logger.warning("Create new applet")
+
             if plugin_instance_exists('oalab.applet', name):
+                logger.warning("Plugin instance exists")
+                logger.warning(name)
                 applet = new_plugin_instance('oalab.applet', name)
             else:
+                logger.warning("Plugin instance does not exist")
+                logger.warning(name)
                 applet = plugin_instance('oalab.applet', name)
+
+
+            logger.warning(applet)
+
 
             if applet is None:
                 return
@@ -651,15 +669,26 @@ class AppletContainer(QtWidgets.QWidget):
         Each dict must define at least a key "name".
         Ex: applets = [{'name':'MyWidget'}]
         """
+
+        logger = logging.getLogger("oalab::widget::AppletContainer::add_applets")
+
         names = []
         for i, applet in enumerate(applets):
             name = applet['name']
             names.append(name)
+
+            logger.warning(name)
+
             properties = applet.get('properties', {})
+            logger.warning(properties)
             if i:
                 self._tabwidget.new_tab()
+            logger.warning(name)
             self._tabwidget.set_applet(name, properties=properties)
+            logger.warning(name)
             self._tabwidget.currentWidget().set_properties(properties)
+            logger.warning(name)
+
         self._tabwidget.setCurrentIndex(0)
         self._applets = names
 
@@ -752,12 +781,21 @@ class InitContainerVisitor(object):
         self.wid = wid
 
     def _to_qwidget(self, widget):
+
+        logger = logging.getLogger("oalab::widget::InitContainerVisitor::_to_qwidget")
+
         if isinstance(widget, dict):
             properties = widget.get('properties', {})
             applets = widget.get('applets', [])
+
+            logger.warning(widget)
+            logger.warning(properties)
+            logger.warning(applets)
+
             if applets is None:
                 return widget
             container = AppletContainer()
+            logger.warning(container)
             container.add_applets(applets)
             container.set_properties(properties)
             widget = container
@@ -766,6 +804,10 @@ class InitContainerVisitor(object):
     def visit(self, vid):
         """
         """
+
+        logger = logging.getLogger("oalab::widget::InitContainerVisitor::visit")
+        logger.warning(vid)
+
         if self.g.has_property(vid, 'widget'):
             widget = self.g.get_property(vid, "widget")
             widget = self._to_qwidget(widget)
@@ -871,14 +913,26 @@ class OALabSplittableUi(SplittableUI):
     def fromJSON(self, layout, parent=None):
         g = OABinaryTree.fromJSON(layout)
 
+        logger = logging.getLogger("oalab::widget::splitterui::fromJSON")
+        logger.warning(g)
+
         w0 = self._uninstall_child(0)
         if w0:
             w0.setParent(None)
             w0.close()
 
+        logger.warning("After closing w0")
+
         self._g = g
         visitor = InitContainerVisitor(g, self)
+
+        logger.warning("After init visitor")
+
         g.visit_i_breadth_first(visitor)
+
+        logger.warning("After visit")
+
+
         self._geomCache[0] = self.contentsRect()
         self.computeGeoms(0)
 
@@ -920,7 +974,6 @@ class OALabSplittableUi(SplittableUI):
                 return
         event.accept()
 
-
 class OALabMainWin(QtWidgets.QMainWindow):
     appletSet = QtCore.Signal(object, object)
     DEFAULT_MENU_NAMES = ('File', 'Edit', 'View', 'Help')
@@ -947,6 +1000,10 @@ class OALabMainWin(QtWidgets.QMainWindow):
         self._lab = kwds.get('lab', None)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
+        ### DEBUG
+        logger = logging.getLogger("oalab::widget::OALabMainWin::init")
+        logger.warning(self._lab)
+
         self.DEFAULT_MENU_NAMES = list(self.DEFAULT_MENU_NAMES)
         if 'Edit' not in self.DEFAULT_MENU_NAMES:
             self.DEFAULT_MENU_NAMES.insert(0, 'Edit')
@@ -971,21 +1028,46 @@ class OALabMainWin(QtWidgets.QMainWindow):
         else:
             layouts = [layout]
 
+        ##DEBUG
+        logger.warning("Before parsing layouts")
+        logger.warning(layout)
+        logger.warning(layouts)
+
         for layout in layouts:
             title = layout.get('title', None)
+
+            ##DEBUG
+            logger.warning(title)
+
             if 'children' not in layout:
                 layout = None
             splittable = OALabSplittableUi(parent=self)
+
+            ##DEBUG
+            logger.warning(splittable)
+
             splittable.setAttribute(QtCore.Qt.WA_DeleteOnClose)
             splittable.appletSet.connect(self.appletSet.emit)
             self.appletSet.connect(self._on_applet_set)
+
+            ##DEBUG
+            logger.warning(splittable)
+
+
             if layout is None:
                 container = AppletContainer()
                 splittable.setContentAt(0, container)
             else:
+                logger.warning("Before fromjson")
                 splittable.fromJSON(layout)
+                logger.warning("after fromjson")
+
+            logger.warning("After from json")
+
+
             self._splittable_list.append(splittable)
             self.layout_selector.add_widget(splittable, title=title)
+
 
         self.setCentralWidget(self.layout_selector)
         self._post_fill_menus()
@@ -1036,6 +1118,9 @@ class OALabMainWin(QtWidgets.QMainWindow):
     def _load_layout(self, layout=None, **kwds):
         layout_file = kwds.pop('layout_file', self.DEFAULT_LAYOUT_PATH)
         default_layout = kwds.pop('default_layout', self.DEFAULT_LAYOUT)
+
+        logger = logging.getLogger("oalab::widget::OALabMainWin::_load_layout")
+        logger.warning(layout_file)
 
         self.layout_filepath = Path(layout_file).abspath()
         if layout is None:
