@@ -65,7 +65,7 @@ class ShellWidget(RichJupyterWidget, GraphicalStreamRedirection):
 
         # Write welcome message
         logger.warning("__init__::3")
-        # self.write(message)
+        self.write(message)
         logger.warning("__init__::3")
 
         # Set kernel manager
@@ -116,7 +116,8 @@ class ShellWidget(RichJupyterWidget, GraphicalStreamRedirection):
         Write a text in the stdout of the shell and flush it.
         :param txt: String to write.
         """
-        self.interpreter.shell.write(txt)
+        #self.interpreter.shell.write(txt)
+        self.interpreter.stdout.write(txt)
         self.interpreter.stdout.flush()
 
     def push(self, var):
