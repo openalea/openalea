@@ -32,16 +32,6 @@ from matplotlib.backends import backend_qt5
 from matplotlib.backend_bases import FigureManagerBase
 from matplotlib._pylab_helpers import Gcf
 
-#
-# TBR
-#
-
-import logging
-
-logger = logging.getLogger("matplotlib")
-
-#
-
 try:
     import matplotlib.backends.qt_editor.figureoptions as figureoptions
 except ImportError:
@@ -62,11 +52,8 @@ class MplCanvas(FigureCanvasQTAgg):
     """Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
 
     def __init__(self, parent=None):
-        logger.warning("oaLab::plot2d::MplCanvas::__init__ 1")
         fig = MplFigure()
-        logger.warning("oaLab::plot2d::MplCanvas::__init__ 2")
         FigureCanvasQTAgg.__init__(self, fig)
-        logger.warning("oaLab::plot2d::MplCanvas::__init__ 3")
 #         self.figure.add_axobserver(self._on_axes_changed)
 #
 #     def _on_axes_changed(self, *args):
@@ -103,8 +90,6 @@ class MplFigureWidget(QtWidgets.QFrame):
 
     def __init__(self):
 
-        logger.warning("oaLab::plot2d::MplFigureWidget::__init__ 1")
-
         QtWidgets.QFrame.__init__(self)
 
         c = self.palette().color(self.backgroundRole())
@@ -115,8 +100,6 @@ class MplFigureWidget(QtWidgets.QFrame):
         self.mpl_toolbar = NavigationToolbar2QT(self.canvas, None)
         self.mpl_toolbar.setStyleSheet("background-color: rgb%s;" % self._default_color)
         self.mpl_toolbar.hide()
-
-        logger.warning("oaLab::plot2d::MplFigureWidget::__init__ 2")
 
         MplFigureWidget.count += 1
         all_widgets.append(self)

@@ -50,13 +50,9 @@ import logging
 
 def _interpreter_class():
 
-    logger = logging.getLogger("interpreter")
-
     try:
-        logger.warning("a")
         from openalea.core.interpreter.ipython import Interpreter
     except ImportError:
-        logger.warning("b")
         from code import InteractiveInterpreter
 
     return Interpreter

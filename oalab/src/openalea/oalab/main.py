@@ -32,10 +32,6 @@ def launch_lab(plugin_class):
     from openalea.core.service.introspection import label
     from openalea.oalab.utils import qicon
 
-    ### DEBUG
-    logger = logging.getLogger("oalab::launch_lab")
-    logger.warning(plugin_class.name)
-
     plugin = plugin_class()
     lab_class = plugin()
     layout_path = Path(get_openalea_home_dir()) / '%s.oaui' % lab_class.name
@@ -46,27 +42,17 @@ def launch_lab(plugin_class):
     if hasattr(lab_class, "start"):
         lab_class.start()
 
-    logger.warning("start lab done")
-    logger.warning(lab_class)
-
     win = OALabMainWin(lab=lab_class, autosave=True)
-    logger.warning("start lab done")
     win.setWindowIcon(qicon(lab_class.icon))
-
-    logger.warning("start lab done")
-
 
     if hasattr(lab_class, 'connect_applet'):
         win.appletSet.connect(lab_class.connect_applet)
 
-    logger.warning("connect lab applet done")
-
     win.emit_applet_set()
     win.initialize()
+
     if hasattr(lab_class, "initialize"):
         lab_class.initialize()
-
-    logger.warning("lab init done")
 
     win.setWindowTitle('OpenAleaLab "%s"' % label(plugin))
     win.showMaximized()
@@ -89,9 +75,6 @@ def main():
     cli = CommandLineParser(session=session)
     cli.parse()
 
-    ### Debug
-    logger = logging.getLogger("oalab main")
-
     if session.gui:
         from Qt import QtGui, QtWidgets
         from openalea.core.settings import get_openalea_home_dir
@@ -105,9 +88,6 @@ def main():
 
         for plugin in plugins('oalab.lab'):
             plugin_class = plugin.__class__
-
-            ### Debug
-            logger.warning(plugin_class.name)
 
             try:
                 ext = plugin_class.name
