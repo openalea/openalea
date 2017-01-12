@@ -18,7 +18,7 @@
 """This module implements a QT5 python interpreter widget."""
 
 __license__ = "CeCILL V2"
-__revision__ = " $Id: scishell.py 3672 2012-12-05 12:28:19Z jcoste $"
+__revision__ = " $Id$"
 
 import os, sys
 
@@ -30,7 +30,7 @@ from PyQt4.Qsci import QsciScintilla, QsciLexerPython, QsciAPIs
 
 from streamredirection import *
 
-class SciShell(QsciScintilla,GraphicalStreamRedirection):
+class SciShell(QsciScintilla, GraphicalStreamRedirection):
     """
     SciShell is a Python shell based in QScintilla.
     It is inspired by PyCute (pycute.py) : http://gerard.vermeulen.free.fr (GPL)

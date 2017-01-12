@@ -26,36 +26,47 @@ import matplotlib
 
 from matplotlib import pyplot
 
-from matplotlib.backends import backend_qt4agg
-from matplotlib.backends import backend_qt4
+from matplotlib.backends import backend_qt5agg
+from matplotlib.backends import backend_qt5
 
 from matplotlib.backend_bases import FigureManagerBase
 from matplotlib._pylab_helpers import Gcf
 
+#
+# TBR
+#
+
+import logging
+
+logger = logging.getLogger("matplotlib")
+
+#
+
 try:
-    import matplotlib.backends.qt4_editor.figureoptions as figureoptions
+    import matplotlib.backends.qt_editor.figureoptions as figureoptions
 except ImportError:
     figureoptions = None
 
-from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg, NavigationToolbar2QT
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT
 from matplotlib.figure import Figure
 
 from matplotlib import _pylab_helpers
 
 all_widgets = []
 
-
 class MplFigure(Figure):
     pass
-
 
 class MplCanvas(FigureCanvasQTAgg):
 
     """Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
 
     def __init__(self, parent=None):
+        logger.warning("oaLab::plot2d::MplCanvas::__init__ 1")
         fig = MplFigure()
+        logger.warning("oaLab::plot2d::MplCanvas::__init__ 2")
         FigureCanvasQTAgg.__init__(self, fig)
+        logger.warning("oaLab::plot2d::MplCanvas::__init__ 3")
 #         self.figure.add_axobserver(self._on_axes_changed)
 #
 #     def _on_axes_changed(self, *args):
@@ -91,6 +102,9 @@ class MplFigureWidget(QtWidgets.QFrame):
     count = 0
 
     def __init__(self):
+
+        logger.warning("oaLab::plot2d::MplFigureWidget::__init__ 1")
+
         QtWidgets.QFrame.__init__(self)
 
         c = self.palette().color(self.backgroundRole())
@@ -101,6 +115,8 @@ class MplFigureWidget(QtWidgets.QFrame):
         self.mpl_toolbar = NavigationToolbar2QT(self.canvas, None)
         self.mpl_toolbar.setStyleSheet("background-color: rgb%s;" % self._default_color)
         self.mpl_toolbar.hide()
+
+        logger.warning("oaLab::plot2d::MplFigureWidget::__init__ 2")
 
         MplFigureWidget.count += 1
         all_widgets.append(self)
@@ -186,13 +202,13 @@ def draw_if_interactive():
 
 
 def activate():
-    pyplot.switch_backend('qt4agg')
-    backend_qt4.draw_if_interactive = draw_if_interactive
-    backend_qt4agg.draw_if_interactive = draw_if_interactive
+    pyplot.switch_backend('qt5agg')
+    backend_qt5.draw_if_interactive = draw_if_interactive
+    backend_qt5agg.draw_if_interactive = draw_if_interactive
 
-    backend_qt4.new_figure_manager_given_figure = new_figure_manager_given_figure
-    backend_qt4agg.new_figure_manager_given_figure = new_figure_manager_given_figure
+    backend_qt5.new_figure_manager_given_figure = new_figure_manager_given_figure
+    backend_qt5agg.new_figure_manager_given_figure = new_figure_manager_given_figure
 
-    backend_qt4agg.show = lambda: None
+    backend_qt5agg.show = lambda: None
 
 activate()

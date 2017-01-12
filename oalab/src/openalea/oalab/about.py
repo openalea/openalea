@@ -32,7 +32,7 @@ from openalea.core import authors as auth
 
 if QtCompat.__binding__ == 'pyqt':
     try:
-        from PyQt4.QtWebKit import QWebView
+        from Qt.QtWebKit import QWebView
         VIEW = "webkit"
     except ImportError:
         QWebView = QtWidgets.QTextEdit
