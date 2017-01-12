@@ -126,8 +126,8 @@ class Ui_ControlEditor(object):
         self._layout.addItem(spacerItem)
 
         self.retranslateUi(ControlEditor)
-        QtCore.QObject.connect(self.cb_preview, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.box_preview.setVisible)
-        QtCore.QObject.connect(self.cb_constraints, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.widget_constraints.setVisible)
+        self.cb_preview.toggled[bool].connect(self.box_preview.setVisible)
+        self.cb_constraints.toggled[bool].connect(self.widget_constraints.setVisible)
         QtCore.QMetaObject.connectSlotsByName(ControlEditor)
 
     def retranslateUi(self, ControlEditor):

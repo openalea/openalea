@@ -18,7 +18,7 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-__revision__ = "$Id: $"
+__revision__ = "$Id$"
 
 from openalea.deploygui.alea_install_gui import MainWindow as MainWindowAleaInstall
 from openalea.deploygui.alea_install_gui import *
@@ -50,7 +50,7 @@ class Store(MainWindowAleaInstall):
 
         self._show = False
         #self.actionShowHide = QtGui.QAction(QtGui.QIcon(":/images/resources/store.png"),"Show/Hide", self)
-        #QtCore.QObject.connect(self.actionShowHide, QtCore.SIGNAL('triggered(bool)'),self.showhide)
+        #self.actionShowHide.triggered[bool].connect(self.showhide)
         #self._actions = [["Help","Package Store",self.actionShowHide,0]]
         self._actions = None
 

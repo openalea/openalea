@@ -52,7 +52,7 @@ class WorldBrowser(GenericWorldBrowser, AbstractListener):
         super(WorldBrowser, self).__init__()
         self.world = None
 
-        QtCore.QObject.connect(self.tree, QtCore.SIGNAL('doubleClicked(const QModelIndex&)'), self.show_world_object)
+        self.tree.doubleClicked[QtCore.QModelIndex].connect(self.show_world_object)
 
         actionClearWorld = QtWidgets.QAction(QtGui.QIcon(":/images/resources/plant.png"), "Clear World", self)
         actionClearWorld.triggered.connect(self.clear)

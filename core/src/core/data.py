@@ -195,10 +195,7 @@ class DataNode(Node):
             from Qt import QtCore
 
             self.watch = QtCore.QFileSystemWatcher()
-            QtCore.QCoreApplication.instance().connect(
-                self.watch, QtCore.SIGNAL("fileChanged(const QString&)"),
-                self.changed)
-
+            self.watch.fileChanged[QtCore.QString].connect(self.changed)
             self.watch.addPath(filename)
 
         except:

@@ -270,16 +270,13 @@ class FigureManagerQTwithTab(mpl_FigureManagerQT):
         # on. http://developer.qt.nokia.com/doc/qt-4.8/qt.html#FocusPolicy-enum
         self.canvas.setFocusPolicy(QtCore.Qt.StrongFocus)
         # self.canvas.setFocus()
-
-        # QtCore.QObject.connect( self.widget, QtCore.SIGNAL( 'destroyed()' ),
-        # self._widgetclosed )
+        # self.widget.destroyed.connect(self._widgetclosed)
         self.window._destroying = False
 
         self.toolbar = self._get_toolbar(self.canvas, self.widget)
         if self.toolbar is not None:
             self.widget.addToolBar(self.toolbar)
-            QtCore.QObject.connect(self.toolbar, QtCore.SIGNAL("message"),
-                                   self._show_message)
+            self.toolbar.message.connect(self._show_message)
             tbs_height = self.toolbar.sizeHint().height()
         else:
             tbs_height = 0

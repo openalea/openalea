@@ -193,12 +193,7 @@ class ProjectBrowserView(QtWidgets.QTreeView, AbstractListener):
 
         self.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
 
-
-        #
-        # TODO
-        #
-
-        # QtCore.QObject.connect(self, QtCore.SIGNAL('doubleClicked(const QModelIndex&)'), self, QtCore.SLOT('open()'))
+        self.doubleClicked[QtCore.QModelIndex].connect(self.open)
 
         self.setHeaderHidden(True)
         self.setDragEnabled(True)

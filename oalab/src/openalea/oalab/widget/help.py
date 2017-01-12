@@ -75,9 +75,9 @@ class HelpWidget(QtWidgets.QTextBrowser):
         actionHelpTasks = QtWidgets.QAction(QtGui.QIcon(":/images/resources/gforge.png"), "See Tasks", self)
         actionEditPref = QtWidgets.QAction(QtGui.QIcon(":/images/resources/node.png"), "Preferences", self)
 
-        self.connect(actionHelpOpenAlea, QtCore.SIGNAL('triggered(bool)'), self.openWebsiteOpenalea)
-        self.connect(actionHelpGForge, QtCore.SIGNAL('triggered(bool)'), self.openOALabIssues)
-        self.connect(actionHelpTasks, QtCore.SIGNAL('triggered(bool)'), self.openOALabTasks)
+        actionHelpOpenAlea.triggered[bool].connect(self.openWebsiteOpenalea)
+        actionHelpGForge.triggered[bool].connect(self.openOALabIssues)
+        actionHelpTasks.triggered[bool].connect(self.openOALabTasks)
         actionEditPref.triggered.connect(self.open_preferences)
 
         self._actions = [["Help", "Website", actionHelpOpenAlea, 0],

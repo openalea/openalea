@@ -29,7 +29,7 @@ class QFloatSlider(QtWidgets.QSlider):
 
     def __init__(self, orientation=QtCore.Qt.Horizontal):
         QtWidgets.QSlider.__init__(self, orientation)
-        self.connect(self, QtCore.SIGNAL('valueChanged(int)'), self.notifyValueChanged)
+        self.valueChanged[int].connect(self.notifyValueChanged)
         self.slider_step = 0.1
         self.floatValue = 0.0
 
@@ -121,8 +121,9 @@ class QSpanSlider(QtWidgets.QSlider):
     def __init__(self, orientation=QtCore.Qt.Horizontal, parent=None):
         QtWidgets.QSlider.__init__(self, orientation, parent)
 
-        # self.connect(self, SIGNAL("rangeChanged(int, int)"), self.updateRange)
+        # self.rangeChanged[int, int].connect(self.updateRange)
         self.connect(self, QtCore.SIGNAL("sliderReleased()"), self.movePressedHandle)
+        self.sliderReleased.connect(self.movePressedHandle)
         # self.setStyle(QStyleFactory.create('Plastique'))
 
         self.lower = 0
@@ -419,7 +420,8 @@ class QSpanSlider(QtWidgets.QSlider):
             self.lastPressed = handle
             self.setSliderDown(True)
             # self.sliderPressed.emit(handle)
-            self.emit(QtCore.SIGNAL("sliderPressed(PyQt_PyObject)"), handle)
+            self.sliderPressed[PyQt_PyObject].emit(handle)
+            # self.emit(QtCore.SIGNAL("sliderPressed(PyQt_PyObject)"), handle)
         if control != oldControl:
             self.update(sr)
         return control
