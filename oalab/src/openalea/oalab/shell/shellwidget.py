@@ -21,15 +21,12 @@ try:
 except ImportError:
     from qtconsole.rich_ipython_widget import RichJupyterWidget
 
-logger = logging.getLogger("oalab::shell::shellwidget")
-
 class ShellWidget(RichJupyterWidget, GraphicalStreamRedirection):
     """
     ShellWidget is an IPython shell.
     """
 
     def __new__(self, interpreter=None, message="", log='', parent=None):
-        logger.warning("__new__")
         obj = RichJupyterWidget()
         obj.__class__ = ShellWidget
         return obj
@@ -45,18 +42,15 @@ class ShellWidget(RichJupyterWidget, GraphicalStreamRedirection):
         If no parent widget has been specified, it is possible to
         exit the interpreter by Ctrl-D.
         """
-        logger.warning("__init__")
         if interpreter is None:
             from openalea.core.service.ipython import interpreter
             interpreter = interpreter()
-        logger.warning("__init__::1")
         # Set interpreter
         self.interpreter = interpreter
         self.interpreter.widget = self
 
         # Multiple Stream Redirection
         GraphicalStreamRedirection.__init__(self)
-        logger.warning("__init__::2")
 
         # Compatibility with visualea
         self.runsource = self.interpreter.run_cell
@@ -64,16 +58,12 @@ class ShellWidget(RichJupyterWidget, GraphicalStreamRedirection):
         self.loadcode = self.interpreter.loadcode
 
         # Write welcome message
-        logger.warning("__init__::3")
         self.write(message)
-        logger.warning("__init__::3")
 
         # Set kernel manager
         try:
-            logger.warning("__init__::try")
             from qtconsole.inprocess import QtInProcessKernelManager
         except ImportError:
-            logger.warning("__init__::except")
             import warnings
             message = "You are using a deprecated version of IPython (please update)."
             warnings.warn(message)
@@ -85,7 +75,6 @@ class ShellWidget(RichJupyterWidget, GraphicalStreamRedirection):
             self.interpreter.frontends.append(km)
             self.kernel_manager = km
         else:
-            logger.warning("__init__::else")
             km = QtInProcessKernelManager()
             km.kernel = self.interpreter
             km.kernel.gui = 'qt'

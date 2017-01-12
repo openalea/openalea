@@ -87,33 +87,23 @@ _interpreter = []
 
 from openalea.core.interpreter import _interpreter_class, adapt_interpreter
 
-import logging
-
 def interpreter():
     """
     :return: a unique instance of advanced interpreter that respect interface IInterpreter
     """
 
-    logger = logging.getLogger("interpreter")
-
     if _interpreter:
-        logger.warning("1")
         return _interpreter[0]
     else:
         try:
-            logger.warning("2")
             from IPython.core.getipython import get_ipython
             ip = get_ipython()
-            logger.warning("3")
             if ip is None:
-                logger.warning("4")
                 ip = _interpreter_class()()
-            logger.warning("5")
             adapt_interpreter(ip)
             _interpreter.append(ip)
             return _interpreter[0]
         except(ImportError, NameError):
-            logger.warning("exception")
             Interpreter = _interpreter_class()
             _interpreter.append(Interpreter())
             return _interpreter[0]

@@ -126,7 +126,6 @@ Of course you can do this more selectively::
 __license__ = "Cecill-C"
 __revision__ = " $Id$ "
 
-
 import logging
 import weakref
 import sys
@@ -137,7 +136,6 @@ from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL, NOTSET
 import logging.handlers
 from logging.handlers import TimedRotatingFileHandler
 from openalea.core.singleton import Singleton
-
 
 #: List of default handler names:
 defaultHandlerNames = ["file",  #TimedRotatingFileHandler
