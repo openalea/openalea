@@ -54,10 +54,10 @@ class SearchWidget(QtWidgets.QWidget):
         self.caseBtn = QtWidgets.QCheckBox("Match Case")
         self.wholeBtn = QtWidgets.QCheckBox("Whole Word (Disabled if case sensitive)")
 
-        QtCore.QObject.connect(self.actionBackSearch, QtCore.SIGNAL('triggered(bool)'), self.searchBack)
-        QtCore.QObject.connect(self.actionSearch, QtCore.SIGNAL('triggered(bool)'), self.search)
-        QtCore.QObject.connect(self.actionReplace, QtCore.SIGNAL('triggered(bool)'), self.replaceall)
-        QtCore.QObject.connect(self.lineEdit, QtCore.SIGNAL('returnPressed()'), self.search)
+        self.actionBackSearch.triggered[bool].connect(self.searchBack)
+        self.actionSearch.triggered[bool].connect(self.search)
+        self.actionReplace.triggered[bool].connect(self.replaceall)
+        self.lineEdit.returnPressed.connect(self.search)
 
         layout = QtWidgets.QGridLayout()
         layout.setAlignment(QtCore.Qt.AlignLeft)

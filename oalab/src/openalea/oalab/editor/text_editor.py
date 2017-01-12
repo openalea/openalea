@@ -153,7 +153,7 @@ class TextEditor(QtWidgets.QTextEdit):
         self.sidebar.setGeometry(0, 0, 50, 100)
         self.sidebar.show()
         self.cursorPositionChanged.connect(self.display_line_number)
-        # QtCore.QObject.connect(self, QtCore.SIGNAL("cursorPositionChanged()"),self.highlightCurrentLine)
+        self.cursorPositionChanged.connect(self.highlightCurrentLine)
 
         self.read_settings()
 
@@ -523,7 +523,7 @@ class TextEditor(QtWidgets.QTextEdit):
         completer.setCompletionMode(QtWidgets.QCompleter.PopupCompletion)
         completer.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
         self.completer = completer
-        QtCore.QObject.connect(self.completer, QtCore.SIGNAL("activated(const QString&)"), self.insertCompletion)
+        self.completer.activated[str].connect(self.insertCompletion)
 
     def insertCompletion(self, completion):
         logger.debug("insert completion")

@@ -32,8 +32,8 @@ class GoToWidget(QtWidgets.QWidget):
         self.btnGo = QtWidgets.QToolButton()
         self.btnGo.setDefaultAction(self.actionGo)
 
-        QtCore.QObject.connect(self.actionGo, QtCore.SIGNAL('triggered(bool)'), self.go)
-        QtCore.QObject.connect(self.lineEdit, QtCore.SIGNAL('returnPressed()'), self.go)
+        self.actionGo.triggered[bool].connect(self.go)
+        self.lineEdit.returnPressed.connect(self.go)
 
         layout = QtWidgets.QGridLayout()
         layout.setAlignment(QtCore.Qt.AlignLeft)
