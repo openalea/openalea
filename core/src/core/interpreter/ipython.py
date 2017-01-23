@@ -19,8 +19,11 @@
 ###############################################################################
 
 import types
-from IPython.kernel.inprocess.ipkernel import InProcessKernel
-from IPython.kernel.zmq.ipkernel import Kernel as ZMQKernel
+try:
+    from ipykernel.inprocess.ipkernel import InProcessKernel
+except ImportError:
+    from IPython.kernel.inprocess.ipkernel import InProcessKernel
+
 from IPython.core.error import UsageError
 
 
@@ -35,7 +38,7 @@ class IPythonInProcessInterpreter(InProcessKernel):
     # NOTE: to manually define class used for shell, for example InProcessInteractiveShell, just set shell_class attr
     # shell_class = InProcessInteractiveShell
 
-    def __init__(self, gui="qt4", locals=None):
+    def __init__(self, gui="qt", locals=None):
         super(IPythonInProcessInterpreter, self).__init__(gui=gui)
         self.user_ns = self.shell.user_ns
         self.shell.showtraceback = types.MethodType(showtraceback, self.shell)

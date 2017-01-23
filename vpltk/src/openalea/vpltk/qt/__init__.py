@@ -46,12 +46,16 @@ QT_MODULE_NAME = None
 
 # If IPython is installed, use its order to avoid multiple python-qt loads
 try:
-    from IPython.external.qt import api_opts
+    from qtconsole.qt import api_opts
 except ImportError:
-    import openalea.vpltk.qt.qt_loaders
-    QT_API_ORDER = ['pyside', 'pyqt', 'pyqt5']
+    try:
+        from IPython.external.qt import api_opts
+    except ImportError:
+        import openalea.vpltk.qt.qt_loaders
+        QT_API_ORDER = ['pyside', 'pyqt', 'pyqt5']
 else:
     QT_API_ORDER = api_opts
+
 _api_version = int(os.environ.setdefault('QT_API_VERSION', '0'))
 
 

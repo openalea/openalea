@@ -62,31 +62,59 @@ class NotebookControlWidget(AbstractControlWidget):
     def _ipython_display_(self):
         return self._w._ipython_display_()
 
-from IPython.html import widgets
-available_widgets = {
-    'IInt': [widgets.IntSliderWidget],
-    'IStr': [widgets.HTMLWidget],
-    'IBool': [widgets.CheckboxWidget],
-}
+try:
+    import ipywidgets as widgets
+    available_widgets = {
+        'IInt': [widgets.IntSlider],
+        'IStr': [widgets.HTML],
+        'IBool': [widgets.Checkbox],
+    }
 
-preferred_widgets = {
-    'IInt': {
-        'slider': widgets.IntSliderWidget,
-        'progress': widgets.IntProgressWidget
-    },
+    preferred_widgets = {
+        'IInt': {
+            'slider': widgets.IntSlider,
+            'progress': widgets.IntProgress
+        },
 
-    'IStr': {
-        'html': widgets.HTMLWidget,
-        'latex': widgets.LatexWidget,
-        'text': widgets.TextWidget,
-        'text area': widgets.TextareaWidget
-    },
+        'IStr': {
+            'html': widgets.HTML,
+            'latex': widgets.Latex,
+            'text': widgets.Text,
+            'text area': widgets.Textarea
+        },
 
-    'IBool': {
-        'checkbox': widgets.CheckboxWidget
-    },
+        'IBool': {
+            'checkbox': widgets.Checkbox
+        },
 
-}
+    }
+
+except ImportError:
+    from IPython.html import widgets
+    available_widgets = {
+        'IInt': [widgets.IntSliderWidget],
+        'IStr': [widgets.HTMLWidget],
+        'IBool': [widgets.CheckboxWidget],
+    }
+
+    preferred_widgets = {
+        'IInt': {
+            'slider': widgets.IntSliderWidget,
+            'progress': widgets.IntProgressWidget
+        },
+
+        'IStr': {
+            'html': widgets.HTMLWidget,
+            'latex': widgets.LatexWidget,
+            'text': widgets.TextWidget,
+            'text area': widgets.TextareaWidget
+        },
+
+        'IBool': {
+            'checkbox': widgets.CheckboxWidget
+        },
+
+    }
 
 
 def notebook_editor(control, shape=None, preferred=None, preferences=None):
