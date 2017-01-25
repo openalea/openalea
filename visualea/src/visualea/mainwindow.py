@@ -135,8 +135,7 @@ class MainWindow(QtWidgets.QMainWindow, ui_mainwindow.Ui_MainWindow, SignalSlotL
         self.poolTabWidget.addTab(self.helpWidget, "Help")
 
         # Widgets
-        self.connect(self.tabWorkspace, QtCore.SIGNAL("contextMenuEvent(QContextMenuEvent)"),
-                     self.contextMenuEvent)
+        self.tabWorkspace.contextMenuEvent.connect(self.contextMenuEvent)
         self.tabWorkspace.currentChanged.connect(self.ws_changed)
         self.search_lineEdit.editingFinished.connect(self.search_node)
         self.tabWorkspace.tabCloseRequested.connect(self.close_tab_workspace)
@@ -201,7 +200,8 @@ class MainWindow(QtWidgets.QMainWindow, ui_mainwindow.Ui_MainWindow, SignalSlotL
                                       (self.actionUseCustomColor, "graph_use_user_color")])
 
         self._last_open_action_group = QtWidgets.QActionGroup(self)
-        self.connect(self._last_open_action_group, QtCore.SIGNAL("triggered(QAction*)"), self.reopen_last)
+        #self.connect(self._last_open_action_group, QtCore.SIGNAL("triggered(QAction*)"), self.reopen_last)
+        self._last_open_action_group.triggered.connect(self.reopen_last)
         self.action_New_Empty_Workspace.triggered.connect(self.new_workspace)
         self.menu_Workspace.aboutToShow.connect(self.__wsMenuShow)
         self.menu_Workspace.aboutToShow.connect(self.__wsMenuHide)
@@ -673,13 +673,13 @@ class MainWindow(QtWidgets.QMainWindow, ui_mainwindow.Ui_MainWindow, SignalSlotL
         menu = QtWidgets.QMenu(self)
 
         action = menu.addAction("Close")
-        self.connect(action, QtCore.SIGNAL("triggered()"), close_current_ws)
+        action.triggered.connect(close_current_ws)
 
 #         action = menu.addAction("Run")
-#         self.connect(action, QtCore.SIGNAL("triggered()"), self.run)
+#         action.triggered.connect(self.run)
 
 #         action = menu.addAction("Export to Model")
-#         self.connect(action, QtCore.SIGNAL("triggered()"), self.export_to_factory)
+#         action.triggered.connect(self.export_to_factory)
 
         menu.move(event.globalPos())
         menu.show()

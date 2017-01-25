@@ -130,8 +130,8 @@ class DisplayGraphWidget(QtWidgets.QWidget, NodeWidget):
                 widgetbutton = QtWidgets.QPushButton("Widget", userapp_widget)
                 widgetbutton.id = id
 
-                self.connect(runbutton, qt.QtCore.SIGNAL("clicked()"), self.run_node)
-                self.connect(widgetbutton, qt.QtCore.SIGNAL("clicked()"), self.open_widget)
+                runbutton.clicked.connect(self.run_node)
+                widgetbutton.clicked.connect(self.open_widget)
 
                 buttons = QtWidgets.QHBoxLayout()
                 buttons.addWidget(label)
@@ -148,7 +148,7 @@ class DisplayGraphWidget(QtWidgets.QWidget, NodeWidget):
         self.container.addTab(userapp_widget, "User Applications")
 
         exitbutton = QtWidgets.QPushButton("Exit", self)
-        self.connect(exitbutton, qt.QtCore.SIGNAL("clicked()"), self.exit)
+        exitbutton.clicked.connect(self.exit)
 
         buttons = QtWidgets.QHBoxLayout()
         buttons.addWidget(exitbutton)

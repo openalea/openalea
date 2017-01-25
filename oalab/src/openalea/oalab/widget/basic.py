@@ -122,7 +122,6 @@ class QSpanSlider(QtWidgets.QSlider):
         QtWidgets.QSlider.__init__(self, orientation, parent)
 
         # self.rangeChanged[int, int].connect(self.updateRange)
-        # self.connect(self, QtCore.SIGNAL("sliderReleased()"), self.movePressedHandle)
         self.sliderReleased.connect(self.movePressedHandle)
         # self.setStyle(QStyleFactory.create('Plastique'))
 

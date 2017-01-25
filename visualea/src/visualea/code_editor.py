@@ -146,9 +146,9 @@ class PythonCodeEditor(QtWidgets.QWidget, AbstractCodeEditor):
         vboxlayout.addWidget(self.label)
 
         self.savescut = QtWidgets.QShortcut(QtGui.QKeySequence(QtGui.QKeySequence.Save), self)
-        self.connect(self.savescut, QtCore.SIGNAL("triggered()"), self.save_changes)
-        self.connect(self.savbut, QtCore.SIGNAL("clicked()"), self.save_changes)
-        self.connect(self.applybut, QtCore.SIGNAL("clicked()"), self.apply_changes)
+        self.savescut.triggered.connect(self.save_changes)
+        self.savbut.clicked.connect(self.save_changes)
+        self.applybut.clicked.connect(self.apply_changes)
 
     def is_widget(self):
         return True
@@ -238,7 +238,7 @@ class PythonCodeEditor(QtWidgets.QWidget, AbstractCodeEditor):
 
             self.filewatcher = QtCore.QFileSystemWatcher(self)
             self.filewatcher.addPath(self.filename)
-            self.connect(self.filewatcher, QtCore.SIGNAL("fileChanged(const QString &)"), self.file_changed)
+            self.filewatcher.filewatcher[str].connect(self.file_changed)
 
 
         except Exception, e:
@@ -415,7 +415,7 @@ class EditorSelector(AbstractCodeEditor, QtWidgets.QWidget):
             but.setText(k)
             vboxlayout.addWidget(but)
 
-            self.connect(but, QtCore.SIGNAL("clicked()"), self.button_clicked)
+            but.clicked.connect(self.button_clicked)
 
     def is_widget(self):
         return True

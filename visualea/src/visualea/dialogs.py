@@ -122,7 +122,7 @@ class NewGraph(QtWidgets.QDialog, ui_newgraph.Ui_NewGraphDialog):
             self.nameEdit.setText(name)
 
         self.ioButton.setVisible(io)
-        self.connect(self.ioButton, QtCore.SIGNAL("clicked()"), self.edit_io)
+        self.ioButton.clicked.connect(self.edit_io)
 
     def accept(self):
         """ Accept Dialog result """
@@ -271,7 +271,7 @@ class NewData(QtWidgets.QDialog, ui_newdata.Ui_NewDataDialog):
             i = self.packageBox.findText(Session.USR_PKG_NAME)
         self.packageBox.setCurrentIndex(i)
 
-        self.connect(self.browseButton, QtCore.SIGNAL("clicked()"), self.browse_file)
+        self.browseButton.clicked.connect(self.browse_file)
 
     def accept(self):
         """ Accept Dialog result """
@@ -347,7 +347,7 @@ class NewPackage(QtWidgets.QDialog, ui_newpackage.Ui_NewPackageDialog):
         self.setupUi(self)
 
         self.pkgs = pkgs
-        self.connect(self.pathButton, QtCore.SIGNAL("clicked()"), self.path_clicked)
+        self.pathButton.clicked.connect(self.path_clicked)
 
         #self.pathEdit.setText(get_userpkg_dir())
         if(metainfo):
@@ -497,7 +497,7 @@ class FactorySelector(QtWidgets.QDialog, ui_tofactory.Ui_FactorySelector):
 
         self.comboBox.setCurrentIndex(i)
 
-        self.connect(self.newFactoryButton, QtCore.SIGNAL("clicked()"), self.new_factory)
+        self.newFactoryButton.clicked.connect(self.new_factory)
 
     def accept(self):
         """ Accept dialog result """
@@ -587,7 +587,7 @@ class PreferencesDialog(QtWidgets.QDialog, ui_preferences.Ui_Preferences):
         except:
             pass
 
-        self.connect(self.commandPath, QtCore.SIGNAL("clicked()"), self.select_editor)
+        self.commandPath.clicked.connect(select_editor)
 
         # UI
         try:
@@ -620,8 +620,8 @@ class PreferencesDialog(QtWidgets.QDialog, ui_preferences.Ui_Preferences):
         except:
             self.evalCue.setCheckState(QtCore.Qt.Unchecked)
 
-        self.connect(self.addButton, QtCore.SIGNAL("clicked()"), self.add_search_path)
-        self.connect(self.removeButton, QtCore.SIGNAL("clicked()"), self.remove_search_path)
+        self.addButton.clicked.connect(self.add_search_path)
+        self.removeButton.clicked.connect(self.remove_search_path)
 
     def add_search_path(self):
         """ Package Manager : Add a path in the list """
@@ -819,10 +819,10 @@ class IOConfigDialog(QtWidgets.QDialog, ui_ioconfig.Ui_IOConfig):
             self.outModel.setItem(i, 1, QtGui.QStandardItem(str(d['interface'])))
             self.outModel.setItem(i, 2, QtGui.QStandardItem(str(d.get('desc', ''))))
 
-        self.connect(self.addInput, QtCore.SIGNAL("clicked()"), self.add_input)
-        self.connect(self.delInput, QtCore.SIGNAL("clicked()"), self.del_input)
-        self.connect(self.addOutput, QtCore.SIGNAL("clicked()"), self.add_output)
-        self.connect(self.delOutput, QtCore.SIGNAL("clicked()"), self.del_output)
+        self.addInput.clicked.connect(self.add_input)
+        self.delInput.clicked.connect(self.del_input)
+        self.addOutput.clicked.connect(self.add_output)
+        self.delOutput.clicked.connect(self.del_output)
 
     def accept(self):
         """ Valid IO """

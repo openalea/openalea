@@ -136,8 +136,8 @@ class DefaultNodeWidget(NodeWidget, QtWidgets.QWidget):
 
         runbutton = QtWidgets.QPushButton("Run", self)
         exitbutton = QtWidgets.QPushButton("Exit", self)
-        self.connect(runbutton, QtCore.SIGNAL("clicked()"), self.run)
-        self.connect(exitbutton, QtCore.SIGNAL("clicked()"), self.exit)
+        runbutton.clicked.connect(self.run)
+        exitbutton.clicked.connect(self.exit)
 
         buttons = QtWidgets.QHBoxLayout()
         buttons.addWidget(runbutton)

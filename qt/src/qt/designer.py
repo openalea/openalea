@@ -63,7 +63,7 @@ def mtime_datetime(path):
 
 
 def replaceext(self, ext, old_ext=None):
-    u"""
+    """
     Changes current extension to ext.
     If extension contains more than one dot (ex: .tar.gz) you can specify
     it with "old_ext" argument.

@@ -45,9 +45,7 @@ class SharedDataBrowser(NodeWidget, QtGui.QDialog):
 
         self.package_lineedit = QtWidgets.QLineEdit(self)
         self.gridlayout.addWidget(self.package_lineedit, 0, 1, 1, 3)
-        self.connect(self.package_lineedit,
-                     QtCore.SIGNAL("textChanged()"),
-                     self.package_changed)
+        self.package_lineedit.textChanged.connect(self.package_changed)
 
         self.datadir_lineedit = QtWidgets.QLineEdit(self)
         self.datadir_lineedit.setReadOnly(True)
@@ -63,17 +61,14 @@ class SharedDataBrowser(NodeWidget, QtGui.QDialog):
 
         self.glob_lineedit = QtWidgets.QLineEdit(self)
         self.gridlayout.addWidget(self.glob_lineedit, 3, 1, 1, 2)
-        self.connect(self.glob_lineedit,
-                     QtCore.SIGNAL("textChanged()"),
-                     self.glob_changed)
+        self.glob_lineedit.textChanged.connect(self.glob_changed)
 
         self.filenames_combobox_label = QtWidgets.QLabel('3. Select the data file:', self)
         self.gridlayout.addWidget(self.filenames_combobox_label, 4, 0)
 
         self.filenames_combobox = QtWidgets.QComboBox(self)
-        self.connect(self.filenames_combobox,
-                     QtCore.SIGNAL("activated()"),
-                     self.filename_changed)
+        self.filenames_combobox.activated.connect(self.filename_changed)
+
         self.gridlayout.addWidget(self.filenames_combobox, 4, 1, 1, 3)
 
         self.setWindowTitle("SharedDatabrowser")

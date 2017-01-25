@@ -81,7 +81,7 @@ class ListSelector(NodeWidget, QtGui.QDialog):
             button = QtWidgets.QCheckBox(elt_name)
             button.setChecked(True)
 
-            self.connect(button, QtCore.SIGNAL("clicked()"), lambda index=i: self.reactToClick(index))
+            button.clicked.connect(lambda index=i: self.reactToClick(index))
             layout.addWidget(button)
             self.widgets.append(button)
 
