@@ -15,7 +15,7 @@ there are a few commands dedicated to multisetup (see --help).
 """
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: multisetup.py 3618 2012-06-18 15:58:17Z pradal $"
+__revision__ = " $Id$"
 
 import sys
 import os
@@ -132,8 +132,8 @@ class Multisetup(object):
     def parse_packages(self):
         """Search and remove package from multisetup command(e.g., --package)
 
-        .. todo:: known issue: python multisetup.py --packages with two 
-            packages will be confuse by following commands. Must be put 
+        .. todo:: known issue: python multisetup.py --packages with two
+            packages will be confuse by following commands. Must be put
             at the end of the command
         """
         if '--packages' in self.commands:
@@ -142,9 +142,9 @@ class Multisetup(object):
             self.packages = set()
             found = True
             while found is True:
-                try: #test is no more argument
+                try:  # test is no more argument
                     self.commands[index]
-                except: # then breaks
+                except:  # then breaks
                     break
                 # otherwise if next argument starts with -, break
                 if self.commands[index].startswith('-'):
