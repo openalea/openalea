@@ -105,6 +105,7 @@ class MainWindow(QtWidgets.QMainWindow, ui_mainwindow.Ui_MainWindow, SignalSlotL
             interpreter = InterpreterClass()
 
         # interpreter init defered after session init
+
         shellclass = get_shell_class()
         self.interpreterWidget = shellclass(interpreter,
                                             cli.get_welcome_msg())

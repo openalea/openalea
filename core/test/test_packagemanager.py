@@ -87,6 +87,11 @@ def test_search():
     # print res
     # assert "command" in res[0].name
 
+def test_alias():
+    pkgman = PackageManager()
+
+    pkgman.init()
+    pkgman.find_and_register_packages()
 
 # test has been removed
 # too dangerous to test writing on a singleton

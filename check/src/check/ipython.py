@@ -31,11 +31,17 @@ def has_deprecated_ipython():
     """
     try:
         from ipykernel.inprocess.ipkernel import InProcessKernel
-        from qconsole.rich_ipython_widget import RichIPythonWidget
-        from qtconsole.inprocess_kernelmanager import QtInProcessKernelManager
+        from qtconsole.rich_ipython_widget import RichIPythonWidget
+        from qtconsole.inprocess import QtInProcessKernelManager
         return True
     except ImportError:
-        return False
+        try:
+            from IPython.kernel.inprocess.ipkernel import InProcessKernel
+            from IPython.frontend.qt.console.rich_ipython_widget import RichIPythonWidget
+            from IPython.frontend.qt.inprocess_kernelmanager import QtInProcessKernelManager
+            return False
+        except ImportError:
+            return False
 
 
 def has_new_ipython():
@@ -45,8 +51,8 @@ def has_new_ipython():
     :return: True if user can use IPython. Else False.
     """
     try:
-        from ipykerfnel.inprocess.ipkernel import InProcessKernel
-        from qtconsole.console.rich_ipython_widget import RichJupyterWidget
+        from ipykernel.inprocess.ipkernel import InProcessKernel
+        from qtconsole.rich_jupyter_widget import RichJupyterWidget
         from qtconsole.inprocess import QtInProcessKernelManager
         return True
     except ImportError:
@@ -60,19 +66,26 @@ def has_ipython_config():
     :return: True if user can use IPython. Else False.
     """
     try:
-        # Works for IPython 2.x
-        from IPython.config.application import Application
-        from IPython.config.configurable import Configurable
-        from IPython.utils.traitlets import List, Bool, Unicode
+        # Works for IPython 5.x
+        from traitlets.config.application import Application
+        from traitlets.config.configurable import Configurable
+        from traitlets import List, Bool, Unicode
         return True
     except ImportError:
         try:
-            # Works for IPython 1.x
-            from IPython.config.application import Application, Configurable
+            # Works for IPython 2.x
+            from IPython.config.application import Application
+            from IPython.config.configurable import Configurable
             from IPython.utils.traitlets import List, Bool, Unicode
             return True
         except ImportError:
-            return False
+            try:
+                # Works for IPython 1.x
+                from IPython.config.application import Application, Configurable
+                from IPython.utils.traitlets import List, Bool, Unicode
+                return True
+            except ImportError:
+                return False
 
 
 def check_ipython():
