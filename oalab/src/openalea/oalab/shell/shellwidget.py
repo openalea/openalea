@@ -126,8 +126,9 @@ class ShellWidget(RichJupyterWidget, GraphicalStreamRedirection):
         Write a text in the stdout of the shell and flush it.
         :param txt: String to write.
         """
-        sys.stdout.write(txt)
-        sys.stdout.flush()
+        pass
+        # sys.stdout.write(txt)
+        # sys.stdout.flush()
 
     def push(self, var):
         """
