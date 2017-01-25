@@ -12,6 +12,19 @@
 
 # Code:
 
+from streamredirection import GraphicalStreamRedirection
+import sys
+VERSION = 1
+
+try:
+    from qtconsole.rich_jupyter_widget import RichJupyterWidget as RichIPythonWidget
+    VERSION = 2
+except ImportError:
+    try:
+        from IPython.qt.console.rich_ipython_widget import RichIPythonWidget
+    except ImportError:
+        from IPython.frontend.qt.console.rich_ipython_widget import RichIPythonWidget
+
 import logging
 
 from streamredirection import GraphicalStreamRedirection
@@ -54,30 +67,38 @@ class ShellWidget(RichJupyterWidget, GraphicalStreamRedirection):
 
         # Compatibility with visualea
         self.runsource = self.interpreter.run_cell
-        self.runcode = self.interpreter.runcode
-        self.loadcode = self.interpreter.loadcode
+        self.runcode = self.interpreter.run_code
+        self.loadcode = self.interpreter.run_code
 
         # Write welcome message
-        self.write(message)
+        #self.write(message)
 
         # Set kernel manager
         try:
             from qtconsole.inprocess import QtInProcessKernelManager
         except ImportError:
-            import warnings
-            message = "You are using a deprecated version of IPython (please update)."
-            warnings.warn(message)
+            try:
+                from IPython.qt.inprocess import QtInProcessKernelManager
+            except ImportError:
+                import warnings
+                message = "You are using a deprecated version of IPython (please update)."
+                warnings.warn(message)
 
-            # DEPRECATED !
-            from IPython.frontend.qt.inprocess_kernelmanager import QtInProcessKernelManager
-            km = QtInProcessKernelManager(kernel=self.interpreter)
-            km.start_channels()
-            self.interpreter.frontends.append(km)
-            self.kernel_manager = km
+                # DEPRECATED !
+                from IPython.frontend.qt.inprocess_kernelmanager import QtInProcessKernelManager
+                km = QtInProcessKernelManager(kernel=self.interpreter)
+                km.start_channels()
+                self.interpreter.frontends.append(km)
+                self.kernel_manager = km
         else:
             km = QtInProcessKernelManager()
-            km.kernel = self.interpreter
-            km.kernel.gui = 'qt'
+
+            if VERSION == 2:
+                km.kernel = self.interpreter
+                km.kernel.gui = 'qt'
+            else:
+                km.ipykernel = self.interpreter
+                km.ipykernel.gui = 'qt'
 
             kernel_client = km.client()
             kernel_client.start_channels()
@@ -105,18 +126,14 @@ class ShellWidget(RichJupyterWidget, GraphicalStreamRedirection):
         Write a text in the stdout of the shell and flush it.
         :param txt: String to write.
         """
-        #self.interpreter.shell.write(txt)
-        self.interpreter.stdout.write(txt)
-        self.interpreter.stdout.flush()
+        sys.stdout.write(data)
 
     def push(self, var):
         """
         Push variables in the namespace.
         :param var: dict of objects
         """
-        if var is not None:
-            for v in var:
-                self.interpreter.locals += v
+        self.interpreter.push(var)
 
     def initialize(self):
         if not hasattr(self.interpreter, "shell"):

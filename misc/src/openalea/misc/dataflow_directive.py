@@ -103,17 +103,16 @@ def out_of_date(original, derived):
             (os.path.exists(original) and
              os.stat(derived).st_mtime < os.stat(original).st_mtime))
 
-
-
-
-
 from Qt import QtCore, QtGui, QtWidgets
 from openalea.visualea.dataflowview import GraphicalGraph
+
 # create the application only once!
-app = QtGui.QApplication.instance() or QtGui.QApplication([])
+app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
+
 # start the package manager
 pm = PackageManager(verbose=False)
 pm.init()
+
 class DataflowRenderer(QtCore.QObject):
     def __init__(self, plot_path, package_name, node_name,
                  basename, tmpdir, destdir, options, parent=None):

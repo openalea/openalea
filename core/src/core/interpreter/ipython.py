@@ -20,7 +20,10 @@
 
 import types
 
-from ipykernel.inprocess.ipkernel import InProcessKernel
+try:
+    from ipykernel.inprocess.ipkernel import InProcessKernel
+except ImportError:
+    from IPython.kernel.inprocess.ipkernel import InProcessKernel
 
 from IPython.core.error import UsageError
 
