@@ -1,3 +1,17 @@
+## Version: $Id$
+##
+######################################################################
+##
+### Commentary:
+##
+######################################################################
+##
+### Change Log:
+##
+######################################################################
+##
+### Code:
+
 # Python files
 *.py[cod]
 
@@ -45,6 +59,13 @@ nosetests.xml
 # Designer files
 *visualea/src/visualea/ui_*
 
+## ###################################################################
+##
+## ###################################################################
+
+oalab/src/openalea/oalab/control/designer/_editor.py
+oalab/share/data/project/tutorial_models/model/demo_WeberPenn.wpy
+
 # Translations
 *.mo
 
@@ -65,3 +86,5 @@ nosetests.xml
 # temporary files
 *._icon.png
 
+######################################################################
+### .gitignore ends here
