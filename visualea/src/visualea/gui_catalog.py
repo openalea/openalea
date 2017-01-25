@@ -69,8 +69,9 @@ class IFloatWidget(IInterfaceWidget, QtWidgets.QWidget):
 
         self.notify(None, None)
 
-        self.connect(self.spin, QtCore.SIGNAL("valueChanged(double)"),
-                     self.valueChanged)
+        self.spin.valueChanged[float].connect(self.valueChanged)
+        # self.connect(self.spin, QtCore.SIGNAL("valueChanged(double)"),
+        #              self.valueChanged)
 
     @lock_notify
     def valueChanged(self, newval):
@@ -133,7 +134,8 @@ class IIntWidget(IInterfaceWidget, QtWidgets.QWidget):
 
         self.notify(None, None)
 
-        self.connect(self.spin, QtCore.SIGNAL("valueChanged(int)"), self.valueChanged)
+        self.spin.valueChanged[int].connect(self.valueChanged)
+        #self.connect(self.spin, QtCore.SIGNAL("valueChanged(int)"), self.valueChanged)
 
     @lock_notify
     def valueChanged(self, newval):
@@ -178,7 +180,9 @@ class IBoolWidget(IInterfaceWidget, QtWidgets.QWidget):
         hboxlayout.addWidget(self.checkbox)
 
         self.notify(node, None)
-        self.connect(self.checkbox, QtCore.SIGNAL("stateChanged(int)"), self.stateChanged)
+
+        self.checkbox.stateChanged[int].connect(self.stateChanged)
+        # self.connect(self.checkbox, QtCore.SIGNAL("stateChanged(int)"), self.stateChanged)
 
     @lock_notify
     def stateChanged(self, state):
@@ -236,7 +240,9 @@ class IStrWidget(IInterfaceWidget, QtWidgets.QWidget):
         self.hboxlayout.addWidget(self.subwidget)
 
         self.too_long = False  # Validity Flag
-        self.connect(self.subwidget, QtCore.SIGNAL("textChanged()"), self.valueChanged)
+
+        self.subwidget.textChanged.connect(self.valueChanged)
+        #self.connect(self.subwidget, QtCore.SIGNAL("textChanged()"), self.valueChanged)
         self.notify(None, None)
 
     @lock_notify
@@ -307,8 +313,9 @@ class IDateTimeWidget(IInterfaceWidget, QtWidgets.QWidget):
         except:
             pass
 
-        self.connect(self.subwidget, QtCore.SIGNAL
-                     ("dateTimeChanged( const QDateTime  )"), self.valueChanged)
+        self.subwidget.dateTimeChanged.connect(self.valueChanged)
+        # self.connect(self.subwidget, QtCore.SIGNAL
+        #              ("dateTimeChanged( const QDateTime  )"), self.valueChanged)
 
     @lock_notify
     def valueChanged(self, newval):
@@ -360,7 +367,9 @@ class ITextStrWidget(IInterfaceWidget, QtWidgets.QWidget):
         self.hboxlayout.addWidget(self.subwidget)
 
         self.too_long = False  # Validity Flag
-        self.connect(self.subwidget, QtCore.SIGNAL("textChanged()"), self.valueChanged)
+
+        self.subwidget.textChanged.connect(self.valueChanged)
+        # self.connect(self.subwidget, QtCore.SIGNAL("textChanged()"), self.valueChanged)
         self.notify(None, None)
 
     def setEnabled(self, val):
@@ -459,13 +468,19 @@ class ISequenceWidget(IInterfaceWidget, QtWidgets.QWidget):
         self.subwidget = QtWidgets.QListWidget(self)
         self.gridlayout.addWidget(self.subwidget, 1, 0, 1, 2)
 
-        self.connect(self.subwidget, QtCore.SIGNAL("itemDoubleClicked(QListWidgetItem*)"),
-                     self.itemclick)
-        self.connect(self.subwidget, QtCore.SIGNAL("itemChanged(QListWidgetItem*)"),
-                     self.itemchanged)
-        self.connect(self.button, QtCore.SIGNAL("clicked()"), self.button_clicked)
-        self.connect(self.buttonplus, QtCore.SIGNAL("clicked()"), self.buttonplus_clicked)
-        self.connect(self.buttonmoins, QtCore.SIGNAL("clicked()"), self.buttonmoins_clicked)
+        self.subwidget.itemDoubleClicked.connect(self.itemclick)
+        # self.connect(self.subwidget, QtCore.SIGNAL("itemDoubleClicked(QListWidgetItem*)"),
+        #              self.itemclick)
+        self.subwidget.itemChanged.connect(self.itemchanged)
+        # self.connect(self.subwidget, QtCore.SIGNAL("itemChanged(QListWidgetItem*)"),
+        #              self.itemchanged)
+
+        self.button.clicked.connect(self.button_clicked)
+        # self.connect(self.button, QtCore.SIGNAL("clicked()"), self.button_clicked)
+        self.buttonplus.clicked.connect(self.buttonplus_clicked)
+        # self.connect(self.buttonplus, QtCore.SIGNAL("clicked()"), self.buttonplus_clicked)
+        self.buttonmoins.clicked.connect(self.buttonmoins_clicked)
+        # self.connect(self.buttonmoins, QtCore.SIGNAL("clicked()"), self.buttonmoins_clicked)
 
         p = QtWidgets.QSizePolicy
         self.setSizePolicy(p(p.MinimumExpanding, p.Preferred))
@@ -646,9 +661,11 @@ class IDictWidget(IInterfaceWidget, QtWidgets.QWidget):
         self.hboxlayout.addWidget(self.button)
 
         self.update_list()
-        self.connect(self.subwidget, QtCore.SIGNAL("itemDoubleClicked(QListWidgetItem*)"),
-                     self.itemclick)
-        self.connect(self.button, QtCore.SIGNAL("clicked()"), self.button_clicked)
+        self.subwidget.itemDoubleClicked.connect(self.itemclick)
+        # self.connect(self.subwidget, QtCore.SIGNAL("itemDoubleClicked(QListWidgetItem*)"),
+        #              self.itemclick)
+        self.button.clicked.connect(self.button_clicked)
+        # self.connect(self.button, QtCore.SIGNAL("clicked()"), self.button_clicked)
 
     def update_state(self):
         """ Enable or disable widget depending of its state """
@@ -777,7 +794,8 @@ class IFileStrWidget(IStrWidget):
         self.open = not interface.save
         # self.open = False
 
-        self.connect(self.button, QtCore.SIGNAL("clicked()"), self.button_clicked)
+        self.button.clicked.connect(self.button_clicked)
+        # self.connect(self.button, QtCore.SIGNAL("clicked()"), self.button_clicked)
 
     def button_clicked(self):
 
@@ -817,7 +835,8 @@ class IDirStrWidget(IStrWidget):
         self.button = QtWidgets.QPushButton("...", self)
         self.hboxlayout.addWidget(self.button)
 
-        self.connect(self.button, QtCore.SIGNAL("clicked()"), self.button_clicked)
+        self.button.clicked.connect(self.button_clicked)
+        # self.connect(self.button, QtCore.SIGNAL("clicked()"), self.button_clicked)
 
     def button_clicked(self):
 
@@ -860,9 +879,10 @@ class IEnumStrWidget(IInterfaceWidget, QtWidgets.QWidget):
         self.hboxlayout.addWidget(self.subwidget)
         self.notify(None, None)
 
-        self.connect(self.subwidget,
-                     QtCore.SIGNAL("currentIndexChanged(const QString &)"),
-                     self.valueChanged)
+        self.subwidget.currentIndexChanged[str].connect(self.valueChanged)
+        # self.connect(self.subwidget,
+        #              QtCore.SIGNAL("currentIndexChanged(const QString &)"),
+        #              self.valueChanged)
 
     @lock_notify
     def valueChanged(self, newval):
@@ -989,7 +1009,8 @@ class ITupleWidget(IInterfaceWidget, QtWidgets.QWidget):
         self.hboxlayout.addWidget(self.subwidget)
 
         self.notify(None, None)
-        self.connect(self.subwidget, QtCore.SIGNAL("textChanged()"), self.valueChanged)
+        self.subwidget.textChanged.connect(self.valueChanged)
+        # self.connect(self.subwidget, QtCore.SIGNAL("textChanged()"), self.valueChanged)
 
     @lock_notify
     def valueChanged(self, newval):

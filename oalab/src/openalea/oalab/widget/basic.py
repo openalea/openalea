@@ -122,7 +122,7 @@ class QSpanSlider(QtWidgets.QSlider):
         QtWidgets.QSlider.__init__(self, orientation, parent)
 
         # self.rangeChanged[int, int].connect(self.updateRange)
-        self.connect(self, QtCore.SIGNAL("sliderReleased()"), self.movePressedHandle)
+        # self.connect(self, QtCore.SIGNAL("sliderReleased()"), self.movePressedHandle)
         self.sliderReleased.connect(self.movePressedHandle)
         # self.setStyle(QStyleFactory.create('Plastique'))
 
@@ -355,7 +355,7 @@ class QSpanSlider(QtWidgets.QSlider):
         QtWidgets.QSlider.initStyleOption(self, opt)
 
         # area
-        groove = self.style().subControlRect(QtGui.QStyle.CC_Slider, opt, QtGui.QStyle.SC_SliderGroove, self)
+        groove = self.style().subControlRect(QtWidgets.QStyle.CC_Slider, opt, QtWidgets.QStyle.SC_SliderGroove, self)
         if opt.orientation == QtCore.Qt.Horizontal:
             groove.adjust(0, 0, -1, 0)
         else:
@@ -420,7 +420,7 @@ class QSpanSlider(QtWidgets.QSlider):
             self.lastPressed = handle
             self.setSliderDown(True)
             # self.sliderPressed.emit(handle)
-            self.sliderPressed[PyQt_PyObject].emit(handle)
+            self.sliderPressed.emit(handle)
             # self.emit(QtCore.SIGNAL("sliderPressed(PyQt_PyObject)"), handle)
         if control != oldControl:
             self.update(sr)
