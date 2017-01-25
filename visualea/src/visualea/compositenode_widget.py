@@ -18,7 +18,7 @@
 """Composite Node Widgets"""
 
 __license__ = "CeCILL v2"
-__revision__ = " $Id: compositenode_widget.py 2329 2010-02-25 15:24:25Z dbarbeau $ "
+__revision__ = " $Id$ "
 
 import sys
 

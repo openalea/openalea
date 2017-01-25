@@ -117,12 +117,14 @@ class AbstractQtControlWidget(AbstractControlWidget):
     def _connect(self, method):
         signal = self.value_changed_signal
         if signal:
-            if hasattr(signal, 'connect') and hasattr(signal, 'disconnect'):
-                signal.connect(method)
-            elif isinstance(signal, basestring):
-                self.connect(self, QtCore.SIGNAL(signal), method)
-            else:
-                raise NotImplementedError, 'Signal %s support is not implemented' % signal
+            signal.connect(method)
+
+            # if hasattr(signal, 'connect') and hasattr(signal, 'disconnect'):
+            #     signal.connect(method)
+            # elif isinstance(signal, basestring):
+            #     self.connect(self, QtCore.SIGNAL(signal), method)
+            # else:
+            #     raise NotImplementedError, 'Signal %s support is not implemented' % signal
 
     def _disconnect(self, method):
         signal = self.value_changed_signal

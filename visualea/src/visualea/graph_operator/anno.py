@@ -15,7 +15,7 @@
 ###############################################################################
 
 __license__ = "Cecill-C"
-__revision__ = " $Id: color.py 2757 2010-08-12 14:43:58Z dbarbeau $ "
+__revision__ = " $Id$ "
 
 from openalea.visualea.graph_operator.base import Base
 

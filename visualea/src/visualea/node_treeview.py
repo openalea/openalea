@@ -523,18 +523,22 @@ class NodeFactoryView(object):
         if(isinstance(obj, AbstractFactory)): # Factory
             menu = QtWidgets.QMenu(self)
             action = menu.addAction("Open")
-            self.connect(action, QtCore.SIGNAL("triggered()"), self.open_node)
+            #self.connect(action, QtCore.SIGNAL("triggered()"), self.open_node)
+            action.triggered.connect(open_node)
 
             action = menu.addAction("Edit")
-            self.connect(action, QtCore.SIGNAL("triggered()"), self.edit_node)
+            #self.connect(action, QtCore.SIGNAL("triggered()"), self.edit_node)
+            action.triggered.connect(edit_node)
 
             action = menu.addAction("Properties")
-            self.connect(action, QtCore.SIGNAL("triggered()"), self.edit_properties)
+            #self.connect(action, QtCore.SIGNAL("triggered()"), self.edit_properties)
+            action.triggered.connect(edit_properties)
 
             menu.addSeparator()
 
             action = menu.addAction("Remove")
             self.connect(action, QtCore.SIGNAL("triggered()"), self.remove_node)
+            action.triggered.connect(remove_node)
 
         elif(isinstance(obj, PseudoPackage)): # Package
 
@@ -545,55 +549,66 @@ class NodeFactoryView(object):
 
             action = menu.addAction("Open URL")
             action.setEnabled(enabled)
-            self.connect(action, QtCore.SIGNAL("triggered()"), self.open_node)
+            #self.connect(action, QtCore.SIGNAL("triggered()"), self.open_node)
+            self.triggered.connect(open_node)
 
             action = menu.addAction("Meta informations")
             action.setEnabled(enabled)
-            self.connect(action, QtCore.SIGNAL("triggered()"), self.edit_package)
+            #self.connect(action, QtCore.SIGNAL("triggered()"), self.edit_package)
+            action.triggered.connect(edit_package)
 
             action = menu.addAction("Edit Code")
             action.setEnabled(enabled and pkg.is_editable())
-            self.connect(action, QtCore.SIGNAL("triggered()"), self.edit_pkg_code)
+            #self.connect(action, QtCore.SIGNAL("triggered()"), self.edit_pkg_code)
+            action.triggered.connect(edit_pkg_code)
 
             menu.addSeparator()
 
             action = menu.addAction("Add Python Node")
             action.setEnabled(enabled and pkg.is_editable())
-            self.connect(action, QtCore.SIGNAL("triggered()"), self.add_python_node)
+            #self.connect(action, QtCore.SIGNAL("triggered()"), self.add_python_node)
+            self.triggered.connect(add_python_node)
 
             action = menu.addAction("Add Composite Node")
             action.setEnabled(enabled and pkg.is_editable())
-            self.connect(action, QtCore.SIGNAL("triggered()"), self.add_composite_node)
+            #self.connect(action, QtCore.SIGNAL("triggered()"), self.add_composite_node)
+            self.triggered.connect(add_composite_node)
 
             action = menu.addAction("Add Data File")
             action.setEnabled(enabled and pkg.is_editable())
-            self.connect(action, QtCore.SIGNAL("triggered()"), self.add_data)
+            #self.connect(action, QtCore.SIGNAL("triggered()"), self.add_data)
+            self.triggered.connect(add_data)
 
             menu.addSeparator()
 
             action = menu.addAction("Grab Icon")
             action.setEnabled(enabled)
-            self.connect(action, QtCore.SIGNAL("triggered()"), self.grab_icon)
+            #self.connect(action, QtCore.SIGNAL("triggered()"), self.grab_icon)
+            self.triggered.connect(grab_icon)
 
             menu.addSeparator()
 
             action = menu.addAction("Move/Rename Package")
             action.setEnabled(enabled and pkg.is_editable())
-            self.connect(action, QtCore.SIGNAL("triggered()"), self.move_package)
+            #self.connect(action, QtCore.SIGNAL("triggered()"), self.move_package)
+            self.triggered.connect(move_package)
 
             action = menu.addAction("Copy Package")
             action.setEnabled(enabled)
-            self.connect(action, QtCore.SIGNAL("triggered()"), self.duplicate_package)
+            #self.connect(action, QtCore.SIGNAL("triggered()"), self.duplicate_package)
+            self.triggered.connect(duplicate_package)
 
             action = menu.addAction("Remove Package")
             action.setEnabled(enabled and pkg.is_editable())
-            self.connect(action, QtCore.SIGNAL("triggered()"), self.remove_package)
+            #self.connect(action, QtCore.SIGNAL("triggered()"), self.remove_package)
+            self.triggered.connect(remove_package)
 
             menu.addSeparator()
 
             action = menu.addAction("Reload Package")
             action.setEnabled(enabled)
-            self.connect(action, QtCore.SIGNAL("triggered()"), self.reload_package)
+            #self.connect(action, QtCore.SIGNAL("triggered()"), self.reload_package)
+            self.triggered.connect(reload_package)
 
         if(menu):
             menu.move(event.globalPos())
@@ -903,8 +918,10 @@ class NodeFactoryTreeView(QtWidgets.QTreeView, NodeFactoryView):
         self.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
         #self.setAnimated(True)
 
-        self.connect(self, QtCore.SIGNAL("expanded (const QModelIndex &)"), self.expanded)
-        self.connect(self, QtCore.SIGNAL("collapsed (const QModelIndex &)"), self.collapsed)
+        #self.connect(self, QtCore.SIGNAL("expanded (const QModelIndex &)"), self.expanded)
+        self.expanded.connect(self.expanded)
+        #self.connect(self, QtCore.SIGNAL("collapsed (const QModelIndex &)"), self.collapsed)
+        self.collapsed.connect(self.collapsed)
 
         self.expanded_items = set()
 
@@ -1022,7 +1039,8 @@ class DataPoolListView(QtWidgets.QListView, SignalSlotListener):
 
         menu = QtWidgets.QMenu(self)
         action = menu.addAction("Remove")
-        self.connect(action, QtCore.SIGNAL("triggered()"), self.remove_element)
+        #self.connect(action, QtCore.SIGNAL("triggered()"), self.remove_element)
+        action.triggered(self.remove_element)
 
         menu.move(event.globalPos())
         menu.show()
