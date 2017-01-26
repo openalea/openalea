@@ -91,13 +91,17 @@ def getexistingdirectory(parent=None, caption='', basedir='', options=None):
     return result
 
 def _qfiledialog_wrapper(attr, parent=None, caption=u'', basedir=u'', filters=u'', selectedfilter=u'', options=None, path_class=Path):
+
     if options is None:
         options = QtWidgets.QFileDialog.Options(0)
 
+    tuple_returned = True
     try:
         func = getattr(QtWidgets.QFileDialog, attr + 'AndFilter')
     except AttributeError:
         func = getattr(QtWidgets.QFileDialog, attr)
+        selectedfilter = unicode("")
+        tuple_returned = False
 
     if sys.platform == "win32":
         _temp1, _temp2 = sys.stdout, sys.stderr
@@ -115,7 +119,7 @@ def _qfiledialog_wrapper(attr, parent=None, caption=u'', basedir=u'', filters=u'
 
     selectedfilter = unicode(selectedfilter)
 
-    if isinstance(output, QString):
+    if isinstance(output, unicode):
         output = unicode(output)
     elif output is None:
         pass
