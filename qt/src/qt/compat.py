@@ -19,7 +19,12 @@
 import os
 import sys
 
+import Qt
+PYQT4 = (Qt.__binding__ == 'PyQt4')
+
 from Qt import QtCore, QtGui, QtWidgets
+
+import collections
 
 try:
     from openalea.core.path import path as Path
@@ -27,6 +32,7 @@ except ImportError:
     FilePath = DirPath = Path = str
 else:
     FilePath = DirPath = Path
+
 
 _tab_position = {
     0: QtWidgets.QTabWidget.North,
@@ -57,21 +63,60 @@ def arrange_path(path, path_class=Path):
     else:
         return path_class(path)
 
-def to_qvariant(pyobj=None):
-    return QtCore.QVariant(pyobj)
 
-def from_qvariant(qobj=None, convfunc=None):
-    assert callable(convfunc)
-    if convfunc in (unicode, str):
-        return convfunc(qobj.toString())
-    elif convfunc is bool:
-        return qobj.toBool()
-    elif convfunc is int:
-        return qobj.toInt()[0]
-    elif convfunc is float:
-        return qobj.toDouble()[0]
-    else:
-        return convfunc(qobj)
+if PYQT4:
+    import sip
+    try:
+        PYQT_API_1 = sip.getapi('QVariant') == 1  # PyQt API #1
+    except AttributeError:
+        # PyQt <v4.6
+        PYQT_API_1 = True
+
+    def to_qvariant(pyobj=None):
+        """Convert Python object to QVariant
+        This is a transitional function from PyQt API #1 (QVariant exist)
+        to PyQt API #2 and Pyside (QVariant does not exist)"""
+        if PYQT_API_1:
+            # PyQt API #1
+            from QtCore import QVariant
+            return QVariant(pyobj)
+        else:
+            # PyQt API #2
+            return pyobj
+
+    def from_qvariant(qobj=None, convfunc=None):
+        """Convert QVariant object to Python object
+        This is a transitional function from PyQt API #1 (QVariant exist)
+        to PyQt API #2 and Pyside (QVariant does not exist)"""
+        if PYQT_API_1:
+            # PyQt API #1
+            assert isinstance(convfunc, collections.Callable)
+            if convfunc in TEXT_TYPES or convfunc is to_text_string:
+                return convfunc(qobj.toString())
+            elif convfunc is bool:
+                return qobj.toBool()
+            elif convfunc is int:
+                return qobj.toInt()[0]
+            elif convfunc is float:
+                return qobj.toDouble()[0]
+            else:
+                return convfunc(qobj)
+        else:
+            # PyQt API #2
+            return qobj
+else:
+    def to_qvariant(obj=None):  # analysis:ignore
+        """Convert Python object to QVariant
+        This is a transitional function from PyQt API#1 (QVariant exist)
+        to PyQt API#2 and Pyside (QVariant does not exist)"""
+        return obj
+
+    def from_qvariant(qobj=None, pytype=None):  # analysis:ignore
+        """Convert QVariant object to Python object
+        This is a transitional function from PyQt API #1 (QVariant exist)
+        to PyQt API #2 and Pyside (QVariant does not exist)"""
+        return qobj
+
 
 def getexistingdirectory(parent=None, caption='', basedir='', options=None):
     if options is None:

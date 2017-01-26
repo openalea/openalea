@@ -24,6 +24,7 @@ __revision__ = "$Id$"
 
 import sys
 
+import Qt
 from Qt import QtCore, QtGui, QtWidgets
 
 from openalea.core import logger
@@ -45,6 +46,8 @@ class Openalea(QtWidgets.QApplication):
         QtWidgets.QApplication.__init__(self, args)
         # -- redirect stdout to null if pythonw --
         set_stdout()
+
+        self.check_qt_version()
         # -- reconfigure LoggerOffice to use Qt log handler and a file handler --
         logger.default_init(level=logger.DEBUG, handlers=["qt"]) #TODO get level from settings
         logger.connect_loggers_to_handlers(logger.get_logger_names(), logger.get_handler_names())
@@ -78,17 +81,20 @@ class Openalea(QtWidgets.QApplication):
     def check_qt_version():
         """Ensure we are running a minimal version of Qt"""
         # QT_VERSION_STR implement __le__ operator
-        mess = QtWidgets.QMessageBox.warning(None,
+        major, minor, patch = (Qt.__qt_version__).split('.')
+
+        if major < 4 or (major==4 and minor<5):
+            mess = QtWidgets.QMessageBox.warning(None,
                                              "Error",
                                              "Visualea needs Qt library >= 4.5.2")
-        sys.exit(-1)
+            sys.exit(-1)
 
 def main(args):
     # Restore default signal handler for CTRL+C
     import signal
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-    Openalea.check_qt_version()
+    # Openalea.check_qt_version()
     app = Openalea(args)
     return app.exec_()
 

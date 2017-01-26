@@ -77,10 +77,9 @@ class CheckSizes(Ui_Form, QtWidgets.QWidget):
         for widget in self._qtcontrols:
             widget.autoapply(self._control, autoapply)
             widget.autoread(self._control, autoread)
->>>>>>> MAJOR RESTRUCTURATION
 
 from openalea.oalab.gui.control.widget_tester import ControlWidgetTester
-from openalea.vpltk.qt.designer import generate_pyfile_from_uifile
+from openalea.qt.designer import generate_pyfile_from_uifile
 
 if __name__ == '__main__':
     import sys
