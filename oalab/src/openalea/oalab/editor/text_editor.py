@@ -153,7 +153,7 @@ class TextEditor(QtWidgets.QTextEdit):
         self.sidebar.setGeometry(0, 0, 50, 100)
         self.sidebar.show()
         self.cursorPositionChanged.connect(self.display_line_number)
-        self.cursorPositionChanged.connect(self.highlightCurrentLine)
+        # self.cursorPositionChanged.connect(self.highlightCurrentLine)
 
         self.read_settings()
 
