@@ -22,7 +22,7 @@ __revision__ = " $Id$ "
 
 from Qt import QtCore, QtGui, QtWidgets, QtSvg
 
-from openalea.vpltk.qt.designer import generate_pyfile_from_uifile, get_data
+from openalea.qt.designer import generate_pyfile_from_uifile, get_data
 
 src = get_data("openalea.visualea.mainwindow", "resources") / 'mainwindow.ui'
 dest = get_data("openalea.visualea.mainwindow", "ui_mainwindow.py")

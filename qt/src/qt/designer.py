@@ -91,7 +91,7 @@ def replaceext(self, ext, old_ext=None):
             return self.__class__(self[:-len(old_ext)] + ext)
 
 
-from PyQt5.uic import compileUi #, compile_args
+from Qt.uic import compileUi #, compile_args
 
 def generate_pyfile_from_uifile(name, src=None, dest=None, uibasename=None, force=None):
     """
