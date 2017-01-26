@@ -200,7 +200,7 @@ class MainWindow(QtWidgets.QMainWindow, ui_mainwindow.Ui_MainWindow, SignalSlotL
                                       (self.actionUseCustomColor, "graph_use_user_color")])
 
         self._last_open_action_group = QtWidgets.QActionGroup(self)
-        #self.connect(self._last_open_action_group, QtCore.SIGNAL("triggered(QAction*)"), self.reopen_last)
+
         self._last_open_action_group.triggered.connect(self.reopen_last)
         self.action_New_Empty_Workspace.triggered.connect(self.new_workspace)
         self.menu_Workspace.aboutToShow.connect(self.__wsMenuShow)

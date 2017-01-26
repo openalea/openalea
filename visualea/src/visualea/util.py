@@ -100,14 +100,14 @@ def open_dialog(parent, widget, title, delete_on_close=True):
     dialog = QtWidgets.QDialog(parent)
 
     if(delete_on_close):
-        dialog.setAttribute(qt.QtCore.Qt.WA_DeleteOnClose)
+        dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
     widget.setParent(dialog)
 
     vboxlayout = QtWidgets.QVBoxLayout(dialog)
     vboxlayout.setContentsMargins(3, 3, 3, 3)
     vboxlayout.setSpacing(5)
-    vboxlayout.addWidget(widget, 0)#, qt.QtCore.Qt.AlignTop)
+    vboxlayout.addWidget(widget, 0)#, QtCore.Qt.AlignTop)
 
     dialog.setWindowTitle(title)
     dialog.show()
@@ -128,7 +128,7 @@ class IconGrabber(object):
 
         pix = QtGui.QPixmap(":/icons/cursor_icon.png")
         self.splash = QtWidgets.QSplashScreen(pix)
-        self.splash.setWindowFlags(qt.QtCore.Qt.WindowStaysOnTopHint|qt.QtCore.Qt.FramelessWindowHint)
+        self.splash.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint|QtCore.Qt.FramelessWindowHint)
         self.splash.setFixedSize(pix.size())
         self.splash.setMask(pix.mask())
         self.splash.setWindowTitle("Icon Selector")

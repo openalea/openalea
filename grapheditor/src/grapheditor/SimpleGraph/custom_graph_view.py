@@ -73,7 +73,7 @@ class SimpleVertex(QtWidgets.QGraphicsEllipseItem, Vertex):
     def contextMenuEvent(self, event): #called on right click on the vertex.
         menu = QtWidgets.QMenu(event.widget())
         action= menu.addAction("Delete vertex")
-        action.connect(action, QtCore.SIGNAL("triggered()"), self.remove)
+        action.triggered.connect(self.remove)
         menu.popup(event.screenPos())
         event.accept()
 
@@ -108,7 +108,7 @@ class SimpleEdge(QtWidgets.QGraphicsPathItem, Edge):
     def contextMenuEvent(self, event):
         menu = QtWidgets.QMenu(self.scene().views()[0])
         action = menu.addAction("Delete edge")
-        self.scene().connect(action, QtCore.SIGNAL("triggered()"), self.remove)
+        action.triggered.connect(self.remove)
         menu.popup(event.screenPos())
         event.accept()
 

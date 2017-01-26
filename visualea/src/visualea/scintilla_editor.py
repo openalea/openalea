@@ -337,7 +337,7 @@ class SmallTabWidget(QtWidgets.QTabWidget):
 class ScintillaCodeEditor(QtWidgets.QWidget):
 
     # -- this signal makes us compatible with Openalea's NodeWidgets --
-    textChanged = qt.QtCore.Signal()
+    textChanged = QtCore.Signal()
 
     def __init__(self, language="Python", *args, **kwargs):
         QtWidgets.QWidget.__init__(self, *args, **kwargs)

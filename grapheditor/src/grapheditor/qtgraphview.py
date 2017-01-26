@@ -275,7 +275,7 @@ class Vertex(Element):
 
         elif change == qtutils.ItemPositionHasChanged:
             self.deaf(True)
-            point = QtCore.QPointF(from_qvariant(value))
+            point = value
             self.store_view_data(position=[point.x(), point.y()])
             self.deaf(False)
             self.notify_position_change()
@@ -707,6 +707,11 @@ class View(QtWidgets.QGraphicsView, baselisteners.GraphViewBase):
         """While the user hasn't released the object, this method is called
         to tell qt if the view accepts the object or not."""
         event.setAccepted(True if self.accept_drop(event) else False)
+
+    def dragLeaveEvent(self, event):
+        """While the user hasn't released the object, this method is called
+        to tell qt if the view accepts the object or not."""
+        event.setAccepted(True)
 
     def dragMoveEvent(self, event):
         format = self.accept_drop(event)

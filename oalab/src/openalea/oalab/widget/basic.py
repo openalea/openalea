@@ -418,7 +418,7 @@ class QSpanSlider(QtWidgets.QSlider):
             self.offset = self.pick(pos - sr.topLeft())
             self.lastPressed = handle
             self.setSliderDown(True)
-            # self.sliderPressed.emit(handle)
+
             self.sliderPressed.emit(handle)
             # self.emit(QtCore.SIGNAL("sliderPressed(PyQt_PyObject)"), handle)
         if control != oldControl:

@@ -51,4 +51,4 @@ class Margin(QtWidgets.QWidget):
 
     def mousePressEvent(self, event):
         line = self.editor.cursorForPosition(event.pos()).blockNumber()
-        self.emit(QtCore.SIGNAL("lineClicked(int)"), line + 1)
+        self.lineClicked[int].emit(line + 1)

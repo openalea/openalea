@@ -37,18 +37,18 @@ import types
 class SignalSlotListener(AbstractListener):
     """ Listener with QT Signal/Slot support """
 
+    notifier_signal = QtCore.Signal((object,),( object,))
+
     def __init__(self):
         AbstractListener.__init__(self)
-        # Create a QObject if necessary
-        if(not isinstance(self, QtCore.QObject)):
-            self.obj = QtCore.QObject()
-            self.qobj = weakref.ref(self.obj)
-        else:
-            self.qobj = weakref.ref(self)
+        # # Create a QObject if necessary
+        # if(not isinstance(self, QtCore.QObject)):
+        #     self.obj = QtCore.QObject()
+        #     self.qobj = weakref.ref(self.obj)
+        # else:
+        #     self.qobj = weakref.ref(self)
 
-
-        self.qobj().connect(self.qobj(), QtCore.SIGNAL("notify"), self.notify)
-
+        self.notifier_signal.connect(self.notify)
 
     def call_notify (self, sender, event=None):
         """
@@ -58,7 +58,8 @@ class SignalSlotListener(AbstractListener):
         """
 
         try:
-            self.qobj().emit(QtCore.SIGNAL("notify"), sender, event)
+            self.notifier_signal.emit(sender, event)
+            #self.qobj().emit(QtCore.SIGNAL("notify"), sender, event)
         except Exception, e:
             print "Cannot emit Qt Signal : ", e
             self.notify(sender, event)

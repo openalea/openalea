@@ -493,7 +493,7 @@ class NodeFactoryView(object):
         drag.setHotSpot(QtCore.QPoint(pixmap.width() / 2, pixmap.height() / 2))
         drag.setPixmap(pixmap)
 
-        drag.start(QtCore.Qt.MoveAction)
+        drag.exec_(QtCore.Qt.MoveAction)
 
     @staticmethod
     def get_item_info(item):
@@ -534,7 +534,7 @@ class NodeFactoryView(object):
             menu.addSeparator()
 
             action = menu.addAction("Remove")
-            action.triggered.connect(remove_node)
+            action.triggered.connect(self.remove_node)
 
         elif(isinstance(obj, PseudoPackage)): # Package
 
@@ -1015,7 +1015,7 @@ class DataPoolListView(QtWidgets.QListView, SignalSlotListener):
         drag.setHotSpot(QtCore.QPoint(pixmap.width() / 2, pixmap.height() / 2))
         drag.setPixmap(pixmap)
 
-        drag.start(QtCore.Qt.MoveAction)
+        drag.exec_(QtCore.Qt.MoveAction)
 
     def contextMenuEvent(self, event):
         """ Context menu event : Display the menu"""

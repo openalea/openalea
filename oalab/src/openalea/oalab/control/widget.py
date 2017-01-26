@@ -122,13 +122,7 @@ class AbstractQtControlWidget(AbstractControlWidget):
     def _disconnect(self, method):
         signal = self.value_changed_signal
         if signal:
-            if hasattr(signal, 'connect') and hasattr(signal, 'disconnect'):
-                signal = signal.signal
-            elif isinstance(signal, basestring):
-                pass
-            else:
-                raise NotImplementedError, 'Signal %s support is not implemented' % signal
-            self.disconnect(self, QtCore.SIGNAL(signal), method)
+            signal.disconnect(method)
 
     def autoapply(self, control, auto=True):
         if auto is True:

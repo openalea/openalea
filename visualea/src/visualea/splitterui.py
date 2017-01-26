@@ -499,7 +499,7 @@ class SplittableUI(QtWidgets.QWidget):
     # of the vertices in the binary tree will be serialized
     reprProps = ["amount", "splitDirection"]
 
-    widgetMenuRequest = QtCore.Signal(qt.QtCore.QPoint, int)
+    widgetMenuRequest = QtCore.Signal(QtCore.QPoint, int)
     dragEnterEventTest = QtCore.Signal(object, QtGui.QDragEnterEvent)
     dropHandlerRequest = QtCore.Signal(object, int, QtGui.QDropEvent)
 
@@ -1053,7 +1053,7 @@ class SplittableUI(QtWidgets.QWidget):
     class TearOff(QtWidgets.QWidget, DraggableWidget):
         """A widget drawn at top right and bottom left hand corner of each
         SplittableUI pane and that allows the user to split/collapse panes"""
-        splitRequest = QtCore.Signal(int, qt.QtCore.Qt.Orientation, float)
+        splitRequest = QtCore.Signal(int, QtCore.Qt.Orientation, float)
         collapseRequest = QtCore.Signal(int, int, int)
 
         TearUp    = 0 #: The tear direction is upward
