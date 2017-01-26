@@ -88,7 +88,6 @@ def main(args):
     import signal
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-    Openalea.check_qt_version()
     app = Openalea(args)
     return app.exec_()
 
