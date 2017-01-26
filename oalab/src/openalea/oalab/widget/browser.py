@@ -36,7 +36,7 @@ class GenericFileBrowser(QtWidgets.QWidget):
         self.model = QtWidgets.QFileSystemModel()
         self.tree = QtWidgets.QTreeView()
         self.tree.setModel(self.model)
-        self.tree.header().setResizeMode(QtWidgets.QHeaderView.ResizeToContents)
+        self.tree.header().setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
         self._home_dir = settings.get_default_home_dir()
         self._cwd = Path(".").abspath()
         self.model.setRootPath(self._home_dir)

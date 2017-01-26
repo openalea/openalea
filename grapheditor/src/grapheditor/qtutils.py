@@ -91,12 +91,12 @@ class AleaSignal(object):
 ###############################################
 # A QGraphicsWidget that looks like a post-it #
 ###############################################
-class MemoRects(QtGui.QGraphicsRectItem):
+class MemoRects(QtWidgets.QGraphicsRectItem):
     __handleSize    = 7.5
     __defaultColor  = QtGui.QColor(250, 250, 100)
 
     def __init__(self, rect, parent=None):
-        QtGui.QGraphicsRectItem.__init__(self, rect, parent)
+        QtWidgets.QGraphicsRectItem.__init__(self, rect, parent)
         self.__resizing   = False
         self.__handlePoly = QtGui.QPolygonF([QtCore.QPointF(0, -self.__handleSize),
                                              QtCore.QPointF(0, 0),
@@ -114,7 +114,7 @@ class MemoRects(QtGui.QGraphicsRectItem):
         self.setColor(self.__defaultColor.darker(110))
         # -- optionnal cosmetics --
         if safeEffects:
-            fx = QtGui.QGraphicsDropShadowEffect()
+            fx = QtWidgets.QGraphicsDropShadowEffect()
             fx.setOffset(2,2)
             fx.setBlurRadius(5)
             self.setGraphicsEffect(fx)
@@ -156,7 +156,7 @@ class MemoRects(QtGui.QGraphicsRectItem):
         if self.__handlePoly.containsPoint(pos, QtCore.Qt.OddEvenFill):
             self.__resizing = True
         else:
-            QtGui.QGraphicsRectItem.mousePressEvent(self, event)
+            QtWidgets.QGraphicsRectItem.mousePressEvent(self, event)
 
     def mouseMoveEvent(self, event):
         if self.__resizing:
@@ -170,13 +170,13 @@ class MemoRects(QtGui.QGraphicsRectItem):
                                                   self.__headerContentRect.height())
                 self.__moveHandleBottomRightTo(newRect.bottomRight())
         else:
-            QtGui.QGraphicsRectItem.mouseMoveEvent(self, event)
+            QtWidgets.QGraphicsRectItem.mouseMoveEvent(self, event)
 
     def mouseReleaseEvent(self, event):
         if self.__resizing:
             self.__resizing = False
         else:
-            QtGui.QGraphicsRectItem.mouseReleaseEvent(self, event)
+            QtWidgets.QGraphicsRectItem.mouseReleaseEvent(self, event)
 
     def paint(self, painter, paintOptions, widget):
         myRect = self.boundingRect()
@@ -323,9 +323,9 @@ class AleaQGraphicsButtonMixin(object):
 ########################
 # A horizontal toolbar #
 ########################
-class AleaQGraphicsToolbar(QtGui.QGraphicsRectItem, AleaQGraphicsVanishingMixin):
+class AleaQGraphicsToolbar(QtWidgets.QGraphicsRectItem, AleaQGraphicsVanishingMixin):
     def __init__(self, parent=None):
-        QtGui.QGraphicsRectItem.__init__(self, parent)
+        QtWidgets.QGraphicsRectItem.__init__(self, parent)
         AleaQGraphicsVanishingMixin.__init__(self)
         self.setPen(QtGui.QPen(QtCore.Qt.NoPen))
         self.setFlag(QtWidgets.QGraphicsItem.ItemIgnoresTransformations, True)
@@ -346,9 +346,9 @@ class AleaQGraphicsToolbar(QtGui.QGraphicsRectItem, AleaQGraphicsVanishingMixin)
 #############################################################
 # Customized Qt Classes that can be reused in other places. #
 #############################################################
-class AleaQGraphicsRoundedRectItem(QtGui.QGraphicsRectItem):
+class AleaQGraphicsRoundedRectItem(QtWidgets.QGraphicsRectItem):
     def __init__(self, radius, cache=False, *args):
-        QtGui.QGraphicsRectItem.__init__(self, *args)
+        QtWidgets.QGraphicsRectItem.__init__(self, *args)
         self.__radius = radius
         self.__useCachedPath = cache
         self.__cachedPath = None
@@ -380,8 +380,8 @@ class AleaQGraphicsRoundedRectItem(QtGui.QGraphicsRectItem):
         painter.setBrush(self.brush())
         painter.drawPath(self.shape())
 
-class AleaQGraphicsEmitingTextItem(QtGui.QGraphicsTextItem):
-    """A QtGui.QGraphicsTextItem that emits geometryModified whenever
+class AleaQGraphicsEmitingTextItem(QtWidgets.QGraphicsTextItem):
+    """A QtWidgets.QGraphicsTextItem that emits geometryModified whenever
     its geometry can have changed."""
 
     ######################
@@ -390,7 +390,7 @@ class AleaQGraphicsEmitingTextItem(QtGui.QGraphicsTextItem):
     geometryModified = QtCore.Signal(QtCore.QRectF)
 
     def __init__(self, *args, **kwargs):
-        QtGui.QGraphicsTextItem.__init__(self, *args, **kwargs)
+        QtWidgets.QGraphicsTextItem.__init__(self, *args, **kwargs)
         self.document().contentsChanged.connect(self.__onDocumentChanged)
         self.hoveredIn = AleaSignal()
         self.hoveredOut = AleaSignal()
@@ -399,11 +399,11 @@ class AleaQGraphicsEmitingTextItem(QtGui.QGraphicsTextItem):
         self.geometryModified.emit(self.boundingRect())
 
     def hoverEnterEvent(self, event):
-        QtGui.QGraphicsTextItem.hoverEnterEvent(self, event)
+        QtWidgets.QGraphicsTextItem.hoverEnterEvent(self, event)
         self.hoveredIn.emit(event)
 
     def hoverLeaveEvent(self, event):
-        QtGui.QGraphicsTextItem.hoverLeaveEvent(self, event)
+        QtWidgets.QGraphicsTextItem.hoverLeaveEvent(self, event)
         self.hoveredOut.emit(event)
 
 
@@ -412,14 +412,14 @@ class AleaQGraphicsEmitingTextItem(QtGui.QGraphicsTextItem):
 # Buttons #
 ###########
 
-class AleaQGraphicsColorWheel(QtGui.QGraphicsEllipseItem, AleaQGraphicsVanishingMixin, AleaQGraphicsButtonMixin):
+class AleaQGraphicsColorWheel(QtWidgets.QGraphicsEllipseItem, AleaQGraphicsVanishingMixin, AleaQGraphicsButtonMixin):
     _stopHues    = xrange(0,360,360/12)
     _stopPos     = [i*1.0/12 for i in xrange(12)]
     ######################
     # The Missing Signal #
     ######################
     def __init__(self, radius=3.0, parent=None):
-        QtGui.QGraphicsEllipseItem.__init__(self, 0,0,radius*2, radius*2, parent)
+        QtWidgets.QGraphicsEllipseItem.__init__(self, 0,0,radius*2, radius*2, parent)
         AleaQGraphicsVanishingMixin.__init__(self)
         AleaQGraphicsButtonMixin.__init__(self)
         self.colorChanged = AleaSignal(QtGui.QColor)
@@ -430,14 +430,14 @@ class AleaQGraphicsColorWheel(QtGui.QGraphicsEllipseItem, AleaQGraphicsVanishing
         self.setBrush(QtGui.QBrush(gradient))
 
     def _onButtonPressed(self, event):
-        color = QtGui.QColorDialog.getColor(QtCore.Qt.white, event.widget())
+        color = QtWidgets.QColorDialog.getColor(QtCore.Qt.white, event.widget())
         if color.isValid():
             self.colorChanged.emit(color)
 
-class AleaQGraphicsFontButton(QtGui.QGraphicsSimpleTextItem, AleaQGraphicsButtonMixin):
+class AleaQGraphicsFontButton(QtWidgets.QGraphicsSimpleTextItem, AleaQGraphicsButtonMixin):
     _fontSize=24
     def __init__(self, parent=None):
-        QtGui.QGraphicsSimpleTextItem.__init__(self, "A", parent)
+        QtWidgets.QGraphicsSimpleTextItem.__init__(self, "A", parent)
         AleaQGraphicsButtonMixin.__init__(self)
         font = self.font()
         font.setPixelSize(self._fontSize)
@@ -446,7 +446,7 @@ class AleaQGraphicsFontButton(QtGui.QGraphicsSimpleTextItem, AleaQGraphicsButton
         self.fontChanged = AleaSignal(QtGui.QFont)
 
     def _onButtonPressed(self, event):
-        font, ok = QtGui.QFontDialog.getFont(event.widget())
+        font, ok = QtWidgets.QFontDialog.getFont(event.widget())
         if ok:
             self.fontChanged.emit(font)
 
@@ -463,7 +463,7 @@ class AleaQGraphicsFontColorButton(AleaQGraphicsFontButton):
         self.setBrush(QtGui.QBrush(QtGui.QColor(255,0,0)))
 
     def _onButtonPressed(self, event):
-        color = QtGui.QColorDialog.getColor(QtCore.Qt.white, event.widget())
+        color = QtWidgets.QColorDialog.getColor(QtCore.Qt.white, event.widget())
         if color.isValid():
             self.fontColorChanged.emit(color)
 
@@ -614,10 +614,10 @@ class VerticalLayout(Layout):
 
 
 #########################################################################################################
-# class AleaQGraphicsLabelWidget(QtGui.QGraphicsWidget):                                                #
+# class AleaQGraphicsLabelWidget(QtWidgets.QGraphicsWidget):                                                #
 #     def __init__(self, label, parent=None):                                                           #
-#         QtGui.QGraphicsWidget.__init__(self, parent)                                                  #
-#         self.__label = QtGui.QGraphicsSimpleTextItem(self)                                            #
+#         QtWidgets.QGraphicsWidget.__init__(self, parent)                                                  #
+#         self.__label = QtWidgets.QGraphicsSimpleTextItem(self)                                            #
 #         font = self.__label.font()                                                                    #
 #         font.setBold(True)                                                                            #
 #         self.__label.setText(label)                                                                   #
@@ -641,7 +641,7 @@ class VerticalLayout(Layout):
 #     def paint(self, painter, paintOpts, widget):                                                      #
 #         self.__label.paint(painter, paintOpts, widget)                                                #
 #                                                                                                       #
-# class AleaQGraphicsProxyWidget(QtGui.QGraphicsProxyWidget):                                           #
+# class AleaQGraphicsProxyWidget(QtWidgets.QGraphicsProxyWidget):                                           #
 #     """Embed a QWidget in a QGraphicsItem without the ugly background.                                #
 #                                                                                                       #
 #     When embedding for ex. a QLabel in a QGraphicsLayout using the normal                             #
@@ -659,7 +659,7 @@ class VerticalLayout(Layout):
 # 	 - parent (QtWidgets.QGraphicsItem) - Reference to the parent.                                      #
 #                                                                                                       #
 #         """                                                                                           #
-#         QtGui.QGraphicsProxyWidget.__init__(self, parent)                                             #
+#         QtWidgets.QGraphicsProxyWidget.__init__(self, parent)                                             #
 #         self.setWidget(widget)                                                                        #
 #         self.__noMouseEventForward = True                                                             #
 #                                                                                                       #
@@ -669,7 +669,7 @@ class VerticalLayout(Layout):
 #         if(event.type()==QtCore.QEvent.GraphicsSceneHoverMove and self.__noMouseEventForward):        #
 #             event.ignore()                                                                            #
 #             return True                                                                               #
-#         return QtGui.QGraphicsProxyWidget.event(self, event)                                          #
+#         return QtWidgets.QGraphicsProxyWidget.event(self, event)                                          #
 #                                                                                                       #
 #     def setMouseEventForward(self, val):                                                              #
 #         self.__noMouseEventForward = val                                                              #
@@ -678,32 +678,32 @@ class VerticalLayout(Layout):
 #         widget.setBackgroundRole(QtGui.QPalette.Background)                                           #
 #         widget.setAutoFillBackground(True)                                                            #
 #         widget.setStyleSheet("background-color: transparent")                                         #
-#         QtGui.QGraphicsProxyWidget.setWidget(self, widget)                                            #
+#         QtWidgets.QGraphicsProxyWidget.setWidget(self, widget)                                            #
 #########################################################################################################
 
 
-class AleaQMenu(QtGui.QMenu):
+class AleaQMenu(QtWidgets.QMenu):
     def __init__(self, arg1=None, arg2=None):
-        if isinstance(arg1, QtGui.QWidget):
-            QtGui.QMenu.__init__(self, arg1)
+        if isinstance(arg1, QtWidgets.QWidget):
+            QtWidgets.QMenu.__init__(self, arg1)
         else:
-            QtGui.QMenu.__init__(self, arg1, arg2)
+            QtWidgets.QMenu.__init__(self, arg1, arg2)
 
     def move(self, pos):
         rect = QtCore.QRect(pos, self.sizeHint())
         #fix the position of the menu if it tries to popup too close to the lower & right edges.
         #bad fixing strategy probably: what if we were create arabian menus?
         #We should maybe sublcass QMenu to handle screen real estate and reuse it.
-        desktopGeom = QtGui.QApplication.desktop().availableGeometry(self.parent())
+        desktopGeom = QtWidgets.QApplication.desktop().availableGeometry(self.parent())
         contained, edges = qrect_contains(desktopGeom, rect, True)
         if not contained and edges.count(0) > 0:
             dx = edges[0] if edges[0] else edges[1]
             dy = edges[2] if edges[2] else edges[3]
             rect.translate(dx, dy)
-            QtGui.QMenu.move(self,rect.topLeft())
+            QtWidgets.QMenu.move(self,rect.topLeft())
             return
         else:
-            QtGui.QMenu.move(self, pos)
+            QtWidgets.QMenu.move(self, pos)
 
 
 def qrect_contains(r1, r2, proper):
