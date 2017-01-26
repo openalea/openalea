@@ -352,7 +352,7 @@ class ProjectBrowserView(QtWidgets.QTreeView, AbstractListener):
         project, category, name = self.selected_data()
         if project and category:
             if category == 'category' and name == 'data':
-                p = QtWidgets.QFileDialog.getOpenFileName(self, 'Select File to open', project.path, "All (*)")
+                p,_ = QtWidgets.QFileDialog.getOpenFileName(self, 'Select File to open', project.path, "All (*)")
                 if p:
                     p = path(p)
                     project.add(name, path=p)
