@@ -523,13 +523,13 @@ class NodeFactoryView(object):
         if(isinstance(obj, AbstractFactory)): # Factory
             menu = QtWidgets.QMenu(self)
             action = menu.addAction("Open")
-            action.triggered.connect(open_node)
+            action.triggered.connect(self.open_node)
 
             action = menu.addAction("Edit")
-            action.triggered.connect(edit_node)
+            action.triggered.connect(self.edit_node)
 
             action = menu.addAction("Properties")
-            action.triggered.connect(edit_properties)
+            action.triggered.connect(self.edit_properties)
 
             menu.addSeparator()
 
@@ -545,55 +545,55 @@ class NodeFactoryView(object):
 
             action = menu.addAction("Open URL")
             action.setEnabled(enabled)
-            self.triggered.connect(open_node)
+            self.triggered.connect(self.open_node)
 
             action = menu.addAction("Meta informations")
             action.setEnabled(enabled)
-            action.triggered.connect(edit_package)
+            action.triggered.connect(self.edit_package)
 
             action = menu.addAction("Edit Code")
             action.setEnabled(enabled and pkg.is_editable())
-            action.triggered.connect(edit_pkg_code)
+            action.triggered.connect(self.edit_pkg_code)
 
             menu.addSeparator()
 
             action = menu.addAction("Add Python Node")
             action.setEnabled(enabled and pkg.is_editable())
-            self.triggered.connect(add_python_node)
+            self.triggered.connect(self.add_python_node)
 
             action = menu.addAction("Add Composite Node")
             action.setEnabled(enabled and pkg.is_editable())
-            self.triggered.connect(add_composite_node)
+            self.triggered.connect(self.add_composite_node)
 
             action = menu.addAction("Add Data File")
             action.setEnabled(enabled and pkg.is_editable())
-            self.triggered.connect(add_data)
+            self.triggered.connect(self.add_data)
 
             menu.addSeparator()
 
             action = menu.addAction("Grab Icon")
             action.setEnabled(enabled)
-            self.triggered.connect(grab_icon)
+            self.triggered.connect(self.grab_icon)
 
             menu.addSeparator()
 
             action = menu.addAction("Move/Rename Package")
             action.setEnabled(enabled and pkg.is_editable())
-            self.triggered.connect(move_package)
+            self.triggered.connect(self.move_package)
 
             action = menu.addAction("Copy Package")
             action.setEnabled(enabled)
-            self.triggered.connect(duplicate_package)
+            self.triggered.connect(self.duplicate_package)
 
             action = menu.addAction("Remove Package")
             action.setEnabled(enabled and pkg.is_editable())
-            self.triggered.connect(remove_package)
+            self.triggered.connect(self.remove_package)
 
             menu.addSeparator()
 
             action = menu.addAction("Reload Package")
             action.setEnabled(enabled)
-            self.triggered.connect(reload_package)
+            self.triggered.connect(self.reload_package)
 
         if(menu):
             menu.move(event.globalPos())
