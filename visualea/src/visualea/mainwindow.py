@@ -135,7 +135,7 @@ class MainWindow(QtWidgets.QMainWindow, ui_mainwindow.Ui_MainWindow, SignalSlotL
         self.poolTabWidget.addTab(self.helpWidget, "Help")
 
         # Widgets
-        self.tabWorkspace.contextMenuEvent.connect(self.contextMenuEvent)
+        self.tabWorkspace.customContextMenuRequested.connect(self.contextMenuEvent)
         self.tabWorkspace.currentChanged.connect(self.ws_changed)
         self.search_lineEdit.editingFinished.connect(self.search_node)
         self.tabWorkspace.tabCloseRequested.connect(self.close_tab_workspace)

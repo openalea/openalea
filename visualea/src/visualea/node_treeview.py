@@ -903,17 +903,17 @@ class NodeFactoryTreeView(QtWidgets.QTreeView, NodeFactoryView):
         self.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
         #self.setAnimated(True)
 
-        self.expanded.connect(self.expanded)
-        self.collapsed.connect(self.collapsed)
+        self.expanded.connect(self.expand)
+        self.collapsed.connect(self.collapse)
 
         self.expanded_items = set()
 
-    def collapsed(self, index):
+    def collapse(self, index):
         name = self.model().get_full_name(index.internalPointer())
         #self.expanded_items.remove(index.internalPointer().name)
         self.expanded_items.remove(name)
 
-    def expanded(self, index):
+    def expand(self, index):
         name = self.model().get_full_name(index.internalPointer())
         #self.expanded_items.add(index.internalPointer().name)
         self.expanded_items.add(name)
