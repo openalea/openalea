@@ -49,20 +49,20 @@ def busy_pointer(f):
     """ Decorator to display a busy pointer """
 
     def wrapped(*args):
-        QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.BusyCursor))
+        QtWidgets.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.BusyCursor))
         ret = f(*args)
-        QtGui.QApplication.restoreOverrideCursor ()
+        QtWidgets.QApplication.restoreOverrideCursor ()
         return ret
 
     return wrapped
 
 
-class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
+class MainWindow(QtWidgets.QMainWindow, ui_mainwindow.Ui_MainWindow):
     """ Main configuration window """
 
     def __init__(self):
 
-        QtGui.QMainWindow.__init__(self)
+        QtWidgets.QMainWindow.__init__(self)
         ui_mainwindow.Ui_MainWindow.__init__(self)
         self.setupUi(self)
 
@@ -120,7 +120,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
     def about(self):
         """ Display About Dialog """
 
-        _mess = QtGui.QMessageBox.about(self,
+        _mess = QtWidgets.QMessageBox.about(self,
                     "About OpenAlea Installer,r%s" % (__revision__.split(' ')[3]),
                     u"Copyright \xa9  2006-2009 INRIA - CIRAD - INRA\n" +
                     "This Software is distributed under the Cecill-V2 License.\n\n" +
@@ -275,7 +275,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
 
                 if (ok):
                     in_list.add(project_name)
-                    listitem = QtGui.QListWidgetItem(txt, self.packageList)
+                    listitem = QtWidgets.QListWidgetItem(txt, self.packageList)
                     listitem.setFlags(QtCore.Qt.ItemIsEnabled|QtCore.Qt.ItemIsUserCheckable)
                     listitem.setCheckState(QtCore.Qt.Unchecked)
                     pname = "%s==%s"%(project_name, version)
@@ -307,7 +307,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         self.logText.setTextCursor(cursor)
         self.logText.ensureCursorVisible()
 
-        QtGui.QApplication.processEvents()
+        QtWidgets.QApplication.processEvents()
 
     def flush(self):
         pass
@@ -393,10 +393,10 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
     def display_finish_message(self, ok):
         """ Display finish message depending of ok """
         if(ok):
-            mess = QtGui.QMessageBox.information(self, "OpenAlea Installer",
+            mess = QtWidgets.QMessageBox.information(self, "OpenAlea Installer",
                                                  "Success.")
         else:
-            mess = QtGui.QMessageBox.warning(self, "OpenAlea Installer",
+            mess = QtWidgets.QMessageBox.warning(self, "OpenAlea Installer",
                                              "An error occured. Check the log output.")
 
 
@@ -429,8 +429,8 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         """ Add a repository """
 
         # Read a string
-        repo, ok = QtGui.QInputDialog.getText(self, "URL", "Enter a valid URL:",
-                                          QtGui.QLineEdit.Normal, "http://")
+        repo, ok = QtWidgets.QInputDialog.getText(self, "URL", "Enter a valid URL:",
+                                          QtWidgets.QLineEdit.Normal, "http://")
         if(ok):
             self.locationList.addItem(str(repo))
             self.refresh()
@@ -448,12 +448,12 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
     def inriagforge_authentify(self):
         """ Cookie based authentification """
 
-        login, ok = QtGui.QInputDialog.getText(self, "Login", "Enter your login name:",
-                                          QtGui.QLineEdit.Normal, "")
+        login, ok = QtWidgets.QInputDialog.getText(self, "Login", "Enter your login name:",
+                                          QtWidgets.QLineEdit.Normal, "")
         if not ok : return
 
-        password, ok = QtGui.QInputDialog.getText(self, "Password", "Enter your password:",
-                                               QtGui.QLineEdit.Password, "")
+        password, ok = QtWidgets.QInputDialog.getText(self, "Password", "Enter your password:",
+                                               QtWidgets.QLineEdit.Password, "")
 
         if not ok :
             password = None
@@ -466,7 +466,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
     def get_filename(self):
         """ Retrieve a local egg filename """
 
-        filename = QtGui.QFileDialog.getOpenFileName(
+        filename = QtWidgets.QFileDialog.getOpenFileName(
             self, "Choose an Egg", QtCore.QDir.homePath(), "Egg (*.egg)")
 
         filename = str(filename)
@@ -486,7 +486,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
         if len(init_path) == 0:
             init_path = QtCore.QDir.homePath()
 
-        dirname = QtGui.QFileDialog.getExistingDirectory (
+        dirname = QtWidgets.QFileDialog.getExistingDirectory (
             self, "Local Custom Package Directory", init_path )
         dirname = str(dirname)
         if(dirname) : widget_to_fill.setText(dirname)
@@ -550,12 +550,12 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
 
         # Test parameters
         if len(pkg_name) == 0 or len(pkg_version) == 0 or len(pkg_dir) == 0:
-            QtGui.QMessageBox.warning(self,'Invalid custom package',
+            QtWidgets.QMessageBox.warning(self,'Invalid custom package',
                                       'Properties of custom package are not set properly !')
             return
 
         if not os.path.exists(pkg_dir):
-            QtGui.QMessageBox.warning(self, 'Invalid package path', 'Invalid path : '+pkg_dir)
+            QtWidgets.QMessageBox.warning(self, 'Invalid package path', 'Invalid path : '+pkg_dir)
             return
 
         os.chdir(pkg_dir)
@@ -568,7 +568,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
             # Cpp module arguments
             pkg_lib = os.path.normpath(relative_path(pkg_dir,str(self.customPackageLibEdit.text())))
             if not os.path.exists(str(self.customPackageLibEdit.text())):
-                QtGui.QMessageBox.warning(self,'Invalid package path',
+                QtWidgets.QMessageBox.warning(self,'Invalid package path',
                                           'Invalid path : '
                                           + str(self.customPackageLibEdit.text()))
                 return
@@ -578,7 +578,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                 relative_path(pkg_dir,str(self.customPackageIncludeEdit.text())))
 
             if not os.path.exists(str(self.customPackageIncludeEdit.text())):
-                QtGui.QMessageBox.warning(self,
+                QtWidgets.QMessageBox.warning(self,
                                           'Invalid package path',
                                           'Invalid path : ' +
                                           str(self.customPackageIncludeEdit.text()))
@@ -590,7 +590,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                     relative_path(pkg_dir,str(self.customPackageBinEdit.text())))
 
                 if not os.path.exists(str(self.customPackageBinEdit.text())):
-                    QtGui.QMessageBox.warning(self,'Invalid package path',
+                    QtWidgets.QMessageBox.warning(self,'Invalid package path',
                                               'Invalid path : ' +
                                               str(self.customPackageBinEdit.text()))
                     return
@@ -602,7 +602,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
             # module base name and path
             py_base_path = os.path.normpath(str(self.customPythonPackageEdit.text()))
             if not os.path.exists(py_base_path):
-                QtGui.QMessageBox.warning(self, 'Invalid package path',
+                QtWidgets.QMessageBox.warning(self, 'Invalid package path',
                                               'Invalid path : ' + py_base_path)
                 return
 
@@ -621,7 +621,7 @@ class MainWindow(QtGui.QMainWindow, ui_mainwindow.Ui_MainWindow):
                 py_base_module = namespace+'.'+py_base_module
 
             if len(py_base_module) == 0:
-                QtGui.QMessageBox.warning(self,'Invalid custom python package',
+                QtWidgets.QMessageBox.warning(self,'Invalid custom python package',
                                           'python package name for path "' +
                                           py_base_relative_path+'" is invalid !')
                 return
@@ -667,7 +667,7 @@ def main_app(args=None):
     # Restore default signal handler for CTRL+C
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-    app = QtGui.QApplication(args)
+    app = QtWidgets.QApplication(args)
     win = MainWindow()
     win.show()
     return app.exec_()

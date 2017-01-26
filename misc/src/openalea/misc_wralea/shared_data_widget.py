@@ -21,14 +21,14 @@ import glob
 from os.path import join as pj
 from os.path import basename as bname
 
-from Qt import QtCore, QtGui, QtWidgets
+from Qt import QtCore, QtWidgets
 
 from openalea.core.observer import lock_notify
 from openalea.deploy.shared_data import get_shared_data_path
 from openalea.deploy.util import get_metadata
 from openalea.visualea.node_widget import NodeWidget
 
-class SharedDataBrowser(NodeWidget, QtGui.QDialog):
+class SharedDataBrowser(NodeWidget, QtWidgets.QDialog):
     ''' This widget permits to select a shared data file located in a given Python
     package. The data file is searched in the shared directories. '''
     def __init__(self, node, parent):

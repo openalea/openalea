@@ -46,7 +46,7 @@ SimpleGraph = qt.QtGraphStrategyMaker( graphView            = SimpleView,
                                        graphViewInitialiser = None,
                                        adapterType          = None )
 
-class MainWindow(QtGui.QMainWindow):
+class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         """                """
         QtWidgets.QMainWindow.__init__(self, parent)
@@ -55,8 +55,8 @@ class MainWindow(QtGui.QMainWindow):
         self.setCentralWidget(self.__graphView)
 
 def main(args):
-    app = QtGui.QApplication(args)
-    QtGui.QApplication.processEvents()
+    app = QtWidgets.QApplication(args)
+    QtWidgets.QApplication.processEvents()
     win = MainWindow()
     win.show()
     return app.exec_()

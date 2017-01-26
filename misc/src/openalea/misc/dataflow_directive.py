@@ -155,7 +155,7 @@ class DataflowRenderer(QtCore.QObject):
 
         self.image.save(self.filename+'.png', "png")
         self.killTimer(self.timerId)
-        QtGui.QApplication.exit()
+        QtWidgets.QApplication.exit()
 
 def run_code(plot_path, package_name, node_name, basename, tmpdir, destdir, options):
     """

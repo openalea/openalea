@@ -49,7 +49,7 @@ class Store(MainWindowAleaInstall):
         self.label_3.hide()
 
         self._show = False
-        #self.actionShowHide = QtGui.QAction(QtGui.QIcon(":/images/resources/store.png"),"Show/Hide", self)
+        #self.actionShowHide = QtWidgets.QAction(QtGui.QIcon(":/images/resources/store.png"),"Show/Hide", self)
         #self.actionShowHide.triggered[bool].connect(self.showhide)
         #self._actions = [["Help","Package Store",self.actionShowHide,0]]
         self._actions = None

@@ -12,7 +12,7 @@
 
 # Code:
 
-from Qt import QtGui, QtWidgets
+from Qt import QtWidgets
 
 import openalea.oalab.service.qt_control as scontrol
 
@@ -23,7 +23,7 @@ from openalea.core.control.manager import ControlManager
 from openalea.oalab.control.qcontainer import QControlContainer
 from openalea.oalab.control.model_view import ControlView, ControlModel
 
-class CheckSizes(Ui_Form, QtGui.QWidget):
+class CheckSizes(Ui_Form, QtWidgets.QWidget):
 
     def __init__(self, control, edit_mode='edit'):
         QtWidgets.QWidget.__init__(self)

@@ -21,7 +21,7 @@ def test_system():
 
     # QT
     try:
-        from PyQt4 import QtGui, QtCore
+        from Qt import QtCore, QtWidgets, QtGui
         version = int(QtCore.QT_VERSION_STR.replace('.', ''))
         if(version < 420):
             raise ImporError
@@ -31,13 +31,13 @@ def test_system():
         sys.exit(1)
 
 
-# Import 
+# Import
 import sys
 test_system()
 
 from openalea.core import *
 from openalea.core.pkgmanager import PackageManager
-from PyQt4 import QtGui, QtCore
+from Qt import QtCore, QtWIdgets
 
 
 $FACTORY_CODE
@@ -46,13 +46,13 @@ $FACTORY_CODE
 
 def open_window(factory):
 
-    dialog = QtGui.QDialog()
+    dialog = QtWidgets.QDialog()
     widget = factory.instantiate_widget(autonomous=True)
 
     dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
     widget.setParent(dialog)
-    
-    vboxlayout = QtGui.QVBoxLayout(dialog)
+
+    vboxlayout = QtWidgets.QVBoxLayout(dialog)
     vboxlayout.setMargin(3)
     vboxlayout.setSpacing(5)
     vboxlayout.addWidget(widget)
@@ -64,15 +64,15 @@ def open_window(factory):
 
 
 def main(args):
-    
-    app = QtGui.QApplication(args)
+
+    app = QtWidgets.QApplication(args)
 
     p = PackageManager()
     p.init()
     f = $FACTORY_NAME
     win = open_window(f)
     win.show()
-    
+
     return app.exec_()
 
 
@@ -80,7 +80,3 @@ def main(args):
 if __name__ == "__main__":
 
     main(sys.argv)
-
-
-    
-

@@ -1,4 +1,3 @@
-
 """
 This file demonstrates how to create views for graphs from the
 `networkx <http://networkx.lanl.gov/_>` toolkit. This toolkit
@@ -11,6 +10,7 @@ import networkx as nx
 from openalea.grapheditor.all import  Observed, GraphAdapterBase
 import weakref
 
+from Qt import QtGui, QtCore, QtWidgets
 
 class NxObservedVertex(Observed):
 
@@ -52,7 +52,7 @@ class NXObservedGraph( GraphAdapterBase, Observed ):
         if vertex in self.graph:
             return
         else:
-            if "position" not in kwargs : 
+            if "position" not in kwargs :
                 kwargs["position"] = [0., 0.]
             else:
                 kwargs["position"] = map(float, kwargs["position"])
@@ -102,7 +102,6 @@ class NXObservedGraph( GraphAdapterBase, Observed ):
 #------------------------
 # -- the graph qt view --
 #------------------------
-from PyQt4 import QtGui, QtCore
 from openalea.grapheditor.qt import (Vertex, View, mixin_method,
                                      QtGraphStrategyMaker,
                                      DefaultGraphicalEdge,
@@ -157,10 +156,10 @@ GraphicalGraph = QtGraphStrategyMaker( graphView       = GraphicalView,
                                                           "floating-default":DefaultGraphicalFloatingEdge} )
 
 #THE APPLICATION'S MAIN WINDOW
-class MainWindow(QtGui.QMainWindow):
+class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         """                """
-        QtGui.QMainWindow.__init__(self, parent)
+        QtWidgets.QMainWindow.__init__(self, parent)
 
         self.setMinimumSize(800,600)
 
@@ -181,9 +180,9 @@ class MainWindow(QtGui.QMainWindow):
 
 if __name__=="__main__":
 
-    instance = QtGui.QApplication.instance()
+    instance = QtWidgets.QApplication.instance()
     if instance is None :
-        app = QtGui.QApplication([])
+        app = QtWidgets.QApplication([])
     else :
         app = instance
 

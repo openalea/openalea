@@ -21,6 +21,7 @@ import weakref
 from openalea.core import node
 from openalea.core import compositenode
 import openalea.grapheditor.base as grapheditorbase
+from Qt import QtWidgets
 
 class GraphAdapter(grapheditorbase.GraphAdapterBase):
     """An adapter to openalea.core.compositenode"""
@@ -32,39 +33,39 @@ class GraphAdapter(grapheditorbase.GraphAdapterBase):
     @classmethod
     def get_edge_types(cls):
         return ["default"]
-        
-        
+
+
     def __init__(self, graph):
         grapheditorbase.GraphAdapterBase.__init__(self, graph)
-    
+
     #######################################
     # methods specific to CompositeNodes. #
     #######################################
     def eval_as_expression(self):
         return self.graph().eval_as_expression()
-    
+
     def reset(self):
         return self.graph().reset()
-        
+
     def invalidate(self):
         return self.graph().invalidate()
-        
+
     def get_factory(self):
         return self.graph().factory
-        
+
     def to_factory(self, factory, itemIds, auto_io=True):
         return self.graph().to_factory(factory, itemIds, auto_io)
-        
+
     def compute_external_io(self, idList, newId):
         return self.graph().compute_external_io(idList, newId)
-        
+
     ########################################
     # shortcut to access to methods of the #
     # real graph that we don't implement   #
     ########################################
     def __getattr__(self, name):
         return getattr( self.graph(), name )
-    
+
     ###############
     # Adapter API #
     ###############
@@ -81,7 +82,7 @@ class GraphAdapter(grapheditorbase.GraphAdapterBase):
                 vertex.get_ad_hoc_dict().set_metadata("position", position)
             return vid
         except node.RecursionError:
-            mess = QtGui.QMessageBox.warning(self, "Error",
+            mess = QtWidgets.QMessageBox.warning(self, "Error",
                                              "A graph cannot be contained in itself.")
 
     def remove_vertex(self, vertex):
@@ -133,5 +134,3 @@ class GraphAdapter(grapheditorbase.GraphAdapterBase):
 
     def is_legal_connection(self, src, dst):
         pass
-
-

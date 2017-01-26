@@ -30,20 +30,20 @@ def start_qt(factory, node):
     :param node: todo
     """
 
-    from Qt import QtWidgets, QtGui, QtCore
+    from Qt import QtWidgets, QtCore
 
-    app = Qt.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
 
     import signal
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-    dialog = QtGui.QDialog()
+    dialog = QtWidgets.QDialog()
     dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
     widget = factory.instantiate_widget(node, autonomous=True)
     widget.setParent(dialog)
 
-    vboxlayout = QtGui.QVBoxLayout(dialog)
+    vboxlayout = QtWidgets.QVBoxLayout(dialog)
     vboxlayout.setContentsMargins(3, 3, 3, 3)
     vboxlayout.setSpacing(5)
     vboxlayout.addWidget(widget)

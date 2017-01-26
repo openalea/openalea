@@ -14,11 +14,11 @@
 
 import sys
 
-from Qt import QtCore, QtGui, QtWidgets
+from Qt import QtCore, QtWidgets
 
 from openalea.visualea.node_widget import NodeWidget
 
-class ListSelector(NodeWidget, QtGui.QDialog):
+class ListSelector(NodeWidget, QtWidgets.QDialog):
     """
     This Widget allows to select some elements in a list
     """
@@ -27,7 +27,7 @@ class ListSelector(NodeWidget, QtGui.QDialog):
         QtWidgets.QDialog.__init__(self, parent)
         NodeWidget.__init__(self, node)
 
-        #self.browser = QtGui.QTextBrowser()
+        #self.browser = QtWidgets.QTextBrowser()
 
         layout = QtWidgets.QVBoxLayout()
         #layout.addWidget(self.browser)

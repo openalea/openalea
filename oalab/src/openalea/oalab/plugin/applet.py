@@ -64,12 +64,12 @@ class IApplet(IInterface):
     def actions(self):
         """
         Optional: list of all actions available for this applet
-        See original QtGui.QWidget.actions method.
+        See original QtWidgets.QWidget.actions method.
 
         Example::
 
             # instructions written in constructor
-            action_new = QtGui.QAction('New', self)
+            action_new = QtWidgets.QAction('New', self)
             self.addAction(action_new)
         """
         pass
@@ -105,13 +105,13 @@ class IApplet(IInterface):
         Example::
 
             def toolbar_actions(self):
-                action_new = QtGui.QAction("New")
-                action_open = QtGui.QAction("Open")
-                action_save = QtGui.QAction("Save")
+                action_new = QtWidgets.QAction("New")
+                action_open = QtWidgets.QAction("Open")
+                action_save = QtWidgets.QAction("Save")
 
-                action_run = QtGui.QAction("Run")
-                action_debug = QtGui.QAction("Debug")
-                menu_run = QtGui.QMenu("Run")
+                action_run = QtWidgets.QAction("Run")
+                action_debug = QtWidgets.QAction("Debug")
+                menu_run = QtWidgets.QMenu("Run")
                 menu_run.addActions([action_run, action_debug])
 
                 actions = [
