@@ -33,10 +33,12 @@ import sys
 import os
 
 from Qt import QtCore
+from Qt.uic import compileUi
 
 from openalea.core.path import path as Path
 
 FORCE_UI_GENERATION = False
+
 
 def get_data(name, path):
     """
@@ -90,8 +92,6 @@ def replaceext(self, ext, old_ext=None):
         else:
             return self.__class__(self[:-len(old_ext)] + ext)
 
-
-from Qt.uic import compileUi #, compile_args
 
 def generate_pyfile_from_uifile(name, src=None, dest=None, uibasename=None, force=None):
     """

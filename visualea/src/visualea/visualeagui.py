@@ -23,6 +23,8 @@ __license__ = "CeCILL v2"
 __revision__ = "$Id$"
 
 import sys
+import os
+import time
 
 import Qt
 from Qt import QtCore, QtGui, QtWidgets
@@ -95,11 +97,10 @@ def main(args):
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
     # Openalea.check_qt_version()
+
     app = Openalea(args)
     return app.exec_()
 
-import os
-import time
 
 def set_stdout():
     """Disable stdout if using pythonw"""

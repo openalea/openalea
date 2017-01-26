@@ -44,7 +44,7 @@ def encode_to_qmimedata(data, mimetype):
     if mimetype in _possible_conv:
         for mimetype_in, mimetype_out in _possible_conv[mimetype]:
             qmimedata = qtencode(data, qmimedata, mimetype_in, mimetype_out)
-    return qmimedatas
+    return qmimedata
 
 class DropSelectorWidget(QtWidgets.QWidget):
 
