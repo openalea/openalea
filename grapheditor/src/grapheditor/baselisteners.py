@@ -408,7 +408,7 @@ class GraphListenerBase(observer.AbstractListener):
         return True if self.__newEdge else False
 
     def _new_edge_start(self, srcPt, etype="default", source=None):
-        self.__newEdge = self.__strategyCls.create_edge_widget("floating-"+etype, srcPt, self.get_graph())
+        self.__newEdge = self.__strategyCls.create_edge_widget("floating-"+etype, srcPoint=srcPt, graph=self.get_graph())
         self.__newEdge.add_to_view(self.get_scene())
         if  source:
             self.__newEdgeSource = source
@@ -531,4 +531,3 @@ class BlackBoxModel(object):
 
     def __get_fake_observers(self):
         return None #ugh... don't know how to do anything smart here yet.
-
