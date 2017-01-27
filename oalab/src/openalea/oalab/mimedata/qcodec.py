@@ -40,5 +40,5 @@ class QMimeCodec(MimeCodec):
         data -> QMimeData
         """
         mimetype, mimedata = self.encode(data, mimetype_in, mimetype_out)
-        qmimedata.setData(mimetype, mimedata)
+        qmimedata.setData(mimetype, str(mimedata))
         return qmimedata

@@ -157,7 +157,8 @@ def qt_painter(control, shape=None, preferred=None):
 
 def edit(control):
     import sys
-    if 'PyQt5.QtWidgets' in sys.modules or 'PySide.QtWidgets' in sys.modules:
+
+    if 'Qt.QtWidgets' in sys.modules or 'PySide.QtWidgets' in sys.modules:
         if QtWidgets.QApplication.instance():
             if isinstance(control, Control):
                 return qt_editor(control)

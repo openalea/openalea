@@ -44,7 +44,7 @@ def encode_to_qmimedata(data, mimetype):
     if mimetype in _possible_conv:
         for mimetype_in, mimetype_out in _possible_conv[mimetype]:
             qmimedata = qtencode(data, qmimedata, mimetype_in, mimetype_out)
-    return qmimedatas
+    return qmimedata
 
 class DropSelectorWidget(QtWidgets.QWidget):
 
@@ -252,14 +252,15 @@ class DropHandler(object):
         possible_conv, selected = self._drop(mimedata, pos)
         if possible_conv is None:
             self._compatible = None
-        for mimetype_in, mimetype_out in possible_conv[selected]:
-            try:
-                data, kwds = qtdecode(mimedata, mimetype_in, mimetype_out)
-                kwds['mimedata'] = mimedata
-                self._drop_callbacks[selected](data, **kwds)
-            except CustomException as e:
-                make_error_dialog(e)
-            else:
-                event.acceptProposedAction()
-                return QtWidgets.QWidget.dropEvent(self.widget, event)
-            self._compatible = None
+        else:
+            for mimetype_in, mimetype_out in possible_conv[selected]:
+                try:
+                    data, kwds = qtdecode(mimedata, mimetype_in, mimetype_out)
+                    kwds['mimedata'] = mimedata
+                    self._drop_callbacks[selected](data, **kwds)
+                except CustomException as e:
+                    make_error_dialog(e)
+                else:
+                    event.acceptProposedAction()
+                    return QtWidgets.QWidget.dropEvent(self.widget, event)
+                self._compatible = None

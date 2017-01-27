@@ -20,14 +20,29 @@
 #
 ###############################################################################
 
+import Qt
 from Qt import QtWidgets, QtGui, QtCore
+
+def qt_version():
+    version = Qt.__qt_version__.split('.')
+    return version[0]
+
+QT_VERSION = qt_version()
 
 import matplotlib
 
 from matplotlib import pyplot
 
-from matplotlib.backends import backend_qt5agg
-from matplotlib.backends import backend_qt5
+
+if QT_VERSION == '4':
+    from matplotlib.backends import backend_qt4agg as backend_agg
+    from matplotlib.backends import backend_qt4 as backend_qt
+    from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg, NavigationToolbar2QT
+
+else:
+    from matplotlib.backends import backend_qt5agg as backend_agg
+    from matplotlib.backends import backend_qt5 as backend_qt
+    from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT
 
 from matplotlib.backend_bases import FigureManagerBase
 from matplotlib._pylab_helpers import Gcf
@@ -37,7 +52,7 @@ try:
 except ImportError:
     figureoptions = None
 
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT
+
 from matplotlib.figure import Figure
 
 from matplotlib import _pylab_helpers
@@ -185,13 +200,16 @@ def draw_if_interactive():
 
 
 def activate():
-    pyplot.switch_backend('qt5agg')
-    backend_qt5.draw_if_interactive = draw_if_interactive
-    backend_qt5agg.draw_if_interactive = draw_if_interactive
+    if QT_VERSION == '4':
+        pyplot.switch_backend('qt5agg')
+    else:
+        pyplot.switch_backend('qt4agg')
+    backend_qt.draw_if_interactive = draw_if_interactive
+    backend_agg.draw_if_interactive = draw_if_interactive
 
-    backend_qt5.new_figure_manager_given_figure = new_figure_manager_given_figure
-    backend_qt5agg.new_figure_manager_given_figure = new_figure_manager_given_figure
+    backend_qt.new_figure_manager_given_figure = new_figure_manager_given_figure
+    backend_agg.new_figure_manager_given_figure = new_figure_manager_given_figure
 
-    backend_qt5agg.show = lambda: None
+    backend_agg.show = lambda: None
 
 activate()

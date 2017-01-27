@@ -47,7 +47,7 @@ class UrlCodec(QMimeCodec):
         return self.decode(raw_data, mimetype_in, mimetype_out, **kwds)
 
     def decode(self, raw_data, mimetype_in, mimetype_out, **kwds):
-        """
+        """ 
         raw_data: list of urls
         """
         if mimetype_in == 'text/uri-list':
@@ -69,7 +69,7 @@ def encode_project_item(category, data, mimetype_in, mimetype_out):
 
 
 def decode_project_item(raw_data, mimetype_in, mimetype_out):
-    pkg_type, pkg_name, category, name = urlparse(raw_data).path.split('/')
+    pkg_type, pkg_name, category, name = urlparse(str(raw_data)).path.split('/')
     return project_item(pkg_name, category, name)
 
 
