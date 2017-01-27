@@ -14,7 +14,6 @@
 #
 ###############################################################################
 
-
 class GraphAdapterBase(object):
     """Base class for adapter to graph"""
 
@@ -33,7 +32,7 @@ class GraphAdapterBase(object):
 
         Upon succes it must emit the following event tuple:
         ("vertex_added", ("vertex_type", vertex)).
-          * "vertex-type" is a vertex-type string defined in the strategy 
+          * "vertex-type" is a vertex-type string defined in the strategy
             used for a particular graph type.
           * "vertex" is the **observable** object representing a vertex.
         """
@@ -167,9 +166,9 @@ def GraphStrategyMaker(graphView, vertexWidgetMap, edgeWidgetMap,
 
         @classmethod
         def create_edge_widget(cls, etype, *args, **kwargs):
-            VertexClass = cls.__edgeWidgetMap__.get(etype)
-            if(VertexClass):
-                return VertexClass(*args, **kwargs)
+            EdgeClass = cls.__edgeWidgetMap__.get(etype)
+            if(EdgeClass):
+                return EdgeClass(*args, **kwargs)
             else:
                 raise Exception("etype not found")
 
