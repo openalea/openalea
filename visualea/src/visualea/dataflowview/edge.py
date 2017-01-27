@@ -25,7 +25,7 @@ from openalea.visualea.graph_operator import GraphOperator
 
 from openalea.grapheditor import baselisteners, qtgraphview, edgefactory, qtutils
 
-class FloatingEdge(QtWidgets.QGraphicsPathItem, qtgraphview.FloatingEdge):
+class FloatingEdge(qtgraphview.FloatingEdge, QtWidgets.QGraphicsPathItem):
     """
     Represents an edge during its creation
     It is connected to one connector only
@@ -34,8 +34,7 @@ class FloatingEdge(QtWidgets.QGraphicsPathItem, qtgraphview.FloatingEdge):
     """
 
     def __init__(self, srcPoint, graph):
-        parent = None
-        QtWidgets.QGraphicsPathItem.__init__(self, parent)
+        QtWidgets.QGraphicsPathItem.__init__(self, None)
         qtgraphview.FloatingEdge.__init__(self, srcPoint, graph)
 
     def get_connections(self):
