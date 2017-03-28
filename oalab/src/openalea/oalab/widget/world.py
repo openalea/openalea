@@ -229,6 +229,7 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
 
         add_drop_callback(self, 'openalea/interface.ITopomesh', self.drop_object)
         add_drop_callback(self, 'openalea/interface.IImage', self.drop_object)
+        add_drop_callback(self, 'pandas/dataframe', self.drop_object)
 
         if self.style == self.StyleTableView:
             self._view = ControlManagerWidget(manager=self._default_manager)
