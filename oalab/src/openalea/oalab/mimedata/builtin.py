@@ -187,6 +187,13 @@ def world_kwargs(world_object):
 
 class BuiltinWorldObjectCodec(QMimeCodec):
 
+    def quickcheck(self, mimedata, mimetype_in, mimetype_out):
+        world_object = decode_world_object(mimedata, mimetype_in, mimetype_out)
+        if mimetype_out == "openalea/interface.IImage":
+            return (hasattr(world_object.data,'ndim')) and (world_object.data.ndim in [2,3,4])
+        else:
+            return True
+
     def encode(self, data, mimetype_in, mimetype_out):
         return encode_world_object("world_object", data, mimetype_in, mimetype_out)
 
@@ -207,6 +214,8 @@ class BuiltinWorldObjectCodec(QMimeCodec):
             elif mimetype_out == "text/plain":
                 text = 'world[%r]' % (str(world_object.name))
                 return text, kwds
+            elif mimetype_out == "openalea/interface.IImage":
+                return world_object.data, kwds
             else:
                 return data, kwds
         else:

@@ -106,6 +106,7 @@ class BuiltinWorldObjectCodecPlugin(QMimeCodecPlugin):
         ('openalealab/world_object', 'text/plain'),
         ('openalealab/world_object', 'openalea/identifier'),
         ('openalealab/world_object', 'openalea/code.oalab.get'),
+        ('openalealab/world_object', 'openalea/interface.IImage'),
     ]
     qtencode = [
         ('openalealab/world_object', 'openalealab/world_object')
@@ -115,6 +116,7 @@ class BuiltinWorldObjectCodecPlugin(QMimeCodecPlugin):
         'openalea/code.oalab.get': dict(title='Python Code (get object)'),
         'openalea/identifier': dict(title='World Object Name'),
         'text/plain': dict(title='Plain Text'),
+        'openalea/interface.IImage': dict(title='Image object'),
     }
 
     def __call__(self):
