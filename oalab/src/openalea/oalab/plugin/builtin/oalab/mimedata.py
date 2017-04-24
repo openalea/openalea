@@ -97,3 +97,28 @@ class BuiltinModelCodecPlugin(QMimeCodecPlugin):
     def __call__(self):
         from openalea.oalab.mimedata.builtin import BuiltinModelCodec
         return BuiltinModelCodec
+
+
+@PluginDef
+class BuiltinWorldObjectCodecPlugin(QMimeCodecPlugin):
+    qtdecode = [
+        ('openalealab/world_object', 'openalealab/world_object'),
+        ('openalealab/world_object', 'text/plain'),
+        ('openalealab/world_object', 'openalea/identifier'),
+        ('openalealab/world_object', 'openalea/code.oalab.get'),
+        ('openalealab/world_object', 'openalea/interface.IImage'),
+    ]
+    qtencode = [
+        ('openalealab/world_object', 'openalealab/world_object')
+    ]
+
+    mimetype_desc = {
+        'openalea/code.oalab.get': dict(title='Python Code (get object)'),
+        'openalea/identifier': dict(title='World Object Name'),
+        'text/plain': dict(title='Plain Text'),
+        'openalea/interface.IImage': dict(title='Image object'),
+    }
+
+    def __call__(self):
+        from openalea.oalab.mimedata.builtin import BuiltinWorldObjectCodec
+        return BuiltinWorldObjectCodec

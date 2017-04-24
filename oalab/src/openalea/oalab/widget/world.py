@@ -25,7 +25,7 @@ from openalea.core.observer import AbstractListener
 from openalea.oalab.control.manager import ControlManagerWidget
 from openalea.core.service.ipython import interpreter as get_interpreter
 
-from openalea.oalab.service.drag_and_drop import add_drop_callback
+from openalea.oalab.service.drag_and_drop import add_drop_callback, add_drag_format, encode_to_qmimedata
 
 
 class GenericWorldBrowser(QtGui.QWidget):
@@ -118,6 +118,9 @@ class WorldBrowser(GenericWorldBrowser, AbstractListener):
 
 class WorldModel(QtGui.QStandardItemModel):
 
+    def __init__(self):
+        QtGui.QStandardItemModel.__init__(self)
+
     def set_world(self, world={}):
         self.clear()
         parentItem = self.invisibleRootItem()
@@ -128,6 +131,64 @@ class WorldModel(QtGui.QStandardItemModel):
             objtype = type(world[world_object].obj).__name__
             item2 = QtGui.QStandardItem(str(objtype))
             parentItem.appendRow([item1, item2])
+
+
+class WorldObjectComboBox(QtGui.QComboBox):
+
+    def __init__(self, parent=None, style=None):
+        QtGui.QComboBox.__init__(self, parent=parent)
+        p = QtGui.QSizePolicy
+        self.setSizePolicy(p(p.Expanding, p.Maximum))
+        # self.view().setDragEnabled(True)
+        self.dragStartPosition = None
+
+        add_drag_format(self, 'openalealab/world_object')
+
+    # Drag and drop
+
+    def mousePressEvent(self, e):
+        if e.button() == QtCore.Qt.LeftButton:
+            print "Clicked! : ",e.pos()
+            self.dragStartPosition = e.pos()
+
+    def mouseReleaseEvent(self, e):
+        QtGui.QComboBox.mousePressEvent(self, e)
+
+    def mouseMoveEvent(self, e):
+        if not (e.buttons() & QtCore.Qt.LeftButton):
+            return
+
+        if (e.pos() - self.dragStartPosition).manhattanLength() > 10:
+            print "Init drag! : openalealab/world_object"
+            drag = QtGui.QDrag(self)
+
+            object_name = self.currentText()
+            data = self.mimeData(object_name)
+            print data.data('openalealab/world_object')
+            drag.setMimeData(data)
+
+            drop_action = drag.exec_()
+
+        QtGui.QComboBox.mouseMoveEvent(self, e)
+
+    def mimeData(self, object_name):
+        world = self.parent().world
+        if world.has_key(object_name):
+            data = world[object_name]
+            return encode_to_qmimedata(data, 'openalealab/world_object')
+        else:
+            return QtCore.QMimeData()
+
+    def startDrag(self, supportedActions):
+        print "DragEvent : openalealab/world_object"
+
+
+    def dragEnterEvent(self, e):
+        print "DragEvent : openalealab/world_object"
+        if e.mimeData().hasFormat('openalealab/world_object'):
+          e.accept()
+        else:
+          e.ignore()
 
 
 class WorldControlPanel(QtGui.QWidget, AbstractListener):
@@ -150,9 +211,7 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
 
         self._manager = {}
 
-        self._cb_world_object = QtGui.QComboBox()
-        p = QtGui.QSizePolicy
-        self._cb_world_object.setSizePolicy(p(p.Expanding, p.Maximum))
+        self._cb_world_object = WorldObjectComboBox()
         self._cb_world_object.currentIndexChanged.connect(self._selected_object_changed)
 
         self._current = None
@@ -167,6 +226,10 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
 
         self._layout = QtGui.QVBoxLayout(self)
         self._layout.addWidget(self._cb_world_object)
+
+        add_drop_callback(self, 'openalea/interface.ITopomesh', self.drop_object)
+        add_drop_callback(self, 'openalea/interface.IImage', self.drop_object)
+        add_drop_callback(self, 'pandas/dataframe', self.drop_object)
 
         if self.style == self.StyleTableView:
             self._view = ControlManagerWidget(manager=self._default_manager)
@@ -373,6 +436,11 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
 
     def _object_attribute_changed(self, object_name, attribute_name, old, new):
         self.world[object_name].set_attribute(attribute_name, new)
+
+
+    def drop_object(self, obj, **kwargs):
+        if obj is not None:
+            self.world.add(obj, **kwargs)
 
 
 def main():

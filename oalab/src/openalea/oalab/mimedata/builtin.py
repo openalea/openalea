@@ -149,18 +149,74 @@ class BuiltinDataCodec(QMimeCodec):
         return encode_project_item("data", data, mimetype_in, mimetype_out)
 
     def decode(self, raw_data, mimetype_in, mimetype_out):
-        if mimetype_in != 'openalealab/data':
+        
+        if mimetype_in == 'openalealab/data':
+            data = decode_project_item(raw_data, mimetype_in, mimetype_out)
+            kwds = dict(name=str(data.name), path=(data.path))
+
+            if mimetype_out == "openalealab/data":
+                return data, kwds
+            elif mimetype_out == "openalea/identifier":
+                return data.name, kwds
+            elif mimetype_out == "openalea/code.oalab.get":
+                pycode = '%s = data / %r' % (pyname(data.name), str(data.name))
+                return pycode, kwds
+            else:
+                return data, kwds
+        else:
             return None, {}
 
-        data = decode_project_item(raw_data, mimetype_in, mimetype_out)
-        kwds = dict(name=str(data.name), path=(data.path))
 
-        if mimetype_out == "openalealab/data":
-            return data, kwds
-        elif mimetype_out == "openalea/identifier":
-            return data.name, kwds
-        elif mimetype_out == "openalea/code.oalab.get":
-            pycode = '%s = data / %r' % (pyname(data.name), str(data.name))
-            return pycode, kwds
+
+def encode_world_object(category, data, mimetype_in, mimetype_out):
+    # openalea://user@localhost:/project/projectname/data/dataname
+    uri = 'openalea://user@localhost:/world/%s' % (data.name)
+    return ('openalealab/%s' % category, uri)
+
+def decode_world_object(raw_data, mimetype_in, mimetype_out):
+    object_name = urlparse(raw_data).path.split('/')[-1]
+    from openalea.core.world import World
+    world = World()
+    return world[object_name]
+
+def world_kwargs(world_object):
+    kwargs = {}
+    for attribute in world_object.attributes:
+        kwargs[attribute['name']] = attribute['value']
+    return kwargs
+
+class BuiltinWorldObjectCodec(QMimeCodec):
+
+    def quickcheck(self, mimedata, mimetype_in, mimetype_out):
+        world_object = decode_world_object(mimedata, mimetype_in, mimetype_out)
+        if mimetype_out == "openalea/interface.IImage":
+            return (hasattr(world_object.data,'ndim')) and (world_object.data.ndim in [2,3,4])
         else:
-            return data, kwds
+            return True
+
+    def encode(self, data, mimetype_in, mimetype_out):
+        return encode_world_object("world_object", data, mimetype_in, mimetype_out)
+
+    def decode(self, raw_data, mimetype_in, mimetype_out):
+        print raw_data
+        
+        if mimetype_in == 'openalealab/world_object':
+            world_object = decode_world_object(raw_data, mimetype_in, mimetype_out)
+            kwds = world_kwargs(world_object)
+
+            if mimetype_out == "openalealab/world_object":
+                return world_object, kwds
+            elif mimetype_out == "openalea/identifier":
+                return world_object.name, kwds
+            elif mimetype_out == "openalea/code.oalab.get":
+                pycode = '%s = world[%r]' % (pyname(world_object.name), str(world_object.name))
+                return pycode, kwds
+            elif mimetype_out == "text/plain":
+                text = 'world[%r]' % (str(world_object.name))
+                return text, kwds
+            elif mimetype_out == "openalea/interface.IImage":
+                return world_object.data, kwds
+            else:
+                return data, kwds
+        else:
+            return None, {}
