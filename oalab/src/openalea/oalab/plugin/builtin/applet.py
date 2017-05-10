@@ -121,7 +121,7 @@ class PkgManagerWidget(AppletPlugin):
         return PackageManagerTreeView
 
 
-@PluginDef
+# @PluginDef
 class MplFigureWidget(AppletPlugin):
 
     name = 'FigureWidget'
@@ -135,6 +135,22 @@ class MplFigureWidget(AppletPlugin):
         return MplFigureWidget
 
 
+@PluginDef
+class MplTabFigureWidget(AppletPlugin):
+
+    name = 'MatplotlibFigures'
+    label = 'Matplotlib Figures'
+    icon = 'matplotlib_simple.png'
+    authors = [jdiener, gbaty, gcerutti]
+
+    def __call__(self):
+        # Load and instantiate graphical component that actually provide feature
+        from openalea.oalab.plot2d.figuretabwidget import MplTabContainerWidget
+        return MplTabContainerWidget
+        # from openalea.oalab.plot2d.figuretabwidget import MplFigureTabWidget
+        # return MplFigureTabWidget
+
+# @PluginDef
 class MplTabWidget(AppletPlugin):
 
     name = 'Plot2d'
