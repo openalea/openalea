@@ -10,7 +10,7 @@ from matplotlib.figure import Figure
 from matplotlib.backend_bases import FigureManagerBase as FigureManagerBase
 from matplotlib.backends.backend_qt4agg import FigureManagerQT as mpl_FigureManagerQT
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg as NavigationToolbar
+from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolbar
 
 
 def new_figure_manager_given_figure(num, figure):
