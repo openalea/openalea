@@ -30,6 +30,7 @@ def launch_lab(plugin_class):
     from openalea.core.path import path as Path
     from openalea.core.service.introspection import label
     from openalea.oalab.utils import qicon
+    import openalea.oalab.service.world
 
     plugin = plugin_class()
     lab_class = plugin()
