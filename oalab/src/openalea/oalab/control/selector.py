@@ -89,7 +89,7 @@ class IntRangeWidgetSelector(object):
             shape = 'hline'
 
         elif shape in ('large', 'hline'):
-            widget = IntRangeSimpleSlider()
+            widget = IntRangeSlider()
         elif shape == 'vline':
             widget = IntRangeSimpleSlider()
             widget.setOrientation(QtCore.Qt.Vertical)

@@ -96,6 +96,8 @@ class FloatSlider(QtGui.QWidget, AbstractFloatWidget):
         self.spinbox.setMinimumHeight(18)
         self.slider.setMinimumHeight(18)
 
+        self.spinbox.setKeyboardTracking(False)
+
         self.slider.floatValueChanged.connect(self.spinbox.setValue)
         self.spinbox.valueChanged.connect(self.slider.setFloatValue)
         # self.slider.floatValueChanged.connect(self.valueChanged)
@@ -250,6 +252,8 @@ class IntSlider(QtGui.QWidget, AbstractIntWidget):
         self.spinbox.setMinimumHeight(18)
         self.slider.setMinimumHeight(18)
 
+        self.spinbox.setKeyboardTracking(False)
+
         self.slider.valueChanged.connect(self.spinbox.setValue)
         self.spinbox.valueChanged.connect(self.slider.setValue)
         self.slider.valueChanged.connect(self.valueChanged)
@@ -332,7 +336,10 @@ class IntRangeSpinBoxes(QtGui.QWidget, AbstractIntRangeWidget):
         AbstractIntRangeWidget.__init__(self)
 
         self.start_spinbox.setMinimumHeight(18)
+        self.start_spinbox.setKeyboardTracking(False)
+
         self.end_spinbox.setMinimumHeight(18)
+        self.eld_spinbox.setKeyboardTracking(False)
 
         self.start_spinbox.valueChanged.connect(self.end_spinbox.setMinimum)
         self.end_spinbox.valueChanged.connect(self.start_spinbox.setMaximum)
