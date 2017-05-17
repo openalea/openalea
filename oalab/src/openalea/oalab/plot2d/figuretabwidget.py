@@ -24,6 +24,8 @@
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.oalab.utils import qicon
 
+from openalea.core.observer import Observed
+
 import matplotlib
 from matplotlib import pyplot
 
@@ -49,8 +51,26 @@ import os
 all_widgets = {}
 figure_containers = []
 
-class MplFigure(Figure):
-    pass
+class MplFigure(Figure, Observed):
+    def __init__(self):
+        Figure.__init__(self)
+        Observed.__init__(self)
+        
+    def connect(self):
+        self.canvas.mpl_connect('pick_event', self.onpick)
+
+    def notify_listeners(self, event=None):
+        super(MplFigure, self).notify_listeners(event)
+
+    def onpick(self,event):
+        artist = event.artist
+
+        ind = event.ind
+
+        if isinstance(artist,matplotlib.collections.PathCollection):
+            paths = [artist.get_offsets()[i] for i in event.ind]
+            axes = artist.get_axes()
+            self.notify_listeners(('data_point_picked', (self, axes, artist.get_offsets()[ind[0]])))
 
 
 class MplCanvas(FigureCanvasQTAgg):
@@ -60,6 +80,7 @@ class MplCanvas(FigureCanvasQTAgg):
     def __init__(self, parent=None):
         fig = MplFigure()
         FigureCanvasQTAgg.__init__(self, fig)
+        fig.connect()
 #         self.figure.add_axobserver(self._on_axes_changed)
 #
 #     def _on_axes_changed(self, *args):
@@ -89,7 +110,7 @@ class FigureManagerQT(FigureManagerBase):
         print 'pylab.plot'
 
 
-class MplFigureTabWidget(QtGui.QFrame):
+class MplFigureTabWidget(QtGui.QFrame, Observed):
     tabCreated = QtCore.Signal(bool)
     
     def __init__(self, canvas, num=None):
@@ -106,6 +127,8 @@ class MplFigureTabWidget(QtGui.QFrame):
         # self.mpl_toolbar = NavigationToolbar2QT(self.canvas, None)
         # self.mpl_toolbar.setStyleSheet("background-color: rgb%s;" % self._default_color)
         # self.mpl_toolbar.hide()
+        # self.canvas.mpl_connect('button_press_event', self.onclick)
+        # self.canvas.mpl_connect('pick_event', self.onpick)
 
         Gcf.figs[num] = self.manager
         all_widgets[num] = self
@@ -119,6 +142,24 @@ class MplFigureTabWidget(QtGui.QFrame):
         self._layout = QtGui.QVBoxLayout(self)
         self._layout.addWidget(self.canvas)
         self._layout.setContentsMargins(1, 1, 1, 1)
+
+
+    # def onclick(self,event):
+    #     print('button=%d, x=%d, y=%d, xdata=%f, ydata=%f' %
+    #           (event.button, event.x, event.y, event.xdata, event.ydata))
+
+    # def onpick(self,event):
+    #     artist = event.artist
+
+    #     ind = event.ind
+    #     print 'Pick :',artist, ind
+
+    #     if isinstance(artist,matplotlib.collections.PathCollection):
+    #         paths = [artist.get_offsets()[i] for i in event.ind]
+    #         print paths
+            
+    #         self.notify_listeners(('data_point_picked', (self, artist.get_offsets()[ind[0]])))
+
 
 
     def show_active(self):
@@ -158,6 +199,8 @@ class MplTabContainerWidget(QtGui.QWidget):
         self.tabs.tabCloseRequested.connect(self.tab_closed)
         self.tabs.currentChanged.connect(self.activate_figure)
 
+        self._tab_toolbars = {}
+
         self.tabs.setFocusPolicy(QtCore.Qt.StrongFocus) 
         self._create_actions()
         self._create_connections()
@@ -166,9 +209,13 @@ class MplTabContainerWidget(QtGui.QWidget):
 
     def _create_actions(self):
         self.action_save_figure = QtGui.QAction(qicon("matplotlib_filesave.png"), 'Save Figure', self)
+        self.action_clear_figure = QtGui.QAction(qicon("matplotlib_clf.png"), 'Clear Figure', self)
+        # self.action_zoom_in = QtGui.QAction(qicon("matplotlib_zoom_in.png"), 'Zoom In', self)
 
     def _create_connections(self):
         self.action_save_figure.triggered.connect(self.save_figure)
+        self.action_clear_figure.triggered.connect(self.clear_figure)
+        # self.action_zoom_in.triggered.connect(self.zoom_in)
 
     def refresh_tab_widgets(self):
         for num in all_widgets.keys():
@@ -181,6 +228,7 @@ class MplTabContainerWidget(QtGui.QWidget):
                 figure_label += " ["+str(num)+"]"
             widget.setToolTip(figure_label)
             tab_num = self.tabs.addTab(widget, figure_label)
+            # self._tab_toolbars[tab_num] = NavigationToolbar2QT(widget.canvas,None)
         self.tabs.setCurrentIndex(tab_num)
 
 
@@ -210,10 +258,16 @@ class MplTabContainerWidget(QtGui.QWidget):
     def toolbars(self):
         toolbar = QtGui.QToolBar("Matplotlib Figures")
         toolbar.addActions([self.action_save_figure])
+        toolbar.addActions([self.action_clear_figure])
+        # toolbar.addActions([self.action_zoom_in])
         return [toolbar]
 
+
+    def global_toolbar_actions(self):
+        return []
+
     def toolbar_actions(self):
-        return [self.action_save_figure]
+        return [self.action_save_figure, self.action_clear_figure]
 
 
     def save_figure(self):
@@ -244,6 +298,21 @@ class MplTabContainerWidget(QtGui.QWidget):
 
             if fname:
                 widget.canvas.figure.savefig(fname)
+
+    def clear_figure(self):
+        widget = self.tabs.currentWidget()
+        if widget:
+            widget.canvas.figure.clf()
+            widget.canvas.draw()
+
+    # def zoom_in(self):
+    #     widget = self.tabs.currentWidget()
+    #     mpl_toolbar = NavigationToolbar2QT(widget.canvas,None)
+    #     zoom_action = [a for a in mpl_toolbar.actions() if a.text()=='Zoom'][0]
+    #     zoom_action.trigger()
+
+
+
 
 
     # def toolbar_actions(self):
