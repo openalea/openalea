@@ -148,7 +148,7 @@ class WorldObjectComboBox(QtGui.QComboBox):
 
     def mousePressEvent(self, e):
         if e.button() == QtCore.Qt.LeftButton:
-            print "Clicked! : ",e.pos()
+            # print "Clicked! : ",e.pos()
             self.dragStartPosition = e.pos()
 
     def mouseReleaseEvent(self, e):
@@ -159,7 +159,7 @@ class WorldObjectComboBox(QtGui.QComboBox):
             return
 
         if (e.pos() - self.dragStartPosition).manhattanLength() > 10:
-            print "Init drag! : openalealab/world_object"
+            # print "Init drag! : openalealab/world_object"
             drag = QtGui.QDrag(self)
 
             object_name = self.currentText()
@@ -413,17 +413,60 @@ class WorldControlPanel(QtGui.QWidget, AbstractListener):
 
         manager_attr_names = [c.name for c in self._manager[object_name].controls()]
         object_attr_names = [a['name'] for a in world_object.attributes]
-        if manager_attr_names != object_attr_names:
+
+
+        world_object.silent = True
+
+        constraints_changed = False
+        modified_constraints = []
+        for a in world_object.attributes:
+            attribute_control = self._manager[object_name].control(a['name'])
+            if attribute_control:
+                attribute_interface = attribute_control.interface
+                if a['constraints']:
+                    # print "Constraints ",a['name']," : ",a['constraints']," / ",attribute_interface.__dict__
+                    for c in a['constraints'].keys():
+                        if attribute_interface.__dict__.has_key(c):
+                        # if not attribute_interface.__dict__.has_key(c) or a['constraints'][c] != attribute_interface.__dict__[c]:
+                            if a['constraints'][c] != attribute_interface.__dict__[c]:
+                                constraints_changed = True
+                                modified_constraints += [a]
+
+        if (manager_attr_names != object_attr_names):
             object_manager.clear_followers()
             object_manager.clear()
             self._fill_manager(object_manager, world_object)
             if self._current == object_name:
                 self._set_manager(object_manager)
                 object_manager.enable_followers()
+
+        elif constraints_changed:
+            # print "Constraints have changed!",object_name,modified_constraints
+            from openalea.core.control.control import Control
+            manager_control_names = [c.name for c in object_manager.controls()]
+            for a in modified_constraints:
+                control = Control(a['name'],
+                    interface=a['interface'],
+                    value=a['value'],
+                    label=a['label'],
+                    constraints=a['constraints'])
+                object_manager._controls[manager_control_names.index(a['name'])] = control
+                control.register_listener(object_manager)
+            
+            object_manager.clear_followers()
+            object_manager.disable_followers()
+            for attribute_name in manager_control_names:
+                object_manager.register_follower(attribute_name, self._attribute_changed(world_object, attribute_name))
+            if self._current == object_name:
+                self._set_manager(object_manager)
+                object_manager.enable_followers()
+
         else:
             for a in world_object.attributes:
                 if a['value'] != self._manager[object_name].control(a['name']).value:
                     self._manager[object_name].control(a['name']).set_value(a['value'])
+
+        world_object.silent = False
 
     def refresh(self):
         if self.world is not None:
