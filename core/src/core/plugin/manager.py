@@ -9,26 +9,25 @@ Plugin Manager
 
 A plugin manager class is used to load plugins, search among it and manage the list of loaded plugins.
 Plugins are loaded from entry points or can be added dynamically to manager.
-  - To *list* plugins, see :meth:`PluginManager.plugin` and :meth:`PluginManager.plugins`.
-  - To *add* plugins dynamically, see :meth:`PluginManager.add_plugin` and :meth:`PluginManager.add_plugins`.
+  - To *list* plugins, see :meth:`PluginManager.plugins`.
+  - To *fetch* plugins, see :meth:`PluginManager.plugin`.
+  - To *add* plugins dynamically, see :meth:`PluginManager.add`.
 
-All plugin are sorted in categories, each group defining a contract.
+All plugin are sorted in groups, each group defining a contract.
 This contract is generally described in an interface class or documentation.
 
 If you want to use third party plugins that doesn't fit perfectly to your contract,
-you can embed its in plugin proxies.
+you can embed them in plugin proxies.
 To do that, you can specify a proxy class for an entire group or for one plugin.
-See :meth:`PluginManager.set_proxy` and "plugin_proxy" parameter in :meth:`PluginManager.add_plugin`.
+See :meth:`PluginManager.set_proxy` and "plugin_proxy" parameter in :meth:`PluginManager.add`.
 
 """
 
 import inspect
-from warnings import warn
 
 from openalea.core import logger
-from openalea.core.manager import GenericManager
+from openalea.core.manager import GenericManager, UnknownItemError
 from openalea.core.plugin.plugin import PluginDef
-from openalea.core.service.introspection import name
 from openalea.core.util import camel_case_to_lower
 
 from pkg_resources import iter_entry_points
@@ -36,16 +35,13 @@ from pkg_resources import iter_entry_points
 __all__ = ['PluginManager']
 
 
-class UnknownItemError(Exception):
-    pass
-
-
 def get_criteria(plugin):
     criteria = {}
     for criterion in dir(plugin):
         if criterion.startswith('_'):
             continue
-        elif criterion in ('implementation', 'name_conversion', 'identifier', 'tags', 'criteria'):
+        elif criterion in ('implementation', 'name_conversion', 'identifier',
+                           'tags', 'criteria'):
             continue
         criteria[criterion] = getattr(plugin, criterion)
     return criteria
@@ -76,6 +72,24 @@ def drop_plugin(name):
 
 
 class PluginManager(GenericManager):
+    """ GenericManager that load plugins using entry_points
+    """
+    def __init__(self, items=None, item_proxy=None, autoload=('entry_points',)):
+        GenericManager.__init__(self, items, item_proxy, autoload)
+
+    def generate_item_id(self, item):
+        return ':'.join([item.__class__.__module__, item.__class__.__name__])
+
+    def discover(self, group=None, item_proxy=None):
+        if "entry_points" in self._autoload:
+            for ep in iter_entry_points(group):
+                self._load_entry_point_plugin(group, ep, item_proxy=item_proxy)
+
+    def instantiate(self, item):
+        if inspect.isclass(item):
+            return item()
+        else:
+            raise NotImplementedError  # TODO: why not crash on loading instead?
 
     @classmethod
     def generate_item_name(cls, item):
@@ -97,23 +111,9 @@ class PluginManager(GenericManager):
         else:
             return name
 
-    def generate_item_id(self, plugin):
-        return ':'.join([plugin.__class__.__module__, plugin.__class__.__name__])
-
-    def discover(self, group=None, item_proxy=None):
-        if "entry_points" in self._autoload:
-            for ep in iter_entry_points(group):
-                self._load_entry_point_plugin(group, ep, item_proxy=item_proxy)
-
-    def instantiate(self, item):
-        if inspect.isclass(item):
-            return item()
-        else:
-            raise NotImplementedError
-
     def patch_item(self, item):
         if not hasattr(item, "name_conversion"):
-            item.name_conversion = 2
+            item.name_conversion = PluginDef.LOWER_CASE
         if not hasattr(item, "criteria"):
             item.__class__.criteria = property(fget=get_criteria)
 
@@ -138,7 +138,6 @@ class PluginManager(GenericManager):
 
     def _add_plugin_from_ep(self, group, ep, plugin_class, plugin_proxy=None):
         logger.debug('%s load plugin %s' % (self.__class__.__name__, ep))
-        from time import time
         if inspect.ismodule(plugin_class):
             plugin_classes = []
             for pl_name in dir(plugin_class):
@@ -159,7 +158,6 @@ class PluginManager(GenericManager):
 
     def _load_entry_point_plugin(self, group, entry_point, item_proxy=None):
         ep = entry_point
-        plugin_class = None
         if self.debug:
             plugin_class = ep.load()
             logger.debug('%s load plugin %s' % (self.__class__.__name__, ep))
@@ -174,7 +172,6 @@ class PluginManager(GenericManager):
 
 
 class SimpleClassPluginProxy(object):
-
     """
     Plugin approach used in OpenAlea is :
     entry_point --(load)--> plugin_class --(instantiate)--> plugin --call--> RealClass

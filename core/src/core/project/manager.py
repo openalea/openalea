@@ -41,7 +41,7 @@ def get_criteria(project):
 
 class ProjectManager(GenericManager):
 
-    def __init__(self, items=None, item_proxy=None, autoload=['entry_points']):
+    def __init__(self, items=None, item_proxy=None, autoload=()):
         # GenericManager
         GenericManager.__init__(self, items, item_proxy, autoload)
         self.default_group = "local"
@@ -62,9 +62,6 @@ class ProjectManager(GenericManager):
 
     def generate_item_id(self, item):
         return str(item.path)
-
-    def load_items(self, group=None):
-        raise NotImplementedError
 
     def instantiate(self, item):
         return item

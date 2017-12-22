@@ -7,11 +7,16 @@ class UnknownItemError(Exception):
 
 
 class GenericManager(Observed, AbstractListener):
+    """ Container used to discover, search, register and load items.
+    """
 
-    def __init__(self, items=None, item_proxy=None, autoload=['entry_points']):
-        """
-        :param plugins: list of plugins you want to add manually
-        :param plugin_proxy: proxy class to use by default
+    def __init__(self, items=None, item_proxy=None, autoload=()):
+        """ Constructor
+
+        args:
+         - items (list of (any, str)): list of (item, group)
+         - item_proxy
+         - autoload (list of str): how to register plugins
         """
         Observed.__init__(self)
         AbstractListener.__init__(self)
@@ -21,6 +26,7 @@ class GenericManager(Observed, AbstractListener):
 
         self._item = {}  # dict group -> item name -> item class or item proxy
         self._item_proxy = {}
+        self._item_loaded = {}
 
         self.debug = False
         self._proxies = {}
@@ -33,20 +39,29 @@ class GenericManager(Observed, AbstractListener):
     # API TO IMPLEMENT
 
     def generate_item_id(self, item):
-        raise NotImplementedError
-
-    def load_items(self, group=None):
+        """ The manager generates unique ids for one execution
+        """
         raise NotImplementedError
 
     def discover(self, group=None):
+        """ Search all possible items in a group
+        and load them.
+
+        args:
+         - group (str): If None use default group
+        """
         raise NotImplementedError
 
     def instantiate(self, item):
+        """ Return an instance of item.
+        """
         raise NotImplementedError
 
     # API COMMON TO ALL MANAGERS
-
-    def generate_item_name(self, item):
+    @classmethod
+    def generate_item_name(cls, item):
+        """ Get item local name or construct one.
+        """
         try:
             name = item.name
         except AttributeError:
@@ -62,6 +77,8 @@ class GenericManager(Observed, AbstractListener):
         self._proxies = {}
 
     def add(self, item, group, item_proxy=None, **kwds):
+        """ Register a new item in the container
+        """
         if item_proxy is None and group in self._item_proxy:
             item_proxy = self._item_proxy[group]
 
@@ -71,15 +88,16 @@ class GenericManager(Observed, AbstractListener):
         item = self.instantiate(item)
 
         self.patch_item(item)
-        self._item.setdefault(group, {})[item.identifier] = item
+        self._item.setdefault(group, {})[item.identifier] = item  # TODO: should use generate_item_id each time
         return item
 
-    def add_items(self, items, group):
-        for group, item in items.iteritems():
+    def add_items(self, items):
+        for item, group in items:
             self.add(item, group)
 
     def item(self, identifier, group=None):
-        """
+        """ Fetch a specific item
+
         item(self, group, identifier)
         -> Plugin or raises UnknownPluginError
         """
@@ -96,6 +114,9 @@ class GenericManager(Observed, AbstractListener):
             raise UnknownItemError("Item %(identifier)s not found in %(group)s" % args)
 
     def items(self, group=None, tags=None, criteria=None, **kwds):
+        """ Load a group of items and return a list of all
+        items in the group
+        """
         if group is None:
             group = self.default_group
         try:
@@ -110,11 +131,11 @@ class GenericManager(Observed, AbstractListener):
 
         valid_items = []
         for pl in items:
-            # Check tags. If one tag dont match, ignore this item
+            # Check tags. If one tag do not match, ignore this item
             if tags is not None and all(tag in pl.tags for tag in tags) is False:
                 continue
 
-            # Check all criteria. If one criteria dont match, ignore item
+            # Check all criteria. If one criteria don't match, ignore item
             if not all(hasattr(pl, criterion) and getattr(pl, criterion)
                        == criteria[criterion] for criterion in criteria):
                 continue
@@ -124,11 +145,14 @@ class GenericManager(Observed, AbstractListener):
         return valid_items
 
     def patch_item(self, item):
+        """ Used internally to associate default attributes
+        to a user defined item.
+        """
         if hasattr(item, '__patched__'):
             return
         item.__patched__ = True
-        if not hasattr(item, "identifier"):
-            item.identifier = self.generate_item_id(item)
+        # if not hasattr(item, "identifier"):  # removed, potential clash
+        item.identifier = self.generate_item_id(item) # TODO: is it really useful?
         if not hasattr(item, "name"):
             item.name = self.generate_item_name(item)
         if not hasattr(item, "label"):
@@ -144,9 +168,9 @@ class GenericManager(Observed, AbstractListener):
         """
         self._item_proxy[group] = item_proxy
 
-    def _sorted_items(self, items):
-        item_dict = {}
-        for item in items:
-            item_dict[item.name] = item
-        sorted_items = [item_dict[name] for name in sorted(item_dict.keys())]
-        return sorted_items
+    # def _sorted_items(self, items):
+    #     item_dict = {}
+    #     for item in items:
+    #         item_dict[item.name] = item
+    #     sorted_items = [item_dict[name] for name in sorted(item_dict.keys())]
+    #     return sorted_items

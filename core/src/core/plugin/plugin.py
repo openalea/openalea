@@ -32,13 +32,12 @@ import pkg_resources
 import site
 import sys
 
-from openalea.core.factory import AbstractFactory
 
-def plugin_name(plugin):
+def plugin_name(plugin):  # TODO: has been moved into managers
     return plugin.name if hasattr(plugin, 'name') else plugin.__name__
 
 
-def discover(group, name=None):
+def discover(group, name=None):  # TODO: has been moved into managers
     """
     Return all Plugin objects from group.
 
@@ -54,7 +53,10 @@ def discover(group, name=None):
     plugin_map = {ep.name:ep for ep in pkg_resources.iter_entry_points(group, name)}
     return plugin_map
 
+
 def iter_groups():
+    """ Find all 'group' (i.e. keys) in entry points.
+    """
     groups = set()
     paths = site.getsitepackages()
     usersite = site.getusersitepackages()
@@ -66,9 +68,10 @@ def iter_groups():
     # scan all entry_point and list different groups
     for path in set(paths):
         distribs = pkg_resources.find_distributions(path)
-        for distrib in distribs :
+        for distrib in distribs:
             for group in distrib.get_entry_map():
                 groups.add(group)
+
     for group in groups:
         yield group
 
@@ -93,6 +96,7 @@ def iter_plugins(group, name=None, debug=False):
                         yield item
                 else:
                     yield ep
+
 
 class IPlugin(object):
     """ Define a Plugin from an entry point. """
@@ -145,14 +149,16 @@ class IPlugin(object):
         Real implementation
         """
 
-class Plugin(object):
-    pass
+
+# class Plugin(object):
+#     pass
+#
 
 class PluginDef(object):
-  UNCHANGED =0
-  DROP_PLUGIN = 1
-  LOWER_CASE = 2
+    UNCHANGED = 0
+    DROP_PLUGIN = 1
+    LOWER_CASE = 2
 
-  def __new__(self, klass):
-    klass.__plugin__ = True
-    return klass
+    def __new__(cls, klass):
+        klass.__plugin__ = True
+        return klass

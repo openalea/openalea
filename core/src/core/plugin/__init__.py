@@ -92,4 +92,5 @@ In all cases, this path is defined in plugin class and you don't need to remembe
 
 """
 
-from .plugin import discover, iter_groups, iter_plugins, Plugin, PluginDef
+# from .plugin import discover, iter_groups, iter_plugins, Plugin, PluginDef
+from .plugin import iter_groups, iter_plugins, PluginDef

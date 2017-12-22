@@ -21,7 +21,6 @@
 __license__ = "CeCILL v2"
 __revision__ = "$Id$"
 
-
 import sys
 from openalea.vpltk import qt
 from openalea.vpltk.qt.QtCore import __version__

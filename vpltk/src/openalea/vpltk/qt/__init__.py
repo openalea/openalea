@@ -52,7 +52,7 @@ except ImportError:
     QT_API_ORDER = ['pyside', 'pyqt', 'pyqt5']
 else:
     QT_API_ORDER = api_opts
-_api_version = int(os.environ.setdefault('QT_API_VERSION', '0'))
+_api_version = int(os.environ.setdefault('QT_API_VERSION', '2'))
 
 
 def setup_apiv2():
