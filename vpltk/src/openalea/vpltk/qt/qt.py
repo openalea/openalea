@@ -14,6 +14,16 @@ except ImportError:
     pass
 
 try:
+    from openalea.vpltk.qt import QtWidgets
+except ImportError:
+    pass
+
+try:
+    from openalea.vpltk.qt import QtPrintSupport
+except ImportError:
+    pass
+
+try:
     from openalea.vpltk.qt import QtOpenGL
 except ImportError:
     pass
