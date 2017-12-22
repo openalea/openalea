@@ -498,7 +498,7 @@ class CompositeNode(Node, DataFlow):
 
         return self.node(self.id_out).set_output(index_key, val)
 
-    def get_eval_algo(self):
+    def get_eval_algo(self, record_provenance=False):
         """ Return the evaluation algo instance """
         try:
             algo_str = self.eval_algo
@@ -511,7 +511,7 @@ class CompositeNode(Node, DataFlow):
             baseimp = "algo.dataflow_evaluation"
             module = __import__(baseimp, globals(), locals(), [algo_str])
             classobj = module.__dict__[algo_str]
-            return classobj(self)
+            return classobj(self, record_provenance=record_provenance)
 
         except Exception, e:
             from  openalea.core.algo.dataflow_evaluation import DefaultEvaluation
@@ -519,7 +519,7 @@ class CompositeNode(Node, DataFlow):
 
         return self.eval_algo
 
-    def eval_as_expression(self, vtx_id=None, step=False):
+    def eval_as_expression(self, vtx_id=None, step=False, record_provenance=False):
         """
         Evaluate a vtx_id
 
@@ -531,17 +531,21 @@ class CompositeNode(Node, DataFlow):
             return
         if(vtx_id != None):
             self.node(vtx_id).modified = True
-        algo = self.get_eval_algo()
+        algo = self.get_eval_algo(record_provenance)
 
         try:
             self.evaluating = True
-            algo.eval(vtx_id,step=step)
+            algo.eval(vtx_id, step=step)
         finally:
             self.evaluating = False
         t1 = time.time()
         if quantify:
             logger.info('Evaluation time: %s'%(t1-t0))
             print 'Evaluation time: %s'%(t1-t0)
+
+        if record_provenance:
+            return algo._prov
+
     # Functions used by the node evaluator
 
     def eval(self, *args, **kwds):

@@ -55,7 +55,7 @@ class ImportDenier(object):
         sys.modules.pop(module_name, None)
         self.__forbidden = module_name
 
-    def find_module(self, mod_name, pth):
+    def find_module(self, mod_name, pth=None):
         if pth:
             return
         if mod_name == self.__forbidden:

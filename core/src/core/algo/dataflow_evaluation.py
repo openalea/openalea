@@ -22,6 +22,8 @@ __revision__ = " $Id$ "
 import sys
 from time import clock
 import traceback as tb
+
+from openalea.provenance.simple_dict import Provenance as RVProvenance
 from openalea.core import ScriptLibrary
 
 from openalea.core.dataflow import SubDataflow
@@ -198,11 +200,17 @@ def cmp_posx(x, y):
 
 class AbstractEvaluation(object):
 
-    def __init__(self, dataflow):
+    def __init__(self, dataflow, record_provenance=False):
         """
         :param dataflow: to be done
         """
         self._dataflow = dataflow
+
+        if record_provenance:
+            self._prov = RVProvenance()
+        else:
+            self._prov = None
+
         if PROVENANCE:
             self.provenance = PrintProvenance(dataflow)
 
@@ -223,9 +231,17 @@ class AbstractEvaluation(object):
         node = self._dataflow.actor(vid)
 
         try:
+            # prov before
+            # print "prov", node.get_caption()
+            if self._prov is not None:
+                self._prov.before_eval(self._dataflow, vid)
             t0 = clock()
             ret = node.eval()
             t1 = clock()
+            # prov after
+            # print "prov", "after"
+            if self._prov is not None:
+                self._prov.after_eval(self._dataflow, vid)
 
             if PROVENANCE:
                 self.provenance.node_exec(vid, node, t0,t1)
@@ -278,9 +294,9 @@ class BrutEvaluation(AbstractEvaluation):
     """ Basic evaluation algorithm """
     __evaluators__.append("BrutEvaluation")
 
-    def __init__(self, dataflow):
+    def __init__(self, dataflow, record_provenance=False):
 
-        AbstractEvaluation.__init__(self, dataflow)
+        AbstractEvaluation.__init__(self, dataflow, record_provenance)
         # a property to specify if the node has already been evaluated
         self._evaluated = set()
 
@@ -387,9 +403,9 @@ class GeneratorEvaluation(AbstractEvaluation):
     """ Evaluation algorithm with generator / priority and selection"""
     __evaluators__.append("GeneratorEvaluation")
 
-    def __init__(self, dataflow):
+    def __init__(self, dataflow, record_provenance=False):
 
-        AbstractEvaluation.__init__(self, dataflow)
+        AbstractEvaluation.__init__(self, dataflow, record_provenance)
         # a property to specify if the node has already been evaluated
         self._evaluated = set()
         self.reeval = False # Flag to force reevaluation (for generator)
@@ -477,8 +493,8 @@ class LambdaEvaluation(PriorityEvaluation):
     """ Evaluation algorithm with support of lambda / priority and selection"""
     __evaluators__.append("LambdaEvaluation")
 
-    def __init__(self, dataflow):
-        PriorityEvaluation.__init__(self, dataflow)
+    def __init__(self, dataflow, record_provenance=False):
+        PriorityEvaluation.__init__(self, dataflow, record_provenance)
 
         self.lambda_value = {} # lambda resolution dictionary
         self._resolution_node = set()
@@ -597,6 +613,12 @@ class LambdaEvaluation(PriorityEvaluation):
         :param context: list a value to assign to lambda variables
         """
         t0 = clock()
+
+        if self._prov is not None:
+            self._prov.workflow = id(self._dataflow)
+            self._prov.init(self._dataflow)
+            self._prov.time_init = t0
+
         if PROVENANCE and (not is_subdataflow):
             self.provenance.workflow_exec()
             self.provenance.start_time()
@@ -615,6 +637,8 @@ class LambdaEvaluation(PriorityEvaluation):
             self.provenance.end_time()
 
         t1 = clock()
+        if self._prov is not None:
+            self._prov.time_end = t1
         if quantify:
             print "Evaluation time: %s"%(t1-t0)
 
