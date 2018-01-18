@@ -64,7 +64,7 @@ setup(
 
     # Namespace packages creation by deploy
     py_modules=['oalab_postinstall'],
-    # namespace_packages = [namespace],
+    namespace_packages=['openalea'],
     # create_namespaces = False,
     zip_safe=False,
 
