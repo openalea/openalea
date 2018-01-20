@@ -1,0 +1,49 @@
+language: python
+
+os:
+  - linux
+  - osx
+
+sudo: required
+
+services:
+  - docker
+
+env:
+ - CONDA_RECIPE=core/conda
+   CONDA_VERSION=2
+
+install:
+  - git clone https://github.com/OpenAlea/travis-ci.git
+  - cd travis-ci
+  - source install.sh
+
+before_script:
+  - source before_script.sh
+
+script:
+  - source script.sh
+  - conda install nose
+  - cd core/test
+  - nosetests --exclude="(test_package.py|test_wralea.py|test_eval.py|test_session.py|test_packagemanager.py|test_persistence.py|test_model.py|test_service_model.py)"
+
+
+after_success:
+  - source after_success.sh
+
+after_failure:
+  - source after_failure.sh
+
+before_deploy:
+  - source before_deploy.sh
+
+deploy:
+  skip_cleanup: true
+  provider: script
+  script: bash deploy_script.sh
+
+after_deploy:
+  - source after_deploy.sh
+
+after_script:
+  - source after_script.sh
