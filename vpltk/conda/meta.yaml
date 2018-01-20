@@ -1,0 +1,26 @@
+package:
+  name: openalea.vpltk
+  version: 2.0.0
+
+source:
+  path: ..
+
+build:
+  preserve_egg_dir: True
+  script: python setup.py install --prefix=$PREFIX
+
+
+requirements:
+  build:
+    - python
+    - setuptools
+    - openalea.deploy
+  run:
+    - python
+    - setuptools
+    - pyqt
+    - ipython == 3.2.3
+
+about:
+  home: http://openalea.gforge.inria.fr/
+  license: Cecill-C License

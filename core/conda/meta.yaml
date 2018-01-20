@@ -17,6 +17,7 @@ requirements:
     - openalea.deploy #==2.0.0
   run:
     - python
+    - openalea.vpltk
 
 test:
   imports:
