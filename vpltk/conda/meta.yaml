@@ -19,7 +19,7 @@ requirements:
     - python
     - setuptools
     - pyqt
-    - ipython == 3.2.3
+    - ipython 3.2.3
 
 about:
   home: http://openalea.gforge.inria.fr/
