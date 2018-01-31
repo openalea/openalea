@@ -20,14 +20,16 @@ import unittest
 
 from openalea.core.service.ipython import interpreter
 from openalea.core.interpreter.python import Interpreter as PythonInterpreter
-from openalea.core.interpreter.ipython import Interpreter as IPythonInterpreter
-
+try:
+    from openalea.core.interpreter.ipython import Interpreter as IPythonInterpreter
+except ImportError:
+    IPythonInterpreter = None
 
 class TestCase(unittest.TestCase):
 
     def setUp(self):
         self.ip = interpreter()
-        self.ipy = IPythonInterpreter()
+        self.ipy = IPythonInterpreter() if IPythonInterpreter else None
         self.py = PythonInterpreter()
 
     def tearDown(self):
@@ -35,7 +37,8 @@ class TestCase(unittest.TestCase):
 
     def _run_all_interpreter(self, test):
         test(self.ip)
-        test(self.ipy)
+        if self.ipy:
+            test(self.ipy)
         test(self.py)
 
     def _run_cell(self, interp):

@@ -406,7 +406,7 @@ class PythonModel(Model):
             return code
 
     def set_code(self, code):
-        from openalea.oalab.model.parse import parse_docstring, get_docstring, extract_functions
+        from openalea.core.model_inout import parse_docstring, get_docstring, extract_functions
         self._initial_code = code
         model, self.inputs_info, self.outputs_info = parse_docstring(code)
         funcs = extract_functions(code)

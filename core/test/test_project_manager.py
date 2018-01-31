@@ -4,7 +4,7 @@ import sys
 from openalea.core.path import path as Path
 from openalea.core.path import tempdir
 from openalea.core.project.manager import ProjectManager
-from openalea.core.project.project import Project
+from openalea.core.project.project import Project, _normpath
 
 from openalea.core.unittest_tools import TestCase, EventTracker
 
@@ -70,7 +70,7 @@ class TestProjectManager(TestCase):
 
     def test_create_project_from_manager(self):
         proj = pm.create('new_temp_project', projectdir=self.tmpdir)
-        assert proj.projectdir == self.tmpdir
+        assert _normpath(proj.projectdir) == _normpath(self.tmpdir), str(proj.projectdir)+' vs '+self.tmpdir
         assert proj.path.name == 'new_temp_project'
 
     def test_discover(self):
@@ -85,7 +85,7 @@ class TestProjectManager(TestCase):
 
         # Check that we discover projects in the right repository (tmpdir)
         for project in pm.items():
-            self.assertEqual(project.projectdir, self.tmpdir)
+            self.assertEqual(_normpath(project.projectdir), _normpath(self.tmpdir))
 
         # Check all directory have been created
         if win:
@@ -130,7 +130,7 @@ class TestProjectManager(TestCase):
         pm.repositories.append(self.tmpdir2)
         pm.discover()
         project = pm.load('p2')
-        assert project.path == self.tmpdir / 'p2'
+        assert _normpath(project.path) == _normpath(self.tmpdir / 'p2')
         project = pm.load('p1')
         assert project.name == 'p1'
         assert isinstance(project, Project)

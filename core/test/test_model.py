@@ -3,7 +3,8 @@ import copy
 from openalea.core.model import Model
 from openalea.core.service.control import clear_controls, control_namespace
 from openalea.core.service.project import create_project
-from openalea.oalab.model.parse import InputObj, OutputObj
+
+from openalea.core.model_inout import InputObj, OutputObj
 
 
 project = create_project('unittest', '/tmp/notwritable')
@@ -260,6 +261,8 @@ def test_clean_ns():
     from openalea.core.model import PythonModel
     from openalea.core.service.ipython import interpreter
     interp = interpreter()
+    interp.user_ns = {}
+
     interp.user_ns['ipython_ns'] = 1
 
     model = PythonModel(name='clean')
@@ -273,7 +276,7 @@ def test_clean_ns():
     for varname in model_varname:
         assert varname in model_local_ns
     for varname in model_varname:
-        assert varname not in interp.user_ns
+        assert varname not in interp.user_ns, str(varname)+', '+str(interp.user_ns)
     assert 'ipython_ns' in interp.user_ns
 
 
