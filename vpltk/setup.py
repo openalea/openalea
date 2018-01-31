@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-__revision__ = "$Id: $"
-
 
 from setuptools import setup, find_packages
 from openalea.deploy.metainfo import read_metainfo

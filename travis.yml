@@ -10,10 +10,10 @@ services:
   - docker
 
 env:
- - CONDA_RECIPE=vpltk/conda
+ - CONDA_RECIPE=core/conda
    CONDA_VERSION=2
 
- - CONDA_RECIPE=core/conda
+ - CONDA_RECIPE=vpltk/conda
    CONDA_VERSION=2
 
 install:

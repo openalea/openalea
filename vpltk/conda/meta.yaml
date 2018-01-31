@@ -1,6 +1,6 @@
 package:
   name: openalea.vpltk
-  version: 2.0.0
+  version: 2.0.1
 
 source:
   path: ..
@@ -18,8 +18,9 @@ requirements:
   run:
     - python
     - setuptools
+    - qt <5
     - pyqt
-    - ipython 3.2.3
+    - qtconsole
 
 about:
   home: http://openalea.gforge.inria.fr/
