@@ -22,7 +22,7 @@ requirements:
 test:
   imports:
     - openalea.core
-test:
+    - openalea.core.all
   requires:
     - nose
   imports:

@@ -20,7 +20,10 @@ requirements:
     - setuptools
     - qt <5
     - pyqt
-    - qtconsole
+
+test:
+  imports:
+    - openalea.vpltk
 
 about:
   home: http://openalea.gforge.inria.fr/
