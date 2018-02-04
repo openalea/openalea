@@ -32,7 +32,7 @@ test:
     - test/*.py
 
   commands:
-    - nosetests -v
+    - nosetests -v -I test_compositenode.py -I test_alias.py -I test_data.py -I test_eval.py -I test_package.py
 
 about:
   home: http://github.com/openalea/core
