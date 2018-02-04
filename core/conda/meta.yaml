@@ -29,7 +29,12 @@ test:
     - openalea.core
   source_files:
     - test/
-    - share/
+    - test/*.py
+    - test/data
+    - test/clonepkg
+    - test/gui
+    - test/pkg
+    - test/tstdistrib
   commands:
     - nosetests -v
 
