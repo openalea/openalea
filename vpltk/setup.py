@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-__revision__ = "$Id: $"
-
 
 from setuptools import setup, find_packages
 from openalea.deploy.metainfo import read_metainfo
@@ -58,8 +56,8 @@ setup(
     package_dir=package_dir,
 
     # Namespace packages creation by deploy
-    # namespace_packages = [namespace],
-    # create_namespaces = False,
+    namespace_packages = [namespace],
+    create_namespaces = False,
     zip_safe=False,
 
     # Dependencies

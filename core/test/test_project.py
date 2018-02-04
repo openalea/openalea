@@ -330,4 +330,5 @@ class TestProject(TestCase):
             os.chdir(old_path)
 
             self.assertNotEqual(p, link_abs)
-            self.assertEqual(p, _normpath(link_abs))
+            self.assertEqual(_normpath(p), _normpath(link_abs))
+

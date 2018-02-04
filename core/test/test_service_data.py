@@ -95,7 +95,7 @@ class TestProject(unittest.TestCase):
         # arrange_data_args is not a public function, please do not use it outside service.data
         from openalea.core.service.data import arrange_data_args
         path1 = get_data('model.py')
-        path2 = 'test.ext'
+        path2 = 'test.ext2'
         self.assertEqual(arrange_data_args(path1, None, None), (path1, 'text/x-python'))
 
         self.assertEqual(arrange_data_args(path2, None, None), (path2, None))
