@@ -9,7 +9,7 @@ source:
 
 build:
   preserve_egg_dir: True
-  number: 0
+  number: 1
   script: python setup.py install --prefix=$PREFIX
 
 requirements:
@@ -22,9 +22,19 @@ requirements:
 test:
   imports:
     - openalea.core
+test:
+  requires:
+    - nose
+  imports:
+    - openalea.core
+  source_files:
+    - test/
+    - share/
+  commands:
+    - nosetests -v
 
 about:
-  home: http://openalea.gforge.inria.fr/
+  home: http://github.com/openalea/core
   license: Cecill-c License
-  summary: OpenAlea Core component platform.
+  summary: OpenAlea Core component and Scientific Workflow platform.
 
