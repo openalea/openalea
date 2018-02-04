@@ -52,7 +52,10 @@ def test_save_datapool():
     try:
         os.remove('test.pic')
     except:
-        os.remove('test.pic.db')
+        try:
+            os.remove('test.pic.db')
+        except:
+            pass
 
 def test_save_workspace():
     pm = PackageManager()
@@ -83,7 +86,10 @@ def test_save_workspace():
     try:
         os.remove('test.pic')
     except:
-        os.remove('test.pic.db')
+        try:
+            os.remove('test.pic.db')
+        except:
+            pass
 
     i = asession.workspaces[0]
     assert type(i) == type(instance)

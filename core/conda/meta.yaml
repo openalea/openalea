@@ -30,11 +30,7 @@ test:
   source_files:
     - test/
     - test/*.py
-    - test/data
-    - test/clonepkg
-    - test/gui
-    - test/pkg
-    - test/tstdistrib
+
   commands:
     - nosetests -v
 
