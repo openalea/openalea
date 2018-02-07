@@ -22,6 +22,8 @@ requirements:
     - openalea.grapheditor
     - qt <5
     - pyqt
+    - ipython-qtconsole
+    - ipython
 
 test:
   imports:
