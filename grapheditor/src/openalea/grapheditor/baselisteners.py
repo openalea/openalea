@@ -21,8 +21,8 @@ __revision__ = " $Id$ "
 
 import types
 import weakref
-import observer
-import interfaces
+import openalea.grapheditor.observer
+import openalea.grapheditor.interfaces
 
 
 
