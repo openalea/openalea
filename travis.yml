@@ -1,4 +1,4 @@
-language: python
+language: cpp
 
 os:
   - linux
@@ -14,6 +14,9 @@ env:
    CONDA_VERSION=2
 
  - CONDA_RECIPE=vpltk/conda
+   CONDA_VERSION=2
+
+ - CONDA_RECIPE=misc/conda
    CONDA_VERSION=2
 
 install:

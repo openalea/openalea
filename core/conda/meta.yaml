@@ -22,11 +22,8 @@ requirements:
 test:
   imports:
     - openalea.core
-    - openalea.core.all
   requires:
     - nose
-  imports:
-    - openalea.core
   source_files:
     - test/
     - test/*.py

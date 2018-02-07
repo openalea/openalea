@@ -8,6 +8,7 @@ source:
 build:
   preserve_egg_dir: True
   script: python setup.py install --prefix=$PREFIX
+  build_number : 1
 
 
 requirements:
@@ -18,8 +19,6 @@ requirements:
   run:
     - python
     - setuptools
-    - qt <5
-    - pyqt
 
 test:
   imports:

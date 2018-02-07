@@ -1,0 +1,39 @@
+package:
+  name: openalea.misc
+  version: 2.0.0
+
+source:
+  path: ..
+
+build:
+  preserve_egg_dir: True
+  script: python setup.py install --prefix=$PREFIX
+
+
+requirements:
+  build:
+    - python
+    - setuptools
+    - openalea.deploy
+  run:
+    - openalea.deploy
+    - sphinx
+    - docutils
+    - openalea.vpltk
+    - path.py
+
+test:
+  requires:
+    - nose
+  imports:
+    - openalea.misc
+  source_files:
+    - test/
+    - test/*.py
+  commands:
+    - nosetests -v -I test_dataflow.py
+
+about:
+  home: http://openalea.gforge.inria.fr/
+  license: Cecill-C License
+  about: Miscellaneous tools for OpenAlea administration.

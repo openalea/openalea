@@ -1,7 +1,7 @@
 """Script to automatically generate epydoc documentation of the openalea and
 vplants modules.
 
-.. warning :: documentation currently moving to sphinx. This module becomes 
+.. warning :: documentation currently moving to sphinx. This module becomes
     deprecated
 
 """
@@ -65,7 +65,7 @@ class GenDoc():
         :param opts: an optparse structure
         """
         # todo : make it robust to look in ./module/src/module or
-        # ./module/src/openalea/module        
+        # ./module/src/openalea/module
         self.parent = os.path.abspath(opts.parent_directory) +'/'
 
         # make it robust with respect to commas, spaces
@@ -114,12 +114,12 @@ class GenDoc():
 
     def getfiles(self):
         """read recursively all python files in a directory and returns a string"""
-        from openalea.core.path import path
+        from path import Path
 
         for module in self.list_module:
             print 'Globbing files in %s.' % module
             module_path = self.getModulePath(module)
-            directory = path(module_path)
+            directory = Path(module_path)
             files_in_this_module = directory.walkfiles('*.py')
             self.files += files_in_this_module
 
@@ -179,7 +179,7 @@ def ParseParameters():
         default=False, help="add extra epydoc options")
 
     (opts, args) = parser.parse_args()
-    #checking 
+    #checking
     if not os.path.isdir(opts.parent_directory):
          raise ValueError, "--parent-directory must be a valid directory"
     if not opts.module or not opts.parent_directory:
