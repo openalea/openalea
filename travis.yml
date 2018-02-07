@@ -16,6 +16,9 @@ env:
  - CONDA_RECIPE=vpltk/conda
    CONDA_VERSION=2
 
+ - CONDA_RECIPE=misc/conda
+   CONDA_VERSION=2
+
 install:
   - git clone https://github.com/OpenAlea/travis-ci.git
   - cd travis-ci
