@@ -1,7 +1,7 @@
 {% set version = "2.0.1" %}
 
 package:
-  name: openalea.oalab
+  name: openalea.visualea
   version: {{ version }}
 
 source:
@@ -9,7 +9,7 @@ source:
 
 build:
   preserve_egg_dir: True
-  number: 1
+  number: 0
   script: python setup.py install --prefix=$PREFIX
 
 requirements:
@@ -20,27 +20,15 @@ requirements:
     - openalea.core
     - openalea.vpltk
     - openalea.grapheditor
-    - openalea.visualea
-    - matplotlib
-    - scipy
-    - numpy
     - qt < 5
     - pyqt
 
 test:
   imports:
-    - openalea.oalab
-  requires:
-    - nose
-  source_files:
-    - test/
-    - test/*.py
-
-  commands:
-    - nosetests -v
+    - openalea.visualea
 
 about:
-  home: http://github.com/openalea/oalab
+  home: http://github.com/openalea/visualea
   license: Cecill-c License
-  summary: OALab package for OpenAlea.
+  summary: OpenAlea visual programming environment.
 

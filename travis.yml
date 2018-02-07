@@ -19,6 +19,15 @@ env:
  - CONDA_RECIPE=misc/conda
    CONDA_VERSION=2
 
+ - CONDA_RECIPE=grapheditor/conda
+   CONDA_VERSION=2
+
+ - CONDA_RECIPE=visualea/conda
+   CONDA_VERSION=2
+
+ - CONDA_RECIPE=oalab/conda
+   CONDA_VERSION=2
+
 install:
   - git clone https://github.com/OpenAlea/travis-ci.git
   - cd travis-ci
