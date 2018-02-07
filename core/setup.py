@@ -4,7 +4,7 @@
 __revision__ = "$Id$"
 
 import os
-from setuptools import setup
+from setuptools import setup, find_packages
 pj = os.path.join
 
 
