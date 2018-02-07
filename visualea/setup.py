@@ -12,8 +12,8 @@ for key,value in metadata.iteritems():
     exec("%s = '%s'" % (key, value))
 
 namespace = 'openalea'
-packages=find_packages('src'),
-package_dir={'': 'src'},
+packages=find_packages('src')
+package_dir={'': 'src'}
 
 setup(
     name=name,
