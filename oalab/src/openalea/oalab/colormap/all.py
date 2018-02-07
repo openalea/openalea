@@ -1,2 +1,2 @@
 
-from openalea.imaege.colormap.colormaps import *
+from openalea.image.colormap.colormaps import *
