@@ -12,7 +12,7 @@ def test_sphinx():
         'sphinx.ext.intersphinx',
         'sphinx.ext.todo',
         'sphinx.ext.coverage',
-        'sphinx.ext.pngmath',
+        'sphinx.ext.imgmath',
         'sphinx.ext.ifconfig',
         'sphinx.ext.inheritance_diagram',
         'sphinx.ext.viewcode',

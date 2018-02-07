@@ -14,34 +14,17 @@ there are a few commands dedicated to multisetup (see --help).
     python multisetup.py --quiet --keep-going install sdist --dist-dir ../dist
 """
 
-__license__ = "Cecill-C"
-__revision__ = " $Id: multisetup.py 3618 2012-06-18 15:58:17Z pradal $"
-
 import sys
 import os
 import re
-from optparse import OptionParser
-from subprocess import call, PIPE, Popen
+from subprocess import PIPE, Popen
 
+from path import Path
 
-try:
-    from path import path
-except:
-    pj = os.path.join
-    sys.path.insert(0, pj('..', 'openalea', 'core', 'src', 'core'))
-    try:
-        from path import path
-    except:
-        from openalea.core.path import path
+from openalea.deploy.console import (color_terminal, nocolor,
+                                     bold, purple, red, green, underline)
 
-try:
-    from openalea.deploy.console import bold, red, green, \
-        color_terminal, nocolor, underline, purple
-except:
-    pj = os.path.join
-    sys.path.insert(0, pj('deploy', 'src', 'openalea', 'deploy'))
-    from console import bold, red, green, \
-        color_terminal, nocolor, underline, purple
+__license__ = "Cecill-C"
 
 """ some remaining examples of setuptools commands:
             'clean': '-a',
@@ -67,10 +50,10 @@ except:
 
 
 class Multisetup(object):
+    """MultiSetup generalises setup to several packages."""
 
     def __init__(self, commands, packages=None, curdir='.', verbose=True):
         """
-
         :param commands: list of user commands or command
         :param packages: list of packages to process
         :param curdir: current directory default is .
@@ -89,7 +72,7 @@ class Multisetup(object):
         >>> Multisetup(["install","--keep-going"], ['deploy', 'visualea'], '.', verbose=True)
         """
         #default
-        self.curdir = path(curdir).abspath()
+        self.curdir = Path(curdir).abspath()
         if isinstance(commands, list):
             self.commands = list(commands)
         elif isinstance(commands, str):
@@ -132,8 +115,8 @@ class Multisetup(object):
     def parse_packages(self):
         """Search and remove package from multisetup command(e.g., --package)
 
-        .. todo:: known issue: python multisetup.py --packages with two 
-            packages will be confuse by following commands. Must be put 
+        .. todo:: known issue: python multisetup.py --packages with two
+            packages will be confuse by following commands. Must be put
             at the end of the command
         """
         if '--packages' in self.commands:
@@ -248,23 +231,8 @@ class Multisetup(object):
             L = len(self.commands)
 
     def run(self, color=True):
-        """Enter in all package defined and Executing 'python setup.py' with
-           user command.
-
-        """
-        import sys
-        import os
+        """Enter in all package defined and Executing 'python setup.py' with user command."""
         if color:
-            try:
-                from openalea.deploy.console import bold, red, green, \
-                    color_terminal, nocolor, underline, purple
-            except:
-                try:
-                    sys.path.insert(0, os.path.join('deploy', 'src', 'openalea', 'deploy'))
-                    from console import bold, red, green, \
-                        color_terminal, nocolor, underline, purple
-                except:
-                    pass
             if not color_terminal():
                 # Windows' poor cmd box doesn't understand ANSI sequences
                 nocolor()
@@ -345,7 +313,3 @@ class Multisetup(object):
             sys.exit()
 
         os.chdir(self.curdir)
-
-
-#if __name__ == "__main__":
-#    mysetup = Multisetup()

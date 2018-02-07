@@ -8,7 +8,7 @@ from tempfile import NamedTemporaryFile
 from ConfigParser import ConfigParser
 from datetime import datetime
 from exceptions import StandardError
-from openalea.core.path import path
+from path import Path
 
 class MetainfoError(StandardError):
   """Class for exceptions raised during metainfo extraction
@@ -41,7 +41,7 @@ def generate_headers(mod, patterns=['*.py', '*.h', '*.c*'], tab='  '):
     rootpath = rootpath[0]
   if not isinstance(rootpath, basestring):
     raise ValueError('`mod` parameter')
-  rootpath = path(rootpath)
+  rootpath = Path(rootpath)
 
   while len(rootpath) > 0 and not str(rootpath.name) == 'src':
     rootpath = rootpath.parent

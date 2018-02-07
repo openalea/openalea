@@ -1,5 +1,4 @@
-"""Sphinx conf.py file that is common to all OpenAlea packages
-
+"""Sphinx conf.py file that is common to all OpenAlea packages.
 
 Based on Sphinx configuration example with the proper extensions for
 OpenAlea documentation.
@@ -21,7 +20,8 @@ OpenAlea documentation.
 # serve to show the default.
 
 
-import sys, os
+import sys
+import os
 import openalea.misc as misc
 
 
@@ -57,7 +57,7 @@ extensions = [
     'sphinx.ext.imgmath',
     'sphinx.ext.ifconfig',
     'sphinx.ext.inheritance_diagram',
-    #'sphinx.ext.mathjax',    
+    #'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
     'numpyext.only_directives',
     'matplotlib.sphinxext.plot_directive',
