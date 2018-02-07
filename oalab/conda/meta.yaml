@@ -24,8 +24,10 @@ requirements:
     - matplotlib
     - scipy
     - numpy
-    - qt < 5
+    - qt <5
     - pyqt
+    - ipython-qtconsole
+    - ipython
 
 test:
   imports:
