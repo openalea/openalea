@@ -1,0 +1,32 @@
+{% set version = "2.0.0" %}
+
+package:
+  name: openalea.deploygui
+  version: {{ version }}
+
+source:
+  path: ..
+
+build:
+  preserve_egg_dir: True
+  number: 0
+  script: python setup.py install
+
+requirements:
+  build:
+    - openalea.deploy
+    - six
+  run:
+    - openalea.deploy
+    - openalea.vpltk
+    - setuptools
+    - pyqt
+    - qt <5
+test:
+  imports:
+    - openalea.deploygui
+
+about:
+  home: http://github.com/openalea/deploygui
+  license: Cecill License
+  summary: OpenAlea.DeployGui is the graphical installer of OpenAlea packages.
