@@ -1,0 +1,43 @@
+{% set version = "2.0.1" %}
+
+package:
+  name: openalea.oalab
+  version: {{ version }}
+
+source:
+  path: ..
+
+build:
+  preserve_egg_dir: True
+  number: 1
+  script: python setup.py install --prefix=$PREFIX
+
+requirements:
+  build:
+    - openalea.deploy
+  run:
+    - openalea.deploy
+    - openalea.core
+    - openalea.vpltk
+    - openalea.grapheditor
+    - openalea.visualea
+    - qt < 5
+    - pyqt
+
+test:
+  imports:
+    - openalea.core
+  requires:
+    - nose
+  source_files:
+    - test/
+    - test/*.py
+
+  commands:
+    - nosetests -v
+
+about:
+  home: http://github.com/openalea/core
+  license: Cecill-c License
+  summary: OpenAlea Core component and Scientific Workflow platform.
+
