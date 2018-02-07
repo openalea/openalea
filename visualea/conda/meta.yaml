@@ -20,7 +20,7 @@ requirements:
     - openalea.core
     - openalea.vpltk
     - openalea.grapheditor
-    - qt < 5
+    - qt <5
     - pyqt
 
 test:
