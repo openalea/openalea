@@ -12,11 +12,8 @@ for key,value in metadata.iteritems():
     exec("%s = '%s'" % (key, value))
 
 namespace = 'openalea'
-pkg_root_dir = 'src'
-pkgs = [ pkg for pkg in find_packages(pkg_root_dir) if namespace not in pkg]
-top_pkgs = [pkg for pkg in pkgs if  len(pkg.split('.')) < 2]
-packages = [ namespace + "." + pkg for pkg in pkgs]
-package_dir = dict( [('',pkg_root_dir)] + [(namespace + "." + pkg, pkg_root_dir + "/" + pkg) for pkg in top_pkgs] )
+packages=find_packages('src')
+package_dir={'': 'src'}
 
 setup(
     name=name,
@@ -51,7 +48,7 @@ setup(
     # Dependencies
     setup_requires = ['openalea.deploy'],
     dependency_links = ['http://openalea.gforge.inria.fr/pi'],
-    install_requires = ['openalea.core', 'openalea.grapheditor'],
+    #install_requires = ['openalea.core', 'openalea.grapheditor'],
 
     )
 

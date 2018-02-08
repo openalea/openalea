@@ -2,7 +2,7 @@
 #
 #       OpenAlea.Visualea: OpenAlea graphical user interface
 #
-#       Copyright 2006-2009 INRIA - CIRAD - INRA
+#       Copyright 2006-2018 INRIA - CIRAD - INRA
 #
 #       File author(s): Daniel Barbeau <daniel.barbeau@sophia.inria.fr>
 #
@@ -15,9 +15,8 @@
 ###############################################################################
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$ "
 
 from openalea.grapheditor.observer import Observed
-from base import GraphStrategyMaker, GraphAdapterBase
-from edgefactory import LinearEdgePath, SplineEdgePath
+from openalea.grapheditor.base import GraphStrategyMaker, GraphAdapterBase
+from openalea.grapheditor.edgefactory import LinearEdgePath, SplineEdgePath
 

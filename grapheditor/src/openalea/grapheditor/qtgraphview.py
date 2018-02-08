@@ -21,8 +21,8 @@ __revision__ = " $Id$ "
 import weakref, types, gc, warnings
 from openalea.vpltk.qt import QtGui, QtCore
 from openalea.vpltk.qt.compat import from_qvariant
-import base, baselisteners, qtutils
-import edgefactory
+from openalea.grapheditor import base, baselisteners, qtutils
+from openalea.grapheditor import edgefactory
 
 from math import sqrt
 

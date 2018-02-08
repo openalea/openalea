@@ -13,12 +13,13 @@
 #       OpenAlea WebSite : http://openalea.gforge.inria.fr
 #
 ###############################################################################
-"""Interfaces for the generic graph view module. The graph view widget
+"""Interfaces for the generic graph view module.
+
+The graph view widget
 won't check for inheritance of the object's it is passed. Instead, it
 will check the interfaces match more or less."""
 
 __license__ = "Cecill-C"
-__revision__ = " $Id$ "
 
 class IInterfaceMetaClass(type):
     """
