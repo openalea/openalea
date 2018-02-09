@@ -1,3 +1,6 @@
 [submodule "core"]
 	path = core
 	url = https://github.com/openalea/core.git
+[submodule "grapheditor"]
+	path = grapheditor
+	url = https://github.com/openalea/grapheditor.git
