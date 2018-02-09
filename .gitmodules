@@ -4,3 +4,6 @@
 [submodule "grapheditor"]
 	path = grapheditor
 	url = https://github.com/openalea/grapheditor.git
+[submodule "vpltk"]
+	path = vpltk
+	url = https://github.com/openalea/vpltk.git
