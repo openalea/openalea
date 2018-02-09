@@ -13,3 +13,6 @@
 [submodule "misc"]
 	path = misc
 	url = https://github.com/openalea/misc.git
+[submodule "oalab"]
+	path = oalab
+	url = https://github.com/openalea/oalab.git
