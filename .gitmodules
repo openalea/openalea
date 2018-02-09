@@ -7,3 +7,6 @@
 [submodule "vpltk"]
 	path = vpltk
 	url = https://github.com/openalea/vpltk.git
+[submodule "visualea"]
+	path = visualea
+	url = https://github.com/openalea/visualea.git
