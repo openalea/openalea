@@ -10,3 +10,6 @@
 [submodule "visualea"]
 	path = visualea
 	url = https://github.com/openalea/visualea.git
+[submodule "misc"]
+	path = misc
+	url = https://github.com/openalea/misc.git
