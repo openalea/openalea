@@ -1,4 +1,0 @@
-* INRIA/CIRAD consortium
-* Christophe Pradal
-* Julien Coste
-* Guillaume Baty

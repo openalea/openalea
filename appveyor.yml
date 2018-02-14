@@ -1,5 +1,5 @@
 platform:
-  #- x86
+  - x86
   - x64
 
 environment:
@@ -21,9 +21,6 @@ environment:
      CONDA_VERSION: 2
 
    - CONDA_RECIPE: oalab\conda
-     CONDA_VERSION: 2
-
-   - CONDA_RECIPE: deploygui\conda
      CONDA_VERSION: 2
 
 install:

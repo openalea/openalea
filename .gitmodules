@@ -1,0 +1,18 @@
+[submodule "core"]
+	path = core
+	url = https://github.com/openalea/core.git
+[submodule "grapheditor"]
+	path = grapheditor
+	url = https://github.com/openalea/grapheditor.git
+[submodule "vpltk"]
+	path = vpltk
+	url = https://github.com/openalea/vpltk.git
+[submodule "visualea"]
+	path = visualea
+	url = https://github.com/openalea/visualea.git
+[submodule "misc"]
+	path = misc
+	url = https://github.com/openalea/misc.git
+[submodule "oalab"]
+	path = oalab
+	url = https://github.com/openalea/oalab.git
