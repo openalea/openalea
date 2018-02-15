@@ -8,12 +8,12 @@
 Official documentation is available at [openalea.github.io](http://openalea.github.io)
 
 ## Install
+To install OpenAlea use conda
 
-To install OpenAleaLab, you need to install these dependencies:
-  - deploy (https://github.com/openalea/deploy)
-  - sconsx (https://github.com/openalea/sconsx)
-  - PyQt4
-  - ipython
+If you want to retrieve the code from git, use git clone.
+Then use this command that will retrieve all the submodules::
+    
+    git submodule update --init --recursive
 
 ## Contribute
 
