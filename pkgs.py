@@ -91,3 +91,20 @@ def update_latest_tag(commit=COMMIT):
             run(["git", "add", str(pkgdir)])
 
 
+def generate_pytest_ini():
+
+    lines = [
+        "[pytest]",
+        "testpaths =",
+    ]
+    for pkg in pkgs:
+        lines.append(f"    packages/{pkg}/test")
+    lines.append("addopts = -ra -q")
+
+    with open("pytest.ini", "w") as f:
+        f.write("\n".join(lines))
+
+
+    print(f"pytest.ini generated")
+    print("\n".join(lines))
+
