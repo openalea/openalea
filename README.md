@@ -1,11 +1,10 @@
-[![Build Status](https://travis-ci.org/openalea/openalea.svg?branch=master)](https://travis-ci.org/openalea/openalea) [![Build status](https://ci.appveyor.com/api/projects/status/303pabu8pa694bwd/branch/master?svg=true)](https://ci.appveyor.com/project/fredboudon/openalea/branch/master)
 
 
-# OpenAlea Lab
+# OpenAlea Release
 
 ## Documentation
 
-Official documentation is available at [openalea.github.io](http://openalea.github.io)
+Official documentation is available at [openalea.github.io](http://openalea.rtfd.io)
 
 ## Install
 To install OpenAlea use conda
@@ -17,5 +16,11 @@ Then use this command that will retrieve all the submodules::
 
 ## Contribute
 
-If you want to contribute to code, please have a look to [github workflow](http://virtualplants.github.io/contribute/devel/git-workflow.html)
+To fetch all the modules, use in pkgs.py
+>>> submodules()
 
+To update to the latest tags
+>>> update_latest_tag()
+
+To also add the latest tag for each package
+>>> update_latest_tag(True)
