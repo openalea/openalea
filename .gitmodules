@@ -1,18 +1,57 @@
-[submodule "core"]
-	path = core
-	url = https://github.com/openalea/core.git
-[submodule "grapheditor"]
-	path = grapheditor
-	url = https://github.com/openalea/grapheditor.git
-[submodule "vpltk"]
-	path = vpltk
-	url = https://github.com/openalea/vpltk.git
-[submodule "visualea"]
-	path = visualea
-	url = https://github.com/openalea/visualea.git
-[submodule "misc"]
-	path = misc
-	url = https://github.com/openalea/misc.git
-[submodule "oalab"]
-	path = oalab
-	url = https://github.com/openalea/oalab.git
+[submodule "packages/core"]
+	path = packages/core
+	url = https://github.com/openalea/core
+[submodule "packages/grapheditor"]
+	path = packages/grapheditor
+	url = https://github.com/openalea/grapheditor
+[submodule "packages/oalab"]
+	path = packages/oalab
+	url = https://github.com/openalea/oalab
+[submodule "packages/visualea"]
+	path = packages/visualea
+	url = https://github.com/openalea/visualea
+[submodule "packages/plantgl"]
+	path = packages/plantgl
+	url = https://github.com/openalea/plantgl
+[submodule "packages/mtg"]
+	path = packages/mtg
+	url = https://github.com/openalea/mtg
+[submodule "packages/lpy"]
+	path = packages/lpy
+	url = https://github.com/openalea/lpy
+[submodule "packages/scipack"]
+	path = packages/scipack
+	url = https://github.com/openalea/scipack
+[submodule "packages/rsml"]
+	path = packages/rsml
+	url = https://github.com/openalea/rsml
+[submodule "packages/oawidgets"]
+	path = packages/oawidgets
+	url = https://github.com/openalea/oawidgets
+[submodule "packages/weberpenn"]
+	path = packages/weberpenn
+	url = https://github.com/openalea/weberpenn
+[submodule "packages/astk"]
+	path = packages/astk
+	url = https://github.com/openalea/astk
+[submodule "packages/caribu"]
+	path = packages/caribu
+	url = https://github.com/openalea/caribu
+[submodule "packages/adel"]
+	path = packages/adel
+	url = https://github.com/openalea/adel
+[submodule "packages/spice"]
+	path = packages/spice
+	url = https://github.com/openalea/spice
+[submodule "packages/hydroroot"]
+	path = packages/hydroroot
+	url = https://github.com/openalea/hydroroot
+[submodule "packages/hydroshoot"]
+	path = packages/hydroshoot
+	url = https://github.com/openalea/hydroshoot
+[submodule "packages/phenomenal"]
+	path = packages/phenomenal
+	url = https://github.com/openalea/phenomenal
+[submodule "packages/pyratp"]
+	path = packages/pyratp
+	url = https://github.com/openalea/pyratp
